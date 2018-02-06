@@ -33,6 +33,7 @@ niepce_LDADD = \
 
 gladefiles = ui/dialogs/preferences.ui \
 	ui/dialogs/importdialog.ui \
+	ui/dialogs/importlibrary.ui \
 	ui/dialogs/editlabels.ui \
 	ui/dialogs/importers/directoryimporterui.ui \
 	ui/dialogs/importers/cameraimporterui.ui \

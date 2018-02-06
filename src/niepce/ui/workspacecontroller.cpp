@@ -151,6 +151,12 @@ void WorkspaceController::action_file_import()
 }
 
 
+void WorkspaceController::action_import_library()
+{
+    auto& window = std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock())->gtkWindow();
+    ui::dialog_import_library(getLibraryClient()->client(), window.gobj());
+}
+
 void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
 {
     DBG_OUT("notification for workspace");
@@ -454,6 +460,10 @@ Gtk::Widget * WorkspaceController::buildWidget()
                          sigc::mem_fun(*this,
                                        &WorkspaceController::action_file_import),
                          section, _("_Import..."), "workspace");
+    fwk::add_menu_action(m_action_group.get(), "ImportLibrary",
+                         sigc::mem_fun(*this,
+                                       &WorkspaceController::action_import_library),
+                         section, _("_Import Library..."), "workspace");
 
     add_btn->set_menu_model(menu);
 

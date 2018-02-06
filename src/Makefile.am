@@ -61,6 +61,7 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_list_store.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/confirm.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/importlibrary.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_nav.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/library_cell_renderer.rs \

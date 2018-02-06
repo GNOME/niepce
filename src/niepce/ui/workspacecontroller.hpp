@@ -1,7 +1,7 @@
 /*
  * niepce - ui/workspacecontroller.h
  *
- * Copyright (C) 2007-2014 Hubert Figuiere
+ * Copyright (C) 2007-2020 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __UI_WORKSPACECONTROLLER_H__
-#define __UI_WORKSPACECONTROLLER_H__
+#pragma once
 
 #include <array>
 
@@ -94,6 +93,7 @@ private:
     void action_delete_folder();
     /** action to import images */
     void action_file_import();
+    void action_import_library();
 
     void on_row_expanded_collapsed(const Gtk::TreeIter& iter,
                                    const Gtk::TreePath& path, bool expanded);
@@ -155,10 +155,7 @@ private:
     std::map<eng::library_id_t, Gtk::TreeIter>   m_keywordsidmap;
 };
 
-
 }
-
-#endif
 /*
   Local Variables:
   mode:c++

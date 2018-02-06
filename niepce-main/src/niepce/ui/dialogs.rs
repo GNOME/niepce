@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/mod.rs
  *
- * Copyright (C) 2017 Hubert Figuière
+ * Copyright (C) 2017-2020 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,4 +18,5 @@
  */
 
 pub mod confirm;
+pub mod importlibrary;
 pub mod requestnewfolder;
