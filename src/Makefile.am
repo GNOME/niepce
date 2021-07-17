@@ -9,6 +9,7 @@ RUST_SOURCES = \
 	@top_srcdir@/Cargo.lock \
 	@top_srcdir@/crates/npc-engine/Cargo.toml \
 	@top_srcdir@/crates/npc-engine/build.rs \
+	@top_srcdir@/crates/npc-engine/src/db.rs \
 	@top_srcdir@/crates/npc-engine/src/db/filebundle.rs \
 	@top_srcdir@/crates/npc-engine/src/db/fsfile.rs \
 	@top_srcdir@/crates/npc-engine/src/db/keyword.rs \
@@ -17,49 +18,48 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-engine/src/db/libfolder.rs \
 	@top_srcdir@/crates/npc-engine/src/db/libmetadata.rs \
 	@top_srcdir@/crates/npc-engine/src/db/library.rs \
-	@top_srcdir@/crates/npc-engine/src/db/mod.rs \
 	@top_srcdir@/crates/npc-engine/src/db/props.rs \
+	@top_srcdir@/crates/npc-engine/src/library.rs \
 	@top_srcdir@/crates/npc-engine/src/library/commands.rs \
-	@top_srcdir@/crates/npc-engine/src/library/mod.rs \
 	@top_srcdir@/crates/npc-engine/src/library/notification.rs \
-	@top_srcdir@/crates/npc-engine/src/library/queriedcontent.rs \
 	@top_srcdir@/crates/npc-engine/src/library/op.rs \
+	@top_srcdir@/crates/npc-engine/src/library/queriedcontent.rs \
 	@top_srcdir@/crates/npc-engine/src/library/thumbnail_cache.rs \
 	@top_srcdir@/crates/npc-engine/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/Cargo.toml \
 	@top_srcdir@/crates/npc-fwk/build.rs \
 	@top_srcdir@/crates/npc-fwk/src/capi.rs \
+	@top_srcdir@/crates/npc-fwk/src/base.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/date.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/debug.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/fractions.rs \
-	@top_srcdir@/crates/npc-fwk/src/base/mod.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertybag.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertyvalue.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/rgbcolour.rs \
 	@top_srcdir@/crates/npc-fwk/src/lib.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/gdk_utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/mimetype.rs \
-	@top_srcdir@/crates/npc-fwk/src/toolkit/mod.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/thumbnail.rs \
-	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/mod.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/rating_label.rs \
+	@top_srcdir@/crates/npc-fwk/src/utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils/exempi.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils/exiv2.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils/files.rs \
-	@top_srcdir@/crates/npc-fwk/src/utils/mod.rs \
 	@top_srcdir@/niepce-main/build.rs \
 	@top_srcdir@/niepce-main/Cargo.toml \
 	@top_srcdir@/niepce-main/examples/widget-test.rs \
 	@top_srcdir@/niepce-main/src/lib.rs \
+	@top_srcdir@/niepce-main/src/libraryclient.rs \
 	@top_srcdir@/niepce-main/src/libraryclient/clientimpl.rs \
 	@top_srcdir@/niepce-main/src/libraryclient/clientinterface.rs \
-	@top_srcdir@/niepce-main/src/libraryclient/mod.rs \
-	@top_srcdir@/niepce-main/src/niepce/mod.rs \
-	@top_srcdir@/niepce-main/src/niepce/ui/mod.rs \
+	@top_srcdir@/niepce-main/src/niepce.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/imagetoolbar.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_grid_view.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_list_store.rs \
-	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/mod.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/dialogs.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/confirm.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_nav.rs \
