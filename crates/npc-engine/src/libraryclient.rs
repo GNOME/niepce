@@ -28,11 +28,12 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use self::clientimpl::ClientImpl;
-use npc_engine::db::library::Managed;
-use npc_engine::db::props::NiepceProperties as Np;
-use npc_engine::db::LibraryId;
-use npc_engine::db::{NiepceProperties, NiepcePropertyIdx};
-use npc_engine::library::notification::{LcChannel, LibNotification};
+use crate::db::filebundle::FileBundle;
+use crate::db::library::Managed;
+use crate::db::props::NiepceProperties as Np;
+use crate::db::LibraryId;
+use crate::db::{NiepceProperties, NiepcePropertyIdx};
+use crate::library::notification::{LcChannel, LibNotification};
 use npc_fwk::base::PropertyValue;
 use npc_fwk::toolkit::PortableChannel;
 use npc_fwk::utils::files::FileList;
@@ -168,6 +169,10 @@ impl ClientInterfaceSync for LibraryClient {
 
     fn create_folder_sync(&mut self, name: String, path: Option<String>) -> LibraryId {
         self.pimpl.create_folder_sync(name, path)
+    }
+
+    fn add_bundle_sync(&mut self, bundle: &FileBundle, folder: LibraryId) -> LibraryId {
+        self.pimpl.add_bundle_sync(bundle, folder)
     }
 }
 

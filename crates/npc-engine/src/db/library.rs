@@ -131,10 +131,15 @@ impl Library {
             sender,
         };
 
-        if let Ok(conn) = rusqlite::Connection::open(dbpath) {
-            lib.dbconn = Some(conn);
-            lib.inited = lib.init().is_ok();
-        }
+        match rusqlite::Connection::open(dbpath) {
+            Ok(conn) => {
+                lib.dbconn = Some(conn);
+                lib.inited = lib.init().is_ok();
+            }
+            Err(err) => {
+                err_out!("open failed {:?}", err);
+            }
+        };
 
         lib
     }

@@ -132,12 +132,27 @@ pub fn cmd_import_files(lib: &Library, folder: &str, files: &[PathBuf], manage: 
     }
 }
 
+pub fn cmd_add_bundle(lib: &Library, bundle: &FileBundle, folder: LibraryId) -> LibraryId {
+    match lib.add_bundle(folder, bundle, library::Managed::NO) {
+        Ok(id) => {
+            if lib.notify(LibNotification::AddedFiles).is_err() {
+                err_out!("Failed to notify AddedFiles");
+            }
+            id
+        }
+        Err(err) => {
+            err_out_line!("Bundle creation failed {:?}", err);
+            -1
+        }
+    }
+}
+
 pub fn cmd_create_folder(lib: &Library, name: &str, path: Option<String>) -> LibraryId {
     match lib.add_folder(name, path) {
         Ok(lf) => {
             let id = lf.id();
             if lib.notify(LibNotification::AddedFolder(lf)).is_err() {
-                err_out!("Failed to notifu AddedFolder");
+                err_out!("Failed to notify AddedFolder");
             }
             id
         }

@@ -36,7 +36,6 @@ extern crate once_cell;
 extern crate npc_fwk;
 extern crate npc_engine;
 
-pub mod libraryclient;
 pub mod niepce;
 
 use std::sync::Once;

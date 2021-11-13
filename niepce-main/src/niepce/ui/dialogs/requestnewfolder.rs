@@ -22,7 +22,7 @@ use glib::translate::*;
 use gtk::prelude::*;
 use gtk::{Dialog, Entry, Label};
 
-use crate::libraryclient::{ClientInterface, LibraryClientWrapper};
+use npc_engine::libraryclient::{ClientInterface, LibraryClientWrapper};
 
 /// # Safety
 /// Use raw pointers.

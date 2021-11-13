@@ -182,6 +182,10 @@ impl XmpMeta {
         P: AsRef<Path> + AsRef<OsStr>,
     {
         let file: &Path = p.as_ref();
+        if !file.exists() {
+            err_out!("File {:?} doesn't exist", &file);
+            return None;
+        }
         let mut meta: Option<XmpMeta> = None;
         if !sidecar_only {
             if let Ok(xmpfile) =

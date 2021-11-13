@@ -25,7 +25,7 @@ use npc_fwk::toolkit::mimetype::{IsRaw, MType};
 use npc_fwk::MimeType;
 
 /// Sidecar.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Sidecar {
     Invalid,
     /// Sidecar for Live image (MOV file form iPhone)
@@ -64,6 +64,7 @@ impl From<(i32, PathBuf)> for Sidecar {
 
 /// FileBundle is a set of physical files group as one item.
 /// Mostly sticking to the DCF specification.
+#[derive(Clone)]
 pub struct FileBundle {
     /// Type of bundle
     bundle_type: FileType,

@@ -4,22 +4,34 @@ version = "0.1.0"
 authors = ["Hubert Figuière <hub@figuiere.net>"]
 edition = "2018"
 build = "build.rs"
+description = "The Niepce engine. Internal crate."
+license = "GPL-3.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 async-channel = "1.6.1"
-chrono = "0.4.0"
+clap = { version = "2.33.3", optional = true }
+chrono = "0.4.19"
 exempi = { version = "2.6.0", git = "https://github.com/hfiguiere/exempi-rs.git", rev="99e8ba5" }
+gettext-rs = "0.3.0"
 gdk-pixbuf-sys = "*"
 gdk-pixbuf = "*"
 glib = "*"
 lazy_static = "^1.2.0"
 libc = "0.2.39"
 maplit = "1.0.2"
-rusqlite = { version = "0.25.3", features = ["functions"] }
+lrcat-extractor = { version = "0.1.0" }
+rusqlite = { version = "0.26.1", features = ["functions"] }
 
 npc-fwk = { path = "../npc-fwk" }
 
 [build-dependencies]
 cbindgen = { version = "0.19.0" }
+
+[[bin]]
+name = "importlr"
+required-features = ["binaries"]
+
+[features]
+binaries = ["clap"]

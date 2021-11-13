@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/mimetype.rs
  *
- * Copyright (C) 2017-2020 Hubert Figuière
+ * Copyright (C) 2017-2021 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-use gio::prelude::*;
 
 use std::convert::AsRef;
 use std::path::Path;
@@ -57,16 +55,16 @@ pub fn guess_type(gmtype: &str) -> MType {
 /// Guess the type from a file
 fn guess_type_for_file<P: AsRef<Path>>(p: P) -> MType {
     let path = p.as_ref();
-    let file = gio::File::for_path(path);
-    let cancellable: Option<&gio::Cancellable> = None;
-    if let Ok(fileinfo) = file.query_info("*", gio::FileQueryInfoFlags::NONE, cancellable) {
-        if let Some(gmtype) = fileinfo.content_type() {
-            let t = guess_type(&gmtype);
+    let guess = mime_guess::from_path(path);
+    if !guess.is_empty() {
+        if let Some(mime) = guess.first_raw() {
+            let t = guess_type(mime);
             if t != MType::None {
                 return t;
             }
         }
     }
+
     if let Some(ext) = path.extension() {
         match ext.to_str() {
             Some("xmp") => return MType::Xmp,

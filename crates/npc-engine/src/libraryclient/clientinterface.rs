@@ -19,9 +19,10 @@
 
 use std::path::PathBuf;
 
-use npc_engine::db::library::Managed;
-use npc_engine::db::props::NiepceProperties as Np;
-use npc_engine::db::LibraryId;
+use crate::db::filebundle::FileBundle;
+use crate::db::library::Managed;
+use crate::db::props::NiepceProperties as Np;
+use crate::db::LibraryId;
 use npc_fwk::base::PropertyValue;
 
 /// Client interface.
@@ -72,4 +73,7 @@ pub trait ClientInterfaceSync {
 
     /// Create a folder. Return the id of the newly created folder.
     fn create_folder_sync(&mut self, name: String, path: Option<String>) -> LibraryId;
+
+    /// Add a bundle.
+    fn add_bundle_sync(&mut self, bundle: &FileBundle, folder: LibraryId) -> LibraryId;
 }

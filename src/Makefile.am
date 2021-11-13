@@ -19,12 +19,18 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-engine/src/db/libmetadata.rs \
 	@top_srcdir@/crates/npc-engine/src/db/library.rs \
 	@top_srcdir@/crates/npc-engine/src/db/props.rs \
+	@top_srcdir@/crates/npc-engine/src/importer.rs \
+	@top_srcdir@/crates/npc-engine/src/importer/libraryimporter.rs \
+	@top_srcdir@/crates/npc-engine/src/importer/lrimporter.rs \
 	@top_srcdir@/crates/npc-engine/src/library.rs \
 	@top_srcdir@/crates/npc-engine/src/library/commands.rs \
 	@top_srcdir@/crates/npc-engine/src/library/notification.rs \
 	@top_srcdir@/crates/npc-engine/src/library/op.rs \
 	@top_srcdir@/crates/npc-engine/src/library/queriedcontent.rs \
 	@top_srcdir@/crates/npc-engine/src/library/thumbnail_cache.rs \
+	@top_srcdir@/crates/npc-engine/src/libraryclient.rs \
+	@top_srcdir@/crates/npc-engine/src/libraryclient/clientimpl.rs \
+	@top_srcdir@/crates/npc-engine/src/libraryclient/clientinterface.rs \
 	@top_srcdir@/crates/npc-engine/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/Cargo.toml \
 	@top_srcdir@/crates/npc-fwk/build.rs \
@@ -51,9 +57,6 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/Cargo.toml \
 	@top_srcdir@/niepce-main/examples/widget-test.rs \
 	@top_srcdir@/niepce-main/src/lib.rs \
-	@top_srcdir@/niepce-main/src/libraryclient.rs \
-	@top_srcdir@/niepce-main/src/libraryclient/clientimpl.rs \
-	@top_srcdir@/niepce-main/src/libraryclient/clientinterface.rs \
 	@top_srcdir@/niepce-main/src/niepce.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/imagetoolbar.rs \

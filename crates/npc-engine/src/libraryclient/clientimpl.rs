@@ -25,12 +25,13 @@ use std::sync::mpsc;
 use std::thread;
 
 use super::clientinterface::{ClientInterface, ClientInterfaceSync};
-use npc_engine::db::library::Managed;
-use npc_engine::db::props::NiepceProperties as Np;
-use npc_engine::db::{Library, LibraryId};
-use npc_engine::library::commands;
-use npc_engine::library::notification::LibNotification;
-use npc_engine::library::op::Op;
+use crate::db::filebundle::FileBundle;
+use crate::db::library::Managed;
+use crate::db::props::NiepceProperties as Np;
+use crate::db::{Library, LibraryId};
+use crate::library::commands;
+use crate::library::notification::LibNotification;
+use crate::library::op::Op;
 use npc_fwk::base::PropertyValue;
 
 pub struct ClientImpl {
@@ -224,6 +225,19 @@ impl ClientInterfaceSync for ClientImpl {
 
         self.schedule_op(move |lib| {
             tx.send(commands::cmd_create_folder(&lib, &name, path.clone()))
+                .unwrap();
+            true
+        });
+
+        rx.recv().unwrap()
+    }
+
+    fn add_bundle_sync(&mut self, bundle: &FileBundle, folder: LibraryId) -> LibraryId {
+        let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
+
+        let bundle = bundle.clone();
+        self.schedule_op(move |lib| {
+            tx.send(commands::cmd_add_bundle(&lib, &bundle, folder))
                 .unwrap();
             true
         });

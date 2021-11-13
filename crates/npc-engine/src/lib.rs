@@ -25,7 +25,9 @@ extern crate glib;
 extern crate npc_fwk;
 
 pub mod db;
+pub mod importer;
 pub mod library;
+pub mod libraryclient;
 
 use std::ptr;
 

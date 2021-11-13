@@ -28,7 +28,7 @@ use gtk::prelude::*;
 use gtk::{Assistant, Builder};
 use gtk_sys;
 
-use crate::libraryclient::LibraryClientWrapper;
+use npc_engine::libraryclient::LibraryClientWrapper;
 
 #[no_mangle]
 pub extern "C" fn dialog_import_library(

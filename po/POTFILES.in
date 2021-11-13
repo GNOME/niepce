@@ -1,6 +1,7 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 camerawire/src/cwwindow.cpp
+crates/npc-engine/src/importer/lrimporter.rs
 data/org.gnome.Niepce.appdata.xml.in
 data/org.gnome.Niepce.desktop.in
 niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs
