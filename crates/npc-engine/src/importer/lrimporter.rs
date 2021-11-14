@@ -72,31 +72,35 @@ impl LrImporter {
     fn import_library_file(&mut self, file: &LibraryFile, libclient: &mut LibraryClient) {
         if let Some(folder_id) = self.folder_map.get(&file.folder) {
             let main_file = format!("{}/{}.{}", &folder_id.1, &file.basename, &file.extension);
-            let mut xmp_file: Option<String> = None;
-            let mut jpeg_file: Option<String> = None;
-            let sidecar_exts = file.sidecar_extensions.split(",");
-            sidecar_exts.for_each(|ext| {
-                if ext.to_lowercase() == "xmp" {
-                    xmp_file = Some(format!("{}/{}.{}", &folder_id.1, &file.basename, &ext));
-                } else {
-                    if jpeg_file.is_some() {
+            let mut bundle = FileBundle::new();
+            dbg_out!("Adding {}", &main_file);
+            bundle.add(main_file);
+
+            if !file.sidecar_extensions.is_empty() {
+                let mut xmp_file: Option<String> = None;
+                let mut jpeg_file: Option<String> = None;
+                let sidecar_exts = file.sidecar_extensions.split(",");
+                sidecar_exts.for_each(|ext| {
+                    if !ext.is_empty() {
+                        return;
+                    }
+                    if ext.to_lowercase() == "xmp" {
+                        xmp_file = Some(format!("{}/{}.{}", &folder_id.1, &file.basename, &ext));
+                    } else if jpeg_file.is_some() {
                         err_out!("JPEG sidecar already set: {}", ext);
                     } else {
                         jpeg_file = Some(format!("{}/{}.{}", &folder_id.1, &file.basename, &ext));
                     }
-                }
-            });
+                });
 
-            let mut bundle = FileBundle::new();
-            dbg_out!("Adding {}", &main_file);
-            bundle.add(main_file);
-            if let Some(jpeg_file) = jpeg_file {
-                dbg_out!("Adding JPEG {}", &jpeg_file);
-                bundle.add(jpeg_file);
-            }
-            if let Some(xmp_file) = xmp_file {
-                dbg_out!("Adding XMP {}", &xmp_file);
-                bundle.add(xmp_file);
+                if let Some(jpeg_file) = jpeg_file {
+                    dbg_out!("Adding JPEG {}", &jpeg_file);
+                    bundle.add(jpeg_file);
+                }
+                if let Some(xmp_file) = xmp_file {
+                    dbg_out!("Adding XMP {}", &xmp_file);
+                    bundle.add(xmp_file);
+                }
             }
             let nid = libclient.add_bundle_sync(&bundle, folder_id.0);
             self.file_map.insert(file.id(), nid);
