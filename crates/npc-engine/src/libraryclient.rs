@@ -116,6 +116,16 @@ impl ClientInterface for LibraryClient {
         self.pimpl.delete_folder(id);
     }
 
+    /// get all the albums
+    fn get_all_albums(&mut self) {
+        self.pimpl.get_all_albums();
+    }
+
+    /// Create an album (async)
+    fn create_album(&mut self, name: String, parent: LibraryId) {
+        self.pimpl.create_album(name, parent);
+    }
+
     fn request_metadata(&mut self, id: LibraryId) {
         self.pimpl.request_metadata(id);
     }
@@ -169,6 +179,10 @@ impl ClientInterfaceSync for LibraryClient {
 
     fn create_folder_sync(&mut self, name: String, path: Option<String>) -> LibraryId {
         self.pimpl.create_folder_sync(name, path)
+    }
+
+    fn create_album_sync(&mut self, name: String, parent: LibraryId) -> LibraryId {
+        self.pimpl.create_album_sync(name, parent)
     }
 
     fn add_bundle_sync(&mut self, bundle: &FileBundle, folder: LibraryId) -> LibraryId {

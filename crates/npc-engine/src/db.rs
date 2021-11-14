@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+pub mod album;
 pub mod filebundle;
 pub mod fsfile;
 pub mod keyword;
@@ -29,7 +30,15 @@ pub mod props;
 
 pub type LibraryId = i64;
 
+#[derive(Copy, Clone, PartialEq)]
+pub enum SortOrder {
+    NoSorting,
+    Ascending,
+    Descending,
+}
+
 // flatten namespace a bit.
+pub use self::album::Album;
 pub use self::keyword::Keyword;
 pub use self::label::Label;
 pub use self::libfolder::LibFolder;

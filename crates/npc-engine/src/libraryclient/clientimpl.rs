@@ -125,7 +125,7 @@ impl ClientInterface for ClientImpl {
         self.schedule_op(move |lib| commands::cmd_count_keyword(&lib, id));
     }
 
-    /// get all the folder
+    /// get all the folders
     fn get_all_folders(&mut self) {
         self.schedule_op(move |lib| commands::cmd_list_all_folders(&lib));
     }
@@ -144,6 +144,16 @@ impl ClientInterface for ClientImpl {
 
     fn delete_folder(&mut self, id: LibraryId) {
         self.schedule_op(move |lib| commands::cmd_delete_folder(&lib, id));
+    }
+
+    /// get all the albums
+    fn get_all_albums(&mut self) {
+        self.schedule_op(move |lib| commands::cmd_list_all_albums(&lib));
+    }
+
+    /// Create an album (async)
+    fn create_album(&mut self, name: String, parent: LibraryId) {
+        self.schedule_op(move |lib| commands::cmd_create_album(&lib, &name, parent) != 0);
     }
 
     fn request_metadata(&mut self, file_id: LibraryId) {
@@ -225,6 +235,19 @@ impl ClientInterfaceSync for ClientImpl {
 
         self.schedule_op(move |lib| {
             tx.send(commands::cmd_create_folder(&lib, &name, path.clone()))
+                .unwrap();
+            true
+        });
+
+        rx.recv().unwrap()
+    }
+
+    fn create_album_sync(&mut self, name: String, parent: LibraryId) -> LibraryId {
+        // can't use futures::sync::oneshot
+        let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
+
+        self.schedule_op(move |lib| {
+            tx.send(commands::cmd_create_album(&lib, &name, parent))
                 .unwrap();
             true
         });

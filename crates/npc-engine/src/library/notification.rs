@@ -19,7 +19,7 @@
 
 use super::queriedcontent::QueriedContent;
 use crate::db::libfile::FileStatus;
-use crate::db::{Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
+use crate::db::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
 use npc_fwk::base::PropertyIndex;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail;
@@ -38,6 +38,7 @@ pub enum NotificationType {
     ADDED_FILES,
     ADDED_KEYWORD,
     ADDED_LABEL,
+    ADDED_ALBUM,
     FOLDER_CONTENT_QUERIED,
     FOLDER_DELETED,
     FOLDER_COUNTED,
@@ -121,6 +122,7 @@ pub enum LibNotification {
     AddedFolder(LibFolder),
     AddedKeyword(Keyword),
     AddedLabel(Label),
+    AddedAlbum(Album),
     FileMoved(FileMove),
     FileStatusChanged(FileStatusChange),
     FolderContentQueried(QueriedContent),
@@ -175,6 +177,7 @@ pub unsafe extern "C" fn engine_library_notification_type(
         Some(&LibNotification::AddedFolder(_)) => NotificationType::ADDED_FOLDER,
         Some(&LibNotification::AddedKeyword(_)) => NotificationType::ADDED_KEYWORD,
         Some(&LibNotification::AddedLabel(_)) => NotificationType::ADDED_LABEL,
+        Some(&LibNotification::AddedAlbum(_)) => NotificationType::ADDED_ALBUM,
         Some(&LibNotification::FileMoved(_)) => NotificationType::FILE_MOVED,
         Some(&LibNotification::FileStatusChanged(_)) => NotificationType::FILE_STATUS_CHANGED,
         Some(&LibNotification::FolderContentQueried(_)) => NotificationType::FOLDER_CONTENT_QUERIED,

@@ -178,6 +178,41 @@ pub fn cmd_delete_folder(lib: &Library, id: LibraryId) -> bool {
     }
 }
 
+pub fn cmd_list_all_albums(lib: &Library) -> bool {
+    match lib.get_all_albums() {
+        Ok(albums) => {
+            // XXX change this notification type
+            for album in albums {
+                if let Err(err) = lib.notify(LibNotification::AddedAlbum(album)) {
+                    err_out!("Failed to notify AddedAlbum {:?}", err);
+                    return false;
+                }
+            }
+            true
+        }
+        Err(err) => {
+            err_out_line!("get_all_albums failed: {:?}", err);
+            false
+        }
+    }
+}
+
+pub fn cmd_create_album(lib: &Library, name: &str, parent: LibraryId) -> LibraryId {
+    match lib.add_album(name, parent) {
+        Ok(album) => {
+            let id = album.id();
+            if lib.notify(LibNotification::AddedAlbum(album)).is_err() {
+                err_out!("Failed to notify AddedAlbum");
+            }
+            id
+        }
+        Err(err) => {
+            err_out_line!("Album creation failed {:?}", err);
+            -1
+        }
+    }
+}
+
 pub fn cmd_request_metadata(lib: &Library, file_id: LibraryId) -> bool {
     match lib.get_metadata(file_id) {
         Ok(lm) => {

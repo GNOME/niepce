@@ -10,6 +10,7 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-engine/Cargo.toml \
 	@top_srcdir@/crates/npc-engine/build.rs \
 	@top_srcdir@/crates/npc-engine/src/db.rs \
+	@top_srcdir@/crates/npc-engine/src/db/album.rs \
 	@top_srcdir@/crates/npc-engine/src/db/filebundle.rs \
 	@top_srcdir@/crates/npc-engine/src/db/fsfile.rs \
 	@top_srcdir@/crates/npc-engine/src/db/keyword.rs \

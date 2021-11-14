@@ -29,6 +29,7 @@ use rusqlite::{functions::FunctionFlags, params};
 use super::props::NiepceProperties as Np;
 use super::props::NiepcePropertyIdx::*;
 use super::{FromDb, LibraryId};
+use crate::db::album::Album;
 use crate::db::filebundle::{FileBundle, Sidecar};
 use crate::db::keyword::Keyword;
 use crate::db::label::Label;
@@ -48,7 +49,7 @@ pub enum Managed {
     YES = 1,
 }
 
-const DB_SCHEMA_VERSION: i32 = 9;
+const DB_SCHEMA_VERSION: i32 = 10;
 const DATABASENAME: &str = "niepcelibrary.db";
 
 #[derive(Debug)]
@@ -258,6 +259,22 @@ impl Library {
             )
             .unwrap();
 
+            // version 10
+            conn.execute(
+                "CREATE TABLE albums (id INTEGER PRIMARY KEY,\
+                 name TEXT, \
+                 parent_id INTEGER)",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "CREATE TABLE albuming (\
+                 file_id INTEGER, album_id INTEGER)",
+                [],
+            )
+            .unwrap();
+            //
+
             conn.execute(
                 "CREATE TABLE files (id INTEGER PRIMARY KEY,\
                  main_file INTEGER, name TEXT, parent_id INTEGER,\
@@ -295,6 +312,11 @@ impl Library {
                  BEGIN \
                  DELETE FROM sidecars WHERE file_id = old.id; \
                  DELETE FROM keywording WHERE file_id = old.id; \
+                 DELETE FROM albuming WHERE file_id = old.id; \
+                 END; \
+                 CREATE TRIGGER album_delete_trigger AFTER DELETE ON albums \
+                 BEGIN \
+                 DELETE FROM albuming WHERE album_id = old.id; \
                  END; \
                  COMMIT;",
             )
@@ -601,6 +623,41 @@ impl Library {
                 Err(err) => Err(Error::from(err)),
                 Ok(None) => Err(Error::NotFound),
             };
+        }
+        Err(Error::NoSqlDb)
+    }
+
+    /// Add an album to the library
+    pub fn add_album(&self, name: &str, parent: LibraryId) -> Result<Album> {
+        if let Some(ref conn) = self.dbconn {
+            let c = conn.execute(
+                "INSERT INTO albums (name,parent_id) VALUES(?1, ?2)",
+                params![name, parent],
+            )?;
+            if c != 1 {
+                return Err(Error::InvalidResult);
+            }
+            let id = conn.last_insert_rowid();
+            return Ok(Album::new(id, &name, parent));
+        }
+        Err(Error::NoSqlDb)
+    }
+
+    /// Get all the albums.
+    pub fn get_all_albums(&self) -> Result<Vec<Album>> {
+        if let Some(ref conn) = self.dbconn {
+            let sql = format!(
+                "SELECT {} FROM {}",
+                Album::read_db_columns(),
+                Album::read_db_tables()
+            );
+            let mut stmt = conn.prepare(&sql)?;
+            let mut rows = stmt.query([])?;
+            let mut albums: Vec<Album> = vec![];
+            while let Ok(Some(row)) = rows.next() {
+                albums.push(Album::read_from(&row)?);
+            }
+            return Ok(albums);
         }
         Err(Error::NoSqlDb)
     }

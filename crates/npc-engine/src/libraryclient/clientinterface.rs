@@ -39,6 +39,9 @@ pub trait ClientInterface {
     fn create_folder(&mut self, name: String, path: Option<String>);
     fn delete_folder(&mut self, id: LibraryId);
 
+    fn get_all_albums(&mut self);
+    fn create_album(&mut self, name: String, parent: LibraryId);
+
     fn request_metadata(&mut self, id: LibraryId);
     /// set the metadata
     fn set_metadata(&mut self, id: LibraryId, meta: Np, value: &PropertyValue);
@@ -73,6 +76,9 @@ pub trait ClientInterfaceSync {
 
     /// Create a folder. Return the id of the newly created folder.
     fn create_folder_sync(&mut self, name: String, path: Option<String>) -> LibraryId;
+
+    /// Create an album. Return the id to the newly created album.
+    fn create_album_sync(&mut self, name: String, parent: LibraryId) -> LibraryId;
 
     /// Add a bundle.
     fn add_bundle_sync(&mut self, bundle: &FileBundle, folder: LibraryId) -> LibraryId;

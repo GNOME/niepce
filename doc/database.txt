@@ -77,6 +77,15 @@ labels          id             The ID of the label
                 name           The name of the label (user displayed)
 		color          The RGB8 color in "R G B" format.
 
+Albums contain files
+
+albums          id             The ID of the album
+                name           The name of the album (user displayed)
+                parent_id      The parent album. -1 means on the top
+
+albuming        file_id        The file in the album.
+                album_id       The album the file is in.
+
 The update queue for XMP. When an XMP is changed in the DB it is
 queued in the table.
 

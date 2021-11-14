@@ -22,7 +22,9 @@ use gettextrs::gettext;
 use std::collections::BTreeMap;
 use std::path::Path;
 
-use lrcat::{Catalog, CatalogVersion, Folder, Keyword, KeywordTree, LibraryFile, LrId, LrObject};
+use lrcat::{
+    Catalog, CatalogVersion, Collection, Folder, Keyword, KeywordTree, LibraryFile, LrId, LrObject,
+};
 
 use super::libraryimporter::LibraryImporter;
 use crate::db::filebundle::FileBundle;
@@ -67,6 +69,12 @@ impl LrImporter {
             .unwrap_or_else(|| gettext("Untitled"));
         let nid = libclient.create_folder_sync(folder_name, Some(path.into()));
         self.folder_map.insert(folder.id(), (nid, path.into()));
+    }
+
+    fn import_collection(&mut self, collection: &Collection, libclient: &mut LibraryClient) {
+        let parent = self.collection_map.get(&collection.parent).unwrap_or(&-1);
+        let nid = libclient.create_album_sync(collection.name.clone(), *parent);
+        self.collection_map.insert(collection.id(), nid);
     }
 
     fn import_library_file(&mut self, file: &LibraryFile, libclient: &mut LibraryClient) {
@@ -144,7 +152,8 @@ impl LibraryImporter for LrImporter {
         let collections = catalog.load_collections();
         collections.iter().for_each(|collection| {
             if !collection.system_only {
-                dbg_out!("Found collection {}", collection.name);
+                dbg_out!("Found collection {}", &collection.name);
+                self.import_collection(&collection, libclient);
             }
         });
 
