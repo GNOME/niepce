@@ -1,5 +1,4 @@
 use clap::{App, Arg};
-use gettextrs::*;
 use std::path::PathBuf;
 
 use npc_engine::importer::LibraryImporter;
@@ -7,10 +6,6 @@ use npc_engine::importer::LrImporter;
 use npc_engine::libraryclient::LibraryClient;
 
 fn main() {
-    setlocale(LocaleCategory::LcAll, "");
-    bind_textdomain_codeset("importlr", "UTF-8");
-    textdomain("importlr");
-
     npc_fwk::init();
 
     let matches = App::new("LrImporter")
