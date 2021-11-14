@@ -30,7 +30,6 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-engine/src/library/queriedcontent.rs \
 	@top_srcdir@/crates/npc-engine/src/library/thumbnail_cache.rs \
 	@top_srcdir@/crates/npc-engine/src/libraryclient.rs \
-	@top_srcdir@/crates/npc-engine/src/libraryclient/clientimpl.rs \
 	@top_srcdir@/crates/npc-engine/src/libraryclient/clientinterface.rs \
 	@top_srcdir@/crates/npc-engine/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/Cargo.toml \
