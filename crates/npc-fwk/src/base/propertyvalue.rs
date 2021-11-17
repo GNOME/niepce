@@ -31,6 +31,18 @@ pub enum PropertyValue {
     Date(Date),
 }
 
+impl From<i32> for PropertyValue {
+    fn from(value: i32) -> PropertyValue {
+        Self::Int(value)
+    }
+}
+
+impl From<&str> for PropertyValue {
+    fn from(value: &str) -> PropertyValue {
+        Self::String(value.into())
+    }
+}
+
 unsafe impl Send for PropertyValue {}
 
 /// Create a new String %PropertyValue from a C string

@@ -21,6 +21,12 @@ use std::collections::BTreeMap;
 
 use crate::base::propertyvalue::PropertyValue;
 
+/// A container for type properties whose order of addition
+/// is kept
+///
+/// Insertion and lookup are same as for BTreeMap.
+/// Removal is as long as lookup in a vector: O(n).
+#[derive(Clone)]
 pub struct PropertyBag<Index> {
     pub bag: Vec<Index>,
     pub map: BTreeMap<Index, PropertyValue>,
@@ -46,6 +52,10 @@ impl<Index: Ord + Copy> PropertyBag<Index> {
 
     pub fn len(&self) -> usize {
         self.bag.len()
+    }
+
+    pub fn get(&self, key: &Index) -> Option<&PropertyValue> {
+        self.map.get(key)
     }
 
     pub fn set_value(&mut self, key: Index, value: PropertyValue) -> bool {
