@@ -38,6 +38,7 @@ use crate::db::{NiepceProperties, NiepcePropertyIdx};
 use crate::library::commands;
 use crate::library::notification::{LcChannel, LibNotification};
 use crate::library::op::Op;
+use crate::NiepcePropertyBag;
 use npc_fwk::base::PropertyValue;
 use npc_fwk::toolkit::PortableChannel;
 use npc_fwk::utils::files::FileList;
@@ -198,6 +199,11 @@ impl ClientInterface for LibraryClient {
         self.schedule_op(move |lib| commands::cmd_create_album(&lib, &name, parent) != 0);
     }
 
+    /// Add an image to an album.
+    fn add_to_album(&mut self, image_id: LibraryId, album_id: LibraryId) {
+        self.schedule_op(move |lib| commands::cmd_add_to_album(&lib, image_id, album_id));
+    }
+
     fn request_metadata(&mut self, file_id: LibraryId) {
         self.schedule_op(move |lib| commands::cmd_request_metadata(&lib, file_id));
     }
@@ -207,6 +213,11 @@ impl ClientInterface for LibraryClient {
         let value2 = value.clone();
         self.schedule_op(move |lib| commands::cmd_set_metadata(&lib, file_id, meta, &value2));
     }
+    fn set_image_properties(&mut self, image_id: LibraryId, props: &NiepcePropertyBag) {
+        let props = props.clone();
+        self.schedule_op(move |lib| commands::cmd_set_image_properties(&lib, image_id, &props));
+    }
+
     fn write_metadata(&mut self, file_id: LibraryId) {
         self.schedule_op(move |lib| commands::cmd_write_metadata(&lib, file_id));
     }

@@ -26,8 +26,6 @@ use std::result;
 use chrono::Utc;
 use rusqlite::{functions::FunctionFlags, params};
 
-use super::props::NiepceProperties as Np;
-use super::props::NiepcePropertyIdx::*;
 use super::{FromDb, LibraryId};
 use crate::db::album::Album;
 use crate::db::filebundle::{FileBundle, Sidecar};
@@ -39,6 +37,9 @@ use crate::db::libfolder;
 use crate::db::libfolder::LibFolder;
 use crate::db::libmetadata::LibMetadata;
 use crate::library::notification::LibNotification;
+use crate::NiepceProperties as Np;
+use crate::NiepcePropertyBag;
+use crate::NiepcePropertyIdx::*;
 use npc_fwk::toolkit;
 use npc_fwk::PropertyValue;
 
@@ -54,6 +55,7 @@ const DATABASENAME: &str = "niepcelibrary.db";
 
 #[derive(Debug)]
 pub enum Error {
+    Unimplemented,
     NotFound,
     NoSqlDb,
     IncorrectDbVersion,
@@ -662,6 +664,21 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
+    /// Add an image to an album.
+    pub fn add_to_album(&self, image_id: LibraryId, album_id: LibraryId) -> Result<()> {
+        if let Some(ref conn) = self.dbconn {
+            let c = conn.execute(
+                "INSERT INTO albuming (file_id, album_id) VALUES(?1, ?2)",
+                params![image_id, album_id],
+            )?;
+            if c != 1 {
+                return Err(Error::InvalidResult);
+            }
+            return Ok(());
+        }
+        Err(Error::NoSqlDb)
+    }
+
     pub fn add_fs_file<P: AsRef<Path>>(&self, f: P) -> Result<LibraryId> {
         if let Some(ref conn) = self.dbconn {
             let file = f.as_ref().to_string_lossy();
@@ -936,6 +953,24 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
+    /// Set properties for an image.
+    pub fn set_image_properties(
+        &self,
+        image_id: LibraryId,
+        props: &NiepcePropertyBag,
+    ) -> Result<()> {
+        if let Some(ref conn) = self.dbconn {
+            if let Some(PropertyValue::String(xmp)) = props.get(&Np::Index(NpNiepceXmpPacket)) {
+                conn.execute(
+                    "UPDATE files SET xmp=?1 WHERE id=?2;",
+                    params![xmp, image_id],
+                )?;
+            }
+            return Ok(());
+        }
+        Err(Error::NoSqlDb)
+    }
+
     fn set_internal_metadata(&self, file_id: LibraryId, column: &str, value: i32) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let c = conn.execute(
@@ -968,7 +1003,6 @@ impl Library {
     }
 
     pub fn set_metadata(&self, file_id: LibraryId, meta: Np, value: &PropertyValue) -> Result<()> {
-        #[allow(non_upper_case_globals)]
         match meta {
             Np::Index(NpXmpRatingProp)
             | Np::Index(NpXmpLabelProp)
@@ -1201,6 +1235,9 @@ impl Library {
 #[cfg(test)]
 mod test {
     use crate::db::filebundle::FileBundle;
+    use crate::NiepceProperties as Np;
+    use crate::NiepcePropertyBag;
+    use crate::NiepcePropertyIdx as NpI;
 
     use super::{Library, Managed};
 
@@ -1293,11 +1330,21 @@ mod test {
 
         let bundle_id = lib.add_bundle(folder_added.id(), &bundle, Managed::NO);
         assert!(bundle_id.is_ok());
-        assert!(bundle_id.ok().unwrap() > 0);
+        assert!(bundle_id.unwrap() > 0);
     }
+
+    const XMP_PACKET: &str =
+        "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Exempi + XMP Core 5.1.2\"> \
+ <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> \
+ </rdf:RDF> \
+</x:xmpmeta>";
 
     #[test]
     fn file_bundle_import() {
+        use npc_fwk::utils::exempi::XmpMeta;
+
+        exempi::init();
+
         let lib = Library::new_in_memory();
 
         assert!(lib.is_ok());
@@ -1320,6 +1367,28 @@ mod test {
 
         let bundle_id = lib.add_bundle(folder_added.id(), &bundle, Managed::NO);
         assert!(bundle_id.is_ok());
-        assert!(bundle_id.ok().unwrap() > 0);
+        let bundle_id = bundle_id.unwrap();
+        assert!(bundle_id > 0);
+
+        // Test setting properties
+
+        let mut props = NiepcePropertyBag::new();
+        props.set_value(Np::Index(NpI::NpNiepceXmpPacket), XMP_PACKET.into());
+        // one of the problem with XMP packet serialisation is that the version
+        // of the XMP SDK is written in the header so we can do comparisons
+        // byte by byte
+        let original_xmp_packet =
+            exempi::Xmp::from_buffer(XMP_PACKET.as_bytes()).expect("XMP packet created");
+        let original_xmp_packet = XmpMeta::new_with_xmp(original_xmp_packet);
+        let result = lib.set_image_properties(bundle_id, &props);
+        result.expect("Setting the XMP works");
+
+        let result = lib.get_metadata(bundle_id);
+        let metadata = result.expect("Have retrieved metadata");
+        let xmp_packet = metadata.serialize_inline();
+        assert_eq!(
+            xmp_packet.as_str(),
+            original_xmp_packet.serialize_inline().as_str()
+        );
     }
 }

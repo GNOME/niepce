@@ -23,15 +23,19 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use lrcat::{
-    Catalog, CatalogVersion, Collection, Folder, Keyword, KeywordTree, LibraryFile, LrId, LrObject,
+    Catalog, CatalogVersion, Collection, Folder, Image, Keyword, KeywordTree, LibraryFile, LrId,
+    LrObject,
 };
 
 use super::libraryimporter::LibraryImporter;
 use crate::db::filebundle::FileBundle;
+use crate::db::props::NiepceProperties as Np;
+use crate::db::props::NiepcePropertyIdx as NpI;
 use crate::db::LibraryId;
-use crate::libraryclient::{ClientInterfaceSync, LibraryClient};
+use crate::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryClient};
+use crate::NiepcePropertyBag;
 
-/// Library importer for Lightroom
+/// Library importer for Lightroom™
 pub struct LrImporter {
     /// map keyword LrId to LibraryId
     folder_map: BTreeMap<LrId, (LibraryId, String)>,
@@ -41,6 +45,10 @@ pub struct LrImporter {
     collection_map: BTreeMap<LrId, LibraryId>,
     /// map files LrId to file LibraryId
     file_map: BTreeMap<LrId, LibraryId>,
+    /// map image LrId to file LibraryId
+    ///
+    /// XXX longer term is to have an image table.
+    image_map: BTreeMap<LrId, LibraryId>,
 }
 
 impl LrImporter {
@@ -71,10 +79,52 @@ impl LrImporter {
         self.folder_map.insert(folder.id(), (nid, path.into()));
     }
 
-    fn import_collection(&mut self, collection: &Collection, libclient: &mut LibraryClient) {
+    fn import_collection(
+        &mut self,
+        collection: &Collection,
+        images: Option<&Vec<LrId>>,
+        libclient: &mut LibraryClient,
+    ) {
         let parent = self.collection_map.get(&collection.parent).unwrap_or(&-1);
         let nid = libclient.create_album_sync(collection.name.clone(), *parent);
         self.collection_map.insert(collection.id(), nid);
+
+        if let Some(images) = images {
+            dbg_out!("Has images");
+            images.iter().for_each(|id| {
+                self.image_map.get(&id).map(|npc_image_id| {
+                    dbg_out!("adding {} to album {}", npc_image_id, nid);
+                    libclient.add_to_album(*npc_image_id, nid);
+                });
+            });
+        }
+    }
+
+    fn populate_bundle(file: &LibraryFile, folder_path: &str, bundle: &mut FileBundle) {
+        let mut xmp_file: Option<String> = None;
+        let mut jpeg_file: Option<String> = None;
+        let sidecar_exts = file.sidecar_extensions.split(",");
+        sidecar_exts.for_each(|ext| {
+            if !ext.is_empty() {
+                return;
+            }
+            if ext.to_lowercase() == "xmp" {
+                xmp_file = Some(format!("{}/{}.{}", &folder_path, &file.basename, &ext));
+            } else if jpeg_file.is_some() {
+                err_out!("JPEG sidecar already set: {}", ext);
+            } else {
+                jpeg_file = Some(format!("{}/{}.{}", &folder_path, &file.basename, &ext));
+            }
+        });
+
+        if let Some(jpeg_file) = jpeg_file {
+            dbg_out!("Adding JPEG {}", &jpeg_file);
+            bundle.add(jpeg_file);
+        }
+        if let Some(xmp_file) = xmp_file {
+            dbg_out!("Adding XMP {}", &xmp_file);
+            bundle.add(xmp_file);
+        }
     }
 
     fn import_library_file(&mut self, file: &LibraryFile, libclient: &mut LibraryClient) {
@@ -85,33 +135,26 @@ impl LrImporter {
             bundle.add(main_file);
 
             if !file.sidecar_extensions.is_empty() {
-                let mut xmp_file: Option<String> = None;
-                let mut jpeg_file: Option<String> = None;
-                let sidecar_exts = file.sidecar_extensions.split(",");
-                sidecar_exts.for_each(|ext| {
-                    if !ext.is_empty() {
-                        return;
-                    }
-                    if ext.to_lowercase() == "xmp" {
-                        xmp_file = Some(format!("{}/{}.{}", &folder_id.1, &file.basename, &ext));
-                    } else if jpeg_file.is_some() {
-                        err_out!("JPEG sidecar already set: {}", ext);
-                    } else {
-                        jpeg_file = Some(format!("{}/{}.{}", &folder_id.1, &file.basename, &ext));
-                    }
-                });
-
-                if let Some(jpeg_file) = jpeg_file {
-                    dbg_out!("Adding JPEG {}", &jpeg_file);
-                    bundle.add(jpeg_file);
-                }
-                if let Some(xmp_file) = xmp_file {
-                    dbg_out!("Adding XMP {}", &xmp_file);
-                    bundle.add(xmp_file);
-                }
+                Self::populate_bundle(file, &folder_id.1, &mut bundle);
             }
+
             let nid = libclient.add_bundle_sync(&bundle, folder_id.0);
             self.file_map.insert(file.id(), nid);
+        }
+    }
+
+    fn import_image(&mut self, image: &Image, libclient: &mut LibraryClient) {
+        let root_file = image.root_file;
+        if let Some(file_id) = self.file_map.get(&root_file) {
+            let mut metadata = NiepcePropertyBag::new();
+            metadata.set_value(
+                Np::Index(NpI::NpTiffOrientationProp),
+                image.exif_orientation().into(),
+            );
+            metadata.set_value(Np::Index(NpI::NpNiepceFlagProp), (image.pick as i32).into());
+            metadata.set_value(Np::Index(NpI::NpNiepceXmpPacket), image.xmp.as_str().into());
+            libclient.set_image_properties(*file_id, &metadata);
+            self.image_map.insert(image.id(), *file_id);
         }
     }
 }
@@ -123,6 +166,7 @@ impl LibraryImporter for LrImporter {
             keyword_map: BTreeMap::new(),
             collection_map: BTreeMap::new(),
             file_map: BTreeMap::new(),
+            image_map: BTreeMap::new(),
         }
     }
 
@@ -149,18 +193,30 @@ impl LibraryImporter for LrImporter {
         let keywords = catalog.load_keywords();
         self.import_keyword(root_keyword_id, libclient, keywords, &keywordtree);
 
-        let collections = catalog.load_collections();
-        collections.iter().for_each(|collection| {
-            if !collection.system_only {
-                dbg_out!("Found collection {}", &collection.name);
-                self.import_collection(&collection, libclient);
-            }
-        });
-
         let library_files = catalog.load_library_files();
         library_files.iter().for_each(|library_file| {
             self.import_library_file(library_file, libclient);
         });
+
+        let images = catalog.load_images();
+        images.iter().for_each(|image| {
+            self.import_image(image, libclient);
+        });
+
+        catalog.load_collections();
+        let collections = catalog.collections();
+        collections.iter().for_each(|collection| {
+            if !collection.system_only {
+                dbg_out!("Found collection {}", &collection.name);
+                let images = catalog.images_for_collection(collection.id()).ok();
+                dbg_out!(
+                    "Found {} images in collection",
+                    images.as_ref().map(Vec::len).unwrap_or(0)
+                );
+                self.import_collection(&collection, images.as_ref(), libclient);
+            }
+        });
+
         true
     }
 

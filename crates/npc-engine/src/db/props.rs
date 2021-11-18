@@ -35,6 +35,8 @@ pub enum NiepcePropertyIdx {
     NpIptcDescriptionProp,
     NpIptcKeywordsProp,
     NpNiepceFlagProp,
+    /// The XMP Packet
+    NpNiepceXmpPacket,
 }
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[allow(unused_parens)]

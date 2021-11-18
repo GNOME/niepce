@@ -30,6 +30,7 @@ use crate::db::library;
 use crate::db::library::{Library, Managed};
 use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
+use crate::NiepcePropertyBag;
 use npc_fwk::PropertyValue;
 
 pub fn cmd_list_all_keywords(lib: &Library) -> bool {
@@ -213,6 +214,30 @@ pub fn cmd_create_album(lib: &Library, name: &str, parent: LibraryId) -> Library
     }
 }
 
+/// Command to add an image to an album.
+pub fn cmd_add_to_album(lib: &Library, image_id: LibraryId, album_id: LibraryId) -> bool {
+    match lib.add_to_album(image_id, album_id) {
+        Ok(_) => {
+            if lib
+                .notify(LibNotification::AddedToAlbum((image_id, album_id)))
+                .is_err()
+            {
+                err_out!("Failed to notify AddedToAlbum");
+            }
+            true
+        }
+        Err(err) => {
+            err_out_line!(
+                "Adding image {} to album {} failed {:?}",
+                image_id,
+                album_id,
+                err
+            );
+            false
+        }
+    }
+}
+
 pub fn cmd_request_metadata(lib: &Library, file_id: LibraryId) -> bool {
     match lib.get_metadata(file_id) {
         Ok(lm) => {
@@ -228,6 +253,24 @@ pub fn cmd_request_metadata(lib: &Library, file_id: LibraryId) -> bool {
         }
         Err(err) => {
             err_out_line!("Get metadata failed {:?}", err);
+            false
+        }
+    }
+}
+
+/// Command to set image properties.
+pub fn cmd_set_image_properties(
+    lib: &Library,
+    image_id: LibraryId,
+    props: &NiepcePropertyBag,
+) -> bool {
+    match lib.set_image_properties(image_id, props) {
+        Ok(_) => {
+            // XXX set the image properties.
+            true
+        }
+        Err(err) => {
+            err_out_line!("Setting image metadata failed {:?}", err);
             false
         }
     }

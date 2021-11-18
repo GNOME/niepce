@@ -21,7 +21,7 @@ glib = "*"
 lazy_static = "^1.2.0"
 libc = "0.2.39"
 maplit = "1.0.2"
-lrcat-extractor = { version = "0.1.0" }
+lrcat-extractor = { version = "0.2.0" }
 rusqlite = { version = "0.26.1", features = ["functions"] }
 
 npc-fwk = { path = "../npc-fwk" }

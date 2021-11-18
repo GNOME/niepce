@@ -23,6 +23,7 @@ use crate::db::filebundle::FileBundle;
 use crate::db::library::Managed;
 use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
+use crate::NiepcePropertyBag;
 use npc_fwk::base::PropertyValue;
 
 /// Client interface.
@@ -39,12 +40,18 @@ pub trait ClientInterface {
     fn create_folder(&mut self, name: String, path: Option<String>);
     fn delete_folder(&mut self, id: LibraryId);
 
+    /// get all the albums
     fn get_all_albums(&mut self);
+    /// Create an album (async)
     fn create_album(&mut self, name: String, parent: LibraryId);
+    /// Add an image to an album.
+    fn add_to_album(&mut self, image_id: LibraryId, album_id: LibraryId);
 
     fn request_metadata(&mut self, id: LibraryId);
     /// set the metadata
     fn set_metadata(&mut self, id: LibraryId, meta: Np, value: &PropertyValue);
+    /// set some properties for an image.
+    fn set_image_properties(&mut self, id: LibraryId, props: &NiepcePropertyBag);
     fn write_metadata(&mut self, id: LibraryId);
 
     fn move_file_to_folder(&mut self, file_id: LibraryId, from: LibraryId, to: LibraryId);
