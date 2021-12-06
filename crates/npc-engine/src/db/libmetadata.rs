@@ -29,11 +29,16 @@ use npc_fwk::{xmp_date_from, PropertyBag, PropertySet, PropertyValue, XmpMeta};
 
 #[derive(Clone)]
 pub struct LibMetadata {
-    xmp: XmpMeta,
+    /// The XmpMeta block
+    xmp_meta: XmpMeta,
+    /// Library ID this is associated to.
     id: LibraryId,
+    /// List of sidecards
     pub sidecars: Vec<String>,
     pub file_type: FileType,
+    /// name to be displayed
     pub name: String,
+    /// Folder name for display
     pub folder: String,
 }
 
@@ -52,7 +57,7 @@ fn property_index_to_xmp(meta: Np) -> Option<IndexToXmp> {
 impl LibMetadata {
     pub fn new(id: LibraryId) -> LibMetadata {
         LibMetadata {
-            xmp: XmpMeta::new(),
+            xmp_meta: XmpMeta::new(),
             id,
             sidecars: vec![],
             file_type: FileType::Unknown,
@@ -61,9 +66,10 @@ impl LibMetadata {
         }
     }
 
-    pub fn new_with_xmp(id: LibraryId, xmp: XmpMeta) -> LibMetadata {
+    /// Create a LibMetadata with an XmpMeta.
+    pub fn new_with_xmp(id: LibraryId, xmp_meta: XmpMeta) -> LibMetadata {
         LibMetadata {
-            xmp,
+            xmp_meta,
             id,
             sidecars: vec![],
             file_type: FileType::Unknown,
@@ -73,19 +79,20 @@ impl LibMetadata {
     }
 
     pub fn serialize_inline(&self) -> String {
-        self.xmp.serialize_inline()
+        self.xmp_meta.serialize_inline()
     }
 
     fn get_metadata(&self, meta: Np) -> Option<PropertyValue> {
         let index_to_xmp = property_index_to_xmp(meta)?;
 
-        let mut prop_flags = exempi::PropFlags::default();
-        let mut xmp_result =
-            self.xmp
-                .xmp
-                .get_property(&index_to_xmp.ns, &index_to_xmp.property, &mut prop_flags);
-        if xmp_result.is_ok() && prop_flags.contains(exempi::PropFlags::ARRAY_IS_ALTTEXT) {
-            if let Ok((_, value)) = self.xmp.xmp.get_localized_text(
+        let mut prop_flags = exempi2::PropFlags::default();
+        let mut xmp_result = self.xmp_meta.xmp.get_property(
+            &index_to_xmp.ns,
+            &index_to_xmp.property,
+            &mut prop_flags,
+        );
+        if xmp_result.is_ok() && prop_flags.contains(exempi2::PropFlags::ARRAY_IS_ALTTEXT) {
+            if let Ok((_, value)) = self.xmp_meta.xmp.get_localized_text(
                 &index_to_xmp.ns,
                 &index_to_xmp.property,
                 "",
@@ -95,36 +102,42 @@ impl LibMetadata {
                 xmp_result = Ok(value);
             }
         }
-        Some(PropertyValue::String(String::from(
-            xmp_result.ok()?.to_str(),
-        )))
+        Some(PropertyValue::String(String::from(&xmp_result.ok()?)))
     }
 
     pub fn set_metadata(&mut self, meta: Np, value: &PropertyValue) -> bool {
         if let Some(ix) = property_index_to_xmp(meta) {
             match *value {
                 PropertyValue::Empty => {
-                    return self.xmp.xmp.delete_property(&ix.ns, &ix.property).is_ok()
+                    return self
+                        .xmp_meta
+                        .xmp
+                        .delete_property(&ix.ns, &ix.property)
+                        .is_ok()
                 }
                 PropertyValue::Int(i) => {
                     return self
+                        .xmp_meta
                         .xmp
-                        .xmp
-                        .set_property_i32(&ix.ns, &ix.property, i, exempi::PropFlags::NONE)
+                        .set_property_i32(&ix.ns, &ix.property, i, exempi2::PropFlags::NONE)
                         .is_ok()
                 }
                 PropertyValue::String(ref s) => {
                     if s.is_empty() {
-                        return self.xmp.xmp.delete_property(&ix.ns, &ix.property).is_ok();
-                    } else if self
-                        .xmp
-                        .xmp
-                        .set_property(&ix.ns, &ix.property, s, exempi::PropFlags::NONE)
-                        .is_err()
-                    {
-                        if exempi::get_error() == exempi::Error::BadXPath {
+                        return self
+                            .xmp_meta
+                            .xmp
+                            .delete_property(&ix.ns, &ix.property)
+                            .is_ok();
+                    } else if let Err(err) = self.xmp_meta.xmp.set_property(
+                        &ix.ns,
+                        &ix.property,
+                        s,
+                        exempi2::PropFlags::NONE,
+                    ) {
+                        if err == exempi2::Error(exempi2::XmpError::BadXPath) {
                             return self
-                                .xmp
+                                .xmp_meta
                                 .xmp
                                 .set_localized_text(
                                     &ix.ns,
@@ -132,7 +145,7 @@ impl LibMetadata {
                                     "",
                                     "x-default",
                                     s,
-                                    exempi::PropFlags::NONE,
+                                    exempi2::PropFlags::NONE,
                                 )
                                 .is_ok();
                         }
@@ -141,20 +154,25 @@ impl LibMetadata {
                     }
                 }
                 PropertyValue::StringArray(ref sa) => {
-                    if self.xmp.xmp.delete_property(&ix.ns, &ix.property).is_err() {
+                    if self
+                        .xmp_meta
+                        .xmp
+                        .delete_property(&ix.ns, &ix.property)
+                        .is_err()
+                    {
                         err_out!("Error deleting property {}", &ix.property);
                         return false;
                     }
                     for s in sa {
                         if self
-                            .xmp
+                            .xmp_meta
                             .xmp
                             .append_array_item(
                                 &ix.ns,
                                 &ix.property,
-                                exempi::PropFlags::VALUE_IS_ARRAY,
+                                exempi2::PropFlags::VALUE_IS_ARRAY,
                                 s,
-                                exempi::PropFlags::NONE,
+                                exempi2::PropFlags::NONE,
                             )
                             .is_err()
                         {
@@ -167,18 +185,18 @@ impl LibMetadata {
                 PropertyValue::Date(ref d) => {
                     let xmp_date = xmp_date_from(d);
                     return self
+                        .xmp_meta
                         .xmp
-                        .xmp
-                        .set_property_date(&ix.ns, &ix.property, &xmp_date, exempi::PropFlags::NONE)
+                        .set_property_date(
+                            &ix.ns,
+                            &ix.property,
+                            &xmp_date,
+                            exempi2::PropFlags::NONE,
+                        )
                         .is_ok();
                 }
             }
-            err_out!(
-                "error setting property {}:{} {}",
-                ix.ns,
-                ix.property,
-                exempi::get_error() as u32
-            );
+            err_out!("error setting property {}:{}", ix.ns, ix.property);
             return false;
         }
         err_out!("Unknown property {:?}", meta);
@@ -191,39 +209,35 @@ impl LibMetadata {
         for prop_id in propset {
             match *prop_id {
                 Np::Index(NpXmpRatingProp) => {
-                    if let Some(rating) = self.xmp.rating() {
+                    if let Some(rating) = self.xmp_meta.rating() {
                         props.set_value(*prop_id, PropertyValue::Int(rating));
                     }
                 }
                 Np::Index(NpXmpLabelProp) => {
-                    if let Some(label) = self.xmp.label() {
+                    if let Some(label) = self.xmp_meta.label() {
                         props.set_value(*prop_id, PropertyValue::String(label));
                     }
                 }
                 Np::Index(NpTiffOrientationProp) => {
-                    if let Some(orientation) = self.xmp.orientation() {
+                    if let Some(orientation) = self.xmp_meta.orientation() {
                         props.set_value(*prop_id, PropertyValue::Int(orientation));
                     }
                 }
                 Np::Index(NpExifDateTimeOriginalProp) => {
-                    if let Some(date) = self.xmp.creation_date() {
+                    if let Some(date) = self.xmp_meta.creation_date() {
                         props.set_value(*prop_id, PropertyValue::Date(date));
                     }
                 }
                 Np::Index(NpIptcKeywordsProp) => {
-                    let mut iter = exempi::XmpIterator::new(
-                        &self.xmp.xmp,
+                    let mut iter = exempi2::XmpIterator::new(
+                        &self.xmp_meta.xmp,
                         NS_DC,
                         "subject",
-                        exempi::IterFlags::JUST_LEAF_NODES,
+                        exempi2::IterFlags::JUST_LEAF_NODES,
                     );
                     let mut keywords: Vec<String> = vec![];
-                    let mut schema = exempi::XmpString::new();
-                    let mut name = exempi::XmpString::new();
-                    let mut value = exempi::XmpString::new();
-                    let mut flags = exempi::PropFlags::default();
-                    while iter.next(&mut schema, &mut name, &mut value, &mut flags) {
-                        keywords.push(String::from(value.to_str()));
+                    while let Some(v) = iter.next() {
+                        keywords.push(String::from(&v.value));
                     }
                     props.set_value(*prop_id, PropertyValue::StringArray(keywords));
                 }
@@ -255,9 +269,9 @@ impl LibMetadata {
 
     pub fn touch(&mut self) -> bool {
         let xmpdate = xmp_date_from(&Utc::now());
-        self.xmp
+        self.xmp_meta
             .xmp
-            .set_property_date(NS_XAP, "MetadataDate", &xmpdate, exempi::PropFlags::NONE)
+            .set_property_date(NS_XAP, "MetadataDate", &xmpdate, exempi2::PropFlags::NONE)
             .is_ok()
     }
 }

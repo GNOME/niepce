@@ -18,7 +18,7 @@
  */
 
 extern crate chrono;
-extern crate exempi;
+extern crate exempi2;
 extern crate gdk;
 extern crate gdk_pixbuf;
 extern crate gdk_pixbuf_sys;

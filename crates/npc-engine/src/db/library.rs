@@ -1343,8 +1343,6 @@ mod test {
     fn file_bundle_import() {
         use npc_fwk::utils::exempi::XmpMeta;
 
-        exempi::init();
-
         let lib = Library::new_in_memory();
 
         assert!(lib.is_ok());
@@ -1378,7 +1376,7 @@ mod test {
         // of the XMP SDK is written in the header so we can do comparisons
         // byte by byte
         let original_xmp_packet =
-            exempi::Xmp::from_buffer(XMP_PACKET.as_bytes()).expect("XMP packet created");
+            exempi2::Xmp::from_buffer(XMP_PACKET.as_bytes()).expect("XMP packet created");
         let original_xmp_packet = XmpMeta::new_with_xmp(original_xmp_packet);
         let result = lib.set_image_properties(bundle_id, &props);
         result.expect("Setting the XMP works");

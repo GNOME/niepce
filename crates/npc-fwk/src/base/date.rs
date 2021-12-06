@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/date.rs
  *
- * Copyright (C) 2017-2020 Hubert Figuière
+ * Copyright (C) 2017-2021 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@ use chrono::{Datelike, Timelike};
 pub type Time = i64;
 pub type Date = chrono::DateTime<chrono::Utc>;
 
-pub fn xmp_date_from(d: &chrono::DateTime<chrono::Utc>) -> exempi::DateTime {
-    let mut xmp_date = exempi::DateTime::new();
+pub fn xmp_date_from(d: &chrono::DateTime<chrono::Utc>) -> exempi2::DateTime {
+    let mut xmp_date = exempi2::DateTime::new();
     xmp_date.set_date(d.year(), d.month() as i32, d.day() as i32);
     xmp_date.set_time(d.hour() as i32, d.minute() as i32, d.second() as i32);
-    xmp_date.set_timezone(exempi::XmpTzSign::UTC, 0, 0);
+    xmp_date.set_timezone(exempi2::TzSign::UTC, 0, 0);
 
     xmp_date
 }

@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/exiv2.rs
  *
- * Copyright (C) 2018-2020 Hubert Figuière
+ * Copyright (C) 2018-2021 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ enum Converted {
     /// An int 32
     Int(i32),
     /// an Xmp DateTime value
-    Date(Option<exempi::DateTime>),
+    Date(Option<exempi2::DateTime>),
     /// The Flash XMP structure
     Flash(Flash),
 }
@@ -278,14 +278,14 @@ fn ascii_tag_to_xmp(
     meta: &rexiv2::Metadata,
     tag: &str,
     xmp_prop: &XmpPropDesc,
-    xmp: &mut exempi::Xmp,
+    xmp: &mut exempi2::Xmp,
 ) {
     if let Ok(value) = meta.get_tag_string(tag) {
         let converted = convert(xmp_prop.2, &value);
         match converted {
             Converted::Str(s) => {
                 if let Err(err) =
-                    xmp.set_property(xmp_prop.0, xmp_prop.1, &s, exempi::PropFlags::NONE)
+                    xmp.set_property(xmp_prop.0, xmp_prop.1, &s, exempi2::PropFlags::NONE)
                 {
                     err_out!(
                         "Error setting property {} {}: {:?}",
@@ -298,7 +298,7 @@ fn ascii_tag_to_xmp(
             Converted::Date(d) => {
                 if let Some(d) = d {
                     if let Err(err) =
-                        xmp.set_property_date(xmp_prop.0, xmp_prop.1, &d, exempi::PropFlags::NONE)
+                        xmp.set_property_date(xmp_prop.0, xmp_prop.1, &d, exempi2::PropFlags::NONE)
                     {
                         err_out!(
                             "Error setting property {} {}: {:?}",
@@ -324,7 +324,7 @@ fn int_tag_to_xmp(
     tag: &str,
     tagtype: rexiv2::TagType,
     xmp_prop: &XmpPropDesc,
-    xmp: &mut exempi::Xmp,
+    xmp: &mut exempi2::Xmp,
 ) {
     // XXX rexiv2 returns an i32, which is a problem for UnsignedLong
     match xmp_prop.2 {
@@ -343,7 +343,7 @@ fn int_tag_to_xmp(
         Conversion::None => {
             let value = meta.get_tag_numeric(&tag);
             if let Err(err) =
-                xmp.set_property_i32(xmp_prop.0, xmp_prop.1, value, exempi::PropFlags::NONE)
+                xmp.set_property_i32(xmp_prop.0, xmp_prop.1, value, exempi2::PropFlags::NONE)
             {
                 err_out!(
                     "Error setting property {} {}: {:?}",
@@ -356,7 +356,7 @@ fn int_tag_to_xmp(
         Conversion::Interpreted => {
             if let Ok(value) = meta.get_tag_interpreted_string(&tag) {
                 if let Err(err) =
-                    xmp.set_property(xmp_prop.0, xmp_prop.1, &value, exempi::PropFlags::NONE)
+                    xmp.set_property(xmp_prop.0, xmp_prop.1, &value, exempi2::PropFlags::NONE)
                 {
                     err_out!(
                         "Error setting property {} {}: {:?}",
@@ -371,7 +371,7 @@ fn int_tag_to_xmp(
             err_out!("Unknown conversion from {:?} to {:?}", tagtype, xmp_prop.2);
             let value = meta.get_tag_numeric(&tag);
             if let Err(err) =
-                xmp.set_property_i32(xmp_prop.0, xmp_prop.1, value, exempi::PropFlags::NONE)
+                xmp.set_property_i32(xmp_prop.0, xmp_prop.1, value, exempi2::PropFlags::NONE)
             {
                 err_out!(
                     "Error setting property {} {}: {:?}",
@@ -386,7 +386,7 @@ fn int_tag_to_xmp(
 
 pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
     if let Ok(meta) = rexiv2::Metadata::new_from_path(file) {
-        let mut xmp = exempi::Xmp::new();
+        let mut xmp = exempi2::Xmp::new();
         let mut all_tags: Vec<String> = vec![];
         if let Ok(mut tags) = meta.get_exif_tags() {
             all_tags.append(&mut tags);
@@ -425,7 +425,7 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                                         xmp_prop.0,
                                         xmp_prop.1,
                                         &value,
-                                        exempi::PropFlags::NONE,
+                                        exempi2::PropFlags::NONE,
                                     ) {
                                         err_out!(
                                             "Error setting property {} {}: {:?}",
@@ -443,7 +443,7 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                                         xmp_prop.0,
                                         xmp_prop.1,
                                         &value_str,
-                                        exempi::PropFlags::NONE,
+                                        exempi2::PropFlags::NONE,
                                     ) {
                                         err_out!(
                                             "Error setting property {} {}: {:?}",
@@ -461,7 +461,7 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                                     xmp_prop.0,
                                     xmp_prop.1,
                                     &value,
-                                    exempi::PropFlags::NONE,
+                                    exempi2::PropFlags::NONE,
                                 ) {
                                     err_out!(
                                         "Error setting property {} {}: {:?}",
@@ -479,7 +479,7 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                                         xmp_prop.0,
                                         xmp_prop.1,
                                         &value,
-                                        exempi::PropFlags::NONE,
+                                        exempi2::PropFlags::NONE,
                                     ) {
                                         err_out!(
                                             "Error setting property {} {}: {:?}",
@@ -503,10 +503,10 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
         }
         meta.get_gps_info();
 
-        let mut options = exempi::PropFlags::default();
+        let mut options = exempi2::PropFlags::default();
         if let Ok(date) = xmp.get_property_date(NS_XAP, "ModifyDate", &mut options) {
             if let Err(err) =
-                xmp.set_property_date(NS_XAP, "MetadataDate", &date, exempi::PropFlags::NONE)
+                xmp.set_property_date(NS_XAP, "MetadataDate", &date, exempi2::PropFlags::NONE)
             {
                 err_out!("Error setting MetadataDate: {:?}", &err);
             }

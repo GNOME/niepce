@@ -221,22 +221,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7531096570974c3a9dcf9e4b8e1cede1ec26cf5046219fb3b9d897503b9be59"
 
 [[package]]
-name = "exempi"
-version = "2.6.0"
-source = "git+https://github.com/hfiguiere/exempi-rs.git?rev=99e8ba5#99e8ba58318d693bdc7aecce1ca6375a3e11d89f"
+name = "exempi-sys"
+version = "2.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "092ed317836115f2a074e1fcc8ed9b2ced33bc7af1e71512cd4aa3a5be696e37"
+dependencies = [
+ "libc",
+ "pkg-config",
+]
+
+[[package]]
+name = "exempi2"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1deb5527e7a45f3ac714fc6cb78fa40e2be21a39824c93280deb71877216aa7d"
 dependencies = [
  "bitflags",
  "exempi-sys",
  "libc",
-]
-
-[[package]]
-name = "exempi-sys"
-version = "2.5.0"
-source = "git+https://github.com/hfiguiere/exempi-rs.git?rev=99e8ba5#99e8ba58318d693bdc7aecce1ca6375a3e11d89f"
-dependencies = [
- "libc",
- "pkg-config",
 ]
 
 [[package]]
@@ -774,7 +776,7 @@ dependencies = [
  "cbindgen",
  "chrono",
  "clap",
- "exempi",
+ "exempi2",
  "gdk-pixbuf",
  "gdk-pixbuf-sys",
  "gettext-rs 0.7.0",
@@ -795,7 +797,7 @@ dependencies = [
  "cairo-rs",
  "cbindgen",
  "chrono",
- "exempi",
+ "exempi2",
  "gdk",
  "gdk-pixbuf",
  "gdk-pixbuf-sys",
