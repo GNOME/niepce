@@ -961,10 +961,8 @@ impl Library {
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             if let Some(PropertyValue::String(xmp)) = props.get(&Np::Index(NpNiepceXmpPacket)) {
-                conn.execute(
-                    "UPDATE files SET xmp=?1 WHERE id=?2;",
-                    params![xmp, image_id],
-                )?;
+                let mut stmt = conn.prepare("UPDATE files SET xmp=?1 WHERE id=?2;")?;
+                stmt.execute(params![xmp, image_id])?;
             }
             return Ok(());
         }
