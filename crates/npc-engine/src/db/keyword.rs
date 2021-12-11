@@ -86,10 +86,3 @@ pub extern "C" fn engine_db_keyword_keyword(obj: &Keyword) -> *mut c_char {
     let cstr = CString::new(obj.keyword()).unwrap();
     cstr.into_raw()
 }
-
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_db_keyword_delete(kw: *mut Keyword) {
-    Box::from_raw(kw);
-}

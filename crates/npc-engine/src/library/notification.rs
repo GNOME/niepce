@@ -20,7 +20,6 @@
 use super::queriedcontent::QueriedContent;
 use crate::db::libfile::FileStatus;
 use crate::db::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
-use npc_fwk::base::PropertyIndex;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail;
 use npc_fwk::toolkit::PortableChannel;
@@ -104,21 +103,6 @@ pub struct Thumbnail {
     pub pix: thumbnail::Thumbnail,
 }
 
-#[no_mangle]
-pub extern "C" fn metadatachange_get_id(meta: &MetadataChange) -> LibraryId {
-    meta.id
-}
-
-#[no_mangle]
-pub extern "C" fn metadatachange_get_meta(meta: &MetadataChange) -> PropertyIndex {
-    meta.meta.into()
-}
-
-#[no_mangle]
-pub extern "C" fn metadatachange_get_value(meta: &MetadataChange) -> *const PropertyValue {
-    &meta.value
-}
-
 #[derive(Clone)]
 pub enum LibNotification {
     AddedFile,
@@ -164,15 +148,6 @@ pub extern "C" fn engine_library_notify_filestatus_changed(
         return false;
     }
     true
-}
-
-/// Delete the Notification object.
-///
-/// # Safety
-/// Use raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_notification_delete(n: *mut LibNotification) {
-    Box::from_raw(n);
 }
 
 #[no_mangle]
