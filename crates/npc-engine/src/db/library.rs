@@ -664,6 +664,31 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
+    pub fn count_album(&self, id: LibraryId) -> Result<i64> {
+        if let Some(ref conn) = self.dbconn {
+            let mut stmt = conn.prepare(
+                "SELECT COUNT(album_id) FROM albuming \
+                 WHERE album_id=?1;",
+            )?;
+            let mut rows = stmt.query(params![id])?;
+            return match rows.next() {
+                Ok(Some(row)) => Ok(row.get(0)?),
+                Err(err) => Err(Error::from(err)),
+                Ok(None) => Err(Error::NotFound),
+            };
+        }
+        Err(Error::NoSqlDb)
+    }
+
+    pub fn get_album_content(&self, album_id: LibraryId) -> Result<Vec<LibFile>> {
+        self.get_content(
+            album_id,
+            "files.id IN \
+             (SELECT file_id FROM albuming \
+             WHERE album_id=?1) ",
+        )
+    }
+
     /// Add an image to an album.
     pub fn add_to_album(&self, image_id: LibraryId, album_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
@@ -954,6 +979,8 @@ impl Library {
     }
 
     /// Set properties for an image.
+    ///
+    /// XXX only the XMP Packet is currently supported.
     pub fn set_image_properties(
         &self,
         image_id: LibraryId,

@@ -40,6 +40,9 @@ pub enum NotificationType {
     ADDED_LABEL,
     ADDED_ALBUM,
     ADDED_TO_ALBUM,
+    ALBUM_CONTENT_QUERIED,
+    ALBUM_COUNTED,
+    ALBUM_COUNT_CHANGE,
     FOLDER_CONTENT_QUERIED,
     FOLDER_DELETED,
     FOLDER_COUNTED,
@@ -125,6 +128,9 @@ pub enum LibNotification {
     AddedLabel(Label),
     AddedAlbum(Album),
     AddedToAlbum((LibraryId, LibraryId)),
+    AlbumContentQueried(QueriedContent),
+    AlbumCounted(Count),
+    AlbumCountChanged(Count),
     FileMoved(FileMove),
     FileStatusChanged(FileStatusChange),
     FolderContentQueried(QueriedContent),
@@ -181,6 +187,9 @@ pub unsafe extern "C" fn engine_library_notification_type(
         Some(&LibNotification::AddedLabel(_)) => NotificationType::ADDED_LABEL,
         Some(&LibNotification::AddedAlbum(_)) => NotificationType::ADDED_ALBUM,
         Some(&LibNotification::AddedToAlbum(_)) => NotificationType::ADDED_TO_ALBUM,
+        Some(&LibNotification::AlbumCounted(_)) => NotificationType::ALBUM_COUNTED,
+        Some(&LibNotification::AlbumCountChanged(_)) => NotificationType::ALBUM_COUNT_CHANGE,
+        Some(&LibNotification::AlbumContentQueried(_)) => NotificationType::ALBUM_CONTENT_QUERIED,
         Some(&LibNotification::FileMoved(_)) => NotificationType::FILE_MOVED,
         Some(&LibNotification::FileStatusChanged(_)) => NotificationType::FILE_STATUS_CHANGED,
         Some(&LibNotification::FolderContentQueried(_)) => NotificationType::FOLDER_CONTENT_QUERIED,
@@ -244,7 +253,9 @@ pub unsafe extern "C" fn engine_library_notification_get_count(
     n: *const LibNotification,
 ) -> *const Count {
     match n.as_ref() {
-        Some(&LibNotification::FolderCountChanged(ref c))
+        Some(&LibNotification::AlbumCountChanged(ref c))
+        | Some(&LibNotification::AlbumCounted(ref c))
+        | Some(&LibNotification::FolderCountChanged(ref c))
         | Some(&LibNotification::FolderCounted(ref c))
         | Some(&LibNotification::KeywordCountChanged(ref c))
         | Some(&LibNotification::KeywordCounted(ref c)) => c,
@@ -268,6 +279,16 @@ pub unsafe extern "C" fn engine_library_notification_get_keyword(
 ) -> *const Keyword {
     match n.as_ref() {
         Some(&LibNotification::AddedKeyword(ref f)) => f,
+        _ => unreachable!(),
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn engine_library_notification_get_album(
+    n: *const LibNotification,
+) -> *const Album {
+    match n.as_ref() {
+        Some(&LibNotification::AddedAlbum(ref a)) => a,
         _ => unreachable!(),
     }
 }

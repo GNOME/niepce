@@ -1,7 +1,7 @@
 /*
  * niepce - ui/workspacecontroller.cpp
  *
- * Copyright (C) 2007-2020 Hubert Figuière
+ * Copyright (C) 2007-2021 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,11 +54,12 @@ WorkspaceController::WorkspaceController(const Glib::RefPtr<Gio::SimpleActionGro
         int icon_id;
         const char *icon_name;
     } icons[] = {
-        { ICON_FOLDER, "folder" },
+        { ICON_FOLDER, "folder-symbolic" },
         { ICON_PROJECT, "applications-accessories" },
-        { ICON_ROLL, "emblem-photos" },
-        { ICON_TRASH, "user-trash" },
-        { ICON_KEYWORD, "application-certificate" },
+        { ICON_ROLL, "emblem-photos-symbolic" },
+        { ICON_TRASH, "user-trash-symbolic" },
+        { ICON_KEYWORD, "application-certificate-symbolic" },
+        { ICON_ALBUM, "library-artists-symbolic" },
         { 0, nullptr }
     };
 
@@ -181,8 +182,15 @@ void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
         add_keyword_item(k);
         break;
     }
+    case eng::NotificationType::ADDED_ALBUM:
+    {
+        auto a = engine_library_notification_get_album(&ln);
+        this->add_album_item(a);
+        break;
+    }
     case eng::NotificationType::FOLDER_COUNTED:
     case eng::NotificationType::KEYWORD_COUNTED:
+    case eng::NotificationType::ALBUM_COUNTED:
     {
         auto count = engine_library_notification_get_count(&ln);
         DBG_OUT("count for container %Ld is %Ld", (long long)count->id, (long long)count->count);
@@ -193,6 +201,9 @@ void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
             break;
         case eng::NotificationType::KEYWORD_COUNTED:
             iter = m_keywordsidmap.find(count->id);
+            break;
+        case eng::NotificationType::ALBUM_COUNTED:
+            iter = m_albumsidmap.find(count->id);
             break;
         default:
             DBG_ASSERT(false, "should never happen");
@@ -208,6 +219,7 @@ void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
     }
     case eng::NotificationType::FOLDER_COUNT_CHANGE:
     case eng::NotificationType::KEYWORD_COUNT_CHANGE:
+    case eng::NotificationType::ALBUM_COUNT_CHANGE:
     {
         auto count = engine_library_notification_get_count(&ln);
         DBG_OUT("count change for container %Ld is %Ld", (long long)count->id,
@@ -219,6 +231,9 @@ void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
             break;
         case eng::NotificationType::KEYWORD_COUNT_CHANGE:
             iter = m_keywordsidmap.find(count->id);
+            break;
+        case eng::NotificationType::ALBUM_COUNT_CHANGE:
+            iter = m_albumsidmap.find(count->id);
             break;
         default:
             DBG_ASSERT(false, "should never happen");
@@ -279,6 +294,10 @@ void WorkspaceController::on_libtree_selection()
         ffi::libraryclient_query_keyword_content(getLibraryClient()->client(), id);
         break;
 
+    case ALBUM_ITEM:
+        ffi::libraryclient_query_album_content(getLibraryClient()->client(), id);
+        break;
+
     default:
         DBG_OUT("selected something not a folder");
     }
@@ -301,6 +320,9 @@ void WorkspaceController::on_row_expanded_collapsed(const Gtk::TreeIter& iter,
         break;
     case PROJECTS_ITEM:
         key = "workspace_projects_expanded";
+        break;
+    case ALBUMS_ITEM:
+        key = "workspace_albums_expanded";
         break;
     case KEYWORDS_ITEM:
         key = "workspace_keywords_expanded";
@@ -391,6 +413,21 @@ WorkspaceController::add_item(const Glib::RefPtr<Gtk::TreeStore> &treestore,
     return iter;
 }
 
+void WorkspaceController::add_album_item(const eng::Album* a)
+{
+    auto children = m_albumsNode->children();
+    bool was_empty = children.empty();
+    auto album = fwk::RustFfiString(engine_db_album_name(a));
+    auto iter = add_item(m_treestore, children,
+                         m_icons[ICON_ALBUM], album.c_str(),
+                         engine_db_album_id(a), ALBUM_ITEM);
+    ffi::libraryclient_count_album(getLibraryClient()->client(), engine_db_album_id(a));
+    m_albumsidmap[engine_db_album_id(a)] = iter;
+    if (was_empty) {
+        expand_from_cfg("workspace_albums_expanded", m_albumsNode);
+    }
+}
+
 Gtk::Widget * WorkspaceController::buildWidget()
 {
     if(m_widget) {
@@ -404,13 +441,17 @@ Gtk::Widget * WorkspaceController::buildWidget()
         "Model isn't persistent");
 
     m_folderNode = add_item(m_treestore, m_treestore->children(),
-                            m_icons[ICON_FOLDER], 
+                            m_icons[ICON_FOLDER],
                             Glib::ustring(_("Pictures")), 0,
                             FOLDERS_ITEM);
     m_projectNode = add_item(m_treestore, m_treestore->children(),
-                             m_icons[ICON_PROJECT], 
+                             m_icons[ICON_PROJECT],
                              Glib::ustring(_("Projects")), 0,
                              PROJECTS_ITEM);
+    m_albumsNode = add_item(m_treestore, m_treestore->children(),
+                            m_icons[ICON_ALBUM],
+                            Glib::ustring(_("Albums")), 0,
+                            ALBUMS_ITEM);
     m_keywordsNode = add_item(m_treestore, m_treestore->children(),
                               m_icons[ICON_KEYWORD],
                               Glib::ustring(_("Keywords")), 0,
@@ -511,6 +552,7 @@ void WorkspaceController::on_ready()
     if (libraryClient) {
         ffi::libraryclient_get_all_folders(libraryClient->client());
         ffi::libraryclient_get_all_keywords(libraryClient->client());
+        ffi::libraryclient_get_all_albums(libraryClient->client());
     }
 }
 

@@ -1,7 +1,7 @@
 /*
- * niepce - ui/workspacecontroller.h
+ * niepce - ui/workspacecontroller.hpp
  *
- * Copyright (C) 2007-2020 Hubert Figuière
+ * Copyright (C) 2007-2021 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,10 +31,6 @@
 #include "fwk/toolkit/notification.hpp"
 #include "niepce/ui/niepcewindow.hpp"
 
-namespace Gtk {
-}
-
-
 namespace ui {
 
 class WorkspaceController
@@ -44,9 +40,11 @@ public:
     typedef std::shared_ptr<WorkspaceController> Ptr;
 
     enum {
+        ALBUMS_ITEM,
         FOLDERS_ITEM,
         PROJECTS_ITEM,
         KEYWORDS_ITEM,
+        ALBUM_ITEM,
         FOLDER_ITEM,
         PROJECT_ITEM,
         KEYWORD_ITEM
@@ -113,6 +111,8 @@ private:
     void remove_folder_item(eng::library_id_t id);
     /** add a keyword item to the treeview */
     void add_keyword_item(const eng::Keyword* k);
+    /** add an album item to the treeview */
+    void add_album_item(const eng::Album* a);
     /** add a tree item in the treeview
      * @param treestore the treestore to add to
      * @param childrens the children subtree to add to
@@ -121,10 +121,10 @@ private:
      * @param id the item id (in the database)
      * @paran type the type of node
      */
-    Gtk::TreeModel::iterator add_item(const Glib::RefPtr<Gtk::TreeStore> & treestore, 
+    Gtk::TreeModel::iterator add_item(const Glib::RefPtr<Gtk::TreeStore>& treestore,
                                       const Gtk::TreeNodeChildren & childrens,
                                       const Glib::RefPtr<Gdk::Pixbuf> & icon,
-                                      const Glib::ustring & label, 
+                                      const Glib::ustring& label,
                                       eng::library_id_t id, int type) const;
 
     void expand_from_cfg(const char* key, const Gtk::TreeIter& treenode);
@@ -135,24 +135,27 @@ private:
         ICON_ROLL,
         ICON_TRASH,
         ICON_KEYWORD,
+        ICON_ALBUM,
         _ICON_SIZE
     };
 
     Glib::RefPtr<Gio::SimpleActionGroup> m_action_group;
 
-    std::array< Glib::RefPtr<Gdk::Pixbuf>, _ICON_SIZE > m_icons;
-    WorkspaceTreeColumns           m_librarycolumns;
-    Gtk::Box                       m_vbox;
-    Gtk::Label                     m_label;
-    Gtk::TreeView                  m_librarytree;
+    std::array<Glib::RefPtr<Gdk::Pixbuf>, _ICON_SIZE> m_icons;
+    WorkspaceTreeColumns m_librarycolumns;
+    Gtk::Box m_vbox;
+    Gtk::Label m_label;
+    Gtk::TreeView m_librarytree;
     Gtk::Menu* m_context_menu;
-    Gtk::TreeModel::iterator       m_folderNode;  /**< the folder node */
-    Gtk::TreeModel::iterator       m_projectNode; /**< the project node */
-    Gtk::TreeModel::iterator       m_keywordsNode; /**< the keywords node */
-    Glib::RefPtr<Gtk::TreeStore>   m_treestore;   /**< the treestore */
-    std::map<eng::library_id_t, Gtk::TreeIter>   m_folderidmap;
-    std::map<eng::library_id_t, Gtk::TreeIter>   m_projectidmap;
-    std::map<eng::library_id_t, Gtk::TreeIter>   m_keywordsidmap;
+    Gtk::TreeModel::iterator m_folderNode;  /**< the folder node */
+    Gtk::TreeModel::iterator m_projectNode; /**< the project node */
+    Gtk::TreeModel::iterator m_albumsNode; /**< the albums node */
+    Gtk::TreeModel::iterator m_keywordsNode; /**< the keywords node */
+    Glib::RefPtr<Gtk::TreeStore> m_treestore;   /**< the treestore */
+    std::map<eng::library_id_t, Gtk::TreeIter> m_folderidmap;
+    std::map<eng::library_id_t, Gtk::TreeIter> m_projectidmap;
+    std::map<eng::library_id_t, Gtk::TreeIter> m_keywordsidmap;
+    std::map<eng::library_id_t, Gtk::TreeIter> m_albumsidmap;
 };
 
 }

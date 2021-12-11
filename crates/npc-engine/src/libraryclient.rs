@@ -194,6 +194,11 @@ impl ClientInterface for LibraryClient {
         self.schedule_op(move |lib| commands::cmd_list_all_albums(&lib));
     }
 
+    /// Count album
+    fn count_album(&mut self, album_id: LibraryId) {
+        self.schedule_op(move |lib| commands::cmd_count_album(&lib, album_id));
+    }
+
     /// Create an album (async)
     fn create_album(&mut self, name: String, parent: LibraryId) {
         self.schedule_op(move |lib| commands::cmd_create_album(&lib, &name, parent) != 0);
@@ -202,6 +207,11 @@ impl ClientInterface for LibraryClient {
     /// Add an image to an album.
     fn add_to_album(&mut self, image_id: LibraryId, album_id: LibraryId) {
         self.schedule_op(move |lib| commands::cmd_add_to_album(&lib, image_id, album_id));
+    }
+
+    /// Query content for album.
+    fn query_album_content(&mut self, album_id: LibraryId) {
+        self.schedule_op(move |lib| commands::cmd_query_album_content(&lib, album_id));
     }
 
     fn request_metadata(&mut self, file_id: LibraryId) {
@@ -383,6 +393,11 @@ pub extern "C" fn libraryclient_get_all_folders(client: &mut LibraryClientWrappe
 }
 
 #[no_mangle]
+pub extern "C" fn libraryclient_get_all_albums(client: &mut LibraryClientWrapper) {
+    client.unwrap_mut().get_all_albums();
+}
+
+#[no_mangle]
 pub extern "C" fn libraryclient_query_folder_content(
     client: &mut LibraryClientWrapper,
     folder_id: LibraryId,
@@ -429,6 +444,22 @@ pub extern "C" fn libraryclient_query_keyword_content(
 #[no_mangle]
 pub extern "C" fn libraryclient_count_keyword(client: &mut LibraryClientWrapper, id: LibraryId) {
     client.unwrap_mut().count_keyword(id);
+}
+
+#[no_mangle]
+pub extern "C" fn libraryclient_count_album(
+    client: &mut LibraryClientWrapper,
+    album_id: LibraryId,
+) {
+    client.unwrap_mut().count_album(album_id);
+}
+
+#[no_mangle]
+pub extern "C" fn libraryclient_query_album_content(
+    client: &mut LibraryClientWrapper,
+    album_id: LibraryId,
+) {
+    client.unwrap_mut().query_album_content(album_id);
 }
 
 #[no_mangle]

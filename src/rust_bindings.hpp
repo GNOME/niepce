@@ -52,6 +52,7 @@ using NiepcePropertyIdx = ffi::NiepcePropertyIdx;
 typedef ffi::LibraryId library_id_t; // XXX change this to LibraryId
 typedef ffi::FileType FileType;
 typedef ffi::FileStatus FileStatus;
+typedef ffi::Album Album;
 typedef ffi::Keyword Keyword;
 typedef ffi::LibFile LibFile;
 typedef ffi::LibFolder LibFolder;

@@ -18,7 +18,7 @@
     <file alias="/pixmaps/niepce-unknown-fmt.png">data/icons/niepce-unknown-fmt.png</file>
     <file alias="/pixmaps/niepce-image-generic.png">data/icons/niepce-image-generic.png</file>
     <file alias="/pixmaps/niepce-image-missing.png">data/icons/niepce-image-missing.png</file>
-
+    <file alias="/icons/library-artists-symbolic.svg">data/icons/library-artists-symbolic.svg</file>
     <file alias="/ui/editlabels.ui">src/niepce/ui/dialogs/editlabels.ui</file>
     <file alias="/ui/importdialog.ui">src/niepce/ui/dialogs/importdialog.ui</file>
     <file alias="/ui/importlibrary.ui">src/niepce/ui/dialogs/importlibrary.ui</file>

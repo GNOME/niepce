@@ -198,6 +198,26 @@ pub fn cmd_list_all_albums(lib: &Library) -> bool {
     }
 }
 
+pub fn cmd_count_album(lib: &Library, id: LibraryId) -> bool {
+    match lib.count_album(id) {
+        Ok(count) => {
+            // This time it's a fatal error since the purpose of this comand
+            // is to retrieve.
+            match lib.notify(LibNotification::AlbumCounted(Count { id, count })) {
+                Err(err) => {
+                    err_out!("Failed to notify AlbumCounted {:?}", err);
+                    false
+                }
+                Ok(_) => true,
+            }
+        }
+        Err(err) => {
+            err_out_line!("count_album failed: {:?}", err);
+            false
+        }
+    }
+}
+
 pub fn cmd_create_album(lib: &Library, name: &str, parent: LibraryId) -> LibraryId {
     match lib.add_album(name, parent) {
         Ok(album) => {
@@ -233,6 +253,32 @@ pub fn cmd_add_to_album(lib: &Library, image_id: LibraryId, album_id: LibraryId)
                 album_id,
                 err
             );
+            false
+        }
+    }
+}
+
+pub fn cmd_query_album_content(lib: &Library, album_id: LibraryId) -> bool {
+    match lib.get_album_content(album_id) {
+        Ok(fl) => {
+            let mut content = QueriedContent::new(album_id);
+            for f in fl {
+                content.push(f);
+            }
+            let value = LibNotification::AlbumContentQueried(content);
+
+            // This time it's a fatal error since the purpose of this comand
+            // is to retrieve.
+            match lib.notify(value) {
+                Err(err) => {
+                    err_out!("Failed to notify AlbumContent {:?}", err);
+                    false
+                }
+                Ok(_) => true,
+            }
+        }
+        Err(err) => {
+            err_out_line!("Get album content failed {:?}", err);
             false
         }
     }

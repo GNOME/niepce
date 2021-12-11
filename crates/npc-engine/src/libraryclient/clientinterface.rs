@@ -42,10 +42,14 @@ pub trait ClientInterface {
 
     /// get all the albums
     fn get_all_albums(&mut self);
+    /// Count album content.
+    fn count_album(&mut self, album_id: LibraryId);
     /// Create an album (async)
     fn create_album(&mut self, name: String, parent: LibraryId);
     /// Add an image to an album.
     fn add_to_album(&mut self, image_id: LibraryId, album_id: LibraryId);
+    /// Query content for album.
+    fn query_album_content(&mut self, album_id: LibraryId);
 
     fn request_metadata(&mut self, id: LibraryId);
     /// set the metadata
