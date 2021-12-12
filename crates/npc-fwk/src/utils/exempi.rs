@@ -133,13 +133,21 @@ pub struct ExempiManager {}
 
 impl ExempiManager {
     pub fn new(namespaces: Option<Vec<NsDef>>) -> ExempiManager {
-        exempi2::register_namespace(NIEPCE_XMP_NAMESPACE, NIEPCE_XMP_NS_PREFIX);
-        exempi2::register_namespace(UFRAW_INTEROP_NAMESPACE, UFRAW_INTEROP_NS_PREFIX);
+        on_err_out!(exempi2::register_namespace(
+            NIEPCE_XMP_NAMESPACE,
+            NIEPCE_XMP_NS_PREFIX
+        ));
+        on_err_out!(exempi2::register_namespace(
+            UFRAW_INTEROP_NAMESPACE,
+            UFRAW_INTEROP_NS_PREFIX
+        ));
 
         if let Some(nslist) = namespaces {
             for nsdef in nslist {
-                // TOOD check the return value
-                exempi2::register_namespace(nsdef.ns.as_str(), nsdef.prefix.as_str());
+                on_err_out!(exempi2::register_namespace(
+                    nsdef.ns.as_str(),
+                    nsdef.prefix.as_str()
+                ));
             }
         }
         ExempiManager {}

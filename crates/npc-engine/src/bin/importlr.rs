@@ -36,7 +36,7 @@ fn main() {
     let catalog = matches.value_of("CATALOG").unwrap();
     let verbosity = matches.occurrences_of("v");
 
-    let (sender, recv) = async_channel::unbounded();
+    let (sender, _recv) = async_channel::unbounded();
 
     let mut library = LibraryClient::new(PathBuf::from(library), sender);
     // library.init();
