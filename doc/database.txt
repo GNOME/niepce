@@ -9,7 +9,7 @@ admin	        key            Key
                 value	       Value
 
 The known keys are:
-version :       The version of the database. Current = 7.
+version :       The version of the database. Current = 11.
 
 
 Files in the library
@@ -77,7 +77,7 @@ labels          id             The ID of the label
                 name           The name of the label (user displayed)
 		color          The RGB8 color in "R G B" format.
 
-Albums contain files
+Albums contain files (added in version 10)
 
 albums          id             The ID of the album
                 name           The name of the album (user displayed)

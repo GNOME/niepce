@@ -50,17 +50,25 @@ pub enum Managed {
     YES = 1,
 }
 
-const DB_SCHEMA_VERSION: i32 = 10;
+const DB_SCHEMA_VERSION: i32 = 11;
 const DATABASENAME: &str = "niepcelibrary.db";
 
+// Error from the library database
 #[derive(Debug)]
 pub enum Error {
+    /// Operation is unimplemented
     Unimplemented,
+    /// Item was not found
     NotFound,
+    /// No SQL database
     NoSqlDb,
+    /// Database schema version is incorrect
     IncorrectDbVersion,
+    /// Argument is invalid
     InvalidArg,
+    /// Result is invalid
     InvalidResult,
+    /// SQL Error
     SqlError(rusqlite::Error),
 }
 
@@ -87,15 +95,20 @@ impl std::error::Error for Error {
 
 pub type Result<T> = result::Result<T, Error>;
 
+/// Library database
 pub struct Library {
-    // maindir: PathBuf,
+    /// Path the the sqlite3 file.
     dbpath: PathBuf,
+    /// Sqlite3 connection handle.
     dbconn: Option<rusqlite::Connection>,
+    /// True if initialized.
     inited: bool,
+    /// Sender for notifications.
     sender: npc_fwk::toolkit::Sender<LibNotification>,
 }
 
 impl Library {
+    /// New database library in memory (testing only)
     #[cfg(test)]
     pub fn new_in_memory() -> Library {
         let (sender, _) = async_channel::unbounded();
@@ -147,6 +160,8 @@ impl Library {
         lib
     }
 
+    /// Load the database and perform some sanity checking
+    /// If the database is empty, it will call `init_db()`
     fn init(&mut self) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let sender = self.sender.clone();
@@ -172,20 +187,26 @@ impl Library {
             return Err(Error::NoSqlDb);
         }
 
-        let version = self.check_database_version()?;
-        if version == -1 {
-            // error
-            dbg_out!("version check -1");
-            return Err(Error::IncorrectDbVersion);
-        } else if version == 0 {
-            // let's create our DB
-            dbg_out!("version == 0");
-            return self.init_db();
-        } else if version != DB_SCHEMA_VERSION {
-            // WAT?
+        match self.check_database_version() {
+            Err(Error::InvalidResult) => {
+                // error
+                dbg_out!("version check incorrect value");
+                Err(Error::IncorrectDbVersion)
+            }
+            Ok(0) => {
+                // let's create our DB
+                dbg_out!("version == 0");
+                self.init_db()
+            }
+            Ok(version) => {
+                if version != DB_SCHEMA_VERSION {
+                    // WAT?
+                    err_out!("Version mismatch, found {}", version);
+                }
+                Ok(())
+            }
+            _ => Ok(()),
         }
-
-        Ok(())
     }
 
     pub fn dbpath(&self) -> &Path {
@@ -196,17 +217,15 @@ impl Library {
         self.inited
     }
 
+    /// Check the database version as stored in the admin table.
+    /// A version of 0 mean the database is empty.
     fn check_database_version(&self) -> Result<i32> {
         if let Some(ref conn) = self.dbconn {
             if let Ok(mut stmt) = conn.prepare("SELECT value FROM admin WHERE key='version'") {
                 let mut rows = stmt.query([])?;
                 if let Ok(Some(row)) = rows.next() {
                     let value: String = row.get(0)?;
-                    if let Ok(v) = i32::from_str_radix(&value, 10) {
-                        return Ok(v);
-                    } else {
-                        return Ok(-1);
-                    }
+                    return i32::from_str_radix(&value, 10).map_err(|_| Error::InvalidResult);
                 }
             } else {
                 // if query fail we assume 0 to create the database.
@@ -217,6 +236,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
+    /// Initialise the database schema.
     fn init_db(&mut self) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             conn.execute("CREATE TABLE admin (key TEXT NOT NULL, value TEXT)", [])
@@ -228,12 +248,12 @@ impl Library {
             )
             .unwrap();
             conn.execute(
-                "CREATE TABLE vaults (id INTEGER PRIMARY KEY, path TEXT)",
+                "CREATE TABLE vaults (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT)",
                 [],
             )
             .unwrap();
             conn.execute(
-                "CREATE TABLE folders (id INTEGER PRIMARY KEY,\
+                "CREATE TABLE folders (id INTEGER PRIMARY KEY AUTOINCREMENT,\
                  path TEXT, name TEXT, \
                  vault_id INTEGER DEFAULT 0, \
                  locked INTEGER DEFAULT 0, \
@@ -263,7 +283,7 @@ impl Library {
 
             // version 10
             conn.execute(
-                "CREATE TABLE albums (id INTEGER PRIMARY KEY,\
+                "CREATE TABLE albums (id INTEGER PRIMARY KEY AUTOINCREMENT,\
                  name TEXT, \
                  parent_id INTEGER)",
                 [],
@@ -271,14 +291,14 @@ impl Library {
             .unwrap();
             conn.execute(
                 "CREATE TABLE albuming (\
-                 file_id INTEGER, album_id INTEGER)",
+                 file_id INTEGER, album_id INTEGER, UNIQUE(file_id, album_id))",
                 [],
             )
             .unwrap();
             //
 
             conn.execute(
-                "CREATE TABLE files (id INTEGER PRIMARY KEY,\
+                "CREATE TABLE files (id INTEGER PRIMARY KEY AUTOINCREMENT,\
                  main_file INTEGER, name TEXT, parent_id INTEGER,\
                  orientation INTEGER, file_type INTEGER,\
                  file_date INTEGER, rating INTEGER DEFAULT 0, \
@@ -290,7 +310,7 @@ impl Library {
             )
             .unwrap();
             conn.execute(
-                "CREATE TABLE fsfiles (id INTEGER PRIMARY KEY,\
+                "CREATE TABLE fsfiles (id INTEGER PRIMARY KEY AUTOINCREMENT,\
                  path TEXT)",
                 [],
             )
@@ -325,7 +345,7 @@ impl Library {
             .unwrap();
             //
             conn.execute(
-                "CREATE TABLE keywords (id INTEGER PRIMARY KEY,\
+                "CREATE TABLE keywords (id INTEGER PRIMARY KEY AUTOINCREMENT,\
                  keyword TEXT, parent_id INTEGER DEFAULT 0)",
                 [],
             )
@@ -345,7 +365,7 @@ impl Library {
             )
             .unwrap();
             conn.execute(
-                "CREATE TABLE labels (id INTEGER PRIMARY KEY,\
+                "CREATE TABLE labels (id INTEGER PRIMARY KEY AUTOINCREMENT,\
                  name TEXT, color TEXT)",
                 [],
             )
@@ -380,7 +400,7 @@ impl Library {
 
     ///
     /// Send a `LibNotification`.
-    /// @returns the result (nothing or an error
+    /// @returns the result (nothing or an error)
     ///
     pub fn notify(
         &self,
