@@ -53,7 +53,7 @@ pub fn guess_type(gmtype: &str) -> MType {
 }
 
 /// Guess the type from a file
-fn guess_type_for_file<P: AsRef<Path>>(p: P) -> MType {
+pub fn guess_type_for_file<P: AsRef<Path>>(p: P) -> MType {
     let path = p.as_ref();
     let guess = mime_guess::from_path(path);
     if !guess.is_empty() {

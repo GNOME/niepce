@@ -3,8 +3,8 @@
  * copied from
  * gnote
  *
- * Copyright (C) 2009-2017 Hubert Figuiere
- * 
+ * Copyright (C) 2009-2021 Hubert Figuière
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -58,9 +58,9 @@ namespace fwk {
   }
 
 
-  static bool filter(GFileInfo* f)
+  static bool filter(const char* f)
   {
-    return fwk::filter_ext(Glib::wrap(f, true), std::string(".") + G_MODULE_SUFFIX);
+    return fwk::filter_ext(f, std::string(".") + G_MODULE_SUFFIX);
   }
 
   void ModuleManager::load_modules()

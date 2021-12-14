@@ -2,7 +2,7 @@
 /*
  * niepce - fwk/utils/files.cpp
  *
- * Copyright (C) 2007-2018 Hubert Figuiere
+ * Copyright (C) 2007-2021 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,9 +53,12 @@ bool filter_none(const Glib::RefPtr<Gio::FileInfo> & )
 }
 
 
-bool filter_ext(const Glib::RefPtr<Gio::FileInfo> & file, const std::string & ext)
+bool filter_ext(const char* file, const std::string & ext)
 {
-    std::string file_ext = fwk::path_extension(file->get_name());
+    if (file == nullptr) {
+        return false;
+    }
+    std::string file_ext = file;
     boost::to_lower(file_ext);
     if(file_ext == ext) {
         return false;
@@ -63,15 +66,9 @@ bool filter_ext(const Glib::RefPtr<Gio::FileInfo> & file, const std::string & ex
     return true;
 }
 
-bool filter_xmp_out(const Glib::RefPtr<Gio::FileInfo> & file)
+bool filter_only_media(const char* file)
 {
-    static const std::string ext(".xmp");
-    return filter_ext(file, ext);
-}
-
-bool filter_only_media(const Glib::RefPtr<Gio::FileInfo> & file)
-{
-    return ffi::fwk_file_is_media(file->gobj());
+    return ffi::fwk_file_is_media(file);
 }
 
 

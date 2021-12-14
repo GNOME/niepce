@@ -2,7 +2,7 @@
 /*
  * niepce - engine/importer/directoryimporter.cpp
  *
- * Copyright (C) 2014-2020 Hubert Figuière
+ * Copyright (C) 2014-2021 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,17 +62,12 @@ const std::string& DirectoryImporter::id() const
     return _id;
 }
 
-static bool filter_only_media(GFileInfo* info)
-{
-    return fwk::filter_only_media(Glib::wrap(info, true));
-}
-
 bool DirectoryImporter::list_source_content(const std::string & source,
                                             const SourceContentReady& callback)
 {
     auto files =
         fwk::wrapFileList(ffi::fwk_file_list_get_files_from_directory(
-                              source.c_str(), &filter_only_media));
+                              source.c_str(), &fwk::filter_only_media));
     DBG_OUT("files size: %lu", ffi::fwk_file_list_size(files.get()));
     std::list<ImportedFilePtr> content;
     for (size_t i = 0; i < ffi::fwk_file_list_size(files.get()); i++)

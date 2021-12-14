@@ -2,7 +2,7 @@
 /*
  * niepce - fwk/utils/files.hpp
  *
- * Copyright (C) 2007-2018 Hubert Figuiere
+ * Copyright (C) 2007-2021 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,10 +37,8 @@ namespace fwk {
 std::string make_tmp_dir(const std::string& base);
 
 bool filter_none(const Glib::RefPtr<Gio::FileInfo> & file);
-bool filter_ext(const Glib::RefPtr<Gio::FileInfo> & file,
-                const std::string & ext);
-bool filter_xmp_out(const Glib::RefPtr<Gio::FileInfo> & file);
-bool filter_only_media(const Glib::RefPtr<Gio::FileInfo> & file);
+bool filter_ext(const char* file, const std::string & ext);
+bool filter_only_media(const char* file);
 
 typedef std::shared_ptr<ffi::FileList> FileListPtr;
 

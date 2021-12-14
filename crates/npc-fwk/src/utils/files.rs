@@ -19,50 +19,41 @@
 
 use libc::c_char;
 use std::ffi::{CStr, CString};
+use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
-use gio::prelude::*;
-use glib::translate::*;
-
-use crate::toolkit::mimetype::{guess_type, MType};
+use crate::toolkit::mimetype::{guess_type_for_file, MType};
 
 #[derive(Clone, Default)]
 pub struct FileList(pub Vec<PathBuf>);
 
 impl FileList {
+    /// Get files from directory P, possibly filtered by F.
     pub fn get_files_from_directory<P, F>(dir: P, filter: F) -> Self
     where
         P: AsRef<Path>,
-        F: Fn(&gio::FileInfo) -> bool + 'static,
+        F: Fn(&Path) -> bool + 'static,
     {
         let mut l = FileList::default();
-
-        let dir = gio::File::for_path(dir);
-        let dir_path = dir.path();
-        if dir_path.is_none() {
-            err_out!("Couldn't get dir path");
+        if !dir.as_ref().is_dir() {
+            err_out!("Not a directory: {:?}", dir.as_ref());
             return l;
         }
-        let dir_path = dir_path.unwrap();
-        if let Ok(enumerator) =
-            dir.enumerate_children("*", gio::FileQueryInfoFlags::NONE, gio::NONE_CANCELLABLE)
-        {
-            for itr in enumerator.into_iter() {
-                if itr.is_err() {
-                    err_out!("Enumeration failed: {:?}", itr.err());
+        if let Ok(read_dir) = std::fs::read_dir(dir) {
+            for entry in read_dir {
+                if entry.is_err() {
+                    err_out!("Enumeration failed: {:?}", entry.err());
                     continue;
                 }
-                let finfo = itr.unwrap();
-                let ftype = finfo.file_type();
-                if ftype == gio::FileType::Regular || ftype == gio::FileType::SymbolicLink {
-                    if !filter(&finfo) {
-                        err_out!("Filtered out");
-                        continue;
+                let entry = entry.unwrap();
+                if let Ok(ftype) = entry.file_type() {
+                    if ftype.is_file() || ftype.is_symlink() {
+                        if !filter(&entry.path()) {
+                            dbg_out!("Filtered out");
+                            continue;
+                        }
+                        l.0.push(entry.path());
                     }
-                    let name = finfo.name();
-                    let fullname = glib::build_filenamev(&[&dir_path, &name]);
-                    dbg_out!("Found file {:?}", &fullname);
-                    l.0.push(fullname);
                 }
             }
         }
@@ -71,14 +62,9 @@ impl FileList {
         l
     }
 
-    pub fn file_is_media(fileinfo: &gio::FileInfo) -> bool {
-        if let Some(gmtype) = fileinfo.content_type() {
-            let t = guess_type(&gmtype);
-            return matches!(t, MType::Image(_) | MType::Movie);
-        }
-
-        err_out!("Coudln't get file type");
-        false
+    pub fn file_is_media(fileinfo: &Path) -> bool {
+        let t = guess_type_for_file(fileinfo);
+        return matches!(t, MType::Image(_) | MType::Movie);
     }
 }
 
@@ -87,8 +73,9 @@ impl FileList {
 /// # Safety
 /// Dereference the finfo pointer.
 #[no_mangle]
-pub unsafe extern "C" fn fwk_file_is_media(finfo: *mut gio_sys::GFileInfo) -> bool {
-    let fileinfo = gio::FileInfo::from_glib_none(finfo);
+pub unsafe extern "C" fn fwk_file_is_media(file: *const c_char) -> bool {
+    let cfile = CStr::from_ptr(file);
+    let fileinfo = PathBuf::from(std::ffi::OsStr::from_bytes(cfile.to_bytes()));
     FileList::file_is_media(&fileinfo)
 }
 
@@ -113,7 +100,7 @@ pub unsafe extern "C" fn fwk_file_list_delete(l: *mut FileList) {
 #[no_mangle]
 pub unsafe extern "C" fn fwk_file_list_get_files_from_directory(
     dir: *const c_char,
-    filter: Option<extern "C" fn(*mut gio_sys::GFileInfo) -> bool>,
+    filter: Option<extern "C" fn(*const c_char) -> bool>,
 ) -> *mut FileList {
     let cstr = CStr::from_ptr(dir);
     match filter {
@@ -121,7 +108,14 @@ pub unsafe extern "C" fn fwk_file_list_get_files_from_directory(
             let f = Box::new(filter);
             Box::into_raw(Box::new(FileList::get_files_from_directory(
                 &PathBuf::from(&*cstr.to_string_lossy()),
-                move |finfo| f(finfo.to_glib_none().0),
+                move |p| {
+                    if let Ok(pc) = CString::new(p.as_os_str().as_bytes()) {
+                        f(pc.as_ptr())
+                    } else {
+                        err_out!("file path conversion failed.");
+                        false
+                    }
+                },
             )))
         }
         None => Box::into_raw(Box::new(FileList::get_files_from_directory(
