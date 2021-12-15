@@ -17,15 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::Utc;
-
 use super::libfile::FileType;
 use super::props;
 use super::NiepceProperties as Np;
 use super::{FromDb, LibraryId};
 use crate::{NiepcePropertyBag, NiepcePropertySet};
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
-use npc_fwk::{xmp_date_from, PropertyBag, PropertySet, PropertyValue, XmpMeta};
+use npc_fwk::{xmp_date_from, Date, PropertyBag, PropertySet, PropertyValue, XmpMeta};
 
 #[derive(Clone)]
 pub struct LibMetadata {
@@ -229,14 +227,14 @@ impl LibMetadata {
                     }
                 }
                 Np::Index(NpIptcKeywordsProp) => {
-                    let mut iter = exempi2::XmpIterator::new(
+                    let iter = exempi2::XmpIterator::new(
                         &self.xmp_meta.xmp,
                         NS_DC,
                         "subject",
                         exempi2::IterFlags::JUST_LEAF_NODES,
                     );
                     let mut keywords: Vec<String> = vec![];
-                    while let Some(v) = iter.next() {
+                    for v in iter {
                         keywords.push(String::from(&v.value));
                     }
                     props.set_value(*prop_id, PropertyValue::StringArray(keywords));
@@ -268,7 +266,8 @@ impl LibMetadata {
     }
 
     pub fn touch(&mut self) -> bool {
-        let xmpdate = xmp_date_from(&Utc::now());
+        let local = chrono::Local::now();
+        let xmpdate = xmp_date_from(&Date::from(local));
         self.xmp_meta
             .xmp
             .set_property_date(NS_XAP, "MetadataDate", &xmpdate, exempi2::PropFlags::NONE)
@@ -316,4 +315,67 @@ pub extern "C" fn engine_libmetadata_to_properties(
 ) -> *mut NiepcePropertyBag {
     let result = Box::new(meta.to_properties(propset));
     Box::into_raw(result)
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::{LibMetadata, Np};
+    use crate::NiepcePropertyIdx::*;
+    use chrono::TimeZone;
+    use npc_fwk::{PropertySet, PropertyValue, XmpMeta};
+
+    const XMP_PACKET: &[u8] = include_bytes!("../../tests/test.xmp");
+
+    #[test]
+    fn test_libmetadata() {
+        let xmp = exempi2::Xmp::from_buffer(XMP_PACKET);
+        assert!(xmp.is_ok());
+
+        let xmp = xmp.unwrap();
+        let xmp_meta = XmpMeta::new_with_xmp(xmp);
+        let libmetadata = LibMetadata::new_with_xmp(1, xmp_meta);
+        let mut propset = PropertySet::new();
+        propset.insert(Np::Index(NpIptcKeywordsProp));
+        propset.insert(Np::Index(NpTiffOrientationProp));
+        propset.insert(Np::Index(NpExifDateTimeOriginalProp));
+
+        let bag = libmetadata.to_properties(&propset);
+        assert_eq!(bag.len(), 3);
+
+        let keywords = bag.get(&Np::Index(NpIptcKeywordsProp));
+        assert!(keywords.is_some());
+
+        if let PropertyValue::StringArray(keywords) = keywords.unwrap() {
+            assert_eq!(keywords.len(), 5);
+            assert_eq!(keywords[0], "choir");
+            assert_eq!(keywords[1], "night");
+            assert_eq!(keywords[2], "ontario");
+            assert_eq!(keywords[3], "ottawa");
+            assert_eq!(keywords[4], "parliament of canada");
+        } else {
+            unreachable!();
+        }
+
+        let orientation = bag.get(&Np::Index(NpTiffOrientationProp));
+        assert!(orientation.is_some());
+
+        if let PropertyValue::Int(orientation) = orientation.unwrap() {
+            assert_eq!(orientation, &1);
+        } else {
+            unreachable!();
+        }
+
+        let creation_date = bag.get(&Np::Index(NpExifDateTimeOriginalProp));
+        assert!(creation_date.is_some());
+
+        if let PropertyValue::Date(creation_date) = creation_date.unwrap() {
+            let date = chrono::FixedOffset::west(5 * 3600)
+                .ymd(2006, 12, 07)
+                .and_hms(23, 37, 30);
+            assert_eq!(creation_date, &date);
+        } else {
+            unreachable!();
+        }
+    }
 }

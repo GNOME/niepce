@@ -23,10 +23,11 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use chrono::{DateTime, Utc};
+use chrono::DateTime;
 use exempi2::Xmp;
 
 use super::exiv2;
+use crate::Date;
 
 pub const NIEPCE_XMP_NAMESPACE: &str = "http://xmlns.figuiere.net/ns/niepce/1.0";
 pub const NIEPCE_XMP_NS_PREFIX: &str = "niepce";
@@ -343,7 +344,7 @@ impl XmpMeta {
             .ok()
     }
 
-    pub fn creation_date(&self) -> Option<DateTime<Utc>> {
+    pub fn creation_date(&self) -> Option<Date> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
         let xmpstring = self
             .xmp
@@ -353,7 +354,7 @@ impl XmpMeta {
             .to_str()
             .and_then(|s| DateTime::parse_from_rfc3339(s).ok())?;
 
-        Some(date.with_timezone(&Utc))
+        Some(date)
     }
 
     pub fn creation_date_str(&self) -> Option<String> {
@@ -367,7 +368,7 @@ impl XmpMeta {
 
     /// Get the date property and return a Option<DateTime<Utc>> parsed
     /// from the string value.
-    pub fn get_date_property(&self, ns: &str, property: &str) -> Option<DateTime<Utc>> {
+    pub fn get_date_property(&self, ns: &str, property: &str) -> Option<Date> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
         let property = self.xmp.get_property(ns, property, &mut flags);
         if property.is_err() {
@@ -375,28 +376,24 @@ impl XmpMeta {
             return None;
         }
         let xmpstring = property.as_ref().ok().and_then(|s| s.to_str()).unwrap();
-        let parsed = DateTime::parse_from_rfc3339(xmpstring);
-        if parsed.is_err() {
-            err_out!(
-                "Error parsing property value '{}': {:?}",
-                xmpstring,
-                parsed.err()
-            );
-            return None;
+        match DateTime::parse_from_rfc3339(xmpstring) {
+            Ok(parsed) => Some(parsed),
+            Err(err) => {
+                err_out!("Error parsing property value '{}': {:?}", xmpstring, err);
+                None
+            }
         }
-        let date = parsed.unwrap();
-        Some(date.with_timezone(&Utc))
     }
 
     pub fn keywords(&mut self) -> &Vec<String> {
         if !self.keywords_fetched {
-            let mut iter = exempi2::XmpIterator::new(
+            let iter = exempi2::XmpIterator::new(
                 &self.xmp,
                 NS_DC,
                 "subject",
                 exempi2::IterFlags::JUST_LEAF_NODES,
             );
-            while let Some(v) = iter.next() {
+            for v in iter {
                 self.keywords.push(String::from(&v.value));
             }
             self.keywords_fetched = true;

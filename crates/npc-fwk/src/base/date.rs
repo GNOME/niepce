@@ -22,13 +22,25 @@ use std::ffi::CString;
 use chrono::{Datelike, Timelike};
 
 pub type Time = i64;
-pub type Date = chrono::DateTime<chrono::Utc>;
+pub type Date = chrono::DateTime<chrono::FixedOffset>;
 
-pub fn xmp_date_from(d: &chrono::DateTime<chrono::Utc>) -> exempi2::DateTime {
+/// Convert an `exempi2::DateTime` to a `chrono::DateTime<FixedOffset>`
+pub fn xmp_date_from(d: &Date) -> exempi2::DateTime {
+    use exempi2::TzSign;
+
     let mut xmp_date = exempi2::DateTime::new();
     xmp_date.set_date(d.year(), d.month() as i32, d.day() as i32);
     xmp_date.set_time(d.hour() as i32, d.minute() as i32, d.second() as i32);
-    xmp_date.set_timezone(exempi2::TzSign::UTC, 0, 0);
+    let offset = d.offset().local_minus_utc();
+    let sign = if offset == 0 {
+        TzSign::UTC
+    } else if offset > 0 {
+        TzSign::East
+    } else {
+        TzSign::West
+    };
+    let offset = offset.abs();
+    xmp_date.set_timezone(sign, offset / 3600, offset / 60);
 
     xmp_date
 }
@@ -47,4 +59,27 @@ pub extern "C" fn fwk_date_to_string(date: &Date) -> *mut libc::c_char {
     CString::new(date.to_string().as_bytes())
         .unwrap()
         .into_raw()
+}
+
+#[cfg(test)]
+mod test {
+    use chrono::TimeZone;
+
+    use super::xmp_date_from;
+
+    #[test]
+    fn test_xmp_date_from() {
+        let date = chrono::FixedOffset::west(5 * 3600)
+            .ymd(2021, 12, 25)
+            .and_hms(10, 42, 12);
+        let xmp_date = xmp_date_from(&date);
+        assert_eq!(xmp_date.year(), 2021);
+        assert_eq!(xmp_date.month(), 12);
+        assert_eq!(xmp_date.day(), 25);
+
+        assert_eq!(xmp_date.hour(), 10);
+
+        assert_eq!(xmp_date.tz_hours(), 5);
+        assert_eq!(xmp_date.tz_sign(), exempi2::TzSign::West);
+    }
 }
