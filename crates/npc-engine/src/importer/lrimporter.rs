@@ -92,10 +92,10 @@ impl LrImporter {
         if let Some(images) = images {
             dbg_out!("Has images");
             images.iter().for_each(|id| {
-                self.image_map.get(&id).map(|npc_image_id| {
+                if let Some(npc_image_id) = self.image_map.get(&id) {
                     dbg_out!("adding {} to album {}", npc_image_id, nid);
                     libclient.add_to_album(*npc_image_id, nid);
-                });
+                }
             });
         }
     }
@@ -103,7 +103,7 @@ impl LrImporter {
     fn populate_bundle(file: &LibraryFile, folder_path: &str, bundle: &mut FileBundle) {
         let mut xmp_file: Option<String> = None;
         let mut jpeg_file: Option<String> = None;
-        let sidecar_exts = file.sidecar_extensions.split(",");
+        let sidecar_exts = file.sidecar_extensions.split(',');
         sidecar_exts.for_each(|ext| {
             if !ext.is_empty() {
                 return;

@@ -26,5 +26,5 @@ use std::ffi::CString;
 /// Dereference the pointer
 #[no_mangle]
 pub unsafe extern "C" fn rust_cstring_delete(string: *mut c_char) {
-    CString::from_raw(string);
+    drop(CString::from_raw(string));
 }
