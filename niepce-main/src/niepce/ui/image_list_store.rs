@@ -47,12 +47,18 @@ pub enum ColIndex {
     FileStatus = 3,
 }
 
+enum CurrentContainer {
+    None,
+    Folder(LibraryId),
+    Keyword(LibraryId),
+    Album(LibraryId),
+}
+
 /// The Image list store.
 /// It wraps the tree model/store.
 pub struct ImageListStore {
     store: gtk::ListStore,
-    current_folder: LibraryId,
-    current_keyword: LibraryId,
+    current: CurrentContainer,
     idmap: BTreeMap<LibraryId, gtk::TreeIter>,
     image_loading_icon: OnceCell<Option<gdk_pixbuf::Pixbuf>>,
 }
@@ -76,8 +82,7 @@ impl ImageListStore {
 
         Self {
             store,
-            current_folder: 0,
-            current_keyword: 0,
+            current: CurrentContainer::None,
             idmap: BTreeMap::new(),
             image_loading_icon: OnceCell::new(),
         }
@@ -145,18 +150,15 @@ impl ImageListStore {
         use self::LibNotification::*;
 
         match *notification {
-            FolderContentQueried(ref c) | KeywordContentQueried(ref c) => {
-                match *notification {
-                    FolderContentQueried(_) => {
-                        self.current_folder = c.id;
-                        self.current_keyword = 0;
-                    }
-                    KeywordContentQueried(_) => {
-                        self.current_folder = 0;
-                        self.current_keyword = c.id;
-                    }
-                    _ => {}
-                }
+            FolderContentQueried(ref c)
+            | KeywordContentQueried(ref c)
+            | AlbumContentQueried(ref c) => {
+                self.current = match *notification {
+                    FolderContentQueried(_) => CurrentContainer::Folder(c.id),
+                    KeywordContentQueried(_) => CurrentContainer::Keyword(c.id),
+                    AlbumContentQueried(_) => CurrentContainer::Album(c.id),
+                    _ => CurrentContainer::None,
+                };
                 self.clear_content();
                 dbg_out!("received folder content file # {}", c.content.len());
                 self.add_libfiles(&c.content);
@@ -165,16 +167,16 @@ impl ImageListStore {
                 true
             }
             FileMoved(ref param) => {
-                dbg_out!("File moved. Current folder {}", self.current_folder);
-                if self.current_folder != 0 {
-                    if param.from == self.current_folder {
+                if let CurrentContainer::Folder(current_folder) = self.current {
+                    dbg_out!("File moved. Current folder {}", current_folder);
+                    if param.from == current_folder {
                         // remove from list
                         dbg_out!("from this folder");
                         if let Some(iter) = self.get_iter_from_id(param.file) {
                             self.store.remove(iter);
                             self.idmap.remove(&param.file);
                         }
-                    } else if param.to == self.current_folder {
+                    } else if param.to == current_folder {
                         // XXX add to list. but this isn't likely to happen atm.
                     }
                 }
