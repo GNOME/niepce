@@ -19,6 +19,8 @@ gdk-pixbuf-sys = "*"
 gtk-sys = { version = "*", features = ["v3_22"] }
 gtk = "*"
 libc = "0.2.39"
+num-derive = "0.3.3"
+num-traits = "0.2"
 #gphoto = "0.1.1"
 
 npc-fwk = { path = "../crates/npc-fwk" }

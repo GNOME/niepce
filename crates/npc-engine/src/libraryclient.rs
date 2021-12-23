@@ -398,14 +398,6 @@ pub extern "C" fn libraryclient_get_all_albums(client: &mut LibraryClientWrapper
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_query_folder_content(
-    client: &mut LibraryClientWrapper,
-    folder_id: LibraryId,
-) {
-    client.unwrap_mut().query_folder_content(folder_id);
-}
-
-#[no_mangle]
 pub unsafe extern "C" fn libraryclient_create_folder_sync(
     client: &mut LibraryClientWrapper,
     n: *const c_char,
@@ -434,14 +426,6 @@ pub extern "C" fn libraryclient_count_folder(
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_query_keyword_content(
-    client: &mut LibraryClientWrapper,
-    keyword_id: LibraryId,
-) {
-    client.unwrap_mut().query_keyword_content(keyword_id);
-}
-
-#[no_mangle]
 pub extern "C" fn libraryclient_count_keyword(client: &mut LibraryClientWrapper, id: LibraryId) {
     client.unwrap_mut().count_keyword(id);
 }
@@ -452,14 +436,6 @@ pub extern "C" fn libraryclient_count_album(
     album_id: LibraryId,
 ) {
     client.unwrap_mut().count_album(album_id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_query_album_content(
-    client: &mut LibraryClientWrapper,
-    album_id: LibraryId,
-) {
-    client.unwrap_mut().query_album_content(album_id);
 }
 
 #[no_mangle]

@@ -265,9 +265,9 @@ eng::library_id_t WorkspaceController::get_selected_folder_id()
     if (!selected) {
         return 0;
     }
-    int type = (*selected)[m_librarycolumns.m_type];
+    ffi::ItemTypes type = (ffi::ItemTypes)(int32_t)(*selected)[m_librarycolumns.m_type];
     eng::library_id_t id = (*selected)[m_librarycolumns.m_id];
-    if (type != FOLDER_ITEM) {
+    if (type != ffi::ItemTypes::FolderItem) {
         return 0;
     }
     return id;
@@ -275,35 +275,11 @@ eng::library_id_t WorkspaceController::get_selected_folder_id()
 
 void WorkspaceController::on_libtree_selection()
 {
-    Glib::RefPtr<Gtk::TreeSelection> selection = m_librarytree.get_selection();
-    auto selected = selection->get_selected();
-    if (!selected) {
-        DBG_OUT("Invalid iterator");
-        return;
+    int32_t type = ffi::workspace_controller_on_libtree_selection(getLibraryClient()->client(), m_librarytree.gobj());
+    if (type != -1) {
+        Glib::RefPtr<Gio::SimpleAction>::cast_dynamic(
+            m_action_group->lookup_action("DeleteFolder"))->set_enabled((ffi::ItemTypes)type == ffi::ItemTypes::FolderItem);
     }
-    int type = (*selected)[m_librarycolumns.m_type];
-    eng::library_id_t id = (*selected)[m_librarycolumns.m_id];
-
-    switch(type) {
-
-    case FOLDER_ITEM:
-        ffi::libraryclient_query_folder_content(getLibraryClient()->client(), id);
-        break;
-
-    case KEYWORD_ITEM:
-        ffi::libraryclient_query_keyword_content(getLibraryClient()->client(), id);
-        break;
-
-    case ALBUM_ITEM:
-        ffi::libraryclient_query_album_content(getLibraryClient()->client(), id);
-        break;
-
-    default:
-        DBG_OUT("selected something not a folder");
-    }
-
-    Glib::RefPtr<Gio::SimpleAction>::cast_dynamic(
-        m_action_group->lookup_action("DeleteFolder"))->set_enabled(type == FOLDER_ITEM);
     libtree_selection_changed.emit();
 }
 
@@ -311,21 +287,23 @@ void WorkspaceController::on_row_expanded_collapsed(const Gtk::TreeIter& iter,
                                                     const Gtk::TreePath& /*path*/,
                                                     bool expanded)
 {
-    int type = (*iter)[m_librarycolumns.m_type];
+    ffi::ItemTypes type = (ffi::ItemTypes)(int32_t)(*iter)[m_librarycolumns.m_type];
     fwk::Configuration::Ptr cfg = getLibraryConfig();
     const char* key = nullptr;
     switch(type) {
-    case FOLDERS_ITEM:
+    case ffi::ItemTypes::FoldersItem:
         key = "workspace_folders_expanded";
         break;
-    case PROJECTS_ITEM:
+    case ffi::ItemTypes::ProjectsItem:
         key = "workspace_projects_expanded";
         break;
-    case ALBUMS_ITEM:
+    case ffi::ItemTypes::AlbumsItem:
         key = "workspace_albums_expanded";
         break;
-    case KEYWORDS_ITEM:
+    case ffi::ItemTypes::KeywordsItem:
         key = "workspace_keywords_expanded";
+        break;
+    default:
         break;
     }
     if(cfg && key) {
@@ -352,7 +330,7 @@ void WorkspaceController::add_keyword_item(const eng::Keyword* k)
     auto keyword = fwk::RustFfiString(engine_db_keyword_keyword(k));
     auto iter = add_item(m_treestore, children,
                          m_icons[ICON_KEYWORD], keyword.c_str(),
-                         engine_db_keyword_id(k), KEYWORD_ITEM);
+                         engine_db_keyword_id(k), ffi::ItemTypes::KeywordItem);
     ffi::libraryclient_count_keyword(getLibraryClient()->client(), engine_db_keyword_id(k));
     m_keywordsidmap[engine_db_keyword_id(k)] = iter;
     if(was_empty) {
@@ -382,7 +360,7 @@ void WorkspaceController::add_folder_item(const eng::LibFolder* f)
     auto iter = add_item(m_treestore, children,
                          m_icons[icon_idx],
                          engine_db_libfolder_name(const_cast<eng::LibFolder*>(f)),
-                         engine_db_libfolder_id(f), FOLDER_ITEM);
+                         engine_db_libfolder_id(f), ffi::ItemTypes::FolderItem);
     if(engine_db_libfolder_expanded(f)) {
         m_librarytree.expand_row(m_treestore->get_path(iter), false);
     }
@@ -398,17 +376,17 @@ Gtk::TreeModel::iterator
 WorkspaceController::add_item(const Glib::RefPtr<Gtk::TreeStore> &treestore,
                               const Gtk::TreeNodeChildren & childrens,
                               const Glib::RefPtr<Gdk::Pixbuf> & icon,
-                              const Glib::ustring & label, 
-                              eng::library_id_t id, int type) const
+                              const Glib::ustring & label,
+                              eng::library_id_t id, ffi::ItemTypes type) const
 {
     Gtk::TreeModel::iterator iter;
     Gtk::TreeModel::Row row;
     iter = treestore->append(childrens);
     row = *iter;
     row[m_librarycolumns.m_icon] = icon;
-    row[m_librarycolumns.m_label] = label; 
+    row[m_librarycolumns.m_label] = label;
     row[m_librarycolumns.m_id] = id;
-    row[m_librarycolumns.m_type] = type;
+    row[m_librarycolumns.m_type] = (int32_t)type;
     row[m_librarycolumns.m_count] = "--";
     return iter;
 }
@@ -420,7 +398,7 @@ void WorkspaceController::add_album_item(const eng::Album* a)
     auto album = fwk::RustFfiString(engine_db_album_name(a));
     auto iter = add_item(m_treestore, children,
                          m_icons[ICON_ALBUM], album.c_str(),
-                         engine_db_album_id(a), ALBUM_ITEM);
+                         engine_db_album_id(a), ffi::ItemTypes::AlbumItem);
     ffi::libraryclient_count_album(getLibraryClient()->client(), engine_db_album_id(a));
     m_albumsidmap[engine_db_album_id(a)] = iter;
     if (was_empty) {
@@ -443,19 +421,19 @@ Gtk::Widget * WorkspaceController::buildWidget()
     m_folderNode = add_item(m_treestore, m_treestore->children(),
                             m_icons[ICON_FOLDER],
                             Glib::ustring(_("Pictures")), 0,
-                            FOLDERS_ITEM);
+                            ffi::ItemTypes::FoldersItem);
     m_projectNode = add_item(m_treestore, m_treestore->children(),
                              m_icons[ICON_PROJECT],
                              Glib::ustring(_("Projects")), 0,
-                             PROJECTS_ITEM);
+                             ffi::ItemTypes::ProjectsItem);
     m_albumsNode = add_item(m_treestore, m_treestore->children(),
                             m_icons[ICON_ALBUM],
                             Glib::ustring(_("Albums")), 0,
-                            ALBUMS_ITEM);
+                            ffi::ItemTypes::AlbumsItem);
     m_keywordsNode = add_item(m_treestore, m_treestore->children(),
                               m_icons[ICON_KEYWORD],
                               Glib::ustring(_("Keywords")), 0,
-                              KEYWORDS_ITEM);
+                              ffi::ItemTypes::KeywordsItem);
     m_librarytree.set_headers_visible(false);
     m_librarytree.append_column("", m_librarycolumns.m_icon);
     int num = m_librarytree.append_column("", m_librarycolumns.m_label);

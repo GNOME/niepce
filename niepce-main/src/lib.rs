@@ -30,6 +30,8 @@ extern crate gtk;
 extern crate gtk_sys;
 extern crate libc;
 extern crate once_cell;
+#[macro_use]
+extern crate num_derive;
 
 // internal crates
 #[macro_use]

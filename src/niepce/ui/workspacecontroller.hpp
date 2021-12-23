@@ -39,17 +39,6 @@ class WorkspaceController
 public:
     typedef std::shared_ptr<WorkspaceController> Ptr;
 
-    enum {
-        ALBUMS_ITEM,
-        FOLDERS_ITEM,
-        PROJECTS_ITEM,
-        KEYWORDS_ITEM,
-        ALBUM_ITEM,
-        FOLDER_ITEM,
-        PROJECT_ITEM,
-        KEYWORD_ITEM
-    };
-
     WorkspaceController(const Glib::RefPtr<Gio::SimpleActionGroup>& action_group);
     class WorkspaceTreeColumns
         : public Gtk::TreeModelColumnRecord
@@ -68,7 +57,9 @@ public:
         Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_icon;
         Gtk::TreeModelColumn<eng::library_id_t> m_id;
         Gtk::TreeModelColumn<Glib::ustring> m_label;
-        Gtk::TreeModelColumn<int> m_type;
+        // This can't be a ItemTypes because in Rust it doesn't work as it is
+        // turned into a BoxedType.
+        Gtk::TreeModelColumn<int32_t> m_type;
         Gtk::TreeModelColumn<Glib::ustring> m_count;
         Gtk::TreeModelColumn<int> m_count_n;
     };
@@ -125,7 +116,7 @@ private:
                                       const Gtk::TreeNodeChildren & childrens,
                                       const Glib::RefPtr<Gdk::Pixbuf> & icon,
                                       const Glib::ustring& label,
-                                      eng::library_id_t id, int type) const;
+                                      eng::library_id_t id, ffi::ItemTypes type) const;
 
     void expand_from_cfg(const char* key, const Gtk::TreeIter& treenode);
 

@@ -20,6 +20,7 @@ fn main() {
                 "strum",
             ])
             .include_item("ColIndex")
+            .include_item("ItemTypes")
             .exclude_item("Managed")
             .exclude_item("NiepcePropertyIdx")
             .exclude_item("FileStatus")
@@ -31,6 +32,7 @@ fn main() {
             .exclude_item("GtkToolbar")
             .exclude_item("GtkTreeIter")
             .exclude_item("GtkTreeModel")
+            .exclude_item("GtkTreeView")
             .exclude_item("GtkIconView")
             .exclude_item("GtkListStore")
             .exclude_item("GtkTreePath")
