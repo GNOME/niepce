@@ -19,15 +19,16 @@
 
 use gettextrs::gettext;
 
+use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::path::Path;
 
 use lrcat::{
-    Catalog, CatalogVersion, Collection, Folder, Image, Keyword, KeywordTree, LibraryFile, LrId,
-    LrObject,
+    Catalog, CatalogVersion, Collection, Folder, Folders, Image, Keyword, KeywordTree, LibraryFile,
+    LrId, LrObject,
 };
 
-use super::libraryimporter::LibraryImporter;
+use super::libraryimporter::{Error, LibraryImporter, Result};
 use crate::db::filebundle::FileBundle;
 use crate::db::props::NiepceProperties as Np;
 use crate::db::props::NiepcePropertyIdx as NpI;
@@ -36,26 +37,36 @@ use crate::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryClient};
 use crate::NiepcePropertyBag;
 
 /// Library importer for Lightroom™
+#[derive(Default)]
 pub struct LrImporter {
+    /// The Lr Catalog.
+    catalog: Option<Catalog>,
     /// map keyword LrId to LibraryId
-    folder_map: BTreeMap<LrId, (LibraryId, String)>,
+    folder_map: RefCell<BTreeMap<LrId, (LibraryId, String)>>,
     /// map keyword LrId to LibraryId
-    keyword_map: BTreeMap<LrId, LibraryId>,
+    keyword_map: RefCell<BTreeMap<LrId, LibraryId>>,
     /// map collection LrId to album LibraryId
-    collection_map: BTreeMap<LrId, LibraryId>,
+    collection_map: RefCell<BTreeMap<LrId, LibraryId>>,
     /// map files LrId to file LibraryId
-    file_map: BTreeMap<LrId, LibraryId>,
+    file_map: RefCell<BTreeMap<LrId, LibraryId>>,
     /// map image LrId to file LibraryId
     ///
     /// XXX longer term is to have an image table.
-    image_map: BTreeMap<LrId, LibraryId>,
+    image_map: RefCell<BTreeMap<LrId, LibraryId>>,
+
+    /// The root folder mapping table
+    root_folder_map: BTreeMap<String, String>,
 }
 
 impl LrImporter {
+    pub fn new() -> LrImporter {
+        LrImporter::default()
+    }
+
     /// Import keyword with `id`. `keywords` is all the Lr keywords, `tree`
     /// is the hierarchy tree as returned by `Catalog::load_keywords_tree()`
     fn import_keyword(
-        &mut self,
+        &self,
         id: LrId,
         mut libclient: &mut LibraryClient,
         keywords: &BTreeMap<LrId, Keyword>,
@@ -63,36 +74,44 @@ impl LrImporter {
     ) {
         if let Some(keyword) = keywords.get(&id) {
             let nid = libclient.create_keyword_sync(keyword.name.clone());
-            self.keyword_map.insert(id, nid);
+            self.keyword_map.borrow_mut().insert(id, nid);
             tree.children_for(id).iter().for_each(|child| {
                 self.import_keyword(*child, &mut libclient, keywords, tree);
             });
         }
     }
 
-    fn import_folder(&mut self, folder: &Folder, path: &str, libclient: &mut LibraryClient) {
+    fn import_folder(&self, folder_id: LrId, path: &str, libclient: &mut LibraryClient) {
         let folder_name = Path::new(&path)
             .file_name()
             .map(|name| String::from(name.to_string_lossy()))
             .unwrap_or_else(|| gettext("Untitled"));
         let nid = libclient.create_folder_sync(folder_name, Some(path.into()));
-        self.folder_map.insert(folder.id(), (nid, path.into()));
+        self.folder_map
+            .borrow_mut()
+            .insert(folder_id, (nid, path.into()));
     }
 
     fn import_collection(
-        &mut self,
+        &self,
         collection: &Collection,
         images: Option<&Vec<LrId>>,
         libclient: &mut LibraryClient,
     ) {
-        let parent = self.collection_map.get(&collection.parent).unwrap_or(&-1);
-        let nid = libclient.create_album_sync(collection.name.clone(), *parent);
-        self.collection_map.insert(collection.id(), nid);
+        let parent = *self
+            .collection_map
+            .borrow()
+            .get(&collection.parent)
+            .unwrap_or(&-1);
+        let nid = libclient.create_album_sync(collection.name.clone(), parent);
+        self.collection_map
+            .borrow_mut()
+            .insert(collection.id(), nid);
 
         if let Some(images) = images {
             dbg_out!("Has images");
             images.iter().for_each(|id| {
-                if let Some(npc_image_id) = self.image_map.get(&id) {
+                if let Some(npc_image_id) = self.image_map.borrow().get(&id) {
                     dbg_out!("adding {} to album {}", npc_image_id, nid);
                     libclient.add_to_album(*npc_image_id, nid);
                 }
@@ -127,8 +146,15 @@ impl LrImporter {
         }
     }
 
-    fn import_library_file(&mut self, file: &LibraryFile, libclient: &mut LibraryClient) {
-        if let Some(folder_id) = self.folder_map.get(&file.folder) {
+    /// Import a library file. `image` is the optional imager from Lr, includes
+    /// metadata.
+    fn import_library_file(
+        &self,
+        file: &LibraryFile,
+        image: Option<&Image>,
+        libclient: &mut LibraryClient,
+    ) {
+        if let Some(folder_id) = self.folder_map.borrow().get(&file.folder) {
             let main_file = format!("{}/{}.{}", &folder_id.1, &file.basename, &file.extension);
             let mut bundle = FileBundle::new();
             dbg_out!("Adding {}", &main_file);
@@ -138,86 +164,119 @@ impl LrImporter {
                 Self::populate_bundle(file, &folder_id.1, &mut bundle);
             }
 
+            let metadata = if let Some(image) = image {
+                let mut metadata = NiepcePropertyBag::new();
+                metadata.set_value(
+                    Np::Index(NpI::NpTiffOrientationProp),
+                    image.exif_orientation().into(),
+                );
+                metadata.set_value(Np::Index(NpI::NpNiepceFlagProp), (image.pick as i32).into());
+                metadata.set_value(Np::Index(NpI::NpNiepceXmpPacket), image.xmp.as_str().into());
+                Some(metadata)
+            } else {
+                None
+            };
+
             let nid = libclient.add_bundle_sync(&bundle, folder_id.0);
-            self.file_map.insert(file.id(), nid);
+            if let Some(ref props) = metadata {
+                libclient.set_image_properties(nid, props);
+            }
+            self.file_map.borrow_mut().insert(file.id(), nid);
+            if let Some(image) = image {
+                self.image_map.borrow_mut().insert(image.id(), nid);
+            }
         }
     }
 
-    fn import_image(&mut self, image: &Image, libclient: &mut LibraryClient) {
-        let root_file = image.root_file;
-        if let Some(file_id) = self.file_map.get(&root_file) {
-            let mut metadata = NiepcePropertyBag::new();
-            metadata.set_value(
-                Np::Index(NpI::NpTiffOrientationProp),
-                image.exif_orientation().into(),
-            );
-            metadata.set_value(Np::Index(NpI::NpNiepceFlagProp), (image.pick as i32).into());
-            metadata.set_value(Np::Index(NpI::NpNiepceXmpPacket), image.xmp.as_str().into());
-            libclient.set_image_properties(*file_id, &metadata);
-            self.image_map.insert(image.id(), *file_id);
-        }
+    /// Remap a folder path based on the root folder remapping
+    /// If the folder isnt't found, it's the equivalent of
+    /// `Folders.resolve_folder_path()`
+    fn remap_folder_path(&self, folders: &Folders, folder: &Folder) -> Option<String> {
+        folders
+            .find_root_folder(folder.root_folder)
+            .map(|root_folder| {
+                let absolute_path = &root_folder.absolute_path;
+                let mut absolute_path = self
+                    .root_folder_map
+                    .get(absolute_path)
+                    .unwrap_or(absolute_path)
+                    .to_string();
+                absolute_path += &folder.path_from_root;
+                absolute_path
+            })
     }
 }
 
 impl LibraryImporter for LrImporter {
-    fn new() -> LrImporter {
-        LrImporter {
-            folder_map: BTreeMap::new(),
-            keyword_map: BTreeMap::new(),
-            collection_map: BTreeMap::new(),
-            file_map: BTreeMap::new(),
-            image_map: BTreeMap::new(),
-        }
-    }
-
-    fn import_library(&mut self, path: &Path, libclient: &mut LibraryClient) -> bool {
+    fn init_importer(&mut self, path: &Path) -> Result<()> {
         let mut catalog = Catalog::new(path);
         if !catalog.open() {
-            return false;
+            return Err(Error::UnsupportedFormat);
         }
 
-        catalog.load_version();
-        if catalog.catalog_version != CatalogVersion::Lr4 {
-            return false;
+        self.catalog = Some(catalog);
+        Ok(())
+    }
+
+    fn import_library(&mut self, libclient: &mut LibraryClient) -> Result<()> {
+        if let Some(ref mut catalog) = self.catalog {
+            catalog.load_version();
+            if catalog.catalog_version != CatalogVersion::Lr4 {
+                return Err(Error::UnsupportedFormat);
+            }
+            catalog.load_folders();
+            catalog.load_keywords_tree();
+            catalog.load_keywords();
+            catalog.load_library_files();
+            catalog.load_images();
+            catalog.load_collections();
+        } else {
+            return Err(Error::NoInput);
         }
 
-        let folders = catalog.load_folders();
-        folders.folders.iter().for_each(|folder| {
-            if let Some(path) = folders.resolve_folder_path(folder) {
-                self.import_folder(&folder, &path, libclient);
-            }
-        });
+        if let Some(ref catalog) = self.catalog {
+            let folders = catalog.folders();
+            folders
+                .folders
+                .iter()
+                .map(|f| (f.id(), self.remap_folder_path(folders, f)))
+                .filter(|p| p.1.is_some())
+                .for_each(|path| self.import_folder(path.0, &path.1.as_ref().unwrap(), libclient));
 
-        let root_keyword_id = catalog.root_keyword_id;
-        let keywordtree = catalog.load_keywords_tree();
-        let keywords = catalog.load_keywords();
-        self.import_keyword(root_keyword_id, libclient, keywords, &keywordtree);
+            let root_keyword_id = catalog.root_keyword_id;
+            let keywords = catalog.keywords();
+            let mut keywordtree = KeywordTree::new();
+            keywordtree.add_children(keywords);
+            self.import_keyword(root_keyword_id, libclient, &keywords, &keywordtree);
 
-        let library_files = catalog.load_library_files();
-        library_files.iter().for_each(|library_file| {
-            self.import_library_file(library_file, libclient);
-        });
+            let images = catalog.images();
+            let image_to_libfile: BTreeMap<LrId, &Image> = images
+                .iter()
+                .map(|image| (image.root_file, image))
+                .collect();
+            let library_files = catalog.libfiles();
+            library_files.iter().for_each(|library_file| {
+                let image = image_to_libfile.get(&library_file.id());
+                self.import_library_file(library_file, image.copied(), libclient);
+            });
 
-        let images = catalog.load_images();
-        images.iter().for_each(|image| {
-            self.import_image(image, libclient);
-        });
+            let collections = catalog.collections();
+            collections.iter().for_each(|collection| {
+                if !collection.system_only {
+                    dbg_out!("Found collection {}", &collection.name);
+                    let images = catalog.images_for_collection(collection.id()).ok();
+                    dbg_out!(
+                        "Found {} images in collection",
+                        images.as_ref().map(Vec::len).unwrap_or(0)
+                    );
+                    self.import_collection(&collection, images.as_ref(), libclient);
+                }
+            });
 
-        catalog.load_collections();
-        let collections = catalog.collections();
-        collections.iter().for_each(|collection| {
-            if !collection.system_only {
-                dbg_out!("Found collection {}", &collection.name);
-                let images = catalog.images_for_collection(collection.id()).ok();
-                dbg_out!(
-                    "Found {} images in collection",
-                    images.as_ref().map(Vec::len).unwrap_or(0)
-                );
-                self.import_collection(&collection, images.as_ref(), libclient);
-            }
-        });
-
-        true
+            Ok(())
+        } else {
+            Err(Error::NoInput)
+        }
     }
 
     /// Detect if this is a Lr catalog
@@ -229,5 +288,32 @@ impl LibraryImporter for LrImporter {
             }
         }
         false
+    }
+
+    fn root_folders(&mut self) -> Vec<String> {
+        if let Some(ref mut catalog) = self.catalog {
+            catalog.load_folders();
+        }
+        if let Some(ref catalog) = self.catalog {
+            catalog
+                .folders()
+                .roots
+                .iter()
+                .map(|r| {
+                    let absolute_path = &r.absolute_path;
+                    self.root_folder_map
+                        .get(absolute_path)
+                        .unwrap_or(absolute_path)
+                })
+                .cloned()
+                .collect()
+        } else {
+            vec![]
+        }
+    }
+
+    fn map_root_folder(&mut self, orig: &str, dest: &str) {
+        self.root_folder_map
+            .insert(orig.to_string(), dest.to_string());
     }
 }

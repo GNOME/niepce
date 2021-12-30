@@ -21,16 +21,36 @@ use std::path::Path;
 
 use crate::libraryclient::LibraryClient;
 
+#[derive(Debug)]
+pub enum Error {
+    /// The format is unsupported. This is specific to the implementation.
+    UnsupportedFormat,
+    /// There is no input available: usually an error opening the
+    /// input library that is not `UnsupportedFormat`. The latter
+    /// can't happen with this condition.
+    NoInput,
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
+
 /// Interface trait for a library importer.
+///
+/// Once constructed, call `init_importer` with a `Path`.
+//. Call `import_library` to do the import.
 pub trait LibraryImporter {
-    /// Return a new library importer
-    fn new() -> Self;
+    /// Initiatlize the importer.
+    fn init_importer(&mut self, path: &Path) -> Result<()>;
 
     /// import the library at path.
-    /// if can_import_library returne false this should return false
-    /// XXX return an actual Result<>
-    fn import_library(&mut self, path: &Path, libclient: &mut LibraryClient) -> bool;
+    /// if can_import_library returned false this should return an error
+    fn import_library(&mut self, libclient: &mut LibraryClient) -> Result<()>;
 
     /// Return true if or a given path the importer recognize the library
     fn can_import_library(path: &Path) -> bool;
+
+    /// Return the root folders. They can then me remapped using `map_root_folder`.
+    fn root_folders(&mut self) -> Vec<String>;
+
+    /// Map a root folder a new destination.
+    fn map_root_folder(&mut self, orig: &str, dest: &str);
 }

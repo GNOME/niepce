@@ -11,7 +11,6 @@ license = "GPL-3.0"
 
 [dependencies]
 async-channel = "1.6.1"
-clap = { version = "2.33.3", optional = true }
 chrono = "0.4.19"
 exempi2 = { version = "0.1.2" }
 gettext-rs = "0.7.0"
@@ -21,10 +20,16 @@ glib = "*"
 lazy_static = "^1.2.0"
 libc = "0.2.39"
 maplit = "1.0.2"
-lrcat-extractor = { version = "0.2.0" }
+lrcat-extractor = { version = "0.2.1" }
 rusqlite = { version = "0.26.3", features = ["functions"] }
 
 npc-fwk = { path = "../npc-fwk" }
+
+# optional dependpencies
+clap = { version = "2.33.3", optional = true }
+toml = { version = "0.5", optional = true }
+serde = { version = "*", optional = true }
+serde_derive = { version = "^1.0", optional = true }
 
 [build-dependencies]
 cbindgen = { version = "0.19.0" }
@@ -34,4 +39,4 @@ name = "importlr"
 required-features = ["binaries"]
 
 [features]
-binaries = ["clap"]
+binaries = ["clap", "toml", "serde", "serde_derive"]

@@ -681,9 +681,9 @@ dependencies = [
 
 [[package]]
 name = "lrcat-extractor"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fafe70f346fd8591519612694441d6e6a0f7aa4402a5e007b8e916754686b633"
+checksum = "aa77e3af28273ff573189d0adc008cc40d91afd6f9b80174b5e4422bebe19052"
 dependencies = [
  "chrono",
  "peg",
@@ -788,6 +788,9 @@ dependencies = [
  "maplit",
  "npc-fwk",
  "rusqlite",
+ "serde",
+ "serde_derive",
+ "toml",
 ]
 
 [[package]]

@@ -1,9 +1,51 @@
+/*
+ * niepce - bin/importlr.rs
+ *
+ * Copyright (C) 2021 Hubert Figuière
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//!
+//! Sample command line tool to import a Lr Catalog
+//!
+
 use clap::{App, Arg};
+use toml;
+use serde::Deserialize;
+
+use std::io::Read;
 use std::path::PathBuf;
 
 use npc_engine::importer::LibraryImporter;
 use npc_engine::importer::LrImporter;
 use npc_engine::libraryclient::LibraryClient;
+
+///
+/// The remaps as loaded from toml passed with `-r`
+///
+/// ```toml
+/// roots = [
+///     [ "origin1", "dest1" ],
+///     [ "origin2", "dest2" ]
+/// ]
+/// ```
+///
+#[derive(Debug, Deserialize)]
+struct Remaps {
+    roots: Vec<Vec<String>>
+}
 
 fn main() {
     npc_fwk::init();
@@ -21,6 +63,13 @@ fn main() {
             Arg::with_name("CATALOG")
                 .help("The catalog to import")
                 .required(true),
+        )
+        .arg(
+            Arg::with_name("roots")
+                .short("r")
+                .value_name("ROOTS")
+                .help("File containing roots remap")
+                .takes_value(true),
         )
         .arg(
             Arg::with_name("library")
@@ -45,5 +94,28 @@ fn main() {
         println!("Can't import catalog {}", catalog);
         return;
     }
-    if importer.import_library(&PathBuf::from(catalog), &mut library) {}
+
+    importer
+        .init_importer(&PathBuf::from(catalog))
+        .expect("Init importer");
+
+    if let Some(roots) = matches.value_of("roots") {
+        let mut file = std::fs::File::open(roots).expect("Can't open roots file");
+        let mut content = String::new();
+        file.read_to_string(&mut content).expect("Can't read roots");
+
+        if let Ok(remaps) = toml::from_str::<Remaps>(&content) {
+            remaps.roots.iter().for_each(|v| {
+                if v.len() >= 2 {
+                    importer.map_root_folder(&v[0], &v[1]);
+                }
+            });
+        } else {
+            println!("Invalid roots file");
+        }
+    }
+
+    importer
+        .import_library(&mut library)
+        .expect("Import Library");
 }
