@@ -10,7 +10,10 @@ fn main() {
         let target_dir = env::var("CARGO_TARGET_DIR").unwrap_or_else(|_| String::from("./target"));
         let mut target_file = PathBuf::from(target_dir);
         target_file.push("fwk_bindings.h");
+        let mut config = cbindgen::Config::default();
+        config.constant.allow_static_const = false;
         cbindgen::Builder::new()
+            .with_config(config)
             .with_include_guard("niepce_fwk_rust_bindings_h")
             .with_namespace("ffi")
             .with_language(cbindgen::Language::Cxx)

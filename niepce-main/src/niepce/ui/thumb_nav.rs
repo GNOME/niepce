@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/thumb_nav.rs
  *
- * Copyright (C) 2020-2021 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -176,9 +176,8 @@ impl ThumbNavPriv {
 
         if i == SCROLL_MOVE || value - SCROLL_INC < 0.0 {
             ref_i.set(0.0);
-            if let Err(err) = adj.emit_by_name("value-changed", &[]) {
-                err_out!("signal emit value-changed {}", err);
-            }
+            adj.emit_by_name::<()>("value-changed", &[]);
+
             return Continue(false);
         }
 
@@ -229,12 +228,7 @@ impl ThumbNavPriv {
             ThumbNavMode::OneRow => {
                 if let Some(thumbview) = &*self.thumbview.borrow() {
                     thumbview.set_size_request(-1, -1);
-                    if let Err(err) = thumbview.set_property("item-height", &100) {
-                        err_out!(
-                            "ThumbNav::set_mode: set property 'item-height' failed: {}",
-                            err
-                        );
-                    }
+                    thumbview.set_property("item-height", &100);
                 }
                 self.widgets
                     .get()
@@ -251,12 +245,7 @@ impl ThumbNavPriv {
                     thumbview.set_columns(1);
 
                     thumbview.set_size_request(-1, -1);
-                    if let Err(err) = thumbview.set_property("item-height", &-1) {
-                        err_out!(
-                            "ThumbNav::set_mode: set property 'item-height' failed: {}",
-                            err
-                        );
-                    }
+                    thumbview.set_property("item-height", &-1);
                 }
                 if let Some(widgets) = self.widgets.get() {
                     widgets
@@ -316,7 +305,8 @@ impl ObjectImpl for ThumbNavPriv {
             priv_.left_button_clicked();
         }));
 
-        let sw = gtk::ScrolledWindow::new(gtk::NONE_ADJUSTMENT, gtk::NONE_ADJUSTMENT);
+        let sw = gtk::ScrolledWindow::new(Option::<&gtk::Adjustment>::None,
+                                          Option::<&gtk::Adjustment>::None);
         sw.set_shadow_type(gtk::ShadowType::In);
         sw.set_policy(gtk::PolicyType::Always, gtk::PolicyType::Never);
         let adj = sw.hadjustment();
@@ -357,9 +347,7 @@ impl ObjectImpl for ThumbNavPriv {
         // The value-changed signal might not be emitted because the value is already 0.
         // Ensure the state first.
         self.adj_value_changed(&adj);
-        if let Err(err) = adj.emit_by_name("value-changed", &[]) {
-            err_out!("ThumbNav::constructed: signal emit failed: {}", err);
-        }
+        adj.emit_by_name::<()>("value-changed", &[]);
 
         self.add_thumbview();
     }
@@ -368,21 +356,21 @@ impl ObjectImpl for ThumbNavPriv {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
             vec![
-                glib::ParamSpec::new_boolean(
+                glib::ParamSpecBoolean::new(
                     "show-buttons",
                     "Show Buttons",
                     "Whether to show navigation buttons or not",
                     true, // Default value
                     glib::ParamFlags::READWRITE,
                 ),
-                glib::ParamSpec::new_object(
+                glib::ParamSpecObject::new(
                     "thumbview",
                     "Thumbnail View",
                     "The internal thumbnail viewer widget",
                     gtk::IconView::static_type(),
                     glib::ParamFlags::READWRITE | glib::ParamFlags::CONSTRUCT_ONLY,
                 ),
-                glib::ParamSpec::new_int(
+                glib::ParamSpecInt::new(
                     "mode",
                     "Mode",
                     "Thumb navigator mode",

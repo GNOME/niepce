@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/files.rs
  *
- * Copyright (C) 2018-2021 Hubert Figuière
+ * Copyright (C) 2018-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ impl FileList {
         }
         let dir_path = dir_path.unwrap();
         if let Ok(enumerator) =
-            dir.enumerate_children("*", gio::FileQueryInfoFlags::NONE, gio::NONE_CANCELLABLE)
+            dir.enumerate_children("*", gio::FileQueryInfoFlags::NONE, Option::<&gio::Cancellable>::None)
         {
             for itr in enumerator.into_iter() {
                 if itr.is_err() {
@@ -60,7 +60,7 @@ impl FileList {
                         continue;
                     }
                     let name = finfo.name();
-                    let fullname = glib::build_filenamev(&[&dir_path, &name]);
+                    let fullname: PathBuf = [&dir_path, &name].iter().collect();
                     dbg_out!("Found file {:?}", &fullname);
                     l.0.push(fullname);
                 }

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_list_store.rs
  *
- * Copyright (C) 2020-2021 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,8 +35,8 @@ use npc_fwk::toolkit::gdk_utils;
 use npc_fwk::PropertyValue;
 
 /// Wrap a libfile into something that can be in a glib::Value
-#[derive(Clone, GBoxed)]
-#[gboxed(type_name = "StoreLibFile", nullable)]
+#[derive(Clone, glib::Boxed)]
+#[boxed_type(name = "StoreLibFile", nullable)]
 pub struct StoreLibFile(pub LibFile);
 
 #[repr(i32)]

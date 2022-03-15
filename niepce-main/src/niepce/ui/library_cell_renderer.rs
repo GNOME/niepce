@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/library_cell_renderer.rs
  *
- * Copyright (C) 2020-2021 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -215,7 +215,7 @@ impl LibraryCellRendererPriv {
         self.libfile.replace(libfile);
     }
 
-    fn do_draw_thumbnail(&self, cr: &cairo::Context, pixbuf: &Pixbuf, r: &gdk::Rectangle) {
+    fn do_draw_thumbnail(&self, cr: &cairo::Context, pixbuf: &Pixbuf, r: &cairo::RectangleInt) {
         let w = pixbuf.width();
         let h = pixbuf.height();
         let offset_x = (self.size.get() - w) / 2;
@@ -231,7 +231,7 @@ impl LibraryCellRendererPriv {
         on_err_out!(cr.paint());
     }
 
-    fn do_draw_flag(cr: &cairo::Context, flag: i32, r: &gdk::Rectangle) {
+    fn do_draw_flag(cr: &cairo::Context, flag: i32, r: &cairo::RectangleInt) {
         if flag == 0 {
             return;
         }
@@ -248,7 +248,7 @@ impl LibraryCellRendererPriv {
         on_err_out!(cr.paint());
     }
 
-    fn do_draw_status(cr: &cairo::Context, status: FileStatus, r: &gdk::Rectangle) {
+    fn do_draw_status(cr: &cairo::Context, status: FileStatus, r: &cairo::RectangleInt) {
         if status == FileStatus::Ok {
             return;
         }
@@ -258,7 +258,7 @@ impl LibraryCellRendererPriv {
         on_err_out!(cr.paint());
     }
 
-    fn do_draw_format_emblem(cr: &cairo::Context, emblem: &Pixbuf, r: &gdk::Rectangle) -> i32 {
+    fn do_draw_format_emblem(cr: &cairo::Context, emblem: &Pixbuf, r: &cairo::RectangleInt) -> i32 {
         let w = emblem.width();
         let h = emblem.height();
         let left = CELL_PADDING + w;
@@ -269,7 +269,7 @@ impl LibraryCellRendererPriv {
         left
     }
 
-    fn do_draw_label(cr: &cairo::Context, right: i32, colour: RgbColour, r: &gdk::Rectangle) {
+    fn do_draw_label(cr: &cairo::Context, right: i32, colour: RgbColour, r: &cairo::RectangleInt) {
         const LABEL_SIZE: i32 = 15;
         let x: f64 = (r.x + r.width - CELL_PADDING - right - CELL_PADDING - LABEL_SIZE).into();
         let y: f64 = (r.y + r.height - CELL_PADDING - LABEL_SIZE).into();
@@ -279,7 +279,7 @@ impl LibraryCellRendererPriv {
         on_err_out!(cr.stroke());
         cr.rectangle(x, y, LABEL_SIZE.into(), LABEL_SIZE.into());
         let rgb: gdk::RGBA = colour.into();
-        cr.set_source_rgba(rgb.red, rgb.green, rgb.blue, rgb.alpha);
+        cr.set_source_rgba(rgb.red(), rgb.green(), rgb.blue(), rgb.alpha());
         on_err_out!(cr.fill());
     }
 
@@ -330,14 +330,14 @@ impl ObjectImpl for LibraryCellRendererPriv {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
             vec![
-                glib::ParamSpec::new_boxed(
+                glib::ParamSpecBoxed::new(
                     "libfile",
                     "Library File",
                     "File from the library in the cell",
                     StoreLibFile::static_type(),
                     glib::ParamFlags::READWRITE,
                 ),
-                glib::ParamSpec::new_int(
+                glib::ParamSpecInt::new(
                     "status",
                     "File Status",
                     "Status of the file in the cell",
@@ -437,7 +437,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         let xpad = self_.xpad();
         let ypad = self_.ypad();
 
-        let mut r = *cell_area;
+        let mut r = *cell_area.as_ref();
         r.x += xpad as i32;
         r.y += ypad as i32;
 
@@ -549,50 +549,46 @@ impl CellRendererImpl for LibraryCellRendererPriv {
             // hit test with the rating region
             let xpad = instance.xpad();
             let ypad = instance.ypad();
-            let mut r = *cell_area;
+            let mut r = *cell_area.as_ref();
             r.x += xpad as i32;
             r.y += ypad as i32;
 
             let (rw, rh) = RatingLabel::geometry();
-            let rect = gdk::Rectangle {
-                x: r.x + CELL_PADDING,
-                y: r.y + r.height - rh - CELL_PADDING,
-                width: rw,
-                height: rh,
-            };
+            let rect = gdk::Rectangle::new(
+                r.x + CELL_PADDING,
+                r.y + r.height - rh - CELL_PADDING,
+                rw,
+                rh,
+            );
             let x = instance.x();
             let y = instance.y();
             dbg_out!(
                 "r({}, {}, {}, {}) p({}, {})",
-                rect.x,
-                rect.y,
-                rect.width,
-                rect.height,
+                rect.x(),
+                rect.y(),
+                rect.width(),
+                rect.height(),
                 x,
                 y
             );
-            let hit = (rect.x <= x)
-                && (rect.x + rect.width >= x)
-                && (rect.y <= y)
-                && (rect.y + rect.height >= y);
+            let hit = (rect.x() <= x)
+                && (rect.x() + rect.width() >= x)
+                && (rect.y() <= y)
+                && (rect.y() + rect.height() >= y);
             if !hit {
                 dbg_out!("not a hit");
                 return false;
             }
 
             // hit test for the rating value
-            let new_rating = RatingLabel::rating_value_from_hit_x((x - rect.x).into());
+            let new_rating = RatingLabel::rating_value_from_hit_x((x - rect.x()).into());
             dbg_out!("new_rating {}", new_rating);
 
             let file = self.libfile.borrow();
             if let Some(f) = &*file {
                 if f.0.rating() != new_rating {
                     // emit signal if changed
-                    if let Err(err) =
-                        instance.emit_by_name("rating-changed", &[&f.0.id(), &new_rating])
-                    {
-                        err_out!("Can't emit rating-changed signal: {}", err);
-                    }
+                    instance.emit_by_name::<()>("rating-changed", &[&f.0.id(), &new_rating]);
                 }
             }
             true

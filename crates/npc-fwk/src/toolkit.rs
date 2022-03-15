@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/mod.rs
  *
- * Copyright (C) 2020-2021 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ pub struct PortableChannel<T>(pub Sender<T>);
 pub fn thread_context() -> glib::MainContext {
     glib::MainContext::thread_default().unwrap_or_else(|| {
         let ctx = glib::MainContext::new();
-        ctx.push_thread_default();
+        ctx.with_thread_default(|| true);
         ctx
     })
 }

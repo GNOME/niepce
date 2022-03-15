@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/widgets/rating_label.rs
  *
- * Copyright (C) 2020 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ impl ObjectImpl for RatingLabelPriv {
     fn properties() -> &'static [glib::ParamSpec] {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
-            vec![glib::ParamSpec::new_int(
+            vec![glib::ParamSpecInt::new(
                 "rating",
                 "Rating",
                 "The rating value",
@@ -226,12 +226,9 @@ impl WidgetImpl for RatingLabelPriv {
                 let new_rating = RatingLabel::rating_value_from_hit_x(x);
                 if new_rating != self.rating.get() {
                     self.set_rating(new_rating);
-                    if let Err(err) = self
+                    self
                         .instance()
-                        .emit_by_name("rating-changed", &[&new_rating])
-                    {
-                        err_out!("Emit signal 'rating-changed' failed: {}", err);
-                    }
+                        .emit_by_name::<()>("rating-changed", &[&new_rating]);
                 }
             }
             Inhibit(true)

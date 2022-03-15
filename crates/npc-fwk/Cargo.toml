@@ -13,14 +13,14 @@ cairo-rs = "*"
 chrono = "0.4.0"
 exempi = { version = "2.6.0", git = "https://github.com/hfiguiere/exempi-rs.git", rev="99e8ba5" }
 gio-sys = "*"
-gio = "^0.14.0"
+gio = "^0.15.7"
 glib-sys = "*"
-glib = "^0.14.2"
+glib = "^0.15.9"
 gtk-sys = "*"
-gdk = "^0.14.0"
+gdk = "^0.15.4"
 gdk-pixbuf-sys = "*"
-gdk-pixbuf = "^0.14.0"
-gtk = "^0.14.0"
+gdk-pixbuf = "^0.15.6"
+gtk = "^0.15.3"
 lazy_static = "^1.2.0"
 libc = "0.2.39"
 libopenraw-rs = { path = "../../../libopenraw-rs/libopenraw-rs" }
@@ -31,4 +31,4 @@ rexiv2 = "^0.9.1"
 
 
 [build-dependencies]
-cbindgen = { version = "0.19.0" }
+cbindgen = { version = "0.20.0" }

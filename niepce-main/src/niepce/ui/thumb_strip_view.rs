@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/thumbstripview.rs
  *
- * Copyright (C) 2020-2021 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -234,7 +234,7 @@ impl ObjectImpl for ThumbStripViewPriv {
     fn properties() -> &'static [glib::ParamSpec] {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
-            vec![glib::ParamSpec::new_int(
+            vec![glib::ParamSpecInt::new(
                 "item-height",
                 "Item Height",
                 "The Item Height",
