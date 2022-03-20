@@ -67,7 +67,7 @@ NiepceWindow::NiepceWindow()
     menu_btn->set_direction(Gtk::ArrowType::NONE);
     m_main_menu = Gio::Menu::create();
     menu_btn->set_menu_model(m_main_menu);
-    header->pack_start(*menu_btn);
+    header->pack_end(*menu_btn);
 
     // Undo redo buttons
     Gtk::Box *button_box = Gtk::manage(new Gtk::Box);
