@@ -392,7 +392,7 @@ Gtk::Widget * WorkspaceController::buildWidget()
     m_treestore = Gtk::TreeStore::create(m_librarycolumns);
     m_librarytree.set_model(m_treestore);
     m_librarytree.set_activate_on_single_click(true);
-    DBG_ASSERT(m_treestore->get_flags() & Gtk::TREE_MODEL_ITERS_PERSIST,
+    DBG_ASSERT(m_treestore->get_flags() == Gtk::TreeModel::Flags::ITERS_PERSIST,
         "Model isn't persistent");
 
     m_folderNode = add_item(m_treestore, m_treestore->children(),
