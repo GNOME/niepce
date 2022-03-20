@@ -72,7 +72,13 @@ void EditableHScale::_init()
     m_entry.set_digits(2);
     m_entry.set_editable(true);
 
-    m_entry.add_controller(gesture);
+    auto gesture2 = Gtk::GestureClick::create();
+    gesture->set_button(1);
+    gesture->signal_released()
+        .connect([this] (int, double, double) {
+            this->on_button_press_event();
+        });
+    m_entry.add_controller(gesture2);
     append(m_entry);
 
     m_adj->signal_value_changed()
