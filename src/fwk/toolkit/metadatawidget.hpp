@@ -1,7 +1,7 @@
 /*
- * niepce - fwk/toolkit/metadatawidget.h
+ * niepce - fwk/toolkit/metadatawidget.hpp
  *
- * Copyright (C) 2008-2021 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __NIEPCE_FRAMEWORK_META_DATA_WIDGET_H__
-#define __NIEPCE_FRAMEWORK_META_DATA_WIDGET_H__
+#pragma once
 
 #include <map>
 #include <string>
@@ -74,11 +73,11 @@ public:
     void set_data_format(const MetaDataSectionFormat* fmt);
     void set_data_source(const fwk::PropertyBagPtr& properties);
 
-    sigc::signal<void, const fwk::PropertyBagPtr &, const fwk::PropertyBagPtr &> signal_metadata_changed;
+    sigc::signal<void(const fwk::PropertyBagPtr &, const fwk::PropertyBagPtr &)> signal_metadata_changed;
 protected:
-    bool on_str_changed(GdkEventFocus*, Gtk::Entry *, ffi::NiepcePropertyIdx prop);
-    bool on_text_changed(GdkEventFocus*, Glib::RefPtr<Gtk::TextBuffer> b, ffi::NiepcePropertyIdx prop);
-    bool on_string_array_changed(GdkEventFocus*, fwk::TokenTextView * ttv,
+    bool on_str_changed(Gtk::Entry *, ffi::NiepcePropertyIdx prop);
+    bool on_text_changed(Glib::RefPtr<Gtk::TextBuffer> b, ffi::NiepcePropertyIdx prop);
+    bool on_string_array_changed(fwk::TokenTextView * ttv,
                                  ffi::NiepcePropertyIdx prop);
     void on_int_changed(int, ffi::NiepcePropertyIdx prop);
 private:
@@ -127,5 +126,3 @@ private:
   fill-column:80
   End:
 */
-
-#endif

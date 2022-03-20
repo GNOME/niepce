@@ -13,7 +13,7 @@ dnl all the library version.
 dnl if one is harcoded elsewhere, it is a bug
 LIBGIOMM_VERSION=2.66
 LIBGLIBMM_VERSION=2.66
-LIBGTKMM_VERSION=3.24
+LIBGTKMM_VERSION=4.4
 EXEMPI_VERSION=2.4.0
 SQLITE_VERSION=3.0
 GEGL_VERSION=0.3.0
@@ -25,7 +25,7 @@ BOOST_VERSION=1.60
 
 AC_PROG_CXX
 AC_GNU_SOURCE
-AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
+AX_CXX_COMPILE_STDCXX_17(noext,mandatory)
 
 AC_ARG_ENABLE(debug,[  --enable-debug    Turn on debugging],[
         case "${enableval}" in
@@ -58,7 +58,7 @@ AC_LANG_CPLUSPLUS
 AC_LANG_COMPILER_REQUIRE
 
 dnl Framework requirements.
-PKG_CHECK_MODULES(FRAMEWORK, [glibmm-2.4 >= $LIBGLIBMM_VERSION giomm-2.4 >= $LIBGIOMM_VERSION gthread-2.0 gtkmm-3.0 >= $LIBGTKMM_VERSION sqlite3 >= $SQLITE_VERSION exempi-2.0 >= $EXEMPI_VERSION libxml-2.0 >= $LIBXML2_VERSION osmgpsmap-1.0])
+PKG_CHECK_MODULES(FRAMEWORK, [glibmm-2.68 >= $LIBGLIBMM_VERSION giomm-2.68 >= $LIBGIOMM_VERSION gthread-2.0 gtkmm-4.0 >= $LIBGTKMM_VERSION sqlite3 >= $SQLITE_VERSION exempi-2.0 >= $EXEMPI_VERSION libxml-2.0 >= $LIBXML2_VERSION])
 
 dnl optional framework
 PKG_CHECK_MODULES(GPHOTO, [libgphoto2 >= $LIBGPHOTO_VERSION libgphoto2_port])

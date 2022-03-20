@@ -22,21 +22,23 @@ use once_cell::unsync::Lazy;
 use std::cell::{Cell, RefCell};
 use std::ptr;
 
-use gdk::prelude::*;
+use gdk4::prelude::*;
 use gdk_pixbuf::Pixbuf;
 use glib::subclass::prelude::*;
 use glib::subclass::Signal;
 use glib::translate::*;
-use gtk::prelude::*;
-use gtk::subclass::prelude::*;
+use graphene::Rect;
+use gtk4::prelude::*;
+use gtk4::subclass::prelude::*;
 
 use crate::niepce::ui::image_list_store::StoreLibFile;
 use npc_engine::db::libfile::{FileStatus, FileType};
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::toolkit::clickable_cell_renderer::ClickableCellRenderer;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
+use npc_fwk::{dbg_out, err_out, on_err_out};
 
-const CELL_PADDING: i32 = 4;
+const CELL_PADDING: f32 = 4.0;
 
 struct Emblems {
     raw: Pixbuf,
@@ -63,7 +65,7 @@ const EMBLEMS: Lazy<Emblems> = Lazy::new(|| Emblems {
 glib::wrapper! {
     pub struct LibraryCellRenderer(
         ObjectSubclass<LibraryCellRendererPriv>)
-        @extends gtk::CellRendererPixbuf, gtk::CellRenderer;
+        @extends gtk4::CellRenderer;
 }
 
 impl LibraryCellRenderer {
@@ -71,7 +73,7 @@ impl LibraryCellRenderer {
     /// callback: an optional callback used to get a colour for labels.
     /// callback_data: raw pointer passed as is to the callback.
     pub fn new(callback: Option<GetColourCallback>, callback_data: *const c_void) -> Self {
-        let obj: Self = glib::Object::new(&[("mode", &gtk::CellRendererMode::Activatable)])
+        let obj: Self = glib::Object::new(&[("mode", &gtk4::CellRendererMode::Activatable)])
             .expect("Failed to create Library Cell Renderer");
 
         if callback.is_some() {
@@ -98,6 +100,11 @@ impl LibraryCellRenderer {
         cell_renderer.set_drawflag(false);
 
         cell_renderer
+    }
+
+    pub fn pixbuf(&self) -> Option<gdk4::Paintable> {
+        let priv_ = LibraryCellRendererPriv::from_instance(self);
+        priv_.pixbuf.borrow().clone()
     }
 }
 
@@ -191,6 +198,7 @@ impl ClickableCellRenderer for LibraryCellRenderer {
 type GetColourCallback = unsafe extern "C" fn(i32, *mut RgbColour, *const c_void) -> bool;
 
 pub struct LibraryCellRendererPriv {
+    pixbuf: RefCell<Option<gdk4::Paintable>>,
     libfile: RefCell<Option<StoreLibFile>>,
     status: Cell<FileStatus>,
     size: Cell<i32>,
@@ -215,23 +223,29 @@ impl LibraryCellRendererPriv {
         self.libfile.replace(libfile);
     }
 
-    fn do_draw_thumbnail(&self, cr: &cairo::Context, pixbuf: &Pixbuf, r: &cairo::RectangleInt) {
-        let w = pixbuf.width();
-        let h = pixbuf.height();
-        let offset_x = (self.size.get() - w) / 2;
-        let offset_y = (self.size.get() - h) / 2;
-        let x: f64 = (r.x + self.pad.get() + offset_x).into();
-        let y: f64 = (r.y + self.pad.get() + offset_y).into();
-
-        cr.set_source_rgb(1.0, 1.0, 1.0);
-        cr.rectangle(x, y, w.into(), h.into());
-        on_err_out!(cr.stroke());
-
-        cr.set_source_pixbuf(&pixbuf, x, y);
-        on_err_out!(cr.paint());
+    fn set_pixbuf(&self, pixbuf: Option<gdk4::Paintable>) {
+        self.pixbuf.replace(pixbuf);
     }
 
-    fn do_draw_flag(cr: &cairo::Context, flag: i32, r: &cairo::RectangleInt) {
+    fn do_draw_thumbnail_frame(&self, cr: &cairo::Context, w: f32, h: f32, r: &Rect) {
+        let offset_x = (self.size.get() as f32 - w) / 2.0;
+        let offset_y = (self.size.get() as f32 - h) / 2.0;
+        let x = r.x() + self.pad.get() as f32 + offset_x;
+        let y = r.y() + self.pad.get() as f32 + offset_y;
+
+        cr.set_source_rgb(1.0, 1.0, 1.0);
+        cr.rectangle(x.into(), y.into(), w.into(), h.into());
+        on_err_out!(cr.stroke());
+    }
+
+    fn do_draw_thumbnail(&self, snapshot: &gtk4::Snapshot, pixbuf: &gdk4::Paintable) {
+        let w = pixbuf.intrinsic_width() as f64;
+        let h = pixbuf.intrinsic_height() as f64;
+
+        pixbuf.snapshot(snapshot.upcast_ref::<gdk4::Snapshot>(), w, h);
+    }
+
+    fn do_draw_flag(cr: &cairo::Context, flag: i32, r: &Rect) {
         if flag == 0 {
             return;
         }
@@ -241,45 +255,50 @@ impl LibraryCellRendererPriv {
             _ => return,
         };
 
-        let w = pixbuf.width();
-        let x: f64 = (r.x + r.width - CELL_PADDING - w).into();
-        let y: f64 = (r.y + CELL_PADDING).into();
-        cr.set_source_pixbuf(&pixbuf, x, y);
+        let w = pixbuf.width() as f32;
+        let x = r.x() + r.width() - CELL_PADDING - w;
+        let y = r.y() + CELL_PADDING;
+        cr.set_source_pixbuf(&pixbuf, x.into(), y.into());
         on_err_out!(cr.paint());
     }
 
-    fn do_draw_status(cr: &cairo::Context, status: FileStatus, r: &cairo::RectangleInt) {
+    fn do_draw_status(cr: &cairo::Context, status: FileStatus, r: &Rect) {
         if status == FileStatus::Ok {
             return;
         }
-        let x: f64 = (r.x + CELL_PADDING).into();
-        let y: f64 = (r.y + CELL_PADDING).into();
-        cr.set_source_pixbuf(&EMBLEMS.status_missing, x, y);
+        let x = r.x() + CELL_PADDING;
+        let y = r.y() + CELL_PADDING;
+        cr.set_source_pixbuf(&EMBLEMS.status_missing, x.into(), y.into());
         on_err_out!(cr.paint());
     }
 
-    fn do_draw_format_emblem(cr: &cairo::Context, emblem: &Pixbuf, r: &cairo::RectangleInt) -> i32 {
-        let w = emblem.width();
-        let h = emblem.height();
+    fn do_draw_format_emblem(cr: &cairo::Context, emblem: &Pixbuf, r: &Rect) -> f32 {
+        let w = emblem.width() as f32;
+        let h = emblem.height() as f32;
         let left = CELL_PADDING + w;
-        let x: f64 = (r.x + r.width - left).into();
-        let y: f64 = (r.y + r.height - CELL_PADDING - h).into();
-        cr.set_source_pixbuf(emblem, x, y);
+        let x = r.x() + r.width() - left;
+        let y = r.y() + r.height() - CELL_PADDING - h;
+        cr.set_source_pixbuf(emblem, x.into(), y.into());
         on_err_out!(cr.paint());
         left
     }
 
-    fn do_draw_label(cr: &cairo::Context, right: i32, colour: RgbColour, r: &cairo::RectangleInt) {
-        const LABEL_SIZE: i32 = 15;
-        let x: f64 = (r.x + r.width - CELL_PADDING - right - CELL_PADDING - LABEL_SIZE).into();
-        let y: f64 = (r.y + r.height - CELL_PADDING - LABEL_SIZE).into();
+    fn do_draw_label(cr: &cairo::Context, right: f32, colour: RgbColour, r: &Rect) {
+        const LABEL_SIZE: f32 = 15.0;
+        let x = r.x() + r.width() - CELL_PADDING - right - CELL_PADDING - LABEL_SIZE;
+        let y = r.y() + r.height() - CELL_PADDING - LABEL_SIZE;
 
-        cr.rectangle(x, y, LABEL_SIZE.into(), LABEL_SIZE.into());
+        cr.rectangle(x.into(), y.into(), LABEL_SIZE.into(), LABEL_SIZE.into());
         cr.set_source_rgb(1.0, 1.0, 1.0);
         on_err_out!(cr.stroke());
-        cr.rectangle(x, y, LABEL_SIZE.into(), LABEL_SIZE.into());
-        let rgb: gdk::RGBA = colour.into();
-        cr.set_source_rgba(rgb.red(), rgb.green(), rgb.blue(), rgb.alpha());
+        cr.rectangle(x.into(), y.into(), LABEL_SIZE.into(), LABEL_SIZE.into());
+        let rgb: gdk4::RGBA = colour.into();
+        cr.set_source_rgba(
+            rgb.red().into(),
+            rgb.green().into(),
+            rgb.blue().into(),
+            rgb.alpha().into(),
+        );
         on_err_out!(cr.fill());
     }
 
@@ -300,10 +319,11 @@ impl LibraryCellRendererPriv {
 impl ObjectSubclass for LibraryCellRendererPriv {
     const NAME: &'static str = "LibraryCellRenderer";
     type Type = LibraryCellRenderer;
-    type ParentType = gtk::CellRendererPixbuf;
+    type ParentType = gtk4::CellRenderer;
 
     fn new() -> Self {
         Self {
+            pixbuf: RefCell::new(None),
             libfile: RefCell::new(None),
             status: Cell::new(FileStatus::Ok),
             size: Cell::new(160),
@@ -330,6 +350,13 @@ impl ObjectImpl for LibraryCellRendererPriv {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
             vec![
+                glib::ParamSpecObject::new(
+                    "pixbuf",
+                    "Thumbnail",
+                    "Thumbnail to Display",
+                    gdk4::Paintable::static_type(),
+                    glib::ParamFlags::READWRITE,
+                ),
                 glib::ParamSpecBoxed::new(
                     "libfile",
                     "Library File",
@@ -375,6 +402,10 @@ impl ObjectImpl for LibraryCellRendererPriv {
         pspec: &glib::ParamSpec,
     ) {
         match pspec.name() {
+            "pixbuf" => {
+                let pixbuf = value.get::<&gdk4::Paintable>().map(|f| f.clone()).ok();
+                self.set_pixbuf(pixbuf);
+            }
             "libfile" => {
                 let libfile = value.get::<&StoreLibFile>().map(|f| f.clone()).ok();
                 self.set_libfile(libfile);
@@ -396,6 +427,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
         pspec: &glib::ParamSpec,
     ) -> glib::Value {
         match pspec.name() {
+            "pixbuf" => self.pixbuf.borrow().to_value(),
             "libfile" => self.libfile.borrow().to_value(),
             "status" => (self.status.get() as i32).to_value(),
             _ => unimplemented!(),
@@ -403,10 +435,8 @@ impl ObjectImpl for LibraryCellRendererPriv {
     }
 }
 
-impl CellRendererPixbufImpl for LibraryCellRendererPriv {}
-
 impl CellRendererImpl for LibraryCellRendererPriv {
-    fn preferred_width<P: IsA<gtk::Widget>>(
+    fn preferred_width<P: IsA<gtk4::Widget>>(
         &self,
         _renderer: &LibraryCellRenderer,
         _widget: &P,
@@ -415,7 +445,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         (maxdim, maxdim)
     }
 
-    fn preferred_height<P: IsA<gtk::Widget>>(
+    fn preferred_height<P: IsA<gtk4::Widget>>(
         &self,
         _renderer: &LibraryCellRenderer,
         _widget: &P,
@@ -424,66 +454,79 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         (maxdim, maxdim)
     }
 
-    fn render<P: IsA<gtk::Widget>>(
+    fn snapshot<P: IsA<gtk4::Widget>>(
         &self,
-        _renderer: &LibraryCellRenderer,
-        cr: &cairo::Context,
+        _renderer: &Self::Type,
+        snapshot: &gtk4::Snapshot,
         widget: &P,
-        _background_area: &gdk::Rectangle,
-        cell_area: &gdk::Rectangle,
-        flags: gtk::CellRendererState,
+        _background_area: &gdk4::Rectangle,
+        cell_area: &gdk4::Rectangle,
+        flags: gtk4::CellRendererState,
     ) {
         let self_ = self.instance();
-        let xpad = self_.xpad();
-        let ypad = self_.ypad();
+        let xpad = self_.xpad() as f32;
+        let ypad = self_.ypad() as f32;
 
-        let mut r = *cell_area.as_ref();
-        r.x += xpad as i32;
-        r.y += ypad as i32;
+        let mut r = Rect::new(
+            cell_area.x() as f32,
+            cell_area.y() as f32,
+            cell_area.width() as f32,
+            cell_area.height() as f32,
+        );
+        let cr = snapshot.append_cairo(&r);
+
+        r.offset(xpad, ypad);
 
         let file = self.libfile.borrow();
 
         let style_context = widget.style_context();
 
         style_context.save();
-        style_context.set_state(if flags.contains(gtk::CellRendererState::SELECTED) {
-            gtk::StateFlags::SELECTED
+        style_context.set_state(if flags.contains(gtk4::CellRendererState::SELECTED) {
+            gtk4::StateFlags::SELECTED
         } else {
-            gtk::StateFlags::NORMAL
+            gtk4::StateFlags::NORMAL
         });
-        gtk::render_background(
+
+        gtk4::render_background(
             &style_context,
-            cr,
-            (r.x).into(),
-            (r.y).into(),
-            (r.width).into(),
-            (r.height).into(),
+            &cr,
+            r.x().into(),
+            r.y().into(),
+            r.width().into(),
+            r.height().into(),
         );
 
         if self.drawborder.get() {
-            gtk::render_frame(
+            gtk4::render_frame(
                 &style_context,
-                cr,
-                (r.x).into(),
-                (r.y).into(),
-                (r.width).into(),
-                (r.height).into(),
+                &cr,
+                r.x().into(),
+                r.y().into(),
+                r.width().into(),
+                r.height().into(),
             );
         }
         style_context.restore();
 
         if let Some(pixbuf) = self_.pixbuf() {
-            self.do_draw_thumbnail(cr, &pixbuf, &r);
+            self.do_draw_thumbnail_frame(
+                &cr,
+                pixbuf.intrinsic_width() as f32,
+                pixbuf.intrinsic_height() as f32,
+                &r,
+            );
+            self.do_draw_thumbnail(snapshot, &pixbuf);
         }
         if self.draw_rating.get() {
             let rating = match &*file {
                 Some(f) => f.0.rating(),
                 None => 0,
             };
-            let x: f64 = (r.x + CELL_PADDING).into();
-            let y: f64 = (r.y + r.height - CELL_PADDING).into();
+            let x = r.x() + CELL_PADDING;
+            let y = r.y() + r.height() - CELL_PADDING;
             RatingLabel::draw_rating(
-                cr,
+                &cr,
                 rating,
                 &RatingLabel::star(),
                 &RatingLabel::unstar(),
@@ -493,14 +536,14 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         }
         if self.draw_flag.get() {
             match &*file {
-                Some(f) => Self::do_draw_flag(cr, f.0.flag(), &r),
+                Some(f) => Self::do_draw_flag(&cr, f.0.flag(), &r),
                 None => {}
             }
         }
 
         let status = self.status.get();
         if self.draw_status.get() && status != FileStatus::Ok {
-            Self::do_draw_status(cr, status, &r);
+            Self::do_draw_status(&cr, status, &r);
         }
 
         if self.draw_emblem.get() {
@@ -515,7 +558,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
                 FileType::Video => EMBLEMS.video.clone(),
                 FileType::Unknown => EMBLEMS.unknown.clone(),
             };
-            let left = Self::do_draw_format_emblem(cr, &emblem, &r);
+            let left = Self::do_draw_format_emblem(&cr, &emblem, &r);
 
             if self.draw_label.get() {
                 let label_id = match &*file {
@@ -524,22 +567,22 @@ impl CellRendererImpl for LibraryCellRendererPriv {
                 };
                 if label_id != 0 {
                     if let Some(colour) = self.get_colour(label_id) {
-                        Self::do_draw_label(cr, left, colour, &r);
+                        Self::do_draw_label(&cr, left, colour, &r);
                     }
                 }
             }
         }
     }
 
-    fn activate<P: IsA<gtk::Widget>>(
+    fn activate<P: IsA<gtk4::Widget>>(
         &self,
         _renderer: &LibraryCellRenderer,
-        _event: Option<&gdk::Event>,
+        _event: Option<&gdk4::Event>,
         _widget: &P,
         _path: &str,
-        _background_area: &gdk::Rectangle,
-        cell_area: &gdk::Rectangle,
-        _flags: gtk::CellRendererState,
+        _background_area: &gdk4::Rectangle,
+        cell_area: &gdk4::Rectangle,
+        _flags: gtk4::CellRendererState,
     ) -> bool {
         let mut instance = self.instance().downcast::<LibraryCellRenderer>().unwrap();
 
@@ -547,21 +590,25 @@ impl CellRendererImpl for LibraryCellRendererPriv {
             instance.reset_hit();
 
             // hit test with the rating region
-            let xpad = instance.xpad();
-            let ypad = instance.ypad();
-            let mut r = *cell_area.as_ref();
-            r.x += xpad as i32;
-            r.y += ypad as i32;
+            let xpad = instance.xpad() as f32;
+            let ypad = instance.ypad() as f32;
+            let mut r = Rect::new(
+                cell_area.x() as f32,
+                cell_area.y() as f32,
+                cell_area.width() as f32,
+                cell_area.height() as f32,
+            );
+            r.offset(xpad, ypad);
 
             let (rw, rh) = RatingLabel::geometry();
-            let rect = gdk::Rectangle::new(
-                r.x + CELL_PADDING,
-                r.y + r.height - rh - CELL_PADDING,
+            let rect = Rect::new(
+                r.x() + CELL_PADDING,
+                r.y() + r.height() - rh - CELL_PADDING,
                 rw,
                 rh,
             );
-            let x = instance.x();
-            let y = instance.y();
+            let x = instance.x() as f32;
+            let y = instance.y() as f32;
             dbg_out!(
                 "r({}, {}, {}, {}) p({}, {})",
                 rect.x(),
@@ -599,7 +646,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
 }
 
 // allow subclassing this
-pub trait LibraryCellRendererImpl: CellRendererPixbufImpl + 'static {}
+pub trait LibraryCellRendererImpl: CellRendererImpl + 'static {}
 
 /// # Safety
 /// Use raw pointers
@@ -607,8 +654,8 @@ pub trait LibraryCellRendererImpl: CellRendererPixbufImpl + 'static {}
 pub unsafe extern "C" fn npc_library_cell_renderer_new(
     get_colour: Option<unsafe extern "C" fn(i32, *mut RgbColour, *const c_void) -> bool>,
     callback_data: *const c_void,
-) -> *mut gtk_sys::GtkCellRenderer {
+) -> *mut gtk4_sys::GtkCellRenderer {
     LibraryCellRenderer::new(get_colour, callback_data)
-        .upcast::<gtk::CellRenderer>()
+        .upcast::<gtk4::CellRenderer>()
         .to_glib_full()
 }

@@ -17,23 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-extern crate chrono;
-extern crate exempi;
-extern crate gdk;
-extern crate gdk_pixbuf;
-extern crate gdk_pixbuf_sys;
-extern crate gio;
-extern crate gio_sys;
-extern crate glib;
-extern crate glib_sys;
-extern crate gtk;
-extern crate gtk_sys;
-#[macro_use]
-extern crate lazy_static;
-extern crate libc;
-extern crate multimap;
-extern crate once_cell;
-
 #[macro_use]
 pub mod base;
 pub mod capi;

@@ -3,8 +3,8 @@
  * copied from
  * gnote
  *
- * Copyright (C) 2009-2017 Hubert Figuiere
- * 
+ * Copyright (C) 2009-2022 Hubert Figuière
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -76,7 +76,7 @@ namespace fwk {
 
         auto file_path = fwk::RustFfiString(ffi::fwk_file_list_at(l.get(), i));
         Glib::Module module(*iter + "/" + path_basename(file_path.c_str()),
-                            Glib::MODULE_BIND_LOCAL);
+                            Glib::Module::Flags::LOCAL);
         DBG_OUT("load module %s", path_basename(file_path.c_str()).c_str());
 
         if(!module) {

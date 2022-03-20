@@ -1,7 +1,7 @@
 /*
  * niepce - ui/imageliststore.h
  *
- * Copyright (C) 2008-2020 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,9 +40,9 @@ public:
     ~ImageListStore();
     Glib::RefPtr<Gtk::ListStore> gobjmm() const
         { return m_store_wrap; }
-    Gtk::TreePath get_path_from_id(eng::library_id_t id) const;
-    Gtk::TreeIter get_iter_from_id(eng::library_id_t id) const;
-    eng::library_id_t get_libfile_id_at_path(const Gtk::TreePath& path) const;
+    Gtk::TreeModel::Path get_path_from_id(eng::library_id_t id) const;
+    Gtk::TreeModel::iterator get_iter_from_id(eng::library_id_t id) const;
+    eng::library_id_t get_libfile_id_at_path(const Gtk::TreeModel::Path& path) const;
     eng::LibFilePtr get_file(eng::library_id_t id) const;
     size_t get_count() const
         { return m_store_wrap->children().size(); }

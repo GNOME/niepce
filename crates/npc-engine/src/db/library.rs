@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/library.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ use crate::db::libmetadata::LibMetadata;
 use crate::library::notification::LibNotification;
 use npc_fwk::toolkit;
 use npc_fwk::PropertyValue;
+use npc_fwk::{dbg_assert, dbg_out, err_out};
 
 #[repr(i32)]
 #[derive(PartialEq, Clone, Copy)]

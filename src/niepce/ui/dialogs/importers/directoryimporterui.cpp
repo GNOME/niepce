@@ -2,7 +2,7 @@
 /*
  * niepce - ui/dialogs/importer/directoryimporterui.cpp
  *
- * Copyright (C) 2017 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,15 +39,13 @@ DirectoryImporterUI::DirectoryImporterUI()
 Gtk::Widget* DirectoryImporterUI::setup_widget(const fwk::Frame::Ptr& frame)
 {
     m_frame = frame;
-    Gtk::Button* select_directories = nullptr;
     m_builder = Gtk::Builder::create_from_resource("/org/gnome/Niepce/ui/directoryimporterui.ui",
                                                    "main_widget");
-    Gtk::Box* main_widget = nullptr;
-    m_builder->get_widget("main_widget", main_widget);
-    m_builder->get_widget("select_directories", select_directories);
+    Gtk::Box* main_widget = m_builder->get_widget<Gtk::Box>("main_widget");
+    Gtk::Button* select_directories = m_builder->get_widget<Gtk::Button>("select_directories");
     select_directories->signal_clicked().connect(
         sigc::mem_fun(*this, &DirectoryImporterUI::do_select_directories));
-    m_builder->get_widget("directory_name", m_directory_name);
+    m_directory_name = m_builder->get_widget<Gtk::Label>("directory_name");
     return main_widget;
 }
 
@@ -67,22 +65,24 @@ std::string DirectoryImporterUI::select_source()
     {
         auto frame = m_frame.lock();
         Gtk::FileChooserDialog dialog(frame->gtkWindow(), _("Import picture folder"),
-                                      Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
+                                      Gtk::FileChooser::Action::SELECT_FOLDER);
 
-        dialog.add_button(_("Cancel"), Gtk::RESPONSE_CANCEL);
-        dialog.add_button(_("Select"), Gtk::RESPONSE_OK);
+        dialog.add_button(_("Cancel"), Gtk::ResponseType::CANCEL);
+        dialog.add_button(_("Select"), Gtk::ResponseType::OK);
         dialog.set_select_multiple(false);
 
         std::string last_import_location = cfg.getValue("last_import_location", "");
         if (!last_import_location.empty()) {
-            dialog.set_filename(last_import_location);
+            dialog.set_current_name(last_import_location);
         }
 
-        int result = dialog.run();
+        dialog.show();
+        // XXX fix this Gtk4
+        int result = 0;
         switch(result)
         {
-        case Gtk::RESPONSE_OK:
-            filename = dialog.get_filename();
+        case Gtk::ResponseType::OK:
+            filename = dialog.get_current_name();
             break;
         default:
             break;

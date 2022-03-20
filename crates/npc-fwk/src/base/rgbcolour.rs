@@ -73,12 +73,12 @@ impl ToString for RgbColour {
     }
 }
 
-impl From<RgbColour> for gdk::RGBA {
-    fn from(v: RgbColour) -> gdk::RGBA {
-        gdk::RGBA::new(
-            v.r as f64 / 65535_f64,
-            v.g as f64 / 65535_f64,
-            v.b as f64 / 65535_f64,
+impl From<RgbColour> for gdk4::RGBA {
+    fn from(v: RgbColour) -> gdk4::RGBA {
+        gdk4::RGBA::new(
+            v.r as f32 / 65535_f32,
+            v.g as f32 / 65535_f32,
+            v.b as f32 / 65535_f32,
             1.0,
         )
     }

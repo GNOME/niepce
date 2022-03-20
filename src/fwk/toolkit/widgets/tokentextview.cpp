@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/tokentextview.cpp
  *
- * Copyright (C) 2012-2014 Hubert Figuiere
+ * Copyright (C) 2012-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ namespace fwk {
 TokenTextView::TokenTextView()
     : NoTabTextView()
 {
-    set_wrap_mode(Gtk::WRAP_WORD);
+    set_wrap_mode(Gtk::WrapMode::WORD);
 }
 
 void TokenTextView::set_tokens(const Tokens & tokens)

@@ -32,6 +32,7 @@ use npc_engine::library::commands;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::library::op::Op;
 use npc_fwk::base::PropertyValue;
+use npc_fwk::err_out;
 
 pub struct ClientImpl {
     terminate: sync::Arc<atomic::AtomicBool>,

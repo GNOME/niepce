@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importdialog.h
  *
- * Copyright (C) 2008-2017 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
 
 #pragma once
 
@@ -112,7 +110,7 @@ private:
     Gtk::ScrolledWindow *m_images_list_scrolled;
     PreviewGridModel m_grid_columns;
     Glib::RefPtr<Gtk::ListStore> m_images_list_model;
-    std::map<std::string, Gtk::TreeIter> m_images_list_map;
+    std::map<std::string, Gtk::TreeModel::iterator> m_images_list_map;
 
     Gtk::IconView *m_gridview;
 

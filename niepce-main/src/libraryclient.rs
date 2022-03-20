@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/mod.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,9 +53,15 @@ impl LibraryClientWrapper {
         }
     }
 
+    #[inline]
+    pub fn client(&self) -> Arc<LibraryClient> {
+        self.client.clone()
+    }
+
     /// unwrap the mutable client Arc
     /// XXX we need to unsure this is thread safe.
     /// Don't hold this reference more than you need.
+    #[inline]
     pub fn unwrap_mut(&mut self) -> &mut LibraryClient {
         Arc::get_mut(&mut self.client).unwrap()
     }

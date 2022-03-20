@@ -1,7 +1,7 @@
 /*
  * niepce - ui/dialogs/preferencesdialog.cpp
  *
- * Copyright (C) 2009-2018 Hubert Figuiere
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,8 +49,7 @@ void PreferencesDialog::setup_widget()
             fwk::DataBinderPool::destroy(binder_pool);
         });
 
-    builder()->get_widget("dark_theme_checkbox", theme_checkbutton);
-
+    theme_checkbutton = builder()->get_widget<Gtk::CheckButton>("dark_theme_checkbox");
     theme_checkbutton->set_active(fwk::Application::app()
                             ->get_use_dark_theme());
     auto app = fwk::Application::app();
@@ -59,12 +58,12 @@ void PreferencesDialog::setup_widget()
             app->set_use_dark_theme(theme_checkbutton->property_active());
         });
 
-    builder()->get_widget("reopen_checkbutton", reopen_checkbutton);
+    reopen_checkbutton = builder()->get_widget<Gtk::CheckButton>("reopen_checkbutton");
     binder_pool->add_binder(new fwk::ConfigDataBinder<bool>(
 				    reopen_checkbutton->property_active(),
 				    fwk::Application::app()->config(),
 				    "reopen_last_catalog"));
-    builder()->get_widget("write_xmp_checkbutton", write_xmp_checkbutton);
+    write_xmp_checkbutton = builder()->get_widget<Gtk::CheckButton>("write_xmp_checkbutton");
     binder_pool->add_binder(new fwk::ConfigDataBinder<bool>(
 				  write_xmp_checkbutton->property_active(),
 				  fwk::Application::app()->config(),

@@ -53,7 +53,7 @@ enum Converted {
 #[derive(Clone)]
 struct XmpPropDesc(&'static str, &'static str, Conversion);
 
-lazy_static! {
+lazy_static::lazy_static! {
     static ref EXIV2_TO_XMP: MultiMap<&'static str, XmpPropDesc> = {
         [
             (

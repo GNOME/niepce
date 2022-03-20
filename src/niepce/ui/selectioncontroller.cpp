@@ -174,7 +174,7 @@ void SelectionController::rotate(int angle)
     DBG_OUT("angle = %d", angle);
     auto selection = get_selection();
     if(selection >= 0) {
-        Gtk::TreeIter iter = m_imageliststore->get_iter_from_id(selection);
+        Gtk::TreeModel::iterator iter = m_imageliststore->get_iter_from_id(selection);
         if(iter) {
             // @todo
         }

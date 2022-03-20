@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/dock.hpp
  *
- * Copyright (C) 2011 Hubert Figuiere
+ * Copyright (C) 2011-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __FWK_TOOLKIT_DOCK_HPP__
-#define __FWK_TOOLKIT_DOCK_HPP__
+#pragma once
 
 #include <gtkmm/box.h>
 #include <gtkmm/scrolledwindow.h>
 
-
 namespace fwk {
-
 
 class Dock
   : public Gtk::ScrolledWindow
@@ -39,7 +36,6 @@ private:
     Gtk::Box m_vbox;
 };
 
-
 }
 /*
   Local Variables:
@@ -50,4 +46,3 @@ private:
   fill-column:80
   End:
 */
-#endif

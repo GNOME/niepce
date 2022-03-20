@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importdialog.cpp
  *
- * Copyright (C) 2008-2017 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ ImportDialog::ImportDialog()
     fwk::Configuration & cfg = fwk::Application::app()->config();
     m_base_dest_dir = cfg.getValue("base_import_dest_dir",
                                    Glib::get_user_special_dir(
-                                       Glib::USER_DIRECTORY_PICTURES));
+                                       Glib::UserDirectory::PICTURES));
     DBG_OUT("base_dest_dir set to %s", m_base_dest_dir.c_str());
 }
 
@@ -69,7 +69,6 @@ void ImportDialog::add_importer_ui(IImporterUI& importer)
     m_import_source_combo->append(importer.id(), importer.name());
     Gtk::Widget* importer_widget = importer.setup_widget(
         std::static_pointer_cast<Frame>(shared_from_this()));
-    importer_widget->show_all();
     m_importer_ui_stack->add(*importer_widget, importer.id());
     importer.set_source_selected_callback(
         [this] (const std::string& source, const std::string& dest_dir) {
@@ -86,16 +85,18 @@ void ImportDialog::setup_widget()
     fwk::Configuration & cfg = fwk::Application::app()->config();
 
     Glib::RefPtr<Gtk::Builder> a_builder = builder();
-    a_builder->get_widget("date_tz_combo", m_date_tz_combo);
-    a_builder->get_widget("ufraw_import_check", m_ufraw_import_check);
-    a_builder->get_widget("rawstudio_import_check", m_rawstudio_import_check);
-    a_builder->get_widget("destinationFolder", m_destination_folder);
+    m_date_tz_combo = a_builder->get_widget<Gtk::ComboBox>("date_tz_combo");
+    m_ufraw_import_check = a_builder->get_widget<Gtk::CheckButton>("ufraw_import_check");
+    m_rawstudio_import_check = a_builder->get_widget<Gtk::CheckButton>("rawstudio_import_check");
+    m_destination_folder = a_builder->get_widget<Gtk::Entry>("destinationFolder");
 
     // Sources
-    a_builder->get_widget("importer_ui_stack", m_importer_ui_stack);
-    a_builder->get_widget("import_source_combo", m_import_source_combo);
+    m_importer_ui_stack = a_builder->get_widget<Gtk::Stack>("importer_ui_stack");
+    m_import_source_combo = a_builder->get_widget<Gtk::ComboBoxText>("import_source_combo");
     m_import_source_combo->signal_changed()
-      .connect(sigc::mem_fun(*this, &ImportDialog::import_source_changed));
+        .connect([this]() {
+            this->import_source_changed();
+        });
 
     std::shared_ptr<IImporterUI> importer = std::make_shared<DirectoryImporterUI>();
     m_importers[importer->id()] = importer;
@@ -108,15 +109,14 @@ void ImportDialog::setup_widget()
     m_import_source_combo->set_active_id(last_importer);
 
     // Metadata pane.
-    a_builder->get_widget("attributes_scrolled", m_attributes_scrolled);
+    m_attributes_scrolled = a_builder->get_widget<Gtk::ScrolledWindow>("attributes_scrolled");
     m_metadata_pane = MetaDataPaneController::Ptr(new MetaDataPaneController);
     auto w = m_metadata_pane->buildWidget();
     add(m_metadata_pane);
-    m_attributes_scrolled->add(*w);
-    w->show_all();
+    m_attributes_scrolled->set_child(*w);
 
     // Gridview of previews.
-    a_builder->get_widget("images_list_scrolled", m_images_list_scrolled);
+    m_images_list_scrolled = a_builder->get_widget<Gtk::ScrolledWindow>("images_list_scrolled");
     m_images_list_model = Gtk::ListStore::create(m_grid_columns);
     m_gridview = Gtk::manage(
         Glib::wrap(GTK_ICON_VIEW(ffi::npc_image_grid_view_new(
@@ -124,14 +124,15 @@ void ImportDialog::setup_widget()
     m_gridview->set_pixbuf_column(m_grid_columns.pixbuf);
     m_gridview->set_text_column(m_grid_columns.filename);
     m_gridview->set_item_width(100);
-    m_gridview->show();
-    m_images_list_scrolled->add(*m_gridview);
-    m_images_list_scrolled->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    m_images_list_scrolled->set_child(*m_gridview);
+    m_images_list_scrolled->set_policy(Gtk::PolicyType::AUTOMATIC, Gtk::PolicyType::AUTOMATIC);
 
-    m_previews_to_import.connect(
-      sigc::mem_fun(this, &ImportDialog::preview_received));
-    m_files_to_import.connect(
-      sigc::mem_fun(this, &ImportDialog::append_files_to_import));
+    m_previews_to_import.connect([this]() {
+        this->preview_received();
+    });
+    m_files_to_import.connect([this]() {
+        this->append_files_to_import();
+    });
 
     m_is_setup = true;
 }

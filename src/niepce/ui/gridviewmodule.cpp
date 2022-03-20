@@ -1,7 +1,7 @@
 /*
  * niepce - ui/gridviewmodule.cpp
  *
- * Copyright (C) 2009-2020 Hubert Figuière
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #include <gtkmm/liststore.h>
 #include <gtkmm/treestore.h>
@@ -41,7 +40,7 @@ GridViewModule::GridViewModule(const IModuleShell & shell,
   : m_shell(shell)
   , m_model(store)
   , m_librarylistview(nullptr)
-  , m_lib_splitview(Gtk::ORIENTATION_HORIZONTAL)
+  , m_lib_splitview(Gtk::Orientation::HORIZONTAL)
   , m_dock(nullptr)
   , m_context_menu(nullptr)
 {
@@ -117,23 +116,30 @@ Gtk::Widget * GridViewModule::buildWidget()
     return m_widget;
   }
   m_widget = &m_lib_splitview;
+  m_image_grid_view = std::shared_ptr<ffi::ImageGridView>(
+      ffi::npc_image_grid_view_new(
+          GTK_TREE_MODEL(g_object_ref(
+                             m_model->gobjmm()->gobj()))),
+      ffi::npc_image_grid_view_release);
   m_librarylistview = Gtk::manage(
-      Glib::wrap(GTK_ICON_VIEW(ffi::npc_image_grid_view_new(
-                                   GTK_TREE_MODEL(g_object_ref(m_model->gobjmm()->gobj()))))));
-  m_librarylistview->set_selection_mode(Gtk::SELECTION_SINGLE);
+      Glib::wrap(
+          GTK_ICON_VIEW(ffi::npc_image_grid_view_get_icon_view(m_image_grid_view.get())))
+      );
+  m_librarylistview->set_selection_mode(Gtk::SelectionMode::SINGLE);
   m_librarylistview->property_row_spacing() = 0;
   m_librarylistview->property_column_spacing() = 0;
   m_librarylistview->property_spacing() = 0;
   m_librarylistview->property_margin() = 0;
+  m_librarylistview->set_vexpand(true);
 
   auto shell_menu = m_shell.getMenu();
-  m_context_menu = Gtk::manage(new Gtk::Menu(shell_menu));
-  m_context_menu->attach_to_widget(*m_librarylistview);
+  m_context_menu = Gtk::manage(new Gtk::PopoverMenu(shell_menu));
 
-  m_librarylistview->signal_button_press_event()
-      .connect(sigc::mem_fun(*this, &GridViewModule::on_librarylistview_click));
-  m_librarylistview->signal_popup_menu()
-      .connect(sigc::mem_fun(*this, &GridViewModule::on_popup_menu));
+  auto gesture = Gtk::GestureClick::create();
+  m_librarylistview->add_controller(gesture);
+  gesture->signal_pressed().connect([this, gesture] (int, double x, double y) {
+      this->on_librarylistview_click(gesture, x, y);
+  });
 
   // the main cell
   Gtk::CellRenderer* libcell = manage(
@@ -151,24 +157,24 @@ Gtk::Widget * GridViewModule::buildWidget()
   cell_area->add_attribute(*libcell, "status",
                            static_cast<gint>(ffi::ColIndex::FileStatus));
 
-  m_scrollview.add(*m_librarylistview);
-  m_scrollview.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+  m_scrollview.set_child(*m_librarylistview);
+  m_scrollview.set_policy(Gtk::PolicyType::AUTOMATIC, Gtk::PolicyType::AUTOMATIC);
   m_lib_splitview.set_wide_handle(true);
 
   // build the toolbar
-  auto box = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL));
-  box->pack_start(m_scrollview);
+  auto box = Gtk::manage(new Gtk::Box(Gtk::Orientation::VERTICAL));
+  box->append(m_scrollview);
   auto toolbar = ffi::image_toolbar_new();
-  gtk_box_pack_end(box->gobj(), GTK_WIDGET(toolbar), false, false, 0);
-  m_lib_splitview.pack1(*box);
+  gtk_box_append(box->gobj(), GTK_WIDGET(toolbar));
+  m_lib_splitview.set_start_child(*box);
 
   m_dock = new fwk::Dock();
   m_metapanecontroller = MetaDataPaneController::Ptr(new MetaDataPaneController);
   m_metapanecontroller->signal_metadata_changed.connect(
       sigc::mem_fun(*this, &GridViewModule::on_metadata_changed));
   add(m_metapanecontroller);
-  m_lib_splitview.pack2(*m_dock);
-  m_dock->vbox().pack_start(*m_metapanecontroller->buildWidget());
+  m_lib_splitview.set_end_child(*m_dock);
+  m_dock->vbox().append(*m_metapanecontroller->buildWidget());
 
   m_databinders.add_binder(new fwk::ConfigDataBinder<int>(
                              m_lib_splitview.property_position(),
@@ -233,38 +239,21 @@ void GridViewModule::on_rating_changed(GtkCellRenderer*, eng::library_id_t /*id*
     self->m_shell.get_selection_controller()->set_rating(rating);
 }
 
-bool GridViewModule::on_popup_menu()
+void GridViewModule::on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double x, double y)
 {
-    if (m_context_menu && !m_librarylistview->get_selected_items().empty()) {
-        m_context_menu->popup_at_widget(m_librarylistview, Gdk::GRAVITY_CENTER, Gdk::GRAVITY_NORTH, nullptr);
-        return true;
-    }
-    return false;
-}
+    auto button = gesture->get_current_button();
+    if (button == 3 && !m_librarylistview->get_selected_items().empty()) {
+        m_context_menu->set_pointing_to(Gdk::Rectangle(x, y, 1, 1));
+        m_context_menu->popup();
 
-bool GridViewModule::on_librarylistview_click(GdkEventButton *e)
-{
-    GdkEvent* event = (GdkEvent*)e;
-    if (gdk_event_triggers_context_menu(event)
-        && gdk_event_get_event_type(event) == GDK_BUTTON_PRESS
-        && !m_librarylistview->get_selected_items().empty()) {
-        m_context_menu->popup_at_pointer(event);
+        return;
     }
-    double x, y;
-    int bx, by;
-    bx = by = 0;
-    x = e->x;
-    y = e->y;
     Gtk::TreeModel::Path path;
     Gtk::CellRenderer * renderer = nullptr;
     DBG_OUT("click (%f, %f)", x, y);
-    m_librarylistview->convert_widget_to_bin_window_coords(x, y, bx, by);
-    if (m_librarylistview->get_item_at_pos(bx, by, path, renderer)){
+    if (m_librarylistview->get_item_at_pos(x, y, path, renderer)){
         DBG_OUT("found an item");
-
-        return true;
     }
-    return false;
 }
 
 }

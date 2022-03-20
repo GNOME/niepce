@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_grid_view.rs
  *
- * Copyright (C) 2020-2021 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,73 +17,77 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use glib::subclass::prelude::*;
 use glib::translate::*;
-use gtk::prelude::*;
-use gtk::subclass::prelude::*;
-use gtk::subclass::widget::WidgetImplExt;
+use gtk4::prelude::*;
 
 use super::library_cell_renderer::LibraryCellRenderer;
 use npc_fwk::toolkit::clickable_cell_renderer::ClickableCellRenderer;
 
-glib::wrapper! {
-    pub struct ImageGridView(
-        ObjectSubclass<ImageGridViewPriv>)
-        @extends gtk::IconView, gtk::Container, gtk::Widget;
+pub struct ImageGridView {
+    icon_view: gtk4::IconView,
 }
 
 impl ImageGridView {
-    pub fn new(store: &gtk::TreeModel) -> Self {
-        glib::Object::new(&[("model", store)]).expect("Failed to create ImageGridView")
+    pub fn new(store: &gtk4::TreeModel) -> Self {
+        let icon_view = gtk4::IconView::with_model(store);
+
+        let click = gtk4::GestureClick::new();
+        //        click.connect_pressed(glib::clone!(@weak obj => move |gesture, n, x, y| {
+        // XXX handle press event
+        // self.press_event(x, y);
+        //        }));
+        icon_view.add_controller(&click);
+
+        ImageGridView { icon_view }
     }
 }
 
-pub struct ImageGridViewPriv {}
+impl std::ops::Deref for ImageGridView {
+    type Target = gtk4::IconView;
 
-#[glib::object_subclass]
-impl ObjectSubclass for ImageGridViewPriv {
-    const NAME: &'static str = "ImageGridView";
-    type Type = ImageGridView;
-    type ParentType = gtk::IconView;
-
-    fn new() -> Self {
-        Self {}
+    fn deref(&self) -> &gtk4::IconView {
+        &self.icon_view
     }
 }
 
-impl ObjectImpl for ImageGridViewPriv {
-    fn constructed(&self, obj: &ImageGridView) {
-        self.parent_constructed(obj);
-    }
-}
+impl ImageGridView {
+    fn press_event(&self, x: f64, y: f64) {
+        // let event = gesture.last_event();
 
-impl WidgetImpl for ImageGridViewPriv {
-    fn button_press_event(&self, widget: &ImageGridView, event: &gdk::EventButton) -> gtk::Inhibit {
-        let r = self.parent_button_press_event(widget, event);
+        // XXX forward to the icon_view or something
+        // self.parent_button_press_event(widget, event);
 
-        if let Some((x, y)) = event.coords() {
-            if let Some((_, cell)) = widget.item_at_pos(x as i32, y as i32) {
-                if let Ok(mut cell) = cell.downcast::<LibraryCellRenderer>() {
-                    cell.hit(x as i32, y as i32);
-                }
+        if let Some((_, cell)) = self.icon_view.item_at_pos(x as i32, y as i32) {
+            if let Ok(mut cell) = cell.downcast::<LibraryCellRenderer>() {
+                cell.hit(x as i32, y as i32);
             }
         }
-
-        r
     }
 }
-
-impl ContainerImpl for ImageGridViewPriv {}
-
-impl IconViewImpl for ImageGridViewPriv {}
 
 /// # Safety
 /// Use raw pointers.
 #[no_mangle]
 pub unsafe extern "C" fn npc_image_grid_view_new(
-    store: *mut gtk_sys::GtkTreeModel,
-) -> *mut gtk_sys::GtkWidget {
-    ImageGridView::new(&gtk::TreeModel::from_glib_full(store))
-        .upcast::<gtk::Widget>()
-        .to_glib_full()
+    store: *mut gtk4_sys::GtkTreeModel,
+) -> *mut ImageGridView {
+    Box::into_raw(Box::new(ImageGridView::new(
+        &gtk4::TreeModel::from_glib_full(store),
+    )))
+}
+
+/// # Safety
+/// Use raw pointers
+#[no_mangle]
+pub unsafe extern "C" fn npc_image_grid_view_get_icon_view(
+    view: &ImageGridView,
+) -> *mut gtk4_sys::GtkIconView {
+    view.icon_view.to_glib_none().0
+}
+
+/// # Safety
+/// Use raw pointers
+#[no_mangle]
+pub unsafe extern "C" fn npc_image_grid_view_release(view: *mut ImageGridView) {
+    Box::from_raw(view);
 }

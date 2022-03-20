@@ -418,7 +418,7 @@ Cairo::RefPtr<Cairo::ImageSurface> Image::cairo_surface_for_display()
     const Babl* format = babl_format("B'aG'aR'aA u8");
 
     Cairo::RefPtr<Cairo::ImageSurface> surface
-        = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
+        = Cairo::ImageSurface::create(Cairo::Surface::Format::ARGB32, w, h);
     gegl_node_blit(priv->m_scale, 1.0, &roi, format,
                    (void*)surface->get_data(), surface->get_stride(),
                    (GeglBlitFlags)(GEGL_BLIT_CACHE | GEGL_BLIT_DIRTY));

@@ -1,7 +1,7 @@
 /*
  * niepce - ui/niepcewindow.hpp
  *
- * Copyright (C) 2007-2018 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _UI_NIEPCEWINDOW_H_
-#define _UI_NIEPCEWINDOW_H_
-
+#pragma once
 
 #include <giomm/simpleactiongroup.h>
 #include <gtkmm/treemodel.h>
 #include <gtkmm/box.h>
-#include <gtkmm/menubar.h>
 #include <gtkmm/statusbar.h>
 #include <gtkmm/paned.h>
 
@@ -89,10 +85,6 @@ private:
 };
 
 }
-
-
-#endif
-
 /*
   Local Variables:
   mode:c++

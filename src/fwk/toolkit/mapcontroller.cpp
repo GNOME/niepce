@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/mapcontroller.cpp
  *
- * Copyright (C) 2014-2019 Hubert Figuière
+ * Copyright (C) 2014-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@
 #include "mapcontroller.hpp"
 
 #include <gtkmm/widget.h>
+#include <gtkmm/label.h>
+
+#if 0
 #include <osm-gps-map.h>
+#endif
 
 namespace fwk {
 
@@ -32,12 +36,16 @@ public:
         }
     ~Priv()
         {
+            // XXX
+            #if 0
             if (m_map) {
                 g_object_unref(G_OBJECT(m_map));
             }
+            #endif
         }
     void create_widget()
         {
+            #if 0
             m_map = OSM_GPS_MAP(osm_gps_map_new());
             g_object_ref(m_map);
 
@@ -54,8 +62,14 @@ public:
                               nullptr));
             osm_gps_map_layer_add(OSM_GPS_MAP(m_map), osd);
             g_object_unref(G_OBJECT(osd));
+            #endif
         }
-    OsmGpsMap* m_map;
+    #if 0
+    OsmGpsMap*
+    #else
+    GtkWidget*
+    #endif
+    m_map;
 };
 
 MapController::MapController()
@@ -78,7 +92,7 @@ MapController::buildWidget()
 
     m_priv->create_widget();
 
-    m_widget = Gtk::manage(Glib::wrap(GTK_WIDGET(m_priv->m_map)));
+    m_widget = Gtk::manage(new Gtk::Label("This is a map")); //Glib::wrap(GTK_WIDGET(m_priv->m_map)));
 
     // Default position. Somewhere over Montréal, QC
     setZoomLevel(10);
@@ -89,22 +103,30 @@ MapController::buildWidget()
 
 void MapController::centerOn(double lat, double longitude)
 {
+    #if 0
     osm_gps_map_set_center(m_priv->m_map, lat, longitude);
+    #endif
 }
 
 void MapController::zoomIn()
 {
+    #if 0
     osm_gps_map_zoom_in(m_priv->m_map);
+    #endif
 }
 
 void MapController::zoomOut()
 {
+    #if 0
     osm_gps_map_zoom_out(m_priv->m_map);
+    #endif
 }
 
 void MapController::setZoomLevel(uint8_t level)
 {
+    #if 0
     osm_gps_map_set_zoom(m_priv->m_map, level);
+    #endif
 }
 
 }

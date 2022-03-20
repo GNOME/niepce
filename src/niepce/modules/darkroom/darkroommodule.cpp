@@ -1,7 +1,7 @@
 /*
- * niepce - ui/darkroommodule.cpp
+ * niepce - modules/darkroom/darkroommodule.cpp
  *
- * Copyright (C) 2008-2020 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,14 +32,15 @@ namespace dr {
 
 DarkroomModule::DarkroomModule(const ui::IModuleShell & shell)
     : m_shell(shell)
-    , m_dr_splitview(Gtk::ORIENTATION_HORIZONTAL)
-    , m_vbox(Gtk::ORIENTATION_VERTICAL)
+    , m_dr_splitview(Gtk::Orientation::HORIZONTAL)
+    , m_vbox(Gtk::Orientation::VERTICAL)
     , m_image(new ncr::Image)
     , m_active(false)
     , m_need_reload(true)
 {
-    m_shell.get_selection_controller()->signal_selected.connect(
-        sigc::mem_fun(*this, &DarkroomModule::on_selected));
+    m_shell.get_selection_controller()->signal_selected.connect([this] (eng::library_id_t id) {
+        this->on_selected(id);
+    });
 }
 
 void DarkroomModule::reload_image()
@@ -107,17 +108,17 @@ Gtk::Widget * DarkroomModule::buildWidget()
     m_imagecanvas = Gtk::manage(new ImageCanvas());
 // TODO set a proper canvas size
 //    m_canvas_scroll.add(*m_imagecanvas);
-    m_vbox.pack_start(*m_imagecanvas, Gtk::PACK_EXPAND_WIDGET);
+    m_vbox.append(*m_imagecanvas);
 
     m_imagecanvas->set_image(m_image);
 
     // build the toolbar.
     auto toolbar = ffi::image_toolbar_new();
-    gtk_box_pack_start(m_vbox.gobj(), GTK_WIDGET(toolbar), false, false, 0);
+    gtk_box_append(m_vbox.gobj(), GTK_WIDGET(toolbar));
 
-    m_dr_splitview.pack1(m_vbox, Gtk::EXPAND);
+    m_dr_splitview.set_start_child(m_vbox);
     m_dock = Gtk::manage(new fwk::Dock());
-    m_dr_splitview.pack2(*m_dock, Gtk::SHRINK);
+    m_dr_splitview.set_end_child(*m_dock);
 
     m_databinders.add_binder(new fwk::ConfigDataBinder<int>(
                                  m_dr_splitview.property_position(),
@@ -126,7 +127,7 @@ Gtk::Widget * DarkroomModule::buildWidget()
 
     m_toolbox_ctrl = ToolboxController::Ptr(new ToolboxController);
     add(m_toolbox_ctrl);
-    m_dock->vbox().pack_start(*m_toolbox_ctrl->buildWidget());
+    m_dock->vbox().append(*m_toolbox_ctrl->buildWidget());
 
     return m_widget;
 }

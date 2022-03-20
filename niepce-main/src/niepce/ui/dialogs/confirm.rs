@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/confirm.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,31 +21,35 @@ use libc::c_char;
 use std::ffi::CStr;
 
 use glib::translate::*;
-use gtk::prelude::*;
-use gtk::MessageDialog;
+use gtk4::prelude::*;
+use gtk4::MessageDialog;
 
 /// # Safety
 /// Use raw pointers.
 #[no_mangle]
 pub unsafe extern "C" fn dialog_confirm(
     message: *const c_char,
-    parent: *mut gtk_sys::GtkWindow,
+    parent: *mut gtk4_sys::GtkWindow,
 ) -> bool {
     let mut result: bool = false;
     let msg = CStr::from_ptr(message).to_string_lossy();
-    let parent = gtk::Window::from_glib_none(parent);
+    let parent = gtk4::Window::from_glib_none(parent);
     let dialog = MessageDialog::new(
         Some(&parent),
-        gtk::DialogFlags::MODAL,
-        gtk::MessageType::Question,
-        gtk::ButtonsType::YesNo,
+        gtk4::DialogFlags::MODAL,
+        gtk4::MessageType::Question,
+        gtk4::ButtonsType::YesNo,
         &*msg,
     );
 
-    if dialog.run() == gtk::ResponseType::Yes {
-        result = true;
-    }
-    dialog.destroy();
+    dialog.set_modal(true);
+    dialog.connect_response(|_, response| {
+        if response == gtk4::ResponseType::Yes {
+            // XXX fix this
+            let result = true;
+        }
+    });
+    dialog.show();
 
     result
 }

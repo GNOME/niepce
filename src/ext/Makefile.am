@@ -1,5 +1,4 @@
 
 EXTRA_DIST = README
 
-SUBDIRS = libview
-# DIST_SUBDIRS = 
+SUBDIRS =

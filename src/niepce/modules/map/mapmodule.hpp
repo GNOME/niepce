@@ -1,7 +1,7 @@
 /*
  * niepce - modules/map/mapmodule.hpp
  *
- * Copyright (C) 2014 Hubert Figuiere
+ * Copyright (C) 2014-2022 Hubert Figuiere
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _MAP_MODULE_H__
-#define _MAP_MODULE_H__
+#pragma once
 
 #include <gtkmm/widget.h>
 #include <gtkmm/box.h>
-#include <gtkmm/actiongroup.h>
 
 #include "fwk/toolkit/controller.hpp"
 #include "fwk/toolkit/mapcontroller.hpp"
@@ -64,10 +61,7 @@ private:
     bool                         m_active;
 };
 
-
 }
-
-#endif
 /*
   Local Variables:
   mode:c++

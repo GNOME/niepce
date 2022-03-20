@@ -1,7 +1,7 @@
 /*
  * niepce - modules/darkroom/darkroommodule.hpp
  *
- * Copyright (C) 2008-2017 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _DARKROOM_MODULE_H__
-#define _DARKROOM_MODULE_H__
+#pragma once
 
 #include <gtkmm/widget.h>
 #include <gtkmm/paned.h>
 #include <gtkmm/box.h>
-#include <gtkmm/actiongroup.h>
 #include <gtkmm/scrolledwindow.h>
 
 #include "fwk/toolkit/controller.hpp"
@@ -84,10 +81,7 @@ private:
     bool                         m_need_reload;
 };
 
-
 }
-
-#endif
 /*
   Local Variables:
   mode:c++

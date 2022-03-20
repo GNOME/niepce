@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/dialog.cpp
  *
- * Copyright (C) 2009-2014 Hubert Figuiere
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,9 @@
 
 
 #include <boost/format.hpp>
-#include "libview/header.hh"
 
+#include <gtkmm/box.h>
+#include <gtkmm/label.h>
 #include "dialog.hpp"
 
 
@@ -30,24 +31,22 @@ namespace fwk {
 
 void Dialog::add_header(const std::string & label)
 {
-    Gtk::Box * vbox;
-
-    builder()->get_widget("dialog-vbox1", vbox);
+    Gtk::Box * vbox = builder()->get_widget<Gtk::Box>("dialog-vbox1");
     auto markup = str(boost::format("<span size=\"x-large\">%1%</span>") % label);
-    auto header = manage(new view::Header(markup));
-    header->show();
-    vbox->pack_start(*header, false, true);
+    auto header = Gtk::manage(new Gtk::Label(markup));
+    vbox->append(*header);
 }
 
 int Dialog::run_modal(const Frame::Ptr & parent)
 {
-    int result;
+    int result = 0;
     if(!m_is_setup) {
         setup_widget();
     }
     gtkDialog().set_transient_for(parent->gtkWindow());
-    gtkDialog().set_default_response(Gtk::RESPONSE_CLOSE);
-    result = gtkDialog().run();
+    gtkDialog().set_default_response(Gtk::ResponseType::CLOSE);
+    gtkDialog().set_modal();
+    gtkDialog().show();
     gtkDialog().hide();
     return result;
 }

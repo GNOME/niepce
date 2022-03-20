@@ -1,7 +1,7 @@
 /*
  * niepce - ui/selectioncontroller.h
  *
- * Copyright (C) 2008-2014 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _UI_SELECTIONCONTROLLER_H__
-#define _UI_SELECTIONCONTROLLER_H__
+#pragma once
 
 #include <memory>
 
@@ -76,10 +74,10 @@ public:
         { return m_imageliststore; }
 
     // the signal to call when selection is changed.
-    sigc::signal<void, eng::library_id_t> signal_selected;
+    sigc::signal<void(eng::library_id_t)> signal_selected;
 
     // signal for when the item is activated (ie double-click)
-    sigc::signal<void, eng::library_id_t> signal_activated;
+    sigc::signal<void(eng::library_id_t)> signal_activated;
 
     /////////
     /** select the previous image. Emit the signal */
@@ -145,5 +143,3 @@ private:
   fill-column:80
   End:
 */
-
-#endif

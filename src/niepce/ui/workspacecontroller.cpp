@@ -1,7 +1,7 @@
 /*
- * niepce - ui/workspacecontroller.cpp
+ * niepce - niepce/ui/workspacecontroller.cpp
  *
- * Copyright (C) 2007-2020 Hubert Figuière
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 
 #include <gtkmm/icontheme.h>
 #include <gtkmm/box.h>
+#include <gtkmm/gestureclick.h>
 #include <gtkmm/iconview.h>
 #include <gtkmm/image.h>
 
@@ -47,7 +48,7 @@ namespace ui {
 WorkspaceController::WorkspaceController(const Glib::RefPtr<Gio::SimpleActionGroup>& action_group)
     : fwk::UiController()
     , m_action_group(action_group)
-    , m_vbox(Gtk::ORIENTATION_VERTICAL)
+    , m_vbox(Gtk::Orientation::VERTICAL)
     , m_context_menu(nullptr)
 {
     static struct _Icons {
@@ -66,13 +67,12 @@ WorkspaceController::WorkspaceController(const Glib::RefPtr<Gio::SimpleActionGro
     int i = 0;
     while(icons[i].icon_name) {
         try {
-            m_icons[icons[i].icon_id] = icon_theme->load_icon(
-                Glib::ustring(icons[i].icon_name), 16,
-                Gtk::ICON_LOOKUP_USE_BUILTIN);
+            m_icons[icons[i].icon_id] = icon_theme->lookup_icon(
+                Glib::ustring(icons[i].icon_name), 16, 1);
         }
         catch(const Gtk::IconThemeError & e)
         {
-            ERR_OUT("Exception %s.", e.what().c_str());
+            ERR_OUT("Exception %s.", e.what());
         }
         i++;
     }
@@ -180,7 +180,7 @@ void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
     {
         auto count = engine_library_notification_get_count(&ln);
         DBG_OUT("count for container %Ld is %Ld", (long long)count->id, (long long)count->count);
-        std::map<eng::library_id_t, Gtk::TreeIter>::const_iterator iter;
+        std::map<eng::library_id_t, Gtk::TreeModel::iterator>::const_iterator iter;
         switch (type) {
         case eng::NotificationType::FOLDER_COUNTED:
             iter = m_folderidmap.find(count->id);
@@ -206,7 +206,7 @@ void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
         auto count = engine_library_notification_get_count(&ln);
         DBG_OUT("count change for container %Ld is %Ld", (long long)count->id,
                 (long long)count->count);
-        std::map<eng::library_id_t, Gtk::TreeIter>::const_iterator iter;
+        std::map<eng::library_id_t, Gtk::TreeModel::iterator>::const_iterator iter;
         switch (type) {
         case eng::NotificationType::FOLDER_COUNT_CHANGE:
             iter = m_folderidmap.find(count->id);
@@ -277,13 +277,13 @@ void WorkspaceController::on_libtree_selection()
         DBG_OUT("selected something not a folder");
     }
 
-    Glib::RefPtr<Gio::SimpleAction>::cast_dynamic(
+    std::dynamic_pointer_cast<Gio::SimpleAction>(
         m_action_group->lookup_action("DeleteFolder"))->set_enabled(type == FOLDER_ITEM);
     libtree_selection_changed.emit();
 }
 
-void WorkspaceController::on_row_expanded_collapsed(const Gtk::TreeIter& iter,
-                                                    const Gtk::TreePath& /*path*/,
+void WorkspaceController::on_row_expanded_collapsed(const Gtk::TreeModel::iterator& iter,
+                                                    const Gtk::TreeModel::Path& /*path*/,
                                                     bool expanded)
 {
     int type = (*iter)[m_librarycolumns.m_type];
@@ -305,14 +305,14 @@ void WorkspaceController::on_row_expanded_collapsed(const Gtk::TreeIter& iter,
     }
 }
 
-void WorkspaceController::on_row_expanded(const Gtk::TreeIter& iter,
-                                          const Gtk::TreePath& path)
+void WorkspaceController::on_row_expanded(const Gtk::TreeModel::iterator& iter,
+                                          const Gtk::TreeModel::Path& path)
 {
     on_row_expanded_collapsed(iter, path, true);
 }
 
-void WorkspaceController::on_row_collapsed(const Gtk::TreeIter& iter,
-                                           const Gtk::TreePath& path)
+void WorkspaceController::on_row_collapsed(const Gtk::TreeModel::iterator& iter,
+                                           const Gtk::TreeModel::Path& path)
 {
     on_row_expanded_collapsed(iter, path, false);
 }
@@ -369,8 +369,8 @@ void WorkspaceController::add_folder_item(const eng::LibFolder* f)
 Gtk::TreeModel::iterator
 WorkspaceController::add_item(const Glib::RefPtr<Gtk::TreeStore> &treestore,
                               const Gtk::TreeNodeChildren & childrens,
-                              const Glib::RefPtr<Gdk::Pixbuf> & icon,
-                              const Glib::ustring & label, 
+                              const Glib::RefPtr<Gdk::Paintable> & icon,
+                              const Glib::ustring & label,
                               eng::library_id_t id, int type) const
 {
     Gtk::TreeModel::iterator iter;
@@ -378,7 +378,7 @@ WorkspaceController::add_item(const Glib::RefPtr<Gtk::TreeStore> &treestore,
     iter = treestore->append(childrens);
     row = *iter;
     row[m_librarycolumns.m_icon] = icon;
-    row[m_librarycolumns.m_label] = label; 
+    row[m_librarycolumns.m_label] = label;
     row[m_librarycolumns.m_id] = id;
     row[m_librarycolumns.m_type] = type;
     row[m_librarycolumns.m_count] = "--";
@@ -398,11 +398,11 @@ Gtk::Widget * WorkspaceController::buildWidget()
         "Model isn't persistent");
 
     m_folderNode = add_item(m_treestore, m_treestore->children(),
-                            m_icons[ICON_FOLDER], 
+                            m_icons[ICON_FOLDER],
                             Glib::ustring(_("Pictures")), 0,
                             FOLDERS_ITEM);
     m_projectNode = add_item(m_treestore, m_treestore->children(),
-                             m_icons[ICON_PROJECT], 
+                             m_icons[ICON_PROJECT],
                              Glib::ustring(_("Projects")), 0,
                              PROJECTS_ITEM);
     m_keywordsNode = add_item(m_treestore, m_treestore->children(),
@@ -418,17 +418,15 @@ Gtk::Widget * WorkspaceController::buildWidget()
     col = m_librarytree.get_column(num - 1);
     col->set_alignment(1.0f);
 
-    Gtk::Box* header = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));
+    Gtk::Box* header = Gtk::manage(new Gtk::Box(Gtk::Orientation::HORIZONTAL));
     header->set_spacing(4);
     // TODO make it a mnemonic
     m_label.set_text_with_mnemonic(Glib::ustring(_("_Workspace")));
     m_label.set_mnemonic_widget(m_librarytree);
-    header->pack_start(m_label, Gtk::PACK_SHRINK);
+    header->append(m_label);
     Gtk::MenuButton* add_btn = Gtk::manage(new Gtk::MenuButton);
-    add_btn->set_direction(Gtk::ARROW_NONE);
-    auto icon = Gtk::manage(new Gtk::Image());
-    icon->set_from_icon_name("view-more-symbolic", Gtk::ICON_SIZE_BUTTON);
-    add_btn->set_image(*icon);
+    add_btn->set_direction(Gtk::ArrowType::NONE);
+    add_btn->set_icon_name("view-more-symbolic");
 
     auto menu = Gio::Menu::create();
 
@@ -457,34 +455,38 @@ Gtk::Widget * WorkspaceController::buildWidget()
 
     add_btn->set_menu_model(menu);
 
-    header->pack_end(*add_btn, Gtk::PACK_SHRINK);
-    m_vbox.pack_start(*header, Gtk::PACK_SHRINK);
+    header->append(*add_btn);
+    m_vbox.append(*header);
     Gtk::ScrolledWindow* scrolled = Gtk::manage(new Gtk::ScrolledWindow);
-    m_vbox.pack_start(*scrolled);
-    scrolled->add(m_librarytree);
+    m_vbox.append(*scrolled);
+    m_librarytree.set_vexpand(true);
+    scrolled->set_child(m_librarytree);
 
-    m_context_menu = Gtk::manage(new Gtk::Menu(menu));
-    m_context_menu->attach_to_widget(m_librarytree);
+    m_context_menu = Gtk::manage(new Gtk::PopoverMenu(menu));
 
-    m_librarytree.get_selection()->signal_changed().connect (
-        sigc::mem_fun(this,
-                      &WorkspaceController::on_libtree_selection));
-    m_librarytree.signal_row_expanded().connect(
-        sigc::mem_fun(this,
-                      &WorkspaceController::on_row_expanded));
-    m_librarytree.signal_row_collapsed().connect(
-        sigc::mem_fun(this,
-                      &WorkspaceController::on_row_collapsed));
-    m_librarytree.signal_popup_menu()
-        .connect(sigc::mem_fun(*this, &WorkspaceController::on_popup_menu));
-    m_librarytree.signal_button_press_event()
-        .connect_notify(sigc::mem_fun(*this, &WorkspaceController::on_button_press_event));
+    m_librarytree.get_selection()->signal_changed().connect([this] {
+        this->on_libtree_selection();
+    });
+    m_librarytree.signal_row_expanded().connect([this] (const Gtk::TreeModel::iterator& iter, const Gtk::TreeModel::Path& path) {
+        this->on_row_expanded(iter, path);
+    });
+    m_librarytree.signal_row_collapsed().connect([this] (const Gtk::TreeModel::iterator& iter, const Gtk::TreeModel::Path& path) {
+        this->on_row_collapsed(iter, path);
+    });
+
+    auto gesture = Gtk::GestureClick::create();
+    gesture->set_button(3);
+    m_librarytree.add_controller(gesture);
+    gesture->signal_pressed()
+        .connect([this] (int, double x, double y) {
+            this->on_button_press_event(x, y);
+        });
     return m_widget;
 }
 
 /** Expand treenode from a cfg key */
 void WorkspaceController::expand_from_cfg(const char* key,
-                                          const Gtk::TreeIter& treenode)
+                                          const Gtk::TreeModel::iterator& treenode)
 {
     fwk::Configuration::Ptr cfg = getLibraryConfig();
 
@@ -504,24 +506,11 @@ void WorkspaceController::on_ready()
     }
 }
 
-bool WorkspaceController::on_popup_menu()
+void WorkspaceController::on_button_press_event(double x, double y)
 {
-    if (m_context_menu && m_librarytree.get_selection()->count_selected_rows() != 0) {
-        m_context_menu->popup_at_widget(&m_librarytree, Gdk::GRAVITY_CENTER,
-                                        Gdk::GRAVITY_NORTH, nullptr);
-        return true;
-    }
-    return false;
-}
-
-void WorkspaceController::on_button_press_event(GdkEventButton* e)
-{
-    GdkEvent* event = (GdkEvent*)e;
-    if (gdk_event_triggers_context_menu(event)
-        && gdk_event_get_event_type(event) == GDK_BUTTON_PRESS
-        && m_librarytree.get_selection()->count_selected_rows() != 0) {
-
-        m_context_menu->popup_at_pointer(event);
+    if (m_librarytree.get_selection()->count_selected_rows() != 0) {
+        m_context_menu->set_pointing_to(Gdk::Rectangle(x, y, 1, 1));
+        m_context_menu->popup();
     }
 }
 
