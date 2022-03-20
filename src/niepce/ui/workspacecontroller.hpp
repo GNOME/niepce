@@ -63,7 +63,7 @@ public:
                 add(m_count);
                 add(m_count_n);
             }
-        Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Paintable> > m_icon;
+        Gtk::TreeModelColumn<Glib::RefPtr<Gio::Icon>> m_icon;
         Gtk::TreeModelColumn<eng::library_id_t> m_id;
         Gtk::TreeModelColumn<Glib::ustring> m_label;
         Gtk::TreeModelColumn<int> m_type;
@@ -116,10 +116,10 @@ private:
      * @param id the item id (in the database)
      * @paran type the type of node
      */
-    Gtk::TreeModel::iterator add_item(const Glib::RefPtr<Gtk::TreeStore> & treestore,
-                                      const Gtk::TreeNodeChildren & childrens,
-                                      const Glib::RefPtr<Gdk::Paintable>& icon,
-                                      const Glib::ustring & label,
+    Gtk::TreeModel::iterator add_item(const Glib::RefPtr<Gtk::TreeStore>& treestore,
+                                      const Gtk::TreeNodeChildren& childrens,
+                                      const Glib::RefPtr<Gio::Icon>& icon,
+                                      const Glib::ustring& label,
                                       eng::library_id_t id, int type) const;
 
     void expand_from_cfg(const char* key, const Gtk::TreeModel::iterator& treenode);
@@ -135,7 +135,7 @@ private:
 
     Glib::RefPtr<Gio::SimpleActionGroup> m_action_group;
 
-    std::array<Glib::RefPtr<Gdk::Paintable>, _ICON_SIZE> m_icons;
+    std::array<Glib::RefPtr<Gio::Icon>, _ICON_SIZE> m_icons;
     WorkspaceTreeColumns           m_librarycolumns;
     Gtk::Box                       m_vbox;
     Gtk::Label                     m_label;

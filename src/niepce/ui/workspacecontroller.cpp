@@ -63,14 +63,12 @@ WorkspaceController::WorkspaceController(const Glib::RefPtr<Gio::SimpleActionGro
         { 0, nullptr }
     };
 
-    Glib::RefPtr< Gtk::IconTheme > icon_theme(Application::app()->getIconTheme());
     int i = 0;
-    while(icons[i].icon_name) {
+    while (icons[i].icon_name) {
         try {
-            m_icons[icons[i].icon_id] = icon_theme->lookup_icon(
-                Glib::ustring(icons[i].icon_name), 16, 1);
+            m_icons[icons[i].icon_id] = Gio::Icon::create(icons[i].icon_name);
         }
-        catch(const Gtk::IconThemeError & e)
+        catch (const std::exception& e)
         {
             ERR_OUT("Exception %s.", e.what());
         }
@@ -369,7 +367,7 @@ void WorkspaceController::add_folder_item(const eng::LibFolder* f)
 Gtk::TreeModel::iterator
 WorkspaceController::add_item(const Glib::RefPtr<Gtk::TreeStore> &treestore,
                               const Gtk::TreeNodeChildren & childrens,
-                              const Glib::RefPtr<Gdk::Paintable> & icon,
+                              const Glib::RefPtr<Gio::Icon> & icon,
                               const Glib::ustring & label,
                               eng::library_id_t id, int type) const
 {
@@ -410,9 +408,14 @@ Gtk::Widget * WorkspaceController::buildWidget()
                               Glib::ustring(_("Keywords")), 0,
                               KEYWORDS_ITEM);
     m_librarytree.set_headers_visible(false);
-    m_librarytree.append_column("", m_librarycolumns.m_icon);
+
+    auto renderer = Gtk::manage(new Gtk::CellRendererPixbuf());
+    auto col = Gtk::manage(new Gtk::TreeViewColumn("", *renderer));
+    m_librarytree.append_column(*col);
+    col->add_attribute(*renderer, "gicon", m_librarycolumns.m_icon);
+
     int num = m_librarytree.append_column("", m_librarycolumns.m_label);
-    Gtk::TreeViewColumn * col = m_librarytree.get_column(num - 1);
+    col = m_librarytree.get_column(num - 1);
     col->set_expand(true);
     num = m_librarytree.append_column("", m_librarycolumns.m_count);
     col = m_librarytree.get_column(num - 1);
