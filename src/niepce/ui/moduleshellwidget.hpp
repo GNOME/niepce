@@ -23,6 +23,7 @@
 #include <utility>
 
 #include <gtkmm/box.h>
+#include <gtkmm/centerbox.h>
 #include <gtkmm/menubutton.h>
 #include <gtkmm/stack.h>
 #include <gtkmm/stackswitcher.h>
@@ -52,8 +53,7 @@ public:
     sigc::signal<void(const std::string &)> signal_deactivated;
 
 private:
-    Gtk::Box m_mainbox;
-    Gtk::Box m_mainbar;
+    Gtk::CenterBox m_mainbox;
     Gtk::MenuButton         m_menubutton;
     Gtk::Stack              m_stack;
     Gtk::StackSwitcher      m_switcher;

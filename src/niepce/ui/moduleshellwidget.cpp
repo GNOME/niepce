@@ -28,19 +28,15 @@ namespace ui {
 
 ModuleShellWidget::ModuleShellWidget()
     : Gtk::Box(Gtk::Orientation::VERTICAL)
-    , m_mainbox(Gtk::Orientation::HORIZONTAL)
-    , m_mainbar(Gtk::Orientation::HORIZONTAL)
+    , m_mainbox()
 {
     set_spacing(4);
-    // XXX m_mainbar.set_layout(Gtk::BUTTONBOX_START);
-    m_mainbar.set_spacing(4);
     m_menubutton.set_direction(Gtk::ArrowType::NONE);
     m_menubutton.set_icon_name("view-more-symbolic");
-    m_mainbox.append(m_menubutton);
-    m_mainbox.append(m_mainbar);
+    m_mainbox.set_end_widget(m_menubutton);
     append(m_mainbox);
 
-    m_mainbox.append(m_switcher);
+    m_mainbox.set_center_widget(m_switcher);
     m_stack.property_visible_child().signal_changed().connect(
         sigc::mem_fun(*this, &ModuleShellWidget::stack_changed));
     append(m_stack);

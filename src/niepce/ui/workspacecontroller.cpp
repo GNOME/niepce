@@ -423,6 +423,7 @@ Gtk::Widget * WorkspaceController::buildWidget()
     // TODO make it a mnemonic
     m_label.set_text_with_mnemonic(Glib::ustring(_("_Workspace")));
     m_label.set_mnemonic_widget(m_librarytree);
+    m_label.set_hexpand(true);
     header->append(m_label);
     Gtk::MenuButton* add_btn = Gtk::manage(new Gtk::MenuButton);
     add_btn->set_direction(Gtk::ArrowType::NONE);
