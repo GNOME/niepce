@@ -59,6 +59,7 @@ void EditableHScale::_init()
         append(*m_icon);
     }
     m_scale.property_draw_value() = false;
+    m_scale.set_hexpand(true);
 
     auto gesture = Gtk::GestureClick::create();
     gesture->set_button(1);
