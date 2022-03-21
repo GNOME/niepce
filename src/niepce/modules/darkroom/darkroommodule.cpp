@@ -106,6 +106,8 @@ Gtk::Widget * DarkroomModule::buildWidget()
     ncr::init();
     m_widget = &m_dr_splitview;
     m_imagecanvas = Gtk::manage(new ImageCanvas());
+    m_imagecanvas->set_hexpand(true);
+    m_imagecanvas->set_vexpand(true);
 // TODO set a proper canvas size
 //    m_canvas_scroll.add(*m_imagecanvas);
     m_vbox.append(*m_imagecanvas);
