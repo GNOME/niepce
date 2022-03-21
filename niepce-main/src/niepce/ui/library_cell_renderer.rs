@@ -233,6 +233,8 @@ impl LibraryCellRendererPriv {
         let x = r.x() + self.pad.get() as f32 + offset_x;
         let y = r.y() + self.pad.get() as f32 + offset_y;
 
+        dbg_out!("draw thumbnail frame x={} y={}  w={} h={}", x, y, w, h);
+
         cr.set_source_rgb(1.0, 1.0, 1.0);
         cr.rectangle(x.into(), y.into(), w.into(), h.into());
         on_err_out!(cr.stroke());
@@ -241,7 +243,7 @@ impl LibraryCellRendererPriv {
     fn do_draw_thumbnail(&self, snapshot: &gtk4::Snapshot, pixbuf: &gdk4::Paintable) {
         let w = pixbuf.intrinsic_width() as f64;
         let h = pixbuf.intrinsic_height() as f64;
-
+        dbg_out!("draw thumbnail w={} h={}", w, h);
         pixbuf.snapshot(snapshot.upcast_ref::<gdk4::Snapshot>(), w, h);
     }
 
@@ -473,7 +475,6 @@ impl CellRendererImpl for LibraryCellRendererPriv {
             cell_area.width() as f32,
             cell_area.height() as f32,
         );
-        let cr = snapshot.append_cairo(&r);
 
         r.offset(xpad, ypad);
 
@@ -488,9 +489,8 @@ impl CellRendererImpl for LibraryCellRendererPriv {
             gtk4::StateFlags::NORMAL
         });
 
-        gtk4::render_background(
+        snapshot.render_background(
             &style_context,
-            &cr,
             r.x().into(),
             r.y().into(),
             r.width().into(),
@@ -498,16 +498,22 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         );
 
         if self.drawborder.get() {
-            gtk4::render_frame(
+            snapshot.render_frame(
                 &style_context,
-                &cr,
                 r.x().into(),
                 r.y().into(),
                 r.width().into(),
                 r.height().into(),
             );
         }
+
         style_context.restore();
+
+        if let Some(pixbuf) = self_.pixbuf() {
+            self.do_draw_thumbnail(snapshot, &pixbuf);
+        }
+
+        let cr = snapshot.append_cairo(&r);
 
         if let Some(pixbuf) = self_.pixbuf() {
             self.do_draw_thumbnail_frame(
@@ -516,7 +522,6 @@ impl CellRendererImpl for LibraryCellRendererPriv {
                 pixbuf.intrinsic_height() as f32,
                 &r,
             );
-            self.do_draw_thumbnail(snapshot, &pixbuf);
         }
         if self.draw_rating.get() {
             let rating = match &*file {
