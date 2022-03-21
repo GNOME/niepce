@@ -50,12 +50,12 @@ EditLabels::EditLabels(const LibraryClientPtr & libclient)
 void EditLabels::setup_widget()
 {
     Glib::RefPtr<Gtk::Builder> _builder = builder();
-
+    DBG_OUT("setup Edit Labels dialog");
     add_header(_("Edit Labels"));
 
     const char * colour_fmt = "colorbutton%1%";
     const char * value_fmt = "value%1%";
-    for (size_t i = 0; i < 5; i++) {
+    for (size_t i = 0; i < NUM_LABELS; i++) {
         bool has_label = m_labels.size() > i;
 
         Gtk::ColorButton *colourbutton;
@@ -76,6 +76,7 @@ void EditLabels::setup_widget()
         labelentry->signal_changed().connect(
             sigc::bind(sigc::mem_fun(*this, &EditLabels::label_name_changed), i));
     }
+    DBG_OUT("all colours setup");
     gtkDialog().signal_response().connect(sigc::mem_fun(*this, &EditLabels::update_labels));
 }
 

@@ -30,6 +30,7 @@
 #include "fwk/toolkit/gtkutils.hpp"
 #include "fwk/toolkit/dialog.hpp"
 #include "fwk/toolkit/uiresult.hpp"
+#include "fwk/toolkit/thumbnail.hpp"
 #include "metadatapanecontroller.hpp"
 #include "importers/iimporterui.hpp"
 
@@ -112,6 +113,7 @@ private:
     Glib::RefPtr<Gtk::ListStore> m_images_list_model;
     std::map<std::string, Gtk::TreeModel::iterator> m_images_list_map;
 
+    std::shared_ptr<ffi::ImageGridView> m_image_gridview;
     Gtk::IconView *m_gridview;
 
     MetaDataPaneController::Ptr m_metadata_pane;

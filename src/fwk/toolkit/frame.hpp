@@ -70,6 +70,13 @@ public:
     Glib::RefPtr<Gtk::Builder> & builder()
         { return m_builder; }
 
+    void close()
+        {
+            if (m_window) {
+                m_window->close();
+            }
+        }
+
     /** @param header MUST be managed */
     void setHeaderBar(Gtk::HeaderBar* header)
         {

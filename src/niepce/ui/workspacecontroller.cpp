@@ -103,49 +103,48 @@ void WorkspaceController::action_delete_folder()
     }
 }
 
-void WorkspaceController::action_file_import()
+void WorkspaceController::perform_file_import(ImportDialog::Ptr dialog)
 {
-    int result;
     auto& cfg = Application::app()->config(); // XXX change to getLibraryConfig()
     // as the last import should be part of the library not the application.
 
+    // import
+    // XXX change the API to provide more details.
+    std::string source = dialog->get_source();
+    if (source.empty()) {
+        return;
+    }
+    // XXX this should be a different config key
+    // specific to the importer.
+    cfg.setValue("last_import_location", source);
+
+    auto importer = dialog->get_importer();
+    DBG_ASSERT(!!importer, "Import can't be null if we clicked import");
+    if (importer) {
+        auto dest_dir = dialog->get_dest_dir();
+        importer->do_import(
+            source, dest_dir,
+            [this] (const std::string& path, const fwk::FileListPtr& files, Managed manage) -> bool {
+                ffi::libraryclient_import_files(
+                    getLibraryClient()->client(), path.c_str(), files.get(), manage);
+                // XXX the libraryclient function returns void
+                return true;
+            });
+    }
+}
+
+void WorkspaceController::action_file_import()
+{
     ImportDialog::Ptr import_dialog(new ImportDialog());
 
-    result = import_dialog->run_modal(std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock()));
-    switch(result) {
-    case 0:
-    {
-        // import
-        // XXX change the API to provide more details.
-        std::string source = import_dialog->get_source();
-        if(source.empty()) {
-            return;
-        }
-        // XXX this should be a different config key
-        // specific to the importer.
-        cfg.setValue("last_import_location", source);
-
-        auto importer = import_dialog->get_importer();
-        DBG_ASSERT(!!importer, "Import can't be null if we clicked import");
-        if (importer) {
-            auto dest_dir = import_dialog->get_dest_dir();
-            importer->do_import(
-                source, dest_dir,
-                [this] (const std::string& path, const fwk::FileListPtr& files, Managed manage) -> bool {
-                        ffi::libraryclient_import_files(
-                            getLibraryClient()->client(), path.c_str(), files.get(), manage);
-                        // XXX the libraryclient function returns void
-                        return true;
-                });
-        }
-        break;
-    }
-    case 1:
-        // cancel
-        break;
-    default:
-        break;
-    }
+    import_dialog->run_modal(std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock()),
+                             [this, import_dialog] (int response) {
+                                 DBG_OUT("import dialog response: %d", response);
+                                 import_dialog->close();
+                                 if (response == 0) {
+                                     this->perform_file_import(import_dialog);
+                                 }
+                             });
 }
 
 

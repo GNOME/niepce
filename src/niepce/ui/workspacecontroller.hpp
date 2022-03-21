@@ -30,6 +30,7 @@
 #include "fwk/toolkit/uicontroller.hpp"
 #include "fwk/toolkit/notification.hpp"
 #include "niepce/ui/niepcewindow.hpp"
+#include "dialogs/importdialog.hpp"
 
 namespace ui {
 
@@ -87,8 +88,10 @@ private:
     /** action to create a new folder */
     void action_new_folder();
     void action_delete_folder();
-    /** action to import images */
+    /** action to import images: run the dialog */
     void action_file_import();
+    /** */
+    void perform_file_import(ImportDialog::Ptr dialog);
 
     void on_row_expanded_collapsed(const Gtk::TreeModel::iterator& iter,
                                    const Gtk::TreeModel::Path& path, bool expanded);
