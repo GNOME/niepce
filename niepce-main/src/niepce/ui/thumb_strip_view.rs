@@ -89,7 +89,7 @@ impl std::ops::Deref for ThumbStripView {
 }
 
 impl ThumbStripView {
-    fn new(store: &gtk4::TreeModel) -> Self {
+    pub fn new(store: &gtk4::TreeModel) -> Self {
         let tsv = Self {
             item_height: Cell::new(THUMB_STRIP_VIEW_DEFAULT_ITEM_HEIGHT),
             item_count: Rc::new(ItemCount {

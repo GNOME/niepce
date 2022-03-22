@@ -1,7 +1,7 @@
 /*
  * niepce - examples/widget-test.rs
  *
- * Copyright (C) 2020 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-extern crate gdk_pixbuf;
-extern crate gio;
-extern crate glib;
-extern crate gtk;
-extern crate niepce_rust;
-extern crate npc_fwk;
+use std::ops::Deref;
 
 use gio::{resources_register, Resource};
 use glib::{Bytes, Error};
-use gtk::prelude::*;
+use gtk4::prelude::*;
 
 use niepce_rust::niepce::ui::image_grid_view::ImageGridView;
 use niepce_rust::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
@@ -34,24 +29,26 @@ use niepce_rust::niepce::ui::thumb_strip_view::ThumbStripView;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
 
 fn init() -> Result<(), Error> {
-    /*
-        // load the gresource binary at build time and include/link it into the final
-        // binary.
-        let res_bytes = include_bytes!("gresource.gresource");
+    // load the gresource binary at build time and include/link it into the final
+    // binary.
+    // The assumption here is that it's built within the build system.
+    let res_bytes = include_bytes!(concat!(
+        env!("CARGO_TARGET_DIR"),
+        "/../src/niepce/npc-resources.gresource"
+    ));
 
-        // Create Resource it will live as long the value lives.
-        let gbytes = Bytes::from_static(res_bytes.as_ref());
-        let resource = Resource::from_data(&gbytes)?;
+    // Create Resource it will live as long the value lives.
+    let gbytes = Bytes::from_static(res_bytes.as_ref());
+    let resource = Resource::from_data(&gbytes)?;
 
-        // Register the resource so it won't be dropped and will continue to live in
-        // memory.
-        resources_register(&resource);
-    */
+    // Register the resource so it won't be dropped and will continue to live in
+    // memory.
+    resources_register(&resource);
     Ok(())
 }
 
 pub fn main() {
-    if let Err(err) = gtk::init() {
+    if let Err(err) = gtk4::init() {
         println!("main: gtk::init failed: {}", err);
         panic!();
     }
@@ -61,30 +58,40 @@ pub fn main() {
         panic!();
     }
 
-    let model = gtk::ListStore::new(&[gdk_pixbuf::Pixbuf::static_type()]);
-    let thumbview = ThumbStripView::new(model.upcast_ref::<gtk::TreeModel>());
-    let thn = ThumbNav::new(
-        &thumbview.upcast::<gtk::IconView>(),
-        ThumbNavMode::OneRow,
-        true,
+    let app = gtk4::Application::new(
+        Some("org.gnome.Niepce.WidgetTest"),
+        gio::ApplicationFlags::FLAGS_NONE,
     );
-    thn.set_size_request(-1, 134);
 
-    let box_ = gtk::Box::new(gtk::Orientation::Vertical, 0);
-    let rating = RatingLabel::new(3, true);
+    app.connect_activate(|app| {
+        let model = gtk4::ListStore::new(&[gdk_pixbuf::Pixbuf::static_type()]);
+        let thumbview = ThumbStripView::new(model.upcast_ref::<gtk4::TreeModel>());
+        (&thumbview).set_hexpand(true);
+        let thn = ThumbNav::new(&thumbview.deref(), ThumbNavMode::OneRow, true);
+        thn.set_size_request(-1, 134);
 
-    let image_grid = ImageGridView::new(model.upcast_ref::<gtk::TreeModel>());
-    box_.pack_start(&rating, false, false, 0);
-    box_.pack_start(&image_grid, true, true, 0);
-    box_.pack_start(&thn, false, false, 0);
+        let box_ = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+        let rating = RatingLabel::new(3, true);
 
-    let window = gtk::Window::new(gtk::WindowType::Toplevel);
-    window.add(&box_);
-    window.show_all();
-    window.connect_delete_event(|_, _| {
-        gtk::main_quit();
-        gtk::Inhibit(false)
+        let image_grid = ImageGridView::new(model.upcast_ref::<gtk4::TreeModel>());
+        (&image_grid).set_hexpand(true);
+        (&image_grid).set_vexpand(true);
+        box_.append(&rating);
+        box_.append(image_grid.deref());
+        box_.append(&thn);
+
+        let window = gtk4::Window::new();
+        window.set_child(Some(&box_));
+        window.connect_close_request(move |win| {
+            if let Some(app) = win.application() {
+                app.quit();
+            }
+            gtk4::Inhibit(false)
+        });
+
+        app.add_window(&window);
+
+        window.present();
     });
-
-    gtk::main();
+    app.run();
 }
