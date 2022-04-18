@@ -143,6 +143,7 @@ private:
     Gtk::Box                       m_vbox;
     Gtk::Label                     m_label;
     Gtk::TreeView                  m_librarytree;
+    Glib::RefPtr<Gio::Menu> m_menu;
     Gtk::PopoverMenu* m_context_menu;
     Gtk::TreeModel::iterator       m_folderNode;  /**< the folder node */
     Gtk::TreeModel::iterator       m_projectNode; /**< the project node */

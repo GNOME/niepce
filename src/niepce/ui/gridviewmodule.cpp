@@ -134,6 +134,11 @@ Gtk::Widget * GridViewModule::buildWidget()
 
   auto shell_menu = m_shell.getMenu();
   m_context_menu = Gtk::manage(new Gtk::PopoverMenu(shell_menu));
+  m_context_menu->set_parent(*m_librarylistview);
+  m_librarylistview->signal_unrealize().connect([this] {
+      m_context_menu->unparent();
+  });
+
 
   auto gesture = Gtk::GestureClick::create();
   m_librarylistview->add_controller(gesture);
@@ -242,6 +247,7 @@ void GridViewModule::on_rating_changed(GtkCellRenderer*, eng::library_id_t /*id*
 void GridViewModule::on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double x, double y)
 {
     auto button = gesture->get_current_button();
+    DBG_OUT("GridView click handler, button: %u", button);
     if (button == 3 && !m_librarylistview->get_selected_items().empty()) {
         m_context_menu->set_pointing_to(Gdk::Rectangle(x, y, 1, 1));
         m_context_menu->popup();
@@ -250,7 +256,7 @@ void GridViewModule::on_librarylistview_click(const Glib::RefPtr<Gtk::GestureCli
     }
     Gtk::TreeModel::Path path;
     Gtk::CellRenderer * renderer = nullptr;
-    DBG_OUT("click (%f, %f)", x, y);
+    DBG_OUT("GridView click (%f, %f)", x, y);
     if (m_librarylistview->get_item_at_pos(x, y, path, renderer)){
         DBG_OUT("found an item");
     }

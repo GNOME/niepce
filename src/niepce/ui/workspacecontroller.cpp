@@ -431,10 +431,10 @@ Gtk::Widget * WorkspaceController::buildWidget()
     add_btn->set_direction(Gtk::ArrowType::NONE);
     add_btn->set_icon_name("view-more-symbolic");
 
-    auto menu = Gio::Menu::create();
+    m_menu = Gio::Menu::create();
 
     auto section = Gio::Menu::create();
-    menu->append_section(section);
+    m_menu->append_section(section);
     fwk::add_menu_action(m_action_group.get(), "NewFolder",
                          sigc::mem_fun(*this,
                                        &WorkspaceController::action_new_folder),
@@ -449,14 +449,20 @@ Gtk::Widget * WorkspaceController::buildWidget()
     action->set_enabled(false);
 
     section = Gio::Menu::create();
-    menu->append_section(section);
+    m_menu->append_section(section);
 
     fwk::add_menu_action(m_action_group.get(), "Import",
                          sigc::mem_fun(*this,
                                        &WorkspaceController::action_file_import),
                          section, _("_Import..."), "workspace");
 
-    add_btn->set_menu_model(menu);
+    add_btn->set_menu_model(m_menu);
+
+    m_context_menu = Gtk::manage(new Gtk::PopoverMenu(m_menu));
+    m_context_menu->set_parent(m_librarytree);
+    m_librarytree.signal_unrealize().connect([this] {
+        m_context_menu->unparent();
+    });
 
     header->append(*add_btn);
     m_vbox.append(*header);
@@ -464,8 +470,6 @@ Gtk::Widget * WorkspaceController::buildWidget()
     m_vbox.append(*scrolled);
     m_librarytree.set_vexpand(true);
     scrolled->set_child(m_librarytree);
-
-    m_context_menu = Gtk::manage(new Gtk::PopoverMenu(menu));
 
     m_librarytree.get_selection()->signal_changed().connect([this] {
         this->on_libtree_selection();
