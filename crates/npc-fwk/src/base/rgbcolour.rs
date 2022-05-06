@@ -60,9 +60,9 @@ impl FromStr for RgbColour {
         if components.len() != 3 {
             return Err(ColourParseError::ParseError);
         }
-        let r = u16::from_str_radix(components[0], 10)?;
-        let g = u16::from_str_radix(components[1], 10)?;
-        let b = u16::from_str_radix(components[2], 10)?;
+        let r = components[0].parse::<u16>()?;
+        let g = components[1].parse::<u16>()?;
+        let b = components[2].parse::<u16>()?;
         Ok(RgbColour::new(r, g, b))
     }
 }

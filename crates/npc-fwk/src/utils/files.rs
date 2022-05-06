@@ -49,7 +49,7 @@ impl FileList {
             gio::FileQueryInfoFlags::NONE,
             Option::<&gio::Cancellable>::None,
         ) {
-            for itr in enumerator.into_iter() {
+            for itr in enumerator {
                 if itr.is_err() {
                     err_out!("Enumeration failed: {:?}", itr.err());
                     continue;

@@ -84,11 +84,11 @@ impl LibMetadata {
         let mut xmp_result =
             self.xmp
                 .xmp
-                .get_property(&index_to_xmp.ns, &index_to_xmp.property, &mut prop_flags);
+                .get_property(index_to_xmp.ns, index_to_xmp.property, &mut prop_flags);
         if xmp_result.is_ok() && prop_flags.contains(exempi::PropFlags::ARRAY_IS_ALTTEXT) {
             if let Ok((_, value)) = self.xmp.xmp.get_localized_text(
-                &index_to_xmp.ns,
-                &index_to_xmp.property,
+                index_to_xmp.ns,
+                index_to_xmp.property,
                 "",
                 "x-default",
                 &mut prop_flags,
@@ -105,22 +105,22 @@ impl LibMetadata {
         if let Some(ix) = property_index_to_xmp(meta) {
             match *value {
                 PropertyValue::Empty => {
-                    return self.xmp.xmp.delete_property(&ix.ns, &ix.property).is_ok()
+                    return self.xmp.xmp.delete_property(ix.ns, ix.property).is_ok()
                 }
                 PropertyValue::Int(i) => {
                     return self
                         .xmp
                         .xmp
-                        .set_property_i32(&ix.ns, &ix.property, i, exempi::PropFlags::NONE)
+                        .set_property_i32(ix.ns, ix.property, i, exempi::PropFlags::NONE)
                         .is_ok()
                 }
                 PropertyValue::String(ref s) => {
                     if s.is_empty() {
-                        return self.xmp.xmp.delete_property(&ix.ns, &ix.property).is_ok();
+                        return self.xmp.xmp.delete_property(ix.ns, ix.property).is_ok();
                     } else if self
                         .xmp
                         .xmp
-                        .set_property(&ix.ns, &ix.property, s, exempi::PropFlags::NONE)
+                        .set_property(ix.ns, ix.property, s, exempi::PropFlags::NONE)
                         .is_err()
                     {
                         if exempi::get_error() == exempi::Error::BadXPath {
@@ -128,8 +128,8 @@ impl LibMetadata {
                                 .xmp
                                 .xmp
                                 .set_localized_text(
-                                    &ix.ns,
-                                    &ix.property,
+                                    ix.ns,
+                                    ix.property,
                                     "",
                                     "x-default",
                                     s,
@@ -142,7 +142,7 @@ impl LibMetadata {
                     }
                 }
                 PropertyValue::StringArray(ref sa) => {
-                    if self.xmp.xmp.delete_property(&ix.ns, &ix.property).is_err() {
+                    if self.xmp.xmp.delete_property(ix.ns, ix.property).is_err() {
                         err_out!("Error deleting property {}", &ix.property);
                         return false;
                     }
@@ -151,8 +151,8 @@ impl LibMetadata {
                             .xmp
                             .xmp
                             .append_array_item(
-                                &ix.ns,
-                                &ix.property,
+                                ix.ns,
+                                ix.property,
                                 exempi::PropFlags::VALUE_IS_ARRAY,
                                 s,
                                 exempi::PropFlags::NONE,
@@ -170,7 +170,7 @@ impl LibMetadata {
                     return self
                         .xmp
                         .xmp
-                        .set_property_date(&ix.ns, &ix.property, &xmp_date, exempi::PropFlags::NONE)
+                        .set_property_date(ix.ns, ix.property, &xmp_date, exempi::PropFlags::NONE)
                         .is_ok();
                 }
             }

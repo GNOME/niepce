@@ -155,7 +155,7 @@ impl ThumbStripView {
             }
         }
 
-        self.store.replace(model.clone());
+        self.store.replace(model);
         self.setup_model();
     }
 

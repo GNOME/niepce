@@ -93,7 +93,7 @@ impl ObjectImpl for RatingLabelPriv {
         let click = gtk4::GestureClick::new();
         click.connect_pressed(glib::clone!(@weak obj => move |gesture, n, x, y| {
             let this = Self::from_instance(&obj);
-            this.press_event(&gesture, n, x, y);
+            this.press_event(gesture, n, x, y);
         }));
         obj.add_controller(&click);
 

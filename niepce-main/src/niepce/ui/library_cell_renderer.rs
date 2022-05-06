@@ -232,7 +232,6 @@ impl LibraryCellRendererPriv {
         cr: &cairo::Context,
         pos: &graphene::Point,
         size: &graphene::Size,
-        r: &Rect,
     ) {
         cr.set_source_rgb(1.0, 1.0, 1.0);
         cr.rectangle(
@@ -519,7 +518,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
             );
             self.do_draw_thumbnail(snapshot, &thumb_pos, &thumb_size, &pixbuf);
 
-            self.do_draw_thumbnail_frame(&cr, &thumb_pos, &thumb_size, &r);
+            self.do_draw_thumbnail_frame(&cr, &thumb_pos, &thumb_size);
         }
 
         if self.draw_rating.get() {

@@ -90,7 +90,7 @@ fn thumbnail_to_pixbuf(thumbnail: &or::Thumbnail, orientation: i32) -> Option<gd
         DataType::Jpeg | DataType::Tiff | DataType::Png => {
             let loader = gdk_pixbuf::PixbufLoader::new();
 
-            if let Err(err) = loader.write(&buf) {
+            if let Err(err) = loader.write(buf) {
                 err_out!("loader write error: {}", err);
             }
 

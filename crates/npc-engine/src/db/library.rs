@@ -195,7 +195,7 @@ impl Library {
                 let mut rows = stmt.query([])?;
                 if let Ok(Some(row)) = rows.next() {
                     let value: String = row.get(0)?;
-                    if let Ok(v) = i32::from_str_radix(&value, 10) {
+                    if let Ok(v) = value.parse::<i32>() {
                         return Ok(v);
                     } else {
                         return Ok(-1);
@@ -450,7 +450,7 @@ impl Library {
             let mut rows = stmt.query(params![id])?;
             let mut files: Vec<LibFile> = vec![];
             while let Ok(Some(row)) = rows.next() {
-                files.push(LibFile::read_from(&row)?);
+                files.push(LibFile::read_from(row)?);
             }
             return Ok(files);
         }
@@ -487,7 +487,7 @@ impl Library {
             }
             let id = conn.last_insert_rowid();
             dbg_out!("last row inserted {}", id);
-            let mut lf = LibFolder::new(id, &name, path);
+            let mut lf = LibFolder::new(id, name, path);
             lf.set_parent(into);
             return Ok(lf);
         }
@@ -523,7 +523,7 @@ impl Library {
                     err_out!("Error {:?}", err);
                     Err(Error::from(err))
                 }
-                Ok(Some(row)) => Ok(LibFolder::read_from(&row)?),
+                Ok(Some(row)) => Ok(LibFolder::read_from(row)?),
             };
         }
         Err(Error::NoSqlDb)
@@ -540,7 +540,7 @@ impl Library {
             let mut rows = stmt.query([])?;
             let mut folders: Vec<LibFolder> = vec![];
             while let Ok(Some(row)) = rows.next() {
-                folders.push(LibFolder::read_from(&row)?);
+                folders.push(LibFolder::read_from(row)?);
             }
             return Ok(folders);
         }
@@ -578,7 +578,7 @@ impl Library {
             let mut rows = stmt.query([])?;
             let mut keywords: Vec<Keyword> = vec![];
             while let Ok(Some(row)) = rows.next() {
-                keywords.push(Keyword::read_from(&row)?);
+                keywords.push(Keyword::read_from(row)?);
             }
             return Ok(keywords);
         }
@@ -846,10 +846,10 @@ impl Library {
                 Err(err) => Err(Error::from(err)),
                 Ok(None) => Err(Error::NotFound),
                 Ok(Some(row)) => {
-                    let mut metadata = LibMetadata::read_from(&row)?;
+                    let mut metadata = LibMetadata::read_from(row)?;
 
                     let sql = "SELECT ext FROM sidecars WHERE file_id=?1";
-                    let mut stmt = conn.prepare(&sql)?;
+                    let mut stmt = conn.prepare(sql)?;
                     let mut rows = stmt.query(params![file_id])?;
                     while let Ok(Some(row)) = rows.next() {
                         metadata.sidecars.push(row.get(0)?);
@@ -937,7 +937,7 @@ impl Library {
                 match *value {
                     PropertyValue::StringArray(ref keywords) => {
                         for kw in keywords {
-                            let id = self.make_keyword(&kw)?;
+                            let id = self.make_keyword(kw)?;
                             if id != -1 {
                                 self.assign_keyword(id, file_id)?;
                             }
@@ -988,7 +988,7 @@ impl Library {
             let mut rows = stmt.query([])?;
             let mut labels: Vec<Label> = vec![];
             while let Ok(Some(row)) = rows.next() {
-                labels.push(Label::read_from(&row)?);
+                labels.push(Label::read_from(row)?);
             }
             return Ok(labels);
         }
@@ -1079,22 +1079,21 @@ impl Library {
                         let xmp_buffer: String = row.get(0)?;
                         let main_file_id: LibraryId = row.get(1)?;
                         let xmp_file_id: LibraryId = row.get(2)?;
-                        let spath: PathBuf;
                         let p = self.get_fs_file(main_file_id);
-                        if let Ok(ref p) = p {
-                            spath = PathBuf::from(p);
+                        let spath = if let Ok(ref p) = p {
+                            PathBuf::from(p)
                         } else {
                             // XXX we should report that error.
                             err_out!("couldn't find the main file {:?}", p);
                             dbg_assert!(false, "couldn't find the main file");
                             continue;
-                        }
+                        };
                         let mut p: Option<PathBuf> = None;
                         if xmp_file_id > 0 {
                             if let Ok(p2) = self.get_fs_file(xmp_file_id) {
                                 p = Some(PathBuf::from(p2));
                             }
-                            dbg_assert!(!p.is_none(), "couldn't find the xmp file path");
+                            dbg_assert!(p.is_some(), "couldn't find the xmp file path");
                         }
                         if p.is_none() {
                             p = Some(spath.with_extension("xmp"));

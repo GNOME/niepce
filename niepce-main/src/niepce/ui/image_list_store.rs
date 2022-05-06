@@ -208,7 +208,7 @@ impl ImageListStore {
     }
 
     pub fn get_file_id_at_path(&self, path: &gtk4::TreePath) -> LibraryId {
-        if let Some(iter) = self.store.iter(&path) {
+        if let Some(iter) = self.store.iter(path) {
             if let Ok(libfile) = self
                 .store
                 .get_value(&iter, ColIndex::File as i32)
@@ -223,7 +223,7 @@ impl ImageListStore {
     pub fn get_file(&self, id: LibraryId) -> Option<LibFile> {
         if let Some(iter) = self.idmap.get(&id) {
             self.store
-                .get_value(&iter, ColIndex::File as i32)
+                .get_value(iter, ColIndex::File as i32)
                 .get::<&StoreLibFile>()
                 .map(|v| v.0.clone())
                 .ok()
@@ -272,7 +272,7 @@ impl ImageListStore {
     pub fn set_property(&self, iter: &gtk4::TreeIter, change: &MetadataChange) {
         if let Ok(libfile) = self
             .store
-            .get_value(&iter, ColIndex::File as i32)
+            .get_value(iter, ColIndex::File as i32)
             .get::<&StoreLibFile>()
         {
             assert!(libfile.0.id() == change.id);
@@ -281,7 +281,7 @@ impl ImageListStore {
                 let mut file = libfile.0.clone();
                 file.set_property(meta, value);
                 self.store
-                    .set_value(&iter, ColIndex::File as u32, &StoreLibFile(file).to_value());
+                    .set_value(iter, ColIndex::File as u32, &StoreLibFile(file).to_value());
             } else {
                 err_out!("Wrong property type");
             }
