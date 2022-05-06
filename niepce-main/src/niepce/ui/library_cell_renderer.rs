@@ -227,24 +227,38 @@ impl LibraryCellRendererPriv {
         self.pixbuf.replace(pixbuf);
     }
 
-    fn do_draw_thumbnail_frame(&self, cr: &cairo::Context, w: f32, h: f32, r: &Rect) {
-        let offset_x = (self.size.get() as f32 - w) / 2.0;
-        let offset_y = (self.size.get() as f32 - h) / 2.0;
-        let x = r.x() + self.pad.get() as f32 + offset_x;
-        let y = r.y() + self.pad.get() as f32 + offset_y;
-
-        dbg_out!("draw thumbnail frame x={} y={}  w={} h={}", x, y, w, h);
-
+    fn do_draw_thumbnail_frame(
+        &self,
+        cr: &cairo::Context,
+        pos: &graphene::Point,
+        size: &graphene::Size,
+        r: &Rect,
+    ) {
         cr.set_source_rgb(1.0, 1.0, 1.0);
-        cr.rectangle(x.into(), y.into(), w.into(), h.into());
+        cr.rectangle(
+            pos.x().into(),
+            pos.y().into(),
+            size.width() as f64,
+            size.height() as f64,
+        );
         on_err_out!(cr.stroke());
     }
 
-    fn do_draw_thumbnail(&self, snapshot: &gtk4::Snapshot, pixbuf: &gdk4::Paintable) {
-        let w = pixbuf.intrinsic_width() as f64;
-        let h = pixbuf.intrinsic_height() as f64;
-        dbg_out!("draw thumbnail w={} h={}", w, h);
-        pixbuf.snapshot(snapshot.upcast_ref::<gdk4::Snapshot>(), w, h);
+    fn do_draw_thumbnail(
+        &self,
+        snapshot: &gtk4::Snapshot,
+        pos: &graphene::Point,
+        size: &graphene::Size,
+        pixbuf: &gdk4::Paintable,
+    ) {
+        snapshot.save();
+        snapshot.translate(pos);
+        pixbuf.snapshot(
+            snapshot.upcast_ref::<gdk4::Snapshot>(),
+            size.width() as f64,
+            size.height() as f64,
+        );
+        snapshot.restore();
     }
 
     fn do_draw_flag(cr: &cairo::Context, flag: i32, r: &Rect) {
@@ -405,7 +419,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
     ) {
         match pspec.name() {
             "pixbuf" => {
-                let pixbuf = value.get::<&gdk4::Paintable>().map(|f| f.clone()).ok();
+                let pixbuf = value.get::<gdk4::Paintable>().ok();
                 self.set_pixbuf(pixbuf);
             }
             "libfile" => {
@@ -489,40 +503,25 @@ impl CellRendererImpl for LibraryCellRendererPriv {
             gtk4::StateFlags::NORMAL
         });
 
-        snapshot.render_background(
-            &style_context,
-            r.x().into(),
-            r.y().into(),
-            r.width().into(),
-            r.height().into(),
-        );
-
-        if self.drawborder.get() {
-            snapshot.render_frame(
-                &style_context,
-                r.x().into(),
-                r.y().into(),
-                r.width().into(),
-                r.height().into(),
-            );
-        }
-
         style_context.restore();
 
-        if let Some(pixbuf) = self_.pixbuf() {
-            self.do_draw_thumbnail(snapshot, &pixbuf);
-        }
-
         let cr = snapshot.append_cairo(&r);
-
         if let Some(pixbuf) = self_.pixbuf() {
-            self.do_draw_thumbnail_frame(
-                &cr,
-                pixbuf.intrinsic_width() as f32,
-                pixbuf.intrinsic_height() as f32,
-                &r,
+            let w = pixbuf.intrinsic_width() as f32;
+            let h = pixbuf.intrinsic_height() as f32;
+            let thumb_size = graphene::Size::new(w, h);
+            let offset_x = (self.size.get() as f32 - w) / 2.0;
+            let offset_y = (self.size.get() as f32 - h) / 2.0;
+
+            let thumb_pos = graphene::Point::new(
+                r.x() + self.pad.get() as f32 + offset_x,
+                r.y() + self.pad.get() as f32 + offset_y,
             );
+            self.do_draw_thumbnail(snapshot, &thumb_pos, &thumb_size, &pixbuf);
+
+            self.do_draw_thumbnail_frame(&cr, &thumb_pos, &thumb_size, &r);
         }
+
         if self.draw_rating.get() {
             let rating = match &*file {
                 Some(f) => f.0.rating(),

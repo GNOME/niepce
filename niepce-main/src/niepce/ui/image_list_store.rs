@@ -198,18 +198,8 @@ impl ImageListStore {
                 true
             }
             ThumbnailLoaded(ref t) => {
-                if let Some(iter) = self.get_iter_from_id(t.id) {
-                    let pixbuf = t.pix.make_pixbuf();
-                    self.store.set(
-                        iter,
-                        &[
-                            (ColIndex::Thumb as u32, &pixbuf),
-                            (
-                                ColIndex::StripThumb as u32,
-                                &gdk_utils::gdkpixbuf_scale_to_fit(pixbuf.as_ref(), 100),
-                            ),
-                        ],
-                    );
+                if let Some(pixbuf) = t.pix.make_pixbuf() {
+                    self.set_thumbnail(t.id, &pixbuf);
                 }
                 true
             }
@@ -267,11 +257,12 @@ impl ImageListStore {
         if let Some(iter) = self.idmap.get(&id) {
             let strip_thumb = gdk_utils::gdkpixbuf_scale_to_fit(Some(thumb), 100)
                 .map(|pix| gdk4::Texture::for_pixbuf(&pix));
+            let thumb = gdk4::Texture::for_pixbuf(thumb);
             assert!(thumb.ref_count() > 0);
             self.store.set(
                 iter,
                 &[
-                    (ColIndex::Thumb as u32, thumb),
+                    (ColIndex::Thumb as u32, &thumb),
                     (ColIndex::StripThumb as u32, &strip_thumb),
                 ],
             );
