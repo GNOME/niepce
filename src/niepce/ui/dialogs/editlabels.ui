@@ -226,12 +226,16 @@
       <object class="GtkBox" id="dialog-action_area1">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
         <child>
           <placeholder/>
         </child>
         <child>
           <object class="GtkButton" id="button1">
-            <property name="label">gtk-close</property>
+            <property name="label">Close</property>
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
           </object>

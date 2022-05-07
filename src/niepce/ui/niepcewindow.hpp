@@ -33,6 +33,7 @@
 #include "ui/selectioncontroller.hpp"
 #include "ui/filmstripcontroller.hpp"
 #include "niepce/notificationcenter.hpp"
+#include "dialogs/editlabels.hpp"
 
 namespace ui {
 
@@ -80,6 +81,7 @@ private:
     WorkspaceController::Ptr       m_workspacectrl;
     FilmStripController::Ptr       m_filmstrip;
     Gtk::Statusbar                 m_statusBar;
+    EditLabels::Ptr m_editlabel_dialog;
     libraryclient::LibraryClientPtr m_libClient;
     fwk::Configuration::Ptr        m_library_cfg;
 };

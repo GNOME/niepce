@@ -72,7 +72,6 @@ void NiepceApplication::on_about()
 {
     DBG_OUT("on_about");
     Gtk::AboutDialog* dlg = new Gtk::AboutDialog();
-//    dlg.set_name("Niepce");
     dlg->set_program_name("Niepce Digital");
     dlg->set_version(VERSION);
     dlg->set_logo_icon_name("org.gnome.Niepce");
