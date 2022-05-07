@@ -2,7 +2,7 @@
     "app-id" : "org.gnome.Niepce",
     "branch" : "master",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "3.34",
+    "runtime-version" : "42",
     "sdk" : "org.gnome.Sdk",
     "sdk-extensions" : [
         "org.freedesktop.Sdk.Extension.rust-stable"
@@ -20,16 +20,10 @@
         "--filesystem=host",
         "--share=network",
         "--talk-name=org.gtk.vfs.*",
-        "--filesystem=xdg-run/dconf",
-        "--filesystem=~/.config/dconf:ro",
-        "--talk-name=ca.desrt.dconf",
-        "--env=DCONF_USER_CONFIG_DIR=.config/dconf",
         "--device=all"
     ],
     "build-options" : {
         "build-args": ["--share=network"],
-        "cflags" : "-O2 -g",
-        "cxxflags" : "-O2 -g",
         "env" : {
             "V" : "1",
             "CARGO_HOME" : "/run/build/niepce/cargo"
