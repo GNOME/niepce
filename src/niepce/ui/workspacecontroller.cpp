@@ -422,6 +422,7 @@ Gtk::Widget * WorkspaceController::buildWidget()
 
     Gtk::Box* header = Gtk::manage(new Gtk::Box(Gtk::Orientation::HORIZONTAL));
     header->set_spacing(4);
+    header->set_margin(4);
     // TODO make it a mnemonic
     m_label.set_text_with_mnemonic(Glib::ustring(_("_Workspace")));
     m_label.set_mnemonic_widget(m_librarytree);

@@ -30,10 +30,10 @@ ModuleShellWidget::ModuleShellWidget()
     : Gtk::Box(Gtk::Orientation::VERTICAL)
     , m_mainbox()
 {
-    set_spacing(4);
     m_menubutton.set_direction(Gtk::ArrowType::NONE);
     m_menubutton.set_icon_name("view-more-symbolic");
     m_mainbox.set_end_widget(m_menubutton);
+    m_mainbox.set_margin(4);
     append(m_mainbox);
 
     m_mainbox.set_center_widget(m_switcher);
