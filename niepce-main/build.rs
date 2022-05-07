@@ -37,6 +37,7 @@ fn main() {
             .exclude_item("GtkIconView")
             .exclude_item("GtkListStore")
             .exclude_item("GtkTreePath")
+            .exclude_item("GtkPopoverMenu")
             .exclude_item("GtkCellRenderer")
             .exclude_item("GtkWidget")
             .exclude_item("GFileInfo")

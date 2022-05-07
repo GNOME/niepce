@@ -28,14 +28,16 @@ pub struct ImageGridView {
 }
 
 impl ImageGridView {
-    pub fn new(store: &gtk4::TreeModel) -> Self {
+    pub fn new(store: &gtk4::TreeModel, context_menu: Option<gtk4::PopoverMenu>) -> Self {
         let icon_view = gtk4::IconView::with_model(store);
 
         let click = gtk4::GestureClick::new();
-        //        click.connect_pressed(glib::clone!(@weak obj => move |gesture, n, x, y| {
-        // XXX handle press event
-        // self.press_event(x, y);
-        //        }));
+        click.set_button(0);
+        click.connect_pressed(
+            glib::clone!(@weak icon_view, @strong context_menu => move |gesture, _, x, y| {
+                Self::press_event(&icon_view, &context_menu, gesture, x, y);
+            }),
+        );
         icon_view.add_controller(&click);
 
         ImageGridView { icon_view }
@@ -51,13 +53,24 @@ impl std::ops::Deref for ImageGridView {
 }
 
 impl ImageGridView {
-    fn press_event(&self, x: f64, y: f64) {
-        // let event = gesture.last_event();
+    fn press_event(
+        icon_view: &gtk4::IconView,
+        menu: &Option<gtk4::PopoverMenu>,
+        gesture: &gtk4::GestureClick,
+        x: f64,
+        y: f64,
+    ) {
+        gesture.last_event(None).and_then(|event| {
+            if event.triggers_context_menu() {
+                if let Some(ref menu) = menu {
+                    menu.set_pointing_to(Some(&gdk4::Rectangle::new(x as i32, y as i32, 0, 0)));
+                    menu.popup();
+                }
+            }
+            Some(())
+        });
 
-        // XXX forward to the icon_view or something
-        // self.parent_button_press_event(widget, event);
-
-        if let Some((_, cell)) = self.icon_view.item_at_pos(x as i32, y as i32) {
+        if let Some((_, cell)) = icon_view.item_at_pos(x as i32, y as i32) {
             if let Ok(mut cell) = cell.downcast::<LibraryCellRenderer>() {
                 cell.hit(x as i32, y as i32);
             }
@@ -65,14 +78,21 @@ impl ImageGridView {
     }
 }
 
+/// Create a new `ImageGridView`
+///
 /// # Safety
 /// Use raw pointers.
+///
+/// The `store` and `context_menu` will get ref.
+/// context_menu can be `nullptr`
 #[no_mangle]
 pub unsafe extern "C" fn npc_image_grid_view_new(
     store: *mut gtk4_sys::GtkTreeModel,
+    context_menu: *mut gtk4_sys::GtkPopoverMenu,
 ) -> *mut ImageGridView {
     Box::into_raw(Box::new(ImageGridView::new(
-        &gtk4::TreeModel::from_glib_full(store),
+        &gtk4::TreeModel::from_glib_none(store),
+        Option::<gtk4::PopoverMenu>::from_glib_none(context_menu),
     )))
 }
 

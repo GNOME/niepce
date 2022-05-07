@@ -119,7 +119,7 @@ void ImportDialog::setup_widget()
     m_images_list_model = Gtk::ListStore::create(m_grid_columns);
     m_image_gridview = std::shared_ptr<ffi::ImageGridView>(
         ffi::npc_image_grid_view_new(
-            GTK_TREE_MODEL(g_object_ref(m_images_list_model->gobj()))),
+            GTK_TREE_MODEL(g_object_ref(m_images_list_model->gobj())), nullptr),
         ffi::npc_image_grid_view_release);
     m_gridview = Gtk::manage(Glib::wrap(GTK_ICON_VIEW(
                                             ffi::npc_image_grid_view_get_icon_view(

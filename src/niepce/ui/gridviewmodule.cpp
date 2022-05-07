@@ -20,6 +20,7 @@
 #include <gtkmm/liststore.h>
 #include <gtkmm/treestore.h>
 #include <gtkmm/treeselection.h>
+#include <gtkmm/popovermenu.h>
 
 #include <exempi/xmpconsts.h>
 
@@ -116,10 +117,14 @@ Gtk::Widget * GridViewModule::buildWidget()
     return m_widget;
   }
   m_widget = &m_lib_splitview;
+  auto shell_menu = m_shell.getMenu();
+  m_context_menu = Gtk::manage(new Gtk::PopoverMenu(shell_menu));
+
   m_image_grid_view = std::shared_ptr<ffi::ImageGridView>(
       ffi::npc_image_grid_view_new(
-          GTK_TREE_MODEL(g_object_ref(
-                             m_model->gobjmm()->gobj()))),
+          GTK_TREE_MODEL(m_model->gobjmm()->gobj()),
+          GTK_POPOVER_MENU(m_context_menu->gobj())
+      ),
       ffi::npc_image_grid_view_release);
   m_librarylistview = Gtk::manage(
       Glib::wrap(
@@ -132,8 +137,6 @@ Gtk::Widget * GridViewModule::buildWidget()
   m_librarylistview->property_margin() = 0;
   m_librarylistview->set_vexpand(true);
 
-  auto shell_menu = m_shell.getMenu();
-  m_context_menu = Gtk::manage(new Gtk::PopoverMenu(shell_menu));
   m_context_menu->set_parent(*m_librarylistview);
   m_librarylistview->signal_unrealize().connect([this] {
       m_context_menu->unparent();
