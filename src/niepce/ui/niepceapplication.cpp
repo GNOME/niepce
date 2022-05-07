@@ -70,17 +70,20 @@ void NiepceApplication::on_action_file_open()
 
 void NiepceApplication::on_about()
 {
-    Gtk::AboutDialog dlg;
+    DBG_OUT("on_about");
+    Gtk::AboutDialog* dlg = new Gtk::AboutDialog();
 //    dlg.set_name("Niepce");
-    dlg.set_program_name("Niepce Digital");
-    dlg.set_version(VERSION);
-    dlg.set_logo_icon_name("org.gnome.Niepce");
-    dlg.set_license_type(Gtk::License::GPL_3_0);
-    dlg.set_comments(Glib::ustring(_("A digital photo application.\n\n"
+    dlg->set_program_name("Niepce Digital");
+    dlg->set_version(VERSION);
+    dlg->set_logo_icon_name("org.gnome.Niepce");
+    dlg->set_license_type(Gtk::License::GPL_3_0);
+    dlg->set_comments(Glib::ustring(_("A digital photo application.\n\n"
                                      "Build options: ")) +
                      NIEPCE_BUILD_CONFIG);
-    dlg.set_transient_for(m_main_frame.lock()->gtkWindow());
-    dlg.show();
+    dlg->set_transient_for(m_main_frame.lock()->gtkWindow());
+    dlg->set_modal(true);
+    dlg->set_hide_on_close(true);
+    dlg->show();
 }
 
 void NiepceApplication::on_action_preferences()
