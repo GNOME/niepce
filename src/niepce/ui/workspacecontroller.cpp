@@ -24,6 +24,7 @@
 #include <gtkmm/gestureclick.h>
 #include <gtkmm/iconview.h>
 #include <gtkmm/image.h>
+#include <gtkmm/messagedialog.h>
 
 #include "fwk/base/debug.hpp"
 #include "fwk/base/string.hpp"
@@ -97,9 +98,14 @@ void WorkspaceController::action_delete_folder()
     auto id = get_selected_folder_id();
     if (id) {
         auto& window = std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock())->gtkWindow();
-        if (ui::dialog_confirm(_("Delete selected folder?"), window.gobj())) {
-            ffi::libraryclient_delete_folder(getLibraryClient()->client(), id);
-        }
+        auto dialog = Glib::wrap(ui::dialog_confirm(_("Delete selected folder?"), window.gobj()));
+        dialog->signal_response().connect([this, id, dialog] (int response) {
+            if (response == Gtk::ResponseType::YES) {
+                ffi::libraryclient_delete_folder(getLibraryClient()->client(), id);
+            }
+            delete dialog;
+        });
+        dialog->show();
     }
 }
 

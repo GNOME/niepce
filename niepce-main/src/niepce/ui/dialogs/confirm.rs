@@ -30,8 +30,7 @@ use gtk4::MessageDialog;
 pub unsafe extern "C" fn dialog_confirm(
     message: *const c_char,
     parent: *mut gtk4_sys::GtkWindow,
-) -> bool {
-    let mut result: bool = false;
+) -> *mut gtk4_sys::GtkMessageDialog {
     let msg = CStr::from_ptr(message).to_string_lossy();
     let parent = gtk4::Window::from_glib_none(parent);
     let dialog = MessageDialog::new(
@@ -43,13 +42,6 @@ pub unsafe extern "C" fn dialog_confirm(
     );
 
     dialog.set_modal(true);
-    dialog.connect_response(|_, response| {
-        if response == gtk4::ResponseType::Yes {
-            // XXX fix this
-            let result = true;
-        }
-    });
-    dialog.show();
 
-    result
+    dialog.to_glib_none().0
 }
