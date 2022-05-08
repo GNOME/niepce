@@ -23,6 +23,7 @@ use gtk4::prelude::*;
 use gtk4::{Dialog, Entry, Label};
 
 use crate::libraryclient::{ClientInterface, LibraryClientWrapper};
+use npc_fwk::err_out;
 
 /// # Safety
 /// Use raw pointers.
@@ -42,26 +43,31 @@ pub unsafe extern "C" fn dialog_request_new_folder(
         ],
     );
     let label = Label::with_mnemonic(gettext("Folder _name:").as_str());
-    dialog.content_area().append(&label);
+    let content_area = dialog.content_area();
+    content_area.append(&label);
     let entry = Entry::new();
     entry.set_text("foobar");
     entry.add_mnemonic_label(&label);
-    dialog.content_area().append(&entry);
+    content_area.append(&entry);
 
     dialog.set_modal(true);
 
     let client = client.client();
-    dialog.connect_response(
-        glib::clone!(@strong entry, @strong client => move |_, response| {
-            let mut client = client.clone();
-            let folder_name = entry.text();
-            let cancel = response != gtk4::ResponseType::Ok;
-            if !cancel {
-                std::sync::Arc::get_mut(&mut client)
-                    .unwrap()
-                    .create_folder(folder_name.to_string(), None);
-            }
-        }),
-    );
+    dialog.connect_response(glib::clone!(@strong entry => move |dialog, response| {
+        let mut client = client.clone();
+        let folder_name = entry.text();
+        let cancel = response != gtk4::ResponseType::Ok;
+        if !cancel {
+            std::sync::Arc::get_mut(&mut client)
+                .map(|client| {
+                    client.create_folder(folder_name.to_string(), None);
+                })
+                .or_else(|| {
+                    err_out!("Can't get libclient, create_folder() failed");
+                    None
+                });
+        }
+        dialog.close();
+    }));
     dialog.show();
 }
