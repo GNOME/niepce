@@ -27,49 +27,49 @@ use npc_fwk::base::PropertyValue;
 /// Client interface.
 pub trait ClientInterface {
     /// get all the keywords
-    fn get_all_keywords(&mut self);
-    fn query_keyword_content(&mut self, id: LibraryId);
-    fn count_keyword(&mut self, id: LibraryId);
+    fn get_all_keywords(&self);
+    fn query_keyword_content(&self, id: LibraryId);
+    fn count_keyword(&self, id: LibraryId);
 
     /// get all the folder
-    fn get_all_folders(&mut self);
-    fn query_folder_content(&mut self, id: LibraryId);
-    fn count_folder(&mut self, id: LibraryId);
-    fn create_folder(&mut self, name: String, path: Option<String>);
-    fn delete_folder(&mut self, id: LibraryId);
+    fn get_all_folders(&self);
+    fn query_folder_content(&self, id: LibraryId);
+    fn count_folder(&self, id: LibraryId);
+    fn create_folder(&self, name: String, path: Option<String>);
+    fn delete_folder(&self, id: LibraryId);
 
-    fn request_metadata(&mut self, id: LibraryId);
+    fn request_metadata(&self, id: LibraryId);
     /// set the metadata
-    fn set_metadata(&mut self, id: LibraryId, meta: Np, value: &PropertyValue);
-    fn write_metadata(&mut self, id: LibraryId);
+    fn set_metadata(&self, id: LibraryId, meta: Np, value: &PropertyValue);
+    fn write_metadata(&self, id: LibraryId);
 
-    fn move_file_to_folder(&mut self, file_id: LibraryId, from: LibraryId, to: LibraryId);
+    fn move_file_to_folder(&self, file_id: LibraryId, from: LibraryId, to: LibraryId);
     /// get all the labels
-    fn get_all_labels(&mut self);
-    fn create_label(&mut self, label: String, colour: String);
-    fn delete_label(&mut self, id: LibraryId);
+    fn get_all_labels(&self);
+    fn create_label(&self, label: String, colour: String);
+    fn delete_label(&self, id: LibraryId);
     /// update a label
-    fn update_label(&mut self, id: LibraryId, new_name: String, new_colour: String);
+    fn update_label(&self, id: LibraryId, new_name: String, new_colour: String);
 
     /// tell to process the Xmp update Queue
-    fn process_xmp_update_queue(&mut self, write_xmp: bool);
+    fn process_xmp_update_queue(&self, write_xmp: bool);
 
     /// Import files from a directory
     /// @param dir the directory
     /// @param files the files to import
     /// @param manage true if imports have to be managed
-    fn import_files(&mut self, dir: String, files: Vec<PathBuf>, manage: Managed);
+    fn import_files(&self, dir: String, files: Vec<PathBuf>, manage: Managed);
 }
 
 /// Sync client interface
 pub trait ClientInterfaceSync {
     /// Create a keyword. Return the id for the keyword.
     /// If the keyword already exists, return its `LibraryId`.
-    fn create_keyword_sync(&mut self, keyword: String) -> LibraryId;
+    fn create_keyword_sync(&self, keyword: String) -> LibraryId;
 
     /// Create a label. Return the id of the newly created label.
-    fn create_label_sync(&mut self, name: String, colour: String) -> LibraryId;
+    fn create_label_sync(&self, name: String, colour: String) -> LibraryId;
 
     /// Create a folder. Return the id of the newly created folder.
-    fn create_folder_sync(&mut self, name: String, path: Option<String>) -> LibraryId;
+    fn create_folder_sync(&self, name: String, path: Option<String>) -> LibraryId;
 }
