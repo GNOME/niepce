@@ -51,45 +51,36 @@ Gtk::Widget* DirectoryImporterUI::setup_widget(const fwk::Frame::Ptr& frame)
 
 void DirectoryImporterUI::do_select_directories()
 {
-    auto source = select_source();
-    if (!source.empty() && m_source_selected_cb) {
-        m_source_selected_cb(source, fwk::path_basename(source));
-    }
-}
-
-std::string DirectoryImporterUI::select_source()
-{
     fwk::Configuration & cfg = fwk::Application::app()->config();
 
-    Glib::ustring filename;
-    {
-        auto frame = m_frame.lock();
-        Gtk::FileChooserDialog dialog(frame->gtkWindow(), _("Import picture folder"),
-                                      Gtk::FileChooser::Action::SELECT_FOLDER);
+    auto frame = m_frame.lock();
+    auto dialog = new Gtk::FileChooserDialog(frame->gtkWindow(), _("Import picture folder"),
+                                         Gtk::FileChooser::Action::SELECT_FOLDER);
 
-        dialog.add_button(_("Cancel"), Gtk::ResponseType::CANCEL);
-        dialog.add_button(_("Select"), Gtk::ResponseType::OK);
-        dialog.set_select_multiple(false);
+    dialog->add_button(_("Cancel"), Gtk::ResponseType::CANCEL);
+    dialog->add_button(_("Select"), Gtk::ResponseType::OK);
+    dialog->set_select_multiple(false);
 
-        std::string last_import_location = cfg.getValue("last_import_location", "");
-        if (!last_import_location.empty()) {
-            dialog.set_current_name(last_import_location);
-        }
-
-        dialog.show();
-        // XXX fix this Gtk4
-        int result = 0;
-        switch(result)
+    std::string last_import_location = cfg.getValue("last_import_location", "");
+    if (!last_import_location.empty()) {
+        auto file = Gio::File::create_for_path(last_import_location);
+        dialog->set_current_folder(file);
+    }
+    dialog->signal_response().connect([this, dialog] (int result) {
+        std::string source;
+        switch (result)
         {
         case Gtk::ResponseType::OK:
-            filename = dialog.get_current_name();
+            source = dialog->get_file()->get_path();
+            m_source_selected_cb(source, fwk::path_basename(source));
             break;
         default:
             break;
         }
-    }
-    m_directory_name->set_text(filename);
-    return filename.raw();
+        m_directory_name->set_text(source);
+        delete dialog;
+    });
+    dialog->show();
 }
 
 }
