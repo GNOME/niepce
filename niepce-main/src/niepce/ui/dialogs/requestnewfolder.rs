@@ -22,8 +22,9 @@ use glib::translate::*;
 use gtk4::prelude::*;
 use gtk4::{Dialog, Entry, Label};
 
+use npc_fwk::dbg_out;
+
 use crate::libraryclient::{ClientInterface, LibraryClientWrapper};
-use npc_fwk::err_out;
 
 /// # Safety
 /// Use raw pointers.
@@ -54,18 +55,11 @@ pub unsafe extern "C" fn dialog_request_new_folder(
 
     let client = client.client();
     dialog.connect_response(glib::clone!(@strong entry => move |dialog, response| {
-        let mut client = client.clone();
         let folder_name = entry.text();
         let cancel = response != gtk4::ResponseType::Ok;
         if !cancel {
-            std::sync::Arc::get_mut(&mut client)
-                .map(|client| {
-                    client.create_folder(folder_name.to_string(), None);
-                })
-                .or_else(|| {
-                    err_out!("Can't get libclient, create_folder() failed");
-                    None
-                });
+            dbg_out!("Create folder {}", &folder_name);
+            client.create_folder(folder_name.to_string(), None);
         }
         dialog.close();
     }));
