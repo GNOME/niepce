@@ -22,9 +22,7 @@
 #include <gtkmm/widget.h>
 #include <gtkmm/label.h>
 
-#if 0
-#include <osm-gps-map.h>
-#endif
+#include <shumate/shumate.h>
 
 namespace fwk {
 
@@ -32,44 +30,29 @@ class MapController::Priv {
 public:
     Priv()
         : m_map(nullptr)
+        , m_registry(nullptr)
         {
         }
     ~Priv()
         {
-            // XXX
-            #if 0
             if (m_map) {
                 g_object_unref(G_OBJECT(m_map));
             }
-            #endif
+            if (m_registry) {
+                g_object_unref(G_OBJECT(m_registry));
+            }
         }
     void create_widget()
         {
-            #if 0
-            m_map = OSM_GPS_MAP(osm_gps_map_new());
+            m_map = SHUMATE_SIMPLE_MAP(shumate_simple_map_new());
+            m_registry = shumate_map_source_registry_new_with_defaults();
+            shumate_simple_map_set_map_source(
+                SHUMATE_SIMPLE_MAP(m_map),
+                SHUMATE_MAP_SOURCE(g_list_model_get_item(G_LIST_MODEL(m_registry), 0)));
             g_object_ref(m_map);
-
-            OsmGpsMapLayer* osd = OSM_GPS_MAP_LAYER(
-                g_object_new (OSM_TYPE_GPS_MAP_OSD,
-                              "show-scale", TRUE,
-                              "show-coordinates", TRUE,
-                              "show-crosshair", TRUE,
-                              "show-dpad", TRUE,
-                              "show-zoom", TRUE,
-                              "show-gps-in-dpad", TRUE,
-                              "show-gps-in-zoom", FALSE,
-                              "dpad-radius", 30,
-                              nullptr));
-            osm_gps_map_layer_add(OSM_GPS_MAP(m_map), osd);
-            g_object_unref(G_OBJECT(osd));
-            #endif
         }
-    #if 0
-    OsmGpsMap*
-    #else
-    GtkWidget*
-    #endif
-    m_map;
+    ShumateSimpleMap* m_map;
+    ShumateMapSourceRegistry* m_registry;
 };
 
 MapController::MapController()
@@ -83,8 +66,7 @@ MapController::~MapController()
     delete m_priv;
 }
 
-Gtk::Widget *
-MapController::buildWidget()
+Gtk::Widget* MapController::buildWidget()
 {
     if (m_widget) {
         return m_widget;
@@ -92,10 +74,11 @@ MapController::buildWidget()
 
     m_priv->create_widget();
 
-    m_widget = Gtk::manage(new Gtk::Label("This is a map")); //Glib::wrap(GTK_WIDGET(m_priv->m_map)));
+    m_widget = Gtk::manage(Glib::wrap(GTK_WIDGET(m_priv->m_map)));
+    m_widget->set_vexpand(true);
 
     // Default position. Somewhere over Montréal, QC
-    setZoomLevel(10);
+    setZoomLevel(10.0);
     centerOn(45.5030854, -73.5698944);
 
     return m_widget;
@@ -103,30 +86,30 @@ MapController::buildWidget()
 
 void MapController::centerOn(double lat, double longitude)
 {
-    #if 0
-    osm_gps_map_set_center(m_priv->m_map, lat, longitude);
-    #endif
+    ShumateViewport* viewport =
+        shumate_simple_map_get_viewport(m_priv->m_map);
+    shumate_location_set_location(SHUMATE_LOCATION(viewport), lat, longitude);
 }
 
 void MapController::zoomIn()
 {
-    #if 0
-    osm_gps_map_zoom_in(m_priv->m_map);
-    #endif
+    ShumateViewport* viewport =
+        shumate_simple_map_get_viewport(m_priv->m_map);
+    shumate_viewport_zoom_in(viewport);
 }
 
 void MapController::zoomOut()
 {
-    #if 0
-    osm_gps_map_zoom_out(m_priv->m_map);
-    #endif
+    ShumateViewport* viewport =
+        shumate_simple_map_get_viewport(m_priv->m_map);
+    shumate_viewport_zoom_in(viewport);
 }
 
-void MapController::setZoomLevel(uint8_t level)
+void MapController::setZoomLevel(double level)
 {
-    #if 0
-    osm_gps_map_set_zoom(m_priv->m_map, level);
-    #endif
+    ShumateViewport* viewport =
+        shumate_simple_map_get_viewport(m_priv->m_map);
+    shumate_viewport_set_zoom_level(viewport, level);
 }
 
 }
