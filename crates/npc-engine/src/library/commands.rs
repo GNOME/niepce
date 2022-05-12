@@ -138,7 +138,7 @@ pub fn cmd_create_folder(lib: &Library, name: &str, path: Option<String>) -> Lib
         Ok(lf) => {
             let id = lf.id();
             if lib.notify(LibNotification::AddedFolder(lf)).is_err() {
-                err_out!("Failed to notifu AddedFolder");
+                err_out!("Failed to notify AddedFolder");
             }
             id
         }
