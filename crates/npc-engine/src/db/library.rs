@@ -49,7 +49,7 @@ pub enum Managed {
     YES = 1,
 }
 
-const DB_SCHEMA_VERSION: i32 = 9;
+const DB_SCHEMA_VERSION: i32 = 10;
 const DATABASENAME: &str = "niepcelibrary.db";
 
 #[derive(Debug)]
@@ -261,8 +261,8 @@ impl Library {
                  file_date INTEGER, rating INTEGER DEFAULT 0, \
                  label INTEGER, flag INTEGER DEFAULT 0, \
                  import_date INTEGER, mod_date INTEGER, \
-                 xmp TEXT, xmp_date INTEGER, xmp_file INTEGER,\
-                 jpeg_file INTEGER)",
+                 xmp TEXT, xmp_date INTEGER, xmp_file INTEGER DEFAULT 0,\
+                 jpeg_file INTEGER DEFAULT 0)",
                 [],
             )
             .unwrap();
@@ -1078,7 +1078,8 @@ impl Library {
                     while let Ok(Some(row)) = rows.next() {
                         let xmp_buffer: String = row.get(0)?;
                         let main_file_id: LibraryId = row.get(1)?;
-                        let xmp_file_id: LibraryId = row.get(2)?;
+                        // In case of error we assume 0.
+                        let xmp_file_id: LibraryId = row.get(2).unwrap_or(0);
                         let p = self.get_fs_file(main_file_id);
                         let spath = if let Ok(ref p) = p {
                             PathBuf::from(p)
