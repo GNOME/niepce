@@ -1,4 +1,4 @@
-AC_INIT(niepce, 2013.6.1)
+AC_INIT(niepce, 2022.5.1)
 AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR(README)
 AM_INIT_AUTOMAKE([1.11 no-dist-gzip dist-xz subdir-objects])
