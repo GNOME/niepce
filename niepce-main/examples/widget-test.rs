@@ -73,7 +73,7 @@ pub fn main() {
         let box_ = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
         let rating = RatingLabel::new(3, true);
 
-        let image_grid = ImageGridView::new(model.upcast_ref::<gtk4::TreeModel>());
+        let image_grid = ImageGridView::new(model.upcast_ref::<gtk4::TreeModel>(), None);
         (&image_grid).set_hexpand(true);
         (&image_grid).set_vexpand(true);
         box_.append(&rating);
