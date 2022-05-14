@@ -1116,7 +1116,14 @@ impl Library {
                                 dbg_assert!(xmp_file_id > 0, "couldn't add xmp_file");
                                 // XXX handle error
                                 let res = self.add_xmp_sidecar_to_bundle(id, xmp_file_id);
-                                dbg_assert!(res.is_ok(), "addSidecarFileToBundle failed");
+                                dbg_assert!(res.is_ok(), "add_xmp_sidecar_to_bundle failed");
+                                let res = self.add_sidecar_fsfile_to_bundle(
+                                    id,
+                                    xmp_file_id,
+                                    Sidecar::Xmp(PathBuf::new()).to_int(),
+                                    "xmp",
+                                );
+                                dbg_assert!(res.is_ok(), "add_sidecar_fsfile_to_bundle failed");
                             }
                         }
                     }
