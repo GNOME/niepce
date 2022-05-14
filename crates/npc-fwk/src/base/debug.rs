@@ -1,3 +1,7 @@
+
+/// Use this macro to output a message on a Result returning an error.
+/// This allow removing the warning if you ignore the Result.
+/// `Error` must implement `Debug`
 #[macro_export]
 macro_rules! on_err_out {
     ($e:expr) => {
@@ -13,6 +17,7 @@ macro_rules! on_err_out {
     };
 }
 
+/// Print a debug message.
 #[macro_export]
 macro_rules! dbg_out {
     ( $( $x:expr ),* ) => {
