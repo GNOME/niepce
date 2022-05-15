@@ -178,6 +178,11 @@ impl Library {
         Ok(())
     }
 
+    #[cfg(test)]
+    fn is_ok(&self) -> bool {
+        self.inited
+    }
+
     fn check_database_version(&self) -> Result<i32> {
         if let Some(ref conn) = self.dbconn {
             if let Ok(mut stmt) = conn.prepare("SELECT value FROM admin WHERE key='version'") {
