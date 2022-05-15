@@ -70,7 +70,7 @@ impl LrImporter {
     fn import_keyword(
         &self,
         id: LrId,
-        mut libclient: &mut LibraryClient,
+        libclient: &LibraryClient,
         keywords: &BTreeMap<LrId, Keyword>,
         tree: &KeywordTree,
     ) {
@@ -78,7 +78,7 @@ impl LrImporter {
             let nid = libclient.create_keyword_sync(keyword.name.clone());
             self.keyword_map.borrow_mut().insert(id, nid);
             tree.children_for(id).iter().for_each(|child| {
-                self.import_keyword(*child, &mut libclient, keywords, tree);
+                self.import_keyword(*child, libclient, keywords, tree);
             });
         }
     }
@@ -113,7 +113,7 @@ impl LrImporter {
         if let Some(images) = images {
             dbg_out!("Has images");
             images.iter().for_each(|id| {
-                if let Some(npc_image_id) = self.image_map.borrow().get(&id) {
+                if let Some(npc_image_id) = self.image_map.borrow().get(id) {
                     dbg_out!("adding {} to album {}", npc_image_id, nid);
                     libclient.add_to_album(*npc_image_id, nid);
                 }
@@ -243,13 +243,13 @@ impl LibraryImporter for LrImporter {
                 .iter()
                 .map(|f| (f.id(), self.remap_folder_path(folders, f)))
                 .filter(|p| p.1.is_some())
-                .for_each(|path| self.import_folder(path.0, &path.1.as_ref().unwrap(), libclient));
+                .for_each(|path| self.import_folder(path.0, path.1.as_ref().unwrap(), libclient));
 
             let root_keyword_id = catalog.root_keyword_id;
             let keywords = catalog.keywords();
             let mut keywordtree = KeywordTree::new();
             keywordtree.add_children(keywords);
-            self.import_keyword(root_keyword_id, libclient, &keywords, &keywordtree);
+            self.import_keyword(root_keyword_id, libclient, keywords, &keywordtree);
 
             let images = catalog.images();
             let image_to_libfile: BTreeMap<LrId, &Image> = images
@@ -271,7 +271,7 @@ impl LibraryImporter for LrImporter {
                         "Found {} images in collection",
                         images.as_ref().map(Vec::len).unwrap_or(0)
                     );
-                    self.import_collection(&collection, images.as_ref(), libclient);
+                    self.import_collection(collection, images.as_ref(), libclient);
                 }
             });
 

@@ -66,7 +66,7 @@ pub fn on_libtree_selection(
                 .get_value(&selected, ColIndex::TypeColumn as i32)
                 .get::<i32>()
                 .ok()
-                .and_then(|v| ItemTypes::from_i32(v));
+                .and_then(ItemTypes::from_i32);
             match item_type {
                 Some(ItemTypes::FolderItem) => {
                     libclient.query_folder_content(id);
@@ -97,6 +97,9 @@ pub fn on_libtree_selection(
 
 #[no_mangle]
 /// Handle the selection and return the type selected or -1
+///
+/// # Safety
+/// Dereference pointers.
 pub unsafe extern "C" fn workspace_controller_on_libtree_selection(
     libclient: &mut LibraryClientWrapper,
     libtree: *mut gtk4_sys::GtkTreeView,

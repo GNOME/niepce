@@ -153,116 +153,116 @@ impl LibraryClient {
 impl ClientInterface for LibraryClient {
     /// get all the keywords
     fn get_all_keywords(&self) {
-        self.schedule_op(move |lib| commands::cmd_list_all_keywords(&lib));
+        self.schedule_op(commands::cmd_list_all_keywords);
     }
 
     fn query_keyword_content(&self, keyword_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_query_keyword_content(&lib, keyword_id));
+        self.schedule_op(move |lib| commands::cmd_query_keyword_content(lib, keyword_id));
     }
 
     fn count_keyword(&self, id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_count_keyword(&lib, id));
+        self.schedule_op(move |lib| commands::cmd_count_keyword(lib, id));
     }
 
     /// get all the folders
     fn get_all_folders(&self) {
-        self.schedule_op(move |lib| commands::cmd_list_all_folders(&lib));
+        self.schedule_op(commands::cmd_list_all_folders);
     }
 
     fn query_folder_content(&self, folder_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_query_folder_content(&lib, folder_id));
+        self.schedule_op(move |lib| commands::cmd_query_folder_content(lib, folder_id));
     }
 
     fn count_folder(&self, folder_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_count_folder(&lib, folder_id));
+        self.schedule_op(move |lib| commands::cmd_count_folder(lib, folder_id));
     }
 
     fn create_folder(&self, name: String, path: Option<String>) {
-        self.schedule_op(move |lib| commands::cmd_create_folder(&lib, &name, path.clone()) != 0);
+        self.schedule_op(move |lib| commands::cmd_create_folder(lib, &name, path.clone()) != 0);
     }
 
     fn delete_folder(&self, id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_delete_folder(&lib, id));
+        self.schedule_op(move |lib| commands::cmd_delete_folder(lib, id));
     }
 
     /// get all the albums
     fn get_all_albums(&self) {
-        self.schedule_op(move |lib| commands::cmd_list_all_albums(&lib));
+        self.schedule_op(commands::cmd_list_all_albums);
     }
 
     /// Count album
     fn count_album(&self, album_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_count_album(&lib, album_id));
+        self.schedule_op(move |lib| commands::cmd_count_album(lib, album_id));
     }
 
     /// Create an album (async)
     fn create_album(&self, name: String, parent: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_create_album(&lib, &name, parent) != 0);
+        self.schedule_op(move |lib| commands::cmd_create_album(lib, &name, parent) != 0);
     }
 
     /// Add an image to an album.
     fn add_to_album(&self, image_id: LibraryId, album_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_add_to_album(&lib, image_id, album_id));
+        self.schedule_op(move |lib| commands::cmd_add_to_album(lib, image_id, album_id));
     }
 
     /// Query content for album.
     fn query_album_content(&self, album_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_query_album_content(&lib, album_id));
+        self.schedule_op(move |lib| commands::cmd_query_album_content(lib, album_id));
     }
 
     fn request_metadata(&self, file_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_request_metadata(&lib, file_id));
+        self.schedule_op(move |lib| commands::cmd_request_metadata(lib, file_id));
     }
 
     /// set the metadata
     fn set_metadata(&self, file_id: LibraryId, meta: Np, value: &PropertyValue) {
         let value2 = value.clone();
-        self.schedule_op(move |lib| commands::cmd_set_metadata(&lib, file_id, meta, &value2));
+        self.schedule_op(move |lib| commands::cmd_set_metadata(lib, file_id, meta, &value2));
     }
 
     fn set_image_properties(&self, image_id: LibraryId, props: &NiepcePropertyBag) {
         let props = props.clone();
-        self.schedule_op(move |lib| commands::cmd_set_image_properties(&lib, image_id, &props));
+        self.schedule_op(move |lib| commands::cmd_set_image_properties(lib, image_id, &props));
     }
 
     fn write_metadata(&self, file_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_write_metadata(&lib, file_id));
+        self.schedule_op(move |lib| commands::cmd_write_metadata(lib, file_id));
     }
 
     fn move_file_to_folder(&self, file_id: LibraryId, from: LibraryId, to: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_move_file_to_folder(&lib, file_id, from, to));
+        self.schedule_op(move |lib| commands::cmd_move_file_to_folder(lib, file_id, from, to));
     }
 
     /// get all the labels
     fn get_all_labels(&self) {
-        self.schedule_op(move |lib| commands::cmd_list_all_labels(&lib));
+        self.schedule_op(commands::cmd_list_all_labels);
     }
 
     fn create_label(&self, name: String, colour: String) {
-        self.schedule_op(move |lib| commands::cmd_create_label(&lib, &name, &colour) != 0);
+        self.schedule_op(move |lib| commands::cmd_create_label(lib, &name, &colour) != 0);
     }
 
     fn delete_label(&self, label_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_delete_label(&lib, label_id));
+        self.schedule_op(move |lib| commands::cmd_delete_label(lib, label_id));
     }
 
     /// update a label
     fn update_label(&self, label_id: LibraryId, new_name: String, new_colour: String) {
         self.schedule_op(move |lib| {
-            commands::cmd_update_label(&lib, label_id, &new_name, &new_colour)
+            commands::cmd_update_label(lib, label_id, &new_name, &new_colour)
         });
     }
 
     /// tell to process the Xmp update Queue
     fn process_xmp_update_queue(&self, write_xmp: bool) {
-        self.schedule_op(move |lib| commands::cmd_process_xmp_update_queue(&lib, write_xmp));
+        self.schedule_op(move |lib| commands::cmd_process_xmp_update_queue(lib, write_xmp));
     }
 
     /// Import files from a directory
     /// @param dir the directory
     /// @param manage true if imports have to be managed
     fn import_files(&self, dir: String, files: Vec<PathBuf>, manage: Managed) {
-        self.schedule_op(move |lib| commands::cmd_import_files(&lib, &dir, &files, manage));
+        self.schedule_op(move |lib| commands::cmd_import_files(lib, &dir, &files, manage));
     }
 }
 
@@ -272,7 +272,7 @@ impl ClientInterfaceSync for LibraryClient {
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |lib| {
-            tx.send(commands::cmd_create_label(&lib, &name, &colour))
+            tx.send(commands::cmd_create_label(lib, &name, &colour))
                 .unwrap();
             true
         });
@@ -285,7 +285,7 @@ impl ClientInterfaceSync for LibraryClient {
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |lib| {
-            tx.send(commands::cmd_add_keyword(&lib, &keyword)).unwrap();
+            tx.send(commands::cmd_add_keyword(lib, &keyword)).unwrap();
             true
         });
 
@@ -297,7 +297,7 @@ impl ClientInterfaceSync for LibraryClient {
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |lib| {
-            tx.send(commands::cmd_create_folder(&lib, &name, path.clone()))
+            tx.send(commands::cmd_create_folder(lib, &name, path.clone()))
                 .unwrap();
             true
         });
@@ -310,7 +310,7 @@ impl ClientInterfaceSync for LibraryClient {
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |lib| {
-            tx.send(commands::cmd_create_album(&lib, &name, parent))
+            tx.send(commands::cmd_create_album(lib, &name, parent))
                 .unwrap();
             true
         });
@@ -323,7 +323,7 @@ impl ClientInterfaceSync for LibraryClient {
 
         let bundle = bundle.clone();
         self.schedule_op(move |lib| {
-            tx.send(commands::cmd_add_bundle(&lib, &bundle, folder))
+            tx.send(commands::cmd_add_bundle(lib, &bundle, folder))
                 .unwrap();
             true
         });

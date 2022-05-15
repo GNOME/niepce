@@ -650,7 +650,7 @@ impl Library {
                 return Err(Error::InvalidResult);
             }
             let id = conn.last_insert_rowid();
-            return Ok(Album::new(id, &name, parent));
+            return Ok(Album::new(id, name, parent));
         }
         Err(Error::NoSqlDb)
     }
@@ -667,7 +667,7 @@ impl Library {
             let mut rows = stmt.query([])?;
             let mut albums: Vec<Album> = vec![];
             while let Ok(Some(row)) = rows.next() {
-                albums.push(Album::read_from(&row)?);
+                albums.push(Album::read_from(row)?);
             }
             return Ok(albums);
         }

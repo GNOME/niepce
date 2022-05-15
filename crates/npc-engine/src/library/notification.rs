@@ -273,6 +273,8 @@ pub unsafe extern "C" fn engine_library_notification_get_keyword(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_album(
     n: *const LibNotification,

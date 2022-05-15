@@ -31,12 +31,14 @@ use gtk4_sys;
 use npc_engine::libraryclient::LibraryClientWrapper;
 use npc_fwk::{dbg_out, err_out};
 
+/// # Safety
+/// Dereference a raw pointer
 #[no_mangle]
-pub extern "C" fn dialog_import_library(
+pub unsafe extern "C" fn dialog_import_library(
     _client: &mut LibraryClientWrapper,
     parent: *mut gtk4_sys::GtkWindow,
 ) {
-    let parent_window = unsafe { gtk4::Window::from_glib_none(parent) };
+    let parent_window = gtk4::Window::from_glib_none(parent);
     ImportLibraryDialog::run(&parent_window);
 }
 
@@ -93,8 +95,6 @@ impl ImportLibraryDialog {
 
     fn cancel(assistant: &Assistant) {
         dbg_out!("Assistant cancel");
-        unsafe {
-            assistant.destroy();
-        }
+        assistant.destroy();
     }
 }
