@@ -204,11 +204,15 @@ pub extern "C" fn lcchannel_new(
     Box::into_raw(Box::new(PortableChannel::<LibNotification>(sender)))
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn lcchannel_delete(obj: *mut LcChannel) {
     Box::from_raw(obj);
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_new(
     path: *const c_char,
@@ -221,6 +225,8 @@ pub unsafe extern "C" fn libraryclient_new(
     )))
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_delete(obj: *mut LibraryClientWrapper) {
     Box::from_raw(obj);
@@ -254,6 +260,8 @@ pub extern "C" fn libraryclient_query_folder_content(
     client.query_folder_content(folder_id);
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_create_folder_sync(
     client: &mut LibraryClientWrapper,
@@ -336,6 +344,8 @@ pub extern "C" fn libraryclient_get_all_labels(client: &mut LibraryClientWrapper
     client.get_all_labels();
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_create_label(
     client: &mut LibraryClientWrapper,
@@ -347,6 +357,8 @@ pub unsafe extern "C" fn libraryclient_create_label(
     client.create_label(String::from(name), String::from(colour));
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_create_label_sync(
     client: &mut LibraryClientWrapper,
@@ -366,6 +378,8 @@ pub extern "C" fn libraryclient_delete_label(
     client.delete_label(label_id);
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_update_label(
     client: &mut LibraryClientWrapper,
@@ -386,6 +400,8 @@ pub extern "C" fn libraryclient_process_xmp_update_queue(
     client.process_xmp_update_queue(write_xmp);
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_import_files(
     client: &mut LibraryClientWrapper,

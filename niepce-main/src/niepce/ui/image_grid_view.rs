@@ -60,14 +60,14 @@ impl ImageGridView {
         x: f64,
         y: f64,
     ) {
-        gesture.last_event(None).map(|event| {
+        if let Some(event) = gesture.last_event(None) {
             if event.triggers_context_menu() {
                 if let Some(ref menu) = menu {
                     menu.set_pointing_to(Some(&gdk4::Rectangle::new(x as i32, y as i32, 0, 0)));
                     menu.popup();
                 }
             }
-        });
+        }
 
         if let Some((_, cell)) = icon_view.item_at_pos(x as i32, y as i32) {
             if let Ok(mut cell) = cell.downcast::<LibraryCellRenderer>() {

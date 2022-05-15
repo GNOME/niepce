@@ -87,7 +87,6 @@ pub type Result<T> = result::Result<T, Error>;
 
 pub struct Library {
     // maindir: PathBuf,
-    dbpath: PathBuf,
     dbconn: Option<rusqlite::Connection>,
     inited: bool,
     sender: npc_fwk::toolkit::Sender<LibNotification>,
@@ -99,7 +98,6 @@ impl Library {
         let (sender, _) = async_channel::unbounded();
         let mut lib = Library {
             // maindir: dir,
-            dbpath: PathBuf::default(),
             dbconn: None,
             inited: false,
             sender,
@@ -126,7 +124,6 @@ impl Library {
         }
         let mut lib = Library {
             // maindir: dir,
-            dbpath: dbpath.clone(),
             dbconn: None,
             inited: false,
             sender,
@@ -179,14 +176,6 @@ impl Library {
         }
 
         Ok(())
-    }
-
-    fn dbpath(&self) -> &Path {
-        &self.dbpath
-    }
-
-    fn is_ok(&self) -> bool {
-        self.inited
     }
 
     fn check_database_version(&self) -> Result<i32> {

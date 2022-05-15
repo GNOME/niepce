@@ -166,6 +166,8 @@ pub unsafe extern "C" fn engine_library_notification_delete(n: *mut LibNotificat
     Box::from_raw(n);
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_type(
     n: *const LibNotification,
@@ -198,6 +200,8 @@ pub unsafe extern "C" fn engine_library_notification_type(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_id(
     n: *const LibNotification,
@@ -212,6 +216,8 @@ pub unsafe extern "C" fn engine_library_notification_get_id(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_label(
     n: *const LibNotification,
@@ -224,6 +230,8 @@ pub unsafe extern "C" fn engine_library_notification_get_label(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_libmetadata(
     n: *const LibNotification,
@@ -234,6 +242,8 @@ pub unsafe extern "C" fn engine_library_notification_get_libmetadata(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_count(
     n: *const LibNotification,
@@ -247,6 +257,8 @@ pub unsafe extern "C" fn engine_library_notification_get_count(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_libfolder(
     n: *const LibNotification,
@@ -257,6 +269,8 @@ pub unsafe extern "C" fn engine_library_notification_get_libfolder(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_keyword(
     n: *const LibNotification,
