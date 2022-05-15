@@ -138,6 +138,7 @@ Gtk::Widget * GridViewModule::buildWidget()
   m_librarylistview->set_vexpand(true);
 
   m_context_menu->set_parent(*m_librarylistview);
+  m_context_menu->set_has_arrow(false);
   m_librarylistview->signal_unrealize().connect(
       sigc::mem_fun(*m_context_menu, &Gtk::PopoverMenu::unparent));
 

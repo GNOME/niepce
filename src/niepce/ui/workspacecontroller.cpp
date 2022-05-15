@@ -472,6 +472,7 @@ Gtk::Widget * WorkspaceController::buildWidget()
     add_btn->set_menu_model(m_menu);
 
     m_context_menu = new Gtk::PopoverMenu(m_menu);
+    m_context_menu->set_has_arrow(false);
     m_context_menu->set_parent(m_librarytree);
     m_librarytree.signal_unrealize().connect(
         sigc::mem_fun(*m_context_menu, &Gtk::PopoverMenu::unparent));
