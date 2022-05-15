@@ -5,19 +5,22 @@
 # Deng Xiyue <manphiz@gmail.com>, 2008
 # 微尘  <squeeze@189.cn>, 2010.
 # 玉堂白鹤 <squeeze@189.cn> 2011.
+# lumingzh <lumingzh@qq.com>, 2022.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2020-02-15 12:41+0000\n"
-"PO-Revision-Date: 2019-11-14 15:35+0800\n"
-"Last-Translator: 玉堂白鹤 <yjwork@qq.com>\n"
-"Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
+"POT-Creation-Date: 2020-06-07 15:10+0000\n"
+"PO-Revision-Date: 2022-02-03 11:14+0800\n"
+"Last-Translator: lumingzh <lumingzh@qq.com>\n"
+"Language-Team: Chinese - China <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.4\n"
+"X-Generator: Gtranslator 41.0\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 
 #: camerawire/src/cwwindow.cpp:62
 #: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:36
@@ -67,7 +70,7 @@ msgstr "隐藏工具"
 #. Only include 'name' if you want the software center name to be different to the 'Name' in the .desktop file
 #: data/org.gnome.Niepce.appdata.xml.in:8 data/org.gnome.Niepce.desktop.in:3
 msgid "Niepce Digital"
-msgstr "Niepce Digital"
+msgstr "Niepce 数码"
 
 #. Only include 'summary' if you want the software center name to be different to the 'Comment' in the .desktop file
 #: data/org.gnome.Niepce.appdata.xml.in:10
@@ -76,7 +79,7 @@ msgstr "高级照片编辑"
 
 #: data/org.gnome.Niepce.appdata.xml.in:12
 msgid "Niepce Digital is an application used to manage and edit photos."
-msgstr "Niepce Digital 是用于管理和编辑照片的应用程序。"
+msgstr "Niepce 数码是用于管理和编辑照片的应用程序。"
 
 #: data/org.gnome.Niepce.appdata.xml.in:15
 msgid "Features:"
@@ -319,7 +322,6 @@ msgid "Preferences"
 msgstr "首选项"
 
 #: src/niepce/ui/dialogs/preferences.ui:70
-#, fuzzy
 msgid "_Reopen Catalog"
 msgstr "重新打开目录(_R)"
 
@@ -546,7 +548,7 @@ msgstr "暗室"
 
 #: src/niepce/ui/moduleshell.cpp:210
 msgid "Map"
-msgstr ""
+msgstr "地图"
 
 #: src/niepce/ui/niepceapplication.cpp:79
 msgid ""
@@ -629,7 +631,7 @@ msgstr "打开"
 
 #: src/niepce/ui/niepcewindow.cpp:403
 msgid "Niepce Digital - "
-msgstr "Niepce Digital - "
+msgstr "Niepce 数码 - "
 
 #: src/niepce/ui/selectioncontroller.cpp:284
 msgid "Set Property"

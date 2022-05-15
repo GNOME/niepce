@@ -1,8 +1,8 @@
 /*
  * gnote
  *
- * Copyright (C) 2009-2013 Hubert Figuiere
- * 
+ * Copyright (C) 2009-2022 Hubert Figuière
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -49,7 +49,7 @@ namespace fwk {
     set_column_types(m_columns);
   }
 
-  fwk::DynamicModule * AddinsTreeModel::get_module(const Gtk::TreeIter & iter)
+  fwk::DynamicModule * AddinsTreeModel::get_module(const Gtk::TreeModel::iterator & iter)
   {
     fwk::DynamicModule * module = nullptr;
     if(iter) {
@@ -66,9 +66,9 @@ namespace fwk {
   }
 
 
-  Gtk::TreeIter AddinsTreeModel::append(const fwk::DynamicModule *module)
+  Gtk::TreeModel::iterator AddinsTreeModel::append(const fwk::DynamicModule *module)
   {
-    Gtk::TreeIter iter = Gtk::TreeStore::append();
+    Gtk::TreeModel::iterator iter = Gtk::TreeStore::append();
     iter->set_value(0, std::string(module->name()));
     iter->set_value(1, std::string(module->description()));
     iter->set_value(2, module);

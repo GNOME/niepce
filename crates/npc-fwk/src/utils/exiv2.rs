@@ -53,7 +53,7 @@ enum Converted {
 #[derive(Clone)]
 struct XmpPropDesc(&'static str, &'static str, Conversion);
 
-lazy_static! {
+lazy_static::lazy_static! {
     static ref EXIV2_TO_XMP: MultiMap<&'static str, XmpPropDesc> = {
         [
             (
@@ -254,7 +254,7 @@ lazy_static! {
 fn convert(conversion: Conversion, value: &str) -> Converted {
     match conversion {
         Conversion::None => Converted::Str(value.to_string()),
-        Conversion::ExifDate => Converted::Date(xmp_date_from_exif(&value)),
+        Conversion::ExifDate => Converted::Date(xmp_date_from_exif(value)),
         _ => {
             err_out!("Conversion error fro str to {:?}", conversion);
             Converted::Str(value.to_string())
@@ -329,7 +329,7 @@ fn int_tag_to_xmp(
     // XXX rexiv2 returns an i32, which is a problem for UnsignedLong
     match xmp_prop.2 {
         Conversion::Flash => {
-            if let Converted::Flash(flash) = convert_int(xmp_prop.2, meta.get_tag_numeric(&tag)) {
+            if let Converted::Flash(flash) = convert_int(xmp_prop.2, meta.get_tag_numeric(tag)) {
                 if let Err(err) = flash.set_as_xmp_property(xmp, NS_EXIF, "Flash") {
                     err_out!(
                         "Error setting property {} {}: {:?}",
@@ -341,7 +341,7 @@ fn int_tag_to_xmp(
             }
         }
         Conversion::None => {
-            let value = meta.get_tag_numeric(&tag);
+            let value = meta.get_tag_numeric(tag);
             if let Err(err) =
                 xmp.set_property_i32(xmp_prop.0, xmp_prop.1, value, exempi2::PropFlags::NONE)
             {
@@ -354,7 +354,7 @@ fn int_tag_to_xmp(
             }
         }
         Conversion::Interpreted => {
-            if let Ok(value) = meta.get_tag_interpreted_string(&tag) {
+            if let Ok(value) = meta.get_tag_interpreted_string(tag) {
                 if let Err(err) =
                     xmp.set_property(xmp_prop.0, xmp_prop.1, &value, exempi2::PropFlags::NONE)
                 {
@@ -369,7 +369,7 @@ fn int_tag_to_xmp(
         }
         _ => {
             err_out!("Unknown conversion from {:?} to {:?}", tagtype, xmp_prop.2);
-            let value = meta.get_tag_numeric(&tag);
+            let value = meta.get_tag_numeric(tag);
             if let Err(err) =
                 xmp.set_property_i32(xmp_prop.0, xmp_prop.1, value, exempi2::PropFlags::NONE)
             {
@@ -403,7 +403,7 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                     let tagtype = rexiv2::get_tag_type(&tag);
                     match tagtype {
                         Ok(rexiv2::TagType::AsciiString) => {
-                            ascii_tag_to_xmp(&meta, &tag, &xmp_prop, &mut xmp);
+                            ascii_tag_to_xmp(&meta, &tag, xmp_prop, &mut xmp);
                         }
                         Ok(rexiv2::TagType::UnsignedShort)
                         | Ok(rexiv2::TagType::UnsignedLong)
@@ -413,7 +413,7 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                                 &meta,
                                 &tag,
                                 *tagtype.as_ref().unwrap(),
-                                &xmp_prop,
+                                xmp_prop,
                                 &mut xmp,
                             );
                         }

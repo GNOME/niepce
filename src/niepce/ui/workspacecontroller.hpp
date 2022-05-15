@@ -1,7 +1,7 @@
 /*
- * niepce - ui/workspacecontroller.hpp
+ * niepce - niepce/ui/workspacecontroller.hpp
  *
- * Copyright (C) 2007-2021 Hubert Figuière
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include "fwk/toolkit/uicontroller.hpp"
 #include "fwk/toolkit/notification.hpp"
 #include "niepce/ui/niepcewindow.hpp"
+#include "dialogs/importdialog.hpp"
 
 namespace ui {
 
@@ -40,6 +41,8 @@ public:
     typedef std::shared_ptr<WorkspaceController> Ptr;
 
     WorkspaceController(const Glib::RefPtr<Gio::SimpleActionGroup>& action_group);
+    virtual ~WorkspaceController();
+
     class WorkspaceTreeColumns
         : public Gtk::TreeModelColumnRecord
     {
@@ -54,7 +57,7 @@ public:
                 add(m_count);
                 add(m_count_n);
             }
-        Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_icon;
+        Gtk::TreeModelColumn<Glib::RefPtr<Gio::Icon>> m_icon;
         Gtk::TreeModelColumn<eng::library_id_t> m_id;
         Gtk::TreeModelColumn<Glib::ustring> m_label;
         // This can't be a ItemTypes because in Rust it doesn't work as it is
@@ -72,7 +75,7 @@ public:
 
     virtual Gtk::Widget * buildWidget() override;
 
-    sigc::signal<void> libtree_selection_changed;
+    sigc::signal<void(void)> libtree_selection_changed;
 private:
     /** Return the selected folder id. 0 if not a folder or no selection*/
     eng::library_id_t get_selected_folder_id();
@@ -80,18 +83,20 @@ private:
     /** action to create a new folder */
     void action_new_folder();
     void action_delete_folder();
-    /** action to import images */
+    /** action to import images: run the dialog */
     void action_file_import();
     void action_import_library();
+    /** */
+    void perform_file_import(ImportDialog::Ptr dialog);
 
-    void on_row_expanded_collapsed(const Gtk::TreeIter& iter,
-                                   const Gtk::TreePath& path, bool expanded);
-    void on_row_expanded(const Gtk::TreeIter& iter,
-                         const Gtk::TreePath& path);
-    void on_row_collapsed(const Gtk::TreeIter& iter,
-                          const Gtk::TreePath& path);
+    void on_row_expanded_collapsed(const Gtk::TreeModel::iterator& iter,
+                                   const Gtk::TreeModel::Path& path, bool expanded);
+    void on_row_expanded(const Gtk::TreeModel::iterator& iter,
+                         const Gtk::TreeModel::Path& path);
+    void on_row_collapsed(const Gtk::TreeModel::iterator& iter,
+                          const Gtk::TreeModel::Path& path);
     bool on_popup_menu();
-    void on_button_press_event(GdkEventButton *event);
+    void on_button_press_event(double x, double y);
 
     libraryclient::LibraryClientPtr getLibraryClient() const;
     fwk::Configuration::Ptr getLibraryConfig() const;
@@ -113,12 +118,12 @@ private:
      * @paran type the type of node
      */
     Gtk::TreeModel::iterator add_item(const Glib::RefPtr<Gtk::TreeStore>& treestore,
-                                      const Gtk::TreeNodeChildren & childrens,
-                                      const Glib::RefPtr<Gdk::Pixbuf> & icon,
+                                      const Gtk::TreeNodeChildren& childrens,
+                                      const Glib::RefPtr<Gio::Icon>& icon,
                                       const Glib::ustring& label,
                                       eng::library_id_t id, ffi::ItemTypes type) const;
 
-    void expand_from_cfg(const char* key, const Gtk::TreeIter& treenode);
+    void expand_from_cfg(const char* key, const Gtk::TreeModel::iterator& treenode);
 
     enum {
         ICON_FOLDER = 0,
@@ -132,21 +137,22 @@ private:
 
     Glib::RefPtr<Gio::SimpleActionGroup> m_action_group;
 
-    std::array<Glib::RefPtr<Gdk::Pixbuf>, _ICON_SIZE> m_icons;
+    std::array<Glib::RefPtr<Gio::Icon>, _ICON_SIZE> m_icons;
     WorkspaceTreeColumns m_librarycolumns;
     Gtk::Box m_vbox;
     Gtk::Label m_label;
     Gtk::TreeView m_librarytree;
-    Gtk::Menu* m_context_menu;
+    Glib::RefPtr<Gio::Menu> m_menu;
+    Gtk::PopoverMenu* m_context_menu;
     Gtk::TreeModel::iterator m_folderNode;  /**< the folder node */
     Gtk::TreeModel::iterator m_projectNode; /**< the project node */
     Gtk::TreeModel::iterator m_albumsNode; /**< the albums node */
     Gtk::TreeModel::iterator m_keywordsNode; /**< the keywords node */
     Glib::RefPtr<Gtk::TreeStore> m_treestore;   /**< the treestore */
-    std::map<eng::library_id_t, Gtk::TreeIter> m_folderidmap;
-    std::map<eng::library_id_t, Gtk::TreeIter> m_projectidmap;
-    std::map<eng::library_id_t, Gtk::TreeIter> m_keywordsidmap;
-    std::map<eng::library_id_t, Gtk::TreeIter> m_albumsidmap;
+    std::map<eng::library_id_t, Gtk::TreeModel::iterator> m_folderidmap;
+    std::map<eng::library_id_t, Gtk::TreeModel::iterator> m_projectidmap;
+    std::map<eng::library_id_t, Gtk::TreeModel::iterator> m_keywordsidmap;
+    std::map<eng::library_id_t, Gtk::TreeModel::iterator> m_albumsidmap;
 };
 
 }

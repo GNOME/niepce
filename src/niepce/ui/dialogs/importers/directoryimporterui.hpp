@@ -2,7 +2,7 @@
 /*
  * niepce - ui/dialogs/importer/directoryimporterui.hpp
  *
- * Copyright (C) 2017 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,6 @@ public:
     Gtk::Widget* setup_widget(const fwk::Frame::Ptr&) override;
 
 private:
-    std::string select_source();
     void do_select_directories();
 
     Gtk::Label *m_directory_name;

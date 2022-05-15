@@ -1,8 +1,8 @@
 /*
  * gnote
  *
- * Copyright (C) 2009 Hubert Figuiere
- * 
+ * Copyright (C) 2009-2022 Hubert Figuière
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -22,11 +22,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-
-
-
-#ifndef __FWK_UTILS_ADDINSTREEMODEL_HPP_
-#define __FWK_UTILS_ADDINSTREEMODEL_HPP_
+#pragma once
 
 #include <gtkmm/treestore.h>
 #include <gtkmm/treeview.h>
@@ -42,17 +38,17 @@ public:
   typedef Glib::RefPtr<AddinsTreeModel> Ptr;
   static Ptr create(Gtk::TreeView * treeview);
 
-  DynamicModule * get_module(const Gtk::TreeIter &);
+  DynamicModule * get_module(const Gtk::TreeModel::iterator &);
 
-  Gtk::TreeIter append(const fwk::DynamicModule *);
+  Gtk::TreeModel::iterator append(const fwk::DynamicModule *);
   class AddinsColumns
     : public Gtk::TreeModelColumnRecord
   {
   public:
     AddinsColumns()
       {
-        add(name); 
-        add(description); 
+        add(name);
+        add(description);
         add(addin);
       }
 
@@ -66,10 +62,6 @@ protected:
   AddinsTreeModel();
   void set_columns(Gtk::TreeView *v);
 private:
-  
 };
 
 }
-
-
-#endif

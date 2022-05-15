@@ -1,7 +1,7 @@
 /*
  * niepce - darkroom/imagecanvas.hpp
  *
- * Copyright (C) 2008-2018 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#pragma once
 
 #include <gdk/gdk.h>
 #include <gdkmm/pixbuf.h>
@@ -54,11 +54,12 @@ public:
             return m_zoom_mode;
         }
 protected:
-    virtual void on_size_allocate(Gtk::Allocation & allocation) override;
-    virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+    void on_resize(int width, int height) override;
+
 private:
     void invalidate();
 
+    bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr, int, int);
     void on_image_reloaded();
 
     void _calc_image_frame(int img_w, int img_h,
@@ -67,8 +68,8 @@ private:
     double _calc_image_scale(int img_w, int img_h);
     /** cause to "recalulate" the content. */
     void _redisplay();
-    Cairo::RefPtr<Cairo::ImageSurface> _get_error_placeholder();
-    Cairo::RefPtr<Cairo::ImageSurface> _get_missing_placeholder();
+    Glib::RefPtr<Gdk::Paintable> _get_error_placeholder();
+    Glib::RefPtr<Gdk::Paintable> _get_missing_placeholder();
 
     bool                           m_need_redisplay;
     bool                           m_resized;

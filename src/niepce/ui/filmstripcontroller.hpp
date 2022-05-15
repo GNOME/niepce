@@ -49,6 +49,7 @@ public:
 
 private:
 	libraryclient::UIDataProviderWeakPtr m_ui_data_provider;
+	std::shared_ptr<ffi::ThumbStripView> m_thumb_strip_view;
 	Gtk::IconView * m_thumbview;
 	ImageListStorePtr m_store;
 };

@@ -23,19 +23,20 @@ use std::rc::Rc;
 
 use glib::clone;
 use glib::translate::*;
-use gtk;
-use gtk::prelude::*;
-use gtk::{Assistant, Builder};
-use gtk_sys;
+use gtk4;
+use gtk4::prelude::*;
+use gtk4::{Assistant, Builder};
+use gtk4_sys;
 
 use npc_engine::libraryclient::LibraryClientWrapper;
+use npc_fwk::{dbg_out, err_out};
 
 #[no_mangle]
 pub extern "C" fn dialog_import_library(
     _client: &mut LibraryClientWrapper,
-    parent: *mut gtk_sys::GtkWindow,
+    parent: *mut gtk4_sys::GtkWindow,
 ) {
-    let parent_window = unsafe { gtk::Window::from_glib_none(parent) };
+    let parent_window = unsafe { gtk4::Window::from_glib_none(parent) };
     ImportLibraryDialog::run(&parent_window);
 }
 
@@ -49,25 +50,25 @@ type ImportStateRef = Rc<RefCell<ImportState>>;
 struct ImportLibraryDialog {}
 
 impl ImportLibraryDialog {
-    fn run(parent: &gtk::Window) {
+    fn run(parent: &gtk4::Window) {
         let assistant = Assistant::new();
 
         let state: ImportStateRef = Rc::new(RefCell::new(ImportState::default()));
 
         assistant.connect_cancel(Self::cancel);
-        assistant.set_forward_page_func(Some(Box::new(Self::forward_page)));
+        assistant.set_forward_page_func(Self::forward_page);
 
         let builder = Builder::new();
         if let Err(result) = builder.add_from_resource("/org/gnome/Niepce/ui/importlibrary.ui") {
             err_out!("couldn't find ui file: {}", result);
             return;
         }
-        if let Some(page) = builder.object::<gtk::Widget>("page0") {
+        if let Some(page) = builder.object::<gtk4::Widget>("page0") {
             assistant.insert_page(&page, 0);
             assistant.set_current_page(0);
         }
-        if let Some(file_chooser) = builder.object::<gtk::FileChooserButton>("file_chooser") {
-            file_chooser.connect_file_set(clone!(@weak state => move |w| {
+        if let Some(file_chooser) = builder.object::<gtk4::Button>("file_chooser") {
+            file_chooser.connect_clicked(clone!(@weak state => move |w| {
                 Self::library_file_set(w, state)
             }));
         }
@@ -84,13 +85,16 @@ impl ImportLibraryDialog {
         }
     }
 
-    fn library_file_set(file_chooser: &gtk::FileChooserButton, state_ref: ImportStateRef) {
-        let path = file_chooser.filename();
-        state_ref.borrow_mut().library_path = path;
+    fn library_file_set(file_chooser: &gtk4::Button, state_ref: ImportStateRef) {
+        // XXX port to gtk4
+        // let path = file_chooser.filename();
+        // state_ref.borrow_mut().library_path = path;
     }
 
     fn cancel(assistant: &Assistant) {
         dbg_out!("Assistant cancel");
-        unsafe { assistant.destroy(); }
+        unsafe {
+            assistant.destroy();
+        }
     }
 }

@@ -5,7 +5,7 @@ This software is licensed under GPL version 3. See file
 COPYING for details.
 Some files may be under GPL version 2 or later.
 
-(c) 2006-2018 Hubert Figuière
+(c) 2006-2022 Hubert Figuière
 Some portions are written by other people.
 
 Google Test framework (for testing only)
@@ -25,18 +25,18 @@ To build is you need the following:
 
 A C++11 compiler
 A Rust compiler
-gtk+ 3.16
+gtk+ 4.4
 cairo 1.1
-glibmm 2.32
-gtkmm 3.16
+glibmm 2.66
+gtkmm 4.4
 giomm
 cairomm
-osm-gps-map 1.1
+shumate 1.0.0.alpha1
 sqlite3
 libxml2 > 2.5.0
 boost 1.60
-exempi >= 2.4.0
-libopenraw >= 0.1.0
+exempi >= 2.6.0
+libopenraw >= 0.3.0
 gegl >= 0.4.0
 babl
 libgphoto2

@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/undo.hpp
  *
- * Copyright (C) 2008-2013 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _FRAMEWORK_UNDO_H_
-#define _FRAMEWORK_UNDO_H_
+#pragma once
 
 #include <list>
 #include <stack>
@@ -95,15 +93,13 @@ public:
     std::string next_redo() const;
 
     // called when the undo history change.
-    sigc::signal<void> signal_changed;
+    sigc::signal<void(void)> signal_changed;
 private:
     std::list<std::shared_ptr<UndoTransaction>> m_undos;
     std::list<std::shared_ptr<UndoTransaction>> m_redos;
 };
 
 }
-
-#endif
 /*
   Local Variables:
   mode:c++

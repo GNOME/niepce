@@ -1,7 +1,7 @@
 /*
  * niepce - engine/library/notification.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 use super::queriedcontent::QueriedContent;
 use crate::db::libfile::FileStatus;
 use crate::db::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
+use npc_fwk::err_out;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail;
 use npc_fwk::toolkit::PortableChannel;
@@ -150,6 +151,8 @@ pub extern "C" fn engine_library_notify_filestatus_changed(
     true
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_type(
     n: *const LibNotification,
@@ -187,6 +190,8 @@ pub unsafe extern "C" fn engine_library_notification_type(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_id(
     n: *const LibNotification,
@@ -201,6 +206,8 @@ pub unsafe extern "C" fn engine_library_notification_get_id(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_label(
     n: *const LibNotification,
@@ -213,6 +220,8 @@ pub unsafe extern "C" fn engine_library_notification_get_label(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_libmetadata(
     n: *const LibNotification,
@@ -223,6 +232,8 @@ pub unsafe extern "C" fn engine_library_notification_get_libmetadata(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_count(
     n: *const LibNotification,
@@ -238,6 +249,8 @@ pub unsafe extern "C" fn engine_library_notification_get_count(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_libfolder(
     n: *const LibNotification,
@@ -248,6 +261,8 @@ pub unsafe extern "C" fn engine_library_notification_get_libfolder(
     }
 }
 
+/// # Safety
+/// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_keyword(
     n: *const LibNotification,

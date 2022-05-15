@@ -17,13 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-extern crate gdk_pixbuf;
-extern crate gdk_pixbuf_sys;
-extern crate glib;
-
-#[macro_use]
-extern crate npc_fwk;
-
 pub mod db;
 pub mod importer;
 pub mod library;

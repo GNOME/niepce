@@ -1,7 +1,7 @@
 /*
- * niepce - fwk/widgets/editablehscale.h
+ * niepce - fwk/widgets/editablehscale.hpp
  *
- * Copyright (C) 2008-2017 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _FWK_EDITABLEHSCALE_H_
-#define _FWK_EDITABLEHSCALE_H_
-
+#pragma once
 
 #include <gtkmm/box.h>
-#include <gtkmm/spinbutton.h>
+#include <gtkmm/image.h>
 #include <gtkmm/scale.h>
-
+#include <gtkmm/spinbutton.h>
 
 namespace fwk {
 
@@ -35,16 +32,16 @@ class EditableHScale
 {
 public:
     EditableHScale(double min, double max, double step);
-    EditableHScale(const std::string & icon_name, 
+    EditableHScale(const std::string & icon_name,
                    double min, double max, double step);
 
     const Glib::RefPtr<Gtk::Adjustment>  & get_adjustment() const
         { return m_adj; }
 
-    sigc::signal<void,double> & signal_value_changed();
-    sigc::signal<void,double> & signal_value_changing();
+    sigc::signal<void(double)> & signal_value_changed();
+    sigc::signal<void(double)> & signal_value_changing();
 
-    bool on_button_press_event(GdkEventButton *event) override;
+    void on_button_press_event();
 
 private:
 
@@ -58,15 +55,12 @@ private:
     Gtk::SpinButton  m_entry;
     bool             m_dirty;
     /** emitted once the value changed */
-    sigc::signal<void,double> m_sig_value_changed;
+    sigc::signal<void(double)> m_sig_value_changed;
     /** emitted when the value is changing (think live update) */
-    sigc::signal<void,double> m_sig_value_changing;
+    sigc::signal<void(double)> m_sig_value_changing;
 };
 
-
 }
-
-#endif
 /*
   Local Variables:
   mode:c++

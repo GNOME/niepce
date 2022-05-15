@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/dockable.cpp
  *
- * Copyright (C) 2008-2011 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ Dockable::Dockable(const Glib::ustring& name,
 Gtk::Box *
 Dockable::build_vbox()
 {
-    m_box = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL));
+    m_box = Gtk::manage(new Gtk::Box(Gtk::Orientation::VERTICAL));
     // do the label, the name, etc.
     m_box->set_margin_start(8);
     m_box->set_margin_end(8);

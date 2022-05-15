@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/frame.hpp
  *
- * Copyright (C) 2007-2014 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _FRAMEWORK_FRAME_H_
-#define _FRAMEWORK_FRAME_H_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -72,6 +70,13 @@ public:
     Glib::RefPtr<Gtk::Builder> & builder()
         { return m_builder; }
 
+    void close()
+        {
+            if (m_window) {
+                m_window->close();
+            }
+        }
+
     /** @param header MUST be managed */
     void setHeaderBar(Gtk::HeaderBar* header)
         {
@@ -96,8 +101,8 @@ public:
 
     void toggle_tools_visible();
 
-    sigc::signal<void> signal_hide_tools;
-    sigc::signal<void> signal_show_tools;
+    sigc::signal<void(void)> signal_hide_tools;
+    sigc::signal<void(void)> signal_show_tools;
 protected:
 
     void undo_state();
@@ -137,4 +142,3 @@ private:
   fill-column:80
   End:
 */
-#endif

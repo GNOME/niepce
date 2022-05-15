@@ -32,6 +32,7 @@ use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
 use crate::NiepcePropertyBag;
 use npc_fwk::PropertyValue;
+use npc_fwk::{dbg_assert, err_out, err_out_line};
 
 pub fn cmd_list_all_keywords(lib: &Library) -> bool {
     match lib.get_all_keywords() {

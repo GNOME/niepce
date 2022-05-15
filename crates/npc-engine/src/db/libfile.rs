@@ -22,6 +22,8 @@ use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::{Path, PathBuf};
 
+use npc_fwk::err_out;
+
 use super::fsfile::FsFile;
 use super::FromDb;
 use super::LibraryId;

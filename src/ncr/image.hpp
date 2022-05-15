@@ -1,7 +1,7 @@
 /*
  * niepce - ncr/image.h
  *
- * Copyright (C) 2008-2013 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -14,14 +14,12 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, see 
+ * License along with this program; if not, see
  * <http://www.gnu.org/licenses/>.
  */
 
 
-
-#ifndef _NCR_IMAGE_H_
-#define _NCR_IMAGE_H_
+#pragma once
 
 #include <memory>
 
@@ -86,7 +84,7 @@ public:
 
     /** this signal is emitted each time the
         image is changed. */
-    sigc::signal<void> signal_update;
+    sigc::signal<void(void)> signal_update;
 private:
 
     /** rotate by x degrees (orientation)
@@ -99,9 +97,6 @@ private:
 };
 
 }
-
-#endif
-
 /*
   Local Variables:
   mode:c++

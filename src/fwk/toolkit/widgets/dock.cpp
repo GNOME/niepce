@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/dock.hpp
  *
- * Copyright (C) 2011 Hubert Figuiere
+ * Copyright (C) 2011-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@ namespace fwk {
 
 
 Dock::Dock()
-  : m_vbox(Gtk::ORIENTATION_VERTICAL)
+  : m_vbox(Gtk::Orientation::VERTICAL)
 {
-  set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
-  add(m_vbox);
+  set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::ALWAYS);
+  set_child(m_vbox);
 }
 
 }

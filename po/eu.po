@@ -1,14 +1,14 @@
 # Basque translation for niepce.
 # Copyright (C) 2019 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
-# Asier Sarasua Garmendia <asier.sarasua@gmail.com>, 2019.
+# Asier Sarasua Garmendia <asiersarasua@ni.eus>, 2019, 2022.
 #
 msgid ""
 msgstr "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2019-09-28 04:45+0000\n"
-"PO-Revision-Date: 2019-10-18 10:00+0100\n"
-"Last-Translator: Asier Sarasua Garmendia <asier.sarasua@gmail.com>\n"
+"POT-Creation-Date: 2020-06-07 15:10+0000\n"
+"PO-Revision-Date: 2022-03-26 10:00+0100\n"
+"Last-Translator: Asier Sarasua Garmendia <asiersarasua@ni.eus>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,7 @@ msgstr "Kamera"
 msgid "File"
 msgstr "Fitxategia"
 
-#: camerawire/src/cwwindow.cpp:92 src/niepce/ui/workspacecontroller.cpp:458
+#: camerawire/src/cwwindow.cpp:92 src/niepce/ui/workspacecontroller.cpp:456
 msgid "_Import..."
 msgstr "_Inportatu…"
 
@@ -56,48 +56,62 @@ msgstr "Tresnak"
 msgid "Refresh"
 msgstr "Freskatu"
 
-#: camerawire/src/cwwindow.cpp:135 src/niepce/ui/niepcewindow.cpp:249
+#: camerawire/src/cwwindow.cpp:135 src/niepce/ui/niepcewindow.cpp:245
 msgid "Hide tools"
 msgstr "Ezkutatu tresnak"
 
 #. Only include 'name' if you want the software center name to be different to the 'Name' in the .desktop file
-#: data/niepce.appdata.xml.in:8 data/niepce.desktop.in:3
+#: data/org.gnome.Niepce.appdata.xml.in:8 data/org.gnome.Niepce.desktop.in:3
 msgid "Niepce Digital"
 msgstr "Niepce Digital"
 
 #. Only include 'summary' if you want the software center name to be different to the 'Comment' in the .desktop file
-#: data/niepce.appdata.xml.in:10
+#: data/org.gnome.Niepce.appdata.xml.in:10
 msgid "Advanced Photo Editing"
 msgstr "Argazkien edizio aurreratua"
 
-#: data/niepce.appdata.xml.in:12
+#: data/org.gnome.Niepce.appdata.xml.in:12
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr "Niepce Digital argazkiak kudeatu eta editatzeko aplikazio bat da."
 
-#: data/niepce.appdata.xml.in:15
+#: data/org.gnome.Niepce.appdata.xml.in:15
 msgid "Features:"
 msgstr "Eginbideak:"
 
-#: data/niepce.appdata.xml.in:18
+#: data/org.gnome.Niepce.appdata.xml.in:18
 msgid "Photo library management"
 msgstr "Argazki-liburutegien kudeaketa"
 
-#: data/niepce.appdata.xml.in:19
+#: data/org.gnome.Niepce.appdata.xml.in:19
 msgid "Non destructive image editing"
 msgstr "Irudien edizio ez suntsikorra"
 
-#: data/niepce.appdata.xml.in:20
+#: data/org.gnome.Niepce.appdata.xml.in:20
 msgid "RAW processing"
 msgstr "RAW prozesamendua"
 
-#: data/niepce.desktop.in:4
+#: data/org.gnome.Niepce.desktop.in:4
 msgid "Manage and edit your photos"
 msgstr "Kudeatu eta editatu zure argazkiak"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/niepce.desktop.in:6
+#: data/org.gnome.Niepce.desktop.in:6
 msgid "photo;"
 msgstr "argazkia;"
+
+#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:40
+msgid "OK"
+msgstr "Ados"
+
+#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:41
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:72
+#: src/niepce/ui/niepcewindow.cpp:345
+msgid "Cancel"
+msgstr "Utzi"
+
+#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:44
+msgid "Folder _name:"
+msgstr "_Karpetaren izena:"
 
 #: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
 msgid "Name"
@@ -287,12 +301,6 @@ msgstr "Direktorioa"
 msgid "Import picture folder"
 msgstr "Inportatu irudien karpeta"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:72
-#: src/niepce/ui/dialogs/requestnewfolder.rs:41
-#: src/niepce/ui/niepcewindow.cpp:349
-msgid "Cancel"
-msgstr "Utzi"
-
 #: src/niepce/ui/dialogs/importers/directoryimporterui.ui:16
 msgid "_Directory:"
 msgstr "_Direktorioa:"
@@ -326,14 +334,6 @@ msgstr "Erabili interfaze iluna"
 msgid "_User Interface"
 msgstr "Erabiltzaile-i_nterfazea"
 
-#: src/niepce/ui/dialogs/requestnewfolder.rs:40
-msgid "OK"
-msgstr "Ados"
-
-#: src/niepce/ui/dialogs/requestnewfolder.rs:42
-msgid "Folder _name:"
-msgstr "_Karpetaren izena:"
-
 #: src/niepce/ui/metadatapanecontroller.cpp:36
 msgid "File Name:"
 msgstr "Fitxategi-izena:"
@@ -352,7 +352,7 @@ msgstr "Fitxategi-tamaina:"
 
 #: src/niepce/ui/metadatapanecontroller.cpp:40
 msgid "Sidecar Files:"
-msgstr ""
+msgstr "Fitxategi laguntzaileak:"
 
 #: src/niepce/ui/metadatapanecontroller.cpp:44
 msgid "Make:"
@@ -447,99 +447,99 @@ msgstr "Eskubideak"
 msgid "Image Properties"
 msgstr "Irudiaren propietateak"
 
-#: src/niepce/ui/moduleshell.cpp:61
+#: src/niepce/ui/moduleshell.cpp:60
 msgid "Back"
 msgstr "Atzera"
 
-#: src/niepce/ui/moduleshell.cpp:67
+#: src/niepce/ui/moduleshell.cpp:66
 msgid "Forward"
 msgstr "Aurrera"
 
-#: src/niepce/ui/moduleshell.cpp:77
+#: src/niepce/ui/moduleshell.cpp:76
 msgid "Rotate Left"
 msgstr "Biratu ezkerrera"
 
-#: src/niepce/ui/moduleshell.cpp:84
+#: src/niepce/ui/moduleshell.cpp:83
 msgid "Rotate Right"
 msgstr "Biratu eskuinera"
 
-#: src/niepce/ui/moduleshell.cpp:90 src/niepce/ui/selectioncontroller.cpp:290
+#: src/niepce/ui/moduleshell.cpp:89 src/niepce/ui/selectioncontroller.cpp:281
 msgid "Set Label"
 msgstr "Ezarri etiketa"
 
-#: src/niepce/ui/moduleshell.cpp:97
+#: src/niepce/ui/moduleshell.cpp:96
 msgid "Label 6"
 msgstr "6. etiketa"
 
-#: src/niepce/ui/moduleshell.cpp:103
+#: src/niepce/ui/moduleshell.cpp:102
 msgid "Label 7"
 msgstr "7. etiketa"
 
-#: src/niepce/ui/moduleshell.cpp:109
+#: src/niepce/ui/moduleshell.cpp:108
 msgid "Label 8"
 msgstr "8. etiketa"
 
-#: src/niepce/ui/moduleshell.cpp:115
+#: src/niepce/ui/moduleshell.cpp:114
 msgid "Label 9"
 msgstr "9. etiketa"
 
-#: src/niepce/ui/moduleshell.cpp:118 src/niepce/ui/selectioncontroller.cpp:287
+#: src/niepce/ui/moduleshell.cpp:117 src/niepce/ui/selectioncontroller.cpp:278
 msgid "Set Rating"
 msgstr "Ezarri balorazioa"
 
-#: src/niepce/ui/moduleshell.cpp:125
+#: src/niepce/ui/moduleshell.cpp:124
 msgid "Unrated"
 msgstr "Baloratu gabea"
 
-#: src/niepce/ui/moduleshell.cpp:131
+#: src/niepce/ui/moduleshell.cpp:130
 msgid "Rating 1"
 msgstr "1. balorazioa"
 
-#: src/niepce/ui/moduleshell.cpp:137
+#: src/niepce/ui/moduleshell.cpp:136
 msgid "Rating 2"
 msgstr "2. balorazioa"
 
-#: src/niepce/ui/moduleshell.cpp:143
+#: src/niepce/ui/moduleshell.cpp:142
 msgid "Rating 3"
 msgstr "3. balorazioa"
 
-#: src/niepce/ui/moduleshell.cpp:149
+#: src/niepce/ui/moduleshell.cpp:148
 msgid "Rating 4"
 msgstr "4. balorazioa"
 
-#: src/niepce/ui/moduleshell.cpp:155
+#: src/niepce/ui/moduleshell.cpp:154
 msgid "Rating 5"
 msgstr "5. balorazioa"
 
-#: src/niepce/ui/moduleshell.cpp:158 src/niepce/ui/selectioncontroller.cpp:284
+#: src/niepce/ui/moduleshell.cpp:157 src/niepce/ui/selectioncontroller.cpp:275
 msgid "Set Flag"
 msgstr "Ezarri bandera"
 
-#: src/niepce/ui/moduleshell.cpp:166
+#: src/niepce/ui/moduleshell.cpp:165
 msgid "Flag as Rejected"
-msgstr ""
+msgstr "Ezarri ezetsitakoaren bandera"
 
-#: src/niepce/ui/moduleshell.cpp:173
+#: src/niepce/ui/moduleshell.cpp:172
 msgid "Unflagged"
 msgstr "Banderarik gabea"
 
-#: src/niepce/ui/moduleshell.cpp:180
+#: src/niepce/ui/moduleshell.cpp:179
 msgid "Flag as Pick"
-msgstr ""
+msgstr "Ezarri aukeratutakoaren bandera"
 
-#: src/niepce/ui/moduleshell.cpp:189
+#: src/niepce/ui/moduleshell.cpp:188
 msgid "Write metadata"
 msgstr "Idatzi metadatuak"
 
-#: src/niepce/ui/moduleshell.cpp:199
+#: src/niepce/ui/moduleshell.cpp:198
 msgid "Catalog"
 msgstr "Katalogoa"
 
-#: src/niepce/ui/moduleshell.cpp:208
+#: src/niepce/ui/moduleshell.cpp:207
 msgid "Darkroom"
 msgstr "Gela iluna"
 
-#: src/niepce/ui/moduleshell.cpp:211
+#: src/niepce/ui/moduleshell.cpp:210
 msgid "Map"
 msgstr "Mapa"
 
@@ -552,120 +552,120 @@ msgstr "Argazki digitalen aplikazioa.\n"
 "\n"
 "Eraikuntza-aukerak: "
 
-#: src/niepce/ui/niepcewindow.cpp:81
+#: src/niepce/ui/niepcewindow.cpp:78
 msgid "Undo"
 msgstr "Desegin"
 
-#: src/niepce/ui/niepcewindow.cpp:92
+#: src/niepce/ui/niepcewindow.cpp:89
 msgid "Import..."
 msgstr "Inportatu…"
 
-#: src/niepce/ui/niepcewindow.cpp:172
+#: src/niepce/ui/niepcewindow.cpp:166
 msgid "Ready"
 msgstr "Prest"
 
-#: src/niepce/ui/niepcewindow.cpp:241
+#: src/niepce/ui/niepcewindow.cpp:237
 msgid "New Catalog..."
 msgstr "Katalogo berria…"
 
-#: src/niepce/ui/niepcewindow.cpp:242
+#: src/niepce/ui/niepcewindow.cpp:238
 msgid "Open Catalog..."
 msgstr "Ireki katalogoa…"
 
-#: src/niepce/ui/niepcewindow.cpp:253
+#: src/niepce/ui/niepcewindow.cpp:249
 msgid "Edit Labels..."
 msgstr "Editatu etiketak…"
 
-#: src/niepce/ui/niepcewindow.cpp:254
+#: src/niepce/ui/niepcewindow.cpp:250
 msgid "Preferences..."
 msgstr "Hobespenak…"
 
-#: src/niepce/ui/niepcewindow.cpp:258
+#: src/niepce/ui/niepcewindow.cpp:254
 msgid "Help"
 msgstr "Laguntza"
 
-#: src/niepce/ui/niepcewindow.cpp:259
+#: src/niepce/ui/niepcewindow.cpp:255
 msgid "About"
 msgstr "Honi buruz"
 
 #. TODO make this parametric from resources
-#: src/niepce/ui/niepcewindow.cpp:295
+#: src/niepce/ui/niepcewindow.cpp:291
 msgid "Label 1"
 msgstr "1. etiketa"
 
 #. 217, 37, 17
-#: src/niepce/ui/niepcewindow.cpp:296
+#: src/niepce/ui/niepcewindow.cpp:292
 msgid "Label 2"
 msgstr "2. etiketa"
 
 #. 97, 217, 17
-#: src/niepce/ui/niepcewindow.cpp:297
+#: src/niepce/ui/niepcewindow.cpp:293
 msgid "Label 3"
 msgstr "3. etiketa"
 
 #. 17, 197, 217
-#: src/niepce/ui/niepcewindow.cpp:298
+#: src/niepce/ui/niepcewindow.cpp:294
 msgid "Label 4"
 msgstr "4. etiketa"
 
 #. 137, 17, 217
-#: src/niepce/ui/niepcewindow.cpp:299
+#: src/niepce/ui/niepcewindow.cpp:295
 msgid "Label 5"
 msgstr "5. etiketa"
 
-#: src/niepce/ui/niepcewindow.cpp:347
+#: src/niepce/ui/niepcewindow.cpp:343
 msgid "Open catalog"
 msgstr "Ireki katalogoa"
 
-#: src/niepce/ui/niepcewindow.cpp:350
+#: src/niepce/ui/niepcewindow.cpp:346
 msgid "Open"
 msgstr "Ireki"
 
-#: src/niepce/ui/niepcewindow.cpp:407
+#: src/niepce/ui/niepcewindow.cpp:403
 msgid "Niepce Digital - "
 msgstr "Niepce Digital - "
 
-#: src/niepce/ui/selectioncontroller.cpp:293
+#: src/niepce/ui/selectioncontroller.cpp:284
 msgid "Set Property"
 msgstr "Ezarri propietatea"
 
-#: src/niepce/ui/selectioncontroller.cpp:312
+#: src/niepce/ui/selectioncontroller.cpp:299
 msgid "Set Properties"
 msgstr "Ezarri propietateak"
 
-#: src/niepce/ui/selectioncontroller.cpp:341
+#: src/niepce/ui/selectioncontroller.cpp:326
 msgid "Move to Trash"
 msgstr "Bota zakarrontzira"
 
-#: src/niepce/ui/workspacecontroller.cpp:104
+#: src/niepce/ui/workspacecontroller.cpp:102
 msgid "Delete selected folder?"
 msgstr "Ezabatu hautatutako karpeta?"
 
-#: src/niepce/ui/workspacecontroller.cpp:404
+#: src/niepce/ui/workspacecontroller.cpp:402
 msgid "Pictures"
 msgstr "Argazkiak"
 
-#: src/niepce/ui/workspacecontroller.cpp:408
+#: src/niepce/ui/workspacecontroller.cpp:406
 msgid "Projects"
 msgstr "Proiektuak"
 
-#: src/niepce/ui/workspacecontroller.cpp:412
+#: src/niepce/ui/workspacecontroller.cpp:410
 msgid "Keywords"
 msgstr "Gako-hitzak"
 
 #. TODO make it a mnemonic
-#: src/niepce/ui/workspacecontroller.cpp:426
+#: src/niepce/ui/workspacecontroller.cpp:424
 msgid "_Workspace"
 msgstr "_Laneko area"
 
-#: src/niepce/ui/workspacecontroller.cpp:442
+#: src/niepce/ui/workspacecontroller.cpp:440
 msgid "New Folder..."
 msgstr "Karpeta berria…"
 
-#: src/niepce/ui/workspacecontroller.cpp:444
+#: src/niepce/ui/workspacecontroller.cpp:442
 msgid "New Project..."
 msgstr "Proiektu berria…"
 
-#: src/niepce/ui/workspacecontroller.cpp:449
+#: src/niepce/ui/workspacecontroller.cpp:447
 msgid "Delete Folder"
 msgstr "Ezabatu karpeta"

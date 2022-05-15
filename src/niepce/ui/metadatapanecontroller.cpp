@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/metadatapanecontroller.cpp
  *
- * Copyright (C) 2008-2021 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -130,7 +130,7 @@ MetaDataPaneController::buildWidget()
     auto current = formats.begin();
     while (current != formats.end()) {
         auto w = Gtk::manage(new fwk::MetaDataWidget(current->section));
-        box->pack_start(*w, Gtk::PACK_SHRINK, 0);
+        box->append(*w);
         w->set_data_format(&*current);
         m_widgets.push_back(w);
         w->signal_metadata_changed.connect(

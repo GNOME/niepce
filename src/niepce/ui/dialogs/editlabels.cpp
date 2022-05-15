@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/editlabels.cpp
  *
- * Copyright (C) 2009-2017 Hubert Figuière
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #include <algorithm>
 
@@ -51,22 +50,20 @@ EditLabels::EditLabels(const LibraryClientPtr & libclient)
 void EditLabels::setup_widget()
 {
     Glib::RefPtr<Gtk::Builder> _builder = builder();
-
+    DBG_OUT("setup Edit Labels dialog");
     add_header(_("Edit Labels"));
 
     const char * colour_fmt = "colorbutton%1%";
     const char * value_fmt = "value%1%";
-    for(size_t i = 0; i < 5; i++) {
+    for (size_t i = 0; i < NUM_LABELS; i++) {
         bool has_label = m_labels.size() > i;
 
         Gtk::ColorButton *colourbutton;
         Gtk::Entry *labelentry;
 
-        _builder->get_widget(str(boost::format(colour_fmt) % (i+1)), colourbutton);
-        m_colours[i] = colourbutton;
-        _builder->get_widget(str(boost::format(value_fmt) % (i+1)), labelentry);
+        m_colours[i] = colourbutton = _builder->get_widget<Gtk::ColorButton>(str(boost::format(colour_fmt) % (i+1)));
         DBG_ASSERT(labelentry, "couldn't find label");
-        m_entries[i] = labelentry;
+        m_entries[i] = labelentry = _builder->get_widget<Gtk::Entry>(str(boost::format(value_fmt) % (i+1)));
 
         if(has_label) {
             Gdk::RGBA colour = fwk::rgbcolour_to_gdkcolor(
@@ -79,6 +76,7 @@ void EditLabels::setup_widget()
         labelentry->signal_changed().connect(
             sigc::bind(sigc::mem_fun(*this, &EditLabels::label_name_changed), i));
     }
+    DBG_OUT("all colours setup");
     gtkDialog().signal_response().connect(sigc::mem_fun(*this, &EditLabels::update_labels));
 }
 

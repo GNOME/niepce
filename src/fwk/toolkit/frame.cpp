@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/application.cpp
  *
- * Copyright (C) 2007-2014 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <glibmm/i18n.h>
 #include <giomm/simpleaction.h>
 #include <gtkmm/dialog.h>
+#include <gtkmm/label.h>
 
 #include "fwk/base/debug.hpp"
 #include "fwk/base/geometry.hpp"
@@ -55,7 +56,7 @@ Frame::Frame(const std::string & gladeFile,
       m_layout_cfg_key(layout_cfg_key)
 {
     if (m_builder) {
-        m_builder->get_widget(widgetName, m_window);
+        m_window = m_builder->get_widget<Gtk::Window>(widgetName);
         connectSignals();
         frameRectFromConfig();
     }
@@ -64,10 +65,12 @@ Frame::Frame(const std::string & gladeFile,
 
 void Frame::connectSignals()
 {
-    m_window->signal_delete_event().connect(
-        sigc::hide(sigc::mem_fun(this, &Frame::_close)));
-    m_window->signal_hide().connect(
-        sigc::retype_return<void>(sigc::mem_fun(this, &Frame::_close)));
+    m_window->signal_close_request().connect([this]() -> bool {
+        return this->_close();
+    }, true);
+    m_window->signal_hide().connect([this] {
+        this->_close();
+    });
 }
 
 Frame::~Frame()
@@ -78,32 +81,17 @@ Frame::~Frame()
 }
 
 
+/// XXX do we really need this now?
 void Frame::set_icon_from_theme(const Glib::ustring & name)
 {
-    using Glib::RefPtr;
-    using Gtk::IconTheme;
-    using std::vector;
-    using std::list;
-
-    RefPtr< IconTheme > icon_theme(Application::app()->getIconTheme());
-    vector<int> icon_sizes(icon_theme->get_icon_sizes(name));
-
-    vector< RefPtr <Gdk::Pixbuf> > icons;
-
-    for_each(icon_sizes.begin(), icon_sizes.end(),
-             [&icons, icon_theme, name](int s) {
-                 icons.push_back(
-                     icon_theme->load_icon(name, s,
-                                           Gtk::ICON_LOOKUP_USE_BUILTIN));
-             }
-        );
-    gtkWindow().set_icon_list(icons);
+    gtkWindow().set_icon_name(name);
 }
 
 void Frame::set_title(const std::string & title)
 {
     if (m_header) {
-        m_header->set_title(Glib::ustring(title));
+        auto label = Gtk::manage(new Gtk::Label(title));
+        m_header->set_title_widget(*label);
     }
     else {
         gtkWindow().set_title(Glib::ustring(title));
@@ -189,8 +177,8 @@ void Frame::frameRectFromConfig()
         if(!val.empty()) {
             try {
                 fwk::Rect r(val);
-                m_window->move(r.x(), r.y());
-                m_window->resize(r.w(), r.h());
+                // XXX the position is now ignored
+                m_window->set_default_size(r.w(), r.h());
             }
             catch (const std::bad_cast&) {
                 ERR_OUT("wrong value in configuration: %s", val.c_str());
@@ -207,8 +195,8 @@ void Frame::frameRectToConfig()
         Configuration & cfg = Application::app()->config();
         int x, y, w, h;
         x = y = w = h = 0;
-        m_window->get_position(x, y);
-        m_window->get_size(w, h);
+        // XXX the position is now ignored
+        m_window->get_default_size(w, h);
         fwk::Rect r(x, y, w, h);
         cfg.setValue(m_layout_cfg_key, std::to_string(r));
     }

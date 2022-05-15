@@ -22,8 +22,8 @@
 //!
 
 use clap::{App, Arg};
-use toml;
 use serde::Deserialize;
+use toml;
 
 use std::io::Read;
 use std::path::PathBuf;
@@ -44,7 +44,7 @@ use npc_engine::libraryclient::LibraryClient;
 ///
 #[derive(Debug, Deserialize)]
 struct Remaps {
-    roots: Vec<Vec<String>>
+    roots: Vec<Vec<String>>,
 }
 
 fn main() {

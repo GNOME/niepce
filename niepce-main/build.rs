@@ -10,7 +10,10 @@ fn main() {
         let target_dir = env::var("CARGO_TARGET_DIR").unwrap_or_else(|_| String::from("./target"));
         let mut target_file = PathBuf::from(target_dir);
         target_file.push("bindings.h");
+        let mut config = cbindgen::Config::default();
+        config.constant.allow_static_const = false;
         cbindgen::Builder::new()
+            .with_config(config)
             .with_include_guard("niepce_rust_bindings_h")
             .with_namespace("ffi")
             .with_language(cbindgen::Language::Cxx)
@@ -36,10 +39,13 @@ fn main() {
             .exclude_item("GtkIconView")
             .exclude_item("GtkListStore")
             .exclude_item("GtkTreePath")
+            .exclude_item("GtkPopoverMenu")
+            .exclude_item("GtkMessageDialog")
             .exclude_item("GtkCellRenderer")
             .exclude_item("GtkWidget")
             .exclude_item("GFileInfo")
             .exclude_item("PortableChannel")
+            .exclude_item("Option")
             .with_crate(&crate_dir)
             .generate()
             .expect("Couldn't generate bindings")

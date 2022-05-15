@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/metadatawidget.cpp
  *
- * Copyright (C) 2008-2021 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,10 +25,11 @@
 #include <boost/rational.hpp>
 
 #include <glibmm/i18n.h>
-#include <gtkmm/label.h>
-#include <gtkmm/entry.h>
-#include <gtkmm/textview.h>
 #include <gtkmm/drawingarea.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/eventcontrollerfocus.h>
+#include <gtkmm/label.h>
+#include <gtkmm/textview.h>
 
 #include "fwk/base/debug.hpp"
 #include "fwk/base/autoflag.hpp"
@@ -53,7 +54,7 @@ MetaDataWidget::MetaDataWidget(const Glib::ustring & title)
     m_table.insert_column(0);
     m_table.insert_column(0);
     m_table.set_margin_start(8);
-    add(m_table);
+    set_child(m_table);
     set_sensitive(false);
 }
 
@@ -86,13 +87,13 @@ MetaDataWidget::create_star_rating_widget(bool readonly, ffi::NiepcePropertyIdx 
 Gtk::Widget*
 MetaDataWidget::create_string_array_widget(bool readonly, ffi::NiepcePropertyIdx id)
 {
-    fwk::TokenTextView * ttv = Gtk::manage(new fwk::TokenTextView());
-    if(!readonly) {
-        ttv->signal_focus_out_event().connect(
-            sigc::bind(
-                sigc::mem_fun(*this, 
-                              &MetaDataWidget::on_string_array_changed),
-                ttv, id));
+    fwk::TokenTextView* ttv = Gtk::manage(new fwk::TokenTextView());
+    if (!readonly) {
+        auto ctrl = Gtk::EventControllerFocus::create();
+        ctrl->signal_leave().connect([this, ttv, id] {
+            this->on_string_array_changed(ttv, id);
+        });
+        ttv->add_controller(ctrl);
     }
     return ttv;
 }
@@ -105,18 +106,19 @@ MetaDataWidget::create_text_widget(bool readonly, ffi::NiepcePropertyIdx id)
         l->set_xalign(0.0f);
         l->set_yalign(0.5f);
         // This will prevent the label from being expanded.
-        l->set_ellipsize(Pango::ELLIPSIZE_MIDDLE);
+        l->set_ellipsize(Pango::EllipsizeMode::MIDDLE);
         return l;
     }
 
     Gtk::TextView * e = Gtk::manage(new NoTabTextView());
     e->set_editable(true);
-    e->set_wrap_mode(Gtk::WRAP_WORD);
-    e->signal_focus_out_event().connect(
-        sigc::bind(
-            sigc::mem_fun(*this,
-                          &MetaDataWidget::on_text_changed),
-            e->get_buffer(), id));
+    e->set_wrap_mode(Gtk::WrapMode::WORD);
+    auto ctrl = Gtk::EventControllerFocus::create();
+    e->add_controller(ctrl);
+    auto buffer = e->get_buffer();
+    ctrl->signal_leave().connect([this, buffer, id] {
+        this->on_text_changed(buffer, id);
+    });
     return e;
 }
 
@@ -128,17 +130,17 @@ MetaDataWidget::create_string_widget(bool readonly, ffi::NiepcePropertyIdx id)
         l->set_xalign(0.0f);
         l->set_yalign(0.5f);
         // This will prevent the label from being expanded.
-        l->set_ellipsize(Pango::ELLIPSIZE_MIDDLE);
+        l->set_ellipsize(Pango::EllipsizeMode::MIDDLE);
         return l;
     }
 
     Gtk::Entry * e = Gtk::manage(new Gtk::Entry());
     e->set_has_frame(false); // TODO make that a custom widget
-    e->signal_focus_out_event().connect(
-        sigc::bind(
-            sigc::mem_fun(*this,
-                          &MetaDataWidget::on_str_changed),
-            e, id));
+    auto ctrl = Gtk::EventControllerFocus::create();
+    e->add_controller(ctrl);
+    ctrl->signal_leave().connect([this, e, id] {
+        this->on_str_changed(e, id);
+    });
     return e;
 }
 
@@ -192,13 +194,12 @@ MetaDataWidget::create_widgets_for_format(const MetaDataSectionFormat * fmt)
 
         m_table.insert_row(n_row + 1);
         m_table.attach(*labelw, 0, n_row, 1, 1);
-        m_table.attach_next_to(*w, *labelw, Gtk::POS_RIGHT, 1, 1);
+        m_table.attach_next_to(*w, *labelw, Gtk::PositionType::RIGHT, 1, 1);
         m_data_map.insert(std::make_pair(current->id, w));
 
         current++;
         n_row++;
     }
-    m_table.show_all();
 }
 
 void MetaDataWidget::clear_widget(const std::pair<const ffi::NiepcePropertyIdx, Gtk::Widget *> & p)
@@ -460,7 +461,7 @@ void MetaDataWidget::add_data(const MetaDataFormat& current,
     }
 }
 
-bool MetaDataWidget::on_str_changed(GdkEventFocus*, Gtk::Entry *e,
+bool MetaDataWidget::on_str_changed(Gtk::Entry *e,
                                     ffi::NiepcePropertyIdx prop)
 {
     if(m_update) {
@@ -470,8 +471,7 @@ bool MetaDataWidget::on_str_changed(GdkEventFocus*, Gtk::Entry *e,
     return true;
 }
 
-bool MetaDataWidget::on_text_changed(GdkEventFocus*,
-                                     Glib::RefPtr<Gtk::TextBuffer> b,
+bool MetaDataWidget::on_text_changed(Glib::RefPtr<Gtk::TextBuffer> b,
                                      ffi::NiepcePropertyIdx prop)
 {
     if(m_update) {
@@ -482,8 +482,7 @@ bool MetaDataWidget::on_text_changed(GdkEventFocus*,
     return true;
 }
 
-bool MetaDataWidget::on_string_array_changed(GdkEventFocus*,
-                                             fwk::TokenTextView * ttv,
+bool MetaDataWidget::on_string_array_changed(fwk::TokenTextView * ttv,
                                              ffi::NiepcePropertyIdx prop)
 {
     if(m_update) {

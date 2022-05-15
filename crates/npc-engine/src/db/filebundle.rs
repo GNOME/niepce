@@ -21,6 +21,7 @@ use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 use crate::db::libfile::FileType;
+use npc_fwk::dbg_out;
 use npc_fwk::toolkit::mimetype::{IsRaw, MType};
 use npc_fwk::MimeType;
 

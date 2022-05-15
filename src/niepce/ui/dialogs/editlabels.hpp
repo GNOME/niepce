@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/editlabels.hpp
  *
- * Copyright (C) 2009-2013 Hubert Figuiere
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef __UI_EDITLABELS_HPP__
-#define __UI_EDITLABELS_HPP__
+#pragma once
 
 #include <array>
 
@@ -41,20 +39,20 @@ public:
     EditLabels(const libraryclient::LibraryClientPtr &);
 
     virtual void setup_widget() override;
+
+    constexpr static int NUM_LABELS = 5;
 private:
     void label_name_changed(size_t idx);
     void label_colour_changed(size_t idx);
     void update_labels(int /*response*/);
     const eng::LabelList& m_labels;
-    std::array<Gtk::ColorButton*, 5> m_colours;
-    std::array<Gtk::Entry*, 5> m_entries;
-    std::array<bool, 5> m_status;
+    std::array<Gtk::ColorButton*, NUM_LABELS> m_colours;
+    std::array<Gtk::Entry*, NUM_LABELS> m_entries;
+    std::array<bool, NUM_LABELS> m_status;
     libraryclient::LibraryClientPtr m_lib_client;
 };
 
-
 }
-
 /*
   Local Variables:
   mode:c++
@@ -64,4 +62,3 @@ private:
   fill-column:80
   End:
 */
-#endif

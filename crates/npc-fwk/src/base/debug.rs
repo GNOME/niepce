@@ -1,4 +1,3 @@
-
 /// Use this macro to output a message on a Result returning an error.
 /// This allow removing the warning if you ignore the Result.
 /// `Error` must implement `Debug`

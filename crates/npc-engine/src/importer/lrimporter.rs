@@ -28,6 +28,8 @@ use lrcat::{
     LrId, LrObject,
 };
 
+use npc_fwk::{dbg_out, err_out};
+
 use super::libraryimporter::{Error, LibraryImporter, Result};
 use crate::db::filebundle::FileBundle;
 use crate::db::props::NiepceProperties as Np;

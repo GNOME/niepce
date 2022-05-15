@@ -41,12 +41,12 @@ pub struct MimeType(MType);
 
 /// Guess the type from the gio type string
 pub fn guess_type(gmtype: &str) -> MType {
-    if gio::content_type_is_a(&gmtype, "image/*") {
-        if gio::content_type_is_a(&gmtype, "image/x-dcraw") {
+    if gio::content_type_is_a(gmtype, "image/*") {
+        if gio::content_type_is_a(gmtype, "image/x-dcraw") {
             return MType::Image(IsRaw::Yes);
         }
         return MType::Image(IsRaw::No);
-    } else if gio::content_type_is_a(&gmtype, "video/*") {
+    } else if gio::content_type_is_a(gmtype, "video/*") {
         return MType::Movie;
     }
     MType::None

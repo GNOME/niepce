@@ -18,11 +18,12 @@
  */
 
 use glib::translate::*;
-use gtk::prelude::*;
+use gtk4::prelude::*;
 use num_traits::FromPrimitive;
 
 use npc_engine::db::LibraryId;
 use npc_engine::libraryclient::{ClientInterface, LibraryClientWrapper};
+use npc_fwk::dbg_out;
 
 #[repr(i32)]
 /// XXX this must be in sync with the C++ code.
@@ -33,7 +34,7 @@ enum ColIndex {
 }
 
 #[repr(i32)]
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, num_derive::FromPrimitive)]
 /// Types of items in the workspace tree view
 pub enum ItemTypes {
     AlbumsItem = 0,
@@ -49,7 +50,7 @@ pub enum ItemTypes {
 /// Handle the selection and return the type selected or None
 pub fn on_libtree_selection(
     libclient: &mut LibraryClientWrapper,
-    libtree: &gtk::TreeView,
+    libtree: &gtk4::TreeView,
 ) -> Option<ItemTypes> {
     let selection = libtree.selection();
     let selected = selection.selected();
@@ -57,26 +58,26 @@ pub fn on_libtree_selection(
         // For some reason this is an ILong (on x86_64)
         // While in the C++ code it is an int64_t
         let item = model
-            .value(&selected, ColIndex::IdColumn as i32)
+            .get_value(&selected, ColIndex::IdColumn as i32)
             .get::<glib::ILong>()
             .map(|v| -> LibraryId { v.into() });
         if let Ok(id) = item {
             let item_type = model
-                .value(&selected, ColIndex::TypeColumn as i32)
+                .get_value(&selected, ColIndex::TypeColumn as i32)
                 .get::<i32>()
                 .ok()
                 .and_then(|v| ItemTypes::from_i32(v));
             match item_type {
                 Some(ItemTypes::FolderItem) => {
-                    libclient.unwrap_mut().query_folder_content(id);
+                    libclient.query_folder_content(id);
                     Some(ItemTypes::FolderItem)
                 }
                 Some(ItemTypes::KeywordItem) => {
-                    libclient.unwrap_mut().query_keyword_content(id);
+                    libclient.query_keyword_content(id);
                     Some(ItemTypes::KeywordItem)
                 }
                 Some(ItemTypes::AlbumItem) => {
-                    libclient.unwrap_mut().query_album_content(id);
+                    libclient.query_album_content(id);
                     Some(ItemTypes::AlbumItem)
                 }
                 _ => {
@@ -98,9 +99,9 @@ pub fn on_libtree_selection(
 /// Handle the selection and return the type selected or -1
 pub unsafe extern "C" fn workspace_controller_on_libtree_selection(
     libclient: &mut LibraryClientWrapper,
-    libtree: *mut gtk_sys::GtkTreeView,
+    libtree: *mut gtk4_sys::GtkTreeView,
 ) -> i32 {
-    match on_libtree_selection(libclient, &gtk::TreeView::from_glib_none(libtree)) {
+    match on_libtree_selection(libclient, &gtk4::TreeView::from_glib_none(libtree)) {
         Some(t) => t as i32,
         _ => -1,
     }

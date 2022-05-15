@@ -52,14 +52,14 @@ Gtk::Widget * MapModule::buildWidget()
         return m_widget;
     }
 
-    m_box = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL));
+    m_box = Gtk::manage(new Gtk::Box(Gtk::Orientation::VERTICAL));
     m_widget = m_box;
 
     m_map = fwk::MapController::Ptr(new fwk::MapController());
     add(m_map);
     auto w = m_map->buildWidget();
     if (w) {
-        m_box->pack_start(*w);
+        m_box->append(*w);
     }
 
     return m_widget;

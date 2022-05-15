@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/mapcontroller.hpp
  *
- * Copyright (C) 2014-2019 Hubert Figuière
+ * Copyright (C) 2014-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public:
 
     void zoomIn();
     void zoomOut();
-    void setZoomLevel(uint8_t level); // 1 to 20
+    void setZoomLevel(double level); // 1 to 20
 
 private:
     class Priv;

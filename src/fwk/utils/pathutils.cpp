@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/pathutils.cpp
  *
- * Copyright (C) 2009-2015 Hubert Figuière
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,7 +117,7 @@ void _path_remove_recursive(const Glib::RefPtr<Gio::File> & dir)
     while(file_info = enumerator->next_file()) {
         Glib::RefPtr<Gio::File> child;
         child = dir->get_child(file_info->get_name());
-        if(file_info->get_type() == Gio::FILE_TYPE_DIRECTORY) {
+        if(file_info->get_file_type() == Gio::FileType::DIRECTORY) {
             _path_remove_recursive(child);
         }
         child->remove();

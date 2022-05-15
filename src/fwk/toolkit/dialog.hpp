@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/dialog.hpp
  *
- * Copyright (C) 2009-2014 Hubert Figuiere
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef __FWK_DIALOG_H__
-#define __FWK_DIALOG_H__
+#pragma once
 
 #include <gtkmm/dialog.h>
 
@@ -54,8 +52,7 @@ public:
      */
     void add_header(const std::string & label);
 
-    int run_modal();
-    int run_modal(const Frame::Ptr & parent);
+    void run_modal(const Frame::Ptr& parent, std::function<void(int)> on_ok = [](int){});
 protected:
     virtual Gtk::Widget *buildWidget() override;
 
@@ -73,5 +70,3 @@ protected:
   fill-column:80
   End:
 */
-
-#endif

@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libmetadata.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ use super::NiepceProperties as Np;
 use super::{FromDb, LibraryId};
 use crate::{NiepcePropertyBag, NiepcePropertySet};
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
+use npc_fwk::{dbg_out, err_out};
 use npc_fwk::{xmp_date_from, Date, PropertyBag, PropertySet, PropertyValue, XmpMeta};
 
 #[derive(Clone)]
@@ -84,15 +85,14 @@ impl LibMetadata {
         let index_to_xmp = property_index_to_xmp(meta)?;
 
         let mut prop_flags = exempi2::PropFlags::default();
-        let mut xmp_result = self.xmp_meta.xmp.get_property(
-            &index_to_xmp.ns,
-            &index_to_xmp.property,
-            &mut prop_flags,
-        );
+        let mut xmp_result =
+            self.xmp_meta
+                .xmp
+                .get_property(index_to_xmp.ns, index_to_xmp.property, &mut prop_flags);
         if xmp_result.is_ok() && prop_flags.contains(exempi2::PropFlags::ARRAY_IS_ALTTEXT) {
             if let Ok((_, value)) = self.xmp_meta.xmp.get_localized_text(
-                &index_to_xmp.ns,
-                &index_to_xmp.property,
+                index_to_xmp.ns,
+                index_to_xmp.property,
                 "",
                 "x-default",
                 &mut prop_flags,
@@ -110,14 +110,14 @@ impl LibMetadata {
                     return self
                         .xmp_meta
                         .xmp
-                        .delete_property(&ix.ns, &ix.property)
+                        .delete_property(ix.ns, ix.property)
                         .is_ok()
                 }
                 PropertyValue::Int(i) => {
                     return self
                         .xmp_meta
                         .xmp
-                        .set_property_i32(&ix.ns, &ix.property, i, exempi2::PropFlags::NONE)
+                        .set_property_i32(ix.ns, ix.property, i, exempi2::PropFlags::NONE)
                         .is_ok()
                 }
                 PropertyValue::String(ref s) => {
@@ -125,11 +125,11 @@ impl LibMetadata {
                         return self
                             .xmp_meta
                             .xmp
-                            .delete_property(&ix.ns, &ix.property)
+                            .delete_property(ix.ns, ix.property)
                             .is_ok();
                     } else if let Err(err) = self.xmp_meta.xmp.set_property(
-                        &ix.ns,
-                        &ix.property,
+                        ix.ns,
+                        ix.property,
                         s,
                         exempi2::PropFlags::NONE,
                     ) {
@@ -138,8 +138,8 @@ impl LibMetadata {
                                 .xmp_meta
                                 .xmp
                                 .set_localized_text(
-                                    &ix.ns,
-                                    &ix.property,
+                                    ix.ns,
+                                    ix.property,
                                     "",
                                     "x-default",
                                     s,
@@ -155,7 +155,7 @@ impl LibMetadata {
                     if self
                         .xmp_meta
                         .xmp
-                        .delete_property(&ix.ns, &ix.property)
+                        .delete_property(ix.ns, ix.property)
                         .is_err()
                     {
                         err_out!("Error deleting property {}", &ix.property);
@@ -166,8 +166,8 @@ impl LibMetadata {
                             .xmp_meta
                             .xmp
                             .append_array_item(
-                                &ix.ns,
-                                &ix.property,
+                                ix.ns,
+                                ix.property,
                                 exempi2::PropFlags::VALUE_IS_ARRAY,
                                 s,
                                 exempi2::PropFlags::NONE,
@@ -185,12 +185,7 @@ impl LibMetadata {
                     return self
                         .xmp_meta
                         .xmp
-                        .set_property_date(
-                            &ix.ns,
-                            &ix.property,
-                            &xmp_date,
-                            exempi2::PropFlags::NONE,
-                        )
+                        .set_property_date(ix.ns, ix.property, &xmp_date, exempi2::PropFlags::NONE)
                         .is_ok();
                 }
             }

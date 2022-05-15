@@ -2,7 +2,7 @@
 /*
  * niepce - ui/dialogs/importer/cameraimporterui.cpp
  *
- * Copyright (C) 2017 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,14 +41,13 @@ CameraImporterUI::CameraImporterUI()
 
 Gtk::Widget* CameraImporterUI::setup_widget(const fwk::Frame::Ptr&)
 {
-    Gtk::Grid* main_widget;
     m_builder = Gtk::Builder::create_from_resource("/org/gnome/Niepce/ui/cameraimporterui.ui",
                                                    "main_widget");
-    m_builder->get_widget("main_widget", main_widget);
-    m_builder->get_widget("select_camera_btn", m_select_camera_btn);
+    Gtk::Grid* main_widget = m_builder->get_widget<Gtk::Grid>("main_widget");
+    m_select_camera_btn = m_builder->get_widget<Gtk::Button>("select_camera_btn");
     m_select_camera_btn->signal_clicked()
         .connect(sigc::mem_fun(*this, &CameraImporterUI::select_camera));
-    m_builder->get_widget("camera_list_combo", m_camera_list_combo);
+    m_camera_list_combo = m_builder->get_widget<Gtk::ComboBoxText>("camera_list_combo");
 
     fwk::GpDeviceList::obj().detect();
 

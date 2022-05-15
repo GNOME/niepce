@@ -52,9 +52,15 @@ npc-resources.h: gresource.xml $(gladefiles)
                 --sourcedir=$(top_srcdir) --target=$@ \
 		--generate-header --c-name npc $(srcdir)/gresource.xml
 
+npc-resources.gresource: gresource.xml $(gladefiles)
+	$(AM_V_GEN) glib-compile-resources                                  \
+                --sourcedir=$(top_srcdir) --target=$@ \
+		$(srcdir)/gresource.xml
+
 BUILT_SOURCES = \
         npc-resources.c \
-        npc-resources.h
+        npc-resources.h \
+        npc-resources.gresource
 
 niepce_SOURCES = \
 	notificationcenter.hpp notificationcenter.cpp \
