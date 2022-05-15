@@ -138,10 +138,8 @@ Gtk::Widget * GridViewModule::buildWidget()
   m_librarylistview->set_vexpand(true);
 
   m_context_menu->set_parent(*m_librarylistview);
-  m_librarylistview->signal_unrealize().connect([this] {
-      m_context_menu->unparent();
-  });
-
+  m_librarylistview->signal_unrealize().connect(
+      sigc::mem_fun(*m_context_menu, &Gtk::PopoverMenu::unparent));
 
   auto gesture = Gtk::GestureClick::create();
   m_librarylistview->add_controller(gesture);

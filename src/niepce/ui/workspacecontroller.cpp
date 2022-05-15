@@ -77,6 +77,12 @@ WorkspaceController::WorkspaceController(const Glib::RefPtr<Gio::SimpleActionGro
     }
 }
 
+WorkspaceController::~WorkspaceController()
+{
+    m_context_menu->unparent();
+    delete m_context_menu;
+}
+
 libraryclient::LibraryClientPtr WorkspaceController::getLibraryClient() const
 {
     return std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock())->getLibraryClient();
@@ -465,11 +471,10 @@ Gtk::Widget * WorkspaceController::buildWidget()
 
     add_btn->set_menu_model(m_menu);
 
-    m_context_menu = Gtk::manage(new Gtk::PopoverMenu(m_menu));
+    m_context_menu = new Gtk::PopoverMenu(m_menu);
     m_context_menu->set_parent(m_librarytree);
-    m_librarytree.signal_unrealize().connect([this] {
-        m_context_menu->unparent();
-    });
+    m_librarytree.signal_unrealize().connect(
+        sigc::mem_fun(*m_context_menu, &Gtk::PopoverMenu::unparent));
 
     header->append(*add_btn);
     m_vbox.append(*header);

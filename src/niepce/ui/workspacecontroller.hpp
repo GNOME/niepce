@@ -50,6 +50,8 @@ public:
     };
 
     WorkspaceController(const Glib::RefPtr<Gio::SimpleActionGroup>& action_group);
+    virtual ~WorkspaceController();
+
     class WorkspaceTreeColumns
         : public Gtk::TreeModelColumnRecord
     {
