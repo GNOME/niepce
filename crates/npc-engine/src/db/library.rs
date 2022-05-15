@@ -95,7 +95,7 @@ pub struct Library {
 
 impl Library {
     #[cfg(test)]
-    pub fn new_in_memory() -> Library {
+    fn new_in_memory() -> Library {
         let (sender, _) = async_channel::unbounded();
         let mut lib = Library {
             // maindir: dir,
@@ -181,11 +181,11 @@ impl Library {
         Ok(())
     }
 
-    pub fn dbpath(&self) -> &Path {
+    fn dbpath(&self) -> &Path {
         &self.dbpath
     }
 
-    pub fn is_ok(&self) -> bool {
+    fn is_ok(&self) -> bool {
         self.inited
     }
 
@@ -354,14 +354,14 @@ impl Library {
     /// Send a `LibNotification`.
     /// @returns the result (nothing or an error
     ///
-    pub fn notify(
+    pub(crate) fn notify(
         &self,
         notif: LibNotification,
     ) -> std::result::Result<(), async_channel::SendError<LibNotification>> {
         toolkit::thread_context().block_on(self.sender.send(notif))
     }
 
-    pub fn add_jpeg_file_to_bundle(&self, file_id: LibraryId, fsfile_id: LibraryId) -> Result<()> {
+    fn add_jpeg_file_to_bundle(&self, file_id: LibraryId, fsfile_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let filetype: i32 = libfile::FileType::RawJpeg.into();
             let c = conn.execute(
@@ -376,11 +376,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn add_xmp_sidecar_to_bundle(
-        &self,
-        file_id: LibraryId,
-        fsfile_id: LibraryId,
-    ) -> Result<()> {
+    fn add_xmp_sidecar_to_bundle(&self, file_id: LibraryId, fsfile_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let c = conn.execute(
                 "UPDATE files SET xmp_file=?1 WHERE id=?2;",
@@ -394,7 +390,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn add_sidecar_file_to_bundle(&self, file_id: LibraryId, sidecar: &Sidecar) -> Result<()> {
+    fn add_sidecar_file_to_bundle(&self, file_id: LibraryId, sidecar: &Sidecar) -> Result<()> {
         let sidecar_t: (i32, &PathBuf) = match *sidecar {
             Sidecar::Live(ref p)
             | Sidecar::Thumbnail(ref p)
@@ -431,7 +427,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn leaf_name_for_pathname(pathname: &str) -> Option<String> {
+    pub(crate) fn leaf_name_for_pathname(pathname: &str) -> Option<String> {
         let name = Path::new(pathname).file_name()?;
         Some(String::from(name.to_str()?))
     }
@@ -463,7 +459,7 @@ impl Library {
     /// path: An optional path that indicate the physical location
     ///
     /// Returns a LibFolder or None in case of error.
-    pub fn add_folder(&self, name: &str, path: Option<String>) -> Result<LibFolder> {
+    pub(crate) fn add_folder(&self, name: &str, path: Option<String>) -> Result<LibFolder> {
         self.add_folder_into(name, path, 0)
     }
 
@@ -471,7 +467,7 @@ impl Library {
     /// A value of 0 means root.
     ///
     /// Returns a LibFolder or None in case of error.
-    pub fn add_folder_into(
+    fn add_folder_into(
         &self,
         name: &str,
         path: Option<String>,
@@ -494,7 +490,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn delete_folder(&self, id: LibraryId) -> Result<()> {
+    pub(crate) fn delete_folder(&self, id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let c = conn.execute("DELETE FROM folders WHERE id=?1", params![id])?;
             if c == 1 {
@@ -508,7 +504,7 @@ impl Library {
     /// Get the folder from its path
     ///
     /// Return the LibFolder or None
-    pub fn get_folder(&self, path: &str) -> Result<LibFolder> {
+    pub(crate) fn get_folder(&self, path: &str) -> Result<LibFolder> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
                 "SELECT {} FROM {} WHERE path=?1",
@@ -529,7 +525,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn get_all_folders(&self) -> Result<Vec<LibFolder>> {
+    pub(crate) fn get_all_folders(&self) -> Result<Vec<LibFolder>> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
                 "SELECT {} FROM {}",
@@ -547,11 +543,11 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn get_folder_content(&self, folder_id: LibraryId) -> Result<Vec<LibFile>> {
+    pub(crate) fn get_folder_content(&self, folder_id: LibraryId) -> Result<Vec<LibFile>> {
         self.get_content(folder_id, "parent_id = ?1")
     }
 
-    pub fn count_folder(&self, folder_id: LibraryId) -> Result<i64> {
+    pub(crate) fn count_folder(&self, folder_id: LibraryId) -> Result<i64> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare(
                 "SELECT COUNT(id) FROM files \
@@ -567,7 +563,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn get_all_keywords(&self) -> Result<Vec<Keyword>> {
+    pub(crate) fn get_all_keywords(&self) -> Result<Vec<Keyword>> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
                 "SELECT {} FROM {}",
@@ -585,7 +581,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn count_keyword(&self, id: LibraryId) -> Result<i64> {
+    pub(crate) fn count_keyword(&self, id: LibraryId) -> Result<i64> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare(
                 "SELECT COUNT(keyword_id) FROM keywording \
@@ -601,7 +597,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn add_fs_file<P: AsRef<Path>>(&self, f: P) -> Result<LibraryId> {
+    fn add_fs_file<P: AsRef<Path>>(&self, f: P) -> Result<LibraryId> {
         if let Some(ref conn) = self.dbconn {
             let file = f.as_ref().to_string_lossy();
             let c = conn.execute("INSERT INTO fsfiles (path) VALUES(?1)", params![file])?;
@@ -627,7 +623,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn add_bundle(
+    pub(crate) fn add_bundle(
         &self,
         folder_id: LibraryId,
         bundle: &FileBundle,
@@ -666,7 +662,7 @@ impl Library {
         Ok(file_id)
     }
 
-    pub fn add_file<P: AsRef<Path> + AsRef<OsStr>>(
+    fn add_file<P: AsRef<Path> + AsRef<OsStr>>(
         &self,
         folder_id: LibraryId,
         file: P,
@@ -774,7 +770,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn make_keyword(&self, keyword: &str) -> Result<LibraryId> {
+    pub(crate) fn make_keyword(&self, keyword: &str) -> Result<LibraryId> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare(
                 "SELECT id FROM keywords WHERE \
@@ -809,7 +805,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn assign_keyword(&self, kw_id: LibraryId, file_id: LibraryId) -> Result<()> {
+    fn assign_keyword(&self, kw_id: LibraryId, file_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             conn.execute(
                 "INSERT OR IGNORE INTO keywording\
@@ -823,7 +819,7 @@ impl Library {
         }
     }
 
-    pub fn get_keyword_content(&self, keyword_id: LibraryId) -> Result<Vec<LibFile>> {
+    pub(crate) fn get_keyword_content(&self, keyword_id: LibraryId) -> Result<Vec<LibFile>> {
         self.get_content(
             keyword_id,
             "files.id IN \
@@ -832,7 +828,7 @@ impl Library {
         )
     }
 
-    pub fn get_metadata(&self, file_id: LibraryId) -> Result<LibMetadata> {
+    pub(crate) fn get_metadata(&self, file_id: LibraryId) -> Result<LibMetadata> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
                 "SELECT {} FROM {} WHERE {}=?1",
@@ -906,7 +902,12 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn set_metadata(&self, file_id: LibraryId, meta: Np, value: &PropertyValue) -> Result<()> {
+    pub(crate) fn set_metadata(
+        &self,
+        file_id: LibraryId,
+        meta: Np,
+        value: &PropertyValue,
+    ) -> Result<()> {
         #[allow(non_upper_case_globals)]
         match meta {
             Np::Index(NpXmpRatingProp)
@@ -960,7 +961,11 @@ impl Library {
         Ok(())
     }
 
-    pub fn move_file_to_folder(&self, file_id: LibraryId, folder_id: LibraryId) -> Result<()> {
+    pub(crate) fn move_file_to_folder(
+        &self,
+        file_id: LibraryId,
+        folder_id: LibraryId,
+    ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare("SELECT id FROM folders WHERE id=?1;")?;
             let mut rows = stmt.query(params![folder_id])?;
@@ -977,7 +982,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn get_all_labels(&self) -> Result<Vec<Label>> {
+    pub(crate) fn get_all_labels(&self) -> Result<Vec<Label>> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
                 "SELECT {} FROM {} ORDER BY id;",
@@ -995,7 +1000,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn add_label(&self, name: &str, colour: &str) -> Result<LibraryId> {
+    pub(crate) fn add_label(&self, name: &str, colour: &str) -> Result<LibraryId> {
         if let Some(ref conn) = self.dbconn {
             let c = conn.execute(
                 "INSERT INTO  labels (name,color) VALUES (?1, ?2);",
@@ -1011,7 +1016,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn update_label(&self, label_id: LibraryId, name: &str, colour: &str) -> Result<()> {
+    pub(crate) fn update_label(&self, label_id: LibraryId, name: &str, colour: &str) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let c = conn.execute(
                 "UPDATE labels SET name=?2, color=?3 FROM labels WHERE id=?1;",
@@ -1025,7 +1030,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn delete_label(&self, label_id: LibraryId) -> Result<()> {
+    pub(crate) fn delete_label(&self, label_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let c = conn.execute("DELETE FROM labels WHERE id=?1;", &[&label_id])?;
             if c != 1 {
@@ -1050,7 +1055,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn write_metadata(&self, id: LibraryId) -> Result<()> {
+    pub(crate) fn write_metadata(&self, id: LibraryId) -> Result<()> {
         self.rewrite_xmp_for_id(id, true)
     }
 
@@ -1134,7 +1139,7 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub fn process_xmp_update_queue(&self, write_xmp: bool) -> Result<()> {
+    pub(crate) fn process_xmp_update_queue(&self, write_xmp: bool) -> Result<()> {
         let ids = self.get_xmp_ids_in_queue()?;
         for id in ids {
             self.rewrite_xmp_for_id(id, write_xmp)?;
