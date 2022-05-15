@@ -1,7 +1,7 @@
 /*
- * niepce - framework/application.cpp
+ * niepce - fwk/toolkit/application.cpp
  *
- * Copyright (C) 2007-2019 Hubert Figuière
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 #include <glibmm/i18n.h>
 #include <glibmm/miscutils.h>
-#include <gtkmm/main.h>
+
 #include <gtkmm/aboutdialog.h>
 #include <gtkmm/settings.h>
 
@@ -38,7 +38,7 @@ Application::Application(int & argc, char** &argv, const char* app_id,
                          const char * name)
     : m_config(Configuration::make_config_path(name))
     , m_module_manager(new ModuleManager())
-    , m_gtkapp(Gtk::Application::create(argc, argv, app_id))
+    , m_gtkapp(Gtk::Application::create(app_id))
 {
     Glib::set_prgname(app_id);
     m_gtkapp->signal_startup().connect(
@@ -61,7 +61,7 @@ Application::Ptr Application::app()
 
 Glib::RefPtr<Gtk::IconTheme> Application::getIconTheme() const
 {
-    return Gtk::IconTheme::get_default();
+    return Gtk::IconTheme::get_for_display(Gdk::Display::get_default());
 }
 
 bool Application::get_use_dark_theme() const
@@ -182,7 +182,7 @@ void Application::on_action_file_open()
 void Application::on_about()
 {
     Gtk::AboutDialog dlg;
-    dlg.run();
+    dlg.show();
 }
 
 std::shared_ptr<UndoTransaction> Application::begin_undo(const std::string & label)

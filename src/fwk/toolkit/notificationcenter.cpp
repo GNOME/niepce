@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/notification.cpp
  *
- * Copyright (C) 2007-2017 Hubert Figuière
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,9 @@ public:
 NotificationCenter::NotificationCenter()
     : p( new Priv )
 {
-    p->m_dispatcher.connect(
-        sigc::mem_fun(this, &NotificationCenter::_dispatch));
+    p->m_dispatcher.connect([this] {
+        this->_dispatch();
+    });
 }
 
 NotificationCenter::~NotificationCenter()

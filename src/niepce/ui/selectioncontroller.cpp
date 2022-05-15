@@ -52,9 +52,9 @@ void SelectionController::add_selectable(const IImageSelectable::WeakPtr & selec
     DBG_OUT("added %p", (void*)selectable.get());
     m_selectables.push_back(selectableWeak);
     selectable->image_list()->signal_selection_changed().connect(
-        [this, selectableWeak](){
-            this->selected(selectableWeak);
-        });
+        sigc::bind(
+            sigc::mem_fun(*this, &SelectionController::selected),
+                   selectableWeak));
     selectable->image_list()->signal_item_activated().connect(
         sigc::bind(
             sigc::mem_fun(*this, &SelectionController::activated),
@@ -174,7 +174,7 @@ void SelectionController::rotate(int angle)
     DBG_OUT("angle = %d", angle);
     auto selection = get_selection();
     if(selection >= 0) {
-        Gtk::TreeIter iter = m_imageliststore->get_iter_from_id(selection);
+        Gtk::TreeModel::iterator iter = m_imageliststore->get_iter_from_id(selection);
         if(iter) {
             // @todo
         }

@@ -35,6 +35,7 @@ use crate::library::notification::{FileStatusChange, LcChannel, LibNotification}
 use crate::library::queriedcontent::QueriedContent;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
+use npc_fwk::{dbg_out, err_out};
 
 /// Thumbnail task
 struct ThumbnailTask {

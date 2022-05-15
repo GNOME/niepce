@@ -1,7 +1,7 @@
 /*
- * niepce - framework/application.h
+ * niepce - fwk/toolkit/application.hpp
  *
- * Copyright (C) 2007-2014 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _FRAMEWORK_APPLICATION_H_
-#define _FRAMEWORK_APPLICATION_H_
+#pragma once
 
 #include <glibmm/refptr.h>
+#include <giomm/application.h>
 #include <giomm/menu.h>
 #include <gtkmm/application.h>
-#include <gtkmm/uimanager.h>
 #include <gtkmm/icontheme.h>
 
 #include "fwk/toolkit/configuration.hpp"
@@ -104,7 +102,6 @@ private:
 
 }
 
-#endif
 /*
   Local Variables:
   mode:c++

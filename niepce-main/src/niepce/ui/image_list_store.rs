@@ -21,7 +21,7 @@ use std::collections::BTreeMap;
 use std::ptr;
 
 use glib::translate::*;
-use gtk::prelude::*;
+use gtk4::prelude::*;
 
 use once_cell::unsync::OnceCell;
 
@@ -33,6 +33,7 @@ use npc_engine::library::notification::{LibNotification, MetadataChange};
 use npc_engine::library::thumbnail_cache::ThumbnailCache;
 use npc_fwk::toolkit::gdk_utils;
 use npc_fwk::PropertyValue;
+use npc_fwk::{dbg_out, err_out};
 
 /// Wrap a libfile into something that can be in a glib::Value
 #[derive(Clone, glib::Boxed)]
@@ -50,11 +51,11 @@ pub enum ColIndex {
 /// The Image list store.
 /// It wraps the tree model/store.
 pub struct ImageListStore {
-    store: gtk::ListStore,
+    store: gtk4::ListStore,
     current_folder: LibraryId,
     current_keyword: LibraryId,
-    idmap: BTreeMap<LibraryId, gtk::TreeIter>,
-    image_loading_icon: OnceCell<Option<gdk_pixbuf::Pixbuf>>,
+    idmap: BTreeMap<LibraryId, gtk4::TreeIter>,
+    image_loading_icon: OnceCell<gtk4::IconPaintable>,
 }
 
 impl Default for ImageListStore {
@@ -66,13 +67,13 @@ impl Default for ImageListStore {
 impl ImageListStore {
     pub fn new() -> Self {
         let col_types: [glib::Type; 4] = [
-            gdk_pixbuf::Pixbuf::static_type(),
+            gdk4::Paintable::static_type(),
             StoreLibFile::static_type(),
-            gdk_pixbuf::Pixbuf::static_type(),
+            gdk4::Paintable::static_type(),
             glib::Type::I32,
         ];
 
-        let store = gtk::ListStore::new(&col_types);
+        let store = gtk4::ListStore::new(&col_types);
 
         Self {
             store,
@@ -83,22 +84,17 @@ impl ImageListStore {
         }
     }
 
-    fn get_loading_icon(&self) -> Option<&gdk_pixbuf::Pixbuf> {
-        self.image_loading_icon
-            .get_or_init(|| {
-                if let Some(theme) = gtk::IconTheme::default() {
-                    if let Ok(icon) =
-                        theme.load_icon("image-loading", 32, gtk::IconLookupFlags::USE_BUILTIN)
-                    {
-                        icon
-                    } else {
-                        None
-                    }
-                } else {
-                    None
-                }
-            })
-            .as_ref()
+    fn get_loading_icon(&self) -> &gtk4::IconPaintable {
+        self.image_loading_icon.get_or_init(|| {
+            gtk4::IconTheme::default().lookup_icon(
+                "image-loading",
+                &[],
+                32,
+                1,
+                gtk4::TextDirection::None,
+                gtk4::IconLookupFlags::empty(),
+            )
+        })
     }
 
     fn is_property_interesting(idx: Np) -> bool {
@@ -108,7 +104,7 @@ impl ImageListStore {
             || (idx == Np::Index(NpNiepceFlagProp))
     }
 
-    fn get_iter_from_id(&self, id: LibraryId) -> Option<&gtk::TreeIter> {
+    fn get_iter_from_id(&self, id: LibraryId) -> Option<&gtk4::TreeIter> {
         self.idmap.get(&id)
     }
 
@@ -119,11 +115,12 @@ impl ImageListStore {
     }
 
     fn add_libfile(&mut self, f: &LibFile) {
-        let icon = self.get_loading_icon().cloned();
+        let icon = self.get_loading_icon().clone();
+        let thumb_icon = icon.clone();
         let iter = self.add_row(
-            icon.as_ref(),
+            Some(icon.upcast()),
             f,
-            gdk_utils::gdkpixbuf_scale_to_fit(icon.as_ref(), 100).as_ref(),
+            Some(thumb_icon.upcast()),
             FileStatus::Ok,
         );
         self.idmap.insert(f.id(), iter);
@@ -201,18 +198,8 @@ impl ImageListStore {
                 true
             }
             ThumbnailLoaded(ref t) => {
-                if let Some(iter) = self.get_iter_from_id(t.id) {
-                    let pixbuf = t.pix.make_pixbuf();
-                    self.store.set(
-                        iter,
-                        &[
-                            (ColIndex::Thumb as u32, &pixbuf),
-                            (
-                                ColIndex::StripThumb as u32,
-                                &gdk_utils::gdkpixbuf_scale_to_fit(pixbuf.as_ref(), 100),
-                            ),
-                        ],
-                    );
+                if let Some(pixbuf) = t.pix.make_pixbuf() {
+                    self.set_thumbnail(t.id, &pixbuf);
                 }
                 true
             }
@@ -220,11 +207,11 @@ impl ImageListStore {
         }
     }
 
-    pub fn get_file_id_at_path(&self, path: &gtk::TreePath) -> LibraryId {
-        if let Some(iter) = self.store.iter(&path) {
+    pub fn get_file_id_at_path(&self, path: &gtk4::TreePath) -> LibraryId {
+        if let Some(iter) = self.store.iter(path) {
             if let Ok(libfile) = self
                 .store
-                .value(&iter, ColIndex::File as i32)
+                .get_value(&iter, ColIndex::File as i32)
                 .get::<&StoreLibFile>()
             {
                 return libfile.0.id();
@@ -236,7 +223,7 @@ impl ImageListStore {
     pub fn get_file(&self, id: LibraryId) -> Option<LibFile> {
         if let Some(iter) = self.idmap.get(&id) {
             self.store
-                .value(&iter, ColIndex::File as i32)
+                .get_value(iter, ColIndex::File as i32)
                 .get::<&StoreLibFile>()
                 .map(|v| v.0.clone())
                 .ok()
@@ -247,11 +234,11 @@ impl ImageListStore {
 
     pub fn add_row(
         &mut self,
-        thumb: Option<&gdk_pixbuf::Pixbuf>,
+        thumb: Option<gdk4::Paintable>,
         file: &LibFile,
-        strip_thumb: Option<&gdk_pixbuf::Pixbuf>,
+        strip_thumb: Option<gdk4::Paintable>,
         status: FileStatus,
-    ) -> gtk::TreeIter {
+    ) -> gtk4::TreeIter {
         let iter = self.store.append();
         let store_libfile = StoreLibFile(file.clone());
         self.store.set(
@@ -268,22 +255,24 @@ impl ImageListStore {
 
     pub fn set_thumbnail(&mut self, id: LibraryId, thumb: &gdk_pixbuf::Pixbuf) {
         if let Some(iter) = self.idmap.get(&id) {
-            let strip_thumb = gdk_utils::gdkpixbuf_scale_to_fit(Some(thumb), 100);
+            let strip_thumb = gdk_utils::gdkpixbuf_scale_to_fit(Some(thumb), 100)
+                .map(|pix| gdk4::Texture::for_pixbuf(&pix));
+            let thumb = gdk4::Texture::for_pixbuf(thumb);
             assert!(thumb.ref_count() > 0);
             self.store.set(
                 iter,
                 &[
-                    (ColIndex::Thumb as u32, thumb),
+                    (ColIndex::Thumb as u32, &thumb),
                     (ColIndex::StripThumb as u32, &strip_thumb),
                 ],
             );
         }
     }
 
-    pub fn set_property(&self, iter: &gtk::TreeIter, change: &MetadataChange) {
+    pub fn set_property(&self, iter: &gtk4::TreeIter, change: &MetadataChange) {
         if let Ok(libfile) = self
             .store
-            .value(&iter, ColIndex::File as i32)
+            .get_value(iter, ColIndex::File as i32)
             .get::<&StoreLibFile>()
         {
             assert!(libfile.0.id() == change.id);
@@ -292,7 +281,7 @@ impl ImageListStore {
                 let mut file = libfile.0.clone();
                 file.set_property(meta, value);
                 self.store
-                    .set_value(&iter, ColIndex::File as u32, &StoreLibFile(file).to_value());
+                    .set_value(iter, ColIndex::File as u32, &StoreLibFile(file).to_value());
             } else {
                 err_out!("Wrong property type");
             }
@@ -316,7 +305,7 @@ pub unsafe extern "C" fn npc_image_list_store_delete(self_: *mut ImageListStore)
 
 /// Return the gobj for the GtkListStore. You must ref it to hold it.
 #[no_mangle]
-pub extern "C" fn npc_image_list_store_gobj(self_: &ImageListStore) -> *mut gtk_sys::GtkListStore {
+pub extern "C" fn npc_image_list_store_gobj(self_: &ImageListStore) -> *mut gtk4_sys::GtkListStore {
     self_.store.to_glib_none().0
 }
 
@@ -327,7 +316,7 @@ pub extern "C" fn npc_image_list_store_gobj(self_: &ImageListStore) -> *mut gtk_
 #[no_mangle]
 pub unsafe extern "C" fn npc_image_list_store_get_file_id_at_path(
     self_: &ImageListStore,
-    path: *const gtk_sys::GtkTreePath,
+    path: *const gtk4_sys::GtkTreePath,
 ) -> LibraryId {
     assert!(!path.is_null());
     self_.get_file_id_at_path(&from_glib_borrow(path))
@@ -342,11 +331,18 @@ pub unsafe extern "C" fn npc_image_list_store_add_row(
     file: *const LibFile,
     strip_thumb: *mut gdk_pixbuf_sys::GdkPixbuf,
     status: FileStatus,
-) -> gtk_sys::GtkTreeIter {
+) -> gtk4_sys::GtkTreeIter {
     let thumb: Option<gdk_pixbuf::Pixbuf> = from_glib_none(thumb);
     let strip_thumb: Option<gdk_pixbuf::Pixbuf> = from_glib_none(strip_thumb);
+    let thumb = thumb.as_ref().map(gdk4::Texture::for_pixbuf);
+    let strip_thumb = strip_thumb.as_ref().map(gdk4::Texture::for_pixbuf);
     *self_
-        .add_row(thumb.as_ref(), &*file, strip_thumb.as_ref(), status)
+        .add_row(
+            thumb.map(|t| t.upcast()),
+            &*file,
+            strip_thumb.map(|t| t.upcast()),
+            status,
+        )
         .to_glib_none()
         .0
 }
@@ -355,7 +351,7 @@ pub unsafe extern "C" fn npc_image_list_store_add_row(
 pub extern "C" fn npc_image_list_store_get_iter_from_id(
     self_: &mut ImageListStore,
     id: LibraryId,
-) -> *const gtk_sys::GtkTreeIter {
+) -> *const gtk4_sys::GtkTreeIter {
     self_.idmap.get(&id).to_glib_none().0
 }
 

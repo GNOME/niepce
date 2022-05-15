@@ -1,7 +1,7 @@
 /*
- * niepce - ui/imagetoolbar.rs
+ * niepce - niepce/ui/imagetoolbar.rs
  *
- * Copyright (C) 2018-2021 Hubert Figuiere
+ * Copyright (C) 2018-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,41 +18,48 @@
  */
 
 use glib::translate::*;
-use gtk::prelude::*;
+use gtk4::prelude::*;
+
+/// Create a box for linked button.
+fn linked_box() -> gtk4::Box {
+    let box_ = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    box_.add_css_class("linked");
+
+    box_
+}
 
 #[no_mangle]
-pub extern "C" fn image_toolbar_new() -> *mut gtk_sys::GtkToolbar {
-    let toolbar = gtk::Toolbar::new();
+pub extern "C" fn image_toolbar_new() -> *mut gtk4_sys::GtkBox {
+    let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+    // XXX set style class "toolbar"
 
-    let icon =
-        gtk::Image::from_icon_name(Some("go-previous-symbolic"), gtk::IconSize::SmallToolbar);
-    let tool_item = gtk::ToolButton::new(Some(&icon), None);
+    toolbar.set_margin_top(4);
+    toolbar.set_margin_bottom(4);
+    toolbar.set_margin_start(4);
+    toolbar.set_margin_end(4);
+
+    let box_ = linked_box();
+    let tool_item = gtk4::Button::from_icon_name("go-previous-symbolic");
     tool_item.set_action_name(Some("shell.PrevImage"));
-    toolbar.add(&tool_item);
+    box_.append(&tool_item);
 
-    let icon = gtk::Image::from_icon_name(Some("go-next-symbolic"), gtk::IconSize::SmallToolbar);
-    let tool_item = gtk::ToolButton::new(Some(&icon), None);
+    let tool_item = gtk4::Button::from_icon_name("go-next-symbolic");
     tool_item.set_action_name(Some("shell.NextImage"));
-    toolbar.add(&tool_item);
+    box_.append(&tool_item);
+    toolbar.append(&box_);
 
-    let separator = gtk::SeparatorToolItem::new();
-    toolbar.add(&separator);
+    // let separator = gtk4::SeparatorToolItem::new();
+    // toolbar.add(&separator);
 
-    let icon = gtk::Image::from_icon_name(
-        Some("object-rotate-left-symbolic"),
-        gtk::IconSize::SmallToolbar,
-    );
-    let tool_item = gtk::ToolButton::new(Some(&icon), None);
+    let box_ = linked_box();
+    let tool_item = gtk4::Button::from_icon_name("object-rotate-left-symbolic");
     tool_item.set_action_name(Some("shell.RotateLeft"));
-    toolbar.add(&tool_item);
+    box_.append(&tool_item);
 
-    let icon = gtk::Image::from_icon_name(
-        Some("object-rotate-right-symbolic"),
-        gtk::IconSize::SmallToolbar,
-    );
-    let tool_item = gtk::ToolButton::new(Some(&icon), None);
+    let tool_item = gtk4::Button::from_icon_name("object-rotate-right-symbolic");
     tool_item.set_action_name(Some("shell.RotateRight"));
-    toolbar.add(&tool_item);
+    box_.append(&tool_item);
+    toolbar.append(&box_);
 
     toolbar.to_glib_full()
 }

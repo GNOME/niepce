@@ -1,7 +1,7 @@
 
 AM_CPPFLAGS = -DNIEPCE_LOCALEDIR=\"${NIEPCE_LOCALEDIR}\"
 
-SUBDIRS = . ext fwk \
+SUBDIRS = . fwk \
 	engine libraryclient ncr niepce
 
 RUST_SOURCES = \

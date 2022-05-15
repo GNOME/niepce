@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/notificationcenter.hpp
  *
- * Copyright (C) 2009-2019 Hubert Figuière
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ public:
       return nc;
     }
 
-  sigc::signal<void, const eng::LibNotification &> signal_lib_notification;
+  sigc::signal<void(const eng::LibNotification &)> signal_lib_notification;
 
   const std::shared_ptr<ffi::LcChannel>& get_channel() const
     { return m_channel; };

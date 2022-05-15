@@ -44,10 +44,12 @@ impl FileList {
             return l;
         }
         let dir_path = dir_path.unwrap();
-        if let Ok(enumerator) =
-            dir.enumerate_children("*", gio::FileQueryInfoFlags::NONE, Option::<&gio::Cancellable>::None)
-        {
-            for itr in enumerator.into_iter() {
+        if let Ok(enumerator) = dir.enumerate_children(
+            "*",
+            gio::FileQueryInfoFlags::NONE,
+            Option::<&gio::Cancellable>::None,
+        ) {
+            for itr in enumerator {
                 if itr.is_err() {
                     err_out!("Enumeration failed: {:?}", itr.err());
                     continue;

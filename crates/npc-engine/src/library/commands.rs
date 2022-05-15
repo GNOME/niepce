@@ -31,6 +31,7 @@ use crate::db::library::{Library, Managed};
 use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
 use npc_fwk::PropertyValue;
+use npc_fwk::{dbg_assert, err_out, err_out_line};
 
 pub fn cmd_list_all_keywords(lib: &Library) -> bool {
     match lib.get_all_keywords() {
@@ -137,7 +138,7 @@ pub fn cmd_create_folder(lib: &Library, name: &str, path: Option<String>) -> Lib
         Ok(lf) => {
             let id = lf.id();
             if lib.notify(LibNotification::AddedFolder(lf)).is_err() {
-                err_out!("Failed to notifu AddedFolder");
+                err_out!("Failed to notify AddedFolder");
             }
             id
         }

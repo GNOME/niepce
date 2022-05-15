@@ -410,13 +410,12 @@ impl XmpMeta {
 
 pub fn gps_coord_from_xmp(xmps: &str) -> Option<f64> {
     let mut current: &str = xmps;
-    let degs: &str;
 
     // step 1 - degrees
     let sep = current.find(',')?;
     let (d, remainder) = current.split_at(sep);
     current = remainder;
-    degs = d;
+    let degs = d;
 
     // step 2 - minutes
     if current.is_empty() {
@@ -431,8 +430,7 @@ pub fn gps_coord_from_xmp(xmps: &str) -> Option<f64> {
     };
 
     // extract minutes. There are two formats
-    let fminutes: f64;
-    if let Some(sep) = current.find(',') {
+    let fminutes = if let Some(sep) = current.find(',') {
         // DD,mm,ss format
         if sep >= (current.len() - 1) {
             return None;
@@ -445,13 +443,12 @@ pub fn gps_coord_from_xmp(xmps: &str) -> Option<f64> {
         let (seconds, _) = seconds.split_at(seconds.len() - 1);
         let m = minutes.parse::<f64>().ok()?;
         let s = seconds.parse::<f64>().ok()?;
-        fminutes = m + (s / 60f64);
+        m + (s / 60_f64)
     } else {
         // DD,mm.mm format
         let (minutes, _) = current.split_at(current.len() - 1);
-        let m = minutes.parse::<f64>().ok()?;
-        fminutes = m;
-    }
+        minutes.parse::<f64>().ok()?
+    };
 
     let mut deg = degs.parse::<f64>().ok()?;
     if deg > 180.0 {
@@ -477,12 +474,12 @@ pub fn xmp_date_from_exif(d: &str) -> Option<exempi::DateTime> {
         err_out!("ymd split failed {:?}", ymd);
         return None;
     }
-    let year = i32::from_str_radix(ymd[0], 10).ok()?;
-    let month = i32::from_str_radix(ymd[1], 10).ok()?;
+    let year = ymd[0].parse::<i32>().ok()?;
+    let month = ymd[1].parse::<i32>().ok()?;
     if !(1..=12).contains(&month) {
         return None;
     }
-    let day = i32::from_str_radix(ymd[2], 10).ok()?;
+    let day = ymd[2].parse::<i32>().ok()?;
     if !(1..=31).contains(&day) {
         return None;
     }
@@ -491,15 +488,15 @@ pub fn xmp_date_from_exif(d: &str) -> Option<exempi::DateTime> {
         err_out!("hms split failed {:?}", hms);
         return None;
     }
-    let hour = i32::from_str_radix(hms[0], 10).ok()?;
+    let hour = hms[0].parse::<i32>().ok()?;
     if !(0..=23).contains(&hour) {
         return None;
     }
-    let min = i32::from_str_radix(hms[1], 10).ok()?;
+    let min = hms[1].parse::<i32>().ok()?;
     if !(0..=59).contains(&min) {
         return None;
     }
-    let sec = i32::from_str_radix(hms[2], 10).ok()?;
+    let sec = hms[2].parse::<i32>().ok()?;
     if !(0..=59).contains(&sec) {
         return None;
     }

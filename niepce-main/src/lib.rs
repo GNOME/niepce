@@ -17,25 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-extern crate cairo;
-extern crate gdk;
-extern crate gdk_pixbuf;
-extern crate gdk_pixbuf_sys;
-extern crate gettextrs;
-extern crate gio;
-extern crate gio_sys;
-#[macro_use]
-extern crate glib;
-extern crate gtk;
-extern crate gtk_sys;
-extern crate libc;
-extern crate once_cell;
-
-// internal crates
-#[macro_use]
-extern crate npc_fwk;
-extern crate npc_engine;
-
 pub mod libraryclient;
 pub mod niepce;
 
@@ -47,7 +28,7 @@ pub extern "C" fn niepce_init() {
     static START: Once = Once::new();
 
     START.call_once(|| {
-        gtk::init().unwrap();
+        gtk4::init().unwrap();
         npc_fwk::init();
     });
 }

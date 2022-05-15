@@ -1,7 +1,7 @@
 /*
- * niepce - darkroom/imagecanvas.cpp
+ * niepce - modules/darkroom/imagecanvas.cpp
  *
- * Copyright (C) 2008-2019 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 #include <cairomm/context.h>
 #include <gdkmm.h>
+#include <gtkmm/snapshot.h>
 
 #include "fwk/base/debug.hpp"
 #include "fwk/base/geometry.hpp"
@@ -36,8 +37,10 @@ ImageCanvas::ImageCanvas()
       m_resized(false),
       m_zoom_mode(ZoomMode::FIT)
 {
+    set_draw_func([this] (const Cairo::RefPtr<Cairo::Context>& cr, int w, int h) {
+        this->on_draw(cr, w, h);
+    });
 }
-
 
 void ImageCanvas::set_image(const ncr::Image::Ptr & img)
 {
@@ -48,7 +51,6 @@ void ImageCanvas::set_image(const ncr::Image::Ptr & img)
         sigc::mem_fun(*this, &ImageCanvas::on_image_reloaded));
 }
 
-
 void ImageCanvas::on_image_reloaded()
 {
     m_need_redisplay = true;
@@ -57,10 +59,7 @@ void ImageCanvas::on_image_reloaded()
 
 void ImageCanvas::invalidate()
 {
-    Glib::RefPtr<Gdk::Window> w = get_window();
-    if(w) {
-        w->invalidate(false);
-    }
+    queue_draw();
 }
 
 double ImageCanvas::_calc_image_scale(int img_w, int img_h)
@@ -74,7 +73,6 @@ double ImageCanvas::_calc_image_scale(int img_w, int img_h)
     return std::min(scale_w, scale_h);
 }
 
-
 void ImageCanvas::_calc_image_frame(int img_w, int img_h,
                                    double & x, double & y,
                                    double & width, double & height)
@@ -87,45 +85,43 @@ void ImageCanvas::_calc_image_frame(int img_w, int img_h,
     y = (b_h - img_h) / 2;
     width = img_w;
     height = img_h;
-//    DBG_OUT("image frame %f %f %f %f", x, y, width, height);  
+//    DBG_OUT("image frame %f %f %f %f", x, y, width, height);
 }
 
-Cairo::RefPtr<Cairo::ImageSurface> ImageCanvas::_get_error_placeholder()
+Glib::RefPtr<Gdk::Paintable> ImageCanvas::_get_error_placeholder()
 {
-    Cairo::RefPtr<Cairo::ImageSurface> s;
+    Glib::RefPtr<Gdk::Texture> s;
     try {
-        auto pixbuf = Gdk::Pixbuf::create_from_resource(
-            "/org/gnome/Niepce/pixmaps/niepce-image-generic.png", -1, -1);
-        s = Gdk::Cairo::create_surface_from_pixbuf(pixbuf, 0);
+        s = Gdk::Texture::create_from_resource(
+            "/org/gnome/Niepce/pixmaps/niepce-image-generic.png");
     }
     catch(...) {
     }
 
-    return s;
+    return std::static_pointer_cast<Gdk::Paintable>(s);
 }
 
-Cairo::RefPtr<Cairo::ImageSurface> ImageCanvas::_get_missing_placeholder()
+Glib::RefPtr<Gdk::Paintable> ImageCanvas::_get_missing_placeholder()
 {
-    Cairo::RefPtr<Cairo::ImageSurface> s;
+    Glib::RefPtr<Gdk::Texture> s;
     try {
-        auto pixbuf = Gdk::Pixbuf::create_from_resource(
-            "/org/gnome/Niepce/pixmaps/niepce-image-missing.png", -1, -1);
-        s = Gdk::Cairo::create_surface_from_pixbuf(pixbuf, 0);
+        s = Gdk::Texture::create_from_resource(
+            "/org/gnome/Niepce/pixmaps/niepce-image-missing.png");
     }
     catch(...) {
     }
 
-    return s;
+    return std::static_pointer_cast<Gdk::Paintable>(s);
 }
 
-
-void ImageCanvas::on_size_allocate(Gtk::Allocation &	allocation)
+void ImageCanvas::on_resize(int x, int y)
 {
     m_resized = true;
-    DrawingArea::on_size_allocate(allocation);
+
+    Gtk::DrawingArea::on_resize(x, y);
 }
 
-bool ImageCanvas::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
+bool ImageCanvas::on_draw(const Cairo::RefPtr<Cairo::Context>& context, int, int)
 {
     // no image, just pass.
     if(!m_image) {
@@ -155,17 +151,9 @@ bool ImageCanvas::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
 
             // query the image.
             img_s = m_image->cairo_surface_for_display();
-        }
-        if(!img_s) {
-            DBG_OUT("no image loaded");
-            if (m_image->get_status() == ncr::Image::Status::NOT_FOUND) {
-                img_s = _get_missing_placeholder();
-            } else {
-                img_s = _get_error_placeholder();
-            }
-            DBG_ASSERT(!!img_s, "img_s not loaded");
-            img_w = img_s->get_width();
-            img_h = img_s->get_height();
+        } else {
+            // XXX fix this
+            img_w = img_h = 32;
         }
 
         int canvas_h, canvas_w;
@@ -179,16 +167,14 @@ bool ImageCanvas::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
         Cairo::RefPtr<Cairo::Context> sc
             = Cairo::Context::create(m_backingstore);
 
-
 //        sc->set_antialias(Cairo::ANTIALIAS_NONE);
 
         // paint the background
         auto ctxt = get_style_context();
         ctxt->context_save();
-        ctxt->set_state(Gtk::STATE_FLAG_NORMAL);
+        ctxt->set_state(Gtk::StateFlags::NORMAL);
         ctxt->render_background(sc, 0, 0, canvas_w, canvas_h);
         ctxt->context_restore();
-
 
         double out_w = (img_w * scale);
         double out_h = (img_h * scale);
@@ -200,8 +186,27 @@ bool ImageCanvas::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
         sc->set_source_rgb(0.0, 0.0, 0.0);
         sc->fill();
 
-        sc->set_source(img_s, x, y);
-        sc->paint();
+        if (img_s) {
+            sc->set_source(img_s, x, y);
+            sc->paint();
+        } else  {
+            DBG_OUT("no image loaded");
+            Glib::RefPtr<Gdk::Paintable> icon;
+            if (m_image->get_status() == ncr::Image::Status::NOT_FOUND) {
+                icon = _get_missing_placeholder();
+            } else {
+                icon = _get_error_placeholder();
+            }
+            img_w = icon->get_intrinsic_width();
+            img_h = icon->get_intrinsic_height();
+            auto snapshot = Gtk::Snapshot::create();
+            icon->snapshot(snapshot, img_w, img_h);
+            DBG_ASSERT(!!img_s, "img_s not loaded");
+            GskRenderNode* node = gtk_snapshot_to_node(snapshot->gobj());
+            auto surface = Cairo::Surface::create(m_backingstore, 0, 0, img_w, img_h);
+            gsk_render_node_draw(node, sc->cobj());
+        }
+
 
 //        sc->set_source_rgb(1.0, 1.0, 1.0);
 //        sc->set_line_width(1.0);

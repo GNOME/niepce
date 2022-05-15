@@ -1,7 +1,7 @@
 /*
- * niepce - framework/configuration.cpp
+ * niepce - fwk/toolkit/configuration.cpp
  *
- * Copyright (C) 2007-2013 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,10 +47,11 @@ Glib::ustring Configuration::make_config_path(const Glib::ustring & file)
 
 Configuration::Configuration(const Glib::ustring & file)
     : m_filename(file)
+    , m_keyfile(Glib::KeyFile::create())
     , m_root("main")
 {
     try {
-        m_keyfile.load_from_file(m_filename);
+        m_keyfile->load_from_file(m_filename);
     }
     catch(...) {
         DBG_OUT("conf file %s not found - will be created", m_filename.c_str());
@@ -64,13 +65,13 @@ Configuration::~Configuration()
 
 void Configuration::save()
 {
-    Glib::file_set_contents(m_filename, m_keyfile.to_data());
+    Glib::file_set_contents(m_filename, m_keyfile->to_data());
 }
 
 bool Configuration::hasKey(const Glib::ustring & key) const
 {
     //
-    return m_keyfile.has_group(m_root) && m_keyfile.has_key(m_root, key);
+    return m_keyfile->has_group(m_root) && m_keyfile->has_key(m_root, key);
 }
 
 
@@ -78,17 +79,17 @@ const Glib::ustring Configuration::getValue(const Glib::ustring & key,
                                             const Glib::ustring & def) const
 {
     bool has_key = hasKey(key);
-    if(!has_key) {
+    if (!has_key) {
         return def;
     }
 
-    return m_keyfile.get_string(m_root, key);
+    return m_keyfile->get_string(m_root, key);
 }
 
-void Configuration::setValue(const Glib::ustring & key, 
+void Configuration::setValue(const Glib::ustring & key,
                              const Glib::ustring & value)
 {
-    m_keyfile.set_string(m_root, key, value);
+    m_keyfile->set_string(m_root, key, value);
     save();
 }
 

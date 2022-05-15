@@ -25,13 +25,13 @@ To build is you need the following:
 
 A C++11 compiler
 A Rust compiler
-gtk+ 3.24
+gtk+ 4.4
 cairo 1.1
 glibmm 2.66
-gtkmm 3.24
+gtkmm 4.4
 giomm
 cairomm
-osm-gps-map 1.1
+shumate 1.0.0.alpha1
 sqlite3
 libxml2 > 2.5.0
 boost 1.60

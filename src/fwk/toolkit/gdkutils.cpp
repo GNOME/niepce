@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/gdkutils.cpp
  *
- * Copyright (C) 2008-2009 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuiere
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,8 @@ namespace fwk {
 		double ratio = (double)dim / (double)orig_dim;
 		width = (int)(ratio * orig_w);
 		height = (int)(ratio * orig_h);
-		return pix->scale_simple(width, height, 
-								 Gdk::INTERP_BILINEAR);
+		return pix->scale_simple(width, height,
+								 Gdk::InterpType::BILINEAR);
 	}
 
 	Glib::RefPtr<Gdk::Pixbuf> gdkpixbuf_exif_rotate(const Glib::RefPtr<Gdk::Pixbuf> & tmp,
@@ -53,25 +53,25 @@ namespace fwk {
 			pixbuf = tmp;
 			break;
 		case 2:
-			pixbuf = tmp->flip(TRUE);
+			pixbuf = tmp->flip(true);
 			break;
 		case 3:
-			pixbuf = tmp->rotate_simple(Gdk::PIXBUF_ROTATE_UPSIDEDOWN);
+			pixbuf = tmp->rotate_simple(Gdk::Pixbuf::Rotation::UPSIDEDOWN);
 			break;
 		case 4:
-			pixbuf = tmp->rotate_simple(Gdk::PIXBUF_ROTATE_UPSIDEDOWN)->flip(TRUE);
+			pixbuf = tmp->rotate_simple(Gdk::Pixbuf::Rotation::UPSIDEDOWN)->flip(true);
 			break;
 		case 5:
-			pixbuf = tmp->rotate_simple(Gdk::PIXBUF_ROTATE_CLOCKWISE)->flip(FALSE);
+			pixbuf = tmp->rotate_simple(Gdk::Pixbuf::Rotation::CLOCKWISE)->flip(false);
 			break;
 		case 6:
-			pixbuf =  tmp->rotate_simple(Gdk::PIXBUF_ROTATE_CLOCKWISE);
+			pixbuf =  tmp->rotate_simple(Gdk::Pixbuf::Rotation::CLOCKWISE);
 			break;
 		case 7:
-			pixbuf =  tmp->rotate_simple(Gdk::PIXBUF_ROTATE_COUNTERCLOCKWISE)->flip(FALSE);
+			pixbuf =  tmp->rotate_simple(Gdk::Pixbuf::Rotation::COUNTERCLOCKWISE)->flip(false);
 			break;
 		case 8:
-			pixbuf =  tmp->rotate_simple(Gdk::PIXBUF_ROTATE_COUNTERCLOCKWISE);
+			pixbuf =  tmp->rotate_simple(Gdk::Pixbuf::Rotation::COUNTERCLOCKWISE);
 			break;
 		default:
 			break;

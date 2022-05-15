@@ -60,9 +60,9 @@ impl FromStr for RgbColour {
         if components.len() != 3 {
             return Err(ColourParseError::ParseError);
         }
-        let r = u16::from_str_radix(components[0], 10)?;
-        let g = u16::from_str_radix(components[1], 10)?;
-        let b = u16::from_str_radix(components[2], 10)?;
+        let r = components[0].parse::<u16>()?;
+        let g = components[1].parse::<u16>()?;
+        let b = components[2].parse::<u16>()?;
         Ok(RgbColour::new(r, g, b))
     }
 }
@@ -73,12 +73,12 @@ impl ToString for RgbColour {
     }
 }
 
-impl From<RgbColour> for gdk::RGBA {
-    fn from(v: RgbColour) -> gdk::RGBA {
-        gdk::RGBA::new(
-            v.r as f64 / 65535_f64,
-            v.g as f64 / 65535_f64,
-            v.b as f64 / 65535_f64,
+impl From<RgbColour> for gdk4::RGBA {
+    fn from(v: RgbColour) -> gdk4::RGBA {
+        gdk4::RGBA::new(
+            v.r as f32 / 65535_f32,
+            v.g as f32 / 65535_f32,
+            v.b as f32 / 65535_f32,
             1.0,
         )
     }

@@ -2,7 +2,7 @@
 /*
  * niepce - fwk/toolkit/uiresult.hpp
  *
- * Copyright (C) 2017 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,11 +35,11 @@ class UIResult
 public:
     virtual void clear() = 0;
 
-    sigc::connection connect(sigc::slot<void>&& slot) {
+    sigc::connection connect(sigc::slot<void()> slot) {
         return m_notifier.connect(std::move(slot));
     }
 
-    void run(std::function<void ()>&& f);
+    void run(std::function<void()>&& f);
 protected:
     Glib::Dispatcher m_notifier;
     std::mutex m_data_mutex;

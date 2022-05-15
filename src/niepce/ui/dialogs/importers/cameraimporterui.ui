@@ -1,48 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.0 -->
 <interface>
-  <requires lib="gtk+" version="3.20"/>
-  <object class="GtkOffscreenWindow">
-    <property name="can_focus">False</property>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkWindow">
     <child>
       <object class="GtkGrid" id="main_widget">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <child>
           <object class="GtkComboBoxText" id="camera_list_combo">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="halign">start</property>
-            <property name="hexpand">True</property>
+            <property name="hexpand">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="halign">start</property>
             <property name="label" translatable="yes">Available cameras:</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton" id="select_camera_btn">
             <property name="label" translatable="yes">Select</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <property name="focusable">1</property>
+            <property name="receives_default">1</property>
+            <layout>
+              <property name="column">2</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">2</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
       </object>
     </child>

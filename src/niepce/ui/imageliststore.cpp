@@ -1,7 +1,7 @@
 /*
  * niepce - ui/imageliststore.cpp
  *
- * Copyright (C) 2008-2020 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,30 +43,30 @@ ImageListStore::~ImageListStore()
     ffi::npc_image_list_store_delete(m_store);
 }
 
-Gtk::TreeIter ImageListStore::get_iter_from_id(eng::library_id_t id) const
+Gtk::TreeModel::iterator ImageListStore::get_iter_from_id(eng::library_id_t id) const
 {
     if (m_store == nullptr) {
-        return Gtk::TreeIter();
+        return Gtk::TreeModel::iterator();
     }
     auto iter = ffi::npc_image_list_store_get_iter_from_id(m_store, id);
     if (!iter) {
-        return Gtk::TreeIter();
+        return Gtk::TreeModel::iterator();
     }
-    return Gtk::TreeIter(GTK_TREE_MODEL(m_store_wrap->gobj()), iter);
+    return Gtk::TreeModel::iterator(GTK_TREE_MODEL(m_store_wrap->gobj()), iter);
 }
 
-Gtk::TreePath ImageListStore::get_path_from_id(eng::library_id_t id) const
+Gtk::TreeModel::Path ImageListStore::get_path_from_id(eng::library_id_t id) const
 {
     if (m_store) {
-        Gtk::TreeIter iter = get_iter_from_id(id);
+        Gtk::TreeModel::iterator iter = get_iter_from_id(id);
         if (iter) {
             return m_store_wrap->get_path(iter);
         }
     }
-    return Gtk::TreePath();
+    return Gtk::TreeModel::Path();
 }
 
-eng::library_id_t ImageListStore::get_libfile_id_at_path(const Gtk::TreePath &path) const
+eng::library_id_t ImageListStore::get_libfile_id_at_path(const Gtk::TreeModel::Path& path) const
 {
     return ffi::npc_image_list_store_get_file_id_at_path(m_store, path.gobj());
 }

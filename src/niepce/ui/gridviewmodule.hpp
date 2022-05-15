@@ -1,7 +1,7 @@
 /*
  * niepce - ui/gridviewmodule.hpp
  *
- * Copyright (C) 2009-2020 Hubert Figuière
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,12 @@
 
 #pragma once
 
+#include <gtkmm/gestureclick.h>
 #include <gtkmm/iconview.h>
-#include <gtkmm/scrolledwindow.h>
-#include <gtkmm/paned.h>
 #include <gtkmm/liststore.h>
+#include <gtkmm/paned.h>
+#include <gtkmm/popovermenu.h>
+#include <gtkmm/scrolledwindow.h>
 #include <gtkmm/treestore.h>
 
 #include "fwk/base/propertybag.hpp"
@@ -78,19 +80,19 @@ private:
   void on_metadata_changed(const fwk::PropertyBagPtr&, const fwk::PropertyBagPtr& old);
   static void on_rating_changed(GtkCellRenderer*, eng::library_id_t id, int rating,
                                 gpointer user_data);
-  bool on_popup_menu();
-  bool on_librarylistview_click(GdkEventButton *e);
+  void on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double, double);
 
   const IModuleShell &               m_shell;
   ImageListStorePtr m_model;
 
   // library split view
+  std::shared_ptr<ffi::ImageGridView> m_image_grid_view;
   Gtk::IconView* m_librarylistview;
   Gtk::ScrolledWindow          m_scrollview;
   MetaDataPaneController::Ptr  m_metapanecontroller;
   Gtk::Paned                   m_lib_splitview;
   fwk::Dock                   *m_dock;
-  Gtk::Menu* m_context_menu;
+  Gtk::PopoverMenu* m_context_menu;
 };
 
 }

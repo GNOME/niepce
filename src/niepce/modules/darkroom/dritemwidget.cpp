@@ -1,7 +1,7 @@
 /*
  * niepce - darkroom/dritem.cpp
  *
- * Copyright (C) 2008-2017 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,17 +25,17 @@ namespace dr {
 
 DrItemWidget::DrItemWidget(const Glib::ustring & title)
     : fwk::ToolboxItemWidget(title)
-    , m_box(Gtk::ORIENTATION_VERTICAL)
+    , m_box(Gtk::Orientation::VERTICAL)
 {
-    add(m_box);
-    m_box.set_border_width(6);
+    set_child(m_box);
+//    m_box.set_border_width(6);
 }
 
 void DrItemWidget::add_widget(const Glib::ustring & label, Gtk::Widget & w)
 {
-    Gtk::Label *l = manage(new Gtk::Label(label, Gtk::ALIGN_START, Gtk::ALIGN_CENTER));
-    m_box.pack_start(*l, Gtk::PACK_SHRINK);
-    m_box.pack_start(w, Gtk::PACK_SHRINK);
+    Gtk::Label *l = manage(new Gtk::Label(label, Gtk::Align::START, Gtk::Align::CENTER));
+    m_box.append(*l);
+    m_box.append(w);
 }
 
 

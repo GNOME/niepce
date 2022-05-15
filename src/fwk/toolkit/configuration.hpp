@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/configuration.hpp
  *
- * Copyright (C) 2007-2013 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _FRAMEWORK_CONFIGURATION_H_
-#define _FRAMEWORK_CONFIGURATION_H_
+#pragma once
 
 #include <memory>
 
@@ -48,13 +46,11 @@ private:
     void save();
 
     Glib::ustring          m_filename;
-    Glib::KeyFile          m_keyfile;
+    Glib::RefPtr<Glib::KeyFile> m_keyfile;
     Glib::ustring          m_root;
 };
 
 }
-
-#endif
 /*
   Local Variables:
   mode:c++

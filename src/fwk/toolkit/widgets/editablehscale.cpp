@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/widgets/editablehscale.cpp
  *
- * Copyright (C) 2008-2013 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include <glibmm/property.h>
+#include <gtkmm/adjustment.h>
+#include <gtkmm/gestureclick.h>
 
 #include "fwk/base/debug.hpp"
 #include "editablehscale.hpp"
@@ -28,20 +30,19 @@
 namespace fwk {
 
 EditableHScale::EditableHScale(double min, double max, double step)
-    : Gtk::Box(Gtk::ORIENTATION_HORIZONTAL),
+    : Gtk::Box(Gtk::Orientation::HORIZONTAL),
       m_icon(nullptr),
       m_adj(Gtk::Adjustment::create(0, min, max, step)),
-      m_scale(m_adj, Gtk::ORIENTATION_HORIZONTAL),
+      m_scale(m_adj, Gtk::Orientation::HORIZONTAL),
       m_entry(m_adj),
       m_dirty(false)
 {
     _init();
 }
 
-
 EditableHScale::EditableHScale(const std::string & icon_path,
                                double min, double max, double step)
-    : Gtk::Box(Gtk::ORIENTATION_HORIZONTAL),
+    : Gtk::Box(Gtk::Orientation::HORIZONTAL),
       m_icon(Gtk::manage(new Gtk::Image(Gdk::Pixbuf::create_from_resource(icon_path, -1, -1)))),
       m_adj(Gtk::Adjustment::create(0, min, max, step)),
       m_scale(m_adj), m_entry(m_adj),
@@ -55,44 +56,46 @@ EditableHScale::EditableHScale(const std::string & icon_path,
 void EditableHScale::_init()
 {
     if(m_icon) {
-        pack_start(*m_icon, false, true);
+        append(*m_icon);
     }
     m_scale.property_draw_value() = false;
-    m_scale.add_events(Gdk::BUTTON_RELEASE_MASK);
-    m_scale.signal_button_release_event()
-        .connect(sigc::mem_fun(*this, &EditableHScale::on_button_press_event));
-    pack_start(m_scale, Gtk::PACK_EXPAND_WIDGET);
+    m_scale.set_hexpand(true);
+
+    auto gesture = Gtk::GestureClick::create();
+    gesture->set_button(1);
+    gesture->signal_released()
+        .connect([this] (int, double, double) {
+            this->on_button_press_event();
+        });
+    m_scale.add_controller(gesture);
+    append(m_scale);
     m_entry.set_width_chars(4);
     m_entry.set_digits(2);
     m_entry.set_editable(true);
-    m_entry.add_events(Gdk::BUTTON_RELEASE_MASK);
-    m_entry.signal_button_release_event()
-        .connect(sigc::mem_fun(*this, &EditableHScale::on_button_press_event));
-    pack_start(m_entry, Gtk::PACK_SHRINK);
+
+    auto gesture2 = Gtk::GestureClick::create();
+    gesture->set_button(1);
+    gesture->signal_released()
+        .connect([this] (int, double, double) {
+            this->on_button_press_event();
+        });
+    m_entry.add_controller(gesture2);
+    append(m_entry);
 
     m_adj->signal_value_changed()
-        .connect(sigc::mem_fun(*this, &EditableHScale::on_adj_value_changed));
-    add_events(Gdk::BUTTON_RELEASE_MASK);
+        .connect([this] {
+            this->on_adj_value_changed();
+        });
 }
 
-
-bool EditableHScale::on_button_press_event(GdkEventButton *_event)
+void EditableHScale::on_button_press_event()
 {
-    DBG_OUT("button %d released", _event->button);
-    if (_event->type == GDK_BUTTON_RELEASE && _event->button != 1) {
-        return false;
-    } 
-    else {
-        Gtk::Widget::on_button_release_event(_event);
-        if(m_dirty) {
-            m_dirty = false;
-            DBG_OUT("value_change.emit(%f)", m_adj->get_value());
-            m_sig_value_changed.emit(m_adj->get_value());
-        }
-        return false;
+    if(m_dirty) {
+        m_dirty = false;
+        DBG_OUT("value_change.emit(%f)", m_adj->get_value());
+        m_sig_value_changed.emit(m_adj->get_value());
     }
 }
-
 
 void EditableHScale::on_adj_value_changed()
 {
@@ -100,18 +103,15 @@ void EditableHScale::on_adj_value_changed()
     m_sig_value_changing.emit(m_adj->get_value());
 }
 
-
-sigc::signal<void,double> & EditableHScale::signal_value_changed()
+sigc::signal<void(double)>& EditableHScale::signal_value_changed()
 {
     return m_sig_value_changed;
 }
 
-
-sigc::signal<void,double> & EditableHScale::signal_value_changing()
+sigc::signal<void(double)>& EditableHScale::signal_value_changing()
 {
     return m_sig_value_changing;
 }
-
 
 }
 

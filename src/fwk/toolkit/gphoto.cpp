@@ -284,7 +284,7 @@ bool GpCamera::try_unmount_camera()
     try {
         auto mount_op = Gio::MountOperation::create();
         // We need to pass a callback or gvfs will crash
-        to_unmount->unmount(mount_op, [] (Glib::RefPtr<Gio::AsyncResult>&) {}, Gio::MOUNT_UNMOUNT_NONE);
+        to_unmount->unmount(mount_op, [] (Glib::RefPtr<Gio::AsyncResult>&) {}, Gio::Mount::UnmountFlags::NONE);
     } catch(const Gio::Error& e) {
         ERR_OUT("Gio::Error unmounting camera %d", e.code());
         return false;

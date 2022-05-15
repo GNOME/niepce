@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/dialog.cpp
  *
- * Copyright (C) 2009-2014 Hubert Figuiere
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,37 +19,37 @@
 
 
 #include <boost/format.hpp>
-#include "libview/header.hh"
+
+#include <gtkmm/box.h>
+#include <gtkmm/label.h>
 
 #include "dialog.hpp"
-
+#include "fwk/base/debug.hpp"
 
 namespace fwk {
 
-
-
 void Dialog::add_header(const std::string & label)
 {
-    Gtk::Box * vbox;
-
-    builder()->get_widget("dialog-vbox1", vbox);
+    Gtk::Box * vbox = builder()->get_widget<Gtk::Box>("dialog-vbox1");
+    auto header = Gtk::manage(new Gtk::Label());
     auto markup = str(boost::format("<span size=\"x-large\">%1%</span>") % label);
-    auto header = manage(new view::Header(markup));
-    header->show();
-    vbox->pack_start(*header, false, true);
+    header->set_markup(markup);
+    vbox->insert_child_at_start(*header);
 }
 
-int Dialog::run_modal(const Frame::Ptr & parent)
+/** Run the dialog modal. on_ok is called if the dialog response is ok */
+void Dialog::run_modal(const Frame::Ptr& parent, std::function<void(int)> on_ok)
 {
-    int result;
-    if(!m_is_setup) {
+    DBG_OUT("run_modal");
+    if (!m_is_setup) {
         setup_widget();
     }
     gtkDialog().set_transient_for(parent->gtkWindow());
-    gtkDialog().set_default_response(Gtk::RESPONSE_CLOSE);
-    result = gtkDialog().run();
-    gtkDialog().hide();
-    return result;
+    gtkDialog().set_default_response(Gtk::ResponseType::CLOSE);
+    gtkDialog().set_modal();
+    gtkDialog().signal_response().connect(on_ok);
+    gtkDialog().show();
+    DBG_OUT("dialog shown");
 }
 
 Gtk::Widget *Dialog::buildWidget()

@@ -1,7 +1,7 @@
 /*
  * niepce - darkroom/toolboxcontroller.cpp
  *
- * Copyright (C) 2008-2014 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,18 +54,18 @@ ToolboxController::buildWidget()
     DBG_ASSERT(toolbox, "vbox not found.");
 
     item = manage(new DrItemWidget(_("Crop")));
-    toolbox->pack_start(*item, Gtk::PACK_SHRINK);
+    toolbox->append(*item);
     s = Gtk::manage(new fwk::EditableHScale("/org/gnome/Niepce/pixmaps/niepce-transform-rotate.png",
                                             -45.0, 45.0, 0.5));
     item->add_widget(_("Tilt"), *s);
 
     item = manage(new DrItemWidget(_("White balance")));
-    toolbox->pack_start(*item, Gtk::PACK_SHRINK);
+    toolbox->append(*item);
     s = Gtk::manage(new fwk::EditableHScale(0.0, 100.0, 1.0));
     item->add_widget(_("Color temperature"), *s);
 
     item = manage(new DrItemWidget(_("Tone and colour")));
-    toolbox->pack_start(*item, Gtk::PACK_SHRINK);
+    toolbox->append(*item);
     s = Gtk::manage(new fwk::EditableHScale(-5.0, 5.0, 0.1));
 //    s->signal_value_changed().connect();
     item->add_widget(_("Exposure"), *s);

@@ -1,7 +1,7 @@
 /*
- * niepce - ui/metadatapanecontroller.h
+ * niepce - niepce/ui/metadatapanecontroller.h
  *
- * Copyright (C) 2008-2013 Hubert Figuiere
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __UI_METADATAPANECONTROLLER_H__
-#define __UI_METADATAPANECONTROLLER_H__
+#pragma once
 
 #include <gtkmm/box.h>
 
@@ -47,7 +46,7 @@ public:
     eng::library_id_t displayed_file() const
         { return m_fileid; }
 
-    sigc::signal<void, const fwk::PropertyBagPtr &, const fwk::PropertyBagPtr &> signal_metadata_changed;
+    sigc::signal<void(const fwk::PropertyBagPtr &, const fwk::PropertyBagPtr &)> signal_metadata_changed;
 private:
     void on_metadata_changed(const fwk::PropertyBagPtr &,
                              const fwk::PropertyBagPtr & old);
@@ -61,9 +60,6 @@ private:
 };
 
 }
-
-
-
 /*
   Local Variables:
   mode:c++
@@ -73,4 +69,3 @@ private:
   fill-column:80
   End:
 */
-#endif

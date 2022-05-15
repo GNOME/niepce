@@ -1,7 +1,7 @@
 /*
  * niepce - ui/moduleshellwidget.hpp
  *
- * Copyright (C) 2007-2014 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MODULE_SHELL_WIDGET_H__
-#define __MODULE_SHELL_WIDGET_H__
+#pragma once
 
 #include <vector>
 #include <utility>
 
 #include <gtkmm/box.h>
-#include <gtkmm/buttonbox.h>
+#include <gtkmm/centerbox.h>
 #include <gtkmm/menubutton.h>
 #include <gtkmm/stack.h>
 #include <gtkmm/stackswitcher.h>
@@ -49,15 +48,12 @@ public:
 
     Gtk::MenuButton & getMenuButton()
         { return m_menubutton; }
-//    Gtk::Stack* getStack() const
-//        { return m_stack; }
 
-    sigc::signal<void, const std::string &> signal_activated;
-    sigc::signal<void, const std::string &> signal_deactivated;
+    sigc::signal<void(const std::string &)> signal_activated;
+    sigc::signal<void(const std::string &)> signal_deactivated;
 
 private:
-    Gtk::Box                m_mainbox;
-    Gtk::ButtonBox          m_mainbar;
+    Gtk::CenterBox m_mainbox;
     Gtk::MenuButton         m_menubutton;
     Gtk::Stack              m_stack;
     Gtk::StackSwitcher      m_switcher;
@@ -67,9 +63,6 @@ private:
 };
 
 }
-
-
-#endif
 /*
   Local Variables:
   mode:c++

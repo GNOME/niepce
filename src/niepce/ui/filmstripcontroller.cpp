@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/filmstripcontroller.cpp
  *
- * Copyright (C) 2008-2020 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,16 +39,21 @@ Gtk::Widget * FilmStripController::buildWidget()
         return m_widget;
     }
     DBG_ASSERT(static_cast<bool>(m_store), "m_store NULL");
+    m_thumb_strip_view = std::shared_ptr<ffi::ThumbStripView>(
+        ffi::npc_thumb_strip_view_new(
+            GTK_TREE_MODEL(g_object_ref(m_store->gobjmm()->gobj()))),
+        ffi::npc_thumb_strip_view_release);
     // We need to ref m_store since it's held by the RefPtr<>
     // and the ThumbStripView in Rust gets full ownership.
-    m_thumbview = manage(
-        Glib::wrap(GTK_ICON_VIEW(ffi::npc_thumb_strip_view_new(
-                                     GTK_TREE_MODEL(g_object_ref(m_store->gobjmm()->gobj()))))));
+    m_thumbview = Gtk::manage(
+        Glib::wrap(GTK_ICON_VIEW(ffi::npc_thumb_strip_view_get_icon_view(m_thumb_strip_view.get()))));
     GtkWidget *thn = ffi::npc_thumb_nav_new(m_thumbview->gobj(),
                                             ffi::ThumbNavMode::OneRow, true);
-    m_thumbview->set_selection_mode(Gtk::SELECTION_SINGLE);
+    m_thumbview->set_selection_mode(Gtk::SelectionMode::SINGLE);
+    m_thumbview->set_hexpand(true);
     m_widget = Glib::wrap(thn);
     m_widget->set_size_request(-1, 134);
+    m_widget->set_hexpand(true);
     return m_widget;
 }
 
