@@ -33,10 +33,11 @@ niepce_LDADD = \
 
 gladefiles = ui/dialogs/preferences.ui \
 	ui/dialogs/importdialog.ui \
-	ui/dialogs/importlibrary.ui \
 	ui/dialogs/editlabels.ui \
 	ui/dialogs/importers/directoryimporterui.ui \
 	ui/dialogs/importers/cameraimporterui.ui \
+	$(top_srcdir)/niepce-main/src/niepce/ui/dialogs/importlibrary.ui \
+	$(top_srcdir)/niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui \
 	$(NULL)
 
 EXTRA_DIST = $(gladefiles)

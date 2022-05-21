@@ -1,7 +1,7 @@
 /*
  * niepce - engine/importer/libraryimporter.rs
  *
- * Copyright (C) 2021 Hubert Figuière
+ * Copyright (C) 2021-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,21 +36,30 @@ pub type Result<T> = std::result::Result<T, Error>;
 /// Interface trait for a library importer.
 ///
 /// Once constructed, call `init_importer` with a `Path`.
-//. Call `import_library` to do the import.
+/// Call `import_library` to do the import.
 pub trait LibraryImporter {
     /// Initiatlize the importer.
     fn init_importer(&mut self, path: &Path) -> Result<()>;
 
     /// import the library at path.
     /// if can_import_library returned false this should return an error
-    fn import_library(&mut self, libclient: &mut LibraryClient) -> Result<()>;
-
-    /// Return true if or a given path the importer recognize the library
-    fn can_import_library(path: &Path) -> bool;
+    fn import_library(&mut self, libclient: &LibraryClient) -> Result<()>;
 
     /// Return the root folders. They can then me remapped using `map_root_folder`.
     fn root_folders(&mut self) -> Vec<String>;
 
     /// Map a root folder a new destination.
     fn map_root_folder(&mut self, orig: &str, dest: &str);
+
+    /// The name of the importer. Should be the name of the original application.
+    /// XXX see about localizing this.
+    fn name(&self) -> &'static str;
+}
+
+///
+/// Trait for probing importers.
+///
+pub trait LibraryImporterProbe: LibraryImporter {
+    /// Return true if or a given path the importer recognize the library
+    fn can_import_library(path: &Path) -> bool;
 }

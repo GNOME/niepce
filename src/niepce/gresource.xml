@@ -21,7 +21,8 @@
     <file alias="/icons/open-book-symbolic.svg" preprocess="xml-stripblanks">data/icons/open-book-symbolic.svg</file>
     <file alias="/ui/editlabels.ui">src/niepce/ui/dialogs/editlabels.ui</file>
     <file alias="/ui/importdialog.ui">src/niepce/ui/dialogs/importdialog.ui</file>
-    <file alias="/ui/importlibrary.ui">src/niepce/ui/dialogs/importlibrary.ui</file>
+    <file alias="/ui/importlibrary.ui">niepce-main/src/niepce/ui/dialogs/importlibrary.ui</file>
+    <file alias="/ui/lrimport_root_row.ui">niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui</file>
     <file alias="/ui/preferences.ui">src/niepce/ui/dialogs/preferences.ui</file>
     <file alias="/ui/cameraimporterui.ui">src/niepce/ui/dialogs/importers/cameraimporterui.ui</file>
     <file alias="/ui/directoryimporterui.ui">src/niepce/ui/dialogs/importers/directoryimporterui.ui</file>

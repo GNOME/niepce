@@ -1,7 +1,7 @@
 /*
- * niepce - crates/npc-fwk/src/toolkit.rs
+ * niepce - crates/npc-fwk/src/toolkit/assistant.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,23 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-pub mod assistant;
-pub mod clickable_cell_renderer;
-pub mod gdk_utils;
-pub mod mimetype;
-pub mod movieutils;
-pub mod thumbnail;
-pub mod widgets;
+//!
+//! Utilities for handling assistant.
+//! Currently Gtk specific
 
-pub type Sender<T> = async_channel::Sender<T>;
+use gtk4::prelude::*;
+use gtk4::Widget;
+use num_traits::{FromPrimitive, ToPrimitive};
 
-/// Wrapper type for the channel tuple to get passed down to the unsafe C++ code.
-pub struct PortableChannel<T>(pub Sender<T>);
+/// Set the page index into the widget
+pub fn set_page_index<T: ToPrimitive>(page: &Widget, idx: T) {
+    unsafe {
+        page.set_data("page-index", idx.to_i32().unwrap());
+    }
+}
 
-pub fn thread_context() -> glib::MainContext {
-    glib::MainContext::thread_default().unwrap_or_else(|| {
-        let ctx = glib::MainContext::new();
-        ctx.with_thread_default(|| true);
-        ctx
-    })
+/// Get the page index from the widget if there is one
+pub fn get_page_index<T: FromPrimitive>(page: &Widget) -> Option<T> {
+    unsafe { page.data::<i32>("page-index") }.and_then(|qd| T::from_i32(unsafe { *qd.as_ptr() }))
 }

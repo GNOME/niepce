@@ -17,7 +17,7 @@ appdata_DATA  = $(appdata_files)
 %.appdata.xml: %.appdata.xml.in
 	$(AM_V_GEN)$(MSGFMT) --xml --template $< -d $(top_srcdir)/po -o $@
 
-pixmap_files = icons/niepce-jpg-fmt.png \
+icon_files = icons/niepce-jpg-fmt.png \
 	icons/niepce-raw-fmt.png \
 	icons/niepce-rawjpeg-fmt.png \
 	icons/niepce-tiff-fmt.png \
@@ -33,12 +33,13 @@ pixmap_files = icons/niepce-jpg-fmt.png \
 	icons/niepce-image-generic.png \
 	icons/niepce-image-missing.png \
 	icons/niepce-missing.png \
+	icons/open-book-symbolic.svg \
 	$(null)
 
 EXTRA_DIST = \
         $(desktop_in_files) \
 	$(appdata_in_files) \
-	$(pixmap_files) \
+	$(icon_files) \
 	$(null)
 
 

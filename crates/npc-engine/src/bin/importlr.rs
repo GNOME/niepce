@@ -1,7 +1,7 @@
 /*
  * niepce - bin/importlr.rs
  *
- * Copyright (C) 2021 Hubert Figuière
+ * Copyright (C) 2021-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@ use toml;
 use std::io::Read;
 use std::path::PathBuf;
 
-use npc_engine::importer::LibraryImporter;
 use npc_engine::importer::LrImporter;
+use npc_engine::importer::{LibraryImporter, LibraryImporterProbe};
 use npc_engine::libraryclient::LibraryClient;
 
 ///

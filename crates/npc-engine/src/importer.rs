@@ -1,7 +1,7 @@
 /*
  * niepce - engine/importer/mod.rs
  *
- * Copyright (C) 2021 Hubert Figuière
+ * Copyright (C) 2021-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,5 +20,13 @@
 pub mod libraryimporter;
 pub mod lrimporter;
 
-pub use libraryimporter::LibraryImporter;
+pub use libraryimporter::{LibraryImporter, LibraryImporterProbe};
 pub use lrimporter::LrImporter;
+
+pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>> {
+    if LrImporter::can_import_library(path) {
+        Some(Box::new(LrImporter::new()))
+    } else {
+        None
+    }
+}

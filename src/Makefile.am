@@ -45,6 +45,7 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/base/rgbcolour.rs \
 	@top_srcdir@/crates/npc-fwk/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/assistant.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/gdk_utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/mimetype.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/thumbnail.rs \
@@ -66,6 +67,7 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/confirm.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/importlibrary.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_nav.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/library_cell_renderer.rs \

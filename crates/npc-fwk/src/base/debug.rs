@@ -6,7 +6,7 @@ macro_rules! on_err_out {
     ($e:expr) => {
         if let Err(err) = $e {
             err_out!(
-                "{}:{} Error '{}': {}",
+                "{}:{} Error '{}': {:?}",
                 file!(),
                 line!(),
                 stringify!($e),

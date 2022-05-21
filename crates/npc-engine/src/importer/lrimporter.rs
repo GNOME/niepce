@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/importer/lrimporter.rs
  *
- * Copyright (C) 2021 Hubert Figuière
+ * Copyright (C) 2021-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ use lrcat::{
 
 use npc_fwk::{dbg_out, err_out};
 
-use super::libraryimporter::{Error, LibraryImporter, Result};
+use super::libraryimporter::{Error, LibraryImporter, LibraryImporterProbe, Result};
 use crate::db::filebundle::FileBundle;
 use crate::db::props::NiepceProperties as Np;
 use crate::db::props::NiepcePropertyIdx as NpI;
@@ -83,7 +83,7 @@ impl LrImporter {
         }
     }
 
-    fn import_folder(&self, folder_id: LrId, path: &str, libclient: &mut LibraryClient) {
+    fn import_folder(&self, folder_id: LrId, path: &str, libclient: &LibraryClient) {
         let folder_name = Path::new(&path)
             .file_name()
             .map(|name| String::from(name.to_string_lossy()))
@@ -98,7 +98,7 @@ impl LrImporter {
         &self,
         collection: &Collection,
         images: Option<&Vec<LrId>>,
-        libclient: &mut LibraryClient,
+        libclient: &LibraryClient,
     ) {
         let parent = *self
             .collection_map
@@ -154,7 +154,7 @@ impl LrImporter {
         &self,
         file: &LibraryFile,
         image: Option<&Image>,
-        libclient: &mut LibraryClient,
+        libclient: &LibraryClient,
     ) {
         if let Some(folder_id) = self.folder_map.borrow().get(&file.folder) {
             let main_file = format!("{}/{}.{}", &folder_id.1, &file.basename, &file.extension);
@@ -210,6 +210,10 @@ impl LrImporter {
 }
 
 impl LibraryImporter for LrImporter {
+    fn name(&self) -> &'static str {
+        "Adobe Lightroom™"
+    }
+
     fn init_importer(&mut self, path: &Path) -> Result<()> {
         let mut catalog = Catalog::new(path);
         if !catalog.open() {
@@ -220,7 +224,7 @@ impl LibraryImporter for LrImporter {
         Ok(())
     }
 
-    fn import_library(&mut self, libclient: &mut LibraryClient) -> Result<()> {
+    fn import_library(&mut self, libclient: &LibraryClient) -> Result<()> {
         if let Some(ref mut catalog) = self.catalog {
             catalog.load_version();
             if catalog.catalog_version != CatalogVersion::Lr4 {
@@ -281,17 +285,6 @@ impl LibraryImporter for LrImporter {
         }
     }
 
-    /// Detect if this is a Lr catalog
-    /// XXX improve it.
-    fn can_import_library(path: &Path) -> bool {
-        if let Some(ext) = path.extension() {
-            if ext == "lrcat" {
-                return true;
-            }
-        }
-        false
-    }
-
     fn root_folders(&mut self) -> Vec<String> {
         if let Some(ref mut catalog) = self.catalog {
             catalog.load_folders();
@@ -317,5 +310,38 @@ impl LibraryImporter for LrImporter {
     fn map_root_folder(&mut self, orig: &str, dest: &str) {
         self.root_folder_map
             .insert(orig.to_string(), dest.to_string());
+    }
+}
+
+impl LibraryImporterProbe for LrImporter {
+    /// Detect if this is a Lr catalog
+    /// XXX improve it.
+    fn can_import_library(path: &Path) -> bool {
+        if let Some(ext) = path.extension() {
+            if ext == "lrcat" {
+                return true;
+            }
+        }
+        false
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::LrImporter;
+    use crate::importer::{LibraryImporter, LibraryImporterProbe};
+
+    #[test]
+    fn test_lrimporter() {
+        assert!(!LrImporter::can_import_library(&std::path::PathBuf::from(
+            "/tmp/catalog.aplib"
+        )));
+        assert!(LrImporter::can_import_library(&std::path::PathBuf::from(
+            "/tmp/catalog.lrcat"
+        )));
+
+        let importer = LrImporter::new();
+
+        assert_eq!(importer.name(), "Adobe Lightroom™");
     }
 }

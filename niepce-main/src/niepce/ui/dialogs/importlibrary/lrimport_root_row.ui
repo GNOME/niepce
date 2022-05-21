@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="LrImportRootRow" parent="GtkListBoxRow">
+    <child>
+      <object class="GtkBox">
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="xalign">0</property>
+            <property name="halign">start</property>
+            <property name="valign">center</property>
+            <property name="hexpand">1</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEditableLabel" id="remapped">
+            <property name="halign">start</property>
+            <property name="valign">center</property>
+            <property name="hexpand">1</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="check">
+            <property name="halign">end</property>
+            <property name="valign">center</property>
+            <property name="margin-start">10</property>
+            <property name="margin-end">10</property>
+            <property name="active">1</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

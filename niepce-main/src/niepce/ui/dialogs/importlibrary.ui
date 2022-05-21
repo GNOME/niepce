@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkFrame" id="fileselection-page">
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkButton" id="file_chooser">
+            <property name="label">...</property>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child type="label">
+      <object class="GtkLabel">
+        <property name="can-focus">0</property>
+        <property name="label" translatable="1">Import Library</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkFrame" id="roots-page">
+    <property name="can-focus">1</property>
+    <child>
+      <object class="GtkBox">
+        <property name="margin-top">12</property>
+        <property name="margin-bottom">12</property>
+        <property name="margin-start">12</property>
+        <property name="margin-end">12</property>
+        <property name="can-focus">1</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkLabel" id="roots-importer-name">
+            <property name="can-focus">0</property>
+            <property name="xalign">0</property>
+          </object>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <object class="GtkListBox" id="roots-list">
+            <property name="selection-mode">none</property>
+            <property name="show-separators">1</property>
+            <property name="margin-top">12</property>
+            <property name="margin-bottom">12</property>
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <style>
+              <class name="rich-list"/>
+            </style>
+            <child>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child type="label">
+      <object class="GtkLabel">
+        <property name="can-focus">0</property>
+        <property name="label" translatable="1">Folder Roots</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkFrame" id="start-import-page">
+    <child type="label">
+      <object class="GtkLabel">
+        <property name="can-focus">0</property>
+        <property name="label" translatable="1">Start import</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkFrame" id="import-progress-page">
+    <child type="label">
+      <object class="GtkLabel">
+        <property name="can-focus">0</property>
+        <property name="label" translatable="1">Import in progress</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkFrame" id="done-page">
+    <child type="label">
+      <object class="GtkLabel">
+        <property name="can-focus">0</property>
+        <property name="label" translatable="1">All done</property>
+      </object>
+    </child>
+  </object>
+</interface>
