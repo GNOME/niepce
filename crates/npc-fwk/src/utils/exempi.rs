@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/exempi.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -211,8 +211,7 @@ impl XmpMeta {
                 return meta;
             }
             sidecar_meta
-        } else {
-            let mut final_meta = sidecar_meta.unwrap();
+        } else if let Some(mut final_meta) = sidecar_meta {
             if !meta
                 .as_ref()
                 .unwrap()
@@ -225,6 +224,8 @@ impl XmpMeta {
             } else {
                 Some(final_meta)
             }
+        } else {
+            unreachable!("sidecar_meta was None");
         }
     }
 
