@@ -43,6 +43,8 @@ Gtk::Widget * FilmStripController::buildWidget()
         ffi::npc_thumb_strip_view_new(
             GTK_TREE_MODEL(g_object_ref(m_store->gobjmm()->gobj()))),
         ffi::npc_thumb_strip_view_release);
+    // XXX this should be maybe automatically computed
+    ffi::npc_thumb_strip_view_set_item_height(m_thumb_strip_view.get(), 120);
     // We need to ref m_store since it's held by the RefPtr<>
     // and the ThumbStripView in Rust gets full ownership.
     m_thumbview = Gtk::manage(

@@ -208,6 +208,16 @@ pub unsafe extern "C" fn npc_thumb_strip_view_new(
 /// # Safety
 /// Use raw pointers
 #[no_mangle]
+pub unsafe extern "C" fn npc_thumb_strip_view_set_item_height(
+    stripview: &ThumbStripView,
+    height: i32,
+) {
+    stripview.set_item_height(height);
+}
+
+/// # Safety
+/// Use raw pointers
+#[no_mangle]
 pub unsafe extern "C" fn npc_thumb_strip_view_get_icon_view(
     stripview: &ThumbStripView,
 ) -> *mut gtk4_sys::GtkIconView {
