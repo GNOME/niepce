@@ -18,12 +18,11 @@
  */
 
 use libc::c_void;
-use once_cell::unsync::Lazy;
 use std::cell::{Cell, RefCell};
 use std::ptr;
 
 use gdk4::prelude::*;
-use gdk_pixbuf::Pixbuf;
+use gdk4::Texture;
 use glib::subclass::prelude::*;
 use glib::subclass::Signal;
 use glib::translate::*;
@@ -41,26 +40,28 @@ use npc_fwk::{dbg_out, err_out, on_err_out};
 const CELL_PADDING: f32 = 4.0;
 
 struct Emblems {
-    raw: Pixbuf,
-    raw_jpeg: Pixbuf,
-    img: Pixbuf,
-    video: Pixbuf,
-    unknown: Pixbuf,
-    status_missing: Pixbuf,
-    flag_reject: Pixbuf,
-    flag_pick: Pixbuf,
+    raw: Texture,
+    raw_jpeg: Texture,
+    img: Texture,
+    video: Texture,
+    unknown: Texture,
+    status_missing: Texture,
+    flag_reject: Texture,
+    flag_pick: Texture,
 }
 
-const EMBLEMS: Lazy<Emblems> = Lazy::new(|| Emblems {
-    raw: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-raw-fmt.png").unwrap(),
-    raw_jpeg: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-rawjpeg-fmt.png").unwrap(),
-    img: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-img-fmt.png").unwrap(),
-    video: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-video-fmt.png").unwrap(),
-    unknown: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-unknown-fmt.png").unwrap(),
-    status_missing: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-missing.png").unwrap(),
-    flag_reject: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-reject.png").unwrap(),
-    flag_pick: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-pick.png").unwrap(),
-});
+lazy_static::lazy_static! {
+    static ref EMBLEMS: Emblems = Emblems {
+        raw: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-raw-fmt.png"),
+        raw_jpeg: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-rawjpeg-fmt.png"),
+        img: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-img-fmt.png"),
+        video: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-video-fmt.png"),
+        unknown: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-unknown-fmt.png"),
+        status_missing: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-missing.png"),
+        flag_reject: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-reject.png"),
+        flag_pick: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-pick.png"),
+    };
+}
 
 glib::wrapper! {
     pub struct LibraryCellRenderer(
@@ -260,41 +261,57 @@ impl LibraryCellRendererPriv {
         snapshot.restore();
     }
 
-    fn do_draw_flag(cr: &cairo::Context, flag: i32, r: &Rect) {
+    fn do_draw_flag(snapshot: &gtk4::Snapshot, flag: i32, r: &Rect) {
         if flag == 0 {
             return;
         }
-        let pixbuf = match flag {
+        let texture = match flag {
             -1 => EMBLEMS.flag_reject.clone(),
             1 => EMBLEMS.flag_pick.clone(),
             _ => return,
         };
 
-        let w = pixbuf.width() as f32;
+        let w = texture.width() as f32;
         let x = r.x() + r.width() - CELL_PADDING - w;
         let y = r.y() + CELL_PADDING;
-        cr.set_source_pixbuf(&pixbuf, x.into(), y.into());
-        on_err_out!(cr.paint());
+        snapshot.save();
+        snapshot.translate(&graphene::Point::new(x, y));
+        texture.snapshot(
+            snapshot.upcast_ref::<gdk4::Snapshot>(),
+            texture.width() as f64,
+            texture.height() as f64,
+        );
+        snapshot.restore();
     }
 
-    fn do_draw_status(cr: &cairo::Context, status: FileStatus, r: &Rect) {
+    fn do_draw_status(snapshot: &gtk4::Snapshot, status: FileStatus, r: &Rect) {
         if status == FileStatus::Ok {
             return;
         }
         let x = r.x() + CELL_PADDING;
         let y = r.y() + CELL_PADDING;
-        cr.set_source_pixbuf(&EMBLEMS.status_missing, x.into(), y.into());
-        on_err_out!(cr.paint());
+        snapshot.save();
+        snapshot.translate(&graphene::Point::new(x, y));
+        let texture = &EMBLEMS.status_missing;
+        texture.snapshot(
+            snapshot.upcast_ref::<gdk4::Snapshot>(),
+            texture.width() as f64,
+            texture.height() as f64,
+        );
+        snapshot.restore();
     }
 
-    fn do_draw_format_emblem(cr: &cairo::Context, emblem: &Pixbuf, r: &Rect) -> f32 {
+    fn do_draw_format_emblem(snapshot: &gtk4::Snapshot, emblem: &Texture, r: &Rect) -> f32 {
         let w = emblem.width() as f32;
         let h = emblem.height() as f32;
         let left = CELL_PADDING + w;
         let x = r.x() + r.width() - left;
         let y = r.y() + r.height() - CELL_PADDING - h;
-        cr.set_source_pixbuf(emblem, x.into(), y.into());
-        on_err_out!(cr.paint());
+        snapshot.save();
+        snapshot.translate(&graphene::Point::new(x, y));
+        emblem.snapshot(snapshot.upcast_ref::<gdk4::Snapshot>(), w as f64, h as f64);
+        snapshot.restore();
+
         left
     }
 
@@ -539,14 +556,14 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         }
         if self.draw_flag.get() {
             match &*file {
-                Some(f) => Self::do_draw_flag(&cr, f.0.flag(), &r),
+                Some(f) => Self::do_draw_flag(snapshot, f.0.flag(), &r),
                 None => {}
             }
         }
 
         let status = self.status.get();
         if self.draw_status.get() && status != FileStatus::Ok {
-            Self::do_draw_status(&cr, status, &r);
+            Self::do_draw_status(snapshot, status, &r);
         }
 
         if self.draw_emblem.get() {
@@ -554,14 +571,14 @@ impl CellRendererImpl for LibraryCellRendererPriv {
                 Some(f) => f.0.file_type(),
                 None => FileType::Unknown,
             };
-            let emblem: Pixbuf = match file_type {
+            let emblem: Texture = match file_type {
                 FileType::Raw => EMBLEMS.raw.clone(),
                 FileType::RawJpeg => EMBLEMS.raw_jpeg.clone(),
                 FileType::Image => EMBLEMS.img.clone(),
                 FileType::Video => EMBLEMS.video.clone(),
                 FileType::Unknown => EMBLEMS.unknown.clone(),
             };
-            let left = Self::do_draw_format_emblem(&cr, &emblem, &r);
+            let left = Self::do_draw_format_emblem(snapshot, &emblem, &r);
 
             if self.draw_label.get() {
                 let label_id = match &*file {
