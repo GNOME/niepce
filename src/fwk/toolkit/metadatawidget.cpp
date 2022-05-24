@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <utility>
 
 #include <boost/lexical_cast.hpp>
@@ -25,7 +24,6 @@
 #include <boost/rational.hpp>
 
 #include <glibmm/i18n.h>
-#include <gtkmm/drawingarea.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/eventcontrollerfocus.h>
 #include <gtkmm/label.h>
@@ -74,9 +72,9 @@ void MetaDataWidget::rating_callback(GtkWidget* w, gint rating, gpointer user_da
 Gtk::Widget*
 MetaDataWidget::create_star_rating_widget(bool readonly, ffi::NiepcePropertyIdx id)
 {
-    Gtk::DrawingArea* r =
+    Gtk::Widget* r =
         Gtk::manage(Glib::wrap(
-                        GTK_DRAWING_AREA(ffi::fwk_rating_label_new(0, !readonly))));
+                        GTK_WIDGET(ffi::fwk_rating_label_new(0, !readonly))));
     if (!readonly) {
         r->set_data("id", GINT_TO_POINTER(id));
         g_signal_connect(r->gobj(), "rating-changed", G_CALLBACK(rating_callback), this);
@@ -225,7 +223,7 @@ void MetaDataWidget::clear_widget(const std::pair<const ffi::NiepcePropertyIdx, 
         tv->get_buffer()->set_text("");
         return;
     }
-    Gtk::DrawingArea* rl = dynamic_cast<Gtk::DrawingArea*>(p.second);
+    Gtk::Widget* rl = dynamic_cast<Gtk::Widget*>(p.second);
     if (rl) {
         ffi::fwk_rating_label_set_rating(rl->gobj(), 0);
         return;
@@ -322,7 +320,7 @@ bool MetaDataWidget::set_star_rating_data(Gtk::Widget* w,
     try {
         int rating = fwk_property_value_get_integer(value.get());
         AutoFlag flag(m_update);
-        ffi::fwk_rating_label_set_rating(static_cast<Gtk::DrawingArea*>(w)->gobj(), rating);
+        ffi::fwk_rating_label_set_rating(static_cast<Gtk::Widget*>(w)->gobj(), rating);
     }
     catch(...) {
         return false;

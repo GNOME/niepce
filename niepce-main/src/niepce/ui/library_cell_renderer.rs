@@ -546,7 +546,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
             let x = r.x() + CELL_PADDING;
             let y = r.y() + r.height() - CELL_PADDING;
             RatingLabel::draw_rating(
-                &cr,
+                snapshot,
                 rating,
                 &RatingLabel::star(),
                 &RatingLabel::unstar(),

@@ -21,29 +21,28 @@ use libc::c_int;
 use std::cell::Cell;
 
 use gdk4::prelude::*;
-use gdk_pixbuf::Pixbuf;
 use glib::subclass::prelude::*;
 use glib::subclass::Signal;
 use glib::translate::*;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
-use once_cell::unsync::Lazy;
-
 struct Pixbufs {
-    star: Pixbuf,
-    unstar: Pixbuf,
+    star: gdk4::Texture,
+    unstar: gdk4::Texture,
 }
 
-const PIXBUFS: Lazy<Pixbufs> = Lazy::new(|| Pixbufs {
-    star: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-set-star.png").unwrap(),
-    unstar: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-unset-star.png").unwrap(),
-});
+lazy_static::lazy_static! {
+    static ref PIXBUFS: Pixbufs = Pixbufs {
+        star: gdk4::Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-set-star.png"),
+        unstar: gdk4::Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-unset-star.png"),
+    };
+}
 
 glib::wrapper! {
     pub struct RatingLabel(
         ObjectSubclass<RatingLabelPriv>)
-        @extends gtk4::DrawingArea, gtk4::Widget;
+        @extends gtk4::Widget;
 }
 
 pub struct RatingLabelPriv {
@@ -76,7 +75,7 @@ impl RatingLabelPriv {
 impl ObjectSubclass for RatingLabelPriv {
     const NAME: &'static str = "RatingLabel";
     type Type = RatingLabel;
-    type ParentType = gtk4::DrawingArea;
+    type ParentType = gtk4::Widget;
 
     fn new() -> Self {
         Self {
@@ -92,12 +91,9 @@ impl ObjectImpl for RatingLabelPriv {
 
         let click = gtk4::GestureClick::new();
         click.connect_pressed(glib::clone!(@weak obj => move |gesture, n, x, y| {
-            let this = Self::from_instance(&obj);
-            this.press_event(gesture, n, x, y);
+            obj.imp().press_event(gesture, n, x, y);
         }));
         obj.add_controller(&click);
-
-        obj.set_draw_func(&RatingLabel::draw_func);
     }
 
     fn signals() -> &'static [Signal] {
@@ -162,17 +158,16 @@ pub trait RatingLabelExt {
 
 impl RatingLabelExt for RatingLabel {
     fn set_rating(&self, rating: i32) {
-        let priv_ = RatingLabelPriv::from_instance(self);
-        priv_.set_rating(rating);
+        self.imp().set_rating(rating);
     }
 }
 
 impl RatingLabel {
-    pub fn star() -> Pixbuf {
+    pub fn star() -> gdk4::Texture {
         PIXBUFS.star.clone()
     }
 
-    pub fn unstar() -> Pixbuf {
+    pub fn unstar() -> gdk4::Texture {
         PIXBUFS.unstar.clone()
     }
 
@@ -183,10 +178,10 @@ impl RatingLabel {
     }
 
     pub fn draw_rating(
-        cr: &cairo::Context,
+        snapshot: &gtk4::Snapshot,
         rating: i32,
-        star: &Pixbuf,
-        unstar: &Pixbuf,
+        star: &gdk4::Texture,
+        unstar: &gdk4::Texture,
         x: f32,
         y: f32,
     ) {
@@ -196,26 +191,17 @@ impl RatingLabel {
         let h = star.height() as f32;
         let mut y = y;
         y -= h;
-        let mut x = x;
+        snapshot.save();
+        snapshot.translate(&graphene::Point::new(x, y));
         for i in 1..=5 {
             if i <= rating {
-                cr.set_source_pixbuf(star, x.into(), y.into());
+                star.snapshot(snapshot.upcast_ref::<gdk4::Snapshot>(), w as f64, h as f64);
             } else {
-                cr.set_source_pixbuf(unstar, x.into(), y.into());
+                unstar.snapshot(snapshot.upcast_ref::<gdk4::Snapshot>(), w as f64, h as f64);
             }
-            on_err_out!(cr.paint());
-            x += w;
+            snapshot.translate(&graphene::Point::new(w, 0.0));
         }
-    }
-
-    fn draw_func(widget: &gtk4::DrawingArea, cr: &cairo::Context, _: i32, _: i32) {
-        let star = RatingLabel::star();
-        let x = 0_f32;
-        let y = star.height() as f32;
-        let rating = RatingLabelPriv::from_instance(widget.downcast_ref::<RatingLabel>().unwrap())
-            .rating
-            .get(); // this shouldn't fail.
-        RatingLabel::draw_rating(cr, rating, &star, &RatingLabel::unstar(), x, y);
+        snapshot.restore();
     }
 
     pub fn rating_value_from_hit_x(x: f64) -> i32 {
@@ -226,14 +212,12 @@ impl RatingLabel {
     pub fn new(rating: i32, editable: bool) -> Self {
         let obj: Self = glib::Object::new(&[]).expect("Failed to create RatingLabel");
 
-        let priv_ = RatingLabelPriv::from_instance(&obj);
+        let priv_ = &obj.imp();
         priv_.set_editable(editable);
         priv_.set_rating(rating);
         obj
     }
 }
-
-impl DrawingAreaImpl for RatingLabelPriv {}
 
 impl WidgetImpl for RatingLabelPriv {
     fn measure(
@@ -250,6 +234,17 @@ impl WidgetImpl for RatingLabelPriv {
 
         (m, m, -1, -1)
     }
+
+    fn snapshot(&self, widget: &Self::Type, snapshot: &gtk4::Snapshot) {
+        let star = RatingLabel::star();
+        let x = 0_f32;
+        let y = star.height() as f32;
+        let rating = (widget.downcast_ref::<RatingLabel>().unwrap())
+            .imp()
+            .rating
+            .get(); // this shouldn't fail.
+        RatingLabel::draw_rating(snapshot, rating, &star, &RatingLabel::unstar(), x, y);
+    }
 }
 
 #[no_mangle]
@@ -265,10 +260,10 @@ pub extern "C" fn fwk_rating_label_new(rating: c_int, editable: bool) -> *mut gt
 /// Dereference the widget pointer.
 #[no_mangle]
 pub unsafe extern "C" fn fwk_rating_label_set_rating(
-    widget: *mut gtk4_sys::GtkDrawingArea,
+    widget: *mut gtk4_sys::GtkWidget,
     rating: i32,
 ) {
-    let rating_label = gtk4::DrawingArea::from_glib_none(widget)
+    let rating_label = gtk4::Widget::from_glib_none(widget)
         .downcast::<RatingLabel>()
         .expect("Not a RatingLabel widget");
     rating_label.set_rating(rating);

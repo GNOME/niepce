@@ -753,6 +753,7 @@ dependencies = [
  "gio-sys",
  "glib",
  "glib-sys",
+ "graphene-rs",
  "gtk4",
  "gtk4-sys",
  "lazy_static",
