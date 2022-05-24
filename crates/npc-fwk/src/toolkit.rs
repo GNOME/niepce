@@ -32,7 +32,7 @@ pub struct PortableChannel<T>(pub Sender<T>);
 pub fn thread_context() -> glib::MainContext {
     glib::MainContext::thread_default().unwrap_or_else(|| {
         let ctx = glib::MainContext::new();
-        ctx.with_thread_default(|| true);
+        on_err_out!(ctx.with_thread_default(|| true));
         ctx
     })
 }
