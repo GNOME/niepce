@@ -19,7 +19,6 @@ niepce_LDADD = \
 	$(top_builddir)/src/fwk/toolkit/libniepceframework.a \
 	$(top_builddir)/src/fwk/base/libfwkbase.a \
 	$(top_builddir)/src/ncr/libncr.a \
-	$(top_builddir)/src/ext/libview/libview.a \
 	$(top_builddir)/target/@CARGO_TARGET_SUBDIR@/libniepce_rust.a \
 	$(top_builddir)/src/engine/libniepceengine.a \
 	$(top_builddir)/src/fwk/utils/libniepceutils.a \

@@ -1,32 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
- <id>net.figuiere.Niepce</id>
- <!-- this is the licence of the appdata file, not the project. Permitted values are 'CC0', 'CC BY' and 'CC BY-SA' -->
- <licence>CC0</licence>
- <project_license>GPL-3.0+</project_license>
- <!-- Only include 'name' if you want the software center name to be different to the 'Name' in the .desktop file -->
- <name>Niepce Digital</name>
- <!-- Only include 'summary' if you want the software center name to be different to the 'Comment' in the .desktop file -->
- <summary>Advanced Photo Editing</summary>
- <description>
-  <p>
-    Niepce Digital is an application used to manage and edit photos.
-  </p>
-  <p>Features:</p>
-  <!-- try not to use lists unless you have to. Paragraphs look a lot better in nearly all cases -->
-  <ul>
-   <li>Photo library management</li>
-   <li>Non destructive image editing</li>
-   <li>RAW processing</li>
-  </ul>
- </description>
- <screenshots>
-  <!-- the width and height are optional, but suggested -->
-  <screenshot type="default" width="1366" height="741"></screenshot>
- </screenshots>
- <url type="homepage">https://wiki.gnome.org/Apps/Niepce</url>
- <!-- this is someone that wants to be notified when we add to the appdata specification -->
- <updatecontact>hub@figuiere.net</updatecontact>
+  <id>org.gnome.Niepce</id>
+  <licence>CC0-1.0</licence>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Niepce Digital</name>
+  <summary>Advanced Photo Editing</summary>
+  <description>
+    <p>
+      Niepce Digital is an application used to manage and edit photos.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Photo library management</li>
+      <li>Non destructive image editing</li>
+      <li>RAW processing</li>
+    </ul>
+  </description>
+  <screenshots>
+    <screenshot type="default"></screenshot>
+  </screenshots>
+  <url type="homepage">https://wiki.gnome.org/Apps/Niepce</url>
+  <updatecontact>hub@figuiere.net</updatecontact>
 
- <translation type="gettext">niepce</translation>
+  <translation type="gettext">niepce</translation>
 </component>

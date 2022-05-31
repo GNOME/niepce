@@ -45,7 +45,17 @@ gexiv2 >= 0.10 (as required by rexiv2)
 Niepce is being developed on Linux. It should build and work on other
 UNIX systems.
 
-If you want to build using flatpak-builder, use flatpak/org.gnome.Niepce.json.
+### Building as a flatpak
+
+If you want to build using flatpak-builder, use the manifest in
+`flatpak/org.gnome.Niepce.json`. The following will build and install
+it in the user installation of flatpak. It requires the GNOME SDK to
+be installed.
+
+```shell
+$ cd flatpak
+$ flatpak-builder --force-clean --ccache  --install --user build-dir org.gnome.Niepce.json
+```
 
 Getting the code
 ----------------

@@ -636,6 +636,7 @@ checksum = "349d5a591cd28b49e1d1037471617a32ddcda5731b99419008085f72d5a53836"
 [[package]]
 name = "libopenraw-rs"
 version = "0.1.0"
+source = "git+https://gitlab.freedesktop.org/libopenraw/libopenraw-rs.git?rev=5461070992e14716dcd83430c11d7baa4262b071#5461070992e14716dcd83430c11d7baa4262b071"
 dependencies = [
  "libopenraw-rs-sys",
 ]
@@ -643,6 +644,7 @@ dependencies = [
 [[package]]
 name = "libopenraw-rs-sys"
 version = "0.1.0"
+source = "git+https://gitlab.freedesktop.org/libopenraw/libopenraw-rs.git?rev=5461070992e14716dcd83430c11d7baa4262b071#5461070992e14716dcd83430c11d7baa4262b071"
 dependencies = [
  "pkg-config",
 ]
