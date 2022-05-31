@@ -15,7 +15,7 @@ exempi = { version = "2.6.0", git = "https://github.com/hfiguiere/exempi-rs.git"
 gio-sys = "*"
 gio = "^0.15.7"
 glib-sys = "*"
-glib = "^0.15.9"
+glib = "^0.15.11"
 gtk4-sys = "*"
 gdk4 = "^0.4.6"
 gdk-pixbuf-sys = "*"
@@ -27,7 +27,7 @@ libc = "0.2.39"
 libopenraw-rs = { path = "../../../libopenraw-rs/libopenraw-rs" }
 # { git = "https://gitlab.freedesktop.org/libopenraw/libopenraw-rs.git", rev = "edae9f8771fa4f4b577ef2e56d9dbd6f68d97105" }
 multimap = "0.4.0"
-once_cell = "^1.11.0"
+once_cell = "^1.12.0"
 rexiv2 = "^0.9.1"
 
 
