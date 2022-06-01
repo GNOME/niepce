@@ -156,7 +156,6 @@ data/themes/Makefile
 third_party/Makefile
 src/Makefile
 src/ext/Makefile
-src/ext/libview/Makefile
 src/fwk/Makefile
 src/fwk/base/Makefile
 src/fwk/utils/Makefile
