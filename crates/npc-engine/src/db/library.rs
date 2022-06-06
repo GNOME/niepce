@@ -17,6 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#[cfg(test)]
+mod schema_test;
+mod sql;
+mod upgrade;
+
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Write;
@@ -198,9 +203,16 @@ impl Library {
             Ok(version) => {
                 if version != DB_SCHEMA_VERSION {
                     // WAT?
-                    err_out!("Version mismatch, found {}", version);
+                    err_out!(
+                        "Version mismatch, found {} expected {}",
+                        version,
+                        DB_SCHEMA_VERSION
+                    );
+                    dbg_out!("Upgrading...");
+                    upgrade::library_to(self, version, DB_SCHEMA_VERSION)
+                } else {
+                    Ok(())
                 }
-                Ok(())
             }
             _ => Ok(()),
         }
@@ -247,7 +259,7 @@ impl Library {
             )
             .unwrap();
             conn.execute(
-                "CREATE TABLE folders (id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                "CREATE TABLE folders (id INTEGER PRIMARY KEY AUTOINCREMENT, \
                  path TEXT, name TEXT, \
                  vault_id INTEGER DEFAULT 0, \
                  locked INTEGER DEFAULT 0, \
@@ -277,7 +289,7 @@ impl Library {
 
             // version 10
             conn.execute(
-                "CREATE TABLE albums (id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                "CREATE TABLE albums (id INTEGER PRIMARY KEY AUTOINCREMENT, \
                  name TEXT, \
                  parent_id INTEGER)",
                 [],
@@ -293,18 +305,18 @@ impl Library {
 
             conn.execute(
                 "CREATE TABLE files (id INTEGER PRIMARY KEY AUTOINCREMENT,\
-                 main_file INTEGER, name TEXT, parent_id INTEGER,\
-                 orientation INTEGER, file_type INTEGER,\
+                 main_file INTEGER, name TEXT, parent_id INTEGER, \
+                 orientation INTEGER, file_type INTEGER, \
                  file_date INTEGER, rating INTEGER DEFAULT 0, \
                  label INTEGER, flag INTEGER DEFAULT 0, \
                  import_date INTEGER, mod_date INTEGER, \
-                 xmp TEXT, xmp_date INTEGER, xmp_file INTEGER DEFAULT 0,\
+                 xmp TEXT, xmp_date INTEGER, xmp_file INTEGER DEFAULT 0, \
                  jpeg_file INTEGER DEFAULT 0)",
                 [],
             )
             .unwrap();
             conn.execute(
-                "CREATE TABLE fsfiles (id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                "CREATE TABLE fsfiles (id INTEGER PRIMARY KEY AUTOINCREMENT, \
                  path TEXT)",
                 [],
             )
@@ -312,7 +324,7 @@ impl Library {
             // version = 7
             conn.execute(
                 "CREATE TABLE sidecars (file_id INTEGER,\
-                 fsfile_id INTEGER, type INTEGER, ext TEXT NOT NULL,\
+                 fsfile_id INTEGER, type INTEGER, ext TEXT NOT NULL, \
                  UNIQUE(file_id, fsfile_id))",
                 [],
             )
@@ -339,13 +351,13 @@ impl Library {
             .unwrap();
             //
             conn.execute(
-                "CREATE TABLE keywords (id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                "CREATE TABLE keywords (id INTEGER PRIMARY KEY AUTOINCREMENT, \
                  keyword TEXT, parent_id INTEGER DEFAULT 0)",
                 [],
             )
             .unwrap();
             conn.execute(
-                "CREATE TABLE keywording (file_id INTEGER,\
+                "CREATE TABLE keywording (file_id INTEGER, \
                  keyword_id INTEGER, UNIQUE(file_id, keyword_id))",
                 [],
             )
@@ -359,7 +371,7 @@ impl Library {
             )
             .unwrap();
             conn.execute(
-                "CREATE TABLE labels (id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                "CREATE TABLE labels (id INTEGER PRIMARY KEY AUTOINCREMENT, \
                  name TEXT, color TEXT)",
                 [],
             )
@@ -369,7 +381,7 @@ impl Library {
             conn.execute(
                 "CREATE TRIGGER file_update_trigger UPDATE ON files \
                  BEGIN \
-                 UPDATE files SET mod_date = strftime('%s','now');\
+                 UPDATE files SET mod_date = strftime('%s','now'); \
                  END",
                 [],
             )
@@ -390,6 +402,19 @@ impl Library {
             return Ok(());
         }
         Err(Error::NoSqlDb)
+    }
+
+    /// Set the DB version
+    pub(crate) fn set_db_version(&self, version: i32) -> Result<()> {
+        if let Some(ref conn) = self.dbconn {
+            conn.execute(
+                "UPDATE admin SET value=?1 WHERE key='version'",
+                params![version],
+            )?;
+            Ok(())
+        } else {
+            Err(Error::NoSqlDb)
+        }
     }
 
     ///

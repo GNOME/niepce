@@ -20,6 +20,8 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-engine/src/db/libfolder.rs \
 	@top_srcdir@/crates/npc-engine/src/db/libmetadata.rs \
 	@top_srcdir@/crates/npc-engine/src/db/library.rs \
+	@top_srcdir@/crates/npc-engine/src/db/library/schema_test.rs \
+	@top_srcdir@/crates/npc-engine/src/db/library/upgrade.rs \
 	@top_srcdir@/crates/npc-engine/src/db/props.rs \
 	@top_srcdir@/crates/npc-engine/src/importer.rs \
 	@top_srcdir@/crates/npc-engine/src/importer/libraryimporter.rs \
