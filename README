@@ -31,7 +31,7 @@ glibmm 2.66
 gtkmm 4.4
 giomm
 cairomm
-shumate 1.0.0.alpha1
+shumate 1.0.0
 sqlite3
 libxml2 > 2.5.0
 boost 1.60

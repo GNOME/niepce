@@ -93,16 +93,14 @@ void MapController::centerOn(double lat, double longitude)
 
 void MapController::zoomIn()
 {
-    ShumateViewport* viewport =
-        shumate_simple_map_get_viewport(m_priv->m_map);
-    shumate_viewport_zoom_in(viewport);
+    ShumateMap* map = shumate_simple_map_get_map(m_priv->m_map);
+    shumate_map_zoom_in(map);
 }
 
 void MapController::zoomOut()
 {
-    ShumateViewport* viewport =
-        shumate_simple_map_get_viewport(m_priv->m_map);
-    shumate_viewport_zoom_in(viewport);
+    ShumateMap* map = shumate_simple_map_get_map(m_priv->m_map);
+    shumate_map_zoom_in(map);
 }
 
 void MapController::setZoomLevel(double level)

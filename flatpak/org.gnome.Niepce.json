@@ -256,8 +256,8 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.gnome.org/GNOME/libshumate/",
-                    "tag": "1.0.0.alpha.1",
-                    "commit": "36163e4809e31632b7e387b90396ff8b9a461eed"
+                    "tag": "1.0.1",
+                    "commit": "062c61815d2875beee19a1c704c473be8fabb3a7"
                 }
             ]
         },
