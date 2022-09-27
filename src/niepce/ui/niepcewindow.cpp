@@ -266,18 +266,14 @@ void NiepceWindow::on_open_library()
     if(reopen) {
         libMoniker = cfg.getValue("last_open_catalog", "");
     }
-    if(libMoniker.empty()) {
-        libMoniker = prompt_open_library();
-    }
-    else {
+    if (libMoniker.empty()) {
+        prompt_open_library();
+    } else {
         DBG_OUT("last library is %s", libMoniker.c_str());
-    }
-    if(!libMoniker.empty()) {
-        if(!open_library(libMoniker)) {
+        if (!open_library(libMoniker)) {
             ERR_OUT("library %s cannot be open. Prompting.",
                     libMoniker.c_str());
-            libMoniker = prompt_open_library();
-            open_library(libMoniker);
+            prompt_open_library();
         }
     }
 }
@@ -334,34 +330,34 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     }
 }
 
-std::string NiepceWindow::prompt_open_library()
+/** Prompt to open a library and open it on success */
+void NiepceWindow::prompt_open_library()
 {
-    std::string libMoniker;
-    Gtk::FileChooserDialog dialog(gtkWindow(), _("Open catalog"),
-                                  Gtk::FileChooser::Action::SELECT_FOLDER);
-    dialog.add_button(_("Cancel"), Gtk::ResponseType::CANCEL);
-    dialog.add_button(_("Open"), Gtk::ResponseType::OK);
+    auto dialog = new Gtk::FileChooserDialog(
+        gtkWindow(), _("Open catalog"),
+        Gtk::FileChooser::Action::SELECT_FOLDER);
+    dialog->add_button(_("Cancel"), Gtk::ResponseType::CANCEL);
+    dialog->add_button(_("Open"), Gtk::ResponseType::OK);
+    dialog->set_create_folders(true);
 
-    int result = 0;
-    // XXX todo
-    dialog.show();
-    Glib::ustring libraryToCreate;
-    switch(result)
-    {
-    case Gtk::ResponseType::OK: {
-        Configuration & cfg = Application::app()->config();
-        libraryToCreate = dialog.get_current_name();
-        // pass it to the library
-        libMoniker = "local:";
-        libMoniker += libraryToCreate.c_str();
-        cfg.setValue("last_open_catalog", libMoniker);
-        DBG_OUT("created catalog %s", libMoniker.c_str());
-        break;
-    }
-    default:
-        break;
-    }
-    return libMoniker;
+    dialog->signal_response().connect(
+        [this, dialog] (int response) {
+            DBG_OUT("response %d", response);
+            if (response == Gtk::ResponseType::OK) {
+                DBG_OUT("Accepted");
+                Configuration & cfg = Application::app()->config();
+                auto file = dialog->get_file();
+                Glib::ustring libraryToCreate = file->get_path();
+                // pass it to the library
+                std::string libMoniker = "local:";
+                libMoniker += libraryToCreate.c_str();
+                cfg.setValue("last_open_catalog", libMoniker);
+                DBG_OUT("created catalog %s", libMoniker.c_str());
+                this->open_library(libMoniker);
+            }
+            delete dialog;
+        });
+    dialog->show();
 }
 
 bool NiepceWindow::open_library(const std::string & libMoniker)

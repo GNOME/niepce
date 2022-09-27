@@ -65,7 +65,7 @@ private:
     void init_actions();
 
     // UI to open library
-    std::string prompt_open_library();
+    void prompt_open_library();
     // open the library
     // @return false if error.
     bool open_library(const std::string & libMoniker);
