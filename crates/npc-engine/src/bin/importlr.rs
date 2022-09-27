@@ -114,5 +114,7 @@ fn main() {
         }
     }
 
+    let before = std::time::Instant::now();
     importer.import_library(&library).expect("Import Library");
+    println!("Elapsed time: {:.2?}", before.elapsed());
 }

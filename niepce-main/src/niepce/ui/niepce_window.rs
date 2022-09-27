@@ -49,6 +49,8 @@ enum Event {
     AddedLabel(db::Label),
     LabelChanged(db::Label),
     LabelDeleted(db::LibraryId),
+    DatabaseReady,
+    DatabaseNeedUpgrade(i32),
 }
 
 struct Widgets {
@@ -277,6 +279,8 @@ impl NiepceWindow {
             AddedLabel(label) => tx.send(Event::AddedLabel(label)),
             LabelChanged(label) => tx.send(Event::LabelChanged(label)),
             LabelDeleted(label_id) => tx.send(Event::LabelDeleted(label_id)),
+            DatabaseReady => tx.send(Event::DatabaseReady),
+            DatabaseNeedUpgrade(version) => tx.send(Event::DatabaseNeedUpgrade(version)),
             _ => Ok(()),
         });
         true
@@ -299,6 +303,28 @@ impl NiepceWindow {
                 self.open_catalog(&catalog);
             }
             NewLibraryCreated => self.create_initial_labels(),
+            DatabaseReady => {
+                self.create_module_shell();
+                dbg_out!("Database ready.");
+            }
+            DatabaseNeedUpgrade(v) => {
+                dbg_out!("Database need upgrade {}.", v);
+                let dialog = super::dialogs::confirm::request(
+                    &gettext("Catalog need to be upgraded"),
+                    Some(self.window()),
+                );
+                dialog.connect_response(
+                    glib::clone!(@strong self.libraryclient as client => move |dialog, response| {
+                        if response == gtk4::ResponseType::Yes {
+                            if let Some(client_host) = client.borrow().as_ref() {
+                                client_host.client().upgrade_library_from_sync(v);
+                            }
+                        }
+                        dialog.destroy();
+                    }),
+                );
+                dialog.show();
+            }
             AddedLabel(label) => {
                 if let Some(host) = &*self.libraryclient.borrow() {
                     host.ui_provider().add_label(&label);
@@ -394,12 +420,6 @@ impl NiepceWindow {
                 config_path,
             ))));
 
-        if let Some(c) = self.libraryclient.borrow().as_ref() {
-            c.client().get_all_labels();
-        }
-
-        self.create_module_shell();
-
         true
     }
 
@@ -407,6 +427,10 @@ impl NiepceWindow {
         dbg_out!("creating module shell");
 
         let client = self.libraryclient.borrow();
+
+        if let Some(c) = self.libraryclient.borrow().as_ref() {
+            c.client().get_all_labels();
+        }
 
         let module_shell = ModuleShell::new(client.as_ref().unwrap());
         let module_widget = module_shell.widget();
@@ -452,9 +476,10 @@ impl NiepceWindow {
 
         let statusbar = gtk4::Statusbar::new();
         vbox.append(&statusbar);
-        statusbar.push(0, &gettext("Ready"));
 
         module_shell.selection_controller.add_selectable(&filmstrip);
+
+        statusbar.push(0, &gettext("Ready"));
 
         self.shell_widgets.set(ShellWidgets {
             _workspace: workspace.clone(),

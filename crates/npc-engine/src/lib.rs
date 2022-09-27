@@ -263,6 +263,8 @@ pub mod ffi {
     pub enum NotificationType {
         NONE,
         NEW_LIBRARY_CREATED,
+        DatabaseNeedUpgrade,
+        DatabaseReady,
         ADDED_FOLDER,
         ADDED_FILE,
         ADDED_FILES,

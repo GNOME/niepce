@@ -22,7 +22,7 @@ libc = "0.2.39"
 maplit = "1.0.2"
 lrcat-extractor = { version = "0.3.0" }
 # Must be in sync with lrcat-extractor
-rusqlite = { version = "0.28.0", features = ["functions", "bundled"] }
+rusqlite = { version = "0.28.0", features = ["functions", "backup", "bundled"] }
 
 npc-fwk = { path = "../npc-fwk" }
 

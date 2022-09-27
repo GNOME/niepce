@@ -47,7 +47,7 @@ use crate::library::notification::LibNotification;
 use crate::NiepcePropertyBag;
 use npc_fwk::toolkit;
 use npc_fwk::PropertyValue;
-use npc_fwk::{dbg_assert, dbg_out, err_out};
+use npc_fwk::{dbg_assert, dbg_out, err_out, on_err_out};
 
 pub use crate::ffi::Managed;
 
@@ -55,7 +55,7 @@ const DB_SCHEMA_VERSION: i32 = 11;
 const DATABASENAME: &str = "niepcelibrary.db";
 
 // Error from the library database
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Error {
     /// Operation is unimplemented
     Unimplemented,
@@ -69,6 +69,8 @@ pub enum Error {
     InvalidArg,
     /// Result is invalid
     InvalidResult,
+    /// Database isn't backed by a file.
+    NoDbFile,
     /// SQL Error
     SqlError(rusqlite::Error),
 }
@@ -100,6 +102,8 @@ pub type Result<T> = result::Result<T, Error>;
 pub struct Library {
     /// Sqlite3 connection handle.
     dbconn: Option<rusqlite::Connection>,
+    /// The file backing the DB, if any.
+    dbfile: Option<PathBuf>,
     /// True if initialized.
     inited: bool,
     /// Sender for notifications.
@@ -109,11 +113,11 @@ pub struct Library {
 impl Library {
     /// New database library in memory (testing only)
     #[cfg(test)]
-    fn new_in_memory() -> Library {
-        let (sender, _) = async_channel::unbounded();
+    fn new_in_memory(sender: npc_fwk::toolkit::Sender<LibNotification>) -> Library {
         let mut lib = Library {
             // maindir: dir,
             dbconn: None,
+            dbfile: None,
             inited: false,
             sender,
         };
@@ -140,6 +144,7 @@ impl Library {
         let mut lib = Library {
             // maindir: dir,
             dbconn: None,
+            dbfile: Some(dbpath.clone()),
             inited: false,
             sender,
         };
@@ -193,7 +198,9 @@ impl Library {
             Ok(0) => {
                 // let's create our DB
                 dbg_out!("version == 0");
-                self.init_db()
+                self.init_db().map(|_| {
+                    on_err_out!(self.notify(LibNotification::DatabaseReady));
+                })
             }
             Ok(version) => {
                 if version != DB_SCHEMA_VERSION {
@@ -203,14 +210,65 @@ impl Library {
                         version,
                         DB_SCHEMA_VERSION
                     );
-                    dbg_out!("Upgrading...");
-                    upgrade::library_to(self, version, DB_SCHEMA_VERSION)
+                    on_err_out!(self.notify(LibNotification::DatabaseNeedUpgrade(version)));
+                    Err(Error::IncorrectDbVersion)
                 } else {
+                    on_err_out!(self.notify(LibNotification::DatabaseReady));
                     Ok(())
                 }
             }
             _ => Ok(()),
         }
+    }
+
+    /// Backup the backing file for the database and return the path.
+    /// Will return `Error::NoDbFile` if it's a memory backed database,
+    /// `Error::InvalidResult` if it can't get the new file name, or
+    /// simply an error from `rusqlite`.
+    fn backup_database_file(&self, suffix: &str) -> Result<PathBuf> {
+        if self.dbfile.is_none() {
+            // No backup if there is no backing file.
+            return Err(Error::NoDbFile);
+        }
+        self.dbfile
+            .as_ref()
+            .and_then(|file| {
+                let mut dest_file = file.clone();
+                file.file_name()
+                    .map(|name| {
+                        let mut new_name = name.to_os_string();
+                        new_name.push("-");
+                        new_name.push(suffix);
+                        dbg_out!("new name: {:?}", new_name);
+                        new_name
+                    })
+                    .map(|new_name| {
+                        dest_file.set_file_name(new_name);
+                        dbg_out!("dest_file: {:?}", dest_file);
+                        dest_file
+                    })
+            })
+            .ok_or(Error::InvalidResult)
+            .and_then(|dest_file| {
+                dbg_out!("backing up database to {:?}", dest_file);
+                if let Some(ref conn) = self.dbconn {
+                    conn.backup(rusqlite::DatabaseName::Main, &dest_file, None)?;
+                }
+                Ok(dest_file)
+            })
+    }
+
+    /// Perform the upgrade. This is called in response to a DatabaseNeedUpgrade
+    ///
+    /// It will perform a backup of the database.
+    pub fn perform_upgrade(&self, from_version: i32) -> Result<()> {
+        dbg_out!("Upgrading...");
+        let suffix = format!("version_{}", from_version);
+        self.backup_database_file(&suffix)?;
+        upgrade::library_to(self, from_version, DB_SCHEMA_VERSION)?;
+        on_err_out!(self.notify(LibNotification::DatabaseReady));
+
+        Ok(())
     }
 
     #[cfg(test)]
@@ -1309,19 +1367,42 @@ impl Library {
 mod test {
     use crate::db::filebundle::FileBundle;
     use crate::db::NiepcePropertyIdx as Npi;
+    use crate::library::notification::LibNotification;
     use crate::NiepceProperties as Np;
     use crate::NiepcePropertyBag;
 
-    use super::{Library, Managed};
+    use super::{Error, Library, Managed};
 
     #[test]
     fn library_works() {
-        let lib = Library::new_in_memory();
+        let (sender, receiver) = async_channel::unbounded();
+        let lib = Library::new_in_memory(sender);
+
+        assert_eq!(lib.dbfile, None);
+
+        let msg = receiver
+            .try_recv()
+            .expect("Didn't receive LibCreated message");
+        match msg {
+            LibNotification::LibCreated => {}
+            _ => assert!(false, "Wrong message type, expected LibCreated"),
+        }
+
+        let msg = receiver
+            .try_recv()
+            .expect("Didn't receive DatabaseReady message");
+        match msg {
+            LibNotification::DatabaseReady => {}
+            _ => assert!(false, "Wrong message type, expected DatabaseReady"),
+        }
 
         assert!(lib.is_ok());
         let version = lib.check_database_version();
         assert!(version.is_ok());
         assert!(version.ok().unwrap() == super::DB_SCHEMA_VERSION);
+
+        // Backup should return an error.
+        assert_eq!(lib.backup_database_file("backup"), Err(Error::NoDbFile));
 
         let folder_added = lib.add_folder("foo", Some(String::from("/bar/foo")));
         assert!(folder_added.is_ok());
@@ -1416,7 +1497,8 @@ mod test {
     fn file_bundle_import() {
         use npc_fwk::utils::exempi::XmpMeta;
 
-        let lib = Library::new_in_memory();
+        let (sender, _) = async_channel::unbounded();
+        let lib = Library::new_in_memory(sender);
 
         assert!(lib.is_ok());
 

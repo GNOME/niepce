@@ -93,4 +93,8 @@ pub trait ClientInterfaceSync {
 
     /// Add a bundle.
     fn add_bundle_sync(&self, bundle: &FileBundle, folder: LibraryId) -> LibraryId;
+
+    /// Upgrade the library from `version`. Note that the version is just a suggestion.
+    /// Return true if successful.
+    fn upgrade_library_from_sync(&self, version: i32) -> bool;
 }

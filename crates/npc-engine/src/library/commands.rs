@@ -587,3 +587,13 @@ pub fn cmd_process_xmp_update_queue(lib: &Library, write_xmp: bool) -> bool {
         }
     }
 }
+
+pub fn cmd_upgrade_library_from(lib: &Library, version: i32) -> bool {
+    match lib.perform_upgrade(version) {
+        Ok(_) => true,
+        Err(err) => {
+            err_out_line!("upgrade library: {:?}", err);
+            false
+        }
+    }
+}

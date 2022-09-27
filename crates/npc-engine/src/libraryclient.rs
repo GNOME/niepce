@@ -101,6 +101,10 @@ impl LibraryClientWrapper {
     pub fn create_label_sync(&self, name: String, colour: String) -> i64 {
         self.client.create_label_sync(name, colour)
     }
+
+    pub fn upgrade_library_from_sync(&self, version: i32) -> bool {
+        self.client.upgrade_library_from_sync(version)
+    }
 }
 
 pub struct LibraryClient {
@@ -345,6 +349,18 @@ impl ClientInterfaceSync for LibraryClient {
         let bundle = bundle.clone();
         self.schedule_op(move |lib| {
             tx.send(commands::cmd_add_bundle(lib, &bundle, folder))
+                .unwrap();
+            true
+        });
+
+        rx.recv().unwrap()
+    }
+
+    fn upgrade_library_from_sync(&self, version: i32) -> bool {
+        let (tx, rx) = mpsc::sync_channel::<bool>(1);
+
+        self.schedule_op(move |lib| {
+            tx.send(commands::cmd_upgrade_library_from(lib, version))
                 .unwrap();
             true
         });

@@ -22,17 +22,24 @@
 use super::{sql, Error, Library, Result};
 use npc_fwk::dbg_out;
 
-/// upgrade library `from` version `to` version
+/// Upgrade library `from` version `to` version
 /// Will run the step by step upgrade
 ///
 /// A few notes:
 /// Some `from` `to` combination are no-op. Like anything before version 11
-/// as it's early development
-/// `ALTER TABLE` is limited limited in sqlite and some internal trickery is necessary.
+/// as it's early development.
+///
+/// If `from` is not the current version, it will return `Error::IncorrectDbVersion`.
+///
+/// `ALTER TABLE` is limited in sqlite and some internal trickery is necessary.
 /// See sqlite documentation https://www.sqlite.org/lang_altertable.html, section 7.
 ///
 pub(crate) fn library_to(library: &Library, from: i32, to: i32) -> Result<()> {
     if from > to {
+        return Err(Error::IncorrectDbVersion);
+    }
+    let version = library.check_database_version()?;
+    if version != from {
         return Err(Error::IncorrectDbVersion);
     }
     dbg_out!("upgrade from {} to {}", from, to);
