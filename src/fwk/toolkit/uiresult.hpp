@@ -33,6 +33,7 @@ namespace fwk {
 class UIResult
 {
 public:
+    virtual ~UIResult() {}
     virtual void clear() = 0;
 
     sigc::connection connect(sigc::slot<void()> slot) {

@@ -105,6 +105,7 @@ dnl sigc++ 2.10.0 breaks with that warning.
    -Wlogical-not-parentheses \
    -Wmisleading-indentation \
    -Wmissing-noreturn \
+   -Wnon-virtual-dtor \
    -Woverloaded-virtual \
 dnl Gtk+ 3.22.30 breaks with that warning
    -Wno-parentheses \
