@@ -11,9 +11,6 @@ AM_CPPFLAGS = $(niepce_cppflags)
 
 noinst_LIBRARIES = libniepceframework.a
 
-noinst_HEADERS =   \
-	  goocanvas_proxy_header.hpp
-
 TESTS = testconfigdatabinder
 
 check_PROGRAMS = testconfigdatabinder
