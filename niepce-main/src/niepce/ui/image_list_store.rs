@@ -300,7 +300,7 @@ pub extern "C" fn npc_image_list_store_new() -> *mut ImageListStore {
 #[no_mangle]
 pub unsafe extern "C" fn npc_image_list_store_delete(self_: *mut ImageListStore) {
     assert!(!self_.is_null());
-    Box::from_raw(self_);
+    drop(Box::from_raw(self_));
 }
 
 /// Return the gobj for the GtkListStore. You must ref it to hold it.

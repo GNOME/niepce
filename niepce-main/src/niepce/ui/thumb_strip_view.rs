@@ -228,5 +228,5 @@ pub unsafe extern "C" fn npc_thumb_strip_view_get_icon_view(
 /// Use raw pointers
 #[no_mangle]
 pub unsafe extern "C" fn npc_thumb_strip_view_release(stripview: *mut ThumbStripView) {
-    Box::from_raw(stripview);
+    drop(Box::from_raw(stripview));
 }

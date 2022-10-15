@@ -1,7 +1,7 @@
 /*
  * niepce - library/thumbnail_cache.rs
  *
- * Copyright (C) 2020-2021 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -237,7 +237,7 @@ pub unsafe extern "C" fn engine_library_thumbnail_cache_new(
 /// Dereference raw pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_thumbnail_cache_delete(obj: *mut ThumbnailCache) {
-    Box::from_raw(obj);
+    drop(Box::from_raw(obj));
 }
 
 #[no_mangle]

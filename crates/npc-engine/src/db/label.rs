@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/label.rs
  *
- * Copyright (C) 2017-2019 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@ impl FromDb for Label {
 /// Dereference raw pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_db_label_delete(l: *mut Label) {
-    Box::from_raw(l);
+    drop(Box::from_raw(l));
 }
 
 #[no_mangle]

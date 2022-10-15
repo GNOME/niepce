@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/keyword.rs
  *
- * Copyright (C) 2017-2019 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,5 +91,5 @@ pub extern "C" fn engine_db_keyword_keyword(obj: &Keyword) -> *mut c_char {
 /// Dereference raw pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_db_keyword_delete(kw: *mut Keyword) {
-    Box::from_raw(kw);
+    drop(Box::from_raw(kw));
 }

@@ -1,7 +1,7 @@
 /*
  * niepce - engine/mod.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ pub extern "C" fn eng_property_set_new() -> *mut NiepcePropertySet {
 /// Dereference the pointer.
 #[no_mangle]
 pub unsafe extern "C" fn eng_property_set_delete(set: *mut NiepcePropertySet) {
-    Box::from_raw(set);
+    drop(Box::from_raw(set));
 }
 
 #[no_mangle]
@@ -60,7 +60,7 @@ pub extern "C" fn eng_property_bag_new() -> *mut NiepcePropertyBag {
 /// Dereference the raw pointer.
 #[no_mangle]
 pub unsafe extern "C" fn eng_property_bag_delete(bag: *mut NiepcePropertyBag) {
-    Box::from_raw(bag);
+    drop(Box::from_raw(bag));
 }
 
 #[no_mangle]

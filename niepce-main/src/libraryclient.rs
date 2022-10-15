@@ -208,7 +208,7 @@ pub extern "C" fn lcchannel_new(
 /// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn lcchannel_delete(obj: *mut LcChannel) {
-    Box::from_raw(obj);
+    drop(Box::from_raw(obj));
 }
 
 /// # Safety
@@ -229,7 +229,7 @@ pub unsafe extern "C" fn libraryclient_new(
 /// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_delete(obj: *mut LibraryClientWrapper) {
-    Box::from_raw(obj);
+    drop(Box::from_raw(obj));
 }
 
 #[no_mangle]

@@ -95,7 +95,7 @@ pub extern "C" fn fwk_rgbcolour_to_string(c: &RgbColour) -> *mut c_char {
 /// Dereference the pointer.
 #[no_mangle]
 pub unsafe extern "C" fn fwk_rgbcolour_delete(c: *mut RgbColour) {
-    Box::from_raw(c);
+    drop(Box::from_raw(c));
 }
 
 #[no_mangle]

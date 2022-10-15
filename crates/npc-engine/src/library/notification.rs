@@ -163,7 +163,7 @@ pub extern "C" fn engine_library_notify_filestatus_changed(
 /// Use raw pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_delete(n: *mut LibNotification) {
-    Box::from_raw(n);
+    drop(Box::from_raw(n));
 }
 
 /// # Safety

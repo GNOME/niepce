@@ -202,7 +202,7 @@ pub unsafe extern "C" fn fwk_toolkit_thumbnail_file(
 /// Dereference the pointer
 #[no_mangle]
 pub unsafe extern "C" fn fwk_toolkit_thumbnail_delete(obj: *mut Thumbnail) {
-    Box::from_raw(obj);
+    drop(Box::from_raw(obj));
 }
 
 /// Create a %Thumbnail from a %GdkPixbuf

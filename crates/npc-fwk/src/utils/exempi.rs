@@ -523,7 +523,7 @@ pub extern "C" fn fwk_exempi_manager_new() -> *mut ExempiManager {
 /// Dereference the pointer.
 #[no_mangle]
 pub unsafe extern "C" fn fwk_exempi_manager_delete(em: *mut ExempiManager) {
-    Box::from_raw(em);
+    drop(Box::from_raw(em));
 }
 
 #[cfg(test)]

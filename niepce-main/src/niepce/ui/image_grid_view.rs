@@ -108,5 +108,5 @@ pub unsafe extern "C" fn npc_image_grid_view_get_icon_view(
 /// Use raw pointers
 #[no_mangle]
 pub unsafe extern "C" fn npc_image_grid_view_release(view: *mut ImageGridView) {
-    Box::from_raw(view);
+    drop(Box::from_raw(view));
 }

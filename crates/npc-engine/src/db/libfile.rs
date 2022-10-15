@@ -299,7 +299,7 @@ pub unsafe extern "C" fn engine_db_libfile_new(
 /// Dereference raw pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_db_libfile_delete(lf: *mut LibFile) {
-    Box::from_raw(lf);
+    drop(Box::from_raw(lf));
 }
 
 #[no_mangle]

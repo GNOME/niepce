@@ -105,7 +105,7 @@ pub extern "C" fn fwk_file_list_new() -> *mut FileList {
 /// Dereference the pointer
 #[no_mangle]
 pub unsafe extern "C" fn fwk_file_list_delete(l: *mut FileList) {
-    Box::from_raw(l);
+    drop(Box::from_raw(l));
 }
 
 /// Get the files in directory dir

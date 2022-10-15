@@ -69,7 +69,7 @@ pub extern "C" fn fwk_property_value_new_string_array() -> *mut PropertyValue {
 #[no_mangle]
 pub unsafe extern "C" fn fwk_property_value_delete(v: *mut PropertyValue) {
     if !v.is_null() {
-        Box::from_raw(v);
+        drop(Box::from_raw(v));
     }
 }
 
