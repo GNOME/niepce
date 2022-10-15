@@ -43,7 +43,7 @@ use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_assert, dbg_out, err_out};
 
 #[repr(i32)]
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Eq)]
 pub enum Managed {
     NO = 0,
     YES = 1,

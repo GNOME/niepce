@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/mimetype.rs
  *
- * Copyright (C) 2017-2020 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@ use gio::prelude::*;
 use std::convert::AsRef;
 use std::path::Path;
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug, Eq)]
 pub enum IsRaw {
     No,
     Yes,
 }
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug, Eq)]
 pub enum MType {
     None,
     Image(IsRaw),

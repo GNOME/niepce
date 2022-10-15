@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libfile.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ use super::NiepceProperties as Np;
 use super::NiepcePropertyIdx;
 
 #[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 /// A general type of the LibFile.
 pub enum FileType {
     /// Don't know
@@ -47,7 +47,7 @@ pub enum FileType {
 }
 
 #[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 /// FileStatus indicate the transient status of the file on the storage.
 pub enum FileStatus {
     /// File is OK

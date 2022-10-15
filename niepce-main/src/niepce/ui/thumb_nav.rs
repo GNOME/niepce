@@ -34,7 +34,7 @@ const SCROLL_MOVE: f64 = 20.;
 const SCROLL_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(20);
 
 #[repr(i32)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub enum ThumbNavMode {
     OneRow,
     OneColumn,
