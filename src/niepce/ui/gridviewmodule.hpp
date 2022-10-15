@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <gtkmm/gestureclick.h>
 #include <gtkmm/iconview.h>
 #include <gtkmm/liststore.h>
@@ -32,6 +34,8 @@
 #include "niepce/ui/imoduleshell.hpp"
 #include "niepce/ui/metadatapanecontroller.hpp"
 #include "niepce/ui/selectioncontroller.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace fwk {
 class Dock;
@@ -76,7 +80,7 @@ protected:
 
 private:
   static bool get_colour_callback_c(int32_t label, ffi::RgbColour* out, const void* user_data);
-  bool get_colour_callback(int32_t label, ffi::RgbColour* out) const;
+  std::optional<fwk::RgbColourPtr> get_colour_callback(int32_t label) const;
   void on_metadata_changed(const fwk::PropertyBagPtr&, const fwk::PropertyBagPtr& old);
   static void on_rating_changed(GtkCellRenderer*, eng::library_id_t id, int rating,
                                 gpointer user_data);

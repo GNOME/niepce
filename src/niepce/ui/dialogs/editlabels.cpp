@@ -66,10 +66,9 @@ void EditLabels::setup_widget()
         m_entries[i] = labelentry = _builder->get_widget<Gtk::Entry>(str(boost::format(value_fmt) % (i+1)));
 
         if(has_label) {
-            Gdk::RGBA colour = fwk::rgbcolour_to_gdkcolor(
-                *engine_db_label_colour(m_labels[i].get()));
+            Gdk::RGBA colour = fwk::rgbcolour_to_gdkcolor(m_labels[i]->colour());
             colourbutton->set_rgba(colour);
-            labelentry->set_text(engine_db_label_label(m_labels[i].get()));
+            labelentry->set_text(std::string(m_labels[i]->label()));
         }
         colourbutton->signal_color_set().connect(
             sigc::bind(sigc::mem_fun(*this, &EditLabels::label_colour_changed), i));
@@ -105,19 +104,16 @@ void EditLabels::update_labels(int /*response*/)
             if(new_name.empty()) {
                 continue;
             }
-            std::string new_colour
-                = fwk::rgbcolour_to_string(
-                    fwk::gdkcolor_to_rgbcolour(m_colours[i]->get_rgba()).get());
+            std::string new_colour(fwk::gdkcolor_to_rgbcolour(m_colours[i]->get_rgba())->to_string());
             if(!undo) {
                 undo = fwk::Application::app()->begin_undo(_("Change Labels"));
             }
 
             auto libclient = m_lib_client;
             if(has_label) {
-                std::string current_name = engine_db_label_label(m_labels[i].get());
-                std::string current_colour =
-                    fwk::rgbcolour_to_string(engine_db_label_colour(m_labels[i].get()));
-                auto label_id = engine_db_label_id(m_labels[i].get());
+                std::string current_name(m_labels[i]->label());
+                std::string current_colour(m_labels[i]->colour().to_string());
+                auto label_id = m_labels[i]->id();
 
                 undo->new_command<void>(
                     [libclient, new_name, new_colour, label_id] () {

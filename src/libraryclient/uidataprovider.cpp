@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/uidataprovider.cpp
  *
- * Copyright (C) 2011-2017 Hubert Figuière
+ * Copyright (C) 2011-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,26 +20,24 @@
 #include <algorithm>
 
 #include "fwk/base/debug.hpp"
-#include "fwk/base/colour.hpp"
 #include "uidataprovider.hpp"
-
 
 namespace libraryclient {
 
-void UIDataProvider::updateLabel(const eng::Label & l)
+void UIDataProvider::updateLabel(const eng::LabelPtr& l)
 {
     // TODO: will work as long as we have 5 labels or something.
     for (auto & label : m_labels) {
-        if (engine_db_label_id(label.get()) == engine_db_label_id(&l)) {
-            label = eng::label_clone(&l);
+        if (label->id() == l->id()) {
+            label = l->clone_boxed();
         }
     }
 }
 
 
-void UIDataProvider::addLabel(const eng::Label & l)
+void UIDataProvider::addLabel(const eng::LabelPtr& l)
 {
-    m_labels.push_back(eng::label_clone(&l));
+    m_labels.push_back(l->clone_boxed());
 }
 
 
@@ -49,7 +47,7 @@ void UIDataProvider::deleteLabel(int id)
     for(auto iter = m_labels.begin();
         iter != m_labels.end(); ++iter) {
 
-        if (engine_db_label_id(iter->get()) == id) {
+        if ((*iter)->id() == id) {
             DBG_OUT("remove label %d", id);
             iter = m_labels.erase(iter);
             break;
@@ -57,15 +55,14 @@ void UIDataProvider::deleteLabel(int id)
     }
 }
 
-fwk::Option<fwk::RgbColour> UIDataProvider::colourForLabel(int32_t id) const
+std::optional<fwk::RgbColourPtr> UIDataProvider::colourForLabel(int32_t id) const
 {
-    for(auto label : m_labels) {
-        if (engine_db_label_id(label.get()) == id) {
-            return fwk::Option<fwk::RgbColour>(
-                *engine_db_label_colour(label.get()));
+    for(auto& label : m_labels) {
+        if (label->id() == id) {
+            return std::optional<fwk::RgbColourPtr>(label->colour());
         }
     }
-    return fwk::Option<fwk::RgbColour>();
+    return std::nullopt;
 }
 
 

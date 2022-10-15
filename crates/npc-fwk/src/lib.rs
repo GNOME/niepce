@@ -51,6 +51,7 @@ use std::ffi::c_char;
 use gdk_pixbuf_sys::GdkPixbuf;
 use glib::translate::*;
 
+use self::base::rgbcolour::RgbColour;
 use crate::base::date::Date;
 use crate::toolkit::thumbnail::Thumbnail;
 use crate::toolkit::Configuration;
@@ -70,6 +71,15 @@ fn configuration_new(file: &str) -> cxx::SharedPtr<ffi::SharedConfiguration> {
 
 fn exempi_manager_new() -> Box<ExempiManager> {
     Box::new(ExempiManager::new(None))
+}
+
+fn rgbcolour_new(r: u16, g: u16, b: u16) -> Box<RgbColour> {
+    Box::new(RgbColour::new(r, g, b))
+}
+
+fn rgbcolour_to_string(r: u16, g: u16, b: u16) -> String {
+    let colour = RgbColour::new(r, g, b);
+    colour.to_string()
 }
 
 pub fn gps_coord_from_xmp_(value: &str) -> f64 {
@@ -158,6 +168,20 @@ mod ffi {
         fn exempi_manager_new() -> Box<ExempiManager>;
     }
 
+    extern "C++" {
+        include!("fwk/cxx_colour_bindings.hpp");
+
+        type RgbColour = crate::base::rgbcolour::RgbColour;
+    }
+
+    extern "Rust" {
+        #[cxx_name = "RgbColour_new"]
+        fn rgbcolour_new(r: u16, g: u16, b: u16) -> Box<RgbColour>;
+
+        fn rgbcolour_to_string(r: u16, g: u16, b: u16) -> String;
+    }
+
+    #[namespace = "fwk"]
     extern "Rust" {
         #[cxx_name = "gps_coord_from_xmp"]
         fn gps_coord_from_xmp_(value: &str) -> f64;

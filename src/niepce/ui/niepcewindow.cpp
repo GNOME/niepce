@@ -298,7 +298,7 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     {
         auto l = engine_library_notification_get_label(&ln);
         if (l) {
-            m_libClient->getDataProvider()->addLabel(*l);
+            m_libClient->getDataProvider()->addLabel(eng::LabelPtr::from_raw(l));
         } else {
             ERR_OUT("Invalid label (nullptr)");
         }
@@ -308,7 +308,7 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     {
         auto l = engine_library_notification_get_label(&ln);
         if (l) {
-            m_libClient->getDataProvider()->updateLabel(*l);
+            m_libClient->getDataProvider()->updateLabel(eng::LabelPtr::from_raw(l));
         } else {
             ERR_OUT("Invalid label (nullptr)");
         }

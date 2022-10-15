@@ -10,6 +10,7 @@ build = "build.rs"
 [dependencies]
 async-channel = "1.6.1"
 chrono = "0.4.0"
+cxx = "1.0"
 exempi = { version = "2.6.0", git = "https://github.com/hfiguiere/exempi-rs.git", rev="99e8ba5" }
 gdk-pixbuf-sys = "*"
 gdk-pixbuf = "*"

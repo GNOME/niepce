@@ -35,7 +35,7 @@ testoption_SOURCES = t/testoption.cpp
 testoption_CPPFLAGS = $(testing_cppflags)
 testoption_LDADD = $(testing_ldadd)
 
-libfwkbase_a_SOURCES = colour.hpp colour.cpp \
+libfwkbase_a_SOURCES = \
 	autoflag.hpp \
 	debug.hpp debug.cpp \
 	moniker.hpp moniker.cpp \

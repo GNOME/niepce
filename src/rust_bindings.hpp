@@ -24,6 +24,7 @@
 #include <gtk/gtk.h>
 
 #include "fwk/cxx_fwk_bindings.hpp"
+#include "fwk/cxx_eng_bindings.hpp"
 
 namespace ffi {
 class rust_str;
@@ -33,6 +34,8 @@ struct DateTime;
 typedef fwk::Date Date;
 typedef rust_str str;
 typedef fwk::FileList FileList;
+typedef fwk::RgbColour RgbColour;
+typedef eng::Label Label;
 struct NiepcePropertyBag;
 struct NiepcePropertySet;
 }
@@ -46,14 +49,16 @@ typedef std::shared_ptr<SharedConfiguration> ConfigurationPtr;
 typedef rust::Box<fwk::Date> DatePtr;
 typedef rust::Box<Thumbnail> ThumbnailPtr;
 typedef rust::Box<FileList> FileListPtr;
+typedef rust::Box<RgbColour> RgbColourPtr;
 
 typedef ffi::PropertyValue PropertyValue;
 typedef ffi::NiepcePropertyBag PropertyBag;
 typedef ffi::NiepcePropertySet PropertySet;
-typedef ffi::RgbColour RgbColour;
 }
 
 namespace eng {
+typedef rust::Box<Label> LabelPtr;
+
 typedef ffi::NiepcePropertyIdx Np;
 using NiepcePropertyIdx = ffi::NiepcePropertyIdx;
 typedef ffi::LibraryId library_id_t; // XXX change this to LibraryId
@@ -63,7 +68,6 @@ typedef ffi::Keyword Keyword;
 typedef ffi::LibFile LibFile;
 typedef ffi::LibFolder LibFolder;
 typedef ffi::LibMetadata LibMetadata;
-typedef ffi::Label Label;
 typedef ffi::Managed Managed;
 typedef ffi::LibNotification LibNotification;
 typedef ffi::NotificationType NotificationType;

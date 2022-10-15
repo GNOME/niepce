@@ -93,22 +93,27 @@ bool GridViewModule::get_colour_callback_c(int32_t label, ffi::RgbColour* out,
     if (user_data == nullptr) {
         return false;
     }
-    return static_cast<const GridViewModule*>(user_data)->get_colour_callback(label, out);
+
+    std::optional<fwk::RgbColourPtr> colour =
+        static_cast<const GridViewModule*>(user_data)->get_colour_callback(label);
+
+    if (colour.has_value() && out) {
+        *out = *colour.value();
+        return true;
+    }
+
+    return false;
 }
 
-bool GridViewModule::get_colour_callback(int32_t label, ffi::RgbColour* out) const
+std::optional<fwk::RgbColourPtr> GridViewModule::get_colour_callback(int32_t label) const
 {
     libraryclient::UIDataProviderWeakPtr ui_data_provider(m_shell.get_ui_data_provider());
     auto provider = ui_data_provider.lock();
     DBG_ASSERT(static_cast<bool>(provider), "couldn't lock UI provider");
     if (provider) {
-        auto c = provider->colourForLabel(label);
-        if (c.ok() && out) {
-            *out = c.unwrap();
-            return true;
-        }
+        return provider->colourForLabel(label);
     }
-    return false;
+    return std::nullopt;
 }
 
 Gtk::Widget * GridViewModule::buildWidget()

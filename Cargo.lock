@@ -773,6 +773,7 @@ dependencies = [
  "async-channel",
  "cbindgen",
  "chrono",
+ "cxx",
  "exempi",
  "gdk-pixbuf",
  "gdk-pixbuf-sys",

@@ -103,3 +103,24 @@ pub extern "C" fn eng_property_bag_set_value(
 ) -> bool {
     b.set_value(key.into(), v.clone())
 }
+
+use crate::db::Label;
+
+#[cxx::bridge(namespace = "eng")]
+mod ffi {
+    #[namespace = "fwk"]
+    extern "C++" {
+        include!("fwk/cxx_colour_bindings.hpp");
+
+        type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
+    }
+
+    extern "Rust" {
+        type Label;
+
+        fn colour(&self) -> &RgbColour;
+        fn label(&self) -> &str;
+        fn id(&self) -> i64;
+        fn clone_boxed(&self) -> Box<Label>;
+    }
+}

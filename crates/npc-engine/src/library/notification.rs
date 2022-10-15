@@ -216,15 +216,17 @@ pub unsafe extern "C" fn engine_library_notification_get_id(
     }
 }
 
+/// ffi: box the returned label pointer
+///
 /// # Safety
 /// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_label(
     n: *const LibNotification,
-) -> *const Label {
+) -> *mut Label {
     match n.as_ref() {
         Some(&LibNotification::AddedLabel(ref l)) | Some(&LibNotification::LabelChanged(ref l)) => {
-            l
+            Box::into_raw(Box::new(l.clone()))
         }
         _ => unreachable!(),
     }

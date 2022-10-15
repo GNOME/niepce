@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
-use std::ffi::CString;
 use std::str::FromStr;
 
 use super::FromDb;
@@ -29,7 +27,6 @@ use npc_fwk::base::rgbcolour::RgbColour;
 pub struct Label {
     id: LibraryId,
     label: String,
-    pub cstr: CString,
     colour: RgbColour,
 }
 
@@ -39,7 +36,6 @@ impl Label {
         Label {
             id,
             label: String::from(label),
-            cstr: CString::new("").unwrap(),
             colour,
         }
     }
@@ -63,6 +59,10 @@ impl Label {
     pub fn set_colour(&mut self, c: &RgbColour) {
         self.colour = c.clone();
     }
+
+    pub fn clone_boxed(l: &Label) -> Box<Label> {
+        Box::new(l.clone())
+    }
 }
 
 impl FromDb for Label {
@@ -83,37 +83,4 @@ impl FromDb for Label {
         let colour: String = row.get(2)?;
         Ok(Label::new(row.get(0)?, &label, &colour))
     }
-}
-
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_db_label_delete(l: *mut Label) {
-    drop(Box::from_raw(l));
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_label_clone(l: &Label) -> *mut Label {
-    Box::into_raw(Box::new(l.clone()))
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_label_id(l: &Label) -> LibraryId {
-    l.id()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_label_label(obj: &mut Label) -> *const c_char {
-    let cstr;
-    {
-        let s = obj.label();
-        cstr = CString::new(s).unwrap();
-    }
-    obj.cstr = cstr;
-    obj.cstr.as_ptr()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_label_colour(l: &Label) -> *const RgbColour {
-    l.colour()
 }

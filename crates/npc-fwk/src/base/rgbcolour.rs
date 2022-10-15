@@ -17,18 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
-use std::ffi::CString;
 use std::num::ParseIntError;
 use std::str::FromStr;
 
-#[repr(C)]
-#[derive(Clone, Default)]
-pub struct RgbColour {
-    pub r: u16,
-    pub g: u16,
-    pub b: u16,
+#[cxx::bridge(namespace = "fwk")]
+mod ffi {
+    #[derive(Clone, Default)]
+    pub struct RgbColour {
+        pub r: u16,
+        pub g: u16,
+        pub b: u16,
+    }
+
+    extern "Rust" {
+        fn to_string(self: &RgbColour) -> String;
+    }
+
+    impl Box<RgbColour> {}
 }
+
+pub use ffi::RgbColour;
 
 #[derive(Debug)]
 pub enum ColourParseError {
@@ -82,38 +90,4 @@ impl From<RgbColour> for gdk4::RGBA {
             1.0,
         )
     }
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_rgbcolour_to_string(c: &RgbColour) -> *mut c_char {
-    CString::new(c.to_string().as_bytes()).unwrap().into_raw()
-}
-
-/// Delete the %RgbColour object
-///
-/// # Safety
-/// Dereference the pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_rgbcolour_delete(c: *mut RgbColour) {
-    drop(Box::from_raw(c));
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_rgbcolour_component(c: &RgbColour, idx: i32) -> u16 {
-    match idx {
-        0 => c.r,
-        1 => c.g,
-        2 => c.b,
-        _ => unreachable!(),
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_rgbcolour_new(r: u16, g: u16, b: u16) -> *mut RgbColour {
-    Box::into_raw(Box::new(RgbColour::new(r, g, b)))
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_rgbcolour_clone(c: &RgbColour) -> *mut RgbColour {
-    Box::into_raw(Box::new(c.clone()))
 }

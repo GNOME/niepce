@@ -20,7 +20,7 @@ noinst_LIBRARIES = libniepceengine.a
 
 libniepceengine_a_SOURCES = \
 	db/libfile.hpp db/libfile.cpp \
-	db/label.hpp db/label.cpp \
+	db/label.hpp \
 	db/libmetadata.hpp db/libmetadata.cpp \
 	db/storage.hpp \
 	db/fsfile.hpp \
@@ -37,3 +37,4 @@ libniepceengine_a_SOURCES = \
 	importer/importedfile.hpp \
 	importer/importedfile.cpp \
 	$(NULL)
+

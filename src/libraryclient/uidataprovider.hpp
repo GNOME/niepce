@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/uidataprovider.hpp
  *
- * Copyright (C) 2011-2020 Hubert Figuière
+ * Copyright (C) 2011-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@
 
 #include <stdint.h>
 #include <memory>
+#include <optional>
 
-#include "fwk/base/option.hpp"
-#include "fwk/base/colour.hpp"
 #include "engine/db/label.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace libraryclient {
 
@@ -33,10 +34,10 @@ class UIDataProvider
 public:
     // label management
 
-    void updateLabel(const eng::Label &);
-    void addLabel(const eng::Label & l);
+    void updateLabel(const eng::LabelPtr&);
+    void addLabel(const eng::LabelPtr& l);
     void deleteLabel(int id);
-    fwk::Option<fwk::RgbColour> colourForLabel(int32_t id) const;
+    std::optional<fwk::RgbColourPtr> colourForLabel(int32_t id) const;
     const eng::LabelList & getLabels() const
         { return m_labels; }
 private:
