@@ -56,11 +56,11 @@ WorkspaceController::WorkspaceController(const Glib::RefPtr<Gio::SimpleActionGro
         int icon_id;
         const char *icon_name;
     } icons[] = {
-        { ICON_FOLDER, "folder" },
-        { ICON_PROJECT, "applications-accessories" },
+        { ICON_FOLDER, "folder-symbolic" },
+        { ICON_PROJECT, "file-cabinet-symbolic" },
         { ICON_ROLL, "emblem-photos" },
         { ICON_TRASH, "user-trash" },
-        { ICON_KEYWORD, "application-certificate" },
+        { ICON_KEYWORD, "tag-symbolic" },
         { 0, nullptr }
     };
 
