@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/propertyvalue.rs
  *
- * Copyright (C) 2017-2019 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,9 +97,9 @@ pub extern "C" fn fwk_property_value_is_date(v: &PropertyValue) -> bool {
 }
 
 #[no_mangle]
-pub extern "C" fn fwk_property_value_get_date(v: &PropertyValue) -> *const Date {
+pub extern "C" fn fwk_property_value_get_date(v: &PropertyValue) -> *mut Date {
     match *v {
-        PropertyValue::Date(ref d) => d,
+        PropertyValue::Date(ref d) => Box::into_raw(Box::new(*d)),
         _ => panic!("value is not Date"),
     }
 }

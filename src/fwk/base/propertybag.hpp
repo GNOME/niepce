@@ -25,7 +25,6 @@
 #include <set>
 #include <memory>
 
-#include "fwk/base/date.hpp"
 #include "fwk/base/option.hpp"
 
 #include "rust_bindings.hpp"

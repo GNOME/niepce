@@ -49,11 +49,6 @@ PropertyValuePtr property_value_new(int v)
     return property_value_wrap(ffi::fwk_property_value_new_int(v));
 }
 
-PropertyValuePtr property_value_new(const DatePtr& d)
-{
-    return property_value_wrap(ffi::fwk_property_value_new_date(d.get()));
-}
-
 PropertyValuePtr property_value_new(const std::vector<std::string>& sa)
 {
     PropertyValue* value = ffi::fwk_property_value_new_string_array();

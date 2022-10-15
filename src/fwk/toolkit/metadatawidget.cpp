@@ -397,14 +397,10 @@ bool MetaDataWidget::set_date_data(Gtk::Widget* w, const PropertyValuePtr& value
     }
     try {
         AutoFlag flag(m_update);
-        const fwk::Date* date = fwk_property_value_get_date(value.get());
-        if (date) {
-            static_cast<Gtk::Label*>(w)->set_text(fwk::date_to_string(date));
+        fwk::DatePtr date = fwk::DatePtr::from_raw(fwk_property_value_get_date(value.get()));
+        static_cast<Gtk::Label*>(w)->set_text(std::string(date->to_string()));
 
-            DBG_OUT("setting date data %s", fwk::date_to_string(date).c_str());
-        } else {
-            return false;
-        }
+        DBG_OUT("setting date data %s", date->to_string().c_str());
     }
     catch(...) {
         return false;

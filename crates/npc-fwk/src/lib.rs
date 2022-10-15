@@ -44,6 +44,7 @@ pub fn init() {
     rexiv2::initialize().expect("Unable to initialize rexiv2");
 }
 
+use crate::base::date::Date;
 use crate::toolkit::Configuration;
 
 fn make_config_path(file: &str) -> String {
@@ -104,4 +105,12 @@ mod ffi {
         #[cxx_name = "fraction_to_decimal"]
         fn fraction_to_decimal_(value: &str) -> f64;
     }
+
+    extern "Rust" {
+        type Date;
+
+        fn to_string(&self) -> String;
+    }
+
+    impl Box<Date> {}
 }

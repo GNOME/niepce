@@ -37,7 +37,6 @@ testoption_LDADD = $(testing_ldadd)
 
 libfwkbase_a_SOURCES = colour.hpp colour.cpp \
 	autoflag.hpp \
-	date.hpp date.cpp \
 	debug.hpp debug.cpp \
 	moniker.hpp moniker.cpp \
 	geometry.hpp geometry.cpp \

@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libmetadata.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ use super::props;
 use super::NiepceProperties as Np;
 use super::{FromDb, LibraryId};
 use crate::{NiepcePropertyBag, NiepcePropertySet};
+use npc_fwk::base::date::Date;
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
 use npc_fwk::{dbg_out, err_out};
 use npc_fwk::{xmp_date_from, PropertyBag, PropertySet, PropertyValue, XmpMeta};
@@ -207,7 +208,7 @@ impl LibMetadata {
                     }
                 }
                 Np::Index(NpExifDateTimeOriginalProp) => {
-                    if let Some(date) = self.xmp.creation_date() {
+                    if let Some(date) = self.xmp.creation_date().map(Date) {
                         props.set_value(*prop_id, PropertyValue::Date(date));
                     }
                 }

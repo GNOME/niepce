@@ -21,6 +21,7 @@ fn main() {
             .with_parse_exclude(&[
                 "exempi", "chrono", "multimap", "glib", "clap", "winapi", "strum",
             ])
+            .exclude_item("Date")
             .exclude_item("CUSTOM_START")
             .exclude_item("INTERNAL_START")
             .exclude_item("GdkPixbuf")

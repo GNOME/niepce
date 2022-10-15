@@ -17,12 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::ffi::CString;
-
 use chrono::{Datelike, Timelike};
 
 pub type Time = i64;
-pub type Date = chrono::DateTime<chrono::Utc>;
+// XXX a tuple for the cxx bindings
+#[derive(Clone, Copy, Debug)]
+pub struct Date(pub chrono::DateTime<chrono::Utc>);
+
+impl std::string::ToString for Date {
+    fn to_string(&self) -> String {
+        self.0.to_string()
+    }
+}
+
+impl std::ops::Deref for Date {
+    type Target = chrono::DateTime<chrono::Utc>;
+
+    fn deref(&self) -> &chrono::DateTime<chrono::Utc> {
+        &self.0
+    }
+}
 
 pub fn xmp_date_from(d: &chrono::DateTime<chrono::Utc>) -> exempi::DateTime {
     let mut xmp_date = exempi::DateTime::new();
@@ -31,11 +45,4 @@ pub fn xmp_date_from(d: &chrono::DateTime<chrono::Utc>) -> exempi::DateTime {
     xmp_date.set_timezone(exempi::XmpTzSign::UTC, 0, 0);
 
     xmp_date
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_date_to_string(date: &Date) -> *mut libc::c_char {
-    CString::new(date.to_string().as_bytes())
-        .unwrap()
-        .into_raw()
 }

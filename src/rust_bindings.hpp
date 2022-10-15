@@ -23,11 +23,14 @@
 
 #include <gtk/gtk.h>
 
+#include "fwk/cxx_fwk_bindings.hpp"
+
 namespace ffi {
 class rust_str;
 struct Utc;
 template <class T>
 struct DateTime;
+typedef fwk::Date Date;
 typedef rust_str str;
 struct NiepcePropertyBag;
 struct NiepcePropertySet;
@@ -36,14 +39,13 @@ struct NiepcePropertySet;
 #include "target/fwk_bindings.h"
 #include "target/eng_bindings.h"
 #include "target/bindings.h"
-#include "fwk/cxx_fwk_bindings.hpp"
 
 namespace fwk {
 typedef std::shared_ptr<SharedConfiguration> ConfigurationPtr;
+typedef rust::Box<fwk::Date> DatePtr;
 typedef ffi::PropertyValue PropertyValue;
 typedef ffi::NiepcePropertyBag PropertyBag;
 typedef ffi::NiepcePropertySet PropertySet;
-typedef ffi::Date Date;
 typedef ffi::RgbColour RgbColour;
 typedef ffi::FileList FileList;
 }
