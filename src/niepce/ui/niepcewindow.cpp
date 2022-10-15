@@ -76,17 +76,17 @@ NiepceWindow::NiepceWindow()
     undo_button->set_image_from_icon_name("edit-undo-symbolic");
     undo_button->set_label(_("Undo"));
     // XXX undo_button->set_always_show_image(true);
-    gtk_actionable_set_action_name(GTK_ACTIONABLE(undo_button->gobj()), "win.Undo");
+    undo_button->set_action_name("win.Undo");
     Gtk::Button *redo_button = Gtk::manage(new Gtk::Button);
     redo_button->set_image_from_icon_name("edit-redo-symbolic");
-    gtk_actionable_set_action_name(GTK_ACTIONABLE(redo_button->gobj()), "win.Redo");
+    redo_button->set_action_name("win.Redo");
     button_box->append(*undo_button);
     button_box->append(*redo_button);
     header->pack_start(*button_box);
 
     Gtk::Button *import_button = Gtk::manage(new Gtk::Button);
     import_button->set_label(_("Import..."));
-    gtk_actionable_set_action_name(GTK_ACTIONABLE(import_button->gobj()), "workspace.Import");
+    import_button->set_action_name("workspace.Import");
     header->pack_start(*import_button);
 
     setHeaderBar(header);
