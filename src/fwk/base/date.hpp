@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/date.hpp
  *
- * Copyright (C) 2012-2017 Hubert Figuiere
+ * Copyright (C) 2012-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ bool make_xmp_date_time(time_t t, XmpDateTime& xmp_dt);
 
 typedef std::shared_ptr<Date> DatePtr;
 
-DatePtr date_wrap(Date*);
 std::string date_to_string(const Date*);
 }
 

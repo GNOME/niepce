@@ -40,7 +40,6 @@ struct NiepcePropertySet;
 
 namespace fwk {
 typedef std::shared_ptr<SharedConfiguration> ConfigurationPtr;
-typedef ffi::ExempiManager ExempiManager;
 typedef ffi::PropertyValue PropertyValue;
 typedef ffi::NiepcePropertyBag PropertyBag;
 typedef ffi::NiepcePropertySet PropertySet;

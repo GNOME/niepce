@@ -512,20 +512,6 @@ pub fn xmp_date_from_exif(d: &str) -> Option<exempi::DateTime> {
     Some(xmp_date)
 }
 
-#[no_mangle]
-pub extern "C" fn fwk_exempi_manager_new() -> *mut ExempiManager {
-    Box::into_raw(Box::new(ExempiManager::new(None)))
-}
-
-/// Delete the ExempiManager
-///
-/// # Safety
-/// Dereference the pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_exempi_manager_delete(em: *mut ExempiManager) {
-    drop(Box::from_raw(em));
-}
-
 #[cfg(test)]
 mod tests {
     use super::xmp_date_from_exif;

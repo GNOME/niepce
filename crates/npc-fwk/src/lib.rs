@@ -33,39 +33,7 @@ pub use self::base::date::*;
 
 pub use self::toolkit::mimetype::MimeType;
 
-use libc::c_char;
 use std::f64;
-use std::ffi::CStr;
-
-/// Convert a gps coord (in string format) to a decimal (floating point)
-///
-/// # Safety
-/// Dereference the pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_gps_coord_from_xmp(cvalue: *const c_char) -> f64 {
-    let value = CStr::from_ptr(cvalue);
-    if let Ok(svalue) = value.to_str() {
-        if let Some(coord) = gps_coord_from_xmp(svalue) {
-            return coord;
-        }
-    }
-    f64::NAN
-}
-
-/// Convert a fraction (in string format) to a decimal (floating point)
-///
-/// # Safety
-/// Dereference the pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_fraction_to_decimal(cvalue: *const c_char) -> f64 {
-    let value = CStr::from_ptr(cvalue);
-    if let Ok(svalue) = value.to_str() {
-        if let Some(dec) = fraction_to_decimal(svalue) {
-            return dec;
-        }
-    }
-    f64::NAN
-}
 
 ///
 /// Init funtion because rexiv2 need one.
@@ -90,6 +58,18 @@ fn configuration_new(file: &str) -> cxx::SharedPtr<ffi::SharedConfiguration> {
     })
 }
 
+fn exempi_manager_new() -> Box<ExempiManager> {
+    Box::new(ExempiManager::new(None))
+}
+
+pub fn gps_coord_from_xmp_(value: &str) -> f64 {
+    gps_coord_from_xmp(value).unwrap_or(f64::NAN)
+}
+
+pub fn fraction_to_decimal_(value: &str) -> f64 {
+    fraction_to_decimal(value).unwrap_or(f64::NAN)
+}
+
 #[cxx::bridge(namespace = "fwk")]
 mod ffi {
     struct SharedConfiguration {
@@ -109,5 +89,19 @@ mod ffi {
         fn value(&self, key: &str, def: &str) -> String;
         #[cxx_name = "setValue"]
         fn set_value(&self, key: &str, value: &str);
+    }
+
+    extern "Rust" {
+        type ExempiManager;
+
+        #[cxx_name = "ExempiManager_new"]
+        fn exempi_manager_new() -> Box<ExempiManager>;
+    }
+
+    extern "Rust" {
+        #[cxx_name = "gps_coord_from_xmp"]
+        fn gps_coord_from_xmp_(value: &str) -> f64;
+        #[cxx_name = "fraction_to_decimal"]
+        fn fraction_to_decimal_(value: &str) -> f64;
     }
 }

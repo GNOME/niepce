@@ -276,7 +276,7 @@ bool MetaDataWidget::set_fraction_dec_data(Gtk::Widget* w,
         const std::string str_value = fwk::property_value_get_string(*value);
         DBG_OUT("set fraction dec %s", str_value.c_str());
         std::string frac = str(boost::format("%.1f")
-                               % ffi::fwk_fraction_to_decimal(str_value.c_str()));
+                               % fwk::fraction_to_decimal(str_value));
         AutoFlag flag(m_update);
         static_cast<Gtk::Label*>(w)->set_text(frac);
     }

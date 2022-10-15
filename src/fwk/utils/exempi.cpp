@@ -29,15 +29,6 @@ const char* UFRAW_INTEROP_NAMESPACE =
 const char* UFRAW_INTEROP_NS_PREFIX = "ufrint";
 }
 
-namespace fwk {
-
-ExempiManagerPtr exempi_manager_new()
-{
-    return ExempiManagerPtr(ffi::fwk_exempi_manager_new(),
-                            &ffi::fwk_exempi_manager_delete);
-}
-}
-
 /*
   Local Variables:
   mode:c++

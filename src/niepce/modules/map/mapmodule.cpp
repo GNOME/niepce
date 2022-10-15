@@ -1,7 +1,7 @@
 /*
  * niepce - modules/map/mapmodule.cpp
  *
- * Copyright (C) 2014-2017 Hubert Figuiere
+ * Copyright (C) 2014-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@
 #include "engine/db/properties.hpp"
 #include "engine/db/libmetadata.hpp"
 #include "mapmodule.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace mapm {
 
@@ -90,8 +92,7 @@ MapModule::on_lib_notification(const eng::LibNotification &ln)
                 fwk::PropertyValuePtr val = result.unwrap();
                 // it is a string
                 if (fwk_property_value_is_string(val.get())) {
-                    longitude = ffi::fwk_gps_coord_from_xmp(
-                        fwk::property_value_get_string(*val).c_str());
+                    longitude = fwk::gps_coord_from_xmp(fwk::property_value_get_string(*val));
                 }
             }
             result = fwk::get_value_for_property(*properties, ffi::NiepcePropertyIdx::NpExifGpsLatProp);
@@ -99,8 +100,7 @@ MapModule::on_lib_notification(const eng::LibNotification &ln)
                 fwk::PropertyValuePtr val = result.unwrap();
                 // it is a string
                 if (fwk_property_value_is_string(val.get())) {
-                    latitude = ffi::fwk_gps_coord_from_xmp(
-                        fwk::property_value_get_string(*val).c_str());
+                    latitude = fwk::gps_coord_from_xmp(fwk::property_value_get_string(*val));
                 }
             }
 

@@ -33,15 +33,6 @@ pub fn xmp_date_from(d: &chrono::DateTime<chrono::Utc>) -> exempi::DateTime {
     xmp_date
 }
 
-/// Delete a %Date object
-///
-/// # Safety
-/// Dereference the raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_date_delete(date: *mut Date) {
-    drop(Box::from_raw(date));
-}
-
 #[no_mangle]
 pub extern "C" fn fwk_date_to_string(date: &Date) -> *mut libc::c_char {
     CString::new(date.to_string().as_bytes())

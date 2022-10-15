@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/date.cpp
  *
- * Copyright (C) 2012-2020 Hubert Figuière
+ * Copyright (C) 2012-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,11 +33,6 @@ extern "C" char* fwk_date_to_string(const fwk::Date*);
 }
 
 namespace fwk {
-
-DatePtr date_wrap(fwk::Date* date)
-{
-    return DatePtr(date, ffi::fwk_date_delete);
-}
 
 std::string date_to_string(const Date* d)
 {
