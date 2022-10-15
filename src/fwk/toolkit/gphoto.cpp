@@ -359,9 +359,8 @@ std::list<std::pair<std::string, std::string>> GpCamera::list_content() const
     return files;
 }
 
-fwk::ThumbnailPtr GpCamera::get_preview(const std::string& path) const
+std::optional<fwk::ThumbnailPtr> GpCamera::get_preview(const std::string& path) const
 {
-    fwk::ThumbnailPtr thumbnail;
     std::string folder = fwk::path_dirname(path);
     std::string name = fwk::path_basename(path);
 
@@ -406,10 +405,10 @@ fwk::ThumbnailPtr GpCamera::get_preview(const std::string& path) const
             unlink(exif_path.c_str());
         }
 #endif
-        thumbnail = fwk::thumbnail_wrap(ffi::fwk_toolkit_thumbnail_from_pixbuf(pix->gobj()));
+        return std::optional<fwk::ThumbnailPtr>(fwk::Thumbnail_from_pixbuf((char*)pix->gobj()));
     }
 
-    return thumbnail;
+    return std::nullopt;
 }
 
 bool GpCamera::download_file(const std::string& folder, const std::string& file,

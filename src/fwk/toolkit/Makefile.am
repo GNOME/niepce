@@ -42,7 +42,6 @@ libniepceframework_a_SOURCES = \
 	controller.hpp controller.cpp \
 	uicontroller.hpp uicontroller.cpp \
 	uiresult.hpp uiresult.cpp \
-	thumbnail.hpp thumbnail.cpp \
 	mapcontroller.hpp mapcontroller.cpp \
 	notification.hpp \
 	mimetype.hpp mimetype.cpp \

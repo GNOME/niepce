@@ -30,7 +30,6 @@
 #include "fwk/toolkit/gtkutils.hpp"
 #include "fwk/toolkit/dialog.hpp"
 #include "fwk/toolkit/uiresult.hpp"
-#include "fwk/toolkit/thumbnail.hpp"
 #include "metadatapanecontroller.hpp"
 #include "importers/iimporterui.hpp"
 

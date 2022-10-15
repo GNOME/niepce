@@ -2,7 +2,7 @@
 /*
  * niepce - engine/importer/directoryimporter.cpp
  *
- * Copyright (C) 2014-2020 Hubert Figuière
+ * Copyright (C) 2014-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,9 +91,8 @@ bool DirectoryImporter::get_previews_for(const std::string& /*source*/,
 {
     for (auto path : paths) {
         DBG_OUT("path %s", path.c_str());
-        auto thumbnail =
-            fwk::thumbnail_wrap(ffi::fwk_toolkit_thumbnail_file(path.c_str(), 160, 160, 0));
-        callback(path, thumbnail);
+        auto thumbnail = fwk::Thumbnail_for_file(path, 160, 160, 0);
+        callback(std::move(path), std::move(thumbnail));
     }
     return true;
 }

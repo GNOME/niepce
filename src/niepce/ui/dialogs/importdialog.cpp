@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <memory>
+
 #include <glibmm/miscutils.h>
 #include <gtkmm/button.h>
 #include <gtkmm/checkbutton.h>
@@ -213,23 +215,22 @@ void ImportDialog::append_files_to_import()
         [this, importer, source, paths] () {
             return importer->get_previews_for(
                 source, paths,
-                [this] (const std::string& path, const fwk::ThumbnailPtr& thumbnail) {
+                [this] (std::string&& path, fwk::ThumbnailPtr&& thumbnail) {
                     this->m_previews_to_import.send_data(
-                        std::make_pair(path, thumbnail));
+                        std::shared_ptr<decltype(this->m_previews_to_import)::value_type>(new std::pair(std::move(path), std::move(thumbnail))));
                 });
         });
 }
 
 void ImportDialog::preview_received()
 {
-    auto result = m_previews_to_import.recv_data();
-    if (!result.empty()) {
-        auto preview = result.unwrap();
-        auto iter = m_images_list_map.find(preview.first);
+    auto preview = m_previews_to_import.recv_data();
+    if (preview) {
+        auto iter = m_images_list_map.find(preview->first);
         if (iter != m_images_list_map.end()) {
             iter->second->set_value(m_grid_columns.pixbuf,
-                                    Glib::wrap(ffi::fwk_toolkit_thumbnail_to_pixbuf(
-                                                   preview.second.get())));
+                                    Glib::wrap((GdkPixbuf*)fwk::Thumbnail_to_pixbuf(
+                                                   *preview->second)));
         }
     }
 }

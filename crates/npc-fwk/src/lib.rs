@@ -44,7 +44,15 @@ pub fn init() {
     rexiv2::initialize().expect("Unable to initialize rexiv2");
 }
 
+// C++ bridge
+
+use std::ffi::c_char;
+
+use gdk_pixbuf_sys::GdkPixbuf;
+use glib::translate::*;
+
 use crate::base::date::Date;
+use crate::toolkit::thumbnail::Thumbnail;
 use crate::toolkit::Configuration;
 
 fn make_config_path(file: &str) -> String {
@@ -69,6 +77,26 @@ pub fn gps_coord_from_xmp_(value: &str) -> f64 {
 
 pub fn fraction_to_decimal_(value: &str) -> f64 {
     fraction_to_decimal(value).unwrap_or(f64::NAN)
+}
+
+pub fn thumbnail_for_file(path: &str, w: i32, h: i32, orientation: i32) -> Box<Thumbnail> {
+    Box::new(Thumbnail::thumbnail_file(path, w, h, orientation))
+}
+
+/// Create a %Thumbnail from a %GdkPixbuf
+///
+/// The resulting object must be freed by %fwk_toolkit_thumbnail_delete
+///
+/// # Safety
+/// Dereference the pointer
+unsafe fn thumbnail_from_pixbuf(pixbuf: *mut c_char) -> Box<Thumbnail> {
+    let pixbuf: Option<gdk_pixbuf::Pixbuf> = from_glib_none(pixbuf as *mut GdkPixbuf);
+    Box::new(Thumbnail::from(pixbuf))
+}
+
+fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut c_char {
+    let pixbuf: *mut GdkPixbuf = self_.make_pixbuf().to_glib_full();
+    pixbuf as *mut c_char
 }
 
 #[cxx::bridge(namespace = "fwk")]
@@ -113,4 +141,15 @@ mod ffi {
     }
 
     impl Box<Date> {}
+
+    extern "Rust" {
+        type Thumbnail;
+
+        #[cxx_name = "Thumbnail_for_file"]
+        fn thumbnail_for_file(path: &str, w: i32, h: i32, orientation: i32) -> Box<Thumbnail>;
+        #[cxx_name = "Thumbnail_from_pixbuf"]
+        unsafe fn thumbnail_from_pixbuf(pixbuf: *mut c_char) -> Box<Thumbnail>;
+        #[cxx_name = "Thumbnail_to_pixbuf"]
+        fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut c_char;
+    }
 }
