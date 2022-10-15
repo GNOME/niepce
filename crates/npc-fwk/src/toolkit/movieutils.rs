@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/movieutils.rs
  *
- * Copyright (C) 2020 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,15 @@ where
     S: AsRef<Path> + std::fmt::Debug,
     D: AsRef<Path>,
 {
-    let status = Command::new("totem-video-thumbnailer")
+    Command::new("totem-video-thumbnailer")
         .arg("-s")
         .arg(format!("{}", cmp::max(w, h)))
         .arg(source.as_ref().as_os_str())
         .arg(dest.as_ref().as_os_str())
         .status()
-        .unwrap_or_else(|_| panic!("Failed to thumbnail {:?}", source));
-    status.success()
+        .map(|s| s.success())
+        .unwrap_or_else(|e| {
+            err_out!("Failed to thumbnail {:?}: {:?}", source, e);
+            false
+        })
 }
