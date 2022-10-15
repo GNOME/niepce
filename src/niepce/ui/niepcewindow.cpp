@@ -32,7 +32,6 @@
 #include "fwk/base/moniker.hpp"
 #include "fwk/utils/boost.hpp"
 #include "fwk/toolkit/application.hpp"
-#include "fwk/toolkit/configuration.hpp"
 #include "fwk/toolkit/notificationcenter.hpp"
 #include "fwk/toolkit/configdatabinder.hpp"
 #include "fwk/toolkit/undo.hpp"
@@ -254,17 +253,17 @@ void NiepceWindow::init_actions()
 
 void NiepceWindow::on_open_library()
 {
-    Configuration & cfg = Application::app()->config();
+    auto& cfg = Application::app()->config()->cfg;
     std::string libMoniker;
     int reopen = 0;
     try {
-        reopen = std::stoi(cfg.getValue("reopen_last_catalog", "0"));
+        reopen = std::stoi(std::string(cfg->getValue("reopen_last_catalog", "0")));
     }
     catch(...)
     {
     }
     if(reopen) {
-        libMoniker = cfg.getValue("last_open_catalog", "");
+        libMoniker = std::string(cfg->getValue("last_open_catalog", ""));
     }
     if (libMoniker.empty()) {
         prompt_open_library();
@@ -345,13 +344,13 @@ void NiepceWindow::prompt_open_library()
             DBG_OUT("response %d", response);
             if (response == Gtk::ResponseType::OK) {
                 DBG_OUT("Accepted");
-                Configuration & cfg = Application::app()->config();
+                auto& cfg = Application::app()->config()->cfg;
                 auto file = dialog->get_file();
                 Glib::ustring libraryToCreate = file->get_path();
                 // pass it to the library
                 std::string libMoniker = "local:";
                 libMoniker += libraryToCreate.c_str();
-                cfg.setValue("last_open_catalog", libMoniker);
+                cfg->setValue("last_open_catalog", libMoniker);
                 DBG_OUT("created catalog %s", libMoniker.c_str());
                 this->open_library(libMoniker);
             }
@@ -368,10 +367,7 @@ bool NiepceWindow::open_library(const std::string & libMoniker)
                                mon, m_notifcenter->get_channel()));
     // XXX ensure the library is open.
     set_title(libMoniker);
-    m_library_cfg
-        = fwk::Configuration::Ptr(
-            new fwk::Configuration(
-                Glib::build_filename(mon.path(), "config.ini")));
+    m_library_cfg = fwk::Configuration_new(Glib::build_filename(mon.path(), "config.ini"));
     ffi::libraryclient_get_all_labels(m_libClient->client());
     if(!m_moduleshell) {
         _createModuleShell();

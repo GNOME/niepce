@@ -25,10 +25,10 @@
 #include <gtkmm/application.h>
 #include <gtkmm/icontheme.h>
 
-#include "fwk/toolkit/configuration.hpp"
 #include "fwk/toolkit/appframe.hpp"
 #include "fwk/toolkit/undo.hpp"
 
+#include "rust_bindings.hpp"
 
 namespace fwk {
 
@@ -51,7 +51,7 @@ public:
     const Glib::RefPtr<Gtk::Application> & gtkApp() const
         { return m_gtkapp; }
 
-    Configuration & config()
+    const ConfigurationPtr& config() const
         { return m_config; }
 
     virtual void quit();
@@ -94,7 +94,7 @@ protected:
 
     AppFrame::WeakPtr            m_main_frame;
 private:
-    Configuration                m_config;
+    ConfigurationPtr m_config;
     UndoHistory                  m_undo;
     ModuleManager               *m_module_manager;
     Glib::RefPtr<Gtk::Application> m_gtkapp;

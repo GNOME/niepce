@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/string.hpp
  *
- * Copyright (C) 2020 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <string.h>
+
 #include <memory>
 #include <string>
 
@@ -28,6 +30,10 @@ namespace fwk {
 class RustFfiString {
 public:
   RustFfiString(char* p);
+
+  bool empty() const {
+    return !ptr || strlen(c_str()) == 0;
+  }
 
   const char* c_str() const {
     return ptr.get();

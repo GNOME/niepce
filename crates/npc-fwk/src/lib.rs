@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/lib.rs
  *
- * Copyright (C) 2017-2020 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,4 +74,40 @@ pub unsafe extern "C" fn fwk_fraction_to_decimal(cvalue: *const c_char) -> f64 {
 ///
 pub fn init() {
     rexiv2::initialize().expect("Unable to initialize rexiv2");
+}
+
+use crate::toolkit::Configuration;
+
+fn make_config_path(file: &str) -> String {
+    Configuration::make_config_path(file)
+        .to_string_lossy()
+        .into()
+}
+
+fn configuration_new(file: &str) -> cxx::SharedPtr<ffi::SharedConfiguration> {
+    cxx::SharedPtr::new(ffi::SharedConfiguration {
+        cfg: Box::new(Configuration::from_file(file)),
+    })
+}
+
+#[cxx::bridge(namespace = "fwk")]
+mod ffi {
+    struct SharedConfiguration {
+        cfg: Box<Configuration>,
+    }
+
+    extern "Rust" {
+        type Configuration;
+
+        #[cxx_name = "Configuration_new"]
+        fn configuration_new(file: &str) -> SharedPtr<SharedConfiguration>;
+        #[cxx_name = "Configuration_make_config_path"]
+        fn make_config_path(file: &str) -> String;
+        #[cxx_name = "hasKey"]
+        fn has(&self, key: &str) -> bool;
+        #[cxx_name = "getValue"]
+        fn value(&self, key: &str, def: &str) -> String;
+        #[cxx_name = "setValue"]
+        fn set_value(&self, key: &str, value: &str);
+    }
 }

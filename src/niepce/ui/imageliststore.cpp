@@ -96,11 +96,11 @@ void ImageListStore::on_lib_notification(const eng::LibNotification &ln)
     switch (type) {
     case eng::NotificationType::XMP_NEEDS_UPDATE:
     {
-        fwk::Configuration & cfg = fwk::Application::app()->config();
+        auto& cfg = fwk::Application::app()->config()->cfg;
         int write_xmp = false;
-        Glib::ustring xmp_pref;
+        std::string xmp_pref;
         try {
-            xmp_pref = cfg.getValue("write_xmp_automatically", "0");
+            xmp_pref = std::string(cfg->getValue("write_xmp_automatically", "0"));
             write_xmp = std::stoi(xmp_pref);
         }
         catch(const std::exception & e)

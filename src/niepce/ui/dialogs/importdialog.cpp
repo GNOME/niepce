@@ -31,7 +31,6 @@
 #include "fwk/base/debug.hpp"
 #include "fwk/utils/pathutils.hpp"
 #include "fwk/toolkit/application.hpp"
-#include "fwk/toolkit/configuration.hpp"
 #include "engine/importer/directoryimporter.hpp"
 #include "engine/importer/importedfile.hpp"
 #include "importdialog.hpp"
@@ -52,10 +51,10 @@ ImportDialog::ImportDialog()
   , m_attributes_scrolled(nullptr)
   , m_images_list_scrolled(nullptr)
 {
-    fwk::Configuration & cfg = fwk::Application::app()->config();
-    m_base_dest_dir = cfg.getValue("base_import_dest_dir",
+    auto& cfg = fwk::Application::app()->config()->cfg;
+    m_base_dest_dir = std::string(cfg->getValue("base_import_dest_dir",
                                    Glib::get_user_special_dir(
-                                       Glib::UserDirectory::PICTURES));
+                                       Glib::UserDirectory::PICTURES)));
     DBG_OUT("base_dest_dir set to %s", m_base_dest_dir.c_str());
 }
 
@@ -81,7 +80,7 @@ void ImportDialog::setup_widget()
         return;
     }
 
-    fwk::Configuration & cfg = fwk::Application::app()->config();
+    auto& cfg = fwk::Application::app()->config()->cfg;
 
     Glib::RefPtr<Gtk::Builder> a_builder = builder();
     m_date_tz_combo = a_builder->get_widget<Gtk::ComboBox>("date_tz_combo");
@@ -104,7 +103,7 @@ void ImportDialog::setup_widget()
     m_importers[importer->id()] = importer;
     add_importer_ui(*importer);
 
-    auto last_importer = cfg.getValue("last_importer", "DirectoryImporter");
+    auto last_importer = std::string(cfg->getValue("last_importer", "DirectoryImporter"));
     m_import_source_combo->set_active_id(last_importer);
 
     // Metadata pane.
@@ -161,8 +160,8 @@ void ImportDialog::import_source_changed()
 
     clear_import_list();
 
-    fwk::Configuration & cfg = fwk::Application::app()->config();
-    cfg.setValue("last_importer", id);
+    auto& cfg = fwk::Application::app()->config()->cfg;
+    cfg->setValue("last_importer", id.c_str());
 }
 
 void ImportDialog::set_source(const std::string& source, const std::string& dest_dir)

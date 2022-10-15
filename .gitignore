@@ -91,6 +91,8 @@ m4/xsize.m4
 /src/fwk/utils/testufrawmeta
 /src/fwk/utils/testxmp
 /src/fwk/toolkit/testconfigdatabinder
+/src/fwk/cxx_fwk_bindings.cpp
+/src/fwk/cxx_fwk_bindings.hpp
 /src/libraryclient/test_worker
 /src/engine/test_library
 /src/engine/test_filebundle

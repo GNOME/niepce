@@ -29,7 +29,6 @@
 #include "fwk/base/debug.hpp"
 #include "fwk/base/string.hpp"
 #include "fwk/toolkit/application.hpp"
-#include "fwk/toolkit/configuration.hpp"
 #include "fwk/toolkit/gtkutils.hpp"
 #include "engine/importer/iimporter.hpp"
 #include "libraryclient/libraryclient.hpp"
@@ -88,7 +87,7 @@ libraryclient::LibraryClientPtr WorkspaceController::getLibraryClient() const
     return std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock())->getLibraryClient();
 }
 
-fwk::Configuration::Ptr WorkspaceController::getLibraryConfig() const
+const fwk::ConfigurationPtr& WorkspaceController::getLibraryConfig() const
 {
     return std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock())->getLibraryConfig();
 }
@@ -117,7 +116,7 @@ void WorkspaceController::action_delete_folder()
 
 void WorkspaceController::perform_file_import(ImportDialog::Ptr dialog)
 {
-    auto& cfg = Application::app()->config(); // XXX change to getLibraryConfig()
+    auto& cfg = Application::app()->config()->cfg; // XXX change to getLibraryConfig()
     // as the last import should be part of the library not the application.
 
     // import
@@ -128,7 +127,7 @@ void WorkspaceController::perform_file_import(ImportDialog::Ptr dialog)
     }
     // XXX this should be a different config key
     // specific to the importer.
-    cfg.setValue("last_import_location", source);
+    cfg->setValue("last_import_location", source);
 
     auto importer = dialog->get_importer();
     DBG_ASSERT(!!importer, "Import can't be null if we clicked import");
@@ -296,7 +295,7 @@ void WorkspaceController::on_row_expanded_collapsed(const Gtk::TreeModel::iterat
                                                     bool expanded)
 {
     int type = (*iter)[m_librarycolumns.m_type];
-    fwk::Configuration::Ptr cfg = getLibraryConfig();
+    auto& cfg = getLibraryConfig()->cfg;
     const char* key = nullptr;
     switch(type) {
     case FOLDERS_ITEM:
@@ -309,7 +308,7 @@ void WorkspaceController::on_row_expanded_collapsed(const Gtk::TreeModel::iterat
         key = "workspace_keywords_expanded";
         break;
     }
-    if(cfg && key) {
+    if (key) {
         cfg->setValue(key, std::to_string(expanded));
     }
 }
@@ -508,9 +507,9 @@ Gtk::Widget * WorkspaceController::buildWidget()
 void WorkspaceController::expand_from_cfg(const char* key,
                                           const Gtk::TreeModel::iterator& treenode)
 {
-    fwk::Configuration::Ptr cfg = getLibraryConfig();
+    auto& cfg = getLibraryConfig()->cfg;
 
-    bool expanded = std::stoi(cfg->getValue(key, "1"));
+    bool expanded = std::stoi(std::string(cfg->getValue(key, "1")));
     if(expanded) {
         m_librarytree.expand_row(m_treestore->get_path(treenode),
                                  false);

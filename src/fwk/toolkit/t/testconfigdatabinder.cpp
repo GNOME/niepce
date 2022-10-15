@@ -52,11 +52,11 @@ TEST(testConfigDataBinder, testConfigDataBinderSanity)
   PropertyFixture fixture;
 
   // get tmp file
-  Glib::ustring cfg_file("/tmp/tmp-cfg.ini");
+  std::string cfg_file("/tmp/tmp-cfg.ini");
   Glib::RefPtr<Gio::File> file = Gio::File::create_for_path(cfg_file);
 
   {
-    fwk::Configuration cfg(cfg_file);
+    auto cfg = fwk::Configuration_new(cfg_file);
 
     {
       // the binder only write to the preference when
@@ -69,8 +69,8 @@ TEST(testConfigDataBinder, testConfigDataBinderSanity)
     }
     ASSERT_TRUE(file->query_exists());
 
-    ASSERT_TRUE(cfg.hasKey("int"));
-    Glib::ustring val = cfg.getValue("int", "0");
+    ASSERT_TRUE(cfg->cfg->hasKey("int"));
+    rust::String val = cfg->cfg->getValue("int", "0");
     ASSERT_EQ(val, "1");
 
     {
@@ -81,8 +81,8 @@ TEST(testConfigDataBinder, testConfigDataBinderSanity)
     }
     ASSERT_TRUE(file->query_exists());
 
-    ASSERT_TRUE(cfg.hasKey("string"));
-    val = cfg.getValue("string", "");
+    ASSERT_TRUE(cfg->cfg->hasKey("string"));
+    val = cfg->cfg->getValue("string", "");
     ASSERT_EQ(val, "foo");
 
     {
@@ -93,8 +93,8 @@ TEST(testConfigDataBinder, testConfigDataBinderSanity)
     }
     ASSERT_TRUE(file->query_exists());
 
-    ASSERT_TRUE(cfg.hasKey("bool"));
-    val = cfg.getValue("bool", "");
+    ASSERT_TRUE(cfg->cfg->hasKey("bool"));
+    val = cfg->cfg->getValue("bool", "");
     ASSERT_EQ(val, "1");
   }
 

@@ -1,7 +1,7 @@
 /*
  * niepce - rust_bindings.hpp
  *
- * Copyright (C) 2017-2021 Hubert Figuiere
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include <gtk/gtk.h>
 
 namespace ffi {
@@ -34,9 +36,10 @@ struct NiepcePropertySet;
 #include "target/fwk_bindings.h"
 #include "target/eng_bindings.h"
 #include "target/bindings.h"
+#include "fwk/cxx_fwk_bindings.hpp"
 
 namespace fwk {
-
+typedef std::shared_ptr<SharedConfiguration> ConfigurationPtr;
 typedef ffi::ExempiManager ExempiManager;
 typedef ffi::PropertyValue PropertyValue;
 typedef ffi::NiepcePropertyBag PropertyBag;

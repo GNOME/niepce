@@ -1,5 +1,5 @@
 
-niepce_cppflags = -I$(top_srcdir)/src/ \
+niepce_cppflags = -I$(top_srcdir)/src/ -I$(top_builddir)/src \
 	@FRAMEWORK_CFLAGS@
 
 AM_CPPFLAGS = $(niepce_cppflags)

@@ -1,10 +1,15 @@
 
 
-niepce_cppflags = -I$(top_srcdir)/src -I$(top_srcdir)/src/ext \
+niepce_cppflags = -I$(top_srcdir)/src -I$(top_builddir)/src -I$(top_srcdir)/src/ext \
 	-DDATADIR=\"$(datadir)\" \
 	@FRAMEWORK_CFLAGS@ \
 	@GPHOTO_CFLAGS@ \
 	@OPENRAW_CFLAGS@ \
+	$(NULL)
+
+rust_ldadd = $(top_builddir)/target/@CARGO_TARGET_SUBDIR@/libniepce_rust.a \
+	@OPENRAW_LIBS@ \
+	@GEXIV2_LIBS@ \
 	$(NULL)
 
 AM_CPPFLAGS = $(niepce_cppflags)
@@ -24,9 +29,12 @@ testing_ldadd = @top_builddir@/third_party/libgtest.a \
 
 testconfigdatabinder_SOURCES = t/testconfigdatabinder.cpp
 testconfigdatabinder_CPPFLAGS = $(testing_cppflags)
-testconfigdatabinder_LDADD = $(testing_ldadd)
+testconfigdatabinder_LDADD = $(testing_ldadd) \
+	$(rust_ldadd) \
+	$(NULL)
 
-libniepceframework_a_SOURCES = configuration.hpp configuration.cpp \
+libniepceframework_a_SOURCES = \
+	../cxx_fwk_bindings.cpp \
 	application.hpp application.cpp \
 	appframe.hpp appframe.cpp \
 	dialog.hpp dialog.cpp \

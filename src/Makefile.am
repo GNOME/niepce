@@ -39,6 +39,7 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/clickable_cell_renderer.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/configuration.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/gdk_utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/mimetype.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/thumbnail.rs \
@@ -85,7 +86,18 @@ endif
 
 CARGO_TARGET_DIR=@abs_top_builddir@/target
 
-all-local: $(CARGO_TARGET_DIR)/@CARGO_TARGET_SUBDIR@/libniepce_rust.a
+RUST_BIN_DIR=$(CARGO_TARGET_DIR)/bin
+RUST_CXXBRIDGE=$(RUST_BIN_DIR)/cxxbridge
+
+# This might be a problem offline
+$(RUST_CXXBRIDGE):
+	mkdir -p $(RUST_BIN_DIR)
+	cargo install --root $(CARGO_TARGET_DIR) cxxbridge-cmd
+
+CLEANFILES = \
+	$(RUST_CXXBRIDGE)
+
+all-local: $(CARGO_TARGET_DIR)/@CARGO_TARGET_SUBDIR@/libniepce_rust.a $(RUST_CXXBRIDGE)
 
 @abs_top_builddir@/target/bindings.h: $(CARGO_TARGET_DIR)/@CARGO_TARGET_SUBDIR@/libniepce_rust.a
 

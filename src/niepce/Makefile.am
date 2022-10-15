@@ -2,7 +2,7 @@
 SUBDIRS = ui modules
 
 AM_CPPFLAGS = -DDATADIR=\"$(datadir)\" \
-	-I$(top_srcdir)/src/niepce -I$(top_srcdir)/src  \
+	-I$(top_srcdir)/src/niepce -I$(top_srcdir)/src -I$(top_builddir)/src \
 	@FRAMEWORK_CFLAGS@ \
 	-DNIEPCE_LOCALEDIR=\"@NIEPCE_LOCALEDIR@\"
 

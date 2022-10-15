@@ -36,7 +36,7 @@ Application::Ptr Application::m_application;
 
 Application::Application(int & argc, char** &argv, const char* app_id,
                          const char * name)
-    : m_config(Configuration::make_config_path(name))
+    : m_config(Configuration_new(Configuration_make_config_path(name)))
     , m_module_manager(new ModuleManager())
     , m_gtkapp(Gtk::Application::create(app_id))
 {
@@ -68,7 +68,7 @@ bool Application::get_use_dark_theme() const
 {
     bool v;
     try {
-        v = std::stoi(m_config.getValue("ui_dark_theme", "0"));
+        v = std::stoi(std::string(m_config->cfg->getValue("ui_dark_theme", "0")));
     }
     catch(...) {
         v = false;
@@ -78,7 +78,7 @@ bool Application::get_use_dark_theme() const
 
 void Application::set_use_dark_theme(bool value)
 {
-    m_config.setValue("ui_dark_theme",
+    m_config->cfg->setValue("ui_dark_theme",
                       std::to_string(value));
 }
 

@@ -1,5 +1,5 @@
 
-niepce_cppflags = -I$(top_srcdir)/src \
+niepce_cppflags = -I$(top_srcdir)/src -I$(top_builddir)/src \
 	@BOOST_CPPFLAGS@ \
 	@FRAMEWORK_CFLAGS@ \
 	$(NULL)

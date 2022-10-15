@@ -18,11 +18,14 @@
  */
 
 pub mod clickable_cell_renderer;
+mod configuration;
 pub mod gdk_utils;
 pub mod mimetype;
 pub mod movieutils;
 pub mod thumbnail;
 pub mod widgets;
+
+pub use configuration::Configuration;
 
 pub type Sender<T> = async_channel::Sender<T>;
 

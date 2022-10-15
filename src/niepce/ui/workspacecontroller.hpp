@@ -105,7 +105,7 @@ private:
     void on_button_press_event(double x, double y);
 
     libraryclient::LibraryClientPtr getLibraryClient() const;
-    fwk::Configuration::Ptr getLibraryConfig() const;
+    const fwk::ConfigurationPtr& getLibraryConfig() const;
 
     /** add a folder item to the treeview */
     void add_folder_item(const eng::LibFolder* f);

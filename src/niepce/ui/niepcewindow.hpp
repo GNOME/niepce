@@ -49,7 +49,7 @@ public:
 
     libraryclient::LibraryClientPtr getLibraryClient() const
         { return m_libClient; }
-    fwk::Configuration::Ptr getLibraryConfig() const
+    const fwk::ConfigurationPtr& getLibraryConfig() const
         { return m_library_cfg; }
 
 protected:
@@ -83,7 +83,7 @@ private:
     Gtk::Statusbar                 m_statusBar;
     EditLabels::Ptr m_editlabel_dialog;
     libraryclient::LibraryClientPtr m_libClient;
-    fwk::Configuration::Ptr        m_library_cfg;
+    fwk::ConfigurationPtr m_library_cfg;
 };
 
 }

@@ -1,5 +1,5 @@
 
-AM_CPPFLAGS = -I$(top_srcdir)/src/ -I$(srcdir)/.. \
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src -I$(srcdir)/.. \
 	-I$(top_srcdir)/src/ext \
 	-DDATADIR=\"$(datadir)\" \
 	@FRAMEWORK_CFLAGS@ @GPHOTO_CFLAGS@ \

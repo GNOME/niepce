@@ -171,10 +171,9 @@ void Frame::frameRectFromConfig()
 {
     DBG_OUT("loading frame rect (%s)", m_layout_cfg_key.c_str());
     if(!m_layout_cfg_key.empty()) {
-        Configuration & cfg = Application::app()->config();
-        std::string val;
-        val = cfg.getValue(m_layout_cfg_key, "");
-        if(!val.empty()) {
+        auto& cfg = Application::app()->config()->cfg;
+        auto val = std::string(cfg->getValue(m_layout_cfg_key, ""));
+        if (!val.empty()) {
             try {
                 fwk::Rect r(val);
                 // XXX the position is now ignored
@@ -192,13 +191,13 @@ void Frame::frameRectToConfig()
 {
     DBG_OUT("saving frame rect (%s)", m_layout_cfg_key.c_str());
     if(!m_layout_cfg_key.empty()) {
-        Configuration & cfg = Application::app()->config();
+        auto& cfg = Application::app()->config()->cfg;
         int x, y, w, h;
         x = y = w = h = 0;
         // XXX the position is now ignored
         m_window->get_default_size(w, h);
         fwk::Rect r(x, y, w, h);
-        cfg.setValue(m_layout_cfg_key, std::to_string(r));
+        cfg->setValue(m_layout_cfg_key, std::to_string(r));
     }
 }
 
