@@ -123,7 +123,7 @@ bool CameraImporter::do_import(const std::string& source, const std::string& des
             DBG_ASSERT(!tmp_dir_path.empty(), "Dest dir is empty");
             // XXX check we don't return an empty string.
 
-            fwk::FileListPtr files = fwk::wrapFileList(ffi::fwk_file_list_new());
+            fwk::FileListPtr files = fwk::FileList_new();
             for (auto file: file_list) {
                 auto imported_camera_file =
                     std::dynamic_pointer_cast<CameraImportedFile>(file);
@@ -137,7 +137,7 @@ bool CameraImporter::do_import(const std::string& source, const std::string& des
                 if (this->m_camera->download_file(imported_camera_file->folder(),
                                                   imported_camera_file->name(),
                                                   output_path)) {
-                    ffi::fwk_file_list_push_back(files.get(), output_path.c_str());
+                    files->push_back(output_path);
                 }
             }
 

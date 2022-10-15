@@ -21,6 +21,7 @@
 #include <boost/format.hpp>
 
 #include <glibmm/i18n.h>
+#include <glibmm/datetime.h>
 #include <gtkmm/label.h>
 #include <gtkmm/grid.h>
 #include <gtkmm/comboboxtext.h>

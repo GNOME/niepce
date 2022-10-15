@@ -62,23 +62,15 @@ const std::string& DirectoryImporter::id() const
     return _id;
 }
 
-static bool filter_only_media(GFileInfo* info)
-{
-    return fwk::filter_only_media(Glib::wrap(info, true));
-}
-
 bool DirectoryImporter::list_source_content(const std::string & source,
                                             const SourceContentReady& callback)
 {
-    auto files =
-        fwk::wrapFileList(ffi::fwk_file_list_get_files_from_directory(
-                              source.c_str(), &filter_only_media));
-    DBG_OUT("files size: %lu", ffi::fwk_file_list_size(files.get()));
+    auto files = fwk::FileList_get_media_files_from_directory(source);
+    DBG_OUT("files size: %lu", files->size());
     std::list<ImportedFilePtr> content;
-    for (size_t i = 0; i < ffi::fwk_file_list_size(files.get()); i++)
-    {
-        auto entry = fwk::RustFfiString(ffi::fwk_file_list_at(files.get(), i));
-        content.push_back(ImportedFilePtr(new DirectoryImportedFile(entry.str())));
+    for (size_t i = 0; i < files->size(); i++) {
+        auto entry = files->at(i);
+        content.push_back(ImportedFilePtr(new DirectoryImportedFile(std::string(entry))));
     }
     callback(std::move(content));
 
@@ -100,9 +92,7 @@ bool DirectoryImporter::get_previews_for(const std::string& /*source*/,
 bool DirectoryImporter::do_import(const std::string& source, const std::string& /*dest_dir*/,
                                   const FileImporter& callback)
 {
-    fwk::FileListPtr files;
-    files = fwk::wrapFileList(ffi::fwk_file_list_get_files_from_directory(
-                                  source.c_str(), nullptr));
+    fwk::FileListPtr files = fwk::FileList_get_files_from_directory(source);
 
     return callback(source, files, Managed::NO);
 }

@@ -33,6 +33,8 @@
 #include "fwk/base/singleton.hpp"
 #include "fwk/base/util.hpp"
 
+#include "rust_bindings.hpp"
+
 namespace fwk {
 
 namespace gp {

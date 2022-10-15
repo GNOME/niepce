@@ -32,6 +32,7 @@ template <class T>
 struct DateTime;
 typedef fwk::Date Date;
 typedef rust_str str;
+typedef fwk::FileList FileList;
 struct NiepcePropertyBag;
 struct NiepcePropertySet;
 }
@@ -44,12 +45,12 @@ namespace fwk {
 typedef std::shared_ptr<SharedConfiguration> ConfigurationPtr;
 typedef rust::Box<fwk::Date> DatePtr;
 typedef rust::Box<Thumbnail> ThumbnailPtr;
+typedef rust::Box<FileList> FileListPtr;
 
 typedef ffi::PropertyValue PropertyValue;
 typedef ffi::NiepcePropertyBag PropertyBag;
 typedef ffi::NiepcePropertySet PropertySet;
 typedef ffi::RgbColour RgbColour;
-typedef ffi::FileList FileList;
 }
 
 namespace eng {

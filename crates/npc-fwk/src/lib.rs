@@ -54,6 +54,7 @@ use glib::translate::*;
 use crate::base::date::Date;
 use crate::toolkit::thumbnail::Thumbnail;
 use crate::toolkit::Configuration;
+use crate::utils::files::FileList;
 
 fn make_config_path(file: &str) -> String {
     Configuration::make_config_path(file)
@@ -97,6 +98,36 @@ unsafe fn thumbnail_from_pixbuf(pixbuf: *mut c_char) -> Box<Thumbnail> {
 fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut c_char {
     let pixbuf: *mut GdkPixbuf = self_.make_pixbuf().to_glib_full();
     pixbuf as *mut c_char
+}
+
+/// Get the files in directory dir with extension ext
+/// `ext` has no dot
+pub fn file_list_get_files_from_directory_with_ext(dir: &str, ext: String) -> Box<FileList> {
+    Box::new(FileList::get_files_from_directory(dir, move |file| {
+        if let Some(file_ext) = file.name().extension() {
+            if file_ext.to_string_lossy().to_lowercase() == ext {
+                return true;
+            }
+        }
+        false
+    }))
+}
+
+/// Get all the files in directory dir.
+pub fn file_list_get_files_from_directory(dir: &str) -> Box<FileList> {
+    Box::new(FileList::get_files_from_directory(dir, |_| true))
+}
+
+/// Get all the files in directory dir.
+pub fn file_list_get_media_files_from_directory(dir: &str) -> Box<FileList> {
+    Box::new(FileList::get_files_from_directory(
+        dir,
+        FileList::file_is_media,
+    ))
+}
+
+pub fn file_list_new() -> Box<FileList> {
+    Box::new(FileList::default())
 }
 
 #[cxx::bridge(namespace = "fwk")]
@@ -151,5 +182,21 @@ mod ffi {
         unsafe fn thumbnail_from_pixbuf(pixbuf: *mut c_char) -> Box<Thumbnail>;
         #[cxx_name = "Thumbnail_to_pixbuf"]
         fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut c_char;
+    }
+
+    extern "Rust" {
+        type FileList;
+
+        #[cxx_name = "FileList_get_files_from_directory"]
+        fn file_list_get_files_from_directory(dir: &str) -> Box<FileList>;
+        #[cxx_name = "FileList_get_files_from_directory_with_ext"]
+        fn file_list_get_files_from_directory_with_ext(dir: &str, ext: String) -> Box<FileList>;
+        #[cxx_name = "FileList_get_media_files_from_directory"]
+        fn file_list_get_media_files_from_directory(dir: &str) -> Box<FileList>;
+        #[cxx_name = "FileList_new"]
+        fn file_list_new() -> Box<FileList>;
+        fn size(&self) -> usize;
+        fn at(&self, idx: usize) -> String;
+        fn push_back(&mut self, value: &str);
     }
 }

@@ -26,6 +26,7 @@ fn main() {
             .exclude_item("Managed")
             .exclude_item("NiepcePropertyIdx")
             .exclude_item("FileStatus")
+            .exclude_item("FileList")
             .exclude_item("RgbColour")
             .exclude_item("CUSTOM_START")
             .exclude_item("INTERNAL_START")

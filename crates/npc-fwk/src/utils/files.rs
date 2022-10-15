@@ -17,12 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
-use std::ffi::{CStr, CString};
 use std::path::{Path, PathBuf};
 
 use gio::prelude::*;
-use glib::translate::*;
 
 use crate::toolkit::mimetype::{guess_type, MType};
 
@@ -30,6 +27,27 @@ use crate::toolkit::mimetype::{guess_type, MType};
 pub struct FileList(pub Vec<PathBuf>);
 
 impl FileList {
+    // cxx
+    pub fn size(&self) -> usize {
+        self.0.len()
+    }
+
+    // cxx
+    /// Return the path string at index %idx
+    /// The resulting string must be freeed with %rust_cstring_delete
+    pub fn at(&self, idx: usize) -> String {
+        self.0[idx].to_string_lossy().into()
+    }
+
+    // cxx
+    /// Push a file path to the list
+    pub fn push_back(&mut self, value: &str) {
+        self.0.push(PathBuf::from(value));
+    }
+
+    /// Get the files matching `filter` from `dir`.
+    ///
+    /// `filter` is a function that will return `true` for files to keep
     pub fn get_files_from_directory<P, F>(dir: P, filter: F) -> Self
     where
         P: AsRef<Path>,
@@ -82,83 +100,6 @@ impl FileList {
         err_out!("Coudln't get file type");
         false
     }
-}
-
-/// Tell is the file pointed by finfo is a media file
-///
-/// # Safety
-/// Dereference the finfo pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_file_is_media(finfo: *mut gio_sys::GFileInfo) -> bool {
-    let fileinfo = gio::FileInfo::from_glib_none(finfo);
-    FileList::file_is_media(&fileinfo)
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_file_list_new() -> *mut FileList {
-    Box::into_raw(Box::new(FileList::default()))
-}
-
-/// Delete the file list object from ffi code
-///
-/// # Safety
-/// Dereference the pointer
-#[no_mangle]
-pub unsafe extern "C" fn fwk_file_list_delete(l: *mut FileList) {
-    drop(Box::from_raw(l));
-}
-
-/// Get the files in directory dir
-///
-/// # Safety
-/// Dereference the dir pointer (C String)
-#[no_mangle]
-pub unsafe extern "C" fn fwk_file_list_get_files_from_directory(
-    dir: *const c_char,
-    filter: Option<extern "C" fn(*mut gio_sys::GFileInfo) -> bool>,
-) -> *mut FileList {
-    let cstr = CStr::from_ptr(dir);
-    match filter {
-        Some(filter) => {
-            let f = Box::new(filter);
-            Box::into_raw(Box::new(FileList::get_files_from_directory(
-                &PathBuf::from(&*cstr.to_string_lossy()),
-                move |finfo| f(finfo.to_glib_none().0),
-            )))
-        }
-        None => Box::into_raw(Box::new(FileList::get_files_from_directory(
-            &PathBuf::from(&*cstr.to_string_lossy()),
-            move |_| true,
-        ))),
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_file_list_size(l: &FileList) -> usize {
-    l.0.len()
-}
-
-/// Return the path string at index %idx
-/// The resulting string must be freeed with %rust_cstring_delete
-#[no_mangle]
-pub extern "C" fn fwk_file_list_at(l: &FileList, idx: usize) -> *mut c_char {
-    CString::new(l.0[idx].to_string_lossy().as_bytes())
-        .unwrap()
-        .into_raw()
-}
-
-#[no_mangle]
-/// Push a file path to the list
-///
-/// # Safety
-/// Dereference the value pointer (C string)
-pub unsafe extern "C" fn fwk_file_list_push_back(l: &mut FileList, value: *const c_char) {
-    assert!(!value.is_null());
-    if value.is_null() {
-        return;
-    }
-    let s = CStr::from_ptr(value);
-    l.0.push(PathBuf::from(&*s.to_string_lossy()));
 }
 
 #[cfg(test)]

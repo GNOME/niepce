@@ -27,6 +27,8 @@
 #include "fwk/utils/files.hpp"
 #include "engine/importer/importedfile.hpp"
 
+#include "rust_bindings.hpp"
+
 namespace eng {
 
 /**

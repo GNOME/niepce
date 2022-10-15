@@ -57,24 +57,17 @@ namespace fwk {
     DBG_OUT("add path %s", dir.c_str());
   }
 
-
-  static bool filter(GFileInfo* f)
-  {
-    return fwk::filter_ext(Glib::wrap(f, true), std::string(".") + G_MODULE_SUFFIX);
-  }
-
   void ModuleManager::load_modules()
   {
     for(auto iter = m_dirs.cbegin();
         iter != m_dirs.cend(); ++iter) {
 
-      fwk::FileListPtr l;
-      l = wrapFileList(ffi::fwk_file_list_get_files_from_directory(
-                         iter->c_str(), filter));
+      fwk::FileListPtr l = fwk::FileList_get_files_from_directory_with_ext(
+                         *iter, G_MODULE_SUFFIX);
 
-      for(size_t i = 0; i < ffi::fwk_file_list_size(l.get()); i++) {
+      for(size_t i = 0; i < l->size(); i++) {
 
-        auto file_path = fwk::RustFfiString(ffi::fwk_file_list_at(l.get(), i));
+        auto file_path = l->at(i);
         Glib::Module module(*iter + "/" + path_basename(file_path.c_str()),
                             Glib::Module::Flags::LOCAL);
         DBG_OUT("load module %s", path_basename(file_path.c_str()).c_str());

@@ -137,7 +137,7 @@ void WorkspaceController::perform_file_import(ImportDialog::Ptr dialog)
             source, dest_dir,
             [this] (const std::string& path, const fwk::FileListPtr& files, Managed manage) -> bool {
                 ffi::libraryclient_import_files(
-                    getLibraryClient()->client(), path.c_str(), files.get(), manage);
+                    getLibraryClient()->client(), path.c_str(), &*files, manage);
                 // XXX the libraryclient function returns void
                 return true;
             });
