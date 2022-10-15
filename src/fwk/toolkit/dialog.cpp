@@ -47,7 +47,6 @@ void Dialog::run_modal(const Frame::Ptr& parent, std::function<void(int)> on_ok)
     gtkDialog().set_transient_for(parent->gtkWindow());
     gtkDialog().set_default_response(Gtk::ResponseType::CLOSE);
     gtkDialog().set_modal();
-    gtkDialog().set_hide_on_close(true);
     gtkDialog().signal_response().connect(on_ok);
     gtkDialog().show();
     DBG_OUT("dialog shown");
