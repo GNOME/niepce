@@ -90,8 +90,12 @@ void NiepceApplication::on_action_preferences()
     DBG_OUT("on_preferences");
 
     auto dlg(new PreferencesDialog());
-    dlg->run_modal(AppFrame::Ptr(m_main_frame));
-
+    dlg->run_modal(AppFrame::Ptr(m_main_frame),
+                   [dlg] (int) {
+                       delete dlg;
+                       DBG_OUT("destroyed pref dialog");
+                       return false;
+                   });
     DBG_OUT("end on_preferences");
 }
 
