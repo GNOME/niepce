@@ -116,3 +116,7 @@ check-local:
 clippy:
 	cd $(top_srcdir) && \
 	CARGO_TARGET_DIR=$(CARGO_TARGET_DIR) cargo clippy $(CARGO_VERBOSE) $(CARGO_RELEASE_ARGS)
+
+widget-test:
+	cd $(top_srcdir) && \
+	CARGO_TARGET_DIR=$(CARGO_TARGET_DIR) cargo run --example=widget-test $(CARGO_VERBOSE) $(CARGO_RELEASE_ARGS)
