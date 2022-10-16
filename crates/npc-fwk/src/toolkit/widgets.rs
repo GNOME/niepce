@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/widgets/mod.rs
  *
- * Copyright (C) 2020 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,3 +18,12 @@
  */
 
 pub mod rating_label;
+mod toolbox_item;
+
+// Re-exports
+pub use toolbox_item::ToolboxItem;
+
+pub mod prelude {
+    pub use super::toolbox_item::ToolboxItemExt;
+    pub use super::toolbox_item::ToolboxItemImpl;
+}

@@ -26,6 +26,7 @@ use gtk4::prelude::*;
 use niepce_rust::niepce::ui::image_grid_view::ImageGridView;
 use niepce_rust::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
 use niepce_rust::niepce::ui::thumb_strip_view::ThumbStripView;
+use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
 
 fn init() -> Result<(), Error> {
@@ -77,7 +78,9 @@ pub fn main() {
         (&image_grid).set_hexpand(true);
         (&image_grid).set_vexpand(true);
         box_.append(&rating);
-        box_.append(image_grid.deref());
+        let tb_item = npc_fwk::toolkit::widgets::ToolboxItem::new("Grid View");
+        tb_item.set_child(Some(image_grid.deref()));
+        box_.append(&tb_item);
         box_.append(&thn);
 
         let window = gtk4::Window::new();
