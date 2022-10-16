@@ -21,6 +21,7 @@
 
 #include <map>
 #include <string>
+#include <optional>
 
 #include <gtkmm/grid.h>
 #include <gtkmm/textview.h>
@@ -69,7 +70,7 @@ public:
     MetaDataWidget(const Glib::ustring & title);
 
     void add_data(const MetaDataFormat& current,
-                  fwk::Option<PropertyValuePtr>&& value);
+                  std::optional<PropertyValuePtr>&& value);
     void set_data_format(const MetaDataSectionFormat* fmt);
     void set_data_source(const fwk::PropertyBagPtr& properties);
 

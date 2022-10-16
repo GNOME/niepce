@@ -29,6 +29,7 @@ fn main() {
             .exclude_item("GtkToolbar")
             .exclude_item("GFileInfo")
             .exclude_item("RgbColour")
+            .exclude_item("PropertyValue")
             .exclude_item("Label")
             // Ensure these are opaque as generics are still a problem.
             .exclude_item("NiepcePropertySet")

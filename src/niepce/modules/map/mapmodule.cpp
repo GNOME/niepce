@@ -88,19 +88,19 @@ MapModule::on_lib_notification(const eng::LibNotification &ln)
             double latitude, longitude;
             latitude = longitude = NAN;
             auto result = fwk::get_value_for_property(*properties, ffi::NiepcePropertyIdx::NpExifGpsLongProp);
-            if (!result.empty()) {
-                fwk::PropertyValuePtr val = result.unwrap();
+            if (result.has_value()) {
+                fwk::PropertyValuePtr val = std::move(result.value());
                 // it is a string
-                if (fwk_property_value_is_string(val.get())) {
-                    longitude = fwk::gps_coord_from_xmp(fwk::property_value_get_string(*val));
+                if (val->is_string()) {
+                    longitude = fwk::gps_coord_from_xmp(val->get_string());
                 }
             }
             result = fwk::get_value_for_property(*properties, ffi::NiepcePropertyIdx::NpExifGpsLatProp);
-            if (!result.empty()) {
-                fwk::PropertyValuePtr val = result.unwrap();
+            if (result.has_value()) {
+                fwk::PropertyValuePtr val = std::move(result.value());
                 // it is a string
-                if (fwk_property_value_is_string(val.get())) {
-                    latitude = fwk::gps_coord_from_xmp(fwk::property_value_get_string(*val));
+                if (val->is_string()) {
+                    latitude = fwk::gps_coord_from_xmp(val->get_string());
                 }
             }
 

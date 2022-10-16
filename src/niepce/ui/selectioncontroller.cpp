@@ -194,11 +194,11 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
     undo->new_command<void>(
         [libclient, file_id, meta, new_value] () {
             ffi::libraryclient_set_metadata(
-                libclient->client(), file_id, meta, fwk::property_value_new(new_value).get());
+                libclient->client(), file_id, meta, &*fwk::property_value_new_int(new_value));
         },
         [libclient, file_id, meta, old_value] () {
             ffi::libraryclient_set_metadata(
-                libclient->client(), file_id, meta, fwk::property_value_new(old_value).get());
+                libclient->client(), file_id, meta, &*fwk::property_value_new_int(old_value));
         });
     undo->execute();
     return true;
@@ -213,7 +213,9 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
     auto len = eng_property_bag_len(props.get());
     for (size_t i = 0; i < len; i++) {
         auto key = eng_property_bag_key_by_index(props.get(), i);
-        fwk::PropertyValuePtr value = fwk::property_bag_value(old, key);
+        // This is a shared_ptr because it's the only way to pass it to the lambda
+        // as Box<> isn't copyable
+        auto value = std::make_shared<fwk::PropertyValuePtr>(fwk::property_bag_value(old, key));
         /*
         if (!result.empty()) {
             value = result.unwrap();
@@ -226,15 +228,15 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
         */
 
         auto libclient = getLibraryClient();
-        auto new_value = fwk::property_bag_value(props, key);
+        auto new_value = std::make_shared<fwk::PropertyValuePtr>(fwk::property_bag_value(props, key));
         undo->new_command<void>(
             [libclient, file_id, key, new_value] () {
                 ffi::libraryclient_set_metadata(
-                    libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), new_value.get());
+                    libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**new_value);
             },
             [libclient, file_id, key, value] () {
                 ffi::libraryclient_set_metadata(
-                    libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), value.get());
+                    libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**value);
             });
     }
     undo->execute();
