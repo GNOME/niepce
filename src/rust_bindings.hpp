@@ -38,6 +38,7 @@ typedef fwk::PropertyValue PropertyValue;
 typedef fwk::RgbColour RgbColour;
 typedef eng::Label Label;
 typedef eng::LibFile LibFile;
+typedef eng::LibMetadata LibMetadata;
 typedef eng::Keyword Keyword;
 struct NiepcePropertyBag;
 struct NiepcePropertySet;
@@ -69,7 +70,6 @@ using NiepcePropertyIdx = ffi::NiepcePropertyIdx;
 typedef ffi::LibraryId library_id_t; // XXX change this to LibraryId
 typedef ffi::FileStatus FileStatus;
 typedef ffi::LibFolder LibFolder;
-typedef ffi::LibMetadata LibMetadata;
 typedef ffi::Managed Managed;
 typedef ffi::LibNotification LibNotification;
 typedef ffi::NotificationType NotificationType;

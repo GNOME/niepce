@@ -104,7 +104,7 @@ pub extern "C" fn eng_property_bag_set_value(
     b.set_value(key.into(), v.clone())
 }
 
-use crate::db::{Keyword, Label, LibFile};
+use crate::db::{Keyword, Label, LibFile, LibMetadata};
 
 #[cxx::bridge(namespace = "eng")]
 mod ffi {
@@ -161,4 +161,10 @@ mod ffi {
     }
 
     impl Box<LibFile> {}
+
+    extern "Rust" {
+        type LibMetadata;
+
+        fn id(&self) -> i64;
+    }
 }

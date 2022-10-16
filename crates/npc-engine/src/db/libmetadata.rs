@@ -74,6 +74,10 @@ impl LibMetadata {
         }
     }
 
+    pub fn id(&self) -> LibraryId {
+        self.id
+    }
+
     pub fn serialize_inline(&self) -> String {
         self.xmp.serialize_inline()
     }
@@ -290,11 +294,6 @@ impl FromDb for LibMetadata {
         libmeta.folder = row.get(4)?;
         Ok(libmeta)
     }
-}
-
-#[no_mangle]
-pub extern "C" fn engine_libmetadata_get_id(meta: &LibMetadata) -> LibraryId {
-    meta.id
 }
 
 #[no_mangle]

@@ -61,7 +61,7 @@ GridViewModule::on_lib_notification(const eng::LibNotification &ln)
         auto lm = engine_library_notification_get_libmetadata(&ln);
         DBG_OUT("received metadata");
         if (lm) {
-            m_metapanecontroller->display(engine_libmetadata_get_id(lm), lm);
+            m_metapanecontroller->display(lm->id(), lm);
         } else {
             ERR_OUT("Invalid LibMetadata (nullptr)");
         }
