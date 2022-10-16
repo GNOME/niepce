@@ -18,9 +18,11 @@
  */
 
 pub mod rating_label;
+mod token_text_view;
 mod toolbox_item;
 
 // Re-exports
+pub use token_text_view::TokenTextView;
 pub use toolbox_item::ToolboxItem;
 
 pub mod prelude {
