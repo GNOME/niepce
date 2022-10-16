@@ -719,7 +719,7 @@ impl Library {
         }
 
         if let Some(ref conn) = self.dbconn {
-            let ifile_type = file_type as i32;
+            let ifile_type = i32::from(file_type);
             let time = Utc::now().timestamp();
             let c = conn.execute(
                 "INSERT INTO files (\

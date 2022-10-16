@@ -115,24 +115,18 @@ mod ffi {
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
     }
 
-    // This enum is only here for the purpose of binding generation.
     #[repr(i32)]
-    /// A general type of the LibFile, cxx bindings version.
+    #[derive(Debug, Copy, Clone, Eq, PartialEq)]
     pub enum FileType {
         /// Don't know
-        #[allow(dead_code)]
         Unknown = 0,
         /// Camera Raw
-        #[allow(dead_code)]
         Raw = 1,
         /// Bundle of RAW + processed. Don't assume JPEG.
-        #[allow(dead_code)]
         RawJpeg = 2,
         /// Processed Image
-        #[allow(dead_code)]
         Image = 3,
         /// Video
-        #[allow(dead_code)]
         Video = 4,
     }
 
@@ -162,9 +156,8 @@ mod ffi {
         fn id(&self) -> i64;
         fn folder_id(&self) -> i64;
         fn orientation(&self) -> i32;
-        #[cxx_name = "file_type"]
         // The type is `FileType`.
-        fn file_type_int(&self) -> i32;
+        fn file_type(&self) -> FileType;
     }
 
     impl Box<LibFile> {}

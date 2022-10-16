@@ -30,21 +30,7 @@ use super::LibraryId;
 use super::NiepceProperties as Np;
 use super::NiepcePropertyIdx;
 
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-/// A general type of the LibFile.
-pub enum FileType {
-    /// Don't know
-    Unknown = 0,
-    /// Camera Raw
-    Raw = 1,
-    /// Bundle of RAW + processed. Don't assume JPEG.
-    RawJpeg = 2,
-    /// Processed Image
-    Image = 3,
-    /// Video
-    Video = 4,
-}
+pub use crate::ffi::FileType;
 
 #[repr(i32)]
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
@@ -89,6 +75,7 @@ impl From<FileType> for &'static str {
             FileType::RawJpeg => "RAW + JPEG",
             FileType::Image => "Image",
             FileType::Video => "Video",
+            _ => unreachable!(),
         }
     }
 }
@@ -101,6 +88,7 @@ impl From<FileType> for i32 {
             FileType::RawJpeg => 2,
             FileType::Image => 3,
             FileType::Video => 4,
+            _ => unreachable!(),
         }
     }
 }
@@ -193,11 +181,6 @@ impl LibFile {
 
     pub fn file_type(&self) -> FileType {
         self.file_type.to_owned()
-    }
-
-    // for cxx
-    pub fn file_type_int(&self) -> i32 {
-        self.file_type.into()
     }
 
     pub fn set_file_type(&mut self, ft: FileType) {
