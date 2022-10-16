@@ -304,3 +304,27 @@ pub extern "C" fn engine_libmetadata_to_properties(
     let result = Box::new(meta.to_properties(propset));
     Box::into_raw(result)
 }
+
+use npc_fwk::toolkit::widgets::WrappedPropertyBag;
+
+fn into_u32(from: NiepcePropertyBag) -> PropertyBag<u32> {
+    PropertyBag {
+        bag: from.bag.iter().map(|v| (*v).into()).collect(),
+        map: from
+            .map
+            .iter()
+            .map(|(k, v)| ((*k).into(), v.clone()))
+            .collect(),
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn engine_libmetadata_to_wrapped_properties(
+    meta: &LibMetadata,
+    propset: &NiepcePropertySet,
+) -> *mut WrappedPropertyBag {
+    let bag = meta.to_properties(propset);
+    let bag = into_u32(bag);
+    let result = Box::new(WrappedPropertyBag(bag));
+    Box::into_raw(result)
+}

@@ -19,16 +19,14 @@
 
 #pragma once
 
-#include <gtkmm/box.h>
-
 #include "engine/db/libmetadata.hpp"
 #include "fwk/base/propertybag.hpp"
 #include "fwk/utils/exempi.hpp"
 #include "fwk/toolkit/dockable.hpp"
 
+#include "rust_bindings.hpp"
+
 namespace fwk {
-struct MetaDataSectionFormat;
-class MetaDataWidget;
 class Dock;
 }
 
@@ -46,14 +44,16 @@ public:
     eng::library_id_t displayed_file() const
         { return m_fileid; }
 
-    sigc::signal<void(const fwk::PropertyBagPtr &, const fwk::PropertyBagPtr &)> signal_metadata_changed;
+    sigc::signal<void(const fwk::WrappedPropertyBagPtr&, const fwk::WrappedPropertyBagPtr&)> signal_metadata_changed;
 private:
-    void on_metadata_changed(const fwk::PropertyBagPtr &,
-                             const fwk::PropertyBagPtr & old);
+    void on_metadata_changed(const fwk::WrappedPropertyBagPtr&,
+                             const fwk::WrappedPropertyBagPtr& old);
+    static void metadata_changed_cb(GtkWidget*, const fwk::WrappedPropertyBag* props,
+                                    const fwk::WrappedPropertyBag* old_props,
+                                    MetaDataPaneController* self);
 
-    std::vector<fwk::MetaDataWidget *> m_widgets;
+    std::vector<std::pair<::rust::Box<fwk::MetadataWidget>, guint>> m_widgets;
 
-    static const std::vector<fwk::MetaDataSectionFormat>& get_format();
     static const fwk::PropertySet* get_property_set();
 
     eng::library_id_t m_fileid;

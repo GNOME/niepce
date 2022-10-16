@@ -40,6 +40,10 @@ impl ToolboxItem {
         obj.imp().expander.set_label(Some(label));
         obj
     }
+
+    pub fn set_title(&self, title: &str) {
+        self.imp().expander.set_label(Some(title));
+    }
 }
 
 pub trait ToolboxItemExt {

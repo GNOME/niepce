@@ -37,6 +37,8 @@ libniepceframework_a_SOURCES = \
 	../cxx_colour_bindings.cpp \
 	../cxx_fwk_bindings.cpp \
 	../cxx_eng_bindings.cpp \
+	../cxx_widgets_bindings.cpp \
+	../cxx_npc_bindings.cpp \
 	application.hpp application.cpp \
 	appframe.hpp appframe.cpp \
 	dialog.hpp dialog.cpp \
@@ -57,10 +59,7 @@ libniepceframework_a_SOURCES = \
 	widgets/toolboxitemwidget.hpp widgets/toolboxitemwidget.cpp \
 	widgets/editablehscale.hpp widgets/editablehscale.cpp \
 	widgets/dock.cpp widgets/dock.hpp \
-	widgets/notabtextview.hpp widgets/notabtextview.cpp \
-	widgets/tokentextview.hpp widgets/tokentextview.cpp \
 	dockable.hpp dockable.cpp \
-	metadatawidget.hpp metadatawidget.cpp \
 	undo.hpp undo.cpp \
 	command.hpp \
 	$(NULL)

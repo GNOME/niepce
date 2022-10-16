@@ -30,8 +30,11 @@ glib::wrapper! {
 
 impl TokenTextView {
     pub fn new() -> TokenTextView {
-        glib::Object::new(&[("wrap-mode", &gtk4::WrapMode::Word)])
-            .expect("Failed to create TokenTextView Widget")
+        glib::Object::new(&[
+            ("wrap-mode", &gtk4::WrapMode::Word),
+            ("accepts-tab", &false),
+        ])
+        .expect("Failed to create TokenTextView Widget")
     }
 
     /// Get the tokens from the text.

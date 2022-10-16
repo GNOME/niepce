@@ -39,6 +39,7 @@ fn main() {
             .exclude_item("NiepcePropertyBag")
             .exclude_item("PropertySet")
             .exclude_item("PropertyBag")
+            .exclude_item("WrappedPropertyBag")
             .exclude_item("Option")
             .with_crate(&crate_dir)
             .generate()

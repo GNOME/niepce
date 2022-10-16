@@ -19,7 +19,8 @@
 
 use super::date::Date;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, glib::Boxed)]
+#[boxed_type(name = "PropertyValue")]
 pub enum PropertyValue {
     Empty,
     Int(i32),
@@ -47,6 +48,13 @@ impl PropertyValue {
         matches!(*self, PropertyValue::String(_))
     }
 
+    pub fn integer(&self) -> Option<i32> {
+        match *self {
+            PropertyValue::Int(i) => Some(i),
+            _ => None,
+        }
+    }
+
     pub fn integer_unchecked(&self) -> i32 {
         match *self {
             PropertyValue::Int(i) => i,
@@ -54,10 +62,24 @@ impl PropertyValue {
         }
     }
 
+    pub fn date(&self) -> Option<&Date> {
+        match *self {
+            PropertyValue::Date(ref d) => Some(d),
+            _ => None,
+        }
+    }
+
     pub fn date_unchecked(&self) -> Box<Date> {
         match *self {
             PropertyValue::Date(ref d) => Box::new(*d),
             _ => panic!("value is not Date"),
+        }
+    }
+
+    pub fn string(&self) -> Option<&str> {
+        match *self {
+            PropertyValue::String(ref s) => Some(s),
+            _ => None,
         }
     }
 
@@ -80,6 +102,13 @@ impl PropertyValue {
         }
     }
 
+    pub fn string_array(&self) -> Option<&[String]> {
+        match *self {
+            PropertyValue::StringArray(ref sa) => Some(sa),
+            _ => None,
+        }
+    }
+
     pub fn string_array_unchecked(&self) -> &[String] {
         match *self {
             PropertyValue::StringArray(ref sa) => sa,
@@ -88,17 +117,8 @@ impl PropertyValue {
     }
 }
 
-/// Create a new String %PropertyValue from a string
-pub fn property_value_new_str(v: &str) -> Box<PropertyValue> {
-    Box::new(PropertyValue::String(v.to_string()))
-}
-
 pub fn property_value_new_int(v: i32) -> Box<PropertyValue> {
     Box::new(PropertyValue::Int(v))
-}
-
-pub fn property_value_new_date(v: &Date) -> Box<PropertyValue> {
-    Box::new(PropertyValue::Date(*v))
 }
 
 pub fn property_value_new_string_array() -> Box<PropertyValue> {

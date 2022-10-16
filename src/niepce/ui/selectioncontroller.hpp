@@ -94,8 +94,8 @@ public:
 
     void set_property(ffi::NiepcePropertyIdx idx, int value);
 
-    void set_properties(const fwk::PropertyBagPtr & props,
-                        const fwk::PropertyBagPtr & old);
+    void set_properties(const fwk::WrappedPropertyBagPtr& props,
+                        const fwk::WrappedPropertyBagPtr& old);
 
     /** the content will change */
     void content_will_change();
@@ -119,8 +119,8 @@ private:
                        int old_value, int new_value);
     bool _set_metadata(const std::string & undo_label,
                        eng::library_id_t file_id,
-                       const fwk::PropertyBagPtr & props,
-                       const fwk::PropertyBagPtr & old);
+                       const fwk::WrappedPropertyBagPtr& props,
+                       const fwk::WrappedPropertyBagPtr& old);
     /** move the selection and emit the signal
      * @param backwards true if the move is backwards.
      */

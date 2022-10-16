@@ -49,11 +49,6 @@ pub extern "C" fn eng_property_set_add(set: &mut NiepcePropertySet, v: NiepcePro
     set.insert(NiepceProperties::Index(v));
 }
 
-#[no_mangle]
-pub extern "C" fn eng_property_bag_new() -> *mut NiepcePropertyBag {
-    Box::into_raw(Box::new(NiepcePropertyBag::new()))
-}
-
 /// Delete the %PropertyBag object
 ///
 /// # Safety
@@ -102,6 +97,58 @@ pub extern "C" fn eng_property_bag_set_value(
     v: &PropertyValue,
 ) -> bool {
     b.set_value(key.into(), v.clone())
+}
+
+use npc_fwk::toolkit::widgets::WrappedPropertyBag;
+
+/// Delete the %WrappedPropertyBag object
+///
+/// # Safety
+/// Dereference the raw pointer.
+#[no_mangle]
+pub unsafe extern "C" fn fwk_wrapped_property_bag_delete(bag: *mut WrappedPropertyBag) {
+    drop(Box::from_raw(bag));
+}
+
+/// Clone the %WrappedPropertyBag object. Use this to take it out of the GValue.
+///
+/// # Safety
+/// Dereference the raw pointer.
+#[no_mangle]
+pub unsafe extern "C" fn fwk_wrapped_property_bag_clone(
+    bag: *const WrappedPropertyBag,
+) -> *mut WrappedPropertyBag {
+    Box::into_raw(Box::new((*bag).clone()))
+}
+
+/// # Safety
+/// Dereference the raw pointer.
+#[no_mangle]
+pub unsafe extern "C" fn fwk_property_bag_len(bag: &WrappedPropertyBag) -> usize {
+    (*bag).0.len()
+}
+
+/// # Safety
+/// Dereference the raw pointer.
+#[no_mangle]
+pub unsafe extern "C" fn fwk_property_bag_key_by_index(
+    bag: &WrappedPropertyBag,
+    idx: usize,
+) -> u32 {
+    (*bag).0.bag[idx]
+}
+
+#[no_mangle]
+pub extern "C" fn fwk_property_bag_value(
+    b: &WrappedPropertyBag,
+    key: PropertyIndex,
+) -> *mut PropertyValue {
+    if b.0.map.contains_key(&key) {
+        let value = Box::new(b.0.map[&key].clone());
+        Box::into_raw(value)
+    } else {
+        ptr::null_mut()
+    }
 }
 
 use crate::db::{Keyword, Label, LibFile, LibMetadata};

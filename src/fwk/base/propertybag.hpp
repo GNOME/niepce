@@ -44,10 +44,13 @@ PropertySetPtr property_set_new();
  */
 typedef std::shared_ptr<PropertyBag> PropertyBagPtr;
 
-PropertyBagPtr property_bag_new();
 PropertyBagPtr property_bag_wrap(PropertyBag*);
-
 PropertyValuePtr property_bag_value(const PropertyBagPtr& bag, PropertyIndex key);
+
+typedef std::shared_ptr<WrappedPropertyBag> WrappedPropertyBagPtr;
+
+WrappedPropertyBagPtr wrapped_property_bag_wrap(WrappedPropertyBag* bag);
+PropertyValuePtr wrapped_property_bag_value(const WrappedPropertyBagPtr& bag, PropertyIndex key);
 
 /** return true if a property was removed prior to insertion */
 bool set_value_for_property(PropertyBag&, ffi::NiepcePropertyIdx idx, const PropertyValue& value);

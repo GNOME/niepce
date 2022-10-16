@@ -749,6 +749,7 @@ dependencies = [
  "async-channel",
  "cairo-rs",
  "cbindgen",
+ "cxx",
  "gdk-pixbuf",
  "gdk-pixbuf-sys",
  "gdk4",
@@ -791,7 +792,6 @@ version = "0.1.0"
 dependencies = [
  "async-channel",
  "cairo-rs",
- "cbindgen",
  "chrono",
  "cxx",
  "exempi",

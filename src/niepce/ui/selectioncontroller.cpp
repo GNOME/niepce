@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/selectioncontroller.cpp
  *
- * Copyright (C) 2008-2021 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -206,16 +206,16 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
 
 bool SelectionController::_set_metadata(const std::string & undo_label,
                                         eng::library_id_t file_id,
-                                        const fwk::PropertyBagPtr & props,
-                                        const fwk::PropertyBagPtr & old)
+                                        const fwk::WrappedPropertyBagPtr& props,
+                                        const fwk::WrappedPropertyBagPtr& old)
 {
     auto undo = fwk::Application::app()->begin_undo(undo_label);
-    auto len = eng_property_bag_len(props.get());
+    auto len = ffi::fwk_property_bag_len(props.get());
     for (size_t i = 0; i < len; i++) {
-        auto key = eng_property_bag_key_by_index(props.get(), i);
+        auto key = ffi::fwk_property_bag_key_by_index(props.get(), i);
         // This is a shared_ptr because it's the only way to pass it to the lambda
         // as Box<> isn't copyable
-        auto value = std::make_shared<fwk::PropertyValuePtr>(fwk::property_bag_value(old, key));
+        auto value = std::make_shared<fwk::PropertyValuePtr>(fwk::wrapped_property_bag_value(old, key));
         /*
         if (!result.empty()) {
             value = result.unwrap();
@@ -228,7 +228,7 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
         */
 
         auto libclient = getLibraryClient();
-        auto new_value = std::make_shared<fwk::PropertyValuePtr>(fwk::property_bag_value(props, key));
+        auto new_value = std::make_shared<fwk::PropertyValuePtr>(fwk::wrapped_property_bag_value(props, key));
         undo->new_command<void>(
             [libclient, file_id, key, new_value] () {
                 ffi::libraryclient_set_metadata(
@@ -294,8 +294,8 @@ void SelectionController::set_property(ffi::NiepcePropertyIdx idx, int value)
     }
 }
 
-void SelectionController::set_properties(const fwk::PropertyBagPtr & props,
-                                         const fwk::PropertyBagPtr & old)
+void SelectionController::set_properties(const fwk::WrappedPropertyBagPtr& props,
+                                         const fwk::WrappedPropertyBagPtr& old)
 {
     eng::library_id_t selection = get_selection();
     if (selection >= 0) {

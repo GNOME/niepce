@@ -45,14 +45,19 @@ PropertyBagPtr property_bag_wrap(PropertyBag* bag)
     return PropertyBagPtr(bag, &ffi::eng_property_bag_delete);
 }
 
-PropertyBagPtr property_bag_new()
+WrappedPropertyBagPtr wrapped_property_bag_wrap(WrappedPropertyBag* bag)
 {
-    return property_bag_wrap(ffi::eng_property_bag_new());
+    return WrappedPropertyBagPtr(bag, &ffi::fwk_wrapped_property_bag_delete);
 }
 
 PropertyValuePtr property_bag_value(const PropertyBagPtr& bag, PropertyIndex idx)
 {
     return PropertyValuePtr::from_raw(ffi::eng_property_bag_value(bag.get(), idx));
+}
+
+PropertyValuePtr wrapped_property_bag_value(const WrappedPropertyBagPtr& bag, PropertyIndex idx)
+{
+    return PropertyValuePtr::from_raw(ffi::fwk_property_bag_value(bag.get(), idx));
 }
 
 bool set_value_for_property(PropertyBag& bag, ffi::NiepcePropertyIdx idx,

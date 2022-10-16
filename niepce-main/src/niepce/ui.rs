@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/mod.rs
  *
- * Copyright (C) 2020 Hubert Figuière
+ * Copyright (C) 2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,5 +22,6 @@ pub mod image_grid_view;
 pub mod image_list_store;
 pub mod imagetoolbar;
 pub mod library_cell_renderer;
+pub mod metadata_pane_controller;
 pub mod thumb_nav;
 pub mod thumb_strip_view;

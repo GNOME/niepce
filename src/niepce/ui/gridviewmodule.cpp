@@ -236,8 +236,8 @@ void GridViewModule::select_image(eng::library_id_t id)
     }
 }
 
-void GridViewModule::on_metadata_changed(const fwk::PropertyBagPtr & props,
-                                         const fwk::PropertyBagPtr & old)
+void GridViewModule::on_metadata_changed(const fwk::WrappedPropertyBagPtr& props,
+                                         const fwk::WrappedPropertyBagPtr& old)
 {
     // TODO this MUST be more generic
     DBG_OUT("on_metadata_changed()");

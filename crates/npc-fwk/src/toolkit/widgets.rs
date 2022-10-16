@@ -17,15 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod metadata_widget;
 pub mod rating_label;
 mod token_text_view;
 mod toolbox_item;
 
 // Re-exports
+pub use metadata_widget::{
+    MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget, WrappedPropertyBag,
+};
+pub use rating_label::RatingLabel;
 pub use token_text_view::TokenTextView;
 pub use toolbox_item::ToolboxItem;
 
 pub mod prelude {
+    pub use super::rating_label::RatingLabelExt;
     pub use super::toolbox_item::ToolboxItemExt;
     pub use super::toolbox_item::ToolboxItemImpl;
 }

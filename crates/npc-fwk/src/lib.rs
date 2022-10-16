@@ -22,7 +22,7 @@ pub mod base;
 pub mod toolkit;
 pub mod utils;
 
-pub use self::base::fractions::fraction_to_decimal;
+pub use self::base::fractions::{fraction_to_decimal, parse_fraction};
 pub use self::base::propertybag::PropertyBag;
 pub use self::base::propertyvalue::PropertyValue;
 pub use self::base::PropertySet;
@@ -52,11 +52,9 @@ use glib::translate::*;
 
 use self::base::rgbcolour::RgbColour;
 use crate::base::date::Date;
-use crate::base::propertyvalue::{
-    property_value_new_date, property_value_new_int, property_value_new_str,
-    property_value_new_string_array,
-};
+use crate::base::propertyvalue::{property_value_new_int, property_value_new_string_array};
 use crate::toolkit::thumbnail::Thumbnail;
+use crate::toolkit::widgets::MetadataWidget;
 use crate::toolkit::Configuration;
 use crate::utils::files::FileList;
 
@@ -87,10 +85,6 @@ fn rgbcolour_to_string(r: u16, g: u16, b: u16) -> String {
 
 pub fn gps_coord_from_xmp_(value: &str) -> f64 {
     gps_coord_from_xmp(value).unwrap_or(f64::NAN)
-}
-
-pub fn fraction_to_decimal_(value: &str) -> f64 {
-    fraction_to_decimal(value).unwrap_or(f64::NAN)
 }
 
 pub fn thumbnail_for_file(path: &str, w: i32, h: i32, orientation: i32) -> Box<Thumbnail> {
@@ -143,6 +137,10 @@ pub fn file_list_new() -> Box<FileList> {
     Box::new(FileList::default())
 }
 
+pub fn metadata_widget_new(title: &str) -> Box<MetadataWidget> {
+    Box::new(MetadataWidget::new(title))
+}
+
 #[cxx::bridge(namespace = "fwk")]
 mod ffi {
     struct SharedConfiguration {
@@ -188,8 +186,6 @@ mod ffi {
     extern "Rust" {
         #[cxx_name = "gps_coord_from_xmp"]
         fn gps_coord_from_xmp_(value: &str) -> f64;
-        #[cxx_name = "fraction_to_decimal"]
-        fn fraction_to_decimal_(value: &str) -> f64;
     }
 
     extern "Rust" {
@@ -230,9 +226,7 @@ mod ffi {
     extern "Rust" {
         type PropertyValue;
 
-        fn property_value_new_str(v: &str) -> Box<PropertyValue>;
         fn property_value_new_int(v: i32) -> Box<PropertyValue>;
-        fn property_value_new_date(v: &Date) -> Box<PropertyValue>;
         fn property_value_new_string_array() -> Box<PropertyValue>;
 
         fn is_empty(&self) -> bool;
@@ -249,5 +243,25 @@ mod ffi {
         fn add_string_unchecked(&mut self, string: &str);
         #[cxx_name = "get_string_array"]
         fn string_array_unchecked(&self) -> &[String];
+    }
+
+    extern "C++" {
+        include!("fwk/cxx_widgets_bindings.hpp");
+
+        type WrappedPropertyBag = crate::toolkit::widgets::WrappedPropertyBag;
+        type MetadataSectionFormat = crate::toolkit::widgets::MetadataSectionFormat;
+    }
+
+    extern "Rust" {
+        type MetadataWidget;
+
+        fn gobj(&self) -> *mut c_char;
+        #[cxx_name = "MetadataWidget_new"]
+        fn metadata_widget_new(title: &str) -> Box<MetadataWidget>;
+        #[cxx_name = "set_data_format"]
+        fn set_data_format_(&self, fmt: &MetadataSectionFormat);
+        #[cxx_name = "set_data_source"]
+        fn set_data_source_wrapped(&self, properties: &WrappedPropertyBag);
+        fn set_data_source_none(&self);
     }
 }

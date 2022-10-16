@@ -22,13 +22,32 @@ pub mod niepce;
 
 use std::sync::Once;
 
-/// Call this to initialize npc-fwk the gtk-rs bindings
-#[no_mangle]
-pub extern "C" fn niepce_init() {
+fn niepce_init() {
     static START: Once = Once::new();
 
     START.call_once(|| {
         gtk4::init().unwrap();
         npc_fwk::init();
     });
+}
+
+use crate::niepce::ui::metadata_pane_controller::get_format;
+use npc_fwk::toolkit;
+
+#[cxx::bridge(namespace = "npc")]
+mod ffi {
+    extern "Rust" {
+        fn niepce_init();
+    }
+
+    #[namespace = "fwk"]
+    extern "C++" {
+        include!("fwk/cxx_widgets_bindings.hpp");
+
+        type MetadataSectionFormat = crate::toolkit::widgets::MetadataSectionFormat;
+    }
+
+    extern "Rust" {
+        fn get_format() -> &'static [MetadataSectionFormat];
+    }
 }

@@ -97,6 +97,10 @@ m4/xsize.m4
 /src/fwk/cxx_fwk_bindings.hpp
 /src/fwk/cxx_eng_bindings.cpp
 /src/fwk/cxx_eng_bindings.hpp
+/src/fwk/cxx_widgets_bindings.cpp
+/src/fwk/cxx_widgets_bindings.hpp
+/src/fwk/cxx_npc_bindings.cpp
+/src/fwk/cxx_npc_bindings.hpp
 /src/libraryclient/test_worker
 /src/engine/test_library
 /src/engine/test_filebundle

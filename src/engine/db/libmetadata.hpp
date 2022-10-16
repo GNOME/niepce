@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libmetadata.hpp
  *
- * Copyright (C) 2008-2021 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@ namespace eng {
 
 fwk::PropertyBagPtr libmetadata_to_properties(const LibMetadata *meta,
                                               const fwk::PropertySet &propset);
+fwk::WrappedPropertyBagPtr libmetadata_to_wrapped_properties(const LibMetadata* meta,
+                                                             const fwk::PropertySet& propset);
 
 }
 

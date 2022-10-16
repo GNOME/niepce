@@ -17,13 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_int;
 use std::cell::Cell;
 
 use gdk4::prelude::*;
 use glib::subclass::prelude::*;
 use glib::subclass::Signal;
-use glib::translate::*;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
@@ -53,6 +51,10 @@ pub struct RatingLabelPriv {
 impl RatingLabelPriv {
     fn set_editable(&self, editable: bool) {
         self.editable.set(editable);
+    }
+
+    fn rating(&self) -> i32 {
+        self.rating.get()
     }
 
     fn set_rating(&self, rating: i32) {
@@ -154,15 +156,37 @@ impl ObjectImpl for RatingLabelPriv {
 
 pub trait RatingLabelExt {
     fn set_rating(&self, rating: i32);
+    fn rating(&self) -> i32;
 }
 
 impl RatingLabelExt for RatingLabel {
     fn set_rating(&self, rating: i32) {
         self.imp().set_rating(rating);
     }
+
+    fn rating(&self) -> i32 {
+        self.imp().rating()
+    }
 }
 
 impl RatingLabel {
+    /// Connect to the signal `rating-changed`
+    pub fn connect_rating_changed<F>(&self, f: F) -> glib::SignalHandlerId
+    where
+        F: Fn(&Self, i32) + 'static,
+    {
+        self.connect_local(
+            "rating-changed",
+            true,
+            glib::clone!(@weak self as w => @default-return None, move |values| {
+                if let Ok(rating) = values[0].get::<i32>() {
+                    f(&w, rating);
+                }
+                None
+            }),
+        )
+    }
+
     pub fn star() -> gdk4::Texture {
         PIXBUFS.star.clone()
     }
@@ -245,26 +269,4 @@ impl WidgetImpl for RatingLabelPriv {
             .get(); // this shouldn't fail.
         RatingLabel::draw_rating(snapshot, rating, &star, &RatingLabel::unstar(), x, y);
     }
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_rating_label_new(rating: c_int, editable: bool) -> *mut gtk4_sys::GtkWidget {
-    RatingLabel::new(rating, editable)
-        .upcast::<gtk4::Widget>()
-        .to_glib_full()
-}
-
-/// Set the rating for the %RatingLabel widget
-///
-/// # Safety
-/// Dereference the widget pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_rating_label_set_rating(
-    widget: *mut gtk4_sys::GtkWidget,
-    rating: i32,
-) {
-    let rating_label = gtk4::Widget::from_glib_none(widget)
-        .downcast::<RatingLabel>()
-        .expect("Not a RatingLabel widget");
-    rating_label.set_rating(rating);
 }

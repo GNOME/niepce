@@ -25,6 +25,7 @@
 
 #include "fwk/cxx_fwk_bindings.hpp"
 #include "fwk/cxx_eng_bindings.hpp"
+#include "fwk/cxx_npc_bindings.hpp"
 
 namespace ffi {
 class rust_str;
@@ -36,6 +37,7 @@ typedef rust_str str;
 typedef fwk::FileList FileList;
 typedef fwk::PropertyValue PropertyValue;
 typedef fwk::RgbColour RgbColour;
+typedef fwk::WrappedPropertyBag WrappedPropertyBag;
 typedef eng::Label Label;
 typedef eng::LibFile LibFile;
 typedef eng::LibMetadata LibMetadata;
@@ -44,7 +46,6 @@ struct NiepcePropertyBag;
 struct NiepcePropertySet;
 }
 
-#include "target/fwk_bindings.h"
 #include "target/eng_bindings.h"
 #include "target/bindings.h"
 
