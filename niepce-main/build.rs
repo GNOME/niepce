@@ -25,6 +25,7 @@ fn main() {
             .include_item("ColIndex")
             .exclude_item("Managed")
             .exclude_item("NiepcePropertyIdx")
+            .exclude_item("LibFile")
             .exclude_item("FileStatus")
             .exclude_item("FileList")
             .exclude_item("RgbColour")

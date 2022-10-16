@@ -32,6 +32,7 @@ fn main() {
             .exclude_item("PropertyValue")
             .exclude_item("Keyword")
             .exclude_item("Label")
+            .exclude_item("LibFile")
             // Ensure these are opaque as generics are still a problem.
             .exclude_item("NiepcePropertySet")
             .exclude_item("NiepcePropertyBag")

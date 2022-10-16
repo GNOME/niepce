@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/moduleshell.cpp
  *
- * Copyright (C) 2007-2018 Hubert Figuière
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -261,7 +261,7 @@ void ModuleShell::on_image_activated(eng::library_id_t id)
     auto store = m_selection_controller->get_list_store();
     auto libfile = store->get_file(id);
     if (libfile) {
-        m_darkroom->set_image(libfile);
+        m_darkroom->set_image(std::optional(std::move(libfile)));
         m_shell.activatePage("darkroom");
     }
 }

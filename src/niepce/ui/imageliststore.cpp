@@ -71,13 +71,13 @@ eng::library_id_t ImageListStore::get_libfile_id_at_path(const Gtk::TreeModel::P
     return ffi::npc_image_list_store_get_file_id_at_path(m_store, path.gobj());
 }
 
-eng::LibFilePtr ImageListStore::get_file(eng::library_id_t id) const
+std::optional<eng::LibFilePtr> ImageListStore::get_file(eng::library_id_t id) const
 {
     auto f = ffi::npc_image_list_store_get_file(m_store, id);
     if (f) {
-        return eng::libfile_wrap(f);
+        return std::optional(eng::LibFilePtr::from_raw(f));
     }
-    return eng::LibFilePtr();
+    return std::nullopt;
 }
 
 void ImageListStore::clear_content()

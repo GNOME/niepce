@@ -158,6 +158,11 @@ impl LibFile {
         self.main_file.path()
     }
 
+    // For cxx
+    pub fn path_str(&self) -> String {
+        self.path().to_string_lossy().to_string()
+    }
+
     pub fn orientation(&self) -> i32 {
         self.orientation
     }
@@ -189,6 +194,12 @@ impl LibFile {
     pub fn file_type(&self) -> FileType {
         self.file_type.to_owned()
     }
+
+    // for cxx
+    pub fn file_type_int(&self) -> i32 {
+        self.file_type.into()
+    }
+
     pub fn set_file_type(&mut self, ft: FileType) {
         self.file_type = ft;
     }
@@ -295,42 +306,9 @@ pub unsafe extern "C" fn engine_db_libfile_new(
     Box::into_raw(lf)
 }
 
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_db_libfile_delete(lf: *mut LibFile) {
-    drop(Box::from_raw(lf));
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_path(obj: &mut LibFile) -> *const c_char {
-    obj.cstr = CString::new(obj.path().to_str().unwrap_or("")).unwrap();
-    obj.cstr.as_ptr()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_id(obj: &LibFile) -> LibraryId {
-    obj.id()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_folderid(obj: &LibFile) -> LibraryId {
-    obj.folder_id()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_orientation(obj: &LibFile) -> i32 {
-    obj.orientation()
-}
-
 #[no_mangle]
 pub extern "C" fn engine_db_libfile_property(obj: &LibFile, idx: NiepcePropertyIdx) -> i32 {
     obj.property(Np::Index(idx))
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_file_type(obj: &LibFile) -> FileType {
-    obj.file_type()
 }
 
 #[no_mangle]

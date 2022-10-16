@@ -104,7 +104,7 @@ pub extern "C" fn eng_property_bag_set_value(
     b.set_value(key.into(), v.clone())
 }
 
-use crate::db::{Keyword, Label};
+use crate::db::{Keyword, Label, LibFile};
 
 #[cxx::bridge(namespace = "eng")]
 mod ffi {
@@ -113,6 +113,27 @@ mod ffi {
         include!("fwk/cxx_colour_bindings.hpp");
 
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
+    }
+
+    // This enum is only here for the purpose of binding generation.
+    #[repr(i32)]
+    /// A general type of the LibFile, cxx bindings version.
+    pub enum FileType {
+        /// Don't know
+        #[allow(dead_code)]
+        Unknown = 0,
+        /// Camera Raw
+        #[allow(dead_code)]
+        Raw = 1,
+        /// Bundle of RAW + processed. Don't assume JPEG.
+        #[allow(dead_code)]
+        RawJpeg = 2,
+        /// Processed Image
+        #[allow(dead_code)]
+        Image = 3,
+        /// Video
+        #[allow(dead_code)]
+        Video = 4,
     }
 
     extern "Rust" {
@@ -132,4 +153,19 @@ mod ffi {
         fn id(&self) -> i64;
         fn clone_boxed(&self) -> Box<Label>;
     }
+
+    extern "Rust" {
+        type LibFile;
+
+        #[cxx_name = "path"]
+        fn path_str(&self) -> String;
+        fn id(&self) -> i64;
+        fn folder_id(&self) -> i64;
+        fn orientation(&self) -> i32;
+        #[cxx_name = "file_type"]
+        // The type is `FileType`.
+        fn file_type_int(&self) -> i32;
+    }
+
+    impl Box<LibFile> {}
 }

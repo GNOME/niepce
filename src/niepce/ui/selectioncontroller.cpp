@@ -117,7 +117,7 @@ eng::library_id_t SelectionController::get_selection() const
     return selectable->get_selected();
 }
 
-eng::LibFilePtr SelectionController::get_file(eng::library_id_t id) const
+std::optional<eng::LibFilePtr> SelectionController::get_file(eng::library_id_t id) const
 {
     return m_imageliststore->get_file(id);
 }
@@ -264,13 +264,14 @@ void SelectionController::set_property(ffi::NiepcePropertyIdx idx, int value)
     DBG_OUT("property %u = %d", static_cast<uint32_t>(idx), value);
     eng::library_id_t selection = get_selection();
     if(selection >= 0) {
-        eng::LibFilePtr file = m_imageliststore->get_file(selection);
-        if (!file) {
+        std::optional<eng::LibFilePtr> f = m_imageliststore->get_file(selection);
+        if (!f) {
             ERR_OUT("requested file %ld not found!", selection);
             return;
         }
-        DBG_OUT("old property is %d", engine_db_libfile_property(file.get(), idx));
-        int32_t old_value = engine_db_libfile_property(file.get(), idx);
+        auto& file = f.value();
+        DBG_OUT("old property is %d", engine_db_libfile_property(&*file, idx));
+        int32_t old_value = engine_db_libfile_property(&*file, idx);
         const char *action = nullptr;
         switch(idx) {
         case ffi::NiepcePropertyIdx::NpNiepceFlagProp:
@@ -289,7 +290,7 @@ void SelectionController::set_property(ffi::NiepcePropertyIdx idx, int value)
         _set_metadata(action, selection, idx, old_value, value);
         // we need to set the property here so that undo/redo works
         // consistently.
-        engine_db_libfile_set_property(file.get(), idx, value);
+        engine_db_libfile_set_property(&*file, idx, value);
     }
 }
 
@@ -321,9 +322,10 @@ void SelectionController::move_to_trash()
         ffi::libraryclient_get_trash_id(getLibraryClient()->client());
     eng::library_id_t selection = get_selection();
     if(selection >= 0) {
-        auto file = m_imageliststore->get_file(selection);
-        if (file) {
-            eng::library_id_t from_folder = engine_db_libfile_folderid(file.get());
+        auto f = m_imageliststore->get_file(selection);
+        if (f) {
+            auto& file = f.value();
+            eng::library_id_t from_folder = file->folder_id();
             std::shared_ptr<fwk::UndoTransaction> undo =
                 fwk::Application::app()->begin_undo(_("Move to Trash"));
 

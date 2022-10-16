@@ -32,6 +32,7 @@ pub type LibraryId = i64;
 // flatten namespace a bit.
 pub use self::keyword::Keyword;
 pub use self::label::Label;
+pub use self::libfile::LibFile;
 pub use self::libfolder::LibFolder;
 pub use self::libmetadata::LibMetadata;
 pub use self::library::Library;

@@ -26,12 +26,9 @@
 
 namespace eng {
 
-typedef std::shared_ptr<LibFile> LibFilePtr;
-typedef std::weak_ptr<LibFile> LibFileWeakPtr;
 typedef std::list<LibFilePtr> LibFileList;
 typedef std::shared_ptr<LibFileList> LibFileListPtr;
 
-LibFilePtr libfile_wrap(LibFile *);
 }
 
 /*

@@ -20,8 +20,7 @@
 #pragma once
 
 #include <memory>
-
-#include <gtk/gtk.h>
+#include <optional>
 
 #include <sigc++/signal.h>
 
@@ -108,7 +107,7 @@ public:
      *  todo: change it to support multiple
      */
     eng::library_id_t get_selection() const;
-    eng::LibFilePtr get_file(eng::library_id_t id) const;
+    std::optional<eng::LibFilePtr> get_file(eng::library_id_t id) const;
 protected:
     virtual void _added() override;
 private:

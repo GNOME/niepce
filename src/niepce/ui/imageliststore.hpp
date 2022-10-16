@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <gtkmm/liststore.h>
 
 #include "fwk/base/propertybag.hpp"
@@ -43,7 +45,7 @@ public:
     Gtk::TreeModel::Path get_path_from_id(eng::library_id_t id) const;
     Gtk::TreeModel::iterator get_iter_from_id(eng::library_id_t id) const;
     eng::library_id_t get_libfile_id_at_path(const Gtk::TreeModel::Path& path) const;
-    eng::LibFilePtr get_file(eng::library_id_t id) const;
+    std::optional<eng::LibFilePtr> get_file(eng::library_id_t id) const;
     size_t get_count() const
         { return m_store_wrap->children().size(); }
 

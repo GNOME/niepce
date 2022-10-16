@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <gtkmm/widget.h>
 #include <gtkmm/paned.h>
 #include <gtkmm/box.h>
@@ -47,7 +49,7 @@ public:
 
     DarkroomModule(const ui::IModuleShell & shell);
 
-    void set_image(const eng::LibFilePtr & file);
+    void set_image(std::optional<eng::LibFilePtr>&& file);
 
     virtual void dispatch_action(const std::string & action_name) override;
 
@@ -72,7 +74,7 @@ private:
     Gtk::ScrolledWindow          m_canvas_scroll;
     ToolboxController::Ptr       m_toolbox_ctrl;
     Glib::RefPtr<Gio::ActionGroup> m_actionGroup;
-    eng::LibFileWeakPtr        m_imagefile;
+    std::optional<eng::LibFilePtr> m_imagefile;
     ncr::Image::Ptr              m_image;
     fwk::Dock                   *m_dock;
 
