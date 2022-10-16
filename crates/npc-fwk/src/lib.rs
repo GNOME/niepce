@@ -19,7 +19,6 @@
 
 #[macro_use]
 pub mod base;
-pub mod capi;
 pub mod toolkit;
 pub mod utils;
 

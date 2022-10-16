@@ -104,7 +104,7 @@ pub extern "C" fn eng_property_bag_set_value(
     b.set_value(key.into(), v.clone())
 }
 
-use crate::db::Label;
+use crate::db::{Keyword, Label};
 
 #[cxx::bridge(namespace = "eng")]
 mod ffi {
@@ -114,6 +114,15 @@ mod ffi {
 
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
     }
+
+    extern "Rust" {
+        type Keyword;
+
+        fn id(&self) -> i64;
+        fn keyword(&self) -> &str;
+    }
+
+    impl Box<Keyword> {}
 
     extern "Rust" {
         type Label;

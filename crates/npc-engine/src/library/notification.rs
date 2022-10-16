@@ -276,9 +276,9 @@ pub unsafe extern "C" fn engine_library_notification_get_libfolder(
 #[no_mangle]
 pub unsafe extern "C" fn engine_library_notification_get_keyword(
     n: *const LibNotification,
-) -> *const Keyword {
+) -> *mut Keyword {
     match n.as_ref() {
-        Some(&LibNotification::AddedKeyword(ref f)) => f,
+        Some(&LibNotification::AddedKeyword(ref f)) => Box::into_raw(Box::new(f.clone())),
         _ => unreachable!(),
     }
 }

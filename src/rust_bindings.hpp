@@ -37,6 +37,7 @@ typedef fwk::FileList FileList;
 typedef fwk::PropertyValue PropertyValue;
 typedef fwk::RgbColour RgbColour;
 typedef eng::Label Label;
+typedef eng::Keyword Keyword;
 struct NiepcePropertyBag;
 struct NiepcePropertySet;
 }
@@ -59,13 +60,13 @@ typedef ffi::NiepcePropertySet PropertySet;
 
 namespace eng {
 typedef rust::Box<Label> LabelPtr;
+typedef rust::Box<Keyword> KeywordPtr;
 
 typedef ffi::NiepcePropertyIdx Np;
 using NiepcePropertyIdx = ffi::NiepcePropertyIdx;
 typedef ffi::LibraryId library_id_t; // XXX change this to LibraryId
 typedef ffi::FileType FileType;
 typedef ffi::FileStatus FileStatus;
-typedef ffi::Keyword Keyword;
 typedef ffi::LibFile LibFile;
 typedef ffi::LibFolder LibFolder;
 typedef ffi::LibMetadata LibMetadata;

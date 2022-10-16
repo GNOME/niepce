@@ -28,7 +28,6 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-engine/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/Cargo.toml \
 	@top_srcdir@/crates/npc-fwk/build.rs \
-	@top_srcdir@/crates/npc-fwk/src/capi.rs \
 	@top_srcdir@/crates/npc-fwk/src/base.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/date.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/debug.rs \

@@ -27,7 +27,6 @@
 #include <gtkmm/messagedialog.h>
 
 #include "fwk/base/debug.hpp"
-#include "fwk/base/string.hpp"
 #include "fwk/toolkit/application.hpp"
 #include "fwk/toolkit/gtkutils.hpp"
 #include "engine/importer/iimporter.hpp"
@@ -178,9 +177,8 @@ void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
     }
     case eng::NotificationType::ADDED_KEYWORD:
     {
-        auto k = engine_library_notification_get_keyword(&ln);
-        DBG_ASSERT(k, "keyword must not be NULL");
-        add_keyword_item(k);
+        auto k = eng::KeywordPtr::from_raw(engine_library_notification_get_keyword(&ln));
+        add_keyword_item(*k);
         break;
     }
     case eng::NotificationType::FOLDER_COUNTED:
@@ -325,16 +323,16 @@ void WorkspaceController::on_row_collapsed(const Gtk::TreeModel::iterator& iter,
     on_row_expanded_collapsed(iter, path, false);
 }
 
-void WorkspaceController::add_keyword_item(const eng::Keyword* k)
+void WorkspaceController::add_keyword_item(const eng::Keyword& k)
 {
     auto children = m_keywordsNode->children();
     bool was_empty = children.empty();
-    auto keyword = fwk::RustFfiString(engine_db_keyword_keyword(k));
+    auto keyword = k.keyword();
     auto iter = add_item(m_treestore, children,
-                         m_icons[ICON_KEYWORD], keyword.c_str(),
-                         engine_db_keyword_id(k), KEYWORD_ITEM);
-    ffi::libraryclient_count_keyword(getLibraryClient()->client(), engine_db_keyword_id(k));
-    m_keywordsidmap[engine_db_keyword_id(k)] = iter;
+                         m_icons[ICON_KEYWORD], std::string(keyword),
+                         k.id(), KEYWORD_ITEM);
+    ffi::libraryclient_count_keyword(getLibraryClient()->client(), k.id());
+    m_keywordsidmap[k.id()] = iter;
     if(was_empty) {
         expand_from_cfg("workspace_keywords_expanded", m_keywordsNode);
     }

@@ -112,7 +112,7 @@ private:
     /** Remove a folder from the treeview */
     void remove_folder_item(eng::library_id_t id);
     /** add a keyword item to the treeview */
-    void add_keyword_item(const eng::Keyword* k);
+    void add_keyword_item(const eng::Keyword& k);
     /** add a tree item in the treeview
      * @param treestore the treestore to add to
      * @param childrens the children subtree to add to

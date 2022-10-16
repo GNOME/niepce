@@ -22,7 +22,6 @@
 #include <glibmm/miscutils.h>
 
 #include "fwk/base/debug.hpp"
-#include "fwk/base/string.hpp"
 #include "fwk/utils/pathutils.hpp"
 #include "engine/importer/directoryimporter.hpp"
 #include "engine/importer/importedfile.hpp"

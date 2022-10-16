@@ -35,7 +35,6 @@
 #include "fwk/utils/pathutils.hpp"
 #include "fwk/base/debug.hpp"
 #include "fwk/base/map.hpp"
-#include "fwk/base/string.hpp"
 #include "dynamicmodule.hpp"
 #include "modulemanager.hpp"
 
