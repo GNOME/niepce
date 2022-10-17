@@ -31,6 +31,13 @@ pub enum PropertyValue {
 
 unsafe impl Send for PropertyValue {}
 
+use cxx::{type_id, ExternType};
+
+unsafe impl ExternType for PropertyValue {
+    type Id = type_id!("fwk::PropertyValue");
+    type Kind = cxx::kind::Opaque;
+}
+
 impl PropertyValue {
     pub fn is_empty(&self) -> bool {
         matches!(*self, PropertyValue::Empty)
@@ -55,24 +62,10 @@ impl PropertyValue {
         }
     }
 
-    pub fn integer_unchecked(&self) -> i32 {
-        match *self {
-            PropertyValue::Int(i) => i,
-            _ => panic!("value is not Int"),
-        }
-    }
-
     pub fn date(&self) -> Option<&Date> {
         match *self {
             PropertyValue::Date(ref d) => Some(d),
             _ => None,
-        }
-    }
-
-    pub fn date_unchecked(&self) -> Box<Date> {
-        match *self {
-            PropertyValue::Date(ref d) => Box::new(*d),
-            _ => panic!("value is not Date"),
         }
     }
 
@@ -90,37 +83,14 @@ impl PropertyValue {
         }
     }
 
-    /// Add a string a StringArray %PropertyValue
-    ///
-    /// Will panic if the type is incorrect.
-    pub fn add_string_unchecked(&mut self, string: &str) {
-        match *self {
-            PropertyValue::StringArray(ref mut sa) => {
-                sa.push(string.to_string());
-            }
-            _ => panic!("value is not a StringArray"),
-        }
-    }
-
     pub fn string_array(&self) -> Option<&[String]> {
         match *self {
             PropertyValue::StringArray(ref sa) => Some(sa),
             _ => None,
         }
     }
-
-    pub fn string_array_unchecked(&self) -> &[String] {
-        match *self {
-            PropertyValue::StringArray(ref sa) => sa,
-            _ => panic!("value is not a StringArray"),
-        }
-    }
 }
 
 pub fn property_value_new_int(v: i32) -> Box<PropertyValue> {
     Box::new(PropertyValue::Int(v))
-}
-
-pub fn property_value_new_string_array() -> Box<PropertyValue> {
-    Box::new(PropertyValue::StringArray(vec![]))
 }

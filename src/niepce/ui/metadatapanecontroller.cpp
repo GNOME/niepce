@@ -38,14 +38,14 @@ const fwk::PropertySet* MetaDataPaneController::get_property_set()
 {
     static fwk::PropertySet* propset = nullptr;
     if(!propset) {
-        propset = ffi::eng_property_set_new();
+        propset = fwk::PropertySet_new().into_raw();
         rust::Slice<const fwk::MetadataSectionFormat> formats = npc::get_format();
 
         auto current = formats.begin();
         while (current != formats.end()) {
             auto format = current->formats.begin();
             while (format != current->formats.end()) {
-                ffi::eng_property_set_add(propset, (NiepcePropertyIdx)format->id);
+                propset->add(format->id);
                 format++;
             }
             current++;

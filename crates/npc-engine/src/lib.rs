@@ -22,83 +22,27 @@ pub mod library;
 
 use std::ptr;
 
-use npc_fwk::base::PropertyIndex;
-use npc_fwk::PropertyValue;
+use db::NiepceProperties;
 
-use db::{NiepceProperties, NiepcePropertyIdx};
+// must be a tuple for cxx
+#[derive(Default)]
+pub struct PropertySet(npc_fwk::PropertySet<db::NiepceProperties>);
 
-type NiepcePropertySet = npc_fwk::PropertySet<db::NiepceProperties>;
-type NiepcePropertyBag = npc_fwk::PropertyBag<db::NiepceProperties>;
-
-#[no_mangle]
-pub extern "C" fn eng_property_set_new() -> *mut NiepcePropertySet {
-    Box::into_raw(Box::new(NiepcePropertySet::new()))
-}
-
-/// Delete a %PropertySet
-///
-/// # Safety
-/// Dereference the pointer.
-#[no_mangle]
-pub unsafe extern "C" fn eng_property_set_delete(set: *mut NiepcePropertySet) {
-    drop(Box::from_raw(set));
-}
-
-#[no_mangle]
-pub extern "C" fn eng_property_set_add(set: &mut NiepcePropertySet, v: NiepcePropertyIdx) {
-    set.insert(NiepceProperties::Index(v));
-}
-
-/// Delete the %PropertyBag object
-///
-/// # Safety
-/// Dereference the raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn eng_property_bag_delete(bag: *mut NiepcePropertyBag) {
-    drop(Box::from_raw(bag));
-}
-
-#[no_mangle]
-pub extern "C" fn eng_property_bag_is_empty(b: &NiepcePropertyBag) -> bool {
-    b.is_empty()
-}
-
-#[no_mangle]
-pub extern "C" fn eng_property_bag_len(b: &NiepcePropertyBag) -> usize {
-    b.len()
-}
-
-#[no_mangle]
-pub extern "C" fn eng_property_bag_key_by_index(
-    b: &NiepcePropertyBag,
-    idx: usize,
-) -> PropertyIndex {
-    b.bag[idx].into()
-}
-
-#[no_mangle]
-pub extern "C" fn eng_property_bag_value(
-    b: &NiepcePropertyBag,
-    key: PropertyIndex,
-) -> *mut PropertyValue {
-    let key: db::NiepceProperties = key.into();
-    if b.map.contains_key(&key) {
-        let value = Box::new(b.map[&key].clone());
-        Box::into_raw(value)
-    } else {
-        ptr::null_mut()
+impl PropertySet {
+    fn add(&mut self, v: u32) {
+        self.0.insert(NiepceProperties::from(v));
     }
 }
 
-#[no_mangle]
-pub extern "C" fn eng_property_bag_set_value(
-    b: &mut NiepcePropertyBag,
-    key: PropertyIndex,
-    v: &PropertyValue,
-) -> bool {
-    b.set_value(key.into(), v.clone())
+impl std::ops::Deref for PropertySet {
+    type Target = npc_fwk::PropertySet<db::NiepceProperties>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
+use npc_fwk::PropertyValue;
+use npc_fwk::base::PropertyIndex;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 
 /// Delete the %WrappedPropertyBag object
@@ -151,15 +95,67 @@ pub extern "C" fn fwk_property_bag_value(
     }
 }
 
+// must be a tuple for cxx
+#[derive(Default)]
+pub struct PropertyBag(npc_fwk::PropertyBag<db::NiepceProperties>);
+
+impl PropertyBag {
+    fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    fn key_by_index(&self, idx: usize) -> u32 {
+        self.0.bag[idx].into()
+    }
+
+    fn contains_key(&self, key: &u32) -> bool {
+        let key = db::NiepceProperties::from(*key);
+        self.0.contains_key(&key)
+    }
+
+    fn value_unchecked(&self, key: u32) -> &PropertyValue {
+        self.0
+            .map
+            .get(&db::NiepceProperties::from(key))
+            .expect("no such value")
+    }
+}
+
+impl std::ops::Deref for PropertyBag {
+    type Target = npc_fwk::PropertyBag<db::NiepceProperties>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for PropertyBag {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+pub fn property_set_new() -> Box<PropertySet> {
+    Box::new(PropertySet::default())
+}
+
+pub type NiepcePropertySet = PropertySet;
+pub type NiepcePropertyBag = PropertyBag;
+
 use crate::db::{Keyword, Label, LibFile, LibMetadata};
 
 #[cxx::bridge(namespace = "eng")]
 mod ffi {
     #[namespace = "fwk"]
     extern "C++" {
+        include!("fwk/cxx_prelude.hpp");
         include!("fwk/cxx_colour_bindings.hpp");
 
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
+        type PropertyValue = npc_fwk::PropertyValue;
     }
 
     #[repr(i32)]
@@ -213,5 +209,27 @@ mod ffi {
         type LibMetadata;
 
         fn id(&self) -> i64;
+        fn to_properties(&self, propset: &PropertySet) -> Box<PropertyBag>;
+    }
+
+    #[namespace = "fwk"]
+    extern "Rust" {
+        type PropertyBag;
+
+        fn is_empty(&self) -> bool;
+        fn len(&self) -> usize;
+        fn contains_key(&self, key: &u32) -> bool;
+        #[cxx_name = "value"]
+        fn value_unchecked(&self, key: u32) -> &PropertyValue;
+        fn key_by_index(&self, idx: usize) -> u32;
+    }
+
+    #[namespace = "fwk"]
+    extern "Rust" {
+        type PropertySet;
+
+        #[cxx_name = "PropertySet_new"]
+        fn property_set_new() -> Box<PropertySet>;
+        fn add(&mut self, v: u32);
     }
 }

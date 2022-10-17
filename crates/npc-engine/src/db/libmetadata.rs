@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::ops::DerefMut;
+
 use chrono::Utc;
 
 use super::libfile::FileType;
@@ -191,9 +193,10 @@ impl LibMetadata {
         false
     }
 
-    pub fn to_properties(&self, propset: &PropertySet<Np>) -> PropertyBag<Np> {
+    pub fn to_properties(&self, propset: &PropertySet<Np>) -> Box<NiepcePropertyBag> {
         use super::NiepcePropertyIdx::*;
-        let mut props = PropertyBag::new();
+        let mut property_bag = Box::new(NiepcePropertyBag::default());
+        let props = &mut property_bag.deref_mut().0;
         for prop_id in propset {
             match *prop_id {
                 Np::Index(NpXmpRatingProp) => {
@@ -256,7 +259,7 @@ impl LibMetadata {
                 }
             }
         }
-        props
+        property_bag
     }
 
     pub fn touch(&mut self) -> bool {
@@ -296,15 +299,6 @@ impl FromDb for LibMetadata {
     }
 }
 
-#[no_mangle]
-pub extern "C" fn engine_libmetadata_to_properties(
-    meta: &LibMetadata,
-    propset: &NiepcePropertySet,
-) -> *mut NiepcePropertyBag {
-    let result = Box::new(meta.to_properties(propset));
-    Box::into_raw(result)
-}
-
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 
 fn into_u32(from: NiepcePropertyBag) -> PropertyBag<u32> {
@@ -324,7 +318,7 @@ pub extern "C" fn engine_libmetadata_to_wrapped_properties(
     propset: &NiepcePropertySet,
 ) -> *mut WrappedPropertyBag {
     let bag = meta.to_properties(propset);
-    let bag = into_u32(bag);
+    let bag = into_u32(*bag);
     let result = Box::new(WrappedPropertyBag(bag));
     Box::into_raw(result)
 }

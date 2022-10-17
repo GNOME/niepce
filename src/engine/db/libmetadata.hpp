@@ -19,15 +19,12 @@
 
 #pragma once
 
-#include "engine/db/metadata.hpp"
 #include "fwk/base/propertybag.hpp"
 
 #include "rust_bindings.hpp"
 
 namespace eng {
 
-fwk::PropertyBagPtr libmetadata_to_properties(const LibMetadata *meta,
-                                              const fwk::PropertySet &propset);
 fwk::WrappedPropertyBagPtr libmetadata_to_wrapped_properties(const LibMetadata* meta,
                                                              const fwk::PropertySet& propset);
 

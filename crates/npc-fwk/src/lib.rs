@@ -52,7 +52,7 @@ use glib::translate::*;
 
 use self::base::rgbcolour::RgbColour;
 use crate::base::date::Date;
-use crate::base::propertyvalue::{property_value_new_int, property_value_new_string_array};
+use crate::base::propertyvalue::property_value_new_int;
 use crate::toolkit::thumbnail::Thumbnail;
 use crate::toolkit::widgets::MetadataWidget;
 use crate::toolkit::Configuration;
@@ -227,22 +227,11 @@ mod ffi {
         type PropertyValue;
 
         fn property_value_new_int(v: i32) -> Box<PropertyValue>;
-        fn property_value_new_string_array() -> Box<PropertyValue>;
 
         fn is_empty(&self) -> bool;
-        fn is_integer(&self) -> bool;
-        fn is_date(&self) -> bool;
         fn is_string(&self) -> bool;
-        #[cxx_name = "get_integer"]
-        fn integer_unchecked(&self) -> i32;
-        #[cxx_name = "get_date"]
-        fn date_unchecked(&self) -> Box<Date>;
         #[cxx_name = "get_string"]
         fn string_unchecked(&self) -> &str;
-        #[cxx_name = "add_string"]
-        fn add_string_unchecked(&mut self, string: &str);
-        #[cxx_name = "get_string_array"]
-        fn string_array_unchecked(&self) -> &[String];
     }
 
     extern "C++" {

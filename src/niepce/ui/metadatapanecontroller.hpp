@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "engine/db/libmetadata.hpp"
 #include "fwk/base/propertybag.hpp"
 #include "fwk/utils/exempi.hpp"
 #include "fwk/toolkit/dockable.hpp"

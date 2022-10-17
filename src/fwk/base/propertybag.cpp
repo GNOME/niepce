@@ -21,59 +21,14 @@
 
 namespace fwk {
 
-PropertySetPtr property_set_wrap(PropertySet* s)
-{
-    return PropertySetPtr(s, &ffi::eng_property_set_delete);
-}
-
-PropertySetPtr property_set_new()
-{
-    return property_set_wrap(ffi::eng_property_set_new());
-}
-
-PropertyValuePtr property_value_new(const std::vector<std::string>& sa)
-{
-    PropertyValuePtr value = fwk::property_value_new_string_array();
-    for (auto s : sa) {
-        value->add_string(s);
-    }
-    return value;
-}
-
-PropertyBagPtr property_bag_wrap(PropertyBag* bag)
-{
-    return PropertyBagPtr(bag, &ffi::eng_property_bag_delete);
-}
-
 WrappedPropertyBagPtr wrapped_property_bag_wrap(WrappedPropertyBag* bag)
 {
     return WrappedPropertyBagPtr(bag, &ffi::fwk_wrapped_property_bag_delete);
 }
 
-PropertyValuePtr property_bag_value(const PropertyBagPtr& bag, PropertyIndex idx)
-{
-    return PropertyValuePtr::from_raw(ffi::eng_property_bag_value(bag.get(), idx));
-}
-
 PropertyValuePtr wrapped_property_bag_value(const WrappedPropertyBagPtr& bag, PropertyIndex idx)
 {
     return PropertyValuePtr::from_raw(ffi::fwk_property_bag_value(bag.get(), idx));
-}
-
-bool set_value_for_property(PropertyBag& bag, ffi::NiepcePropertyIdx idx,
-                            const PropertyValue& value)
-{
-    return ffi::eng_property_bag_set_value(&bag, static_cast<uint32_t>(idx), &value);
-}
-
-std::optional<PropertyValuePtr> get_value_for_property(const PropertyBag& bag,
-                                                     ffi::NiepcePropertyIdx idx)
-{
-    auto value = ffi::eng_property_bag_value(&bag, static_cast<uint32_t>(idx));
-    if (!value) {
-        return std::nullopt;
-    }
-    return std::optional<PropertyValuePtr>(PropertyValuePtr::from_raw(value));
 }
 
 }

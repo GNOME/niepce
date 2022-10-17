@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/propertybag.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,10 @@ impl<Index: Ord + Copy> PropertyBag<Index> {
 
     pub fn value(&self, key: &Index) -> Option<&PropertyValue> {
         self.map.get(key)
+    }
+
+    pub fn contains_key(&self, key: &Index) -> bool {
+        self.map.contains_key(key)
     }
 
     pub fn set_value(&mut self, key: Index, value: PropertyValue) -> bool {

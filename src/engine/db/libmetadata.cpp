@@ -21,12 +21,6 @@
 
 namespace eng {
 
-fwk::PropertyBagPtr libmetadata_to_properties(const LibMetadata* meta,
-                                              const fwk::PropertySet& propset)
-{
-    return fwk::property_bag_wrap(ffi::engine_libmetadata_to_properties(meta, &propset));
-}
-
 fwk::WrappedPropertyBagPtr libmetadata_to_wrapped_properties(const LibMetadata* meta,
                                               const fwk::PropertySet& propset)
 {

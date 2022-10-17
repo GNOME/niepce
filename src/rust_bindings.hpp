@@ -42,8 +42,8 @@ typedef eng::Label Label;
 typedef eng::LibFile LibFile;
 typedef eng::LibMetadata LibMetadata;
 typedef eng::Keyword Keyword;
-struct NiepcePropertyBag;
-struct NiepcePropertySet;
+typedef fwk::PropertyBag NiepcePropertyBag;
+typedef fwk::PropertySet NiepcePropertySet;
 }
 
 #include "target/eng_bindings.h"
@@ -57,8 +57,8 @@ typedef rust::Box<FileList> FileListPtr;
 typedef rust::Box<RgbColour> RgbColourPtr;
 typedef rust::Box<PropertyValue> PropertyValuePtr;
 
-typedef ffi::NiepcePropertyBag PropertyBag;
-typedef ffi::NiepcePropertySet PropertySet;
+typedef rust::Box<PropertyBag> PropertyBagPtr;
+typedef rust::Box<PropertySet> PropertySetPtr;
 }
 
 namespace eng {

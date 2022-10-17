@@ -23,7 +23,6 @@
 #include "fwk/utils/exempi.hpp"
 #include "fwk/toolkit/application.hpp"
 #include "engine/db/properties.hpp"
-#include "engine/db/libmetadata.hpp"
 #include "mapmodule.hpp"
 
 #include "rust_bindings.hpp"
@@ -80,27 +79,25 @@ MapModule::on_lib_notification(const eng::LibNotification &ln)
         DBG_OUT("received metadata in MapModule");
 
         if (lm) {
-            fwk::PropertySetPtr propset = fwk::property_set_new();
-            ffi::eng_property_set_add(propset.get(), ffi::NiepcePropertyIdx::NpExifGpsLongProp);
-            ffi::eng_property_set_add(propset.get(), ffi::NiepcePropertyIdx::NpExifGpsLatProp);
+            fwk::PropertySetPtr propset = fwk::PropertySet_new();
+            propset->add((uint32_t)ffi::NiepcePropertyIdx::NpExifGpsLongProp);
+            propset->add((uint32_t)ffi::NiepcePropertyIdx::NpExifGpsLatProp);
 
-            fwk::PropertyBagPtr properties = eng::libmetadata_to_properties(lm, *propset);
+            fwk::PropertyBagPtr properties = lm->to_properties(*propset);
             double latitude, longitude;
             latitude = longitude = NAN;
-            auto result = fwk::get_value_for_property(*properties, ffi::NiepcePropertyIdx::NpExifGpsLongProp);
-            if (result.has_value()) {
-                fwk::PropertyValuePtr val = std::move(result.value());
+            if (properties->contains_key((uint32_t)ffi::NiepcePropertyIdx::NpExifGpsLongProp)) {
+                const fwk::PropertyValue& val = properties->value((uint32_t)ffi::NiepcePropertyIdx::NpExifGpsLongProp);
                 // it is a string
-                if (val->is_string()) {
-                    longitude = fwk::gps_coord_from_xmp(val->get_string());
+                if (val.is_string()) {
+                    longitude = fwk::gps_coord_from_xmp(val.get_string());
                 }
             }
-            result = fwk::get_value_for_property(*properties, ffi::NiepcePropertyIdx::NpExifGpsLatProp);
-            if (result.has_value()) {
-                fwk::PropertyValuePtr val = std::move(result.value());
+            if (properties->contains_key((uint32_t)ffi::NiepcePropertyIdx::NpExifGpsLatProp)) {
+                const fwk::PropertyValue& val = properties->value((uint32_t)ffi::NiepcePropertyIdx::NpExifGpsLatProp);
                 // it is a string
-                if (val->is_string()) {
-                    latitude = fwk::gps_coord_from_xmp(val->get_string());
+                if (val.is_string()) {
+                    latitude = fwk::gps_coord_from_xmp(val.get_string());
                 }
             }
 

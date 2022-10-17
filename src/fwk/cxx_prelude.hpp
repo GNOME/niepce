@@ -9,4 +9,5 @@
 // And that the implementation needs too.
 namespace fwk {
 class WrappedPropertyBag;
+class PropertyValue;
 }
