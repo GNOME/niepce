@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
-use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::{Path, PathBuf};
 
@@ -28,7 +26,6 @@ use super::fsfile::FsFile;
 use super::FromDb;
 use super::LibraryId;
 use super::NiepceProperties as Np;
-use super::NiepcePropertyIdx;
 
 pub use crate::ffi::FileType;
 
@@ -198,6 +195,11 @@ impl LibFile {
         }
     }
 
+    // cxx
+    pub fn property_int(&self, idx: u32) -> i32 {
+        self.property(Np::from(idx))
+    }
+
     pub fn set_property(&mut self, idx: Np, value: i32) {
         use super::NiepcePropertyIdx::*;
         match idx {
@@ -207,6 +209,11 @@ impl LibFile {
             Np::Index(NpNiepceFlagProp) => self.set_flag(value),
             _ => err_out!("invalid property {:?} - noop", idx),
         };
+    }
+
+    // cxx
+    pub fn set_property_int(&mut self, idx: u32, v: i32) {
+        self.set_property(Np::from(idx), v);
     }
 
     /// return an URI of the real path as Glib want this, oftern
@@ -267,38 +274,4 @@ pub fn mimetype_to_filetype(mime: &npc_fwk::MimeType) -> FileType {
     } else {
         FileType::Unknown
     }
-}
-
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_db_libfile_new(
-    id: LibraryId,
-    folder_id: LibraryId,
-    fs_file_id: LibraryId,
-    path: *const c_char,
-    name: *const c_char,
-) -> *mut LibFile {
-    let lf = Box::new(LibFile::new(
-        id,
-        folder_id,
-        fs_file_id,
-        PathBuf::from(&*CStr::from_ptr(path).to_string_lossy()),
-        &*CStr::from_ptr(name).to_string_lossy(),
-    ));
-    Box::into_raw(lf)
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_property(obj: &LibFile, idx: NiepcePropertyIdx) -> i32 {
-    obj.property(Np::Index(idx))
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_set_property(
-    obj: &mut LibFile,
-    idx: NiepcePropertyIdx,
-    v: i32,
-) {
-    obj.set_property(Np::Index(idx), v);
 }

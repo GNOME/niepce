@@ -270,8 +270,8 @@ void SelectionController::set_property(ffi::NiepcePropertyIdx idx, int value)
             return;
         }
         auto& file = f.value();
-        DBG_OUT("old property is %d", engine_db_libfile_property(&*file, idx));
-        int32_t old_value = engine_db_libfile_property(&*file, idx);
+        DBG_OUT("old property is %d", file->property((uint32_t)idx));
+        int32_t old_value = file->property((uint32_t)idx);
         const char *action = nullptr;
         switch(idx) {
         case ffi::NiepcePropertyIdx::NpNiepceFlagProp:
@@ -290,7 +290,7 @@ void SelectionController::set_property(ffi::NiepcePropertyIdx idx, int value)
         _set_metadata(action, selection, idx, old_value, value);
         // we need to set the property here so that undo/redo works
         // consistently.
-        engine_db_libfile_set_property(&*file, idx, value);
+        file->set_property((uint32_t)idx, value);
     }
 }
 

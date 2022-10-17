@@ -41,9 +41,9 @@ impl std::ops::Deref for PropertySet {
     }
 }
 
-use npc_fwk::PropertyValue;
 use npc_fwk::base::PropertyIndex;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
+use npc_fwk::PropertyValue;
 
 /// Delete the %WrappedPropertyBag object
 ///
@@ -201,6 +201,10 @@ mod ffi {
         fn orientation(&self) -> i32;
         // The type is `FileType`.
         fn file_type(&self) -> FileType;
+        #[cxx_name = "property"]
+        fn property_int(&self, idx: u32) -> i32;
+        #[cxx_name = "set_property"]
+        fn set_property_int(&mut self, idx: u32, v: i32);
     }
 
     impl Box<LibFile> {}
