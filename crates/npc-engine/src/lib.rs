@@ -145,7 +145,7 @@ pub fn property_set_new() -> Box<PropertySet> {
 pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
-use crate::db::{Keyword, Label, LibFile, LibMetadata};
+use crate::db::{Keyword, Label, LibFile, LibFolder, LibMetadata};
 
 #[cxx::bridge(namespace = "eng")]
 mod ffi {
@@ -208,6 +208,22 @@ mod ffi {
     }
 
     impl Box<LibFile> {}
+
+    #[repr(i32)]
+    #[derive(Clone)]
+    pub enum FolderVirtualType {
+        NONE = 0,
+        TRASH = 1,
+    }
+
+    extern "Rust" {
+        type LibFolder;
+
+        fn id(&self) -> i64;
+        fn name(&self) -> &str;
+        fn expanded(&self) -> bool;
+        fn virtual_type(&self) -> FolderVirtualType;
+    }
 
     extern "Rust" {
         type LibMetadata;

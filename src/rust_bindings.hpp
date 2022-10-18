@@ -40,10 +40,12 @@ typedef fwk::RgbColour RgbColour;
 typedef fwk::WrappedPropertyBag WrappedPropertyBag;
 typedef eng::Label Label;
 typedef eng::LibFile LibFile;
+typedef eng::LibFolder LibFolder;
 typedef eng::LibMetadata LibMetadata;
 typedef eng::Keyword Keyword;
 typedef fwk::PropertyBag NiepcePropertyBag;
 typedef fwk::PropertySet NiepcePropertySet;
+typedef eng::FolderVirtualType FolderVirtualType;
 }
 
 #include "target/eng_bindings.h"
@@ -70,11 +72,9 @@ typedef ffi::NiepcePropertyIdx Np;
 using NiepcePropertyIdx = ffi::NiepcePropertyIdx;
 typedef ffi::LibraryId library_id_t; // XXX change this to LibraryId
 typedef ffi::FileStatus FileStatus;
-typedef ffi::LibFolder LibFolder;
 typedef ffi::Managed Managed;
 typedef ffi::LibNotification LibNotification;
 typedef ffi::NotificationType NotificationType;
-typedef ffi::FolderVirtualType FolderVirtualType;
 }
 
 namespace ui {

@@ -351,21 +351,20 @@ void WorkspaceController::remove_folder_item(eng::library_id_t id)
 void WorkspaceController::add_folder_item(const eng::LibFolder* f)
 {
     int icon_idx = ICON_ROLL;
-    if(engine_db_libfolder_virtual_type(f) == eng::FolderVirtualType::TRASH) {
+    if(f->virtual_type() == eng::FolderVirtualType::TRASH) {
         icon_idx = ICON_TRASH;
-        ffi::libraryclient_set_trash_id(getLibraryClient()->client(), engine_db_libfolder_id(f));
+        ffi::libraryclient_set_trash_id(getLibraryClient()->client(), f->id());
     }
     auto children = m_folderNode->children();
     bool was_empty = children.empty();
     auto iter = add_item(m_treestore, children,
                          m_icons[icon_idx],
-                         engine_db_libfolder_name(const_cast<eng::LibFolder*>(f)),
-                         engine_db_libfolder_id(f), FOLDER_ITEM);
-    if(engine_db_libfolder_expanded(f)) {
+                         std::string(f->name()), f->id(), FOLDER_ITEM);
+    if (f->expanded()) {
         m_librarytree.expand_row(m_treestore->get_path(iter), false);
     }
-    ffi::libraryclient_count_folder(getLibraryClient()->client(), engine_db_libfolder_id(f));
-    m_folderidmap[engine_db_libfolder_id(f)] = iter;
+    ffi::libraryclient_count_folder(getLibraryClient()->client(), f->id());
+    m_folderidmap[f->id()] = iter;
     // expand if needed. Because Gtk doesn't expand empty
     if (was_empty) {
         expand_from_cfg("workspace_folders_expanded", m_folderNode);

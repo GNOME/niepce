@@ -33,7 +33,9 @@ fn main() {
             .exclude_item("Keyword")
             .exclude_item("Label")
             .exclude_item("LibFile")
+            .exclude_item("LibFolder")
             .exclude_item("LibMetadata")
+            .exclude_item("FolderVirtualType")
             // Ensure these are opaque as generics are still a problem.
             .exclude_item("NiepcePropertySet")
             .exclude_item("NiepcePropertyBag")

@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libfolder.rs
  *
- * Copyright (C) 2017 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
-use std::ffi::CString;
-
 use super::FromDb;
 use super::LibraryId;
 
-#[repr(i32)]
-#[derive(Clone)]
-pub enum FolderVirtualType {
-    NONE = 0,
-    TRASH = 1,
-}
+// defined in the cxx bridge
+pub use crate::ffi::FolderVirtualType;
 
 impl From<i32> for FolderVirtualType {
     fn from(t: i32) -> Self {
@@ -37,6 +30,14 @@ impl From<i32> for FolderVirtualType {
             1 => FolderVirtualType::TRASH,
             _ => FolderVirtualType::NONE,
         }
+    }
+}
+
+// this implementation is based on the cxx bridge implementation
+// of enums
+impl From<FolderVirtualType> for i32 {
+    fn from(t: FolderVirtualType) -> i32 {
+        t.repr
     }
 }
 
@@ -51,7 +52,6 @@ pub struct LibFolder {
     expanded: bool,
     virt: FolderVirtualType,
     parent: LibraryId,
-    cstr: CString,
 }
 
 impl LibFolder {
@@ -64,7 +64,6 @@ impl LibFolder {
             expanded: false,
             virt: FolderVirtualType::NONE,
             parent: 0,
-            cstr: CString::new("").unwrap(),
         }
     }
 
@@ -72,7 +71,7 @@ impl LibFolder {
         self.id
     }
 
-    pub fn name(&self) -> &String {
+    pub fn name(&self) -> &str {
         &self.name
     }
 
@@ -139,40 +138,4 @@ impl FromDb for LibFolder {
 
         Ok(libfolder)
     }
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfolder_id(obj: &LibFolder) -> i64 {
-    obj.id() as i64
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfolder_name(obj: &mut LibFolder) -> *const c_char {
-    obj.cstr = CString::new(obj.name().clone()).unwrap();
-    obj.cstr.as_ptr()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfolder_virtual_type(obj: &LibFolder) -> FolderVirtualType {
-    obj.virtual_type()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfolder_expanded(obj: &LibFolder) -> bool {
-    obj.expanded
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfolder_set_locked(obj: &mut LibFolder, locked: bool) {
-    obj.set_locked(locked);
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfolder_set_expanded(obj: &mut LibFolder, expanded: bool) {
-    obj.set_expanded(expanded);
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfolder_set_virtual_type(obj: &mut LibFolder, t: FolderVirtualType) {
-    obj.set_virtual_type(t);
 }
