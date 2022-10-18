@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/libraryclient.hpp
  *
- * Copyright (C) 2007-2020 Hubert Figuière
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,8 +41,8 @@ public:
     LibraryClient(const fwk::Moniker & moniker, const std::shared_ptr<ffi::LcChannel>& channel);
     virtual ~LibraryClient();
 
-    ffi::ThumbnailCache* thumbnailCache()
-        { return m_thumbnailCache; }
+    eng::ThumbnailCache* thumbnailCache()
+        { return &*m_thumbnailCache; }
 
     const UIDataProviderPtr& getDataProvider() const
         { return m_uidataprovider; }
@@ -53,7 +53,7 @@ public:
 private:
     std::shared_ptr<ffi::LibraryClientWrapper> m_client;
 
-    ffi::ThumbnailCache* m_thumbnailCache;
+    rust::Box<eng::ThumbnailCache> m_thumbnailCache;
     UIDataProviderPtr m_uidataprovider;
 };
 

@@ -36,6 +36,7 @@ fn main() {
             .exclude_item("LibFolder")
             .exclude_item("LibMetadata")
             .exclude_item("FolderVirtualType")
+            .exclude_item("ThumbnailCache")
             // Ensure these are opaque as generics are still a problem.
             .exclude_item("NiepcePropertySet")
             .exclude_item("NiepcePropertyBag")

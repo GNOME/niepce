@@ -46,6 +46,7 @@ typedef eng::Keyword Keyword;
 typedef fwk::PropertyBag NiepcePropertyBag;
 typedef fwk::PropertySet NiepcePropertySet;
 typedef eng::FolderVirtualType FolderVirtualType;
+typedef eng::ThumbnailCache ThumbnailCache;
 }
 
 #include "target/eng_bindings.h"

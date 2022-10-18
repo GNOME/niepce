@@ -17,10 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
 use std::cmp;
 use std::collections::VecDeque;
-use std::ffi::CStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync;
@@ -32,7 +30,6 @@ use crate::db::LibraryId;
 use crate::library::notification;
 use crate::library::notification::LibNotification::{FileStatusChanged, ThumbnailLoaded};
 use crate::library::notification::{FileStatusChange, LcChannel, LibNotification};
-use crate::library::queriedcontent::QueriedContent;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::{dbg_out, err_out};
@@ -222,28 +219,16 @@ impl ThumbnailCache {
     }
 }
 
+// cxx
 /// # Safety
 /// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_thumbnail_cache_new(
-    dir: *const c_char,
-    channel: *const LcChannel,
-) -> *mut ThumbnailCache {
-    let path = PathBuf::from(&*CStr::from_ptr(dir).to_string_lossy());
-    Box::into_raw(Box::new(ThumbnailCache::new(&path, (*channel).0.clone())))
-}
-
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_thumbnail_cache_delete(obj: *mut ThumbnailCache) {
-    drop(Box::from_raw(obj));
-}
-
-#[no_mangle]
-pub extern "C" fn engine_library_thumbnail_cache_request(
-    self_: &mut ThumbnailCache,
-    content: &QueriedContent,
-) {
-    self_.request(content.get_content())
+pub unsafe fn thumbnail_cache_new(
+    dir: &str,
+    channel: *const crate::ffi::LcChannel,
+) -> Box<ThumbnailCache> {
+    let channel = channel as *const LcChannel;
+    Box::new(ThumbnailCache::new(
+        &PathBuf::from(&dir),
+        (*channel).0.clone(),
+    ))
 }

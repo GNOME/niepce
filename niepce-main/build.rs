@@ -47,6 +47,7 @@ fn main() {
             .exclude_item("GFileInfo")
             .exclude_item("PortableChannel")
             .exclude_item("Option")
+            .exclude_item("ThumbnailCache")
             .with_crate(&crate_dir)
             .generate()
             .expect("Couldn't generate bindings")

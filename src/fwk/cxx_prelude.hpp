@@ -11,3 +11,7 @@ namespace fwk {
 class WrappedPropertyBag;
 class PropertyValue;
 }
+
+namespace eng {
+class LcChannel;
+}
