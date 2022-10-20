@@ -19,8 +19,10 @@
 
 pub mod clientimpl;
 pub mod clientinterface;
+mod ui_data_provider;
 
 pub use self::clientinterface::{ClientInterface, ClientInterfaceSync};
+pub use ui_data_provider::{ui_data_provider_new, UIDataProvider};
 
 use libc::{c_char, c_void};
 use std::ffi::CStr;

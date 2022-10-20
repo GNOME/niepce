@@ -36,7 +36,6 @@
 #include "fwk/toolkit/configdatabinder.hpp"
 #include "fwk/toolkit/undo.hpp"
 #include "fwk/toolkit/gtkutils.hpp"
-#include "libraryclient/uidataprovider.hpp"
 
 #include "niepcewindow.hpp"
 #include "dialogs/editlabels.hpp"
@@ -154,9 +153,7 @@ NiepceWindow::_createModuleShell()
 
     SelectionController::Ptr selection_controller = m_moduleshell->get_selection_controller();
     m_filmstrip = FilmStripController::Ptr(
-        new FilmStripController(
-            m_moduleshell->get_list_store(),
-            libraryclient::UIDataProviderWeakPtr(m_moduleshell->get_ui_data_provider())));
+        new FilmStripController(m_moduleshell->get_list_store()));
     add(m_filmstrip);
 
     m_vbox.append(*(m_filmstrip->buildWidget()));
@@ -298,7 +295,7 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     {
         auto l = engine_library_notification_get_label(&ln);
         if (l) {
-            m_libClient->getDataProvider()->addLabel(eng::LabelPtr::from_raw(l));
+            m_libClient->getDataProvider()->addLabel(*eng::LabelPtr::from_raw(l));
         } else {
             ERR_OUT("Invalid label (nullptr)");
         }
@@ -308,7 +305,7 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     {
         auto l = engine_library_notification_get_label(&ln);
         if (l) {
-            m_libClient->getDataProvider()->updateLabel(eng::LabelPtr::from_raw(l));
+            m_libClient->getDataProvider()->updateLabel(*eng::LabelPtr::from_raw(l));
         } else {
             ERR_OUT("Invalid label (nullptr)");
         }

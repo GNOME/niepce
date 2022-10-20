@@ -1,7 +1,7 @@
 /*
  * niepce - lib.rs
  *
- * Copyright (C) 2017-2020 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ fn niepce_init() {
     });
 }
 
+use crate::libraryclient::{ui_data_provider_new, UIDataProvider};
 use crate::niepce::ui::metadata_pane_controller::get_format;
 use npc_fwk::toolkit;
 
@@ -42,12 +43,38 @@ mod ffi {
 
     #[namespace = "fwk"]
     extern "C++" {
+        include!("fwk/cxx_colour_bindings.hpp");
         include!("fwk/cxx_widgets_bindings.hpp");
 
+        type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
         type MetadataSectionFormat = crate::toolkit::widgets::MetadataSectionFormat;
+    }
+
+    #[namespace = "eng"]
+    extern "C++" {
+        include!("fwk/cxx_prelude.hpp");
+        type Label = npc_engine::db::Label;
     }
 
     extern "Rust" {
         fn get_format() -> &'static [MetadataSectionFormat];
+    }
+
+    extern "Rust" {
+        type UIDataProvider;
+
+        #[cxx_name = "UIDataProvider_new"]
+        fn ui_data_provider_new() -> Box<UIDataProvider>;
+
+        #[cxx_name = "addLabel"]
+        fn add_label(&self, label: &Label);
+        #[cxx_name = "updateLabel"]
+        fn update_label(&self, label: &Label);
+        #[cxx_name = "deleteLabel"]
+        fn delete_label(&self, label: i64);
+        fn label_count(&self) -> usize;
+        fn label_at(&self, idx: usize) -> *mut Label;
+        #[cxx_name = "colourForLabel"]
+        fn colour_for_label(&self, idx: i64) -> RgbColour;
     }
 }

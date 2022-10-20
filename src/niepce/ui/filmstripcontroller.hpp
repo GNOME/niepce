@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/filmstripcontroller.hpp
  *
- * Copyright (C) 2008-2020 Hubert Figuière
+ * Copyright (C) 2008-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,9 +37,7 @@ public:
 	typedef std::shared_ptr<FilmStripController> Ptr;
 	typedef std::weak_ptr<FilmStripController> WeakPtr;
 
-	FilmStripController(
-          const ImageListStorePtr& store,
-          const libraryclient::UIDataProviderWeakPtr& ui_data_provider);
+	FilmStripController(const ImageListStorePtr& store);
 
 	virtual Gtk::IconView * image_list() override;
 	virtual eng::library_id_t get_selected() override;
@@ -48,7 +46,6 @@ public:
 	virtual Gtk::Widget * buildWidget() override;
 
 private:
-	libraryclient::UIDataProviderWeakPtr m_ui_data_provider;
 	std::shared_ptr<ffi::ThumbStripView> m_thumb_strip_view;
 	Gtk::IconView * m_thumbview;
 	ImageListStorePtr m_store;

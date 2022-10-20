@@ -30,7 +30,6 @@
 #include "fwk/toolkit/gdkutils.hpp"
 #include "fwk/toolkit/undo.hpp"
 #include "libraryclient/libraryclient.hpp"
-#include "libraryclient/uidataprovider.hpp"
 #include "editlabels.hpp"
 
 
@@ -40,9 +39,14 @@ namespace ui {
 
 EditLabels::EditLabels(const LibraryClientPtr & libclient)
     : fwk::Dialog("/org/gnome/Niepce/ui/editlabels.ui", "editLabels")
-    , m_labels(libclient->getDataProvider()->getLabels())
     , m_lib_client(libclient)
 {
+    auto& provider = libclient->getDataProvider();
+    auto count = provider->label_count();
+    for (size_t i = 0; i < count; i++) {
+        m_labels.push_back(rust::Box<eng::Label>::from_raw(provider->label_at(i)));
+    }
+
     std::fill(m_status.begin(), m_status.end(), false);
 }
 

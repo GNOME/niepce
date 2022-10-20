@@ -14,4 +14,5 @@ class PropertyValue;
 
 namespace eng {
 class LcChannel;
+class Label;
 }

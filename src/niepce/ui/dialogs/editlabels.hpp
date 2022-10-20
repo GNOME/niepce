@@ -45,7 +45,7 @@ private:
     void label_name_changed(size_t idx);
     void label_colour_changed(size_t idx);
     void update_labels(int /*response*/);
-    const eng::LabelList& m_labels;
+    eng::LabelList m_labels;
     std::array<Gtk::ColorButton*, NUM_LABELS> m_colours;
     std::array<Gtk::Entry*, NUM_LABELS> m_entries;
     std::array<bool, NUM_LABELS> m_status;

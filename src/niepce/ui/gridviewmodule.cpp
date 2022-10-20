@@ -30,7 +30,6 @@
 #include "fwk/toolkit/application.hpp"
 #include "fwk/toolkit/configdatabinder.hpp"
 #include "fwk/toolkit/widgets/dock.hpp"
-#include "libraryclient/uidataprovider.hpp"
 #include "gridviewmodule.hpp"
 #include "moduleshell.hpp"
 
@@ -94,26 +93,21 @@ bool GridViewModule::get_colour_callback_c(int32_t label, ffi::RgbColour* out,
         return false;
     }
 
-    std::optional<fwk::RgbColourPtr> colour =
+    std::optional<fwk::RgbColour> colour =
         static_cast<const GridViewModule*>(user_data)->get_colour_callback(label);
 
     if (colour.has_value() && out) {
-        *out = *colour.value();
+        *out = colour.value();
         return true;
     }
 
     return false;
 }
 
-std::optional<fwk::RgbColourPtr> GridViewModule::get_colour_callback(int32_t label) const
+std::optional<fwk::RgbColour> GridViewModule::get_colour_callback(int32_t label) const
 {
-    libraryclient::UIDataProviderWeakPtr ui_data_provider(m_shell.get_ui_data_provider());
-    auto provider = ui_data_provider.lock();
-    DBG_ASSERT(static_cast<bool>(provider), "couldn't lock UI provider");
-    if (provider) {
-        return provider->colourForLabel(label);
-    }
-    return std::nullopt;
+    auto& ui_data_provider = m_shell.getLibraryClient()->getDataProvider();
+    return std::optional(ui_data_provider->colourForLabel(label));
 }
 
 Gtk::Widget * GridViewModule::buildWidget()

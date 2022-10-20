@@ -79,7 +79,7 @@ protected:
 
 private:
   static bool get_colour_callback_c(int32_t label, ffi::RgbColour* out, const void* user_data);
-  std::optional<fwk::RgbColourPtr> get_colour_callback(int32_t label) const;
+  std::optional<fwk::RgbColour> get_colour_callback(int32_t label) const;
   void on_metadata_changed(const fwk::WrappedPropertyBagPtr&, const fwk::WrappedPropertyBagPtr& old);
   static void on_rating_changed(GtkCellRenderer*, eng::library_id_t id, int rating,
                                 gpointer user_data);

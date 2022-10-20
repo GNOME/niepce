@@ -30,6 +30,13 @@ pub struct Label {
     colour: RgbColour,
 }
 
+use cxx::{type_id, ExternType};
+
+unsafe impl ExternType for Label {
+    type Id = type_id!("eng::Label");
+    type Kind = cxx::kind::Opaque;
+}
+
 impl Label {
     pub fn new(id: LibraryId, label: &str, colourstring: &str) -> Label {
         let colour = RgbColour::from_str(colourstring).unwrap_or_default();

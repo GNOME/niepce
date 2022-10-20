@@ -26,10 +26,8 @@
 
 namespace ui {
 
-FilmStripController::FilmStripController(const ImageListStorePtr& store,
-                                         const libraryclient::UIDataProviderWeakPtr& ui_data_provider)
-    : m_ui_data_provider(ui_data_provider)
-    , m_store(store)
+FilmStripController::FilmStripController(const ImageListStorePtr& store)
+    : m_store(store)
 {
 }
 

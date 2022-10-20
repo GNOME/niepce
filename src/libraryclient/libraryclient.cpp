@@ -21,7 +21,6 @@
 #include "fwk/base/moniker.hpp"
 
 #include "libraryclient.hpp"
-#include "uidataprovider.hpp"
 
 #include "rust_bindings.hpp"
 
@@ -39,7 +38,7 @@ LibraryClient::LibraryClient(const fwk::Moniker & moniker,
     , m_thumbnailCache(eng::ThumbnailCache_new(
                            moniker.path() + "/" + s_thumbcacheDirname,
                            (const eng::LcChannel*)channel.get()))
-    , m_uidataprovider(new UIDataProvider())
+    , m_uidataprovider(npc::UIDataProvider_new())
 {
 }
 

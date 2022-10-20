@@ -20,6 +20,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include <gtk/gtk.h>
 
@@ -67,6 +68,7 @@ typedef rust::Box<PropertySet> PropertySetPtr;
 namespace eng {
 typedef rust::Box<Keyword> KeywordPtr;
 typedef rust::Box<Label> LabelPtr;
+typedef std::vector<LabelPtr> LabelList;
 typedef rust::Box<LibFile> LibFilePtr;
 
 typedef ffi::NiepcePropertyIdx Np;
@@ -76,6 +78,10 @@ typedef ffi::FileStatus FileStatus;
 typedef ffi::Managed Managed;
 typedef ffi::LibNotification LibNotification;
 typedef ffi::NotificationType NotificationType;
+}
+
+namespace npc {
+typedef rust::Box<UIDataProvider> UIDataProviderPtr;
 }
 
 namespace ui {

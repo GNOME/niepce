@@ -33,6 +33,8 @@
 #include "imageliststore.hpp"
 #include "imoduleshell.hpp"
 
+#include "rust_bindings.hpp"
+
 namespace Gtk {
 class Widget;
 }
@@ -74,7 +76,7 @@ public:
         {
             return m_libraryclient;
         }
-    virtual const libraryclient::UIDataProviderPtr& get_ui_data_provider() const override
+    virtual const npc::UIDataProviderPtr& get_ui_data_provider() const override
         {
             return m_libraryclient->getDataProvider();
         }

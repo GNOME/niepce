@@ -22,8 +22,6 @@
 #include <string>
 #include <memory>
 
-#include "uidataprovider.hpp"
-
 #include "rust_bindings.hpp"
 
 namespace fwk {
@@ -41,10 +39,10 @@ public:
     LibraryClient(const fwk::Moniker & moniker, const std::shared_ptr<ffi::LcChannel>& channel);
     virtual ~LibraryClient();
 
-    eng::ThumbnailCache* thumbnailCache()
+    const eng::ThumbnailCache* thumbnailCache() const
         { return &*m_thumbnailCache; }
 
-    const UIDataProviderPtr& getDataProvider() const
+    const npc::UIDataProviderPtr& getDataProvider() const
         { return m_uidataprovider; }
 
     ffi::LibraryClientWrapper* client() const {
@@ -54,7 +52,7 @@ private:
     std::shared_ptr<ffi::LibraryClientWrapper> m_client;
 
     rust::Box<eng::ThumbnailCache> m_thumbnailCache;
-    UIDataProviderPtr m_uidataprovider;
+    npc::UIDataProviderPtr m_uidataprovider;
 };
 
 typedef std::shared_ptr<LibraryClient> LibraryClientPtr;
