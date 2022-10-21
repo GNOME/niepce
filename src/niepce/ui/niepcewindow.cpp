@@ -29,7 +29,6 @@
 
 #include "niepce/notificationcenter.hpp"
 #include "fwk/base/debug.hpp"
-#include "fwk/base/moniker.hpp"
 #include "fwk/utils/boost.hpp"
 #include "fwk/toolkit/application.hpp"
 #include "fwk/toolkit/notificationcenter.hpp"
@@ -358,13 +357,13 @@ void NiepceWindow::prompt_open_library()
 
 bool NiepceWindow::open_library(const std::string & libMoniker)
 {
-    fwk::Moniker mon = fwk::Moniker(libMoniker);
+    rust::Box<fwk::Moniker> mon = fwk::Moniker_from(libMoniker);
     m_libClient
         = LibraryClientPtr(new LibraryClient(
-                               mon, m_notifcenter->get_channel()));
+                               *mon, m_notifcenter->get_channel()));
     // XXX ensure the library is open.
     set_title(libMoniker);
-    m_library_cfg = fwk::Configuration_new(Glib::build_filename(mon.path(), "config.ini"));
+    m_library_cfg = fwk::Configuration_new(Glib::build_filename(std::string(mon->path()), "config.ini"));
     ffi::libraryclient_get_all_labels(m_libClient->client());
     if(!m_moduleshell) {
         _createModuleShell();

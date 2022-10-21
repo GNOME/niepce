@@ -8,20 +8,16 @@ AM_CPPFLAGS = $(niepce_cppflags)
 
 noinst_LIBRARIES = libfwkbase.a
 
-TESTS = testmoniker testgeometry testmap\
+TESTS = testgeometry testmap\
 	testoption
 
-check_PROGRAMS = testmoniker testgeometry testmap\
+check_PROGRAMS = testgeometry testmap\
 	testoption
 
 
 testing_cppflags = -I@top_srcdir@/@GTEST_ROOT@/include $(niepce_cppflags)
 testing_ldadd = @top_builddir@/third_party/libgtest.a libfwkbase.a \
 	@FRAMEWORK_LIBS@
-
-testmoniker_SOURCES = t/testmoniker.cpp
-testmoniker_CPPFLAGS = $(testing_cppflags)
-testmoniker_LDADD = $(testing_ldadd)
 
 testgeometry_SOURCES = t/testgeometry.cpp
 testgeometry_CPPFLAGS = $(testing_cppflags)
@@ -38,7 +34,6 @@ testoption_LDADD = $(testing_ldadd)
 libfwkbase_a_SOURCES = \
 	autoflag.hpp \
 	debug.hpp debug.cpp \
-	moniker.hpp moniker.cpp \
 	geometry.hpp geometry.cpp \
 	singleton.hpp \
 	util.hpp \

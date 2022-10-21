@@ -17,9 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "fwk/base/moniker.hpp"
-
 #include "libraryclient.hpp"
 
 #include "rust_bindings.hpp"
@@ -33,10 +30,10 @@ const char * s_thumbcacheDirname = "thumbcache";
 LibraryClient::LibraryClient(const fwk::Moniker & moniker,
                              const std::shared_ptr<ffi::LcChannel>& channel)
     : m_client(
-        ffi::libraryclient_new(moniker.path().c_str(), channel.get()),
+        ffi::libraryclient_new(std::string(moniker.path()).c_str(), channel.get()),
         ffi::libraryclient_delete)
     , m_thumbnailCache(eng::ThumbnailCache_new(
-                           moniker.path() + "/" + s_thumbcacheDirname,
+                           std::string(moniker.path()) + "/" + s_thumbcacheDirname,
                            (const eng::LcChannel*)channel.get()))
     , m_uidataprovider(npc::UIDataProvider_new())
 {

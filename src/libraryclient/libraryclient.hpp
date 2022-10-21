@@ -24,10 +24,6 @@
 
 #include "rust_bindings.hpp"
 
-namespace fwk {
-class Moniker;
-}
-
 namespace libraryclient {
 
 class LibraryClient

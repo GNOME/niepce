@@ -31,6 +31,7 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/base/date.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/debug.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/fractions.rs \
+	@top_srcdir@/crates/npc-fwk/src/base/moniker.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertybag.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertyvalue.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/rgbcolour.rs \

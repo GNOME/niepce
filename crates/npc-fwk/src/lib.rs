@@ -50,9 +50,10 @@ use std::ffi::c_char;
 use gdk_pixbuf_sys::GdkPixbuf;
 use glib::translate::*;
 
-use self::base::rgbcolour::RgbColour;
 use crate::base::date::Date;
 use crate::base::propertyvalue::property_value_new_int;
+use crate::base::rgbcolour::RgbColour;
+use crate::base::{moniker_from, Moniker};
 use crate::toolkit::thumbnail::Thumbnail;
 use crate::toolkit::widgets::MetadataWidget;
 use crate::toolkit::Configuration;
@@ -252,5 +253,13 @@ mod ffi {
         #[cxx_name = "set_data_source"]
         fn set_data_source_wrapped(&self, properties: &WrappedPropertyBag);
         fn set_data_source_none(&self);
+    }
+
+    extern "Rust" {
+        type Moniker;
+
+        #[cxx_name = "Moniker_from"]
+        fn moniker_from(v: &str) -> Box<Moniker>;
+        fn path(&self) -> &str;
     }
 }
