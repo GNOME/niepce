@@ -19,12 +19,15 @@
 
 pub mod clientimpl;
 pub mod clientinterface;
+mod host;
 mod ui_data_provider;
 
-pub use self::clientinterface::{ClientInterface, ClientInterfaceSync};
+pub use clientinterface::{ClientInterface, ClientInterfaceSync};
+pub use host::{library_client_host_delete, library_client_host_new, LibraryClientHost};
 pub use ui_data_provider::{ui_data_provider_new, UIDataProvider};
 
 use libc::{c_char, c_void};
+use std::cell::Cell;
 use std::ffi::CStr;
 use std::ops::Deref;
 use std::path::PathBuf;
@@ -37,7 +40,6 @@ use npc_engine::db::LibraryId;
 use npc_engine::db::{NiepceProperties, NiepcePropertyIdx};
 use npc_engine::library::notification::{LcChannel, LibNotification};
 use npc_fwk::base::PropertyValue;
-use npc_fwk::toolkit::PortableChannel;
 use npc_fwk::utils::files::FileList;
 
 /// Wrap the libclient Arc so that it can be passed around
@@ -68,36 +70,28 @@ impl LibraryClientWrapper {
     pub fn client(&self) -> Arc<LibraryClient> {
         self.client.clone()
     }
-
-    /// unwrap the mutable client Arc
-    /// XXX we need to unsure this is thread safe.
-    /// Don't hold this reference more than you need.
-    #[inline]
-    fn unwrap_mut(&mut self) -> &mut LibraryClient {
-        Arc::get_mut(&mut self.client).unwrap()
-    }
 }
 
 pub struct LibraryClient {
     pimpl: ClientImpl,
 
-    trash_id: LibraryId,
+    trash_id: Cell<LibraryId>,
 }
 
 impl LibraryClient {
     pub fn new(dir: PathBuf, sender: async_channel::Sender<LibNotification>) -> LibraryClient {
         LibraryClient {
             pimpl: ClientImpl::new(dir, sender),
-            trash_id: 0,
+            trash_id: Cell::new(0),
         }
     }
 
     pub fn get_trash_id(&self) -> LibraryId {
-        self.trash_id
+        self.trash_id.get()
     }
 
-    pub fn set_trash_id(&mut self, id: LibraryId) {
-        self.trash_id = id;
+    pub fn set_trash_id(&self, id: LibraryId) {
+        self.trash_id.set(id);
     }
 }
 
@@ -203,7 +197,7 @@ pub extern "C" fn lcchannel_new(
         }
     };
     glib::MainContext::default().spawn_local(event_handler);
-    Box::into_raw(Box::new(PortableChannel::<LibNotification>(sender)))
+    Box::into_raw(Box::new(LcChannel(sender)))
 }
 
 /// # Safety
@@ -213,101 +207,60 @@ pub unsafe extern "C" fn lcchannel_delete(obj: *mut LcChannel) {
     drop(Box::from_raw(obj));
 }
 
-/// # Safety
-/// Dereference a pointer.
 #[no_mangle]
-pub unsafe extern "C" fn libraryclient_new(
-    path: *const c_char,
-    channel: *const LcChannel,
-) -> *mut LibraryClientWrapper {
-    let dir = PathBuf::from(&*CStr::from_ptr(path).to_string_lossy());
-    Box::into_raw(Box::new(LibraryClientWrapper::new(
-        dir,
-        (*channel).0.clone(),
-    )))
-}
-
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn libraryclient_delete(obj: *mut LibraryClientWrapper) {
-    drop(Box::from_raw(obj));
+pub extern "C" fn libraryclient_set_trash_id(client: &LibraryClientWrapper, id: LibraryId) {
+    client.set_trash_id(id);
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_set_trash_id(client: &mut LibraryClientWrapper, id: LibraryId) {
-    client.unwrap_mut().set_trash_id(id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_get_trash_id(client: &mut LibraryClientWrapper) -> LibraryId {
+pub extern "C" fn libraryclient_get_trash_id(client: &LibraryClientWrapper) -> LibraryId {
     client.get_trash_id()
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_get_all_keywords(client: &mut LibraryClientWrapper) {
+pub extern "C" fn libraryclient_get_all_keywords(client: &LibraryClientWrapper) {
     client.get_all_keywords();
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_get_all_folders(client: &mut LibraryClientWrapper) {
+pub extern "C" fn libraryclient_get_all_folders(client: &LibraryClientWrapper) {
     client.get_all_folders();
 }
 
 #[no_mangle]
 pub extern "C" fn libraryclient_query_folder_content(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     folder_id: LibraryId,
 ) {
     client.query_folder_content(folder_id);
 }
 
-/// # Safety
-/// Dereference a pointer.
 #[no_mangle]
-pub unsafe extern "C" fn libraryclient_create_folder_sync(
-    client: &mut LibraryClientWrapper,
-    n: *const c_char,
-    p: *const c_char,
-) -> LibraryId {
-    let name = String::from(CStr::from_ptr(n).to_string_lossy());
-    let path = if p.is_null() {
-        None
-    } else {
-        Some(String::from(CStr::from_ptr(p).to_string_lossy()))
-    };
-    client.create_folder_sync(name, path)
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_delete_folder(client: &mut LibraryClientWrapper, id: LibraryId) {
+pub extern "C" fn libraryclient_delete_folder(client: &LibraryClientWrapper, id: LibraryId) {
     client.delete_folder(id);
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_count_folder(
-    client: &mut LibraryClientWrapper,
-    folder_id: LibraryId,
-) {
+pub extern "C" fn libraryclient_count_folder(client: &LibraryClientWrapper, folder_id: LibraryId) {
     client.count_folder(folder_id);
 }
 
 #[no_mangle]
 pub extern "C" fn libraryclient_query_keyword_content(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     keyword_id: LibraryId,
 ) {
     client.query_keyword_content(keyword_id);
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_count_keyword(client: &mut LibraryClientWrapper, id: LibraryId) {
+pub extern "C" fn libraryclient_count_keyword(client: &LibraryClientWrapper, id: LibraryId) {
     client.count_keyword(id);
 }
 
 #[no_mangle]
 pub extern "C" fn libraryclient_request_metadata(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     file_id: LibraryId,
 ) {
     client.request_metadata(file_id);
@@ -315,7 +268,7 @@ pub extern "C" fn libraryclient_request_metadata(
 
 #[no_mangle]
 pub extern "C" fn libraryclient_set_metadata(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     file_id: LibraryId,
     meta: NiepcePropertyIdx,
     value: &PropertyValue,
@@ -324,16 +277,13 @@ pub extern "C" fn libraryclient_set_metadata(
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_write_metadata(
-    client: &mut LibraryClientWrapper,
-    file_id: LibraryId,
-) {
+pub extern "C" fn libraryclient_write_metadata(client: &LibraryClientWrapper, file_id: LibraryId) {
     client.write_metadata(file_id);
 }
 
 #[no_mangle]
 pub extern "C" fn libraryclient_move_file_to_folder(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     file_id: LibraryId,
     from: LibraryId,
     to: LibraryId,
@@ -342,7 +292,7 @@ pub extern "C" fn libraryclient_move_file_to_folder(
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_get_all_labels(client: &mut LibraryClientWrapper) {
+pub extern "C" fn libraryclient_get_all_labels(client: &LibraryClientWrapper) {
     client.get_all_labels();
 }
 
@@ -350,7 +300,7 @@ pub extern "C" fn libraryclient_get_all_labels(client: &mut LibraryClientWrapper
 /// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_create_label(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     s: *const c_char,
     c: *const c_char,
 ) {
@@ -363,7 +313,7 @@ pub unsafe extern "C" fn libraryclient_create_label(
 /// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_create_label_sync(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     s: *const c_char,
     c: *const c_char,
 ) -> LibraryId {
@@ -373,10 +323,7 @@ pub unsafe extern "C" fn libraryclient_create_label_sync(
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_delete_label(
-    client: &mut LibraryClientWrapper,
-    label_id: LibraryId,
-) {
+pub extern "C" fn libraryclient_delete_label(client: &LibraryClientWrapper, label_id: LibraryId) {
     client.delete_label(label_id);
 }
 
@@ -384,7 +331,7 @@ pub extern "C" fn libraryclient_delete_label(
 /// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_update_label(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     label_id: LibraryId,
     s: *const c_char,
     c: *const c_char,
@@ -396,7 +343,7 @@ pub unsafe extern "C" fn libraryclient_update_label(
 
 #[no_mangle]
 pub extern "C" fn libraryclient_process_xmp_update_queue(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     write_xmp: bool,
 ) {
     client.process_xmp_update_queue(write_xmp);
@@ -406,7 +353,7 @@ pub extern "C" fn libraryclient_process_xmp_update_queue(
 /// Dereference a pointer.
 #[no_mangle]
 pub unsafe extern "C" fn libraryclient_import_files(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     dir: *const c_char,
     files: &FileList,
     manage: Managed,

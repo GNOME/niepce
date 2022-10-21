@@ -24,7 +24,6 @@
 #include <giomm/simpleactiongroup.h>
 
 #include "moduleshellwidget.hpp"
-#include "libraryclient/libraryclient.hpp"
 #include "fwk/toolkit/uicontroller.hpp"
 #include "fwk/toolkit/notification.hpp"
 #include "niepce/ui/gridviewmodule.hpp"
@@ -76,7 +75,7 @@ public:
         {
             return m_libraryclient;
         }
-    virtual const npc::UIDataProviderPtr& get_ui_data_provider() const override
+    virtual const npc::UIDataProvider& get_ui_data_provider() const override
         {
             return m_libraryclient->getDataProvider();
         }

@@ -8,11 +8,13 @@
 // early "extern C++"
 // And that the implementation needs too.
 namespace fwk {
-class WrappedPropertyBag;
+class Moniker;
 class PropertyValue;
+class WrappedPropertyBag;
 }
 
 namespace eng {
 class LcChannel;
 class Label;
+class ThumbnailCache;
 }

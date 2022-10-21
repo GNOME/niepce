@@ -23,6 +23,13 @@ pub struct Moniker {
     path: String,
 }
 
+use cxx::{type_id, ExternType};
+
+unsafe impl ExternType for Moniker {
+    type Id = type_id!("fwk::Moniker");
+    type Kind = cxx::kind::Opaque;
+}
+
 impl From<&str> for Moniker {
     fn from(v: &str) -> Moniker {
         let scheme;

@@ -88,7 +88,7 @@ void ImageListStore::clear_content()
 void ImageListStore::on_lib_notification(const eng::LibNotification &ln)
 {
     if (ffi::npc_image_list_store_on_lib_notification(
-            m_store, &ln, getLibraryClient()->thumbnailCache())) {
+            m_store, &ln, &getLibraryClient()->thumbnailCache())) {
         return;
     }
 
@@ -108,7 +108,7 @@ void ImageListStore::on_lib_notification(const eng::LibNotification &ln)
             ERR_OUT("couldn't cast %s: %s", xmp_pref.c_str(),
                     e.what());
         }
-        ffi::libraryclient_process_xmp_update_queue(getLibraryClient()->client(), write_xmp);
+        ffi::libraryclient_process_xmp_update_queue(&getLibraryClient()->client(), write_xmp);
         break;
     }
     default:

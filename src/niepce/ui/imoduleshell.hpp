@@ -33,7 +33,7 @@ public:
     virtual ~IModuleShell() {}
     virtual const ui::SelectionController::Ptr & get_selection_controller() const = 0;
     virtual libraryclient::LibraryClientPtr getLibraryClient() const = 0;
-    virtual const npc::UIDataProviderPtr& get_ui_data_provider() const = 0;
+    virtual const npc::UIDataProvider& get_ui_data_provider() const = 0;
     virtual Glib::RefPtr<Gio::Menu> getMenu() const = 0;
 };
 

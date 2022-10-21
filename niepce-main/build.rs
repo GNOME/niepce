@@ -48,6 +48,8 @@ fn main() {
             .exclude_item("PortableChannel")
             .exclude_item("Option")
             .exclude_item("ThumbnailCache")
+            .exclude_item("LibraryClientWrapper")
+            .exclude_item("LcChannel")
             .with_crate(&crate_dir)
             .generate()
             .expect("Couldn't generate bindings")

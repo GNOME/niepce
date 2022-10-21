@@ -29,7 +29,6 @@
 #include "fwk/toolkit/application.hpp"
 #include "fwk/toolkit/gdkutils.hpp"
 #include "fwk/toolkit/undo.hpp"
-#include "libraryclient/libraryclient.hpp"
 #include "editlabels.hpp"
 
 
@@ -42,9 +41,9 @@ EditLabels::EditLabels(const LibraryClientPtr & libclient)
     , m_lib_client(libclient)
 {
     auto& provider = libclient->getDataProvider();
-    auto count = provider->label_count();
+    auto count = provider.label_count();
     for (size_t i = 0; i < count; i++) {
-        m_labels.push_back(rust::Box<eng::Label>::from_raw(provider->label_at(i)));
+        m_labels.push_back(rust::Box<eng::Label>::from_raw(provider.label_at(i)));
     }
 
     std::fill(m_status.begin(), m_status.end(), false);
@@ -122,21 +121,21 @@ void EditLabels::update_labels(int /*response*/)
                 undo->new_command<void>(
                     [libclient, new_name, new_colour, label_id] () {
                         ffi::libraryclient_update_label(
-                            libclient->client(), label_id, new_name.c_str(), new_colour.c_str());
+                            &libclient->client(), label_id, new_name.c_str(), new_colour.c_str());
                     },
                     [libclient, current_name, current_colour, label_id] () {
                         ffi::libraryclient_update_label(
-                            libclient->client(), label_id, current_name.c_str(),
+                            &libclient->client(), label_id, current_name.c_str(),
                             current_colour.c_str());
                     });
             } else {
                 undo->new_command<int>(
                     [libclient, new_name, new_colour] () {
                         return ffi::libraryclient_create_label_sync(
-                            libclient->client(), new_name.c_str(), new_colour.c_str());
+                            &libclient->client(), new_name.c_str(), new_colour.c_str());
                     },
                     [libclient] (int label) {
-                        ffi::libraryclient_delete_label(libclient->client(), label);
+                        ffi::libraryclient_delete_label(&libclient->client(), label);
                     });
             }
         }

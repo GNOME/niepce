@@ -42,7 +42,6 @@
 
 #include "rust_bindings.hpp"
 
-using libraryclient::LibraryClient;
 using libraryclient::LibraryClientPtr;
 using fwk::Application;
 using fwk::Configuration;
@@ -276,11 +275,11 @@ void NiepceWindow::on_open_library()
 void NiepceWindow::create_initial_labels()
 {
     // TODO make this parametric from resources
-    ffi::libraryclient_create_label(m_libClient->client(), _("Label 1"), fwk::rgbcolour_to_string(55769, 9509, 4369).c_str()); /* 217, 37, 17 */
-    ffi::libraryclient_create_label(m_libClient->client(), _("Label 2"), fwk::rgbcolour_to_string(24929, 55769, 4369).c_str()); /* 97, 217, 17 */
-    ffi::libraryclient_create_label(m_libClient->client(), _("Label 3"), fwk::rgbcolour_to_string(4369, 50629, 55769).c_str()); /* 17, 197, 217 */
-    ffi::libraryclient_create_label(m_libClient->client(), _("Label 4"), fwk::rgbcolour_to_string(35209, 4369, 55769).c_str()); /* 137, 17, 217 */
-    ffi::libraryclient_create_label(m_libClient->client(), _("Label 5"), fwk::rgbcolour_to_string(55769, 35209, 4369).c_str()); /* 217, 137, 17 */
+    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 1"), fwk::rgbcolour_to_string(55769, 9509, 4369).c_str()); /* 217, 37, 17 */
+    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 2"), fwk::rgbcolour_to_string(24929, 55769, 4369).c_str()); /* 97, 217, 17 */
+    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 3"), fwk::rgbcolour_to_string(4369, 50629, 55769).c_str()); /* 17, 197, 217 */
+    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 4"), fwk::rgbcolour_to_string(35209, 4369, 55769).c_str()); /* 137, 17, 217 */
+    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 5"), fwk::rgbcolour_to_string(55769, 35209, 4369).c_str()); /* 217, 137, 17 */
 }
 
 
@@ -294,7 +293,7 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     {
         auto l = engine_library_notification_get_label(&ln);
         if (l) {
-            m_libClient->getDataProvider()->addLabel(*eng::LabelPtr::from_raw(l));
+            m_libClient->getDataProvider().addLabel(*eng::LabelPtr::from_raw(l));
         } else {
             ERR_OUT("Invalid label (nullptr)");
         }
@@ -304,7 +303,7 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     {
         auto l = engine_library_notification_get_label(&ln);
         if (l) {
-            m_libClient->getDataProvider()->updateLabel(*eng::LabelPtr::from_raw(l));
+            m_libClient->getDataProvider().updateLabel(*eng::LabelPtr::from_raw(l));
         } else {
             ERR_OUT("Invalid label (nullptr)");
         }
@@ -314,7 +313,7 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     {
         auto id = engine_library_notification_get_id(&ln);
         if (id) {
-            m_libClient->getDataProvider()->deleteLabel(id);
+            m_libClient->getDataProvider().deleteLabel(id);
         } else {
             ERR_OUT("Invalid ID");
         }
@@ -359,12 +358,12 @@ bool NiepceWindow::open_library(const std::string & libMoniker)
 {
     rust::Box<fwk::Moniker> mon = fwk::Moniker_from(libMoniker);
     m_libClient
-        = LibraryClientPtr(new LibraryClient(
-                               *mon, m_notifcenter->get_channel()));
+        = LibraryClientPtr(npc::LibraryClientHost_new(*mon, *m_notifcenter->get_channel()),
+                           npc::LibraryClientHost_delete);
     // XXX ensure the library is open.
     set_title(libMoniker);
     m_library_cfg = fwk::Configuration_new(Glib::build_filename(std::string(mon->path()), "config.ini"));
-    ffi::libraryclient_get_all_labels(m_libClient->client());
+    ffi::libraryclient_get_all_labels(&m_libClient->client());
     if(!m_moduleshell) {
         _createModuleShell();
     }

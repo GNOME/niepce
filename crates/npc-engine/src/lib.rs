@@ -23,6 +23,7 @@ pub mod library;
 use std::ptr;
 
 use db::NiepceProperties;
+pub use library::thumbnail_cache::ThumbnailCache;
 
 // must be a tuple for cxx
 #[derive(Default)]
@@ -146,7 +147,6 @@ pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
 use crate::db::{Keyword, Label, LibFile, LibFolder, LibMetadata};
-use crate::library::thumbnail_cache::{thumbnail_cache_new, ThumbnailCache};
 
 #[cxx::bridge(namespace = "eng")]
 mod ffi {
@@ -254,17 +254,7 @@ mod ffi {
         fn add(&mut self, v: u32);
     }
 
-    extern "C++" {
-        type LcChannel;
-    }
-
     extern "Rust" {
         type ThumbnailCache;
-
-        #[cxx_name = "ThumbnailCache_new"]
-        pub unsafe fn thumbnail_cache_new(
-            dir: &str,
-            channel: *const LcChannel,
-        ) -> Box<ThumbnailCache>;
     }
 }

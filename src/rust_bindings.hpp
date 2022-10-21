@@ -48,6 +48,8 @@ typedef fwk::PropertyBag NiepcePropertyBag;
 typedef fwk::PropertySet NiepcePropertySet;
 typedef eng::FolderVirtualType FolderVirtualType;
 typedef eng::ThumbnailCache ThumbnailCache;
+typedef eng::LcChannel LcChannel;
+typedef npc::LibraryClientWrapper LibraryClientWrapper;
 }
 
 #include "target/eng_bindings.h"
@@ -78,6 +80,10 @@ typedef ffi::FileStatus FileStatus;
 typedef ffi::Managed Managed;
 typedef ffi::LibNotification LibNotification;
 typedef ffi::NotificationType NotificationType;
+}
+
+namespace libraryclient {
+typedef std::shared_ptr<npc::LibraryClientHost> LibraryClientPtr;
 }
 
 namespace npc {

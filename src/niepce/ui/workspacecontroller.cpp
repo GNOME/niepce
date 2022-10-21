@@ -30,7 +30,6 @@
 #include "fwk/toolkit/application.hpp"
 #include "fwk/toolkit/gtkutils.hpp"
 #include "engine/importer/iimporter.hpp"
-#include "libraryclient/libraryclient.hpp"
 #include "dialogs/importdialog.hpp"
 #include "niepcewindow.hpp"
 #include "workspacecontroller.hpp"
@@ -94,7 +93,7 @@ const fwk::ConfigurationPtr& WorkspaceController::getLibraryConfig() const
 void WorkspaceController::action_new_folder()
 {
     auto& window = std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock())->gtkWindow();
-    ui::dialog_request_new_folder(getLibraryClient()->client(), window.gobj());
+    ui::dialog_request_new_folder(&getLibraryClient()->client(), window.gobj());
 }
 
 void WorkspaceController::action_delete_folder()
@@ -105,7 +104,7 @@ void WorkspaceController::action_delete_folder()
         auto dialog = Glib::wrap(ui::dialog_confirm(_("Delete selected folder?"), window.gobj()));
         dialog->signal_response().connect([this, id, dialog] (int response) {
             if (response == Gtk::ResponseType::YES) {
-                ffi::libraryclient_delete_folder(getLibraryClient()->client(), id);
+                ffi::libraryclient_delete_folder(&getLibraryClient()->client(), id);
             }
             delete dialog;
         });
@@ -136,7 +135,7 @@ void WorkspaceController::perform_file_import(ImportDialog::Ptr dialog)
             source, dest_dir,
             [this] (const std::string& path, const fwk::FileListPtr& files, Managed manage) -> bool {
                 ffi::libraryclient_import_files(
-                    getLibraryClient()->client(), path.c_str(), &*files, manage);
+                    &getLibraryClient()->client(), path.c_str(), &*files, manage);
                 // XXX the libraryclient function returns void
                 return true;
             });
@@ -272,11 +271,11 @@ void WorkspaceController::on_libtree_selection()
     switch(type) {
 
     case FOLDER_ITEM:
-        ffi::libraryclient_query_folder_content(getLibraryClient()->client(), id);
+        ffi::libraryclient_query_folder_content(&getLibraryClient()->client(), id);
         break;
 
     case KEYWORD_ITEM:
-        ffi::libraryclient_query_keyword_content(getLibraryClient()->client(), id);
+        ffi::libraryclient_query_keyword_content(&getLibraryClient()->client(), id);
         break;
 
     default:
@@ -331,7 +330,7 @@ void WorkspaceController::add_keyword_item(const eng::Keyword& k)
     auto iter = add_item(m_treestore, children,
                          m_icons[ICON_KEYWORD], std::string(keyword),
                          k.id(), KEYWORD_ITEM);
-    ffi::libraryclient_count_keyword(getLibraryClient()->client(), k.id());
+    ffi::libraryclient_count_keyword(&getLibraryClient()->client(), k.id());
     m_keywordsidmap[k.id()] = iter;
     if(was_empty) {
         expand_from_cfg("workspace_keywords_expanded", m_keywordsNode);
@@ -353,7 +352,7 @@ void WorkspaceController::add_folder_item(const eng::LibFolder* f)
     int icon_idx = ICON_ROLL;
     if(f->virtual_type() == eng::FolderVirtualType::TRASH) {
         icon_idx = ICON_TRASH;
-        ffi::libraryclient_set_trash_id(getLibraryClient()->client(), f->id());
+        ffi::libraryclient_set_trash_id(&getLibraryClient()->client(), f->id());
     }
     auto children = m_folderNode->children();
     bool was_empty = children.empty();
@@ -363,7 +362,7 @@ void WorkspaceController::add_folder_item(const eng::LibFolder* f)
     if (f->expanded()) {
         m_librarytree.expand_row(m_treestore->get_path(iter), false);
     }
-    ffi::libraryclient_count_folder(getLibraryClient()->client(), f->id());
+    ffi::libraryclient_count_folder(&getLibraryClient()->client(), f->id());
     m_folderidmap[f->id()] = iter;
     // expand if needed. Because Gtk doesn't expand empty
     if (was_empty) {
@@ -517,8 +516,8 @@ void WorkspaceController::on_ready()
 {
     libraryclient::LibraryClientPtr libraryClient = getLibraryClient();
     if (libraryClient) {
-        ffi::libraryclient_get_all_folders(libraryClient->client());
-        ffi::libraryclient_get_all_keywords(libraryClient->client());
+        ffi::libraryclient_get_all_folders(&libraryClient->client());
+        ffi::libraryclient_get_all_keywords(&libraryClient->client());
     }
 }
 

@@ -25,7 +25,6 @@
 #include <gtkmm/entry.h>
 #include <gtkmm/label.h>
 
-#include "libraryclient/libraryclient.hpp"
 #include "fwk/toolkit/dialog.hpp"
 
 namespace ui {

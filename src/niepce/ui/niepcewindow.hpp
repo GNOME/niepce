@@ -27,7 +27,6 @@
 
 #include "fwk/toolkit/appframe.hpp"
 #include "fwk/toolkit/configdatabinder.hpp"
-#include "libraryclient/libraryclient.hpp"
 #include "ui/moduleshell.hpp"
 #include "ui/workspacecontroller.hpp"
 #include "ui/selectioncontroller.hpp"

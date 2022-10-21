@@ -29,7 +29,7 @@ use crate::db::libfile::{FileStatus, LibFile};
 use crate::db::LibraryId;
 use crate::library::notification;
 use crate::library::notification::LibNotification::{FileStatusChanged, ThumbnailLoaded};
-use crate::library::notification::{FileStatusChange, LcChannel, LibNotification};
+use crate::library::notification::{FileStatusChange, LibNotification};
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::{dbg_out, err_out};
@@ -88,8 +88,15 @@ pub struct ThumbnailCache {
     sender: async_channel::Sender<LibNotification>,
 }
 
+use cxx::{type_id, ExternType};
+
+unsafe impl ExternType for ThumbnailCache {
+    type Id = type_id!("eng::ThumbnailCache");
+    type Kind = cxx::kind::Opaque;
+}
+
 impl ThumbnailCache {
-    fn new(dir: &Path, sender: async_channel::Sender<LibNotification>) -> Self {
+    pub fn new(dir: &Path, sender: async_channel::Sender<LibNotification>) -> Self {
         Self {
             cache_dir: PathBuf::from(dir),
             tasks: sync::Arc::new((sync::Mutex::new(VecDeque::new()), sync::Condvar::new())),
@@ -217,18 +224,4 @@ impl ThumbnailCache {
         dir.push(subdir);
         dir
     }
-}
-
-// cxx
-/// # Safety
-/// Dereference raw pointer.
-pub unsafe fn thumbnail_cache_new(
-    dir: &str,
-    channel: *const crate::ffi::LcChannel,
-) -> Box<ThumbnailCache> {
-    let channel = channel as *const LcChannel;
-    Box::new(ThumbnailCache::new(
-        &PathBuf::from(&dir),
-        (*channel).0.clone(),
-    ))
 }

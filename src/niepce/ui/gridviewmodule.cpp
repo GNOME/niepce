@@ -72,7 +72,7 @@ GridViewModule::on_lib_notification(const eng::LibNotification &ln)
         auto id = engine_library_notification_get_id(&ln);
         if(id && id == m_metapanecontroller->displayed_file()) {
             // FIXME: actually just update the metadata
-            ffi::libraryclient_request_metadata(m_shell.getLibraryClient()->client(), id);
+            ffi::libraryclient_request_metadata(&m_shell.getLibraryClient()->client(), id);
         }
         break;
     }
@@ -107,7 +107,7 @@ bool GridViewModule::get_colour_callback_c(int32_t label, ffi::RgbColour* out,
 std::optional<fwk::RgbColour> GridViewModule::get_colour_callback(int32_t label) const
 {
     auto& ui_data_provider = m_shell.getLibraryClient()->getDataProvider();
-    return std::optional(ui_data_provider->colourForLabel(label));
+    return std::optional(ui_data_provider.colourForLabel(label));
 }
 
 Gtk::Widget * GridViewModule::buildWidget()

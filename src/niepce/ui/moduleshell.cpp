@@ -248,7 +248,7 @@ void ModuleShell::on_image_selected(eng::library_id_t id)
 {
     DBG_OUT("selected callback %Ld", (long long)id);
     if(id > 0) {
-        ffi::libraryclient_request_metadata(m_libraryclient->client(), id);
+        ffi::libraryclient_request_metadata(&m_libraryclient->client(), id);
     }
     else  {
         m_gridview->display_none();

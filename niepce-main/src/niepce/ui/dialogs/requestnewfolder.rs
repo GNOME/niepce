@@ -30,7 +30,7 @@ use crate::libraryclient::{ClientInterface, LibraryClientWrapper};
 /// Use raw pointers.
 #[no_mangle]
 pub unsafe extern "C" fn dialog_request_new_folder(
-    client: &mut LibraryClientWrapper,
+    client: &LibraryClientWrapper,
     parent: *mut gtk4_sys::GtkWindow,
 ) {
     let parent = gtk4::Window::from_glib_none(parent);

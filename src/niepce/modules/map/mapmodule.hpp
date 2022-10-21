@@ -25,7 +25,6 @@
 #include "fwk/toolkit/controller.hpp"
 #include "fwk/toolkit/mapcontroller.hpp"
 #include "engine/db/libfile.hpp"
-#include "libraryclient/libraryclient.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
 #include "niepce/ui/imoduleshell.hpp"
 

@@ -24,10 +24,16 @@ use npc_fwk::base::PropertyIndex;
 use npc_fwk::err_out;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail;
-use npc_fwk::toolkit::PortableChannel;
 use npc_fwk::PropertyValue;
 
-pub type LcChannel = PortableChannel<LibNotification>;
+pub struct LcChannel(pub async_channel::Sender<LibNotification>);
+
+use cxx::{type_id, ExternType};
+
+unsafe impl ExternType for LcChannel {
+    type Id = type_id!("eng::LcChannel");
+    type Kind = cxx::kind::Opaque;
+}
 
 #[repr(i32)]
 #[allow(non_camel_case_types)]

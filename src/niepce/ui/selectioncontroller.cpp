@@ -28,7 +28,6 @@
 #include "fwk/toolkit/application.hpp"
 #include "engine/db/metadata.hpp"
 #include "engine/db/properties.hpp"
-#include "libraryclient/libraryclient.hpp"
 #include "niepcewindow.hpp"
 #include "selectioncontroller.hpp"
 
@@ -194,11 +193,11 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
     undo->new_command<void>(
         [libclient, file_id, meta, new_value] () {
             ffi::libraryclient_set_metadata(
-                libclient->client(), file_id, meta, &*fwk::property_value_new_int(new_value));
+                &libclient->client(), file_id, meta, &*fwk::property_value_new_int(new_value));
         },
         [libclient, file_id, meta, old_value] () {
             ffi::libraryclient_set_metadata(
-                libclient->client(), file_id, meta, &*fwk::property_value_new_int(old_value));
+                &libclient->client(), file_id, meta, &*fwk::property_value_new_int(old_value));
         });
     undo->execute();
     return true;
@@ -232,11 +231,11 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
         undo->new_command<void>(
             [libclient, file_id, key, new_value] () {
                 ffi::libraryclient_set_metadata(
-                    libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**new_value);
+                    &libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**new_value);
             },
             [libclient, file_id, key, value] () {
                 ffi::libraryclient_set_metadata(
-                    libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**value);
+                    &libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**value);
             });
     }
     undo->execute();
@@ -312,14 +311,14 @@ void SelectionController::write_metadata()
 {
     eng::library_id_t selection = get_selection();
     if(selection >= 0) {
-        ffi::libraryclient_write_metadata(getLibraryClient()->client(), selection);
+        ffi::libraryclient_write_metadata(&getLibraryClient()->client(), selection);
     }
 }
 
 void SelectionController::move_to_trash()
 {
     eng::library_id_t trash_folder =
-        ffi::libraryclient_get_trash_id(getLibraryClient()->client());
+        ffi::libraryclient_get_trash_id(&getLibraryClient()->client());
     eng::library_id_t selection = get_selection();
     if(selection >= 0) {
         auto f = m_imageliststore->get_file(selection);
@@ -333,11 +332,11 @@ void SelectionController::move_to_trash()
             undo->new_command<void>(
                 [libclient, selection, from_folder, trash_folder] () {
                     ffi::libraryclient_move_file_to_folder(
-                        libclient->client(), selection, from_folder, trash_folder);
+                        &libclient->client(), selection, from_folder, trash_folder);
                 },
                 [libclient, selection, from_folder, trash_folder] () {
                     ffi::libraryclient_move_file_to_folder(
-                        libclient->client(), selection, trash_folder, from_folder);
+                        &libclient->client(), selection, trash_folder, from_folder);
                 });
             undo->execute();
         }
