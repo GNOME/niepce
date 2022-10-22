@@ -162,7 +162,6 @@ src/fwk/base/Makefile
 src/fwk/utils/Makefile
 src/fwk/toolkit/Makefile
 src/engine/Makefile
-src/libraryclient/Makefile
 src/ncr/Makefile
 po/Makefile.in
 ])
