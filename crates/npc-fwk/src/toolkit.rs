@@ -19,11 +19,18 @@
 
 pub mod clickable_cell_renderer;
 mod configuration;
+mod controller;
 pub mod gdk_utils;
 pub mod mimetype;
 pub mod movieutils;
 pub mod thumbnail;
+mod uicontroller;
 pub mod widgets;
+mod window_controller;
+
+pub use controller::{new_controller, Controller, ControllerImpl};
+pub use uicontroller::UiController;
+pub use window_controller::WindowController;
 
 pub use configuration::Configuration;
 

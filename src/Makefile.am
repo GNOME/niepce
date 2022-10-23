@@ -40,15 +40,18 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/toolkit.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/clickable_cell_renderer.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/configuration.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/controller.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/gdk_utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/mimetype.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/movieutils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/thumbnail.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/uicontroller.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/metadata_widget.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/rating_label.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/token_text_view.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/toolbox_item.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/window_controller.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils/exempi.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils/exiv2.rs \
