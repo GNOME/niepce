@@ -72,10 +72,10 @@ MapModule::on_lib_notification(const eng::LibNotification &ln)
     if (!m_active) {
         return;
     }
-    switch (engine_library_notification_type(&ln)) {
+    switch (ffi::engine_library_notification_type(&ln)) {
     case eng::NotificationType::METADATA_QUERIED:
     {
-        auto lm = engine_library_notification_get_libmetadata(&ln);
+        auto lm = ffi::engine_library_notification_get_libmetadata(&ln);
         DBG_OUT("received metadata in MapModule");
 
         if (lm) {

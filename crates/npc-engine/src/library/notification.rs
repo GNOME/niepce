@@ -146,6 +146,11 @@ pub enum LibNotification {
     ThumbnailLoaded(Thumbnail),
 }
 
+unsafe impl ExternType for LibNotification {
+    type Id = type_id!("eng::LibNotification");
+    type Kind = cxx::kind::Opaque;
+}
+
 /// Send a notification for the file status change.
 /// Return `false` if sending failed.
 #[no_mangle]

@@ -27,7 +27,6 @@
 #include <gtkmm/separator.h>
 #include <gtkmm/filechooserdialog.h>
 
-#include "niepce/notificationcenter.hpp"
 #include "fwk/base/debug.hpp"
 #include "fwk/utils/boost.hpp"
 #include "fwk/toolkit/application.hpp"
@@ -51,8 +50,10 @@ namespace ui {
 
 NiepceWindow::NiepceWindow()
     : fwk::AppFrame("mainWindow-frame")
+    , m_notifcenter(npc::NotificationCenter_new())
     , m_vbox(Gtk::Orientation::VERTICAL)
     , m_hbox(Gtk::Orientation::HORIZONTAL)
+
 {
     // headerbar.
     Gtk::HeaderBar *header = Gtk::manage(new Gtk::HeaderBar);
@@ -108,18 +109,15 @@ NiepceWindow::_createModuleShell()
 
     add(m_moduleshell);
 
-    m_notifcenter->signal_lib_notification
-        .connect(sigc::mem_fun(
+    m_notifcenter->add_listener(std::make_unique<npc::LnListener>(sigc::mem_fun(
                      *m_moduleshell->get_gridview(),
-                     &GridViewModule::on_lib_notification));
-    m_notifcenter->signal_lib_notification
-        .connect([this] (const eng::LibNotification& notification) {
+                     &GridViewModule::on_lib_notification)));
+    m_notifcenter->add_listener(std::make_unique<npc::LnListener>([this] (const eng::LibNotification& notification) {
             m_moduleshell->get_list_store()->on_lib_notification(notification);
-        });
-    m_notifcenter->signal_lib_notification
-        .connect([this] (const eng::LibNotification& notification) {
+    }));
+    m_notifcenter->add_listener(std::make_unique<npc::LnListener>([this] (const eng::LibNotification& notification) {
             m_moduleshell->get_map_module()->on_lib_notification(notification);
-        });
+    }));
 
     // workspace treeview
     auto workspace_actions = Gio::SimpleActionGroup::create();
@@ -129,10 +127,9 @@ NiepceWindow::_createModuleShell()
         m_moduleshell->on_content_will_change();
     });
 
-    m_notifcenter->signal_lib_notification
-        .connect([this] (const eng::LibNotification& notification) {
-            m_workspacectrl->on_lib_notification(notification);
-        });
+    m_notifcenter->add_listener(std::make_unique<npc::LnListener>([this] (const eng::LibNotification& notification) {
+        m_workspacectrl->on_lib_notification(notification);
+    }));
     add(m_workspacectrl);
 
     // m_hbox.set_border_width(4);
@@ -176,14 +173,13 @@ NiepceWindow::buildWidget()
 
     init_actions();
 
-    m_notifcenter = niepce::NotificationCenter::make();
-
     Glib::ustring name("org.gnome.Niepce");
     set_icon_from_theme(name);
     win.set_icon_name(name);
 
-    m_notifcenter->signal_lib_notification.connect(
-        sigc::mem_fun(*this, &NiepceWindow::on_lib_notification));
+    m_notifcenter->add_listener(
+        std::make_unique<npc::LnListener>(
+            sigc::mem_fun(*this, &NiepceWindow::on_lib_notification)));
 
     win.set_size_request(600, 400);
     on_open_library();
@@ -285,13 +281,13 @@ void NiepceWindow::create_initial_labels()
 
 void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
 {
-    switch (engine_library_notification_type(&ln)) {
+    switch (ffi::engine_library_notification_type(&ln)) {
     case eng::NotificationType::NEW_LIBRARY_CREATED:
         create_initial_labels();
         break;
     case eng::NotificationType::ADDED_LABEL:
     {
-        auto l = engine_library_notification_get_label(&ln);
+        auto l = ffi::engine_library_notification_get_label(&ln);
         if (l) {
             m_libClient->getDataProvider().addLabel(*eng::LabelPtr::from_raw(l));
         } else {
@@ -301,7 +297,7 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     }
     case eng::NotificationType::LABEL_CHANGED:
     {
-        auto l = engine_library_notification_get_label(&ln);
+        auto l = ffi::engine_library_notification_get_label(&ln);
         if (l) {
             m_libClient->getDataProvider().updateLabel(*eng::LabelPtr::from_raw(l));
         } else {
@@ -311,7 +307,7 @@ void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
     }
     case eng::NotificationType::LABEL_DELETED:
     {
-        auto id = engine_library_notification_get_id(&ln);
+        auto id = ffi::engine_library_notification_get_id(&ln);
         if (id) {
             m_libClient->getDataProvider().deleteLabel(id);
         } else {
@@ -358,7 +354,7 @@ bool NiepceWindow::open_library(const std::string & libMoniker)
 {
     rust::Box<fwk::Moniker> mon = fwk::Moniker_from(libMoniker);
     m_libClient
-        = LibraryClientPtr(npc::LibraryClientHost_new(*mon, *m_notifcenter->get_channel()),
+        = LibraryClientPtr(npc::LibraryClientHost_new(*mon, m_notifcenter->get_channel()),
                            npc::LibraryClientHost_delete);
     // XXX ensure the library is open.
     set_title(libMoniker);

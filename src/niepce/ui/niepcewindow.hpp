@@ -31,7 +31,6 @@
 #include "ui/workspacecontroller.hpp"
 #include "ui/selectioncontroller.hpp"
 #include "ui/filmstripcontroller.hpp"
-#include "niepce/notificationcenter.hpp"
 #include "dialogs/editlabels.hpp"
 
 namespace ui {
@@ -71,7 +70,7 @@ private:
 
     void _createModuleShell();
 
-    niepce::NotificationCenter::Ptr m_notifcenter;
+    npc::NotificationCenterPtr m_notifcenter;
     ModuleShell::Ptr               m_moduleshell; // the main views stacked.
 
     Gtk::Box                       m_vbox;

@@ -19,6 +19,7 @@
 
 pub mod libraryclient;
 pub mod niepce;
+mod notification_center;
 
 use std::sync::Once;
 
@@ -31,11 +32,14 @@ fn niepce_init() {
     });
 }
 
+pub use notification_center::NotificationCenter;
+
 use crate::libraryclient::{
     library_client_host_delete, library_client_host_new, LibraryClientHost, LibraryClientWrapper,
     UIDataProvider,
 };
-use crate::niepce::ui::metadata_pane_controller::get_format;
+use niepce::ui::metadata_pane_controller::get_format;
+use notification_center::notification_center_new;
 use npc_fwk::toolkit;
 
 #[cxx::bridge(namespace = "npc")]
@@ -60,6 +64,7 @@ mod ffi {
         type Label = npc_engine::db::Label;
         type ThumbnailCache = npc_engine::ThumbnailCache;
         type LcChannel = npc_engine::library::notification::LcChannel;
+        type LibNotification = npc_engine::library::notification::LibNotification;
     }
 
     extern "Rust" {
@@ -101,5 +106,22 @@ mod ffi {
         fn client(&self) -> &LibraryClientWrapper;
         #[cxx_name = "thumbnailCache"]
         fn thumbnail_cache(&self) -> &ThumbnailCache;
+    }
+
+    unsafe extern "C++" {
+        include!("niepce/lnlistener.hpp");
+        type LnListener;
+
+        fn call(&self, ln: &LibNotification);
+    }
+
+    extern "Rust" {
+        type NotificationCenter;
+
+        #[cxx_name = "NotificationCenter_new"]
+        fn notification_center_new() -> Box<NotificationCenter>;
+        #[cxx_name = "get_channel"]
+        fn channel(&self) -> &LcChannel;
+        fn add_listener(&self, listener: UniquePtr<LnListener>);
     }
 }

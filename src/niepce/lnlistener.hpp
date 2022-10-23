@@ -1,7 +1,7 @@
 /*
- * niepce - fwk/base/mod.rs
+ * niepce - niepce/lnlistener.hpp
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::collections::BTreeSet;
+#pragma once
 
-#[macro_use]
-pub mod debug;
+#include <functional>
 
-pub mod date;
-pub mod fractions;
-mod moniker;
-pub mod propertybag;
-pub mod propertyvalue;
-pub mod rgbcolour;
-pub mod signals;
+namespace eng {
+  class LibNotification;
+}
 
-pub type PropertyIndex = u32;
-pub type PropertySet<T> = BTreeSet<T>;
+namespace npc {
 
-pub use moniker::{moniker_from, Moniker};
-pub use propertyvalue::PropertyValue;
-pub use signals::Signal;
+class LnListener {
+public:
+  typedef std::function<void (const eng::LibNotification&)> function_t;
+
+  LnListener(function_t&& f)
+    : m_f(f)
+  {}
+  void call(const eng::LibNotification& ln) const
+  {
+    m_f(ln);
+  }
+
+private:
+  function_t m_f;
+};
+
+}

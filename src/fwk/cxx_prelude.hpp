@@ -14,7 +14,12 @@ class WrappedPropertyBag;
 }
 
 namespace eng {
-class LcChannel;
 class Label;
+class LcChannel;
+class LibNotification;
 class ThumbnailCache;
+}
+
+namespace npc {
+class LnListener;
 }

@@ -26,7 +26,7 @@ pub use clientinterface::{ClientInterface, ClientInterfaceSync};
 pub use host::{library_client_host_delete, library_client_host_new, LibraryClientHost};
 pub use ui_data_provider::{ui_data_provider_new, UIDataProvider};
 
-use libc::{c_char, c_void};
+use libc::c_char;
 use std::cell::Cell;
 use std::ffi::CStr;
 use std::ops::Deref;
@@ -180,31 +180,6 @@ impl ClientInterfaceSync for LibraryClient {
     fn create_folder_sync(&self, name: String, path: Option<String>) -> LibraryId {
         self.pimpl.create_folder_sync(name, path)
     }
-}
-
-#[no_mangle]
-pub extern "C" fn lcchannel_new(
-    cb: extern "C" fn(n: *const LibNotification, data: *mut c_void) -> i32,
-    data: *mut c_void,
-) -> *mut LcChannel {
-    let (sender, receiver) = async_channel::unbounded();
-    let event_handler = async move {
-        while let Ok(n) = receiver.recv().await {
-            if cb(&n, data) == 0 {
-                receiver.close();
-                break;
-            }
-        }
-    };
-    glib::MainContext::default().spawn_local(event_handler);
-    Box::into_raw(Box::new(LcChannel(sender)))
-}
-
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn lcchannel_delete(obj: *mut LcChannel) {
-    drop(Box::from_raw(obj));
 }
 
 #[no_mangle]

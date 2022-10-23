@@ -92,7 +92,7 @@ void ImageListStore::on_lib_notification(const eng::LibNotification &ln)
         return;
     }
 
-    auto type = engine_library_notification_type(&ln);
+    auto type = ffi::engine_library_notification_type(&ln);
     switch (type) {
     case eng::NotificationType::XMP_NEEDS_UPDATE:
     {

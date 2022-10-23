@@ -49,6 +49,7 @@ typedef fwk::PropertySet NiepcePropertySet;
 typedef eng::FolderVirtualType FolderVirtualType;
 typedef eng::ThumbnailCache ThumbnailCache;
 typedef eng::LcChannel LcChannel;
+typedef eng::LibNotification LibNotification;
 typedef npc::LibraryClientWrapper LibraryClientWrapper;
 }
 
@@ -78,7 +79,6 @@ using NiepcePropertyIdx = ffi::NiepcePropertyIdx;
 typedef ffi::LibraryId library_id_t; // XXX change this to LibraryId
 typedef ffi::FileStatus FileStatus;
 typedef ffi::Managed Managed;
-typedef ffi::LibNotification LibNotification;
 typedef ffi::NotificationType NotificationType;
 }
 
@@ -88,6 +88,7 @@ typedef std::shared_ptr<npc::LibraryClientHost> LibraryClientPtr;
 
 namespace npc {
 typedef rust::Box<UIDataProvider> UIDataProviderPtr;
+typedef rust::Box<NotificationCenter> NotificationCenterPtr;
 }
 
 namespace ui {

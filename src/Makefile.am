@@ -35,6 +35,7 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/base/propertybag.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertyvalue.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/rgbcolour.rs \
+	@top_srcdir@/crates/npc-fwk/src/base/signals.rs \
 	@top_srcdir@/crates/npc-fwk/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/clickable_cell_renderer.rs \
@@ -71,6 +72,7 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_nav.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/library_cell_renderer.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_strip_view.rs \
+	@top_srcdir@/niepce-main/src/notification_center.rs \
 	$(NULL)
 
 EXTRA_DIST = \

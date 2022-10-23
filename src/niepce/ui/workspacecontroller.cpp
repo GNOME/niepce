@@ -160,30 +160,30 @@ void WorkspaceController::action_file_import()
 void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
 {
     DBG_OUT("notification for workspace");
-    auto type = engine_library_notification_type(&ln);
+    auto type = ffi::engine_library_notification_type(&ln);
     switch (type) {
     case eng::NotificationType::ADDED_FOLDER:
     {
-        auto f = engine_library_notification_get_libfolder(&ln);
+        auto f = ffi::engine_library_notification_get_libfolder(&ln);
         this->add_folder_item(f);
         break;
     }
     case eng::NotificationType::FOLDER_DELETED:
     {
-        auto id = engine_library_notification_get_id(&ln);
+        auto id = ffi::engine_library_notification_get_id(&ln);
         remove_folder_item(id);
         break;
     }
     case eng::NotificationType::ADDED_KEYWORD:
     {
-        auto k = eng::KeywordPtr::from_raw(engine_library_notification_get_keyword(&ln));
+        auto k = eng::KeywordPtr::from_raw(ffi::engine_library_notification_get_keyword(&ln));
         add_keyword_item(*k);
         break;
     }
     case eng::NotificationType::FOLDER_COUNTED:
     case eng::NotificationType::KEYWORD_COUNTED:
     {
-        auto count = engine_library_notification_get_count(&ln);
+        auto count = ffi::engine_library_notification_get_count(&ln);
         DBG_OUT("count for container %Ld is %Ld", (long long)count->id, (long long)count->count);
         std::map<eng::library_id_t, Gtk::TreeModel::iterator>::const_iterator iter;
         switch (type) {
@@ -208,7 +208,7 @@ void WorkspaceController::on_lib_notification(const eng::LibNotification &ln)
     case eng::NotificationType::FOLDER_COUNT_CHANGE:
     case eng::NotificationType::KEYWORD_COUNT_CHANGE:
     {
-        auto count = engine_library_notification_get_count(&ln);
+        auto count = ffi::engine_library_notification_get_count(&ln);
         DBG_OUT("count change for container %Ld is %Ld", (long long)count->id,
                 (long long)count->count);
         std::map<eng::library_id_t, Gtk::TreeModel::iterator>::const_iterator iter;

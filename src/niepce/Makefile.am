@@ -60,7 +60,7 @@ BUILT_SOURCES = \
         npc-resources.gresource
 
 niepce_SOURCES = \
-	notificationcenter.hpp notificationcenter.cpp \
-        npc-resources.c \
-        npc-resources.h \
+	lnlistener.hpp \
+	npc-resources.c \
+	npc-resources.h \
 	main.cpp

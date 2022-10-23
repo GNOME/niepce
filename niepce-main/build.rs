@@ -50,6 +50,7 @@ fn main() {
             .exclude_item("ThumbnailCache")
             .exclude_item("LibraryClientWrapper")
             .exclude_item("LcChannel")
+            .exclude_item("LibNotification")
             .with_crate(&crate_dir)
             .generate()
             .expect("Couldn't generate bindings")
