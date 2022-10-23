@@ -48,7 +48,9 @@ protected:
     virtual Gtk::Widget* buildWidget() override
     {
         DBG_OUT("wrapper buildWidget");
-        return Gtk::manage(Glib::wrap((GtkWidget*)m_wrapper->widget()));
+        auto w = Gtk::manage(Glib::wrap((GtkWidget*)m_wrapper->widget()));
+        m_wrapper->on_open_catalog();
+        return w;
     }
     virtual void on_ready() override
     {

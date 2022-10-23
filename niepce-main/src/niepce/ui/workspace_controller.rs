@@ -18,7 +18,9 @@
  */
 
 use std::cell::{Ref, RefCell, RefMut};
+use std::collections::HashMap;
 use std::rc::Rc;
+use std::sync::{Arc, Weak};
 
 use gettextrs::gettext;
 use gtk4::gio;
@@ -29,9 +31,12 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use once_cell::unsync::OnceCell;
 
+use crate::libraryclient::{ClientInterface, LibraryClient};
+use crate::LibraryClientWrapper;
 use npc_engine::db;
+use npc_engine::library::notification::LibNotification;
 use npc_fwk::toolkit::{self, Controller, ControllerImpl, UiController};
-use npc_fwk::{err_out, on_err_out};
+use npc_fwk::{dbg_out, err_out, on_err_out};
 
 #[derive(FromPrimitive)]
 #[repr(i32)]
@@ -69,8 +74,11 @@ pub struct WorkspaceController {
     tx: glib::Sender<Event>,
     cfg: Rc<toolkit::Configuration>,
     widgets: OnceCell<Widgets>,
+    client: Weak<LibraryClient>,
     action_group: OnceCell<gio::ActionGroup>,
 
+    icon_trash: gio::Icon,
+    icon_roll: gio::Icon,
     icon_folder: gio::Icon,
     icon_project: gio::Icon,
     icon_keyword: gio::Icon,
@@ -82,9 +90,98 @@ struct Widgets {
     librarytree: gtk4::TreeView,
     context_menu: gtk4::PopoverMenu,
 
+    folderidmap: RefCell<HashMap<db::LibraryId, gtk4::TreeIter>>,
+    keywordsidmap: RefCell<HashMap<db::LibraryId, gtk4::TreeIter>>,
     folder_node: gtk4::TreeIter,
     project_node: gtk4::TreeIter,
     keywords_node: gtk4::TreeIter,
+    cfg: Rc<toolkit::Configuration>,
+}
+
+impl Widgets {
+    fn add_folder_item(&self, folder: &db::LibFolder, icon: &gio::Icon) -> gtk4::TreeIter {
+        let was_empty = self
+            .treestore
+            .iter_children(Some(&self.folder_node))
+            .is_none();
+        let iter = WorkspaceController::add_item(
+            &self.treestore,
+            Some(&self.folder_node),
+            icon,
+            folder.name(),
+            folder.id(),
+            TreeItemType::Folder,
+        );
+        if was_empty {
+            self.expand_from_cfg("workspace_folders_expanded", &self.folder_node);
+        }
+
+        self.folderidmap.borrow_mut().insert(folder.id(), iter);
+        iter
+    }
+
+    fn remove_folder_item(&self, id: db::LibraryId) {
+        if let Some(iter) = self.folderidmap.borrow().get(&id) {
+            self.treestore.remove(iter);
+            self.folderidmap.borrow_mut().remove(&id);
+        }
+    }
+
+    fn add_keyword_item(&self, keyword: &db::Keyword, icon: &gio::Icon) {
+        let was_empty = self
+            .treestore
+            .iter_children(Some(&self.keywords_node))
+            .is_none();
+        let iter = WorkspaceController::add_item(
+            &self.treestore,
+            Some(&self.keywords_node),
+            icon,
+            keyword.keyword(),
+            keyword.id(),
+            TreeItemType::Keyword,
+        );
+        if was_empty {
+            self.expand_from_cfg("workspace_keywords_expanded", &self.keywords_node);
+        }
+        self.keywordsidmap.borrow_mut().insert(keyword.id(), iter);
+    }
+
+    fn expand_from_cfg(&self, key: &str, node: &gtk4::TreeIter) {
+        let expanded = self.cfg.value(key, "true");
+        dbg_out!("expand from cfg {} - {}", key, &expanded);
+        if expanded == "true" {
+            self.librarytree
+                .expand_row(&self.treestore.path(node), false);
+        }
+    }
+
+    fn increase_count(&self, at: &gtk4::TreeIter, count: i32) {
+        let new_count: i32 = self.treestore.get::<i32>(at, Columns::CountN as i32) + count as i32;
+        let count_string = new_count.to_string();
+        self.treestore.set(
+            at,
+            &[
+                (Columns::CountN as u32, &new_count),
+                (Columns::Count as u32, &count_string),
+            ],
+        );
+    }
+
+    fn set_count(&self, at: &gtk4::TreeIter, count: i32) {
+        let count_string = count.to_string();
+        self.treestore.set(
+            at,
+            &[
+                (Columns::CountN as u32, &count),
+                (Columns::Count as u32, &count_string),
+            ],
+        );
+    }
+
+    fn expand_row(&self, at: &gtk4::TreeIter, open_all: bool) -> bool {
+        let path = self.treestore.path(at);
+        self.librarytree.expand_row(&path, open_all)
+    }
 }
 
 impl Controller for WorkspaceController {
@@ -239,9 +336,12 @@ impl UiController for WorkspaceController {
                     librarytree,
                     treestore,
                     context_menu,
+                    folderidmap: RefCell::new(HashMap::new()),
+                    keywordsidmap: RefCell::new(HashMap::new()),
                     project_node,
                     folder_node,
                     keywords_node,
+                    cfg: self.cfg.clone(),
                 }
             })
             .widget_
@@ -284,7 +384,10 @@ impl UiController for WorkspaceController {
 }
 
 impl WorkspaceController {
-    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<WorkspaceController> {
+    pub fn new(
+        cfg: Rc<toolkit::Configuration>,
+        client: &LibraryClientWrapper,
+    ) -> Rc<WorkspaceController> {
         let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
         let ctrl = Rc::new(WorkspaceController {
             imp_: RefCell::new(ControllerImpl::default()),
@@ -293,7 +396,10 @@ impl WorkspaceController {
             cfg,
             widgets: OnceCell::new(),
             action_group: OnceCell::new(),
+            client: Arc::downgrade(&client.client()),
             icon_folder: gio::ThemedIcon::new("folder-symbolic").upcast(),
+            icon_trash: gio::ThemedIcon::new("user-trash").upcast(),
+            icon_roll: gio::ThemedIcon::new("emblem-photos").upcast(),
             icon_project: gio::ThemedIcon::new("file-cabinet-symbolic").upcast(),
             icon_keyword: gio::ThemedIcon::new("tag-symbolic").upcast(),
         });
@@ -307,6 +413,16 @@ impl WorkspaceController {
         );
 
         ctrl
+    }
+
+    /// Initiate the initial loading.
+    pub fn startup(&self) {
+        if let Some(client) = self.client.upgrade() {
+            client.get_all_folders();
+            client.get_all_keywords();
+        } else {
+            err_out!("coudln't get client");
+        }
     }
 
     fn dispatch(&self, e: Event) {
@@ -362,6 +478,48 @@ impl WorkspaceController {
 
     fn action_import(&self) {}
 
+    fn add_folder_item(&self, folder: &db::LibFolder) {
+        if let Some(widgets) = self.widgets.get() {
+            let icon = if folder.virtual_type() == db::libfolder::FolderVirtualType::TRASH {
+                if let Some(client) = self.client.upgrade() {
+                    client.set_trash_id(folder.id());
+                }
+                &self.icon_trash
+            } else {
+                &self.icon_roll
+            };
+
+            let iter = widgets.add_folder_item(folder, icon);
+            if folder.expanded() {
+                widgets.expand_row(&iter, false);
+            }
+            if let Some(client) = self.client.upgrade() {
+                client.count_folder(folder.id());
+            }
+        } else {
+            err_out!("couldn't get widgets");
+        }
+    }
+
+    fn remove_folder_item(&self, id: db::LibraryId) {
+        if let Some(widgets) = self.widgets.get() {
+            widgets.remove_folder_item(id);
+        } else {
+            err_out!("couldn't get widgets");
+        }
+    }
+
+    fn add_keyword_item(&self, keyword: &db::Keyword) {
+        if let Some(widgets) = self.widgets.get() {
+            widgets.add_keyword_item(keyword, &self.icon_keyword);
+            if let Some(client) = self.client.upgrade() {
+                client.count_keyword(keyword.id());
+            }
+        } else {
+            err_out!("couldn't get widgets");
+        }
+    }
+
     fn add_item(
         treestore: &gtk4::TreeStore,
         subtree: Option<&gtk4::TreeIter>,
@@ -383,5 +541,58 @@ impl WorkspaceController {
             ],
         );
         iter
+    }
+
+    pub fn on_lib_notification(&self, ln: &LibNotification) {
+        dbg_out!("notification for workspace {:?}", ln);
+        match ln {
+            LibNotification::AddedFolder(f) => self.add_folder_item(f),
+            LibNotification::FolderDeleted(id) => self.remove_folder_item(*id),
+            LibNotification::AddedKeyword(k) => self.add_keyword_item(k),
+            LibNotification::FolderCounted(count) | LibNotification::KeywordCounted(count) => {
+                dbg_out!("count for container {} is {}", count.id, count.count);
+                let iter = match ln {
+                    LibNotification::FolderCounted(count) => self
+                        .widgets
+                        .get()
+                        .and_then(|w| w.folderidmap.borrow().get(&count.id).cloned()),
+                    LibNotification::KeywordCounted(count) => self
+                        .widgets
+                        .get()
+                        .and_then(|w| w.keywordsidmap.borrow().get(&count.id).cloned()),
+                    _ => unreachable!(),
+                };
+                if let Some(iter) = iter {
+                    if let Some(widgets) = self.widgets.get() {
+                        widgets.set_count(&iter, count.count as i32);
+                    } else {
+                        err_out!("No widget");
+                    }
+                } else {
+                    err_out!("Iter not found");
+                }
+            }
+            LibNotification::FolderCountChanged(count)
+            | LibNotification::KeywordCountChanged(count) => {
+                dbg_out!("count change for container {} is {}", count.id, count.count);
+                let iter = match ln {
+                    LibNotification::FolderCountChanged(count) => self
+                        .widgets
+                        .get()
+                        .and_then(|w| w.folderidmap.borrow().get(&count.id).cloned()),
+                    LibNotification::KeywordCountChanged(count) => self
+                        .widgets
+                        .get()
+                        .and_then(|w| w.keywordsidmap.borrow().get(&count.id).cloned()),
+                    _ => unreachable!(),
+                };
+                if let Some(iter) = iter {
+                    if let Some(widgets) = self.widgets.get() {
+                        widgets.increase_count(&iter, count.count as i32);
+                    }
+                }
+            }
+            _ => {}
+        }
     }
 }

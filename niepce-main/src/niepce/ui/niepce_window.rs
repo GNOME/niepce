@@ -87,10 +87,7 @@ impl Controller for NiepceWindow {
         self.imp_.borrow_mut()
     }
 
-    fn on_ready(&self) {
-        dbg_out!("on ready called");
-        self.on_open_catalog();
-    }
+    fn on_ready(&self) {}
 }
 
 impl UiController for NiepceWindow {
@@ -401,16 +398,23 @@ impl NiepceWindow {
         dbg_out!("creating module shell (TOOD)");
 
         // XXX needed: implement moduleshell
+        let client = self.libraryclient.borrow();
 
         // We really expect cfg to be available
         let configuration = self.configuration.borrow();
         let cfg = configuration.as_ref().unwrap();
-        let workspace = WorkspaceController::new(cfg.clone());
+        let client = client.as_ref().unwrap().client();
+        let workspace = WorkspaceController::new(cfg.clone(), client);
         if let Some(actions) = workspace.actions() {
             self.window.insert_action_group(actions.0, Some(actions.1));
         }
-        // self.add(workspace);
-        // XXX connect to the notification center
+        if let Some(notif_center) = self.widgets.get().map(|w| &w.notif_center) {
+            let workspace = workspace.clone();
+            notif_center
+                .signal_notify
+                .connect(move |ln| workspace.on_lib_notification(&ln));
+        }
+        self.add(&toolkit::to_controller(workspace.clone()));
 
         let hbox = &self.widgets.get().as_ref().unwrap().hbox;
         hbox.set_wide_handle(true);
@@ -418,7 +422,7 @@ impl NiepceWindow {
         // set_end_child() for the module shell widget
 
         let filmstrip = FilmStripController::new(ImageListStore::new());
-        // self.add(filmstrip);
+        self.add(&toolkit::to_controller(filmstrip.clone()));
         let vbox = &self.widgets.get().as_ref().unwrap().vbox;
         vbox.append(hbox);
         vbox.append(filmstrip.widget());
@@ -430,10 +434,12 @@ impl NiepceWindow {
         // XXX add selectable filmstrip
 
         self.shell_widgets.set(ShellWidgets {
-            workspace,
+            workspace: workspace.clone(),
             filmstrip,
             statusbar,
         });
+
+        workspace.startup();
     }
 }
 
@@ -451,6 +457,10 @@ pub unsafe fn niepce_window_new(app: *mut c_char) -> Box<NiepceWindowWrapper> {
 }
 
 impl NiepceWindowWrapper {
+    pub fn on_open_catalog(&self) {
+        self.0.on_open_catalog();
+    }
+
     pub fn on_ready(&self) {
         self.0.on_ready();
     }

@@ -97,6 +97,7 @@ pub trait Controller {
 
     /// Notify the controller is ready. Will notify children and call on_ready()
     fn ready(&self) {
+        dbg_out!("ready");
         self.imp().ready();
         self.on_ready();
     }
@@ -108,6 +109,10 @@ pub trait Controller {
     fn imp(&self) -> Ref<'_, ControllerImpl>;
     /// Return the mutable implementation
     fn imp_mut(&self) -> RefMut<'_, ControllerImpl>;
+}
+
+pub fn to_controller<T: Controller + 'static>(v: Rc<T>) -> Rc<dyn Controller> {
+    v
 }
 
 #[cfg(test)]

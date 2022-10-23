@@ -148,6 +148,7 @@ mod ffi {
 
         unsafe fn niepce_window_new(app: *mut c_char) -> Box<NiepceWindowWrapper>;
         fn on_ready(&self);
+        fn on_open_catalog(&self);
         fn widget(&self) -> *mut c_char;
         fn window(&self) -> *mut c_char;
         fn menu(&self) -> *mut c_char;

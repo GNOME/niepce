@@ -28,7 +28,7 @@ mod uicontroller;
 pub mod widgets;
 mod window_controller;
 
-pub use controller::{new_controller, Controller, ControllerImpl};
+pub use controller::{new_controller, to_controller, Controller, ControllerImpl};
 pub use uicontroller::UiController;
 pub use window_controller::WindowController;
 
