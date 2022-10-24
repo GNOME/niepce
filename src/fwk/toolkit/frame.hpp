@@ -51,6 +51,7 @@ protected:
 
 public:
     typedef std::shared_ptr<Frame> Ptr;
+    typedef std::weak_ptr<Frame> WeakPtr;
 
     Frame(const std::string & gladeFile, const Glib::ustring & widgetName,
           const std::string & layout_cfg_key = "");
@@ -76,6 +77,10 @@ public:
                 m_window->close();
             }
         }
+
+    virtual Glib::RefPtr<Gio::Menu> get_menu() const {
+        return Glib::RefPtr<Gio::Menu>();
+    }
 
     /** @param header MUST be managed */
     void setHeaderBar(Gtk::HeaderBar* header)

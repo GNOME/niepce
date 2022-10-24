@@ -84,6 +84,11 @@ impl ImageListStore {
         }
     }
 
+    /// Return the `GtkListStore`
+    pub fn liststore(&self) -> &gtk4::ListStore {
+        &self.store
+    }
+
     fn get_loading_icon(&self) -> &gtk4::IconPaintable {
         self.image_loading_icon.get_or_init(|| {
             gtk4::IconTheme::default().lookup_icon(

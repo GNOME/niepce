@@ -1,10 +1,7 @@
-#ifndef _UI_NIEPCEAPPLICATION_H_
-#define _UI_NIEPCEAPPLICATION_H_
-
 /*
  * niepce - ui/niepceapplication.h
  *
- * Copyright (C) 2007-2009, 2013 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuiere
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
 #include "fwk/toolkit/application.hpp"
 
@@ -31,7 +29,7 @@ class NiepceApplication
 public:
     static fwk::Application::Ptr create(int & argc, char** & argv);
 
-    virtual fwk::AppFrame::Ptr makeMainFrame() override;
+    virtual fwk::Frame::Ptr makeMainFrame() override;
 protected:
     NiepceApplication(int & argc, char** & argv);
 
@@ -51,5 +49,3 @@ protected:
   fill-column:99
   End:
 */
-
-#endif

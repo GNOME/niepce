@@ -10,13 +10,13 @@ noinst_LIBRARIES = libniepceui.a
 PUBLICHEADERS = ilibrarymodule.hpp imoduleshell.hpp dialogs/importers/iimporterui.hpp
 
 libniepceui_a_SOURCES = \
-	niepcewindow.hpp niepcewindow.cpp \
+	niepcewindow.hpp \
 	niepceapplication.hpp niepceapplication.cpp \
 	gridviewmodule.hpp gridviewmodule.cpp \
 	moduleshell.hpp moduleshell.cpp \
 	moduleshellwidget.hpp moduleshellwidget.cpp \
 	imageliststore.hpp imageliststore.cpp\
-	workspacecontroller.hpp workspacecontroller.cpp \
+	workspacecontroller.hpp \
 	metadatapanecontroller.hpp metadatapanecontroller.cpp \
 	dialogs/editlabels.hpp dialogs/editlabels.cpp \
 	dialogs/importdialog.hpp dialogs/importdialog.cpp \
@@ -29,6 +29,6 @@ libniepceui_a_SOURCES = \
 	dialogs/importers/cameraimporterui.hpp \
 	dialogs/importers/cameraimporterui.cpp \
 	selectioncontroller.hpp selectioncontroller.cpp \
-	filmstripcontroller.hpp filmstripcontroller.cpp \
+	filmstripcontroller.hpp \
 	$(PUBLICHEADERS) \
 	$(NULL)

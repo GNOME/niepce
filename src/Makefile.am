@@ -66,6 +66,7 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/libraryclient/ui_data_provider.rs \
 	@top_srcdir@/niepce-main/src/niepce.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/film_strip_controller.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/imagetoolbar.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_grid_view.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_list_store.rs \
@@ -74,7 +75,9 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_nav.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/library_cell_renderer.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/niepce_window.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_strip_view.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/workspace_controller.rs \
 	@top_srcdir@/niepce-main/src/notification_center.rs \
 	$(NULL)
 

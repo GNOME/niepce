@@ -22,7 +22,7 @@ use npc_fwk::base::Signal;
 
 pub struct NotificationCenter {
     channel: LcChannel,
-    signal_notify: Signal<LibNotification>,
+    pub signal_notify: Signal<LibNotification>,
 }
 
 impl Default for NotificationCenter {

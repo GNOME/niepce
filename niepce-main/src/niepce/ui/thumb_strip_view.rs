@@ -137,7 +137,7 @@ impl ThumbStripView {
         tsv
     }
 
-    fn set_item_height(&self, height: i32) {
+    pub fn set_item_height(&self, height: i32) {
         self.item_height.set(height);
         if let Some(renderer) = self.renderer.get() {
             renderer.set_height(height);

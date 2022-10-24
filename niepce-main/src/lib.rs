@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#[macro_use]
+extern crate gtk_macros;
+
 pub mod libraryclient;
 pub mod niepce;
 mod notification_center;
@@ -39,6 +42,7 @@ use crate::libraryclient::{
     UIDataProvider,
 };
 use niepce::ui::metadata_pane_controller::get_format;
+use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
 use notification_center::notification_center_new;
 use npc_fwk::toolkit;
 
@@ -137,5 +141,15 @@ mod ffi {
 
         fn Application_app() -> SharedPtr<Application>;
         fn config(&self) -> &SharedPtr<SharedConfiguration>;
+    }
+
+    extern "Rust" {
+        type NiepceWindowWrapper;
+
+        unsafe fn niepce_window_new(app: *mut c_char) -> Box<NiepceWindowWrapper>;
+        fn on_ready(&self);
+        fn widget(&self) -> *mut c_char;
+        fn window(&self) -> *mut c_char;
+        fn menu(&self) -> *mut c_char;
     }
 }

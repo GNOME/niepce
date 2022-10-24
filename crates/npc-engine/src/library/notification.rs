@@ -26,6 +26,7 @@ use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail;
 use npc_fwk::PropertyValue;
 
+#[derive(Clone)]
 pub struct LcChannel(pub async_channel::Sender<LibNotification>);
 
 use cxx::{type_id, ExternType};

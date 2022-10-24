@@ -33,7 +33,35 @@
 #include "ui/filmstripcontroller.hpp"
 #include "dialogs/editlabels.hpp"
 
+#include "rust_bindings.hpp"
+
 namespace ui {
+
+class NiepceWindow_2
+    : public fwk::Frame
+{
+public:
+    NiepceWindow_2(::rust::Box<npc::NiepceWindowWrapper>&& wrapper)
+        : Frame(Glib::wrap((GtkWindow*)wrapper->window(), "mainWindow-frame"))
+        , m_wrapper(std::move(wrapper)) {}
+protected:
+    virtual Gtk::Widget* buildWidget() override
+    {
+        DBG_OUT("wrapper buildWidget");
+        return Gtk::manage(Glib::wrap((GtkWidget*)m_wrapper->widget()));
+    }
+    virtual void on_ready() override
+    {
+        gtkWindow().show();
+        m_wrapper->on_ready();
+    }
+    virtual Glib::RefPtr<Gio::Menu> get_menu() const override
+    {
+        return Glib::RefPtr<Gio::Menu>(Glib::wrap((GMenu*)m_wrapper->menu()));
+    }
+private:
+    ::rust::Box<npc::NiepceWindowWrapper> m_wrapper;
+};
 
 class NiepceWindow
     : public fwk::AppFrame

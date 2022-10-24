@@ -268,104 +268,6 @@ void NiepceWindow::on_open_library()
     }
 }
 
-void NiepceWindow::create_initial_labels()
-{
-    // TODO make this parametric from resources
-    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 1"), fwk::rgbcolour_to_string(55769, 9509, 4369).c_str()); /* 217, 37, 17 */
-    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 2"), fwk::rgbcolour_to_string(24929, 55769, 4369).c_str()); /* 97, 217, 17 */
-    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 3"), fwk::rgbcolour_to_string(4369, 50629, 55769).c_str()); /* 17, 197, 217 */
-    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 4"), fwk::rgbcolour_to_string(35209, 4369, 55769).c_str()); /* 137, 17, 217 */
-    ffi::libraryclient_create_label(&m_libClient->client(), _("Label 5"), fwk::rgbcolour_to_string(55769, 35209, 4369).c_str()); /* 217, 137, 17 */
-}
-
-
-void NiepceWindow::on_lib_notification(const eng::LibNotification& ln)
-{
-    switch (ffi::engine_library_notification_type(&ln)) {
-    case eng::NotificationType::NEW_LIBRARY_CREATED:
-        create_initial_labels();
-        break;
-    case eng::NotificationType::ADDED_LABEL:
-    {
-        auto l = ffi::engine_library_notification_get_label(&ln);
-        if (l) {
-            m_libClient->getDataProvider().addLabel(*eng::LabelPtr::from_raw(l));
-        } else {
-            ERR_OUT("Invalid label (nullptr)");
-        }
-        break;
-    }
-    case eng::NotificationType::LABEL_CHANGED:
-    {
-        auto l = ffi::engine_library_notification_get_label(&ln);
-        if (l) {
-            m_libClient->getDataProvider().updateLabel(*eng::LabelPtr::from_raw(l));
-        } else {
-            ERR_OUT("Invalid label (nullptr)");
-        }
-        break;
-    }
-    case eng::NotificationType::LABEL_DELETED:
-    {
-        auto id = ffi::engine_library_notification_get_id(&ln);
-        if (id) {
-            m_libClient->getDataProvider().deleteLabel(id);
-        } else {
-            ERR_OUT("Invalid ID");
-        }
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-/** Prompt to open a library and open it on success */
-void NiepceWindow::prompt_open_library()
-{
-    auto dialog = new Gtk::FileChooserDialog(
-        gtkWindow(), _("Open catalog"),
-        Gtk::FileChooser::Action::SELECT_FOLDER);
-    dialog->add_button(_("Cancel"), Gtk::ResponseType::CANCEL);
-    dialog->add_button(_("Open"), Gtk::ResponseType::OK);
-    dialog->set_create_folders(true);
-
-    dialog->signal_response().connect(
-        [this, dialog] (int response) {
-            DBG_OUT("response %d", response);
-            if (response == Gtk::ResponseType::OK) {
-                DBG_OUT("Accepted");
-                auto& cfg = Application::app()->config()->cfg;
-                auto file = dialog->get_file();
-                Glib::ustring libraryToCreate = file->get_path();
-                // pass it to the library
-                std::string libMoniker = "local:";
-                libMoniker += libraryToCreate.c_str();
-                cfg->setValue("last_open_catalog", libMoniker);
-                DBG_OUT("created catalog %s", libMoniker.c_str());
-                this->open_library(libMoniker);
-            }
-            delete dialog;
-        });
-    dialog->show();
-}
-
-bool NiepceWindow::open_library(const std::string & libMoniker)
-{
-    rust::Box<fwk::Moniker> mon = fwk::Moniker_from(libMoniker);
-    m_libClient
-        = LibraryClientPtr(npc::LibraryClientHost_new(*mon, m_notifcenter->get_channel()),
-                           npc::LibraryClientHost_delete);
-    // XXX ensure the library is open.
-    set_title(libMoniker);
-    m_library_cfg = fwk::Configuration_new(Glib::build_filename(std::string(mon->path()), "config.ini"));
-    ffi::libraryclient_get_all_labels(&m_libClient->client());
-    if(!m_moduleshell) {
-        _createModuleShell();
-    }
-    return true;
-}
-
 void NiepceWindow::on_action_edit_labels()
 {
     DBG_OUT("edit labels");
@@ -386,11 +288,6 @@ void NiepceWindow::on_action_edit_delete()
 {
     // find the responder. And pass it.
     m_moduleshell->action_edit_delete();
-}
-
-void NiepceWindow::set_title(const std::string & title)
-{
-    Frame::set_title(_("Niepce Digital - ") + title);
 }
 
 }
