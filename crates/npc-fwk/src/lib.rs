@@ -143,7 +143,7 @@ pub fn metadata_widget_new(title: &str) -> Box<MetadataWidget> {
 }
 
 #[cxx::bridge(namespace = "fwk")]
-mod ffi {
+pub mod ffi {
     struct SharedConfiguration {
         cfg: Box<Configuration>,
     }

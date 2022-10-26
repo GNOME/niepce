@@ -57,7 +57,6 @@ typedef npc::LibraryClientWrapper LibraryClientWrapper;
 #include "target/bindings.h"
 
 namespace fwk {
-typedef std::shared_ptr<SharedConfiguration> ConfigurationPtr;
 typedef rust::Box<fwk::Date> DatePtr;
 typedef rust::Box<Thumbnail> ThumbnailPtr;
 typedef rust::Box<FileList> FileListPtr;

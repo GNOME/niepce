@@ -100,6 +100,11 @@ private:
     Glib::RefPtr<Gtk::Application> m_gtkapp;
 };
 
+inline
+Application::Ptr Application_app() {
+    return Application::app();
+}
+
 }
 
 /*
