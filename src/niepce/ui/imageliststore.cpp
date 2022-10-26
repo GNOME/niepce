@@ -21,6 +21,7 @@
 #include "fwk/base/debug.hpp"
 #include "fwk/toolkit/application.hpp"
 #include "niepcewindow.hpp"
+#include "moduleshell.hpp"
 
 #include "rust_bindings.hpp"
 

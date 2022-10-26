@@ -16,7 +16,6 @@ libniepceui_a_SOURCES = \
 	moduleshell.hpp moduleshell.cpp \
 	moduleshellwidget.hpp moduleshellwidget.cpp \
 	imageliststore.hpp imageliststore.cpp\
-	workspacecontroller.hpp \
 	metadatapanecontroller.hpp metadatapanecontroller.cpp \
 	dialogs/editlabels.hpp dialogs/editlabels.cpp \
 	dialogs/importdialog.hpp dialogs/importdialog.cpp \

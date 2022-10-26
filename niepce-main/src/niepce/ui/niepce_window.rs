@@ -408,6 +408,7 @@ impl NiepceWindow {
         if let Some(actions) = workspace.actions() {
             self.window.insert_action_group(actions.0, Some(actions.1));
         }
+        // XXX connect workspace `selection_changed` to shell `on_content_will_change`
         if let Some(notif_center) = self.widgets.get().map(|w| &w.notif_center) {
             let workspace = workspace.clone();
             notif_center

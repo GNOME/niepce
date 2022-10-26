@@ -35,10 +35,11 @@ use crate::libraryclient::{ClientInterface, LibraryClient};
 use crate::LibraryClientWrapper;
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
+use npc_fwk::base::Signal;
 use npc_fwk::toolkit::{self, Controller, ControllerImpl, UiController};
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
-#[derive(FromPrimitive)]
+#[derive(Debug, FromPrimitive, PartialEq)]
 #[repr(i32)]
 enum TreeItemType {
     Folders,
@@ -62,6 +63,7 @@ enum Columns {
 
 enum Event {
     ButtonPress(f64, f64),
+    SelectionChanged,
     RowExpanded(gtk4::TreeIter, gtk4::TreePath),
     RowCollapsed(gtk4::TreeIter, gtk4::TreePath),
     NewFolder,
@@ -76,6 +78,7 @@ pub struct WorkspaceController {
     widgets: OnceCell<Widgets>,
     client: Weak<LibraryClient>,
     action_group: OnceCell<gio::ActionGroup>,
+    selection_changed: Signal<()>,
 
     icon_trash: gio::Icon,
     icon_roll: gio::Icon,
@@ -115,8 +118,8 @@ impl Widgets {
         if was_empty {
             self.expand_from_cfg("workspace_folders_expanded", &self.folder_node);
         }
-
         self.folderidmap.borrow_mut().insert(folder.id(), iter);
+
         iter
     }
 
@@ -314,6 +317,11 @@ impl UiController for WorkspaceController {
                 main_box.append(&scrolled);
 
                 // connect signals
+                librarytree.selection().connect_changed(
+                    glib::clone!(@strong self.tx as tx => move |_| {
+                        on_err_out!(tx.send(Event::SelectionChanged));
+                    }),
+                );
                 librarytree.connect_row_expanded(
                     glib::clone!(@strong self.tx as tx => move |_, iter, path| {
                         on_err_out!(tx.send(Event::RowExpanded(*iter, path.clone())));
@@ -396,6 +404,7 @@ impl WorkspaceController {
             cfg,
             widgets: OnceCell::new(),
             action_group: OnceCell::new(),
+            selection_changed: Signal::default(),
             client: Arc::downgrade(&client.client()),
             icon_folder: gio::ThemedIcon::new("folder-symbolic").upcast(),
             icon_trash: gio::ThemedIcon::new("user-trash").upcast(),
@@ -430,6 +439,7 @@ impl WorkspaceController {
 
         match e {
             ButtonPress(x, y) => self.button_press_event(x, y),
+            SelectionChanged => self.on_libtree_selection(),
             RowExpanded(iter, _) => self.row_expanded_collapsed(iter, true),
             RowCollapsed(iter, _) => self.row_expanded_collapsed(iter, false),
             NewFolder => self.action_new_folder(),
@@ -446,6 +456,30 @@ impl WorkspaceController {
                     .set_pointing_to(Some(&gdk4::Rectangle::new(x as i32, y as i32, 1, 1)));
                 widgets.context_menu.popup();
             }
+        }
+    }
+
+    fn on_libtree_selection(&self) {
+        if let Some(widgets) = self.widgets.get() {
+            if let Some((model, iter)) = widgets.librarytree.selection().selected() {
+                let type_: i32 = model.get(&iter, Columns::Type as i32);
+                let id: i64 = model.get(&iter, Columns::Id as i32);
+                dbg_out!("selected type {}, id {}", type_, id);
+                if let Some(type_) = FromPrimitive::from_i32(type_) {
+                    if let Some(client) = self.client.upgrade() {
+                        match type_ {
+                            TreeItemType::Folder => client.query_folder_content(id),
+                            TreeItemType::Keyword => client.query_keyword_content(id),
+                            _ => {
+                                dbg_out!("Something selected of type {:?}", type_);
+                            }
+                        }
+                    }
+                }
+            }
+            // XXX
+            // disable DeleteFolder of type != folder
+            self.selection_changed.emit(());
         }
     }
 
@@ -472,11 +506,58 @@ impl WorkspaceController {
         }
     }
 
-    fn action_new_folder(&self) {}
+    fn action_new_folder(&self) {
+        if let Some(client) = self.client.upgrade() {
+            let window = self
+                .widget()
+                .ancestor(gtk4::Window::static_type())
+                .and_then(|w| w.downcast::<gtk4::Window>().ok());
+            super::dialogs::requestnewfolder::request(client, window.as_ref());
+        }
+    }
 
-    fn action_delete_folder(&self) {}
+    fn action_delete_folder(&self) {
+        if let Some(id) = self.selected_folder_id() {
+            let window = self
+                .widget()
+                .ancestor(gtk4::Window::static_type())
+                .and_then(|w| w.downcast::<gtk4::Window>().ok());
+            let dialog = super::dialogs::confirm::request(
+                &gettext("Delete selected folder?"),
+                window.as_ref(),
+            );
+            dialog.connect_response(
+                glib::clone!(@strong dialog, @strong self.client as client => move |_, response| {
+                if response == gtk4::ResponseType::Yes {
+                    if let Some(client) = client.upgrade() {
+                    client.delete_folder(id);
+                    }
+                }
+                dialog.destroy();
+                }),
+            );
+            dialog.show();
+        }
+    }
 
-    fn action_import(&self) {}
+    fn action_import(&self) {
+        // XXX port import dialog
+    }
+
+    fn selected_folder_id(&self) -> Option<db::LibraryId> {
+        self.widgets.get().and_then(|widgets| {
+            let selection = widgets.librarytree.selection();
+            selection.selected().and_then(|selected| {
+                let t: Option<TreeItemType> =
+                    FromPrimitive::from_i32(selected.0.get(&selected.1, Columns::Type as i32));
+                if t != Some(TreeItemType::Folder) {
+                    None
+                } else {
+                    Some(selected.0.get(&selected.1, Columns::Id as i32))
+                }
+            })
+        })
+    }
 
     fn add_folder_item(&self, folder: &db::LibFolder) {
         if let Some(widgets) = self.widgets.get() {

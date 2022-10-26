@@ -30,6 +30,7 @@
 #include "engine/db/properties.hpp"
 #include "niepcewindow.hpp"
 #include "selectioncontroller.hpp"
+#include "moduleshell.hpp"
 
 namespace ui {
 

@@ -90,28 +90,6 @@ const fwk::ConfigurationPtr& WorkspaceController::getLibraryConfig() const
     return std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock())->getLibraryConfig();
 }
 
-void WorkspaceController::action_new_folder()
-{
-    auto& window = std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock())->gtkWindow();
-    ui::dialog_request_new_folder(&getLibraryClient()->client(), window.gobj());
-}
-
-void WorkspaceController::action_delete_folder()
-{
-    auto id = get_selected_folder_id();
-    if (id) {
-        auto& window = std::dynamic_pointer_cast<NiepceWindow>(m_parent.lock())->gtkWindow();
-        auto dialog = Glib::wrap(ui::dialog_confirm(_("Delete selected folder?"), window.gobj()));
-        dialog->signal_response().connect([this, id, dialog] (int response) {
-            if (response == Gtk::ResponseType::YES) {
-                ffi::libraryclient_delete_folder(&getLibraryClient()->client(), id);
-            }
-            delete dialog;
-        });
-        dialog->show();
-    }
-}
-
 void WorkspaceController::perform_file_import(ImportDialog::Ptr dialog)
 {
     auto& cfg = Application::app()->config()->cfg; // XXX change to getLibraryConfig()
@@ -159,51 +137,6 @@ void WorkspaceController::action_file_import()
 void WorkspaceController::on_count_notification(int)
 {
     DBG_OUT("received NOTIFICATION_COUNT");
-}
-
-eng::library_id_t WorkspaceController::get_selected_folder_id()
-{
-    auto selection = m_librarytree.get_selection();
-    auto selected = selection->get_selected();
-    if (!selected) {
-        return 0;
-    }
-    int type = (*selected)[m_librarycolumns.m_type];
-    eng::library_id_t id = (*selected)[m_librarycolumns.m_id];
-    if (type != FOLDER_ITEM) {
-        return 0;
-    }
-    return id;
-}
-
-void WorkspaceController::on_libtree_selection()
-{
-    Glib::RefPtr<Gtk::TreeSelection> selection = m_librarytree.get_selection();
-    auto selected = selection->get_selected();
-    if (!selected) {
-        DBG_OUT("Invalid iterator");
-        return;
-    }
-    int type = (*selected)[m_librarycolumns.m_type];
-    eng::library_id_t id = (*selected)[m_librarycolumns.m_id];
-
-    switch(type) {
-
-    case FOLDER_ITEM:
-        ffi::libraryclient_query_folder_content(&getLibraryClient()->client(), id);
-        break;
-
-    case KEYWORD_ITEM:
-        ffi::libraryclient_query_keyword_content(&getLibraryClient()->client(), id);
-        break;
-
-    default:
-        DBG_OUT("selected something not a folder");
-    }
-
-    std::dynamic_pointer_cast<Gio::SimpleAction>(
-        m_action_group->lookup_action("DeleteFolder"))->set_enabled(type == FOLDER_ITEM);
-    libtree_selection_changed.emit();
 }
 
 void WorkspaceController::on_row_expanded(const Gtk::TreeModel::iterator& iter,
