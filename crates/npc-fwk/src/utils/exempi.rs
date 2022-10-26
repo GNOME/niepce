@@ -154,6 +154,16 @@ pub struct XmpMeta {
     keywords_fetched: bool,
 }
 
+impl std::fmt::Debug for XmpMeta {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        f.debug_struct("XmpMeta")
+            .field("xmp", &format!("{:?}", self.xmp.as_ptr()))
+            .field("keywords", &self.keywords)
+            .field("keywords_fetched", &self.keywords_fetched)
+            .finish()
+    }
+}
+
 impl Default for XmpMeta {
     fn default() -> XmpMeta {
         XmpMeta::new()

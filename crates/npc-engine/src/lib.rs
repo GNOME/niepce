@@ -211,7 +211,7 @@ mod ffi {
     impl Box<LibFile> {}
 
     #[repr(i32)]
-    #[derive(Clone)]
+    #[derive(Clone, Debug)]
     pub enum FolderVirtualType {
         NONE = 0,
         TRASH = 1,

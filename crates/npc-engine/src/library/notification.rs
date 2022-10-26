@@ -64,7 +64,7 @@ pub enum NotificationType {
 }
 
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct FileMove {
     pub file: LibraryId,
     pub from: LibraryId,
@@ -72,20 +72,20 @@ pub struct FileMove {
 }
 
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct FileStatusChange {
     pub id: LibraryId,
     pub status: FileStatus,
 }
 
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Count {
     pub id: LibraryId,
     pub count: i64,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MetadataChange {
     pub id: LibraryId,
     pub meta: NiepceProperties,
@@ -99,7 +99,7 @@ impl MetadataChange {
 }
 
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Thumbnail {
     pub id: LibraryId,
     pub width: i32,
@@ -122,7 +122,7 @@ pub extern "C" fn metadatachange_get_value(meta: &MetadataChange) -> *const Prop
     &meta.value
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum LibNotification {
     AddedFile,
     AddedFiles,

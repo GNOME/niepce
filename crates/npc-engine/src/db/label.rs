@@ -23,7 +23,7 @@ use super::FromDb;
 use super::LibraryId;
 use npc_fwk::base::rgbcolour::RgbColour;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Label {
     id: LibraryId,
     label: String,

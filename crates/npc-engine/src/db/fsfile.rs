@@ -22,7 +22,7 @@ use std::path::{Path, PathBuf};
 use super::LibraryId;
 
 /// Describe a file on the file system
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct FsFile {
     id: LibraryId,
     path: PathBuf,

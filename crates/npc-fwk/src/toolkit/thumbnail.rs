@@ -28,7 +28,7 @@ use super::gdk_utils;
 use super::mimetype::MimeType;
 use super::movieutils;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Thumbnail {
     bytes: Vec<u8>,
     width: i32,

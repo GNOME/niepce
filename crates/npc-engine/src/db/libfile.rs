@@ -90,7 +90,7 @@ impl From<FileType> for i32 {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct LibFile {
     id: LibraryId,
     folder_id: LibraryId,

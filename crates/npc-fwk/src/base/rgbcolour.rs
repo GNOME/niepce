@@ -22,7 +22,7 @@ use std::str::FromStr;
 
 #[cxx::bridge(namespace = "fwk")]
 mod ffi {
-    #[derive(Clone, Default)]
+    #[derive(Clone, Debug, Default)]
     pub struct RgbColour {
         pub r: u16,
         pub g: u16,

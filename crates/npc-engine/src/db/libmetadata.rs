@@ -31,7 +31,7 @@ use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
 use npc_fwk::{dbg_out, err_out};
 use npc_fwk::{xmp_date_from, PropertyBag, PropertySet, PropertyValue, XmpMeta};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct LibMetadata {
     xmp: XmpMeta,
     id: LibraryId,
