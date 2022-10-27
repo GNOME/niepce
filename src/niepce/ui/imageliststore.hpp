@@ -24,7 +24,6 @@
 #include <gtkmm/liststore.h>
 
 #include "fwk/base/propertybag.hpp"
-#include "fwk/toolkit/controller.hpp"
 #include "engine/db/libfile.hpp"
 
 namespace ui {
@@ -50,19 +49,13 @@ public:
 
     static ImageListStorePtr create();
 
-    void set_parent_controller(const fwk::Controller::WeakPtr & ctrl)
-        { m_controller = ctrl; }
-
     // Should be called when the content will change
     void clear_content();
-    void on_lib_notification(const eng::LibNotification &n);
+    void on_lib_notification(libraryclient::LibraryClientPtr client, const eng::LibNotification &n);
 
 private:
-    libraryclient::LibraryClientPtr getLibraryClient();
-
     ffi::ImageListStore* m_store;
     Glib::RefPtr<Gtk::ListStore> m_store_wrap;
-    fwk::Controller::WeakPtr m_controller;
 };
 
 }

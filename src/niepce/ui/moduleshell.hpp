@@ -55,14 +55,6 @@ public:
         }
     virtual ~ModuleShell();
 
-    const GridViewModule::Ptr & get_gridview() const
-        {
-            return m_gridview;
-        }
-    const mapm::MapModule::Ptr & get_map_module() const
-        {
-            return m_mapm;
-        }
     const ImageListStorePtr& get_list_store() const
         {
             return m_selection_controller->get_list_store();
@@ -74,10 +66,6 @@ public:
     virtual libraryclient::LibraryClientPtr getLibraryClient() const override
         {
             return m_libraryclient;
-        }
-    virtual const npc::UIDataProvider& get_ui_data_provider() const override
-        {
-            return m_libraryclient->getDataProvider();
         }
     virtual Glib::RefPtr<Gio::Menu> getMenu() const override
         { return m_menu; }
@@ -95,6 +83,8 @@ public:
     virtual Gtk::Widget * buildWidget() override;
 
     void action_edit_delete();
+
+    void on_lib_notification(const eng::LibNotification &ln);
 protected:
     virtual void add_library_module(const ILibraryModule::Ptr & module,
                                     const std::string & name,

@@ -108,8 +108,8 @@ public:
      */
     eng::library_id_t get_selection() const;
     std::optional<eng::LibFilePtr> get_file(eng::library_id_t id) const;
-protected:
-    virtual void _added() override;
+
+    void on_lib_notification(const eng::LibNotification &ln);
 private:
     libraryclient::LibraryClientPtr getLibraryClient();
 

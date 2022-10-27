@@ -86,10 +86,10 @@ void ImageListStore::clear_content()
     ffi::npc_image_list_store_clear_content(m_store);
 }
 
-void ImageListStore::on_lib_notification(const eng::LibNotification &ln)
+void ImageListStore::on_lib_notification(libraryclient::LibraryClientPtr client, const eng::LibNotification &ln)
 {
     if (ffi::npc_image_list_store_on_lib_notification(
-            m_store, &ln, &getLibraryClient()->thumbnailCache())) {
+            m_store, &ln, &client->thumbnailCache())) {
         return;
     }
 
@@ -109,19 +109,12 @@ void ImageListStore::on_lib_notification(const eng::LibNotification &ln)
             ERR_OUT("couldn't cast %s: %s", xmp_pref.c_str(),
                     e.what());
         }
-        ffi::libraryclient_process_xmp_update_queue(&getLibraryClient()->client(), write_xmp);
+        ffi::libraryclient_process_xmp_update_queue(&client->client(), write_xmp);
         break;
     }
     default:
         break;
     }
-}
-
-libraryclient::LibraryClientPtr ImageListStore::getLibraryClient()
-{
-    ModuleShell::Ptr shell = std::dynamic_pointer_cast<ModuleShell>(m_controller.lock());
-    DBG_ASSERT(static_cast<bool>(shell), "parent not a ModuleShell");
-    return shell->getLibraryClient();
 }
 
 }

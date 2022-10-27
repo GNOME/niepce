@@ -110,13 +110,11 @@ NiepceWindow::_createModuleShell()
     add(m_moduleshell);
 
     m_notifcenter->add_listener(std::make_unique<npc::LnListener>(sigc::mem_fun(
-                     *m_moduleshell->get_gridview(),
-                     &GridViewModule::on_lib_notification)));
+                     *m_moduleshell,
+                     &ModuleShell::on_lib_notification)));
+
     m_notifcenter->add_listener(std::make_unique<npc::LnListener>([this] (const eng::LibNotification& notification) {
             m_moduleshell->get_list_store()->on_lib_notification(notification);
-    }));
-    m_notifcenter->add_listener(std::make_unique<npc::LnListener>([this] (const eng::LibNotification& notification) {
-            m_moduleshell->get_map_module()->on_lib_notification(notification);
     }));
 
     // workspace treeview

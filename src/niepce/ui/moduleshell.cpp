@@ -287,6 +287,14 @@ void ModuleShell::on_module_activated(const std::string & name) const
     }
 }
 
+void
+ModuleShell::on_lib_notification(const eng::LibNotification &ln)
+{
+    m_gridview->on_lib_notification(ln);
+    m_mapm->on_lib_notification(ln);
+    m_selection_controller->on_lib_notification(ln);
+}
+
 
 }
 

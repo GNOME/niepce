@@ -41,9 +41,9 @@ SelectionController::SelectionController()
     m_imageliststore = ImageListStore::create();
 }
 
-void SelectionController::_added()
+void SelectionController::on_lib_notification(const eng::LibNotification &ln)
 {
-    m_imageliststore->set_parent_controller(m_parent);
+    m_imageliststore->on_lib_notification(getLibraryClient(), ln);
 }
 
 void SelectionController::add_selectable(const IImageSelectable::WeakPtr & selectableWeak)
