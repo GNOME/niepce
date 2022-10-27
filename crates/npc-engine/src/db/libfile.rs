@@ -104,6 +104,13 @@ pub struct LibFile {
     file_type: FileType,
 }
 
+use cxx::{type_id, ExternType};
+
+unsafe impl ExternType for LibFile {
+    type Id = type_id!("eng::LibFile");
+    type Kind = cxx::kind::Opaque;
+}
+
 impl LibFile {
     pub fn new(
         id: LibraryId,

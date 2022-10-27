@@ -38,7 +38,7 @@ namespace ui {
 GridViewModule::GridViewModule(const IModuleShell & shell,
                                const ImageListStorePtr& store)
   : m_shell(shell)
-  , m_model(store)
+  , m_model(store->clone())
   , m_librarylistview(nullptr)
   , m_lib_splitview(Gtk::Orientation::HORIZONTAL)
   , m_dock(nullptr)
@@ -121,7 +121,7 @@ Gtk::Widget * GridViewModule::buildWidget()
 
   m_image_grid_view = std::shared_ptr<ffi::ImageGridView>(
       ffi::npc_image_grid_view_new(
-          GTK_TREE_MODEL(m_model->gobjmm()->gobj()),
+          GTK_TREE_MODEL(m_model->unwrap_ref().gobj()),
           GTK_POPOVER_MENU(m_context_menu->gobj())
       ),
       ffi::npc_image_grid_view_release);
@@ -211,7 +211,7 @@ eng::library_id_t GridViewModule::get_selected()
     if(!paths.empty()) {
         Gtk::TreePath path(*(paths.begin()));
         DBG_OUT("found path %s", path.to_string().c_str());
-        id = m_model->get_libfile_id_at_path(path);
+        id = m_model->unwrap_ref().get_libfile_id_at_path((const char*)path.gobj());
     }
     DBG_OUT("get_selected %Ld", (long long)id);
     return id;
@@ -220,8 +220,8 @@ eng::library_id_t GridViewModule::get_selected()
 void GridViewModule::select_image(eng::library_id_t id)
 {
     DBG_OUT("library select %Ld", (long long)id);
-    Gtk::TreePath path = m_model->get_path_from_id(id);
-    if(path) {
+    auto path = ImageListStore_get_path_from_id(m_model->unwrap_ref(), id);
+    if (path) {
         m_librarylistview->scroll_to_path(path, false, 0, 0);
         m_librarylistview->select_path(path);
     }

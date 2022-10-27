@@ -18,110 +18,46 @@
  */
 
 #include "imageliststore.hpp"
-#include "fwk/base/debug.hpp"
-#include "fwk/toolkit/application.hpp"
-#include "niepcewindow.hpp"
-#include "moduleshell.hpp"
 
 #include "rust_bindings.hpp"
 
 namespace ui {
 
-ImageListStorePtr ImageListStore::create()
-{
-    return std::make_shared<ImageListStore>(ffi::npc_image_list_store_new());
-}
 
-ImageListStore::ImageListStore(ffi::ImageListStore* store)
-    : m_store(store)
-    , m_store_wrap(Glib::wrap(GTK_LIST_STORE(ffi::npc_image_list_store_gobj(store)), true))
+Gtk::TreeModel::iterator ImageListStore_get_iter_from_id(const ImageListStore& self, eng::library_id_t id)
 {
-}
-
-ImageListStore::~ImageListStore()
-{
-    m_store_wrap.reset();
-    ffi::npc_image_list_store_delete(m_store);
-}
-
-Gtk::TreeModel::iterator ImageListStore::get_iter_from_id(eng::library_id_t id) const
-{
-    if (m_store == nullptr) {
+    if (self.gobj() == nullptr) {
         return Gtk::TreeModel::iterator();
     }
-    auto iter = ffi::npc_image_list_store_get_iter_from_id(m_store, id);
+    auto iter = (GtkTreeIter*)const_cast<char*>(self.get_iter_from_id_(id));
     if (!iter) {
         return Gtk::TreeModel::iterator();
     }
-    return Gtk::TreeModel::iterator(GTK_TREE_MODEL(m_store_wrap->gobj()), iter);
+    return Gtk::TreeModel::iterator(GTK_TREE_MODEL(self.gobj()), iter);
 }
 
-Gtk::TreeModel::Path ImageListStore::get_path_from_id(eng::library_id_t id) const
+Gtk::TreePath ImageListStore_get_path_from_id(const ImageListStore& self, eng::library_id_t id)
 {
-    if (m_store) {
-        Gtk::TreeModel::iterator iter = get_iter_from_id(id);
-        if (iter) {
-            return m_store_wrap->get_path(iter);
-        }
+    auto path = self.get_iter_from_id_(id);
+    if (path) {
+        auto iter = (GtkTreeIter*)const_cast<char*>(path);
+        auto tree_path = Glib::wrap(gtk_tree_model_get_path(GTK_TREE_MODEL(self.gobj()), iter));
+        return tree_path;
     }
-    return Gtk::TreeModel::Path();
+
+    return Gtk::TreePath();
 }
 
-eng::library_id_t ImageListStore::get_libfile_id_at_path(const Gtk::TreeModel::Path& path) const
+std::optional<eng::LibFilePtr> ImageListStore_get_file(const ImageListStore& self, eng::library_id_t id)
 {
-    return ffi::npc_image_list_store_get_file_id_at_path(m_store, path.gobj());
-}
-
-std::optional<eng::LibFilePtr> ImageListStore::get_file(eng::library_id_t id) const
-{
-    auto f = ffi::npc_image_list_store_get_file(m_store, id);
+    auto f = self.get_file_(id);
     if (f) {
         return std::optional(eng::LibFilePtr::from_raw(f));
     }
     return std::nullopt;
 }
 
-void ImageListStore::clear_content()
-{
-    ffi::npc_image_list_store_clear_content(m_store);
 }
-
-void ImageListStore::on_lib_notification(libraryclient::LibraryClientPtr client, const eng::LibNotification &ln)
-{
-    if (ffi::npc_image_list_store_on_lib_notification(
-            m_store, &ln, &client->thumbnailCache())) {
-        return;
-    }
-
-    auto type = ffi::engine_library_notification_type(&ln);
-    switch (type) {
-    case eng::NotificationType::XMP_NEEDS_UPDATE:
-    {
-        auto& cfg = fwk::Application::app()->config()->cfg;
-        int write_xmp = false;
-        std::string xmp_pref;
-        try {
-            xmp_pref = std::string(cfg->getValue("write_xmp_automatically", "0"));
-            write_xmp = std::stoi(xmp_pref);
-        }
-        catch(const std::exception & e)
-        {
-            ERR_OUT("couldn't cast %s: %s", xmp_pref.c_str(),
-                    e.what());
-        }
-        ffi::libraryclient_process_xmp_update_queue(&client->client(), write_xmp);
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-}
-
-
-
-
 /*
   Local Variables:
   mode:c++

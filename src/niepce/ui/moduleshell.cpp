@@ -258,8 +258,8 @@ void ModuleShell::on_image_selected(eng::library_id_t id)
 void ModuleShell::on_image_activated(eng::library_id_t id)
 {
     DBG_OUT("on image activated %Ld", (long long)id);
-    auto store = m_selection_controller->get_list_store();
-    auto libfile = store->get_file(id);
+    auto& store = m_selection_controller->get_list_store();
+    auto libfile = ImageListStore_get_file(store->unwrap_ref(), id);
     if (libfile) {
         m_darkroom->set_image(std::optional(std::move(libfile)));
         m_shell.activatePage("darkroom");

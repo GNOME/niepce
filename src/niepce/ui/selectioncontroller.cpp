@@ -36,14 +36,14 @@ namespace ui {
 
 
 SelectionController::SelectionController()
-    : m_in_handler(false)
+    : m_imageliststore(ui::ImageListStore_new())
+    , m_in_handler(false)
 {
-    m_imageliststore = ImageListStore::create();
 }
 
 void SelectionController::on_lib_notification(const eng::LibNotification &ln)
 {
-    m_imageliststore->on_lib_notification(getLibraryClient(), ln);
+    m_imageliststore->unwrap_ref().on_lib_notification(ln, getLibraryClient()->client(), getLibraryClient()->thumbnailCache());
 }
 
 void SelectionController::add_selectable(const IImageSelectable::WeakPtr & selectableWeak)
@@ -66,7 +66,7 @@ void SelectionController::activated(const Gtk::TreeModel::Path & path,
                                     const IImageSelectable::WeakPtr & /*selectable*/)
 {
     fwk::AutoFlag f(m_in_handler);
-    auto selection = m_imageliststore->get_libfile_id_at_path(path);
+    auto selection = m_imageliststore->unwrap_ref().get_libfile_id_at_path((const char*)path.gobj());
     if (selection) {
         DBG_OUT("item activated %Ld", (long long)selection);
         signal_activated(selection);
@@ -119,20 +119,27 @@ eng::library_id_t SelectionController::get_selection() const
 
 std::optional<eng::LibFilePtr> SelectionController::get_file(eng::library_id_t id) const
 {
-    return m_imageliststore->get_file(id);
+    auto libfile = ImageListStore_get_file(m_imageliststore->unwrap_ref(), id);
+    if (libfile) {
+        return libfile;
+    } else {
+        return std::nullopt;
+    }
 }
 
 void SelectionController::_selection_move(bool backwards)
 {
     auto selection = get_selection();
-    auto iter = m_imageliststore->get_iter_from_id(selection);
+    auto iter = ImageListStore_get_iter_from_id(m_imageliststore->unwrap_ref(), selection);
     if(!iter) {
         return;
     }
 
     if(backwards) {
-        if(iter != m_imageliststore->gobjmm()->children().begin()) {
-            --iter;
+        auto new_iter = iter;
+        --new_iter;
+        if (new_iter) {
+            iter = new_iter;
         }
     }
     else {
@@ -141,7 +148,7 @@ void SelectionController::_selection_move(bool backwards)
     if (iter) {
         // make sure the iterator is valid...
         auto path = Gtk::TreePath(iter);
-        auto file_id = m_imageliststore->get_libfile_id_at_path(path);
+        auto file_id = m_imageliststore->unwrap_ref().get_libfile_id_at_path((const char*)path.gobj());
 
         fwk::AutoFlag f(m_in_handler);
 
@@ -174,7 +181,7 @@ void SelectionController::rotate(int angle)
     DBG_OUT("angle = %d", angle);
     auto selection = get_selection();
     if(selection >= 0) {
-        Gtk::TreeModel::iterator iter = m_imageliststore->get_iter_from_id(selection);
+        Gtk::TreeModel::iterator iter = ImageListStore_get_iter_from_id(m_imageliststore->unwrap_ref(), selection);
         if(iter) {
             // @todo
         }
@@ -264,7 +271,7 @@ void SelectionController::set_property(ffi::NiepcePropertyIdx idx, int value)
     DBG_OUT("property %u = %d", static_cast<uint32_t>(idx), value);
     eng::library_id_t selection = get_selection();
     if(selection >= 0) {
-        std::optional<eng::LibFilePtr> f = m_imageliststore->get_file(selection);
+        std::optional<eng::LibFilePtr> f = ImageListStore_get_file(m_imageliststore->unwrap_ref(), selection);
         if (!f) {
             ERR_OUT("requested file %ld not found!", selection);
             return;
@@ -305,7 +312,7 @@ void SelectionController::set_properties(const fwk::WrappedPropertyBagPtr& props
 
 void SelectionController::content_will_change()
 {
-    m_imageliststore->clear_content();
+    m_imageliststore->unwrap_ref().clear_content();
 }
 
 void SelectionController::write_metadata()
@@ -322,7 +329,7 @@ void SelectionController::move_to_trash()
         ffi::libraryclient_get_trash_id(&getLibraryClient()->client());
     eng::library_id_t selection = get_selection();
     if(selection >= 0) {
-        auto f = m_imageliststore->get_file(selection);
+        auto f = ImageListStore_get_file(m_imageliststore->unwrap_ref(), selection);
         if (f) {
             auto& file = f.value();
             eng::library_id_t from_folder = file->folder_id();

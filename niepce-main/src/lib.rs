@@ -41,6 +41,7 @@ use crate::libraryclient::{
     library_client_host_delete, library_client_host_new, LibraryClientHost, LibraryClientWrapper,
     UIDataProvider,
 };
+use niepce::ui::image_list_store::{npc_image_list_store_new, ImageListStore, ImageListStoreWrap};
 use niepce::ui::metadata_pane_controller::get_format;
 use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
 use notification_center::notification_center_new;
@@ -66,6 +67,7 @@ mod ffi {
     extern "C++" {
         include!("fwk/cxx_prelude.hpp");
         type Label = npc_engine::db::Label;
+        type LibFile = npc_engine::db::LibFile;
         type ThumbnailCache = npc_engine::ThumbnailCache;
         type LcChannel = npc_engine::library::notification::LcChannel;
         type LibNotification = npc_engine::library::notification::LibNotification;
@@ -152,5 +154,34 @@ mod ffi {
         fn widget(&self) -> *mut c_char;
         fn window(&self) -> *mut c_char;
         fn menu(&self) -> *mut c_char;
+    }
+
+    #[namespace = "ui"]
+    extern "Rust" {
+        type ImageListStore;
+
+        fn clear_content(&self);
+        fn gobj(&self) -> *mut c_char;
+        fn get_file_(&self, id: i64) -> *mut LibFile;
+        #[cxx_name = "get_libfile_id_at_path"]
+        unsafe fn get_file_id_at_path_(&self, path: *const c_char) -> i64;
+        fn get_iter_from_id_(&self, id: i64) -> *const c_char;
+        fn on_lib_notification(
+            &self,
+            notification: &LibNotification,
+            client: &LibraryClientWrapper,
+            thumbnail_cache: &ThumbnailCache,
+        ) -> bool;
+    }
+
+    #[namespace = "ui"]
+    extern "Rust" {
+        type ImageListStoreWrap;
+
+        #[cxx_name = "ImageListStore_new"]
+        fn npc_image_list_store_new() -> Box<ImageListStoreWrap>;
+        unsafe fn unwrap_ref(&self) -> &ImageListStore;
+        #[cxx_name = "clone"]
+        fn clone_(&self) -> Box<ImageListStoreWrap>;
     }
 }

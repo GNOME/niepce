@@ -255,11 +255,3 @@ pub unsafe extern "C" fn libraryclient_update_label(
     let colour = CStr::from_ptr(c).to_string_lossy();
     client.update_label(label_id, String::from(name), String::from(colour));
 }
-
-#[no_mangle]
-pub extern "C" fn libraryclient_process_xmp_update_queue(
-    client: &LibraryClientWrapper,
-    write_xmp: bool,
-) {
-    client.process_xmp_update_queue(write_xmp);
-}

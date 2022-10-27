@@ -40,7 +40,7 @@ pub struct FilmStripController {
     imp_: RefCell<ControllerImpl>,
 
     widgets: OnceCell<Widgets>,
-    store: ImageListStore,
+    store: Rc<ImageListStore>,
 }
 
 impl Controller for FilmStripController {
@@ -84,7 +84,7 @@ impl UiController for FilmStripController {
 }
 
 impl FilmStripController {
-    pub fn new(store: ImageListStore) -> Rc<FilmStripController> {
+    pub fn new(store: Rc<ImageListStore>) -> Rc<FilmStripController> {
         Rc::new(FilmStripController {
             imp_: RefCell::new(ControllerImpl::default()),
             widgets: OnceCell::new(),

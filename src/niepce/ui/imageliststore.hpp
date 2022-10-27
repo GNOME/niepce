@@ -23,40 +23,17 @@
 
 #include <gtkmm/liststore.h>
 
-#include "fwk/base/propertybag.hpp"
 #include "engine/db/libfile.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace ui {
 
-class ImageListStore;
+typedef ::rust::Box<ImageListStoreWrap> ImageListStorePtr;
 
-typedef std::shared_ptr<ImageListStore> ImageListStorePtr;
-
-/** @brief the general list store. Wraps the list store from Rust. */
-class ImageListStore
-{
-public:
-    ImageListStore(ffi::ImageListStore*);
-    ~ImageListStore();
-    Glib::RefPtr<Gtk::ListStore> gobjmm() const
-        { return m_store_wrap; }
-    Gtk::TreeModel::Path get_path_from_id(eng::library_id_t id) const;
-    Gtk::TreeModel::iterator get_iter_from_id(eng::library_id_t id) const;
-    eng::library_id_t get_libfile_id_at_path(const Gtk::TreeModel::Path& path) const;
-    std::optional<eng::LibFilePtr> get_file(eng::library_id_t id) const;
-    size_t get_count() const
-        { return m_store_wrap->children().size(); }
-
-    static ImageListStorePtr create();
-
-    // Should be called when the content will change
-    void clear_content();
-    void on_lib_notification(libraryclient::LibraryClientPtr client, const eng::LibNotification &n);
-
-private:
-    ffi::ImageListStore* m_store;
-    Glib::RefPtr<Gtk::ListStore> m_store_wrap;
-};
+Gtk::TreeModel::iterator ImageListStore_get_iter_from_id(const ImageListStore& self, eng::library_id_t id);
+Gtk::TreePath ImageListStore_get_path_from_id(const ImageListStore& self, eng::library_id_t id);
+std::optional<eng::LibFilePtr> ImageListStore_get_file(const ImageListStore& self, eng::library_id_t id);
 
 }
 /*

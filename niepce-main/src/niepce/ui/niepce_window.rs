@@ -422,7 +422,9 @@ impl NiepceWindow {
         hbox.set_start_child(workspace.widget());
         // set_end_child() for the module shell widget
 
-        let filmstrip = FilmStripController::new(ImageListStore::new());
+        // XXX replace this when the shell is created to get the
+        // `ImageListStoreWrapper` from the shell.
+        let filmstrip = FilmStripController::new(Rc::new(ImageListStore::new()));
         self.add(&toolkit::to_controller(filmstrip.clone()));
         let vbox = &self.widgets.get().as_ref().unwrap().vbox;
         vbox.append(hbox);
