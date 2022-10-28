@@ -194,20 +194,24 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
                                         ffi::NiepcePropertyIdx meta,
                                         int old_value, int new_value)
 {
-    std::shared_ptr<fwk::UndoTransaction> undo =
-        fwk::Application::app()->begin_undo(undo_label);
-
+    rust::Box<fwk::UndoTransaction> undo = fwk::UndoTransaction_new(undo_label);
     auto libclient = getLibraryClient();
-    undo->new_command<void>(
-        [libclient, file_id, meta, new_value] () {
-            ffi::libraryclient_set_metadata(
-                &libclient->client(), file_id, meta, &*fwk::property_value_new_int(new_value));
-        },
-        [libclient, file_id, meta, old_value] () {
-            ffi::libraryclient_set_metadata(
-                &libclient->client(), file_id, meta, &*fwk::property_value_new_int(old_value));
-        });
+    auto command = UndoCommand_new(
+        std::make_unique<fwk::RedoFnVoid>(
+            [libclient, file_id, meta, new_value] () {
+                ffi::libraryclient_set_metadata(
+                    &libclient->client(), file_id, meta, &*fwk::property_value_new_int(new_value));
+            }),
+        std::make_unique<fwk::UndoFnVoid>(
+            [libclient, file_id, meta, old_value] () {
+                ffi::libraryclient_set_metadata(
+                    &libclient->client(), file_id, meta, &*fwk::property_value_new_int(old_value));
+            })
+        );
+    undo->add(std::move(command));
     undo->execute();
+
+    fwk::Application::app()->begin_undo(std::move(undo));
     return true;
 }
 
@@ -216,7 +220,7 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
                                         const fwk::WrappedPropertyBagPtr& props,
                                         const fwk::WrappedPropertyBagPtr& old)
 {
-    auto undo = fwk::Application::app()->begin_undo(undo_label);
+    auto undo = fwk::UndoTransaction_new(undo_label);
     auto len = ffi::fwk_property_bag_len(props.get());
     for (size_t i = 0; i < len; i++) {
         auto key = ffi::fwk_property_bag_key_by_index(props.get(), i);
@@ -236,17 +240,22 @@ bool SelectionController::_set_metadata(const std::string & undo_label,
 
         auto libclient = getLibraryClient();
         auto new_value = std::make_shared<fwk::PropertyValuePtr>(fwk::wrapped_property_bag_value(props, key));
-        undo->new_command<void>(
-            [libclient, file_id, key, new_value] () {
-                ffi::libraryclient_set_metadata(
-                    &libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**new_value);
-            },
-            [libclient, file_id, key, value] () {
-                ffi::libraryclient_set_metadata(
-                    &libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**value);
-            });
+        auto command = UndoCommand_new(
+            std::make_unique<fwk::RedoFnVoid>(
+                [libclient, file_id, key, new_value] () {
+                    ffi::libraryclient_set_metadata(
+                        &libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**new_value);
+                }),
+            std::make_unique<fwk::UndoFnVoid>(
+                [libclient, file_id, key, value] () {
+                    ffi::libraryclient_set_metadata(
+                        &libclient->client(), file_id, static_cast<ffi::NiepcePropertyIdx>(key), &**value);
+                })
+            );
+        undo->add(std::move(command));
     }
     undo->execute();
+    fwk::Application::app()->begin_undo(std::move(undo));
     return true;
 }
 
@@ -333,20 +342,24 @@ void SelectionController::move_to_trash()
         if (f) {
             auto& file = f.value();
             eng::library_id_t from_folder = file->folder_id();
-            std::shared_ptr<fwk::UndoTransaction> undo =
-                fwk::Application::app()->begin_undo(_("Move to Trash"));
+            auto undo = fwk::UndoTransaction_new(_("Move to Trash"));
 
             auto libclient = getLibraryClient();
-            undo->new_command<void>(
-                [libclient, selection, from_folder, trash_folder] () {
-                    ffi::libraryclient_move_file_to_folder(
-                        &libclient->client(), selection, from_folder, trash_folder);
-                },
-                [libclient, selection, from_folder, trash_folder] () {
-                    ffi::libraryclient_move_file_to_folder(
-                        &libclient->client(), selection, trash_folder, from_folder);
-                });
+            auto command = UndoCommand_new(
+                std::make_unique<fwk::RedoFnVoid>(
+                    [libclient, selection, from_folder, trash_folder] () {
+                        ffi::libraryclient_move_file_to_folder(
+                            &libclient->client(), selection, from_folder, trash_folder);
+                    }),
+                std::make_unique<fwk::UndoFnVoid>(
+                    [libclient, selection, from_folder, trash_folder] () {
+                        ffi::libraryclient_move_file_to_folder(
+                            &libclient->client(), selection, trash_folder, from_folder);
+                    })
+                );
+            undo->add(std::move(command));
             undo->execute();
+            fwk::Application::app()->begin_undo(std::move(undo));
         }
     }
 }

@@ -26,7 +26,6 @@
 #include <gtkmm/icontheme.h>
 
 #include "fwk/toolkit/appframe.hpp"
-#include "fwk/toolkit/undo.hpp"
 
 #include "rust_bindings.hpp"
 
@@ -67,9 +66,9 @@ public:
     static int main(const Application::Ptr & app,
                     int argc, char **argv);
 
-    UndoHistory & undo_history()
-        { return m_undo; }
-    std::shared_ptr<UndoTransaction> begin_undo(const std::string & label);
+    UndoHistory& undo_history()
+        { return *m_undo; }
+    void begin_undo(rust::Box<UndoTransaction>);
 
     // Module management
     /** @return the module manager
@@ -95,7 +94,7 @@ protected:
     Frame::WeakPtr            m_main_frame;
 private:
     ConfigurationPtr m_config;
-    UndoHistory                  m_undo;
+    rust::Box<UndoHistory> m_undo;
     ModuleManager               *m_module_manager;
     Glib::RefPtr<Gtk::Application> m_gtkapp;
 };

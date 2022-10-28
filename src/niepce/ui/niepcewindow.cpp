@@ -44,7 +44,6 @@
 using libraryclient::LibraryClientPtr;
 using fwk::Application;
 using fwk::Configuration;
-using fwk::UndoHistory;
 
 namespace ui {
 

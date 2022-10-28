@@ -37,6 +37,7 @@ Application::Ptr Application::m_application;
 Application::Application(int & argc, char** &argv, const char* app_id,
                          const char * name)
     : m_config(Configuration_new(Configuration_make_config_path(name)))
+    , m_undo(std::move(UndoHistory_new()))
     , m_module_manager(new ModuleManager())
     , m_gtkapp(Gtk::Application::create(app_id))
 {
@@ -185,11 +186,9 @@ void Application::on_about()
     dlg.show();
 }
 
-std::shared_ptr<UndoTransaction> Application::begin_undo(const std::string & label)
+void Application::begin_undo(rust::Box<UndoTransaction> transaction)
 {
-    auto undo = std::make_shared<fwk::UndoTransaction>(label);
-    undo_history().add(undo);
-    return undo;
+    return undo_history().add(std::move(transaction));
 }
 
 

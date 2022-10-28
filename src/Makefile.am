@@ -46,6 +46,7 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/movieutils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/thumbnail.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/uicontroller.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/undo.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/metadata_widget.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/rating_label.rs \

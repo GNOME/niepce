@@ -60,6 +60,6 @@ libniepceframework_a_SOURCES = \
 	widgets/editablehscale.hpp widgets/editablehscale.cpp \
 	widgets/dock.cpp widgets/dock.hpp \
 	dockable.hpp dockable.cpp \
-	undo.hpp undo.cpp \
+	undo.hpp \
 	command.hpp \
 	$(NULL)
