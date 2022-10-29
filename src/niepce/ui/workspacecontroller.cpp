@@ -505,7 +505,11 @@ void WorkspaceController::expand_from_cfg(const char* key,
 {
     auto& cfg = getLibraryConfig()->cfg;
 
-    bool expanded = std::stoi(std::string(cfg->getValue(key, "1")));
+    bool expanded = true;
+    try {
+        expanded = std::stoi(std::string(cfg->getValue(key, "1")));
+    } catch(...) {
+    }
     if(expanded) {
         m_librarytree.expand_row(m_treestore->get_path(treenode),
                                  false);
