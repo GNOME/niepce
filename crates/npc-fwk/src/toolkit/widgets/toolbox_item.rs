@@ -35,8 +35,7 @@ impl ToolboxItem {
         let obj: ToolboxItem = glib::Object::new(&[
             ("spacing", &0),
             ("orientation", &gtk4::Orientation::Vertical),
-        ])
-        .expect("Failed to create ToolboxItem Widget");
+        ]);
         obj.imp().expander.set_label(Some(label));
         obj
     }
@@ -74,10 +73,10 @@ mod imp {
     }
 
     impl ObjectImpl for ToolboxItem {
-        fn constructed(&self, obj: &Self::Type) {
-            self.parent_constructed(obj);
+        fn constructed(&self) {
+            self.parent_constructed();
 
-            obj.append(&self.expander);
+            self.instance().append(&self.expander);
             self.expander.set_expanded(true);
             self.expander.set_use_markup(true);
         }

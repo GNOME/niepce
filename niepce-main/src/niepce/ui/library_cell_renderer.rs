@@ -74,11 +74,10 @@ impl LibraryCellRenderer {
     /// callback: an optional callback used to get a colour for labels.
     /// callback_data: raw pointer passed as is to the callback.
     pub fn new(callback: Option<GetColourCallback>, callback_data: *const c_void) -> Self {
-        let obj: Self = glib::Object::new(&[("mode", &gtk4::CellRendererMode::Activatable)])
-            .expect("Failed to create Library Cell Renderer");
+        let obj: Self = glib::Object::new(&[("mode", &gtk4::CellRendererMode::Activatable)]);
 
         if callback.is_some() {
-            let priv_ = LibraryCellRendererPriv::from_instance(&obj);
+            let priv_ = obj.imp();
             priv_.get_colour_callback.replace(callback);
             priv_.callback_data.set(callback_data);
         }
@@ -104,8 +103,7 @@ impl LibraryCellRenderer {
     }
 
     pub fn pixbuf(&self) -> Option<gdk4::Paintable> {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.pixbuf.borrow().clone()
+        self.imp().pixbuf.borrow().clone()
     }
 }
 
@@ -129,32 +127,25 @@ pub trait LibraryCellRendererExt {
 
 impl LibraryCellRendererExt for LibraryCellRenderer {
     fn set_pad(&self, pad: i32) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.pad.set(pad);
+        self.imp().pad.set(pad);
     }
     fn set_size(&self, size: i32) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.size.set(size);
+        self.imp().size.set(size);
     }
     fn set_drawborder(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.drawborder.set(draw);
+        self.imp().drawborder.set(draw);
     }
     fn set_drawemblem(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.draw_emblem.set(draw);
+        self.imp().draw_emblem.set(draw);
     }
     fn set_drawrating(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.draw_rating.set(draw);
+        self.imp().draw_rating.set(draw);
     }
     fn set_drawlabel(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.draw_label.set(draw);
+        self.imp().draw_label.set(draw);
     }
     fn set_drawflag(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.draw_flag.set(draw);
+        self.imp().draw_flag.set(draw);
     }
 }
 
@@ -166,31 +157,26 @@ struct ClickableCell {
 }
 
 impl ClickableCellRenderer for LibraryCellRenderer {
-    fn hit(&mut self, x: i32, y: i32) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_
+    fn hit(&self, x: i32, y: i32) {
+        self.imp()
             .clickable_cell
             .replace(ClickableCell { x, y, hit: true });
     }
 
     fn x(&self) -> i32 {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.clickable_cell.borrow().x
+        self.imp().clickable_cell.borrow().x
     }
 
     fn y(&self) -> i32 {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.clickable_cell.borrow().y
+        self.imp().clickable_cell.borrow().y
     }
 
     fn is_hit(&self) -> bool {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.clickable_cell.borrow().hit
+        self.imp().clickable_cell.borrow().hit
     }
 
-    fn reset_hit(&mut self) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.clickable_cell.borrow_mut().hit = false;
+    fn reset_hit(&self) {
+        self.imp().clickable_cell.borrow_mut().hit = false;
     }
 }
 
@@ -374,10 +360,6 @@ impl ObjectSubclass for LibraryCellRendererPriv {
 }
 
 impl ObjectImpl for LibraryCellRendererPriv {
-    fn constructed(&self, obj: &LibraryCellRenderer) {
-        self.parent_constructed(obj);
-    }
-
     fn properties() -> &'static [glib::ParamSpec] {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
@@ -414,25 +396,16 @@ impl ObjectImpl for LibraryCellRendererPriv {
     fn signals() -> &'static [Signal] {
         use once_cell::sync::Lazy;
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-            vec![Signal::builder(
-                "rating-changed",
-                &[<i64>::static_type().into(), <i32>::static_type().into()],
-                <()>::static_type().into(),
-            )
-            .run_last()
-            .build()]
+            vec![Signal::builder("rating-changed")
+                .param_types([<i64>::static_type(), <i32>::static_type()])
+                .run_last()
+                .build()]
         });
 
         SIGNALS.as_ref()
     }
 
-    fn set_property(
-        &self,
-        _obj: &LibraryCellRenderer,
-        _id: usize,
-        value: &glib::Value,
-        pspec: &glib::ParamSpec,
-    ) {
+    fn set_property(&self, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
         match pspec.name() {
             "pixbuf" => {
                 let pixbuf = value.get::<gdk4::Paintable>().ok();
@@ -452,12 +425,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
         }
     }
 
-    fn property(
-        &self,
-        _obj: &LibraryCellRenderer,
-        _id: usize,
-        pspec: &glib::ParamSpec,
-    ) -> glib::Value {
+    fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
         match pspec.name() {
             "pixbuf" => self.pixbuf.borrow().to_value(),
             "libfile" => self.libfile.borrow().to_value(),
@@ -468,27 +436,18 @@ impl ObjectImpl for LibraryCellRendererPriv {
 }
 
 impl CellRendererImpl for LibraryCellRendererPriv {
-    fn preferred_width<P: IsA<gtk4::Widget>>(
-        &self,
-        _renderer: &LibraryCellRenderer,
-        _widget: &P,
-    ) -> (i32, i32) {
+    fn preferred_width<P: IsA<gtk4::Widget>>(&self, _widget: &P) -> (i32, i32) {
         let maxdim: i32 = self.size.get() + self.pad.get() * 2;
         (maxdim, maxdim)
     }
 
-    fn preferred_height<P: IsA<gtk4::Widget>>(
-        &self,
-        _renderer: &LibraryCellRenderer,
-        _widget: &P,
-    ) -> (i32, i32) {
+    fn preferred_height<P: IsA<gtk4::Widget>>(&self, _widget: &P) -> (i32, i32) {
         let maxdim: i32 = self.size.get() + self.pad.get() * 2;
         (maxdim, maxdim)
     }
 
     fn snapshot<P: IsA<gtk4::Widget>>(
         &self,
-        _renderer: &Self::Type,
         snapshot: &gtk4::Snapshot,
         widget: &P,
         _background_area: &gdk4::Rectangle,
@@ -597,7 +556,6 @@ impl CellRendererImpl for LibraryCellRendererPriv {
 
     fn activate<P: IsA<gtk4::Widget>>(
         &self,
-        _renderer: &LibraryCellRenderer,
         _event: Option<&gdk4::Event>,
         _widget: &P,
         _path: &str,
@@ -605,7 +563,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         cell_area: &gdk4::Rectangle,
         _flags: gtk4::CellRendererState,
     ) -> bool {
-        let mut instance = self.instance().downcast::<LibraryCellRenderer>().unwrap();
+        let instance = self.instance();
 
         if instance.is_hit() {
             instance.reset_hit();

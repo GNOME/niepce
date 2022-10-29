@@ -101,7 +101,7 @@ glib::wrapper! {
 
 impl MetadataWidget {
     pub fn new(title: &str) -> MetadataWidget {
-        let obj: MetadataWidget = glib::Object::new(&[]).expect("Failed to create MetadataWidget");
+        let obj: MetadataWidget = glib::Object::new(&[]);
         obj.upcast_ref::<ToolboxItem>().set_title(title);
 
         obj
@@ -487,31 +487,29 @@ mod imp {
     }
 
     impl ObjectImpl for MetadataWidget {
-        fn constructed(&self, obj: &Self::Type) {
-            self.parent_constructed(obj);
+        fn constructed(&self) {
+            self.parent_constructed();
 
             self.widget.set_column_homogeneous(true);
             self.widget.set_row_homogeneous(false);
             self.widget.insert_column(0);
             self.widget.insert_column(0);
             self.widget.set_margin_start(8);
-            obj.upcast_ref::<super::ToolboxItem>()
+            self.instance()
+                .upcast_ref::<super::ToolboxItem>()
                 .set_child(Some(&self.widget));
         }
 
         fn signals() -> &'static [Signal] {
             use once_cell::sync::Lazy;
             static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-                vec![Signal::builder(
-                    "metadata-changed",
-                    &[
-                        <WrappedPropertyBag>::static_type().into(),
-                        <WrappedPropertyBag>::static_type().into(),
-                    ],
-                    <()>::static_type().into(),
-                )
-                .run_last()
-                .build()]
+                vec![Signal::builder("metadata-changed")
+                    .param_types([
+                        <WrappedPropertyBag>::static_type(),
+                        <WrappedPropertyBag>::static_type(),
+                    ])
+                    .run_last()
+                    .build()]
             });
             SIGNALS.as_ref()
         }

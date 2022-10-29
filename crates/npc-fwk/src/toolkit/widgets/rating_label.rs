@@ -88,9 +88,10 @@ impl ObjectSubclass for RatingLabelPriv {
 }
 
 impl ObjectImpl for RatingLabelPriv {
-    fn constructed(&self, obj: &Self::Type) {
-        self.parent_constructed(obj);
+    fn constructed(&self) {
+        self.parent_constructed();
 
+        let obj = self.instance();
         let click = gtk4::GestureClick::new();
         click.connect_pressed(glib::clone!(@weak obj => move |gesture, n, x, y| {
             obj.imp().press_event(gesture, n, x, y);
@@ -101,13 +102,10 @@ impl ObjectImpl for RatingLabelPriv {
     fn signals() -> &'static [Signal] {
         use once_cell::sync::Lazy;
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-            vec![Signal::builder(
-                "rating-changed",
-                &[<i32>::static_type().into()],
-                <()>::static_type().into(),
-            )
-            .run_last()
-            .build()]
+            vec![Signal::builder("rating-changed")
+                .param_types([<i32>::static_type()])
+                .run_last()
+                .build()]
         });
         SIGNALS.as_ref()
     }
@@ -128,13 +126,7 @@ impl ObjectImpl for RatingLabelPriv {
         PROPERTIES.as_ref()
     }
 
-    fn set_property(
-        &self,
-        _obj: &Self::Type,
-        _id: usize,
-        value: &glib::Value,
-        pspec: &glib::ParamSpec,
-    ) {
+    fn set_property(&self, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
         match pspec.name() {
             "rating" => {
                 let rating = value
@@ -146,7 +138,7 @@ impl ObjectImpl for RatingLabelPriv {
         }
     }
 
-    fn property(&self, _obj: &Self::Type, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
+    fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
         match pspec.name() {
             "rating" => self.rating.get().to_value(),
             _ => unimplemented!(),
@@ -234,7 +226,7 @@ impl RatingLabel {
     }
 
     pub fn new(rating: i32, editable: bool) -> Self {
-        let obj: Self = glib::Object::new(&[]).expect("Failed to create RatingLabel");
+        let obj: Self = glib::Object::new(&[]);
 
         let priv_ = &obj.imp();
         priv_.set_editable(editable);
@@ -244,12 +236,7 @@ impl RatingLabel {
 }
 
 impl WidgetImpl for RatingLabelPriv {
-    fn measure(
-        &self,
-        _widget: &Self::Type,
-        orientation: gtk4::Orientation,
-        _for_size: i32,
-    ) -> (i32, i32, i32, i32) {
+    fn measure(&self, orientation: gtk4::Orientation, _for_size: i32) -> (i32, i32, i32, i32) {
         let m = match orientation {
             gtk4::Orientation::Horizontal => RatingLabel::star().width() * 5,
             gtk4::Orientation::Vertical => RatingLabel::star().height(),
@@ -259,10 +246,11 @@ impl WidgetImpl for RatingLabelPriv {
         (m, m, -1, -1)
     }
 
-    fn snapshot(&self, widget: &Self::Type, snapshot: &gtk4::Snapshot) {
+    fn snapshot(&self, snapshot: &gtk4::Snapshot) {
         let star = RatingLabel::star();
         let x = 0_f32;
         let y = star.height() as f32;
+        let widget = self.instance();
         let rating = (widget.downcast_ref::<RatingLabel>().unwrap())
             .imp()
             .rating

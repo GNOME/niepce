@@ -34,7 +34,6 @@ impl TokenTextView {
             ("wrap-mode", &gtk4::WrapMode::Word),
             ("accepts-tab", &false),
         ])
-        .expect("Failed to create TokenTextView Widget")
     }
 
     /// Get the tokens from the text.
@@ -61,25 +60,17 @@ impl Default for TokenTextView {
 mod imp {
     use gtk4::subclass::prelude::*;
 
+    #[derive(Default)]
     pub struct TokenTextView {}
-
-    impl ObjectImpl for TokenTextView {
-        fn constructed(&self, obj: &Self::Type) {
-            self.parent_constructed(obj);
-        }
-    }
 
     #[glib::object_subclass]
     impl ObjectSubclass for TokenTextView {
         const NAME: &'static str = "NpcTokenTextView";
         type Type = super::TokenTextView;
         type ParentType = gtk4::TextView;
-
-        fn new() -> Self {
-            Self {}
-        }
     }
 
+    impl ObjectImpl for TokenTextView {}
     impl TextViewImpl for TokenTextView {}
     impl WidgetImpl for TokenTextView {}
 }
