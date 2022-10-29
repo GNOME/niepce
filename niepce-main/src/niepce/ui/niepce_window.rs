@@ -318,7 +318,7 @@ impl NiepceWindow {
 
     /// Opening a library has been requested
     fn on_open_catalog(&self) {
-        let app = crate::ffi::Application_app();
+        let app = npc_fwk::ffi::Application_app();
         let cfg = &app.config().cfg;
         let reopen = cfg.value("reopen_last_catalog", "0");
         let cat_moniker = if reopen == "1" {

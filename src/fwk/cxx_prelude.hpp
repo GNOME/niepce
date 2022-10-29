@@ -16,11 +16,14 @@ class PropertyValue;
 class WrappedPropertyBag;
 class SharedConfiguration;
 typedef std::shared_ptr<SharedConfiguration> ConfigurationPtr;
+class UndoHistory;
+class UndoTransaction;
 }
 
 namespace eng {
 class Label;
 class LcChannel;
+class LibFile;
 class LibNotification;
 class ThumbnailCache;
 }

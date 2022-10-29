@@ -186,9 +186,9 @@ void Application::on_about()
     dlg.show();
 }
 
-void Application::begin_undo(rust::Box<UndoTransaction> transaction)
+void Application::begin_undo(rust::Box<UndoTransaction> transaction) const
 {
-    return undo_history().add(std::move(transaction));
+    return const_cast<rust::Box<UndoHistory>&>(m_undo)->add(std::move(transaction));
 }
 
 

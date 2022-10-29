@@ -337,4 +337,14 @@ pub mod ffi {
 
         fn add_listener(&self, listener: UniquePtr<UndoListener>);
     }
+
+    unsafe extern "C++" {
+        include!("fwk/toolkit/application.hpp");
+        type Application;
+
+        fn Application_app() -> SharedPtr<Application>;
+        fn config(&self) -> &SharedPtr<SharedConfiguration>;
+        fn undo_history(&self) -> &UndoHistory;
+        fn begin_undo(&self, undo: Box<UndoTransaction>);
+    }
 }

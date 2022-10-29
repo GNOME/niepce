@@ -131,20 +131,6 @@ mod ffi {
         fn add_listener(&self, listener: UniquePtr<LnListener>);
     }
 
-    #[namespace = "fwk"]
-    unsafe extern "C++" {
-        type SharedConfiguration = npc_fwk::ffi::SharedConfiguration;
-    }
-
-    #[namespace = "fwk"]
-    unsafe extern "C++" {
-        include!("fwk/toolkit/application.hpp");
-        type Application;
-
-        fn Application_app() -> SharedPtr<Application>;
-        fn config(&self) -> &SharedPtr<SharedConfiguration>;
-    }
-
     extern "Rust" {
         type NiepceWindowWrapper;
 

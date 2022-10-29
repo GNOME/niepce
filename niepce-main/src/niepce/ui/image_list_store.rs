@@ -191,7 +191,7 @@ impl ImageListStore {
 
         match *notification {
             XmpNeedsUpdate => {
-                let app = crate::ffi::Application_app();
+                let app = npc_fwk::ffi::Application_app();
                 let cfg = &app.config().cfg;
                 let write_xmp = cfg
                     .value("write_xmp_automatically", "0")

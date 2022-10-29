@@ -38,7 +38,7 @@ pub mod cxx {
 
 pub use controller::{new_controller, to_controller, Controller, ControllerImpl};
 pub use uicontroller::UiController;
-pub use undo::{UndoCommand, UndoHistory, UndoTransaction};
+pub use undo::{Storage, UndoCommand, UndoHistory, UndoTransaction};
 pub use window_controller::WindowController;
 
 pub use configuration::Configuration;

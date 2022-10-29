@@ -68,7 +68,9 @@ public:
 
     UndoHistory& undo_history()
         { return *m_undo; }
-    void begin_undo(rust::Box<UndoTransaction>);
+    const UndoHistory& undo_history() const
+        { return *m_undo; }
+    void begin_undo(rust::Box<UndoTransaction>) const;
 
     // Module management
     /** @return the module manager
