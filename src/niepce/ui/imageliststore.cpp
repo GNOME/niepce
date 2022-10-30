@@ -23,19 +23,6 @@
 
 namespace ui {
 
-
-Gtk::TreeModel::iterator ImageListStore_get_iter_from_id(const ImageListStore& self, eng::library_id_t id)
-{
-    if (self.gobj() == nullptr) {
-        return Gtk::TreeModel::iterator();
-    }
-    auto iter = (GtkTreeIter*)const_cast<char*>(self.get_iter_from_id_(id));
-    if (!iter) {
-        return Gtk::TreeModel::iterator();
-    }
-    return Gtk::TreeModel::iterator(GTK_TREE_MODEL(self.gobj()), iter);
-}
-
 Gtk::TreePath ImageListStore_get_path_from_id(const ImageListStore& self, eng::library_id_t id)
 {
     auto path = self.get_iter_from_id_(id);
@@ -46,15 +33,6 @@ Gtk::TreePath ImageListStore_get_path_from_id(const ImageListStore& self, eng::l
     }
 
     return Gtk::TreePath();
-}
-
-std::optional<eng::LibFilePtr> ImageListStore_get_file(const ImageListStore& self, eng::library_id_t id)
-{
-    auto f = self.get_file_(id);
-    if (f) {
-        return std::optional(eng::LibFilePtr::from_raw(f));
-    }
-    return std::nullopt;
 }
 
 }

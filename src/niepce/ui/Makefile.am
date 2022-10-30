@@ -7,13 +7,12 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src -I$(srcdir)/.. \
 
 noinst_LIBRARIES = libniepceui.a
 
-PUBLICHEADERS = ilibrarymodule.hpp imoduleshell.hpp dialogs/importers/iimporterui.hpp
+PUBLICHEADERS = ilibrarymodule.hpp dialogs/importers/iimporterui.hpp
 
 libniepceui_a_SOURCES = \
 	niepcewindow.hpp \
 	niepceapplication.hpp niepceapplication.cpp \
 	gridviewmodule.hpp gridviewmodule.cpp \
-	moduleshell.hpp moduleshell.cpp \
 	imageliststore.hpp imageliststore.cpp\
 	metadatapanecontroller.hpp metadatapanecontroller.cpp \
 	dialogs/editlabels.hpp dialogs/editlabels.cpp \

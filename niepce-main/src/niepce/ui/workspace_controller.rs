@@ -78,7 +78,7 @@ pub struct WorkspaceController {
     widgets: OnceCell<Widgets>,
     client: Weak<LibraryClient>,
     action_group: OnceCell<gio::ActionGroup>,
-    selection_changed: Signal<()>,
+    pub selection_changed: Signal<()>,
 
     icon_trash: gio::Icon,
     icon_roll: gio::Icon,

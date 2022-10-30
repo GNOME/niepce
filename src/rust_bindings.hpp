@@ -82,7 +82,7 @@ typedef ffi::NotificationType NotificationType;
 }
 
 namespace libraryclient {
-typedef std::shared_ptr<npc::LibraryClientHost> LibraryClientPtr;
+typedef rust::Box<npc::LibraryClientHost> LibraryClientPtr;
 }
 
 namespace npc {

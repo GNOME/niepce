@@ -43,13 +43,10 @@ use crate::libraryclient::{
     UIDataProvider,
 };
 
-use niepce::ui::cxx::*;
 use niepce::ui::image_list_store::ImageListStoreWrap;
 use niepce::ui::metadata_pane_controller::get_format;
 use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
-use niepce::ui::{
-    selection_controller_new, ImageListStore, ModuleShellWidget, SelectionController,
-};
+use niepce::ui::{ImageListStore, SelectionController};
 use notification_center::notification_center_new;
 use npc_fwk::toolkit;
 
@@ -187,9 +184,6 @@ mod ffi {
     extern "Rust" {
         type SelectionController;
 
-        #[cxx_name = "SelectionController_new"]
-        fn selection_controller_new(client_host: &LibraryClientHost) -> Box<SelectionController>;
-        fn on_lib_notification(&self, ln: &LibNotification, thumbnail_cache: &ThumbnailCache);
         fn add_selected_listener(&self, listener: UniquePtr<SelectionListener>);
         fn add_activated_listener(&self, listener: UniquePtr<SelectionListener>);
         fn select_previous(&self);
@@ -206,20 +200,5 @@ mod ffi {
         fn content_will_change(&self);
         fn write_metadata(&self);
         fn move_to_trash(&self);
-    }
-
-    #[namespace = "ui"]
-    extern "Rust" {
-        type ModuleShellWidget;
-
-        #[cxx_name = "ModuleShellWidget_new"]
-        fn module_shell_widget_new() -> Box<ModuleShellWidget>;
-        fn gobj(&self) -> *mut c_char;
-        #[cxx_name = "activatePage"]
-        fn activate_page(&self, name: &str);
-        #[cxx_name = "appendPage"]
-        unsafe fn append_page_(&self, widget: *mut c_char, name: &str, label: &str);
-        #[cxx_name = "getMenuButton"]
-        fn get_menu_button(&self) -> *mut c_char;
     }
 }

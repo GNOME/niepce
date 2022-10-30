@@ -28,6 +28,10 @@ class LibNotification;
 class ThumbnailCache;
 }
 
+namespace ui {
+class ModuleShell;
+}
+
 namespace npc {
 class LnListener;
 }

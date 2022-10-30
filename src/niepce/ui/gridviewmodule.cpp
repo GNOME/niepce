@@ -30,15 +30,20 @@
 #include "fwk/toolkit/application.hpp"
 #include "fwk/toolkit/configdatabinder.hpp"
 #include "fwk/toolkit/widgets/dock.hpp"
+#include "niepce/ui/imageliststore.hpp"
 #include "gridviewmodule.hpp"
-#include "moduleshell.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace ui {
 
-GridViewModule::GridViewModule(const IModuleShell & shell,
+GridViewModule::GridViewModule(const ui::SelectionController& selection_controller,
+                               Glib::RefPtr<Gio::Menu> menu, const npc::UIDataProvider& ui_data_provider,
                                const ImageListStorePtr& store)
-  : m_shell(shell)
+  : m_selection_controller(selection_controller)
   , m_model(store->clone())
+  , m_menu(menu)
+  , m_ui_data_provider(ui_data_provider)
   , m_librarylistview(nullptr)
   , m_lib_splitview(Gtk::Orientation::HORIZONTAL)
   , m_dock(nullptr)
@@ -52,7 +57,7 @@ GridViewModule::~GridViewModule()
 }
 
 void
-GridViewModule::on_lib_notification(const eng::LibNotification &ln)
+GridViewModule::on_lib_notification(const eng::LibNotification &ln, const npc::LibraryClientWrapper& client)
 {
     switch (ffi::engine_library_notification_type(&ln)) {
     case eng::NotificationType::METADATA_QUERIED:
@@ -72,7 +77,7 @@ GridViewModule::on_lib_notification(const eng::LibNotification &ln)
         auto id = ffi::engine_library_notification_get_id(&ln);
         if(id && id == m_metapanecontroller->displayed_file()) {
             // FIXME: actually just update the metadata
-            ffi::libraryclient_request_metadata(&m_shell.getLibraryClient()->client(), id);
+            ffi::libraryclient_request_metadata(&client, id);
         }
         break;
     }
@@ -106,8 +111,7 @@ bool GridViewModule::get_colour_callback_c(int32_t label, ffi::RgbColour* out,
 
 std::optional<fwk::RgbColour> GridViewModule::get_colour_callback(int32_t label) const
 {
-    auto& ui_data_provider = m_shell.getLibraryClient()->getDataProvider();
-    return std::optional(ui_data_provider.colourForLabel(label));
+    return std::optional(m_ui_data_provider.colourForLabel(label));
 }
 
 Gtk::Widget * GridViewModule::buildWidget()
@@ -116,8 +120,7 @@ Gtk::Widget * GridViewModule::buildWidget()
     return m_widget;
   }
   m_widget = &m_lib_splitview;
-  auto shell_menu = m_shell.getMenu();
-  m_context_menu = Gtk::manage(new Gtk::PopoverMenu(shell_menu));
+  m_context_menu = Gtk::manage(new Gtk::PopoverMenu(m_menu));
 
   m_image_grid_view = std::shared_ptr<ffi::ImageGridView>(
       ffi::npc_image_grid_view_new(
@@ -235,14 +238,14 @@ void GridViewModule::on_metadata_changed(const fwk::WrappedPropertyBagPtr& props
 {
     // TODO this MUST be more generic
     DBG_OUT("on_metadata_changed()");
-    m_shell.get_selection_controller()->set_properties(*props, *old);
+    m_selection_controller.set_properties(*props, *old);
 }
 
 void GridViewModule::on_rating_changed(GtkCellRenderer*, eng::library_id_t /*id*/,
                                        int32_t rating, gpointer user_data)
 {
     auto self = static_cast<GridViewModule*>(user_data);
-    self->m_shell.get_selection_controller()->set_rating(rating);
+    self->m_selection_controller.set_rating(rating);
 }
 
 void GridViewModule::on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double x, double y)

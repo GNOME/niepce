@@ -21,6 +21,7 @@ pub mod clickable_cell_renderer;
 mod configuration;
 mod controller;
 pub mod gdk_utils;
+pub mod gtk_utils;
 pub mod mimetype;
 pub mod movieutils;
 pub mod thumbnail;

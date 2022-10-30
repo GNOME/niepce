@@ -31,9 +31,7 @@
 
 #include "fwk/base/propertybag.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
-#include "niepce/ui/imoduleshell.hpp"
 #include "niepce/ui/metadatapanecontroller.hpp"
-#include "niepce/ui/selectioncontroller.hpp"
 
 #include "rust_bindings.hpp"
 
@@ -41,7 +39,7 @@ namespace fwk {
 class Dock;
 }
 
-namespace libraryclient {
+namespace npc {
 class UIDataProvider;
 }
 
@@ -51,16 +49,16 @@ class ModuleShell;
 
 class GridViewModule
     : public ILibraryModule
-    , public IImageSelectable
 {
 public:
   typedef std::shared_ptr<GridViewModule> Ptr;
 
-  GridViewModule(const IModuleShell & shell,
+  GridViewModule(const ui::SelectionController& selection_controller,
+                 Glib::RefPtr<Gio::Menu> menu, const npc::UIDataProvider& ui_data_provider,
                  const ImageListStorePtr& store);
   virtual ~GridViewModule();
 
-  void on_lib_notification(const eng::LibNotification &);
+  void on_lib_notification(const eng::LibNotification &, const npc::LibraryClientWrapper& client);
   void display_none();
 
   /* ILibraryModule */
@@ -70,9 +68,9 @@ public:
     { return Glib::RefPtr<Gio::MenuModel>(); }
 
   /* IImageSelectable */
-  virtual Gtk::IconView * image_list() override;
-  virtual eng::library_id_t get_selected() override;
-  virtual void select_image(eng::library_id_t id) override;
+  virtual Gtk::IconView * image_list();
+  virtual eng::library_id_t get_selected();
+  virtual void select_image(eng::library_id_t id);
 
 protected:
   virtual Gtk::Widget * buildWidget() override;
@@ -85,8 +83,10 @@ private:
                                 gpointer user_data);
   void on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double, double);
 
-  const IModuleShell &               m_shell;
+  const ui::SelectionController& m_selection_controller;
   ImageListStorePtr m_model;
+  Glib::RefPtr<Gio::Menu> m_menu;
+  const npc::UIDataProvider& m_ui_data_provider;
 
   // library split view
   std::shared_ptr<ffi::ImageGridView> m_image_grid_view;

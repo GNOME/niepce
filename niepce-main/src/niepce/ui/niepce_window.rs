@@ -35,7 +35,7 @@ use npc_fwk::toolkit::{self, Controller, ControllerImpl, UiController, WindowCon
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
 use super::film_strip_controller::FilmStripController;
-use super::image_list_store::ImageListStore;
+use super::module_shell::ModuleShell;
 use super::workspace_controller::WorkspaceController;
 use crate::libraryclient::{ClientInterface, LibraryClientHost};
 use crate::NotificationCenter;
@@ -62,16 +62,17 @@ struct Widgets {
 }
 
 struct ShellWidgets {
-    workspace: Rc<WorkspaceController>,
-    filmstrip: Rc<FilmStripController>,
-    statusbar: gtk4::Statusbar,
+    _workspace: Rc<WorkspaceController>,
+    shell: Rc<ModuleShell>,
+    _filmstrip: Rc<FilmStripController>,
+    _statusbar: gtk4::Statusbar,
 }
 
 struct NiepceWindow {
     imp_: RefCell<ControllerImpl>,
     tx: glib::Sender<Event>,
     window: gtk4::ApplicationWindow,
-    libraryclient: RefCell<Option<LibraryClientHost>>,
+    libraryclient: RefCell<Option<Rc<LibraryClientHost>>>,
     configuration: RefCell<Option<Rc<toolkit::Configuration>>>,
 
     widgets: OnceCell<Widgets>,
@@ -282,7 +283,12 @@ impl NiepceWindow {
         use Event::*;
 
         match e {
-            Delete | EditLabels => todo!(),
+            Delete => {
+                if let Some(widgets) = self.shell_widgets.get() {
+                    widgets.shell.action_edit_delete()
+                }
+            }
+            EditLabels => todo!(),
             ToggleToolsVisible => {
                 // XXX todo
             }
@@ -375,7 +381,7 @@ impl NiepceWindow {
             .unwrap();
         let moniker = Moniker::from(&*catalog.to_string_lossy());
         self.libraryclient
-            .replace(Some(LibraryClientHost::new(&moniker, channel)));
+            .replace(Some(Rc::new(LibraryClientHost::new(&moniker, channel))));
         self.set_title(&moniker.to_string());
 
         let mut config_path = catalog.to_path_buf();
@@ -397,8 +403,18 @@ impl NiepceWindow {
     fn create_module_shell(&self) {
         dbg_out!("creating module shell (TOOD)");
 
-        // XXX needed: implement moduleshell
         let client = self.libraryclient.borrow();
+
+        let module_shell = ModuleShell::new(client.as_ref().unwrap());
+        let module_widget = module_shell.widget();
+        self.add(&toolkit::to_controller(module_shell.clone()));
+
+        if let Some(notif_center) = self.widgets.get().map(|w| &w.notif_center) {
+            let module_shell = module_shell.clone();
+            notif_center
+                .signal_notify
+                .connect(move |ln| module_shell.on_lib_notification(&ln));
+        }
 
         // We really expect cfg to be available
         let configuration = self.configuration.borrow();
@@ -408,7 +424,9 @@ impl NiepceWindow {
         if let Some(actions) = workspace.actions() {
             self.window.insert_action_group(actions.0, Some(actions.1));
         }
-        // XXX connect workspace `selection_changed` to shell `on_content_will_change`
+        workspace.selection_changed.connect(
+            glib::clone!(@weak module_shell => move |_| module_shell.on_content_will_change()),
+        );
         if let Some(notif_center) = self.widgets.get().map(|w| &w.notif_center) {
             let workspace = workspace.clone();
             notif_center
@@ -420,11 +438,9 @@ impl NiepceWindow {
         let hbox = &self.widgets.get().as_ref().unwrap().hbox;
         hbox.set_wide_handle(true);
         hbox.set_start_child(workspace.widget());
-        // set_end_child() for the module shell widget
+        hbox.set_end_child(module_widget);
 
-        // XXX replace this when the shell is created to get the
-        // `ImageListStoreWrapper` from the shell.
-        let filmstrip = FilmStripController::new(Rc::new(ImageListStore::new()));
+        let filmstrip = FilmStripController::new(module_shell.image_list_store());
         self.add(&toolkit::to_controller(filmstrip.clone()));
         let vbox = &self.widgets.get().as_ref().unwrap().vbox;
         vbox.append(hbox);
@@ -437,9 +453,10 @@ impl NiepceWindow {
         // XXX add selectable filmstrip
 
         self.shell_widgets.set(ShellWidgets {
-            workspace: workspace.clone(),
-            filmstrip,
-            statusbar,
+            _workspace: workspace.clone(),
+            shell: module_shell,
+            _filmstrip: filmstrip,
+            _statusbar: statusbar,
         });
 
         workspace.startup();

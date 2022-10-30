@@ -30,9 +30,8 @@
 #include "engine/db/libfile.hpp"
 #include "ncr/image.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
-#include "niepce/ui/imoduleshell.hpp"
-#include "modules/darkroom/imagecanvas.hpp"
-#include "modules/darkroom/toolboxcontroller.hpp"
+#include "niepce/modules/darkroom/imagecanvas.hpp"
+#include "niepce/modules/darkroom/toolboxcontroller.hpp"
 
 namespace fwk {
 class Dock;
@@ -46,7 +45,7 @@ class DarkroomModule
 public:
     typedef std::shared_ptr<DarkroomModule> Ptr;
 
-    DarkroomModule(const ui::IModuleShell & shell);
+    DarkroomModule(const ui::SelectionController& selection_controller);
 
     void set_image(std::optional<eng::LibFilePtr>&& file);
 
@@ -65,7 +64,7 @@ protected:
 private:
     void on_selected(eng::library_id_t id);
 
-    const ui::IModuleShell &     m_shell;
+    const ui::SelectionController& m_selection_controller;
     // darkroom split view
     Gtk::Paned                   m_dr_splitview;
     Gtk::Box                     m_vbox;

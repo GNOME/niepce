@@ -54,7 +54,7 @@ pub enum ColIndex {
 
 /// Binding raw because it's a Rc.
 #[derive(Default)]
-pub struct ImageListStoreWrap(Rc<ImageListStore>);
+pub struct ImageListStoreWrap(pub Rc<ImageListStore>);
 
 impl std::ops::Deref for ImageListStoreWrap {
     type Target = ImageListStore;

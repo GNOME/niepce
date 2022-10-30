@@ -31,9 +31,7 @@ namespace ui {
 
 typedef ::rust::Box<ImageListStoreWrap> ImageListStorePtr;
 
-Gtk::TreeModel::iterator ImageListStore_get_iter_from_id(const ImageListStore& self, eng::library_id_t id);
 Gtk::TreePath ImageListStore_get_path_from_id(const ImageListStore& self, eng::library_id_t id);
-std::optional<eng::LibFilePtr> ImageListStore_get_file(const ImageListStore& self, eng::library_id_t id);
 
 }
 /*

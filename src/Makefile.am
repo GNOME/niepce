@@ -42,6 +42,7 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/configuration.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/controller.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/gdk_utils.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/gtk_utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/mimetype.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/movieutils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/thumbnail.rs \
@@ -78,6 +79,8 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/niepce/ui/selection_controller.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_nav.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/library_cell_renderer.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/library_module.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/module_shell.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/module_shell_widget.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/niepce_window.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_strip_view.rs \

@@ -108,7 +108,7 @@ void EditLabels::update_labels(int /*response*/)
             }
             std::string new_colour(fwk::gdkcolor_to_rgbcolour(m_colours[i]->get_rgba())->to_string());
 
-            auto libclient = m_lib_client;
+            auto client = &m_lib_client->client();
             if(has_label) {
                 std::string current_name(m_labels[i]->label());
                 std::string current_colour(m_labels[i]->colour().to_string());
@@ -116,14 +116,14 @@ void EditLabels::update_labels(int /*response*/)
 
                 auto command = fwk::UndoCommand_new(
                     std::make_unique<fwk::RedoFnVoid>(
-                        [libclient, new_name, new_colour, label_id] () {
+                        [client, new_name, new_colour, label_id] () {
                             ffi::libraryclient_update_label(
-                                &libclient->client(), label_id, new_name.c_str(), new_colour.c_str());
+                                client, label_id, new_name.c_str(), new_colour.c_str());
                         }),
                     std::make_unique<fwk::UndoFnVoid>(
-                        [libclient, current_name, current_colour, label_id] () {
+                        [client, current_name, current_colour, label_id] () {
                             ffi::libraryclient_update_label(
-                                &libclient->client(), label_id, current_name.c_str(),
+                                client, label_id, current_name.c_str(),
                                 current_colour.c_str());
                         })
                     );
@@ -131,13 +131,13 @@ void EditLabels::update_labels(int /*response*/)
             } else {
                 auto command = fwk::UndoCommand_new_int(
                     std::make_unique<fwk::RedoFnInt>(
-                        [libclient, new_name, new_colour] () {
+                        [client, new_name, new_colour] () {
                             return (int64_t)ffi::libraryclient_create_label_sync(
-                                &libclient->client(), new_name.c_str(), new_colour.c_str());
+                                client, new_name.c_str(), new_colour.c_str());
                         }),
                     std::make_unique<fwk::UndoFnInt>(
-                        [libclient] (int64_t label) {
-                            ffi::libraryclient_delete_label(&libclient->client(), label);
+                        [client] (int64_t label) {
+                            ffi::libraryclient_delete_label(client, label);
                         })
                     );
                 undo->add(std::move(command));

@@ -48,11 +48,11 @@ enum Direction {
 }
 
 #[derive(Default)]
-struct SelectionHandler {
+pub struct SelectionHandler {
     store: Box<ImageListStoreWrap>,
     selectables: RefCell<Vec<Weak<dyn ImageSelectable>>>,
-    signal_selected: Signal<db::LibraryId>,
-    signal_activated: Signal<db::LibraryId>,
+    pub signal_selected: Signal<db::LibraryId>,
+    pub signal_activated: Signal<db::LibraryId>,
 }
 
 impl SelectionHandler {
@@ -84,7 +84,7 @@ impl SelectionHandler {
 pub struct SelectionController {
     imp_: RefCell<ControllerImpl>,
     client: Arc<LibraryClient>,
-    handler: Rc<SelectionHandler>,
+    pub handler: Rc<SelectionHandler>,
 }
 
 impl Controller for SelectionController {
@@ -103,8 +103,8 @@ impl Controller for SelectionController {
 }
 
 impl SelectionController {
-    pub fn new(client_host: &LibraryClientHost) -> Box<SelectionController> {
-        Box::new(SelectionController {
+    pub fn new(client_host: &LibraryClientHost) -> Rc<SelectionController> {
+        Rc::new(SelectionController {
             imp_: RefCell::new(ControllerImpl::default()),
             client: client_host.client().client(),
             handler: Rc::new(SelectionHandler::default()),
@@ -361,8 +361,4 @@ impl SelectionController {
             }
         }
     }
-}
-
-pub fn selection_controller_new(client_host: &LibraryClientHost) -> Box<SelectionController> {
-    SelectionController::new(client_host)
 }

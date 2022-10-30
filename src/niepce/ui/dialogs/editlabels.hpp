@@ -48,7 +48,7 @@ private:
     std::array<Gtk::ColorButton*, NUM_LABELS> m_colours;
     std::array<Gtk::Entry*, NUM_LABELS> m_entries;
     std::array<bool, NUM_LABELS> m_status;
-    libraryclient::LibraryClientPtr m_lib_client;
+    const libraryclient::LibraryClientPtr& m_lib_client;
 };
 
 }

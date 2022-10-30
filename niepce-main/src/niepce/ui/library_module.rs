@@ -1,7 +1,7 @@
 /*
- * niepce - ui/imoduleshell.hpp
+ * niepce - niepce/ui/library_module.rs
  *
- * Copyright (C) 2011-2022 Hubert Figuière
+ * Copyright (C) 2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,33 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+use npc_fwk::toolkit::UiController;
 
-#include <memory>
-#include <giomm/menu.h>
-#include "niepce/ui/selectioncontroller.hpp"
-
-#include "rust_bindings.hpp"
-
-namespace ui {
-
-class IModuleShell
-{
-public:
-    virtual ~IModuleShell() {}
-    virtual const ui::SelectionControllerPtr & get_selection_controller() const = 0;
-    virtual libraryclient::LibraryClientPtr getLibraryClient() const = 0;
-    virtual Glib::RefPtr<Gio::Menu> getMenu() const = 0;
-};
-
+/// Trait for Library modules.
+pub trait LibraryModule: UiController {
+    /// Called when it is activated / deactivated.
+    fn set_active(&self, active: bool);
+    /// Get the menu for the modules.
+    fn menu(&self) -> &gio::Menu;
 }
-
-/*
-  Local Variables:
-  mode:c++
-  c-file-style:"stroustrup"
-  c-file-offsets:((innamespace . 0))
-  indent-tabs-mode:nil
-  fill-column:80
-  End:
-*/

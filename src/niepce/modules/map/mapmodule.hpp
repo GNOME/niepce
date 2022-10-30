@@ -26,7 +26,6 @@
 #include "fwk/toolkit/mapcontroller.hpp"
 #include "engine/db/libfile.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
-#include "niepce/ui/imoduleshell.hpp"
 
 namespace mapm {
 
@@ -36,7 +35,7 @@ class MapModule
 public:
     typedef std::shared_ptr<MapModule> Ptr;
 
-    MapModule(const ui::IModuleShell & shell);
+    MapModule();
 
     /* ILibraryModule */
     virtual void dispatch_action(const std::string & action_name) override;
@@ -52,7 +51,6 @@ protected:
 private:
     void on_selected(eng::library_id_t id);
 
-    const ui::IModuleShell &     m_shell;
     Gtk::Box*                    m_box;
     fwk::MapController::Ptr           m_map;
 

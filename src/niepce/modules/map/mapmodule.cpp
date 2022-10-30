@@ -29,9 +29,8 @@
 
 namespace mapm {
 
-MapModule::MapModule(const ui::IModuleShell & shell)
-    : m_shell(shell)
-    , m_box(nullptr)
+MapModule::MapModule()
+    : m_box(nullptr)
     , m_active(false)
 {
 }

@@ -30,15 +30,15 @@
 
 namespace dr {
 
-DarkroomModule::DarkroomModule(const ui::IModuleShell & shell)
-    : m_shell(shell)
+DarkroomModule::DarkroomModule(const ui::SelectionController& selection_controller)
+    : m_selection_controller(selection_controller)
     , m_dr_splitview(Gtk::Orientation::HORIZONTAL)
     , m_vbox(Gtk::Orientation::VERTICAL)
     , m_image(new ncr::Image)
     , m_active(false)
     , m_need_reload(true)
 {
-    m_shell.get_selection_controller()->add_selected_listener(
+    m_selection_controller.add_selected_listener(
         std::make_unique<npc::SelectionListener>([this] (eng::library_id_t id) {
             this->on_selected(id);
         }));
@@ -131,7 +131,7 @@ Gtk::Widget * DarkroomModule::buildWidget()
 
 void DarkroomModule::on_selected(eng::library_id_t id)
 {
-    auto file = m_shell.get_selection_controller()->get_file(id);
+    auto file = m_selection_controller.get_file(id);
     DBG_OUT("selection is %ld", id);
     if (file) {
         set_image(std::optional(rust::Box<eng::LibFile>::from_raw(file)));

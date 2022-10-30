@@ -17,9 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::ffi::c_char;
-
-use glib::translate::*;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
@@ -41,13 +38,6 @@ impl ModuleShellWidget {
         glib::Object::new(&[]).expect("Coudln't build ModuleShellWiget")
     }
 
-    // cxx
-    pub fn gobj(&self) -> *mut c_char {
-        let w: *mut gtk4_sys::GtkBox = self.upcast_ref::<gtk4::Box>().to_glib_none().0;
-
-        w as *mut c_char
-    }
-
     #[template_callback]
     fn stack_changed(&self, _stack: &glib::Value) {
         self.imp().stack_changed();
@@ -58,15 +48,6 @@ impl ModuleShellWidget {
         self.imp().stack.add_titled(page, Some(name), label);
     }
 
-    // cxx
-    /// # Safety
-    /// Dereference a raw pointer.
-    pub unsafe fn append_page_(&self, widget: *mut c_char, name: &str, label: &str) {
-        let w = gtk4::Widget::from_glib_none(widget as *mut gtk4_sys::GtkWidget);
-
-        self.append_page(&w, name, label);
-    }
-
     /// Activate page by `name`
     pub fn activate_page(&self, name: &str) {
         self.imp().stack.set_visible_child_name(name);
@@ -75,13 +56,6 @@ impl ModuleShellWidget {
     /// Get the [menu button](`gtk4::MenuButton`)
     pub fn menu_button(&self) -> &gtk4::MenuButton {
         &self.imp().menubutton
-    }
-
-    // cxx
-    pub fn get_menu_button(&self) -> *mut c_char {
-        let w: *mut gtk4_sys::GtkMenuButton = self.menu_button().to_glib_none().0;
-
-        w as *mut c_char
     }
 }
 
@@ -208,8 +182,4 @@ mod imp {
 
     impl BoxImpl for ModuleShellWidget {}
     impl WidgetImpl for ModuleShellWidget {}
-}
-
-pub fn module_shell_widget_new() -> Box<ModuleShellWidget> {
-    Box::new(ModuleShellWidget::new())
 }
