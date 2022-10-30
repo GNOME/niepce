@@ -235,7 +235,7 @@ void GridViewModule::on_metadata_changed(const fwk::WrappedPropertyBagPtr& props
 {
     // TODO this MUST be more generic
     DBG_OUT("on_metadata_changed()");
-    m_shell.get_selection_controller()->set_properties(props, old);
+    m_shell.get_selection_controller()->set_properties(*props, *old);
 }
 
 void GridViewModule::on_rating_changed(GtkCellRenderer*, eng::library_id_t /*id*/,

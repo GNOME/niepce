@@ -1,7 +1,7 @@
 /*
- * niepce - fwk/base/propertybag.cpp
+ * niepce - niepce/ui/selection_listener.hpp
  *
- * Copyright (C) 2011-2022 Hubert Figuière
+ * Copyright (C) 2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,27 +19,24 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <string>
-#include <vector>
+#include <functional>
 
-#include "rust_bindings.hpp"
+namespace npc {
 
-namespace fwk {
+class SelectionListener {
+public:
+  typedef std::function<void (int64_t)> function_t;
 
-typedef uint32_t PropertyIndex;
+  SelectionListener(function_t&& f)
+    : m_f(f)
+  {}
+  void call(int64_t id) const
+  {
+    m_f(id);
+  }
 
-typedef std::shared_ptr<WrappedPropertyBag> WrappedPropertyBagPtr;
+private:
+  function_t m_f;
+};
 
-WrappedPropertyBagPtr wrapped_property_bag_wrap(WrappedPropertyBag* bag);
 }
-
-/*
-  Local Variables:
-  mode:c++
-  c-file-style:"stroustrup"
-  c-file-offsets:((innamespace . 0))
-  indent-tabs-mode:nil
-  fill-column:99
-  End:
-*/

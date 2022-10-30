@@ -26,11 +26,6 @@ WrappedPropertyBagPtr wrapped_property_bag_wrap(WrappedPropertyBag* bag)
     return WrappedPropertyBagPtr(bag, &ffi::fwk_wrapped_property_bag_delete);
 }
 
-PropertyValuePtr wrapped_property_bag_value(const WrappedPropertyBagPtr& bag, PropertyIndex idx)
-{
-    return PropertyValuePtr::from_raw(ffi::fwk_property_bag_value(bag.get(), idx));
-}
-
 }
 /*
   Local Variables:

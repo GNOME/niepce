@@ -27,7 +27,7 @@ libniepceui_a_SOURCES = \
 	dialogs/importers/directoryimporterui.cpp \
 	dialogs/importers/cameraimporterui.hpp \
 	dialogs/importers/cameraimporterui.cpp \
-	selectioncontroller.hpp selectioncontroller.cpp \
+	selectioncontroller.hpp \
 	filmstripcontroller.hpp \
 	$(PUBLICHEADERS) \
 	$(NULL)

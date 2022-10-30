@@ -26,6 +26,7 @@ num-derive = "0.3.3"
 num-traits = "0.2.15"
 #gphoto = "0.1.1"
 once_cell = "^1.12.0"
+uuid = { version = "1.1.2", features = ["v4"] }
 
 npc-fwk = { path = "../crates/npc-fwk" }
 npc-engine = { path = "../crates/npc-engine" }

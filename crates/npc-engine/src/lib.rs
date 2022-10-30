@@ -20,8 +20,6 @@
 pub mod db;
 pub mod library;
 
-use std::ptr;
-
 use db::NiepceProperties;
 pub use library::thumbnail_cache::ThumbnailCache;
 
@@ -42,7 +40,6 @@ impl std::ops::Deref for PropertySet {
     }
 }
 
-use npc_fwk::base::PropertyIndex;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::PropertyValue;
 
@@ -64,36 +61,6 @@ pub unsafe extern "C" fn fwk_wrapped_property_bag_clone(
     bag: *const WrappedPropertyBag,
 ) -> *mut WrappedPropertyBag {
     Box::into_raw(Box::new((*bag).clone()))
-}
-
-/// # Safety
-/// Dereference the raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_property_bag_len(bag: &WrappedPropertyBag) -> usize {
-    (*bag).0.len()
-}
-
-/// # Safety
-/// Dereference the raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_property_bag_key_by_index(
-    bag: &WrappedPropertyBag,
-    idx: usize,
-) -> u32 {
-    (*bag).0.bag[idx]
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_property_bag_value(
-    b: &WrappedPropertyBag,
-    key: PropertyIndex,
-) -> *mut PropertyValue {
-    if b.0.map.contains_key(&key) {
-        let value = Box::new(b.0.map[&key].clone());
-        Box::into_raw(value)
-    } else {
-        ptr::null_mut()
-    }
 }
 
 // must be a tuple for cxx

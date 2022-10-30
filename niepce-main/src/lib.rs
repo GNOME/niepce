@@ -37,13 +37,16 @@ fn niepce_init() {
 
 pub use notification_center::NotificationCenter;
 
+// cxx bindings
 use crate::libraryclient::{
     library_client_host_delete, library_client_host_new, LibraryClientHost, LibraryClientWrapper,
     UIDataProvider,
 };
-use niepce::ui::image_list_store::{npc_image_list_store_new, ImageListStore, ImageListStoreWrap};
+
+use niepce::ui::image_list_store::ImageListStoreWrap;
 use niepce::ui::metadata_pane_controller::get_format;
 use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
+use niepce::ui::{selection_controller_new, ImageListStore, SelectionController};
 use notification_center::notification_center_new;
 use npc_fwk::toolkit;
 
@@ -152,22 +155,53 @@ mod ffi {
         #[cxx_name = "get_libfile_id_at_path"]
         unsafe fn get_file_id_at_path_(&self, path: *const c_char) -> i64;
         fn get_iter_from_id_(&self, id: i64) -> *const c_char;
-        fn on_lib_notification(
-            &self,
-            notification: &LibNotification,
-            client: &LibraryClientWrapper,
-            thumbnail_cache: &ThumbnailCache,
-        ) -> bool;
     }
 
     #[namespace = "ui"]
     extern "Rust" {
         type ImageListStoreWrap;
 
-        #[cxx_name = "ImageListStore_new"]
-        fn npc_image_list_store_new() -> Box<ImageListStoreWrap>;
         unsafe fn unwrap_ref(&self) -> &ImageListStore;
         #[cxx_name = "clone"]
         fn clone_(&self) -> Box<ImageListStoreWrap>;
+    }
+
+    #[namespace = "fwk"]
+    extern "C++" {
+        include!("fwk/cxx_widgets_bindings.hpp");
+
+        type WrappedPropertyBag = crate::toolkit::widgets::WrappedPropertyBag;
+    }
+
+    unsafe extern "C++" {
+        include!("niepce/ui/selection_listener.hpp");
+        type SelectionListener;
+
+        fn call(&self, id: i64);
+    }
+
+    #[namespace = "ui"]
+    extern "Rust" {
+        type SelectionController;
+
+        #[cxx_name = "SelectionController_new"]
+        fn selection_controller_new(client_host: &LibraryClientHost) -> Box<SelectionController>;
+        fn on_lib_notification(&self, ln: &LibNotification, thumbnail_cache: &ThumbnailCache);
+        fn add_selected_listener(&self, listener: UniquePtr<SelectionListener>);
+        fn add_activated_listener(&self, listener: UniquePtr<SelectionListener>);
+        fn select_previous(&self);
+        fn select_next(&self);
+        #[cxx_name = "get_list_store"]
+        fn list_store(&self) -> &ImageListStoreWrap;
+
+        fn get_file(&self, id: i64) -> *mut LibFile;
+        fn rotate(&self, angle: i32);
+        fn set_label(&self, label: i32);
+        fn set_rating(&self, rating: i32);
+        fn set_flag(&self, flag: i32);
+        fn set_properties(&self, props: &WrappedPropertyBag, old: &WrappedPropertyBag);
+        fn content_will_change(&self);
+        fn write_metadata(&self);
+        fn move_to_trash(&self);
     }
 }

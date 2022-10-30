@@ -32,6 +32,8 @@
 #include "niepcewindow.hpp"
 #include "metadatapanecontroller.hpp"
 
+#include "rust_bindings.hpp"
+
 namespace ui {
 
 ModuleShell::~ModuleShell()
@@ -48,20 +50,20 @@ Gtk::Widget * ModuleShell::buildWidget()
     m_widget = &m_shell;
     m_shell.insert_action_group("shell", m_actionGroup);
 
-    m_selection_controller = SelectionController::Ptr(new SelectionController);
+    m_selection_controller = SelectionController_2::Ptr(new SelectionController_2(*m_libraryclient));
     add(m_selection_controller);
 
     m_menu = Gio::Menu::create();
 
     // "go-previous"
     fwk::add_menu_action(m_actionGroup.get(), "PrevImage",
-                         sigc::mem_fun(*m_selection_controller,
+                         sigc::mem_fun(*m_selection_controller->obj(),
                                        &SelectionController::select_previous),
                          m_menu, _("Back"), "shell", "Left");
 
     // "go-next"
     fwk::add_menu_action(m_actionGroup.get(), "NextImage",
-                         sigc::mem_fun(*m_selection_controller,
+                         sigc::mem_fun(*m_selection_controller->obj(),
                                   &SelectionController::select_next),
                          m_menu, _("Forward"), "shell", "Right");
 
@@ -71,14 +73,14 @@ Gtk::Widget * ModuleShell::buildWidget()
     // "object-rotate-left"
     fwk::add_menu_action(m_actionGroup.get(), "RotateLeft",
                          sigc::bind(
-                             sigc::mem_fun(*m_selection_controller,
+                             sigc::mem_fun(*m_selection_controller->obj(),
                                            &SelectionController::rotate), -90),
                          section, _("Rotate Left"), "shell", "bracketleft");
 
     // "object-rotate-right"
     fwk::add_menu_action(m_actionGroup.get(), "RotateRight",
                          sigc::bind(
-                             sigc::mem_fun(*m_selection_controller,
+                             sigc::mem_fun(*m_selection_controller->obj(),
                                            &SelectionController::rotate), 90),
                          section, _("Rotate Right"), "shell", "bracketright");
 
@@ -90,25 +92,25 @@ Gtk::Widget * ModuleShell::buildWidget()
 
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetLabel6",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                                   &SelectionController::set_label),
                                     1),
                          submenu, _("Label 6"), "shell", "<Primary>6");
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetLabel7",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                                   &SelectionController::set_label),
                                     2),
                          submenu, _("Label 7"), "shell", "<Primary>7");
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetLabel8",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                                   &SelectionController::set_label),
                                     3),
                          submenu, _("Label 8"), "shell", "<Primary>8");
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetLabel9",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                                   &SelectionController::set_label),
                                     4),
                          submenu, _("Label 9"), "shell", "<Primary>9");
@@ -118,37 +120,37 @@ Gtk::Widget * ModuleShell::buildWidget()
 
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetRating0",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                                   &SelectionController::set_rating),
                                     0),
                          submenu, _("Unrated"), "shell", "<Primary>0");
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetRating1",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                              &SelectionController::set_rating),
                                     1),
                          submenu, _("Rating 1"), "shell", "<Primary>1");
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetRating2",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                                   &SelectionController::set_rating),
                                     2),
                          submenu, _("Rating 2"), "shell", "<Primary>2");
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetRating3",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                                   &SelectionController::set_rating),
                                     3),
                          submenu, _("Rating 3"), "shell", "<Primary>3");
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetRating4",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                                   &SelectionController::set_rating),
                                     4),
                          submenu, _("Rating 4"), "shell", "<Primary>4");
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetRating5",
-                         sigc::bind(sigc::mem_fun(*m_selection_controller,
+                         sigc::bind(sigc::mem_fun(*m_selection_controller->obj(),
                                                   &SelectionController::set_rating),
                                     5),
                          submenu, _("Rating 5"), "shell", "<Primary>5");
@@ -159,21 +161,21 @@ Gtk::Widget * ModuleShell::buildWidget()
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetFlagReject",
                          sigc::bind(
-                             sigc::mem_fun(*m_selection_controller,
+                             sigc::mem_fun(*m_selection_controller->obj(),
                                            &SelectionController::set_flag),
                              -1),
                          submenu, _("Flag as Rejected"), "shell", "<Primary><Shift>x");
     fwk::add_menu_action(m_actionGroup.get(),
                          "SetFlagNone",
                          sigc::bind(
-                             sigc::mem_fun(*m_selection_controller,
+                             sigc::mem_fun(*m_selection_controller->obj(),
                                            &SelectionController::set_flag),
                              0),
                          submenu, _("Unflagged"), "shell", "<Primary><Shift>u");
     fwk::add_menu_action(m_actionGroup.get(),
                           "SetFlagPick",
                          sigc::bind(
-                             sigc::mem_fun(*m_selection_controller,
+                             sigc::mem_fun(*m_selection_controller->obj(),
                                            &SelectionController::set_flag),
                              1),
                          submenu, _("Flag as Pick"), "shell", "<Primary><Shift>p");
@@ -183,7 +185,7 @@ Gtk::Widget * ModuleShell::buildWidget()
 
     fwk::add_menu_action(m_actionGroup.get(),
                          "WriteMetadata",
-                         sigc::mem_fun(*m_selection_controller,
+                         sigc::mem_fun(*m_selection_controller->obj(),
                                        &SelectionController::write_metadata),
                          section, _("Write metadata"), "shell", nullptr);
 
@@ -194,14 +196,18 @@ Gtk::Widget * ModuleShell::buildWidget()
     m_shell.getMenuButton().set_menu_model(m_menu);
 
     m_gridview = GridViewModule::Ptr(
-        new GridViewModule(*this, m_selection_controller->get_list_store()));
+        new GridViewModule(*this, m_selection_controller->obj()->get_list_store().clone()));
     add_library_module(m_gridview, "grid", _("Catalog"));
 
     m_selection_controller->add_selectable(m_gridview);
-    m_selection_controller->signal_selected
-        .connect(sigc::mem_fun(*this, &ModuleShell::on_image_selected));
-    m_selection_controller->signal_activated
-        .connect(sigc::mem_fun(*this, &ModuleShell::on_image_activated));
+    m_selection_controller->obj()->add_selected_listener(
+        std::make_unique<npc::SelectionListener>([this] (eng::library_id_t id) {
+            this->on_image_selected(id);
+        }));
+    m_selection_controller->obj()->add_activated_listener(
+        std::make_unique<npc::SelectionListener>([this] (eng::library_id_t id) {
+            this->on_image_activated(id);
+        }));
 
     m_darkroom = dr::DarkroomModule::Ptr(new dr::DarkroomModule(*this));
     add_library_module(m_darkroom, "darkroom", _("Darkroom"));
@@ -220,7 +226,7 @@ Gtk::Widget * ModuleShell::buildWidget()
 void ModuleShell::action_edit_delete()
 {
     DBG_OUT("shell - delete");
-    m_selection_controller->move_to_trash();
+    m_selection_controller->obj()->move_to_trash();
 }
 
 void ModuleShell::add_library_module(const ILibraryModule::Ptr & module,
@@ -241,7 +247,7 @@ void ModuleShell::on_ready()
 
 void ModuleShell::on_content_will_change()
 {
-    m_selection_controller->content_will_change();
+    m_selection_controller->obj()->content_will_change();
 }
 
 void ModuleShell::on_image_selected(eng::library_id_t id)
@@ -258,8 +264,8 @@ void ModuleShell::on_image_selected(eng::library_id_t id)
 void ModuleShell::on_image_activated(eng::library_id_t id)
 {
     DBG_OUT("on image activated %Ld", (long long)id);
-    auto& store = m_selection_controller->get_list_store();
-    auto libfile = ImageListStore_get_file(store->unwrap_ref(), id);
+    auto& store = m_selection_controller->obj()->get_list_store();
+    auto libfile = ImageListStore_get_file(store.unwrap_ref(), id);
     if (libfile) {
         m_darkroom->set_image(std::optional(std::move(libfile)));
         m_shell.activatePage("darkroom");
@@ -292,7 +298,7 @@ ModuleShell::on_lib_notification(const eng::LibNotification &ln)
 {
     m_gridview->on_lib_notification(ln);
     m_mapm->on_lib_notification(ln);
-    m_selection_controller->on_lib_notification(ln);
+    m_selection_controller->obj()->on_lib_notification(ln, m_libraryclient->thumbnailCache());
 }
 
 

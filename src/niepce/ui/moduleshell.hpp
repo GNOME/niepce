@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/moduleshell.hpp
  *
- * Copyright (C) 2007-2020 Hubert Figuière
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,13 +55,13 @@ public:
         }
     virtual ~ModuleShell();
 
-    const ImageListStorePtr& get_list_store() const
+    const ImageListStoreWrap& get_list_store() const
         {
-            return m_selection_controller->get_list_store();
+            return m_selection_controller->obj()->get_list_store();
         }
-    virtual const SelectionController::Ptr & get_selection_controller() const override
+    virtual const SelectionControllerPtr & get_selection_controller() const override
         {
-            return m_selection_controller;
+            return m_selection_controller->obj();
         }
     virtual libraryclient::LibraryClientPtr getLibraryClient() const override
         {
@@ -95,7 +95,7 @@ protected:
 private:
     libraryclient::LibraryClientPtr m_libraryclient;
     Glib::RefPtr<Gio::SimpleActionGroup> m_actionGroup;
-    ui::SelectionController::Ptr  m_selection_controller;
+    ui::SelectionController_2::Ptr  m_selection_controller;
     std::map<std::string, ILibraryModule::Ptr> m_modules;
 
     // managed widgets...

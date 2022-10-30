@@ -28,12 +28,16 @@
 #include "fwk/toolkit/controller.hpp"
 #include "ui/imageliststore.hpp"
 
+#include "rust_bindings.hpp"
+
 namespace Gtk {
 class IconView;
 class Widget;
 }
 
 namespace ui {
+
+typedef ::rust::Box<SelectionController> SelectionControllerPtr;
 
 /** interface for selectable image. Make the controller
  *  inherit/implement it.
@@ -54,80 +58,21 @@ public:
     virtual void select_image(eng::library_id_t id) = 0;
 };
 
-
-class SelectionController
+class SelectionController_2
     : public fwk::Controller
 {
 public:
-    typedef std::shared_ptr<SelectionController> Ptr;
-    SelectionController();
+    typedef std::shared_ptr<SelectionController_2> Ptr;
 
+    SelectionController_2(const npc::LibraryClientHost& client)
+        : m_ctrl(SelectionController_new(client))
+        {}
+
+    const SelectionControllerPtr& obj() const
+        { return m_ctrl; }
     void add_selectable(const IImageSelectable::WeakPtr &);
-
-    void activated(const Gtk::TreeModel::Path & /*path*/,
-                   const IImageSelectable::WeakPtr & selectable);
-    void selected(const IImageSelectable::WeakPtr &);
-
-
-    const ImageListStorePtr& get_list_store() const
-        { return m_imageliststore; }
-
-    // the signal to call when selection is changed.
-    sigc::signal<void(eng::library_id_t)> signal_selected;
-
-    // signal for when the item is activated (ie double-click)
-    sigc::signal<void(eng::library_id_t)> signal_activated;
-
-    /////////
-    /** select the previous image. Emit the signal */
-    void select_previous();
-    /** select the next image. Emit the signal */
-    void select_next();
-    /** rotate the image in selection by %angle (trigonometric) */
-    void rotate(int angle);
-    /** set the rating of selection to %rating. */
-    void set_rating(int rating);
-    /** set the label of selection to the label with index %label. */
-    void set_label(int label);
-    /** set flag */
-    void set_flag(int flag);
-
-    void set_property(ffi::NiepcePropertyIdx idx, int value);
-
-    void set_properties(const fwk::WrappedPropertyBagPtr& props,
-                        const fwk::WrappedPropertyBagPtr& old);
-
-    /** the content will change */
-    void content_will_change();
-    /** Write the file(s) metadata to disk. */
-    void write_metadata();
-    void move_to_trash();
-
-    /** get the current selection
-     *  todo: change it to support multiple
-     */
-    eng::library_id_t get_selection() const;
-    std::optional<eng::LibFilePtr> get_file(eng::library_id_t id) const;
-
-    void on_lib_notification(const eng::LibNotification &ln);
 private:
-    libraryclient::LibraryClientPtr getLibraryClient();
-
-    bool _set_metadata(const std::string & undo_label,
-                       eng::library_id_t file_id,
-                       ffi::NiepcePropertyIdx meta,
-                       int old_value, int new_value);
-    bool _set_metadata(const std::string & undo_label,
-                       eng::library_id_t file_id,
-                       const fwk::WrappedPropertyBagPtr& props,
-                       const fwk::WrappedPropertyBagPtr& old);
-    /** move the selection and emit the signal
-     * @param backwards true if the move is backwards.
-     */
-    void _selection_move(bool backwards);
-
-    ImageListStorePtr  m_imageliststore;
-    bool m_in_handler;
+    SelectionControllerPtr m_ctrl;
     std::vector<IImageSelectable::WeakPtr> m_selectables;
 };
 

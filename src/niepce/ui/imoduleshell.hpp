@@ -31,7 +31,7 @@ class IModuleShell
 {
 public:
     virtual ~IModuleShell() {}
-    virtual const ui::SelectionController::Ptr & get_selection_controller() const = 0;
+    virtual const ui::SelectionControllerPtr & get_selection_controller() const = 0;
     virtual libraryclient::LibraryClientPtr getLibraryClient() const = 0;
     virtual Glib::RefPtr<Gio::Menu> getMenu() const = 0;
 };

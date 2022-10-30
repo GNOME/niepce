@@ -37,7 +37,6 @@ use self::clientimpl::ClientImpl;
 use npc_engine::db::library::Managed;
 use npc_engine::db::props::NiepceProperties as Np;
 use npc_engine::db::LibraryId;
-use npc_engine::db::{NiepceProperties, NiepcePropertyIdx};
 use npc_engine::library::notification::{LcChannel, LibNotification};
 use npc_fwk::base::PropertyValue;
 
@@ -182,46 +181,11 @@ impl ClientInterfaceSync for LibraryClient {
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_set_trash_id(client: &LibraryClientWrapper, id: LibraryId) {
-    client.set_trash_id(id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_get_trash_id(client: &LibraryClientWrapper) -> LibraryId {
-    client.get_trash_id()
-}
-
-#[no_mangle]
 pub extern "C" fn libraryclient_request_metadata(
     client: &LibraryClientWrapper,
     file_id: LibraryId,
 ) {
     client.request_metadata(file_id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_set_metadata(
-    client: &LibraryClientWrapper,
-    file_id: LibraryId,
-    meta: NiepcePropertyIdx,
-    value: &PropertyValue,
-) {
-    client.set_metadata(file_id, NiepceProperties::Index(meta), value);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_write_metadata(client: &LibraryClientWrapper, file_id: LibraryId) {
-    client.write_metadata(file_id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_move_file_to_folder(
-    client: &LibraryClientWrapper,
-    file_id: LibraryId,
-    from: LibraryId,
-    to: LibraryId,
-) {
-    client.move_file_to_folder(file_id, from, to);
 }
 
 /// # Safety

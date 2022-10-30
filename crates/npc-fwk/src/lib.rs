@@ -51,7 +51,6 @@ use gdk_pixbuf_sys::GdkPixbuf;
 use glib::translate::*;
 
 use crate::base::date::Date;
-use crate::base::propertyvalue::property_value_new_int;
 use crate::base::rgbcolour::RgbColour;
 use crate::base::{moniker_from, Moniker};
 use crate::toolkit::cxx::*;
@@ -227,8 +226,6 @@ pub mod ffi {
 
     extern "Rust" {
         type PropertyValue;
-
-        fn property_value_new_int(v: i32) -> Box<PropertyValue>;
 
         fn is_empty(&self) -> bool;
         fn is_string(&self) -> bool;

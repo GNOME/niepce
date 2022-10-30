@@ -774,6 +774,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "once_cell",
+ "uuid",
 ]
 
 [[package]]

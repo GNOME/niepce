@@ -21,12 +21,17 @@ pub mod dialogs;
 mod film_strip_controller;
 pub mod image_grid_view;
 pub mod image_list_store;
+mod image_selectable;
 pub mod imagetoolbar;
 pub mod library_cell_renderer;
 pub mod metadata_pane_controller;
 pub mod niepce_window;
+mod selection_controller;
 pub mod thumb_nav;
 pub mod thumb_strip_view;
 mod workspace_controller;
 
 pub use film_strip_controller::FilmStripController;
+pub use image_list_store::ImageListStore;
+pub use image_selectable::{are_same_selectable, ImageSelectable};
+pub use selection_controller::{selection_controller_new, SelectionController};
