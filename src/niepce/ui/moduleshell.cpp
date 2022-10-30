@@ -41,14 +41,24 @@ ModuleShell::~ModuleShell()
     m_widget = nullptr;
 }
 
+void ModuleShell::c_on_module_activated(GtkWidget*, const char* name, ModuleShell* self)
+{
+    self->on_module_activated(name);
+}
+
+void ModuleShell::c_on_module_deactivated(GtkWidget*, const char* name, ModuleShell* self)
+{
+    self->on_module_deactivated(name);
+}
+
 Gtk::Widget * ModuleShell::buildWidget()
 {
     if(m_widget) {
         return m_widget;
     }
 
-    m_widget = &m_shell;
-    m_shell.insert_action_group("shell", m_actionGroup);
+    m_widget = m_shell_widget;
+    m_shell_widget->insert_action_group("shell", m_actionGroup);
 
     m_selection_controller = SelectionController_2::Ptr(new SelectionController_2(*m_libraryclient));
     add(m_selection_controller);
@@ -193,7 +203,8 @@ Gtk::Widget * ModuleShell::buildWidget()
     m_module_menu = Gio::Menu::create();
     m_menu->append_section(m_module_menu);
 
-    m_shell.getMenuButton().set_menu_model(m_menu);
+    gtk_menu_button_set_menu_model(
+        GTK_MENU_BUTTON(m_shell->getMenuButton()), G_MENU_MODEL(m_menu->gobj()));
 
     m_gridview = GridViewModule::Ptr(
         new GridViewModule(*this, m_selection_controller->obj()->get_list_store().clone()));
@@ -215,8 +226,8 @@ Gtk::Widget * ModuleShell::buildWidget()
     m_mapm = mapm::MapModule::Ptr(new mapm::MapModule(*this));
     add_library_module(m_mapm, "map", _("Map"));
 
-    m_shell.signal_activated.connect(sigc::mem_fun(*this, &ModuleShell::on_module_activated));
-    m_shell.signal_deactivated.connect(sigc::mem_fun(*this, &ModuleShell::on_module_deactivated));
+    g_signal_connect(G_OBJECT(m_shell_widget->gobj()), "activated", G_CALLBACK(ModuleShell::c_on_module_activated), this);
+    g_signal_connect(G_OBJECT(m_shell_widget->gobj()), "deactivated", G_CALLBACK(ModuleShell::c_on_module_deactivated), this);
 
     // TODO PrintModuleController
     // add_library_module(, _("Print"));
@@ -236,7 +247,7 @@ void ModuleShell::add_library_module(const ILibraryModule::Ptr & module,
     auto w = module->buildWidget();
     if(w) {
         add(module);
-        m_shell.appendPage(*w, name, label);
+        m_shell->appendPage((char*)w->gobj(), name, label);
         m_modules.insert(std::make_pair(name, module));
     }
 }
@@ -268,7 +279,7 @@ void ModuleShell::on_image_activated(eng::library_id_t id)
     auto libfile = ImageListStore_get_file(store.unwrap_ref(), id);
     if (libfile) {
         m_darkroom->set_image(std::optional(std::move(libfile)));
-        m_shell.activatePage("darkroom");
+        m_shell->activatePage("darkroom");
     }
 }
 

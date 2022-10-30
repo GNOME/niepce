@@ -78,6 +78,7 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/niepce/ui/selection_controller.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_nav.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/library_cell_renderer.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/module_shell_widget.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/niepce_window.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_strip_view.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/workspace_controller.rs \

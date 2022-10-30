@@ -23,7 +23,6 @@
 
 #include <giomm/simpleactiongroup.h>
 
-#include "moduleshellwidget.hpp"
 #include "fwk/toolkit/uicontroller.hpp"
 #include "fwk/toolkit/notification.hpp"
 #include "niepce/ui/gridviewmodule.hpp"
@@ -51,6 +50,8 @@ public:
     ModuleShell(const libraryclient::LibraryClientPtr& libclient)
         : m_libraryclient(libclient)
         , m_actionGroup(Gio::SimpleActionGroup::create())
+        , m_shell(ModuleShellWidget_new())
+        , m_shell_widget(Gtk::manage(Glib::wrap(GTK_BOX(m_shell->gobj()))))
         {
         }
     virtual ~ModuleShell();
@@ -93,13 +94,17 @@ protected:
     void on_module_deactivated(const std::string & name) const;
     void on_module_activated(const std::string & name) const;
 private:
+    static void c_on_module_activated(GtkWidget*, const char* name, ModuleShell* self);
+    static void c_on_module_deactivated(GtkWidget*, const char* name, ModuleShell* self);
+
     libraryclient::LibraryClientPtr m_libraryclient;
     Glib::RefPtr<Gio::SimpleActionGroup> m_actionGroup;
     ui::SelectionController_2::Ptr  m_selection_controller;
     std::map<std::string, ILibraryModule::Ptr> m_modules;
 
     // managed widgets...
-    ModuleShellWidget             m_shell;
+    rust::Box<ModuleShellWidget> m_shell;
+    Gtk::Box* m_shell_widget;
     Glib::RefPtr<Gio::Menu>       m_menu;
     Glib::RefPtr<Gio::Menu>       m_module_menu;
 
