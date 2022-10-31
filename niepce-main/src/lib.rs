@@ -201,4 +201,28 @@ mod ffi {
         fn write_metadata(&self);
         fn move_to_trash(&self);
     }
+
+    #[namespace = ""]
+    unsafe extern "C++" {
+        type GtkWidget;
+        type GMenu;
+    }
+
+    #[namespace = "ui"]
+    unsafe extern "C++" {
+        include!("niepce/ui/gridviewmodule.hpp");
+        type GridViewModule;
+
+        /// # Safety
+        /// Dereference a pointer
+        unsafe fn grid_view_module_new(
+            selection_controller: &SelectionController,
+            menu: *const GMenu,
+            ui_data_provider: &UIDataProvider,
+        ) -> SharedPtr<GridViewModule>;
+        // call buildWidget(). But it's mutable.
+        fn build_widget(&self) -> *const GtkWidget;
+        fn on_lib_notification(&self, ln: &LibNotification, client: &LibraryClientWrapper);
+        fn display_none(&self);
+    }
 }

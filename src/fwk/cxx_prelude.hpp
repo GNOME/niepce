@@ -30,7 +30,10 @@ class ThumbnailCache;
 
 namespace ui {
 class ModuleShell;
+class GridViewModule;
 }
+
+typedef struct _GtkWidget GtkWidget;
 
 namespace npc {
 class LnListener;

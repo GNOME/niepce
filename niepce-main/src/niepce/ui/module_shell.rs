@@ -25,7 +25,9 @@ use gettextrs::gettext;
 use glib::Cast;
 use gtk4::prelude::*;
 
-use super::{ImageListStore, LibraryModule, ModuleShellWidget, SelectionController};
+use super::{
+    GridViewModuleProxy, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,
+};
 use crate::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
@@ -44,26 +46,34 @@ pub struct ModuleShell {
     widget: ModuleShellWidget,
     action_group: gio::SimpleActionGroup,
     selection_controller: Rc<SelectionController>,
+    // currently a proxy that will bridge the C++ implementation
+    gridview: Rc<GridViewModuleProxy>,
     menu: gio::Menu,
     module_menu: gio::Menu,
     client: Rc<LibraryClientHost>,
-    modules: HashMap<String, Rc<dyn LibraryModule>>,
+    modules: RefCell<HashMap<String, Rc<dyn LibraryModule>>>,
 }
 
 impl ModuleShell {
     pub fn new(client_host: &Rc<LibraryClientHost>) -> Rc<ModuleShell> {
         let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
-
+        let selection_controller = SelectionController::new(client_host);
+        let menu = gio::Menu::new();
         let shell = Rc::new(ModuleShell {
             imp_: RefCell::new(ControllerImpl::default()),
             tx: tx.clone(),
             widget: ModuleShellWidget::new(),
             action_group: gio::SimpleActionGroup::new(),
-            selection_controller: SelectionController::new(client_host),
-            menu: gio::Menu::new(),
+            gridview: Rc::new(GridViewModuleProxy::new(
+                &selection_controller,
+                &menu,
+                client_host.ui_provider(),
+            )),
+            selection_controller,
+            menu,
             module_menu: gio::Menu::new(),
             client: client_host.clone(),
-            modules: HashMap::default(),
+            modules: RefCell::new(HashMap::default()),
         });
 
         rx.attach(
@@ -318,9 +328,8 @@ impl ModuleShell {
         shell.menu.append_section(None, &shell.module_menu);
         shell.widget.menu_button().set_menu_model(Some(&shell.menu));
 
+        shell.add_library_module(&shell.gridview, "grid", &gettext("Catalog"));
         // XXX
-        //shell.gridview = gridview_module_new();
-        //shell.add_library_module(shell.gridview, "grid", &gettext("Catalog"));
         //shell.selection_controller.add_selectable(shell.gridview);
 
         shell.selection_controller.handler.signal_selected.connect(
@@ -374,8 +383,8 @@ impl ModuleShell {
     }
 
     pub fn on_lib_notification(&self, ln: &LibNotification) {
+        self.gridview.on_lib_notification(ln, self.client.client());
         // XXX
-        //gridview.on_lib_notification(ln)
         //mapm.on_lib_notification(ln)
         self.selection_controller
             .on_lib_notification(ln, self.client.thumbnail_cache());
@@ -386,7 +395,7 @@ impl ModuleShell {
     }
 
     fn add_library_module<T: LibraryModule + 'static>(
-        &mut self,
+        &self,
         module: &Rc<T>,
         name: &str,
         label: &str,
@@ -394,7 +403,9 @@ impl ModuleShell {
         self.add(&to_controller(module.clone()));
         let widget = module.widget();
         self.widget.append_page(widget, name, label);
-        self.modules.insert(name.to_string(), module.clone());
+        self.modules
+            .borrow_mut()
+            .insert(name.to_string(), module.clone());
     }
 
     pub fn on_content_will_change(&self) {
@@ -406,8 +417,7 @@ impl ModuleShell {
         if id > 0 {
             self.client.client().request_metadata(id);
         } else {
-            // XXX
-            // self.gridview.display_none()
+            self.gridview.display_none()
         }
     }
 
@@ -422,15 +432,16 @@ impl ModuleShell {
     }
 
     fn module_activated(&self, name: &str) {
-        if let Some(module) = self.modules.get(name) {
-            let menu = module.menu();
-            self.module_menu.append_section(None, menu);
+        if let Some(module) = self.modules.borrow().get(name) {
+            if let Some(menu) = module.menu() {
+                self.module_menu.append_section(None, menu);
+            }
             module.set_active(true);
         }
     }
 
     fn module_deactivated(&self, name: &str) {
-        if let Some(module) = self.modules.get(name) {
+        if let Some(module) = self.modules.borrow().get(name) {
             self.module_menu.remove_all();
             module.set_active(false);
         }

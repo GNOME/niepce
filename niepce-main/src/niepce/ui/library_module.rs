@@ -24,5 +24,5 @@ pub trait LibraryModule: UiController {
     /// Called when it is activated / deactivated.
     fn set_active(&self, active: bool);
     /// Get the menu for the modules.
-    fn menu(&self) -> &gio::Menu;
+    fn menu(&self) -> Option<&gio::Menu>;
 }

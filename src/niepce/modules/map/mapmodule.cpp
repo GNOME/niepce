@@ -40,7 +40,7 @@ void MapModule::dispatch_action(const std::string & /*action_name*/)
 }
 
 
-void MapModule::set_active(bool active)
+void MapModule::set_active(bool active) const
 {
     m_active = active;
 }

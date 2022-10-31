@@ -19,6 +19,8 @@
 
 #pragma once
 
+#define _IN_RUST_BINDINGS_
+
 #include <memory>
 #include <vector>
 
@@ -89,3 +91,5 @@ namespace npc {
 typedef rust::Box<UIDataProvider> UIDataProviderPtr;
 typedef rust::Box<NotificationCenter> NotificationCenterPtr;
 }
+
+#undef _IN_RUST_BINDINGS_

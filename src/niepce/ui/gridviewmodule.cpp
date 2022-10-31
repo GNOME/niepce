@@ -37,11 +37,19 @@
 
 namespace ui {
 
+std::shared_ptr<GridViewModule> grid_view_module_new(const ui::SelectionController& selection_controller,
+                                                     const GMenu* menu_, const npc::UIDataProvider& ui_data_provider)
+{
+    Glib::RefPtr<Gio::Menu> menu;
+    if (menu_) {
+        menu = Glib::wrap(const_cast<GMenu*>(menu_));
+    }
+    return std::make_shared<GridViewModule>(selection_controller, menu, ui_data_provider);
+}
+
 GridViewModule::GridViewModule(const ui::SelectionController& selection_controller,
-                               Glib::RefPtr<Gio::Menu> menu, const npc::UIDataProvider& ui_data_provider,
-                               const ImageListStorePtr& store)
+                               Glib::RefPtr<Gio::Menu> menu, const npc::UIDataProvider& ui_data_provider)
   : m_selection_controller(selection_controller)
-  , m_model(store->clone())
   , m_menu(menu)
   , m_ui_data_provider(ui_data_provider)
   , m_librarylistview(nullptr)
@@ -57,7 +65,7 @@ GridViewModule::~GridViewModule()
 }
 
 void
-GridViewModule::on_lib_notification(const eng::LibNotification &ln, const npc::LibraryClientWrapper& client)
+GridViewModule::on_lib_notification(const eng::LibNotification &ln, const npc::LibraryClientWrapper& client) const
 {
     switch (ffi::engine_library_notification_type(&ln)) {
     case eng::NotificationType::METADATA_QUERIED:
@@ -86,7 +94,7 @@ GridViewModule::on_lib_notification(const eng::LibNotification &ln, const npc::L
     }
 }
 
-void GridViewModule::display_none()
+void GridViewModule::display_none() const
 {
     m_metapanecontroller->display(0, nullptr);
 }
@@ -121,10 +129,11 @@ Gtk::Widget * GridViewModule::buildWidget()
   }
   m_widget = &m_lib_splitview;
   m_context_menu = Gtk::manage(new Gtk::PopoverMenu(m_menu));
+  auto& model = m_selection_controller.get_list_store();
 
   m_image_grid_view = std::shared_ptr<ffi::ImageGridView>(
       ffi::npc_image_grid_view_new(
-          GTK_TREE_MODEL(m_model->unwrap_ref().gobj()),
+          GTK_TREE_MODEL(model.unwrap_ref().gobj()),
           GTK_POPOVER_MENU(m_context_menu->gobj())
       ),
       ffi::npc_image_grid_view_release);
@@ -196,10 +205,6 @@ void GridViewModule::dispatch_action(const std::string & /*action_name*/)
 {
 }
 
-void GridViewModule::set_active(bool /*active*/)
-{
-}
-
 Gtk::IconView * GridViewModule::image_list()
 {
     return m_librarylistview;
@@ -212,9 +217,10 @@ eng::library_id_t GridViewModule::get_selected()
 
     std::vector<Gtk::TreePath> paths = m_librarylistview->get_selected_items();
     if(!paths.empty()) {
+        auto& model = m_selection_controller.get_list_store();
         Gtk::TreePath path(*(paths.begin()));
         DBG_OUT("found path %s", path.to_string().c_str());
-        id = m_model->unwrap_ref().get_libfile_id_at_path((const char*)path.gobj());
+        id = model.unwrap_ref().get_libfile_id_at_path((const char*)path.gobj());
     }
     DBG_OUT("get_selected %Ld", (long long)id);
     return id;
@@ -223,7 +229,8 @@ eng::library_id_t GridViewModule::get_selected()
 void GridViewModule::select_image(eng::library_id_t id)
 {
     DBG_OUT("library select %Ld", (long long)id);
-    auto path = ImageListStore_get_path_from_id(m_model->unwrap_ref(), id);
+    auto& model = m_selection_controller.get_list_store();
+    auto path = ImageListStore_get_path_from_id(model.unwrap_ref(), id);
     if (path) {
         m_librarylistview->scroll_to_path(path, false, 0, 0);
         m_librarylistview->select_path(path);

@@ -39,7 +39,7 @@ public:
 
     /* ILibraryModule */
     virtual void dispatch_action(const std::string & action_name) override;
-    virtual void set_active(bool active) override;
+    virtual void set_active(bool active) const override;
     virtual Glib::RefPtr<Gio::MenuModel> getMenu() override
         { return Glib::RefPtr<Gio::MenuModel>(); }
 
@@ -55,7 +55,7 @@ private:
     fwk::MapController::Ptr           m_map;
 
     // state
-    bool                         m_active;
+    mutable bool m_active;
 };
 
 }

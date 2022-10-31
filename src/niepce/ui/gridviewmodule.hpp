@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
+
 #pragma once
 
 #include <optional>
@@ -31,9 +33,8 @@
 
 #include "fwk/base/propertybag.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
+#include "niepce/ui/imageliststore.hpp"
 #include "niepce/ui/metadatapanecontroller.hpp"
-
-#include "rust_bindings.hpp"
 
 namespace fwk {
 class Dock;
@@ -45,8 +46,6 @@ class UIDataProvider;
 
 namespace ui {
 
-class ModuleShell;
-
 class GridViewModule
     : public ILibraryModule
 {
@@ -54,16 +53,15 @@ public:
   typedef std::shared_ptr<GridViewModule> Ptr;
 
   GridViewModule(const ui::SelectionController& selection_controller,
-                 Glib::RefPtr<Gio::Menu> menu, const npc::UIDataProvider& ui_data_provider,
-                 const ImageListStorePtr& store);
+                 Glib::RefPtr<Gio::Menu> menu, const npc::UIDataProvider& ui_data_provider);
   virtual ~GridViewModule();
 
-  void on_lib_notification(const eng::LibNotification &, const npc::LibraryClientWrapper& client);
-  void display_none();
+  void on_lib_notification(const eng::LibNotification &, const npc::LibraryClientWrapper& client) const;
+  void display_none() const;
 
   /* ILibraryModule */
   virtual void dispatch_action(const std::string & action_name) override;
-  virtual void set_active(bool active) override;
+  virtual void set_active(bool) const override {}
   virtual Glib::RefPtr<Gio::MenuModel> getMenu() override
     { return Glib::RefPtr<Gio::MenuModel>(); }
 
@@ -84,7 +82,6 @@ private:
   void on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double, double);
 
   const ui::SelectionController& m_selection_controller;
-  ImageListStorePtr m_model;
   Glib::RefPtr<Gio::Menu> m_menu;
   const npc::UIDataProvider& m_ui_data_provider;
 
@@ -98,4 +95,10 @@ private:
   Gtk::PopoverMenu* m_context_menu;
 };
 
+std::shared_ptr<GridViewModule> grid_view_module_new(const ui::SelectionController& selection_controller,
+                                                     const GMenu* menu_,
+                                                     const npc::UIDataProvider& ui_data_provider);
+
 }
+
+#endif

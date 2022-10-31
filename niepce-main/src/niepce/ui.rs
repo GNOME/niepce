@@ -19,6 +19,7 @@
 
 pub mod dialogs;
 mod film_strip_controller;
+mod grid_view_module;
 pub mod image_grid_view;
 pub mod image_list_store;
 mod image_selectable;
@@ -35,6 +36,7 @@ pub mod thumb_strip_view;
 mod workspace_controller;
 
 pub use film_strip_controller::FilmStripController;
+pub use grid_view_module::GridViewModuleProxy;
 pub use image_list_store::ImageListStore;
 pub use image_selectable::{are_same_selectable, ImageSelectable};
 pub use library_module::LibraryModule;

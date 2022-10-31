@@ -51,13 +51,13 @@ public:
 
     virtual void dispatch_action(const std::string & action_name) override;
 
-    virtual void set_active(bool active) override;
+    virtual void set_active(bool active) const override;
 
     virtual Glib::RefPtr<Gio::MenuModel> getMenu() override
         { return Glib::RefPtr<Gio::MenuModel>(); }
 
 protected:
-    void reload_image();
+    void reload_image() const;
 
     virtual Gtk::Widget * buildWidget() override;
 
@@ -77,8 +77,8 @@ private:
     fwk::Dock                   *m_dock;
 
     // state
-    bool                         m_active;
-    bool                         m_need_reload;
+    mutable bool m_active;
+    mutable bool m_need_reload;
 };
 
 }

@@ -44,7 +44,7 @@ DarkroomModule::DarkroomModule(const ui::SelectionController& selection_controll
         }));
 }
 
-void DarkroomModule::reload_image()
+void DarkroomModule::reload_image() const
 {
     if(!m_need_reload) {
         return;
@@ -83,7 +83,7 @@ void DarkroomModule::dispatch_action(const std::string & /*action_name*/)
 }
 
 
-void DarkroomModule::set_active(bool active)
+void DarkroomModule::set_active(bool active) const
 {
     m_active = active;
     if(active) {

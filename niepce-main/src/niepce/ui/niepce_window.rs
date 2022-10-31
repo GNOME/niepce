@@ -401,7 +401,7 @@ impl NiepceWindow {
     }
 
     fn create_module_shell(&self) {
-        dbg_out!("creating module shell (TOOD)");
+        dbg_out!("creating module shell");
 
         let client = self.libraryclient.borrow();
 

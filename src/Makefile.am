@@ -69,6 +69,7 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/niepce.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/film_strip_controller.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/grid_view_module.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/imagetoolbar.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_grid_view.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_list_store.rs \
