@@ -35,7 +35,6 @@ use std::sync::Arc;
 
 use self::clientimpl::ClientImpl;
 use npc_engine::db::library::Managed;
-use npc_engine::db::props::NiepceProperties as Np;
 use npc_engine::db::LibraryId;
 use npc_engine::db::{NiepceProperties, NiepcePropertyIdx};
 use npc_engine::library::notification::{LcChannel, LibNotification};
@@ -78,6 +77,14 @@ pub struct LibraryClient {
     trash_id: Cell<LibraryId>,
 }
 
+impl std::ops::Deref for LibraryClient {
+    type Target = ClientImpl;
+
+    fn deref(&self) -> &Self::Target {
+        &self.pimpl
+    }
+}
+
 impl LibraryClient {
     pub fn new(dir: PathBuf, sender: async_channel::Sender<LibNotification>) -> LibraryClient {
         LibraryClient {
@@ -92,93 +99,6 @@ impl LibraryClient {
 
     pub fn set_trash_id(&self, id: LibraryId) {
         self.trash_id.set(id);
-    }
-}
-
-impl ClientInterface for LibraryClient {
-    /// get all the keywords
-    fn get_all_keywords(&self) {
-        self.pimpl.get_all_keywords();
-    }
-    fn query_keyword_content(&self, id: LibraryId) {
-        self.pimpl.query_keyword_content(id);
-    }
-    fn count_keyword(&self, id: LibraryId) {
-        self.pimpl.count_keyword(id);
-    }
-
-    /// get all the folder
-    fn get_all_folders(&self) {
-        self.pimpl.get_all_folders();
-    }
-    fn query_folder_content(&self, id: LibraryId) {
-        self.pimpl.query_folder_content(id);
-    }
-    fn count_folder(&self, id: LibraryId) {
-        self.pimpl.count_folder(id);
-    }
-
-    fn create_folder(&self, name: String, path: Option<String>) {
-        self.pimpl.create_folder(name, path);
-    }
-
-    fn delete_folder(&self, id: LibraryId) {
-        self.pimpl.delete_folder(id);
-    }
-
-    fn request_metadata(&self, id: LibraryId) {
-        self.pimpl.request_metadata(id);
-    }
-    /// set the metadata
-    fn set_metadata(&self, id: LibraryId, meta: Np, value: &PropertyValue) {
-        self.pimpl.set_metadata(id, meta, value);
-    }
-    fn write_metadata(&self, id: LibraryId) {
-        self.pimpl.write_metadata(id);
-    }
-
-    fn move_file_to_folder(&self, file_id: LibraryId, from: LibraryId, to: LibraryId) {
-        self.pimpl.move_file_to_folder(file_id, from, to);
-    }
-    /// get all the labels
-    fn get_all_labels(&self) {
-        self.pimpl.get_all_labels();
-    }
-    fn create_label(&self, label: String, colour: String) {
-        self.pimpl.create_label(label, colour);
-    }
-    fn delete_label(&self, id: LibraryId) {
-        self.pimpl.delete_label(id);
-    }
-    /// update a label
-    fn update_label(&self, id: LibraryId, new_name: String, new_colour: String) {
-        self.pimpl.update_label(id, new_name, new_colour);
-    }
-
-    /// tell to process the Xmp update Queue
-    fn process_xmp_update_queue(&self, write_xmp: bool) {
-        self.pimpl.process_xmp_update_queue(write_xmp);
-    }
-
-    /// Import files from a directory
-    /// @param dir the directory
-    /// @param manage true if imports have to be managed
-    fn import_files(&self, dir: String, files: Vec<PathBuf>, manage: Managed) {
-        self.pimpl.import_files(dir, files, manage);
-    }
-}
-
-impl ClientInterfaceSync for LibraryClient {
-    fn create_keyword_sync(&self, keyword: String) -> LibraryId {
-        self.pimpl.create_keyword_sync(keyword)
-    }
-
-    fn create_label_sync(&self, name: String, colour: String) -> LibraryId {
-        self.pimpl.create_label_sync(name, colour)
-    }
-
-    fn create_folder_sync(&self, name: String, path: Option<String>) -> LibraryId {
-        self.pimpl.create_folder_sync(name, path)
     }
 }
 
