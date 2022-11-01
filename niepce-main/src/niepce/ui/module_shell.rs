@@ -29,6 +29,7 @@ use super::{
     GridViewModuleProxy, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,
 };
 use crate::libraryclient::{ClientInterface, LibraryClientHost};
+use crate::modules::MapModuleProxy;
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
 use npc_fwk::toolkit::gtk_utils::add_menu_action;
@@ -48,6 +49,7 @@ pub struct ModuleShell {
     pub selection_controller: Rc<SelectionController>,
     // currently a proxy that will bridge the C++ implementation
     gridview: Rc<GridViewModuleProxy>,
+    mapm: Rc<MapModuleProxy>,
     menu: gio::Menu,
     module_menu: gio::Menu,
     client: Rc<LibraryClientHost>,
@@ -69,6 +71,7 @@ impl ModuleShell {
                 &menu,
                 client_host.ui_provider(),
             )),
+            mapm: Rc::new(MapModuleProxy::default()),
             selection_controller,
             menu,
             module_menu: gio::Menu::new(),
@@ -344,8 +347,7 @@ impl ModuleShell {
 
         //shell.darkroom = darkroom_module_new();
         //shell.add_library_module(shell.darkroom, "darkroom", &gettext("Darkroom"));
-        //shell.mapm = darkroom_module_new();
-        //shell.add_library_module(shell.mapm, "map", &gettext("Map"));
+        shell.add_library_module(&shell.mapm, "map", &gettext("Map"));
 
         shell.widget.connect(
             "activated",
@@ -383,8 +385,7 @@ impl ModuleShell {
 
     pub fn on_lib_notification(&self, ln: &LibNotification) {
         self.gridview.on_lib_notification(ln, self.client.client());
-        // XXX
-        //mapm.on_lib_notification(ln)
+        self.mapm.on_lib_notification(ln);
         self.selection_controller
             .on_lib_notification(ln, self.client.thumbnail_cache());
     }

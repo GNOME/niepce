@@ -66,6 +66,8 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/libraryclient/clientimpl.rs \
 	@top_srcdir@/niepce-main/src/libraryclient/clientinterface.rs \
 	@top_srcdir@/niepce-main/src/libraryclient/ui_data_provider.rs \
+	@top_srcdir@/niepce-main/src/modules/mod.rs \
+	@top_srcdir@/niepce-main/src/modules/map.rs \
 	@top_srcdir@/niepce-main/src/niepce.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/film_strip_controller.rs \

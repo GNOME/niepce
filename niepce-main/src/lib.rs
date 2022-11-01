@@ -21,6 +21,7 @@
 extern crate gtk_macros;
 
 pub mod libraryclient;
+pub mod modules;
 pub mod niepce;
 mod notification_center;
 
@@ -229,5 +230,17 @@ mod ffi {
         fn image_list(&self) -> *const GtkIconView;
         fn get_selected(&self) -> i64;
         fn select_image(&self, id: i64);
+    }
+
+    #[namespace = "mapm"]
+    unsafe extern "C++" {
+        include!("niepce/modules/map/mapmodule.hpp");
+        type MapModule;
+
+        fn map_module_new() -> SharedPtr<MapModule>;
+        // call buildWidget(). But it's mutable.
+        fn build_widget(&self) -> *const GtkWidget;
+        fn on_lib_notification(&self, ln: &LibNotification);
+        fn set_active(&self, active: bool);
     }
 }

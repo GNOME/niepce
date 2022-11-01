@@ -66,7 +66,7 @@ Gtk::Widget * MapModule::buildWidget()
 }
 
 void
-MapModule::on_lib_notification(const eng::LibNotification &ln)
+MapModule::on_lib_notification(const eng::LibNotification &ln) const
 {
     if (!m_active) {
         return;

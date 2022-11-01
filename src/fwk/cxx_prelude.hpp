@@ -33,6 +33,10 @@ class ModuleShell;
 class GridViewModule;
 }
 
+namespace mapm {
+class MapModule;
+}
+
 typedef struct _GtkWidget GtkWidget;
 
 namespace npc {

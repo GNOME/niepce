@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
+
 #pragma once
 
 #include <gtkmm/widget.h>
@@ -24,8 +26,9 @@
 
 #include "fwk/toolkit/controller.hpp"
 #include "fwk/toolkit/mapcontroller.hpp"
-#include "engine/db/libfile.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace mapm {
 
@@ -33,8 +36,6 @@ class MapModule
     : public ui::ILibraryModule
 {
 public:
-    typedef std::shared_ptr<MapModule> Ptr;
-
     MapModule();
 
     /* ILibraryModule */
@@ -43,7 +44,7 @@ public:
     virtual Glib::RefPtr<Gio::MenuModel> getMenu() override
         { return Glib::RefPtr<Gio::MenuModel>(); }
 
-    void on_lib_notification(const eng::LibNotification &ln);
+    void on_lib_notification(const eng::LibNotification &ln) const;
 
 protected:
     virtual Gtk::Widget * buildWidget() override;
@@ -58,6 +59,11 @@ private:
     mutable bool m_active;
 };
 
+inline
+std::shared_ptr<MapModule> map_module_new() {
+    return std::make_shared<MapModule>();
+}
+
 }
 /*
   Local Variables:
@@ -68,3 +74,5 @@ private:
   fill-column:80
   End:
 */
+
+#endif
