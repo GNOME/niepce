@@ -109,7 +109,7 @@ Gtk::Widget * DarkroomModule::buildWidget()
     m_imagecanvas->set_image(m_image);
 
     // build the toolbar.
-    auto toolbar = ffi::image_toolbar_new();
+    auto toolbar = ui::image_toolbar_new();
     gtk_box_append(m_vbox.gobj(), GTK_WIDGET(toolbar));
 
     m_dr_splitview.set_start_child(m_vbox);

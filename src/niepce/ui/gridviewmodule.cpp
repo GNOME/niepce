@@ -119,16 +119,12 @@ Gtk::Widget * GridViewModule::buildWidget()
   auto shell_menu = m_shell.getMenu();
   m_context_menu = Gtk::manage(new Gtk::PopoverMenu(shell_menu));
 
-  m_image_grid_view = std::shared_ptr<ffi::ImageGridView>(
-      ffi::npc_image_grid_view_new(
-          GTK_TREE_MODEL(m_model->gobjmm()->gobj()),
-          GTK_POPOVER_MENU(m_context_menu->gobj())
-      ),
-      ffi::npc_image_grid_view_release);
-  m_librarylistview = Gtk::manage(
-      Glib::wrap(
-          GTK_ICON_VIEW(ffi::npc_image_grid_view_get_icon_view(m_image_grid_view.get())))
-      );
+  auto image_grid_view = npc::npc_image_grid_view_new(
+      GTK_TREE_MODEL(m_model->gobjmm()->gobj()),
+      GTK_POPOVER_MENU(m_context_menu->gobj())
+  );
+  m_librarylistview = Gtk::manage(Glib::wrap(image_grid_view->get_icon_view()));
+  m_image_grid_view = std::move(image_grid_view);
   m_librarylistview->set_selection_mode(Gtk::SelectionMode::SINGLE);
   m_librarylistview->property_row_spacing() = 0;
   m_librarylistview->property_column_spacing() = 0;
@@ -170,7 +166,7 @@ Gtk::Widget * GridViewModule::buildWidget()
   // build the toolbar
   auto box = Gtk::manage(new Gtk::Box(Gtk::Orientation::VERTICAL));
   box->append(m_scrollview);
-  auto toolbar = ffi::image_toolbar_new();
+  auto toolbar = ui::image_toolbar_new();
   gtk_box_append(box->gobj(), GTK_WIDGET(toolbar));
   m_lib_splitview.set_start_child(*box);
 

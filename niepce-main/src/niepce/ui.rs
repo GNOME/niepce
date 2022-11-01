@@ -25,3 +25,8 @@ pub mod library_cell_renderer;
 pub mod metadata_pane_controller;
 pub mod thumb_nav;
 pub mod thumb_strip_view;
+
+pub use image_grid_view::ImageGridView;
+pub mod cxx {
+    pub use super::image_grid_view::npc_image_grid_view_new;
+}

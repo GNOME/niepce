@@ -38,12 +38,27 @@ use crate::libraryclient::{
     library_client_host_delete, library_client_host_new, LibraryClientHost, LibraryClientWrapper,
     UIDataProvider,
 };
+use niepce::ui::cxx::*;
+use niepce::ui::dialogs::confirm::dialog_confirm;
+use niepce::ui::imagetoolbar::image_toolbar_new;
 use niepce::ui::metadata_pane_controller::get_format;
+use niepce::ui::ImageGridView;
 use notification_center::notification_center_new;
 use npc_fwk::toolkit;
 
 #[cxx::bridge(namespace = "npc")]
 mod ffi {
+    // Gtk types.
+    #[namespace = ""]
+    unsafe extern "C++" {
+        type GtkBox;
+        type GtkIconView;
+        type GtkMessageDialog;
+        type GtkPopoverMenu;
+        type GtkTreeModel;
+        type GtkWindow;
+    }
+
     extern "Rust" {
         fn niepce_init();
     }
@@ -137,5 +152,24 @@ mod ffi {
 
         fn Application_app() -> SharedPtr<Application>;
         fn config(&self) -> &SharedPtr<SharedConfiguration>;
+    }
+
+    #[namespace = "ui"]
+    extern "Rust" {
+        fn image_toolbar_new() -> *mut GtkBox;
+        pub unsafe fn dialog_confirm(
+            message: &str,
+            parent: *mut GtkWindow,
+        ) -> *mut GtkMessageDialog;
+    }
+
+    extern "Rust" {
+        type ImageGridView;
+
+        unsafe fn npc_image_grid_view_new(
+            store: *mut GtkTreeModel,
+            context_menu: *mut GtkPopoverMenu,
+        ) -> Box<ImageGridView>;
+        fn get_icon_view(&self) -> *mut GtkIconView;
     }
 }

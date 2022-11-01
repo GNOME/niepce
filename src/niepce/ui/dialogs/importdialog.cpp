@@ -118,13 +118,10 @@ void ImportDialog::setup_widget()
     // Gridview of previews.
     m_images_list_scrolled = a_builder->get_widget<Gtk::ScrolledWindow>("images_list_scrolled");
     m_images_list_model = Gtk::ListStore::create(m_grid_columns);
-    m_image_gridview = std::shared_ptr<ffi::ImageGridView>(
-        ffi::npc_image_grid_view_new(
-            GTK_TREE_MODEL(g_object_ref(m_images_list_model->gobj())), nullptr),
-        ffi::npc_image_grid_view_release);
-    m_gridview = Gtk::manage(Glib::wrap(GTK_ICON_VIEW(
-                                            ffi::npc_image_grid_view_get_icon_view(
-                                                m_image_gridview.get()))));
+    auto image_gridview = npc::npc_image_grid_view_new(
+        GTK_TREE_MODEL(g_object_ref(m_images_list_model->gobj())), nullptr);
+    m_gridview = Gtk::manage(Glib::wrap(image_gridview->get_icon_view()));
+    m_image_gridview = std::move(image_gridview);
     m_gridview->set_pixbuf_column(m_grid_columns.pixbuf);
     m_gridview->set_text_column(m_grid_columns.filename);
     m_gridview->set_item_width(100);

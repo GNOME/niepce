@@ -89,7 +89,7 @@ private:
   ImageListStorePtr m_model;
 
   // library split view
-  std::shared_ptr<ffi::ImageGridView> m_image_grid_view;
+  std::optional<rust::Box<npc::ImageGridView>> m_image_grid_view;
   Gtk::IconView* m_librarylistview;
   Gtk::ScrolledWindow          m_scrollview;
   MetaDataPaneController::Ptr  m_metapanecontroller;

@@ -45,8 +45,6 @@ pub fn init() {
 
 // C++ bridge
 
-use std::ffi::c_char;
-
 use gdk_pixbuf_sys::GdkPixbuf;
 use glib::translate::*;
 
@@ -98,14 +96,14 @@ pub fn thumbnail_for_file(path: &str, w: i32, h: i32, orientation: i32) -> Box<T
 ///
 /// # Safety
 /// Dereference the pointer
-unsafe fn thumbnail_from_pixbuf(pixbuf: *mut c_char) -> Box<Thumbnail> {
+unsafe fn thumbnail_from_pixbuf(pixbuf: *mut ffi::GdkPixbuf) -> Box<Thumbnail> {
     let pixbuf: Option<gdk_pixbuf::Pixbuf> = from_glib_none(pixbuf as *mut GdkPixbuf);
     Box::new(Thumbnail::from(pixbuf))
 }
 
-fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut c_char {
+fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut ffi::GdkPixbuf {
     let pixbuf: *mut GdkPixbuf = self_.make_pixbuf().to_glib_full();
-    pixbuf as *mut c_char
+    pixbuf as *mut ffi::GdkPixbuf
 }
 
 /// Get the files in directory dir with extension ext
@@ -144,6 +142,13 @@ pub fn metadata_widget_new(title: &str) -> Box<MetadataWidget> {
 
 #[cxx::bridge(namespace = "fwk")]
 pub mod ffi {
+    // Gtk types
+    #[namespace = ""]
+    extern "C++" {
+        type GdkPixbuf;
+        type GtkWidget;
+    }
+
     struct SharedConfiguration {
         cfg: Box<Configuration>,
     }
@@ -203,9 +208,9 @@ pub mod ffi {
         #[cxx_name = "Thumbnail_for_file"]
         fn thumbnail_for_file(path: &str, w: i32, h: i32, orientation: i32) -> Box<Thumbnail>;
         #[cxx_name = "Thumbnail_from_pixbuf"]
-        unsafe fn thumbnail_from_pixbuf(pixbuf: *mut c_char) -> Box<Thumbnail>;
+        unsafe fn thumbnail_from_pixbuf(pixbuf: *mut GdkPixbuf) -> Box<Thumbnail>;
         #[cxx_name = "Thumbnail_to_pixbuf"]
-        fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut c_char;
+        fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut GdkPixbuf;
     }
 
     extern "Rust" {
@@ -245,7 +250,7 @@ pub mod ffi {
     extern "Rust" {
         type MetadataWidget;
 
-        fn gobj(&self) -> *mut c_char;
+        fn gobj(&self) -> *mut GtkWidget;
         #[cxx_name = "MetadataWidget_new"]
         fn metadata_widget_new(title: &str) -> Box<MetadataWidget>;
         #[cxx_name = "set_data_format"]

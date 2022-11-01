@@ -21,6 +21,7 @@
 
 #include <list>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <glibmm/refptr.h>
@@ -112,7 +113,7 @@ private:
     Glib::RefPtr<Gtk::ListStore> m_images_list_model;
     std::map<std::string, Gtk::TreeModel::iterator> m_images_list_map;
 
-    std::shared_ptr<ffi::ImageGridView> m_image_gridview;
+    std::optional<rust::Box<npc::ImageGridView>> m_image_gridview;
     Gtk::IconView *m_gridview;
 
     MetaDataPaneController::Ptr m_metadata_pane;

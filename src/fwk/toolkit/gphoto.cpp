@@ -405,7 +405,7 @@ std::optional<fwk::ThumbnailPtr> GpCamera::get_preview(const std::string& path) 
             unlink(exif_path.c_str());
         }
 #endif
-        return std::optional<fwk::ThumbnailPtr>(fwk::Thumbnail_from_pixbuf((char*)pix->gobj()));
+        return std::optional<fwk::ThumbnailPtr>(fwk::Thumbnail_from_pixbuf(pix->gobj()));
     }
 
     return std::nullopt;

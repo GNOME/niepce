@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::ffi::c_char;
-
 use glib::translate::*;
 use glib::Cast;
 use gtk4::subclass::prelude::*;
@@ -118,9 +116,9 @@ impl MetadataWidget {
     }
 
     // cxx
-    pub fn gobj(&self) -> *mut c_char {
+    pub fn gobj(&self) -> *mut crate::ffi::GtkWidget {
         let gobj: *mut gtk4_sys::GtkWidget = self.upcast_ref::<gtk4::Widget>().to_glib_none().0;
-        gobj as *mut c_char
+        gobj as *mut crate::ffi::GtkWidget
     }
 
     // cxx

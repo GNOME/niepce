@@ -25,6 +25,9 @@ class LibNotification;
 class ThumbnailCache;
 }
 
+typedef struct _GdkPixbuf GdkPixbuf;
+typedef struct _GtkWidget GtkWidget;
+
 namespace npc {
 class LnListener;
 }
