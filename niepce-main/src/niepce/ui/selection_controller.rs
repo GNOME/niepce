@@ -64,10 +64,10 @@ impl SelectionHandler {
     }
 
     fn selected(&self, selectable: Rc<dyn ImageSelectable>) {
-        if let Some(selection) = selectable.get_selected() {
+        if let Some(selection) = selectable.selected() {
             for all_selectable in self.selectables.borrow().iter() {
                 if let Some(all_selectable) = all_selectable.upgrade() {
-                    if are_same_selectable(&*all_selectable, &*selectable) {
+                    if !are_same_selectable(&*all_selectable, &*selectable) {
                         all_selectable.select_image(selection);
                     }
                 }
@@ -129,16 +129,16 @@ impl SelectionController {
         })
     }
 
-    pub fn add_selectable(&mut self, selectable: &Rc<dyn ImageSelectable>) {
+    pub fn add_selectable<S: ImageSelectable + 'static>(&self, selectable: &Rc<S>) {
         let wselectable = Rc::downgrade(selectable);
-        selectable.image_list().connect_selection_changed(
+        selectable.image_list().unwrap().connect_selection_changed(
             glib::clone!(@strong wselectable, @weak self.handler as handler => move |_| {
                 if let Some(selectable) = wselectable.upgrade() {
                     handler.selected(selectable);
                 }
             }),
         );
-        selectable.image_list().connect_item_activated(
+        selectable.image_list().unwrap().connect_item_activated(
             glib::clone!(@weak self.handler as handler => move |_, path| {
                 handler.activated(path);
             }),
@@ -173,7 +173,7 @@ impl SelectionController {
 
         self.handler.selectables.borrow()[0]
             .upgrade()
-            .and_then(|selectable| selectable.get_selected())
+            .and_then(|selectable| selectable.selected())
     }
 
     pub fn select_previous(&self) {
@@ -190,7 +190,7 @@ impl SelectionController {
             return;
         }
 
-        let iter = self.handler.store.get_iter_from_id(selection.unwrap());
+        let iter = self.handler.store.iter_from_id(selection.unwrap());
         if iter.is_none() {
             return;
         }

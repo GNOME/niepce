@@ -22,17 +22,20 @@ use std::rc::Rc;
 
 use gtk4::prelude::*;
 use once_cell::unsync::OnceCell;
+use uuid::Uuid;
 
 use npc_engine::db;
+use npc_fwk::dbg_out;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 
 use super::image_list_store::ImageListStore;
 use super::thumb_nav::{ThumbNav, ThumbNavMode};
 use super::thumb_strip_view::ThumbStripView;
+use super::ImageSelectable;
 
 struct Widgets {
     widget_: gtk4::Widget,
-    thumb_nav: ThumbNav,
+    _thumb_nav: ThumbNav,
     thumb_strip_view: ThumbStripView,
 }
 
@@ -71,7 +74,7 @@ impl UiController for FilmStripController {
 
                 Widgets {
                     widget_: thumb_nav.clone().upcast(),
-                    thumb_nav,
+                    _thumb_nav: thumb_nav,
                     thumb_strip_view,
                 }
             })
@@ -82,6 +85,45 @@ impl UiController for FilmStripController {
         None
     }
 }
+impl ImageSelectable for FilmStripController {
+    fn id(&self) -> Uuid {
+        self.imp_.borrow().id
+    }
+
+    fn image_list(&self) -> Option<&gtk4::IconView> {
+        self.widgets.get().map(|w| &*w.thumb_strip_view)
+    }
+
+    fn selected(&self) -> Option<db::LibraryId> {
+        self.widgets.get().and_then(|widgets| {
+            let paths = widgets.thumb_strip_view.selected_items();
+            if paths.is_empty() {
+                return None;
+            }
+            let id = self.store.get_file_id_at_path(&paths[0]);
+            if id == 0 {
+                None
+            } else {
+                Some(id)
+            }
+        })
+    }
+
+    fn select_image(&self, id: db::LibraryId) {
+        dbg_out!("filmstrip select {}", id);
+        if let Some(widgets) = self.widgets.get() {
+            if let Some(iter) = self.store.iter_from_id(id) {
+                let path = self.store.liststore().path(&iter);
+                widgets
+                    .thumb_strip_view
+                    .scroll_to_path(&path, false, 0.0, 0.0);
+                widgets.thumb_strip_view.select_path(&path);
+            } else {
+                widgets.thumb_strip_view.unselect_all();
+            }
+        }
+    }
+}
 
 impl FilmStripController {
     pub fn new(store: Rc<ImageListStore>) -> Rc<FilmStripController> {
@@ -90,18 +132,5 @@ impl FilmStripController {
             widgets: OnceCell::new(),
             store,
         })
-    }
-
-    fn selected(&self) -> db::LibraryId {
-        if let Some(widgets) = self.widgets.get() {
-            let paths = widgets.thumb_strip_view.selected_items();
-            if paths.is_empty() {
-                return 0;
-            }
-
-            return self.store.get_file_id_at_path(&paths[0]);
-        }
-
-        0
     }
 }

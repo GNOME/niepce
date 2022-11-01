@@ -52,6 +52,13 @@ use npc_fwk::toolkit;
 
 #[cxx::bridge(namespace = "npc")]
 mod ffi {
+    #[namespace = ""]
+    unsafe extern "C++" {
+        type GMenu;
+        type GtkIconView;
+        type GtkWidget;
+    }
+
     extern "Rust" {
         fn niepce_init();
     }
@@ -202,12 +209,6 @@ mod ffi {
         fn move_to_trash(&self);
     }
 
-    #[namespace = ""]
-    unsafe extern "C++" {
-        type GtkWidget;
-        type GMenu;
-    }
-
     #[namespace = "ui"]
     unsafe extern "C++" {
         include!("niepce/ui/gridviewmodule.hpp");
@@ -224,5 +225,9 @@ mod ffi {
         fn build_widget(&self) -> *const GtkWidget;
         fn on_lib_notification(&self, ln: &LibNotification, client: &LibraryClientWrapper);
         fn display_none(&self);
+        #[cxx_name = "cxx_image_list"]
+        fn image_list(&self) -> *const GtkIconView;
+        fn get_selected(&self) -> i64;
+        fn select_image(&self, id: i64);
     }
 }

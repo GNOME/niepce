@@ -450,7 +450,7 @@ impl NiepceWindow {
         vbox.append(&statusbar);
         statusbar.push(0, &gettext("Ready"));
 
-        // XXX add selectable filmstrip
+        module_shell.selection_controller.add_selectable(&filmstrip);
 
         self.shell_widgets.set(ShellWidgets {
             _workspace: workspace.clone(),

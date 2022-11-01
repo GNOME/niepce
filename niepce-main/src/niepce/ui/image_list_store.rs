@@ -151,7 +151,7 @@ impl ImageListStore {
             .unwrap_or(ptr::null())
     }
 
-    pub fn get_iter_from_id(&self, id: LibraryId) -> Option<gtk4::TreeIter> {
+    pub fn iter_from_id(&self, id: LibraryId) -> Option<gtk4::TreeIter> {
         self.idmap.borrow().get(&id).cloned()
     }
 
@@ -226,7 +226,7 @@ impl ImageListStore {
                     if param.from == self.current_folder.get() {
                         // remove from list
                         dbg_out!("from this folder");
-                        if let Some(iter) = self.get_iter_from_id(param.file) {
+                        if let Some(iter) = self.iter_from_id(param.file) {
                             self.store.remove(&iter);
                             self.idmap.borrow_mut().remove(&param.file);
                         }

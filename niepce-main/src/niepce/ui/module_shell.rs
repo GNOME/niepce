@@ -45,7 +45,7 @@ pub struct ModuleShell {
     tx: glib::Sender<Event>,
     widget: ModuleShellWidget,
     action_group: gio::SimpleActionGroup,
-    selection_controller: Rc<SelectionController>,
+    pub selection_controller: Rc<SelectionController>,
     // currently a proxy that will bridge the C++ implementation
     gridview: Rc<GridViewModuleProxy>,
     menu: gio::Menu,
@@ -329,8 +329,7 @@ impl ModuleShell {
         shell.widget.menu_button().set_menu_model(Some(&shell.menu));
 
         shell.add_library_module(&shell.gridview, "grid", &gettext("Catalog"));
-        // XXX
-        //shell.selection_controller.add_selectable(shell.gridview);
+        shell.selection_controller.add_selectable(&shell.gridview);
 
         shell.selection_controller.handler.signal_selected.connect(
             glib::clone!(@weak shell => move |id| {

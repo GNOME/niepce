@@ -66,10 +66,13 @@ public:
     { return Glib::RefPtr<Gio::MenuModel>(); }
 
   /* IImageSelectable */
-  virtual Gtk::IconView * image_list();
-  virtual eng::library_id_t get_selected();
-  virtual void select_image(eng::library_id_t id);
+  virtual Gtk::IconView * image_list() const;
+  virtual eng::library_id_t get_selected() const;
+  virtual void select_image(eng::library_id_t id) const;
 
+  const GtkIconView* cxx_image_list() const {
+    return const_cast<GridViewModule*>(this)->image_list()->gobj();
+  }
 protected:
   virtual Gtk::Widget * buildWidget() override;
 

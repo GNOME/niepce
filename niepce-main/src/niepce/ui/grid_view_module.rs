@@ -21,18 +21,22 @@ use std::cell::{Ref, RefCell, RefMut};
 use std::rc::Rc;
 
 use glib::translate::*;
+use uuid::Uuid;
 
+use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
+use npc_fwk::dbg_out;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 
 use crate::ffi::{grid_view_module_new, GridViewModule};
-use crate::niepce::ui::{LibraryModule, SelectionController};
-use crate::{UIDataProvider, LibraryClientWrapper};
+use crate::niepce::ui::{ImageSelectable, LibraryModule, SelectionController};
+use crate::{LibraryClientWrapper, UIDataProvider};
 
 pub struct GridViewModuleProxy {
     imp_: RefCell<ControllerImpl>,
     module: cxx::SharedPtr<GridViewModule>,
     widget: gtk4::Widget,
+    icon_view: gtk4::IconView,
 }
 
 impl Controller for GridViewModuleProxy {
@@ -72,6 +76,31 @@ impl LibraryModule for GridViewModuleProxy {
     }
 }
 
+impl ImageSelectable for GridViewModuleProxy {
+    fn id(&self) -> Uuid {
+        self.imp_.borrow().id
+    }
+
+    // This implementation has the same restrictions as `widget()`
+    fn image_list(&self) -> Option<&gtk4::IconView> {
+        Some(&self.icon_view)
+    }
+
+    fn selected(&self) -> Option<db::LibraryId> {
+        let id = self.module.get_selected();
+        if id == 0 {
+            None
+        } else {
+            Some(id)
+        }
+    }
+
+    fn select_image(&self, id: db::LibraryId) {
+        dbg_out!("GridViewModule select_image {}", id);
+        self.module.select_image(id)
+    }
+}
+
 impl GridViewModuleProxy {
     pub fn new(
         selection_controller: &Rc<SelectionController>,
@@ -80,6 +109,9 @@ impl GridViewModuleProxy {
     ) -> Self {
         let menu: *const gio_sys::GMenu = menu.to_glib_none().0;
         let module = unsafe {
+            // Silence clippy because we borrow the selection controller for the cxx
+            // bindings. It'll go away.
+            #[allow(clippy::borrow_deref_ref)]
             grid_view_module_new(
                 &*selection_controller,
                 menu as *const crate::ffi::GMenu,
@@ -89,10 +121,14 @@ impl GridViewModuleProxy {
         let widget = unsafe {
             gtk4::Widget::from_glib_none(module.build_widget() as *const gtk4_sys::GtkWidget)
         };
+        let icon_view = unsafe {
+            gtk4::IconView::from_glib_none(module.image_list() as *const gtk4_sys::GtkIconView)
+        };
         GridViewModuleProxy {
             imp_: RefCell::new(ControllerImpl::default()),
             module,
             widget,
+            icon_view,
         }
     }
 

@@ -22,7 +22,6 @@ use std::rc::Rc;
 
 use once_cell::unsync::OnceCell;
 
-use glib::translate::*;
 use gtk4::prelude::*;
 
 use crate::niepce::ui::library_cell_renderer::LibraryCellRenderer;
@@ -192,41 +191,4 @@ impl ThumbStripView {
             ));
         }
     }
-}
-
-/// # Safety
-/// Use raw pointers
-#[no_mangle]
-pub unsafe extern "C" fn npc_thumb_strip_view_new(
-    store: *mut gtk4_sys::GtkTreeModel,
-) -> *mut ThumbStripView {
-    Box::into_raw(Box::new(ThumbStripView::new(
-        &gtk4::TreeModel::from_glib_full(store),
-    )))
-}
-
-/// # Safety
-/// Use raw pointers
-#[no_mangle]
-pub unsafe extern "C" fn npc_thumb_strip_view_set_item_height(
-    stripview: &ThumbStripView,
-    height: i32,
-) {
-    stripview.set_item_height(height);
-}
-
-/// # Safety
-/// Use raw pointers
-#[no_mangle]
-pub unsafe extern "C" fn npc_thumb_strip_view_get_icon_view(
-    stripview: &ThumbStripView,
-) -> *mut gtk4_sys::GtkIconView {
-    stripview.icon_view.to_glib_none().0
-}
-
-/// # Safety
-/// Use raw pointers
-#[no_mangle]
-pub unsafe extern "C" fn npc_thumb_strip_view_release(stripview: *mut ThumbStripView) {
-    drop(Box::from_raw(stripview));
 }

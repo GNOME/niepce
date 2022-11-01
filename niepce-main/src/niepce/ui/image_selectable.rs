@@ -25,13 +25,13 @@ use npc_engine::db;
 pub trait ImageSelectable {
     /// uuid of the selectable
     /// Create it with `Uuid::new_v4()`
-    fn id(&self) -> &Uuid;
+    fn id(&self) -> Uuid;
 
     /// Return the widget of the image list
-    fn image_list(&self) -> &gtk4::IconView;
+    fn image_list(&self) -> Option<&gtk4::IconView>;
 
     /// Return the selected image ID
-    fn get_selected(&self) -> Option<db::LibraryId>;
+    fn selected(&self) -> Option<db::LibraryId>;
 
     /// Select the image by ID.
     fn select_image(&self, id: db::LibraryId);

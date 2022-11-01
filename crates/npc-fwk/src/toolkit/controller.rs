@@ -23,7 +23,7 @@ use std::rc::{Rc, Weak};
 use uuid::Uuid;
 
 pub struct ControllerImpl {
-    id: Uuid,
+    pub id: Uuid,
     parent: Option<Weak<dyn Controller>>,
     children: Vec<Rc<dyn Controller>>,
 }

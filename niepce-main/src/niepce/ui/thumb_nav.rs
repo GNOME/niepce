@@ -23,7 +23,6 @@ use std::rc::Rc;
 use once_cell::unsync::OnceCell;
 
 use glib::subclass::prelude::*;
-use glib::translate::*;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
@@ -428,20 +427,3 @@ impl ObjectImpl for ThumbNavPriv {
 impl WidgetImpl for ThumbNavPriv {}
 
 impl BoxImpl for ThumbNavPriv {}
-
-/// # Safety
-/// Use raw pointers
-#[no_mangle]
-pub unsafe extern "C" fn npc_thumb_nav_new(
-    thumbview: *mut gtk4_sys::GtkIconView,
-    mode: ThumbNavMode,
-    show_buttons: bool,
-) -> *mut gtk4_sys::GtkWidget {
-    ThumbNav::new(
-        &gtk4::IconView::from_glib_full(thumbview),
-        mode,
-        show_buttons,
-    )
-    .upcast::<gtk4::Widget>()
-    .to_glib_full()
-}

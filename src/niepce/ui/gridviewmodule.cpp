@@ -205,12 +205,12 @@ void GridViewModule::dispatch_action(const std::string & /*action_name*/)
 {
 }
 
-Gtk::IconView * GridViewModule::image_list()
+Gtk::IconView * GridViewModule::image_list() const
 {
     return m_librarylistview;
 }
 
-eng::library_id_t GridViewModule::get_selected()
+eng::library_id_t GridViewModule::get_selected() const
 {
     eng::library_id_t id = 0;
     Glib::RefPtr<Gtk::TreeSelection> selection;
@@ -226,7 +226,7 @@ eng::library_id_t GridViewModule::get_selected()
     return id;
 }
 
-void GridViewModule::select_image(eng::library_id_t id)
+void GridViewModule::select_image(eng::library_id_t id) const
 {
     DBG_OUT("library select %Ld", (long long)id);
     auto& model = m_selection_controller.get_list_store();
