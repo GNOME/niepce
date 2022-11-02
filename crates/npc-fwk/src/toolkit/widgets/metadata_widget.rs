@@ -360,7 +360,10 @@ mod imp {
                     w.set_text(&dec_str);
                     true
                 } else {
-                    err_out!("Incorrect widget type {}", w.type_().name());
+                    err_out!(
+                        "Incorrect widget type for fraction_dec: {}",
+                        w.type_().name()
+                    );
                     false
                 };
             }
@@ -382,7 +385,7 @@ mod imp {
                         false
                     }
                 } else {
-                    err_out!("Incorrect widget type {}", w.type_().name());
+                    err_out!("Incorrect widget type for fraction: {}", w.type_().name());
                     false
                 };
             }
@@ -397,7 +400,7 @@ mod imp {
                     w.set_rating(i);
                     true
                 } else {
-                    err_out!("Incorrect widget type {}", w.type_().name());
+                    err_out!("Incorrect widget type for rating: {}", w.type_().name());
                     false
                 };
             }
@@ -418,7 +421,10 @@ mod imp {
                     w.set_editable(!readonly);
                     true
                 } else {
-                    err_out!("Incorrect widget type {}", w.type_().name());
+                    err_out!(
+                        "Incorrect widget type for string array: {}",
+                        w.type_().name()
+                    );
                     false
                 };
             }
@@ -444,7 +450,7 @@ mod imp {
                         w.buffer().set_text(s);
                         true
                     } else {
-                        err_out!("Incorrect widget type {}", w.type_().name());
+                        err_out!("Incorrect widget type for text: {}", w.type_().name());
                         false
                     };
                 }
@@ -459,8 +465,11 @@ mod imp {
                 return if let Some(w) = w.downcast_ref::<gtk4::Label>() {
                     w.set_text(&d.to_string());
                     true
+                } else if let Some(w) = w.downcast_ref::<gtk4::Entry>() {
+                    w.set_text(&d.to_string());
+                    true
                 } else {
-                    err_out!("Incorrect widget type {}", w.type_().name());
+                    err_out!("Incorrect widget type for date: {}", w.type_().name());
                     false
                 };
             }
