@@ -151,6 +151,8 @@ impl UiController for NiepceWindow {
                     Self::lib_notification(&tx, n);
                 });
 
+                self.actions();
+
                 Widgets {
                     widget_: vbox.clone().upcast(),
                     vbox,
@@ -174,7 +176,8 @@ impl UiController for NiepceWindow {
             })
         );
 
-        // XXX create undo / redo actions
+        npc_fwk::toolkit::create_undo_action(group);
+        npc_fwk::toolkit::create_redo_action(group);
 
         action!(group, "Cut", move |_, _| {});
         action!(group, "Copy", move |_, _| {});

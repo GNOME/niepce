@@ -158,113 +158,6 @@ NiepceWindow::_createModuleShell()
 }
 
 
-Gtk::Widget *
-NiepceWindow::buildWidget()
-{
-    if(m_widget) {
-        return m_widget;
-    }
-    Gtk::Window & win(gtkWindow());
-
-    m_widget = &win;
-
-    init_actions();
-
-    Glib::ustring name("org.gnome.Niepce");
-    set_icon_from_theme(name);
-    win.set_icon_name(name);
-
-    m_notifcenter->add_listener(
-        std::make_unique<npc::LnListener>(
-            sigc::mem_fun(*this, &NiepceWindow::on_lib_notification)));
-
-    win.set_size_request(600, 400);
-    on_open_library();
-    return &win;
-}
-
-
-void NiepceWindow::init_actions()
-{
-    m_menu = Gio::Menu::create();
-    Glib::RefPtr<Gio::Menu> submenu;
-    Glib::RefPtr<Gio::Menu> section;
-
-    // Get the action group.
-    // Gtkmm doesn't allow GActionMap from GtkApplicationWindow
-    auto action_map = dynamic_cast<Gio::ActionMap*>(&gtkWindow());
-    DBG_ASSERT(action_map, "Not an action map");
-    fwk::add_action(action_map, "Close",
-                    sigc::mem_fun(
-                        gtkWindow(), &Gtk::Window::hide), "win", "<Primary>w");
-
-    // XXX Move to shell?
-    create_undo_action(action_map);
-    create_redo_action(action_map);
-
-    fwk::add_action(action_map, "Cut",
-                    Gio::ActionMap::ActivateSlot(),
-                    "win", "<control>x");
-    fwk::add_action(action_map, "Copy",
-                    Gio::ActionMap::ActivateSlot(),
-                    "win", "<control>c");
-    fwk::add_action(action_map, "Paste",
-                    Gio::ActionMap::ActivateSlot(),
-                    "win" "<control>v");
-    fwk::add_action(action_map, "Delete",
-                    sigc::mem_fun(*this, &NiepceWindow::on_action_edit_delete),
-                    "win", "Delete");
-
-    // Main "hamburger" menu
-    section = Gio::Menu::create();
-    m_main_menu->append_section(section);
-    section->append(_("New Catalog..."), "app.NewCatalog");
-    section->append(_("Open Catalog..."), "app.OpenCatalog");
-
-    section = Gio::Menu::create();
-    m_main_menu->append_section(section);
-    m_hide_tools_action
-        = fwk::add_menu_action(action_map, "ToggleToolsVisible",
-                               sigc::mem_fun(*this, &Frame::toggle_tools_visible),
-                               section, _("Hide tools"), "win",
-                               nullptr);
-    fwk::add_menu_action(action_map, "EditLabels",
-                         sigc::mem_fun(*this, &NiepceWindow::on_action_edit_labels),
-                         section, _("Edit Labels..."), "win", nullptr);
-    section->append(_("Preferences..."), "app.Preferences");
-
-    section = Gio::Menu::create();
-    m_main_menu->append_section(section);
-    section->append(_("Help"), "app.Help");
-    section->append(_("About"), "app.About");
-}
-
-void NiepceWindow::on_open_library()
-{
-    auto& cfg = Application::app()->config()->cfg;
-    std::string libMoniker;
-    int reopen = 0;
-    try {
-        reopen = std::stoi(std::string(cfg->getValue("reopen_last_catalog", "0")));
-    }
-    catch(...)
-    {
-    }
-    if(reopen) {
-        libMoniker = std::string(cfg->getValue("last_open_catalog", ""));
-    }
-    if (libMoniker.empty()) {
-        prompt_open_library();
-    } else {
-        DBG_OUT("last library is %s", libMoniker.c_str());
-        if (!open_library(libMoniker)) {
-            ERR_OUT("library %s cannot be open. Prompting.",
-                    libMoniker.c_str());
-            prompt_open_library();
-        }
-    }
-}
-
 void NiepceWindow::on_action_edit_labels()
 {
     DBG_OUT("edit labels");
@@ -279,12 +172,6 @@ void NiepceWindow::on_action_edit_labels()
             m_editlabel_dialog.reset((EditLabels*)nullptr);
         });
     }
-}
-
-void NiepceWindow::on_action_edit_delete()
-{
-    // find the responder. And pass it.
-    m_moduleshell->action_edit_delete();
 }
 
 }

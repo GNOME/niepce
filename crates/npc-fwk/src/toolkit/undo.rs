@@ -174,9 +174,9 @@ pub fn undo_transaction_new(name: &str) -> Box<UndoTransaction> {
 #[derive(Default)]
 pub struct UndoHistory {
     /// A LIFO queue of the undos
-    undos: VecDeque<UndoTransaction>,
+    undos: RefCell<VecDeque<UndoTransaction>>,
     /// A LIFO queue of the redo
-    redos: VecDeque<UndoTransaction>,
+    redos: RefCell<VecDeque<UndoTransaction>>,
     /// When the state changed.
     pub signal_changed: Signal<()>,
 }
@@ -184,8 +184,8 @@ pub struct UndoHistory {
 impl UndoHistory {
     /// Add the transaction. This clear the redos.
     pub fn add(&mut self, transaction: UndoTransaction) {
-        self.undos.push_back(transaction);
-        self.redos.clear();
+        self.undos.borrow_mut().push_back(transaction);
+        self.redos.borrow_mut().clear();
 
         self.signal_changed.emit(());
     }
@@ -201,16 +201,17 @@ impl UndoHistory {
     }
 
     pub fn has_undo(&self) -> bool {
-        !self.undos.is_empty()
+        !self.undos.borrow().is_empty()
     }
 
     pub fn has_redo(&self) -> bool {
-        !self.redos.is_empty()
+        !self.redos.borrow().is_empty()
     }
 
     /// The name of the next undo operation
     pub fn next_undo(&self) -> String {
         self.undos
+            .borrow()
             .back()
             .map(|t| t.name.to_string())
             .unwrap_or_else(String::default)
@@ -219,25 +220,26 @@ impl UndoHistory {
     /// The name of the next undo operation
     pub fn next_redo(&self) -> String {
         self.redos
+            .borrow()
             .back()
             .map(|t| t.name.to_string())
             .unwrap_or_else(String::default)
     }
 
     /// Perform the undo operation
-    pub fn undo(&mut self) {
-        if let Some(transaction) = self.undos.pop_back() {
+    pub fn undo(&self) {
+        if let Some(transaction) = self.undos.borrow_mut().pop_back() {
             transaction.undo();
-            self.redos.push_back(transaction);
+            self.redos.borrow_mut().push_back(transaction);
             self.signal_changed.emit(());
         }
     }
 
     /// Perform the redo operation
-    pub fn redo(&mut self) {
-        if let Some(transaction) = self.redos.pop_back() {
+    pub fn redo(&self) {
+        if let Some(transaction) = self.redos.borrow_mut().pop_back() {
             transaction.redo();
-            self.undos.push_back(transaction);
+            self.undos.borrow_mut().push_back(transaction);
             self.signal_changed.emit(());
         }
     }
