@@ -21,7 +21,6 @@ noinst_LIBRARIES = libniepceengine.a
 libniepceengine_a_SOURCES = \
 	db/libfile.hpp \
 	db/label.hpp \
-	db/libmetadata.hpp db/libmetadata.cpp \
 	db/storage.hpp \
 	db/fsfile.hpp \
 	db/metadata.hpp \

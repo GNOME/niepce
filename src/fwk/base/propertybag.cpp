@@ -21,9 +21,14 @@
 
 namespace fwk {
 
+void property_bag_delete(WrappedPropertyBag* bag)
+{
+    rust::Box<WrappedPropertyBag>::from_raw(bag);
+}
+
 WrappedPropertyBagPtr wrapped_property_bag_wrap(WrappedPropertyBag* bag)
 {
-    return WrappedPropertyBagPtr(bag, &ffi::fwk_wrapped_property_bag_delete);
+    return WrappedPropertyBagPtr(bag, &property_bag_delete);
 }
 
 }

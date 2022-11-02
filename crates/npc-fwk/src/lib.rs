@@ -55,6 +55,7 @@ use crate::base::rgbcolour::RgbColour;
 use crate::base::{moniker_from, Moniker};
 use crate::toolkit::cxx::*;
 use crate::toolkit::thumbnail::Thumbnail;
+use crate::toolkit::widgets::cxx::*;
 use crate::toolkit::widgets::MetadataWidget;
 use crate::toolkit::{Configuration, UndoCommand, UndoHistory, UndoTransaction};
 use crate::utils::files::FileList;
@@ -251,6 +252,8 @@ pub mod ffi {
         #[cxx_name = "set_data_source"]
         fn set_data_source_wrapped(&self, properties: &WrappedPropertyBag);
         fn set_data_source_none(&self);
+        fn wrapped_property_bag_clone(bag: &WrappedPropertyBag) -> *mut WrappedPropertyBag;
+        unsafe fn wrapped_property_bag_drop(bag: *mut WrappedPropertyBag);
     }
 
     extern "Rust" {

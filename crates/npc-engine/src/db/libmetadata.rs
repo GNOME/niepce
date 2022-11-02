@@ -25,8 +25,9 @@ use super::libfile::FileType;
 use super::props;
 use super::NiepceProperties as Np;
 use super::{FromDb, LibraryId};
-use crate::{NiepcePropertyBag, NiepcePropertySet};
+use crate::NiepcePropertyBag;
 use npc_fwk::base::date::Date;
+use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
 use npc_fwk::{dbg_out, err_out};
 use npc_fwk::{xmp_date_from, PropertyBag, PropertySet, PropertyValue, XmpMeta};
@@ -262,6 +263,12 @@ impl LibMetadata {
         property_bag
     }
 
+    // cxx
+    pub fn to_wrapped_properties(&self, propset: &PropertySet<Np>) -> *mut WrappedPropertyBag {
+        let bag = self.to_properties(propset);
+        Box::into_raw(Box::new(WrappedPropertyBag(into_u32(*bag))))
+    }
+
     pub fn touch(&mut self) -> bool {
         let xmpdate = xmp_date_from(&Utc::now());
         self.xmp
@@ -299,8 +306,6 @@ impl FromDb for LibMetadata {
     }
 }
 
-use npc_fwk::toolkit::widgets::WrappedPropertyBag;
-
 fn into_u32(from: NiepcePropertyBag) -> PropertyBag<u32> {
     PropertyBag {
         bag: from.bag.iter().map(|v| (*v).into()).collect(),
@@ -310,15 +315,4 @@ fn into_u32(from: NiepcePropertyBag) -> PropertyBag<u32> {
             .map(|(k, v)| ((*k).into(), v.clone()))
             .collect(),
     }
-}
-
-#[no_mangle]
-pub extern "C" fn engine_libmetadata_to_wrapped_properties(
-    meta: &LibMetadata,
-    propset: &NiepcePropertySet,
-) -> *mut WrappedPropertyBag {
-    let bag = meta.to_properties(propset);
-    let bag = into_u32(*bag);
-    let result = Box::new(WrappedPropertyBag(bag));
-    Box::into_raw(result)
 }

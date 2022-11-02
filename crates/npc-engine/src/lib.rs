@@ -40,28 +40,7 @@ impl std::ops::Deref for PropertySet {
     }
 }
 
-use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::PropertyValue;
-
-/// Delete the %WrappedPropertyBag object
-///
-/// # Safety
-/// Dereference the raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_wrapped_property_bag_delete(bag: *mut WrappedPropertyBag) {
-    drop(Box::from_raw(bag));
-}
-
-/// Clone the %WrappedPropertyBag object. Use this to take it out of the GValue.
-///
-/// # Safety
-/// Dereference the raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_wrapped_property_bag_clone(
-    bag: *const WrappedPropertyBag,
-) -> *mut WrappedPropertyBag {
-    Box::into_raw(Box::new((*bag).clone()))
-}
 
 // must be a tuple for cxx
 #[derive(Default)]
@@ -124,6 +103,7 @@ mod ffi {
 
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
         type PropertyValue = npc_fwk::PropertyValue;
+        type WrappedPropertyBag = npc_fwk::toolkit::widgets::WrappedPropertyBag;
     }
 
     #[repr(i32)]
@@ -198,6 +178,7 @@ mod ffi {
 
         fn id(&self) -> i64;
         fn to_properties(&self, propset: &PropertySet) -> Box<PropertyBag>;
+        fn to_wrapped_properties(&self, propset: &PropertySet) -> *mut WrappedPropertyBag;
     }
 
     #[namespace = "fwk"]
