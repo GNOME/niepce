@@ -18,7 +18,6 @@
  */
 
 use std::cell::{Ref, RefCell, RefMut};
-use std::ptr;
 use std::rc::{Rc, Weak};
 use std::sync::Arc;
 
@@ -153,16 +152,6 @@ impl SelectionController {
     /// Get the file with `id`.
     pub fn file(&self, id: db::LibraryId) -> Option<LibFile> {
         self.handler.store.file(id)
-    }
-
-    // cxx
-    /// Get the file with `id`. For the cxx bindings
-    pub fn get_file(&self, id: db::LibraryId) -> *mut LibFile {
-        self.handler
-            .store
-            .file(id)
-            .map(|f| Box::into_raw(Box::new(f)))
-            .unwrap_or(ptr::null_mut())
     }
 
     pub fn selection(&self) -> Option<db::LibraryId> {

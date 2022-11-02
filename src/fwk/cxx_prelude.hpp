@@ -37,6 +37,10 @@ namespace mapm {
 class MapModule;
 }
 
+namespace dr {
+class DarkroomModule;
+}
+
 typedef struct _GtkWidget GtkWidget;
 
 namespace npc {

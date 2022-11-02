@@ -199,7 +199,6 @@ mod ffi {
         #[cxx_name = "get_list_store"]
         fn list_store(&self) -> &ImageListStoreWrap;
 
-        fn get_file(&self, id: i64) -> *mut LibFile;
         fn rotate(&self, angle: i32);
         fn set_label(&self, label: i32);
         fn set_rating(&self, rating: i32);
@@ -242,5 +241,19 @@ mod ffi {
         fn build_widget(&self) -> *const GtkWidget;
         fn on_lib_notification(&self, ln: &LibNotification);
         fn set_active(&self, active: bool);
+    }
+
+    #[namespace = "dr"]
+    unsafe extern "C++" {
+        include!("niepce/modules/darkroom/darkroommodule.hpp");
+        type DarkroomModule;
+
+        fn darkroom_module_new() -> SharedPtr<DarkroomModule>;
+        // call buildWidget(). But it's mutable.
+        fn build_widget(&self) -> *const GtkWidget;
+        fn set_active(&self, active: bool);
+        /// # Safety
+        /// Dereference a pointer
+        unsafe fn set_image(&self, file: *mut LibFile);
     }
 }

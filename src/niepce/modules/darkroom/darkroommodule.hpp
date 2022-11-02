@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
+
 #pragma once
 
 #include <optional>
@@ -43,11 +45,9 @@ class DarkroomModule
     : public ui::ILibraryModule
 {
 public:
-    typedef std::shared_ptr<DarkroomModule> Ptr;
+    DarkroomModule();
 
-    DarkroomModule(const ui::SelectionController& selection_controller);
-
-    void set_image(std::optional<eng::LibFilePtr>&& file);
+    void set_image(eng::LibFile* file) const;
 
     virtual void dispatch_action(const std::string & action_name) override;
 
@@ -62,9 +62,6 @@ protected:
     virtual Gtk::Widget * buildWidget() override;
 
 private:
-    void on_selected(eng::library_id_t id);
-
-    const ui::SelectionController& m_selection_controller;
     // darkroom split view
     Gtk::Paned                   m_dr_splitview;
     Gtk::Box                     m_vbox;
@@ -72,7 +69,7 @@ private:
     Gtk::ScrolledWindow          m_canvas_scroll;
     ToolboxController::Ptr       m_toolbox_ctrl;
     Glib::RefPtr<Gio::ActionGroup> m_actionGroup;
-    std::optional<eng::LibFilePtr> m_imagefile;
+    mutable std::optional<eng::LibFilePtr> m_imagefile;
     ncr::Image::Ptr              m_image;
     fwk::Dock                   *m_dock;
 
@@ -80,6 +77,11 @@ private:
     mutable bool m_active;
     mutable bool m_need_reload;
 };
+
+inline
+std::shared_ptr<DarkroomModule> darkroom_module_new() {
+    return std::make_shared<DarkroomModule>();
+}
 
 }
 /*
@@ -91,3 +93,5 @@ private:
   fill-column:80
   End:
 */
+
+#endif
