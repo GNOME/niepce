@@ -56,7 +56,11 @@ mod ffi {
     #[namespace = ""]
     unsafe extern "C++" {
         type GMenu;
+        type GtkApplication;
         type GtkIconView;
+        type GtkListStore;
+        type GtkTreeIter;
+        type GtkTreePath;
         type GtkWidget;
         type GtkWindow;
     }
@@ -146,12 +150,12 @@ mod ffi {
     extern "Rust" {
         type NiepceWindowWrapper;
 
-        unsafe fn niepce_window_new(app: *mut c_char) -> Box<NiepceWindowWrapper>;
+        unsafe fn niepce_window_new(app: *mut GtkApplication) -> Box<NiepceWindowWrapper>;
         fn on_ready(&self);
         fn on_open_catalog(&self);
-        fn widget(&self) -> *mut c_char;
-        fn window(&self) -> *mut c_char;
-        fn menu(&self) -> *mut c_char;
+        fn widget(&self) -> *mut GtkWidget;
+        fn window(&self) -> *mut GtkWindow;
+        fn menu(&self) -> *mut GMenu;
     }
 
     #[namespace = "ui"]
@@ -159,11 +163,11 @@ mod ffi {
         type ImageListStore;
 
         fn clear_content(&self);
-        fn gobj(&self) -> *mut c_char;
+        fn gobj(&self) -> *mut GtkListStore;
         fn get_file_(&self, id: i64) -> *mut LibFile;
         #[cxx_name = "get_libfile_id_at_path"]
-        unsafe fn get_file_id_at_path_(&self, path: *const c_char) -> i64;
-        fn get_iter_from_id_(&self, id: i64) -> *const c_char;
+        unsafe fn get_file_id_at_path_(&self, path: *const GtkTreePath) -> i64;
+        fn get_iter_from_id_(&self, id: i64) -> *const GtkTreeIter;
     }
 
     #[namespace = "ui"]

@@ -58,7 +58,7 @@ Application::Ptr NiepceApplication::create(int & argc, char** & argv)
 
 Frame::Ptr NiepceApplication::makeMainFrame()
 {
-    auto ptr = Frame::Ptr(new NiepceWindow_2(npc::niepce_window_new((char*)gtkApp()->gobj())));
+    auto ptr = Frame::Ptr(new NiepceWindow_2(npc::niepce_window_new(gtkApp()->gobj())));
     m_main_frame = ptr;
     return ptr;
 }

@@ -19,7 +19,6 @@
 
 use std::cell::{Cell, RefCell};
 use std::collections::BTreeMap;
-use std::ffi::c_char;
 use std::ptr;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -140,13 +139,13 @@ impl ImageListStore {
     }
 
     // cxx
-    pub fn get_iter_from_id_(&self, id: i64) -> *const c_char {
+    pub fn get_iter_from_id_(&self, id: i64) -> *const crate::ffi::GtkTreeIter {
         self.idmap
             .borrow()
             .get(&id)
             .map(|iter| {
                 let c_iter: *const gtk4_sys::GtkTreeIter = iter.to_glib_none().0;
-                c_iter as *const c_char
+                c_iter as *const crate::ffi::GtkTreeIter
             })
             .unwrap_or(ptr::null())
     }
@@ -358,9 +357,9 @@ impl ImageListStore {
 
     // cxx
     /// Return the gobj for the GtkListStore. You must ref it to hold it.
-    pub fn gobj(&self) -> *mut c_char {
+    pub fn gobj(&self) -> *mut crate::ffi::GtkListStore {
         let w: *mut gtk4_sys::GtkListStore = self.store.to_glib_none().0;
-        w as *mut c_char
+        w as *mut crate::ffi::GtkListStore
     }
 
     // cxx
@@ -368,7 +367,7 @@ impl ImageListStore {
     ///
     /// # Safety
     /// Use glib pointers.
-    pub unsafe fn get_file_id_at_path_(&self, path: *const c_char) -> i64 {
+    pub unsafe fn get_file_id_at_path_(&self, path: *const crate::ffi::GtkTreePath) -> i64 {
         assert!(!path.is_null());
         let path = path as *const gtk4_sys::GtkTreePath;
         self.get_file_id_at_path(&from_glib_borrow(path))

@@ -220,7 +220,7 @@ eng::library_id_t GridViewModule::get_selected() const
         auto& model = m_selection_controller.get_list_store();
         Gtk::TreePath path(*(paths.begin()));
         DBG_OUT("found path %s", path.to_string().c_str());
-        id = model.unwrap_ref().get_libfile_id_at_path((const char*)path.gobj());
+        id = model.unwrap_ref().get_libfile_id_at_path(path.gobj());
     }
     DBG_OUT("get_selected %Ld", (long long)id);
     return id;

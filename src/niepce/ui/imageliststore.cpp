@@ -27,7 +27,7 @@ Gtk::TreePath ImageListStore_get_path_from_id(const ImageListStore& self, eng::l
 {
     auto path = self.get_iter_from_id_(id);
     if (path) {
-        auto iter = (GtkTreeIter*)const_cast<char*>(path);
+        auto iter = const_cast<GtkTreeIter*>(path);
         auto tree_path = Glib::wrap(gtk_tree_model_get_path(GTK_TREE_MODEL(self.gobj()), iter));
         return tree_path;
     }

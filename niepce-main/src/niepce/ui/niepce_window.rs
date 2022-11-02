@@ -470,15 +470,17 @@ impl NiepceWindow {
         if let Some(ref libclient) = *self.libraryclient.borrow() {
             let editlabel_dialog = crate::ffi::edit_labels_new(libclient);
             let parent: *mut gtk4_sys::GtkWindow = self.window().to_glib_none().0;
-            unsafe { editlabel_dialog.run_modal(parent as *mut crate::ffi::GtkWindow,
-                                        glib::clone!(@strong editlabel_dialog => move |_| {
-                                            // XXX find a way to reset editlabal_dialog
-                                        })); }
+            unsafe {
+                editlabel_dialog.run_modal(
+                    parent as *mut crate::ffi::GtkWindow,
+                    glib::clone!(@strong editlabel_dialog => move |_| {
+                        // XXX find a way to reset editlabal_dialog
+                    }),
+                );
+            }
         }
     }
 }
-
-use std::ffi::c_char;
 
 /// C++ wrapper around the Rc.
 /// Only used for the ffi
@@ -486,7 +488,7 @@ pub struct NiepceWindowWrapper(Rc<NiepceWindow>);
 
 /// # Safety
 /// Dereference a pointer.
-pub unsafe fn niepce_window_new(app: *mut c_char) -> Box<NiepceWindowWrapper> {
+pub unsafe fn niepce_window_new(app: *mut crate::ffi::GtkApplication) -> Box<NiepceWindowWrapper> {
     let app = app as *mut gtk4_sys::GtkApplication;
     Box::new(NiepceWindowWrapper(NiepceWindow::new(&from_glib_none(app))))
 }
@@ -501,22 +503,22 @@ impl NiepceWindowWrapper {
     }
 
     // Return a GtkWidget
-    pub fn widget(&self) -> *mut c_char {
+    pub fn widget(&self) -> *mut crate::ffi::GtkWidget {
         let w: *mut gtk4_sys::GtkWidget = self.0.widget().to_glib_none().0;
-        w as *mut c_char
+        w as *mut crate::ffi::GtkWidget
     }
 
     // Return a GtkWindow
-    pub fn window(&self) -> *mut c_char {
+    pub fn window(&self) -> *mut crate::ffi::GtkWindow {
         let w: *mut gtk4_sys::GtkWindow = self.0.window().to_glib_none().0;
-        w as *mut c_char
+        w as *mut crate::ffi::GtkWindow
     }
 
     // Return a GMenu
-    pub fn menu(&self) -> *mut c_char {
+    pub fn menu(&self) -> *mut crate::ffi::GMenu {
         if let Some(widgets) = self.0.widgets.get() {
             let m: *mut gio_sys::GMenu = widgets.main_menu.to_glib_none().0;
-            m as *mut c_char
+            m as *mut crate::ffi::GMenu
         } else {
             std::ptr::null_mut()
         }
