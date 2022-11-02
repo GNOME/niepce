@@ -58,6 +58,7 @@ mod ffi {
         type GMenu;
         type GtkIconView;
         type GtkWidget;
+        type GtkWindow;
     }
 
     extern "Rust" {
@@ -255,5 +256,14 @@ mod ffi {
         /// # Safety
         /// Dereference a pointer
         unsafe fn set_image(&self, file: *mut LibFile);
+    }
+
+    #[namespace = "ui"]
+    unsafe extern "C++" {
+        include!("niepce/ui/dialogs/editlabels.hpp");
+        type EditLabels;
+
+        fn edit_labels_new(libclient: &LibraryClientHost) -> SharedPtr<EditLabels>;
+        unsafe fn run_modal(&self, parent: *mut GtkWindow, on_ok: fn(i32));
     }
 }

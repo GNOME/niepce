@@ -31,6 +31,7 @@ class ThumbnailCache;
 namespace ui {
 class ModuleShell;
 class GridViewModule;
+class EditLabels;
 }
 
 namespace mapm {

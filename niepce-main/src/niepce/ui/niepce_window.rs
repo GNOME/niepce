@@ -291,7 +291,7 @@ impl NiepceWindow {
                     widgets.shell.action_edit_delete()
                 }
             }
-            EditLabels => todo!(),
+            EditLabels => self.on_action_edit_labels(),
             ToggleToolsVisible => {
                 // XXX todo
             }
@@ -463,6 +463,18 @@ impl NiepceWindow {
         });
 
         workspace.startup();
+    }
+
+    fn on_action_edit_labels(&self) {
+        dbg_out!("edit labels");
+        if let Some(ref libclient) = *self.libraryclient.borrow() {
+            let editlabel_dialog = crate::ffi::edit_labels_new(libclient);
+            let parent: *mut gtk4_sys::GtkWindow = self.window().to_glib_none().0;
+            unsafe { editlabel_dialog.run_modal(parent as *mut crate::ffi::GtkWindow,
+                                        glib::clone!(@strong editlabel_dialog => move |_| {
+                                            // XXX find a way to reset editlabal_dialog
+                                        })); }
+        }
     }
 }
 

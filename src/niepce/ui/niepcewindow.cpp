@@ -157,23 +157,6 @@ NiepceWindow::_createModuleShell()
     selection_controller->add_selectable(m_filmstrip);
 }
 
-
-void NiepceWindow::on_action_edit_labels()
-{
-    DBG_OUT("edit labels");
-    auto libclient = getLibraryClient();
-    DBG_ASSERT(!!getLibraryClient(), "No library client");
-    // This is an error. Just make it safe.
-    if (libclient) {
-        // get the labels.
-        m_editlabel_dialog = EditLabels::Ptr(new EditLabels(libclient));
-        // XXX I do have serious doubt on the safety of this
-        m_editlabel_dialog->run_modal(shared_frame_ptr(), [this] (int) {
-            m_editlabel_dialog.reset((EditLabels*)nullptr);
-        });
-    }
-}
-
 }
 /*
   Local Variables:

@@ -30,16 +30,15 @@
 #include "fwk/toolkit/gdkutils.hpp"
 #include "editlabels.hpp"
 
-
 using libraryclient::LibraryClientPtr;
 
 namespace ui {
 
-EditLabels::EditLabels(const LibraryClientPtr & libclient)
+EditLabels::EditLabels(const npc::LibraryClientHost& libclient)
     : fwk::Dialog("/org/gnome/Niepce/ui/editlabels.ui", "editLabels")
     , m_lib_client(libclient)
 {
-    auto& provider = libclient->getDataProvider();
+    auto& provider = libclient.getDataProvider();
     auto count = provider.label_count();
     for (size_t i = 0; i < count; i++) {
         m_labels.push_back(rust::Box<eng::Label>::from_raw(provider.label_at(i)));
@@ -48,6 +47,10 @@ EditLabels::EditLabels(const LibraryClientPtr & libclient)
     std::fill(m_status.begin(), m_status.end(), false);
 }
 
+void EditLabels::run_modal(GtkWindow* parent, rust::Fn<void(int32_t)> on_ok) const
+{
+    run_modal_(parent, on_ok);
+}
 
 void EditLabels::setup_widget()
 {
@@ -108,7 +111,7 @@ void EditLabels::update_labels(int /*response*/)
             }
             std::string new_colour(fwk::gdkcolor_to_rgbcolour(m_colours[i]->get_rgba())->to_string());
 
-            auto client = &m_lib_client->client();
+            auto client = &m_lib_client.client();
             if(has_label) {
                 std::string current_name(m_labels[i]->label());
                 std::string current_colour(m_labels[i]->colour().to_string());
