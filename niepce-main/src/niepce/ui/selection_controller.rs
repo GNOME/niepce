@@ -251,24 +251,21 @@ impl SelectionController {
     ) -> bool {
         let mut undo = Box::new(UndoTransaction::new(undo_label));
         for key in props.0.keys() {
-            if let Some(old_value) = old.0.value(key).cloned() {
-                let new_value = props.0.value(key).cloned().unwrap();
-                let key = *key;
-                let client_undo = self.client.clone();
-                let client_redo = self.client.clone();
-                let command = UndoCommand::new(
-                    Box::new(move || {
-                        client_redo.set_metadata(file_id, Np::from(key), &new_value);
-                        npc_fwk::toolkit::Storage::Void
-                    }),
-                    Box::new(move |_| {
-                        client_undo.set_metadata(file_id, Np::from(key), &old_value);
-                    }),
-                );
-                undo.add(command);
-            } else {
-                err_out!("old value for property {} is None", key);
-            }
+            let old_value = old.0.value(key).cloned().unwrap_or(PropertyValue::Empty);
+            let new_value = props.0.value(key).cloned().unwrap();
+            let key = *key;
+            let client_undo = self.client.clone();
+            let client_redo = self.client.clone();
+            let command = UndoCommand::new(
+                Box::new(move || {
+                    client_redo.set_metadata(file_id, Np::from(key), &new_value);
+                    npc_fwk::toolkit::Storage::Void
+                }),
+                Box::new(move |_| {
+                    client_undo.set_metadata(file_id, Np::from(key), &old_value);
+                }),
+            );
+            undo.add(command);
         }
         undo.execute();
         npc_fwk::ffi::Application_app().begin_undo(undo);
