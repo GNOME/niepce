@@ -31,7 +31,7 @@
 
 namespace ui {
 
-using ffi::NiepcePropertyIdx;
+using eng::NiepcePropertyIdx;
 
 const fwk::PropertySet* MetaDataPaneController::get_property_set()
 {

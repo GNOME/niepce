@@ -285,7 +285,7 @@ impl SelectionController {
     }
 
     fn set_property(&self, idx: db::NiepcePropertyIdx, value: i32) {
-        dbg_out!("property {} = {}", idx as u32, value);
+        dbg_out!("property {} = {}", idx.repr, value);
         if let Some(selection) = self.selection() {
             if let Some(mut file) = self.handler.store.file(selection) {
                 dbg_out!("old property is {}", file.property(Np::Index(idx)));

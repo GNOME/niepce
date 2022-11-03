@@ -30,7 +30,7 @@ use once_cell::unsync::OnceCell;
 use crate::libraryclient::{ClientInterface, LibraryClient};
 use npc_engine::db::libfile::{FileStatus, LibFile};
 use npc_engine::db::props::NiepceProperties as Np;
-use npc_engine::db::props::NiepcePropertyIdx::*;
+use npc_engine::db::props::NiepcePropertyIdx as Npi;
 use npc_engine::db::LibraryId;
 use npc_engine::library::notification::{LibNotification, MetadataChange};
 use npc_engine::library::thumbnail_cache::ThumbnailCache;
@@ -132,10 +132,10 @@ impl ImageListStore {
     }
 
     fn is_property_interesting(idx: Np) -> bool {
-        (idx == Np::Index(NpXmpRatingProp))
-            || (idx == Np::Index(NpXmpLabelProp))
-            || (idx == Np::Index(NpTiffOrientationProp))
-            || (idx == Np::Index(NpNiepceFlagProp))
+        (idx == Np::Index(Npi::NpXmpRatingProp))
+            || (idx == Np::Index(Npi::NpXmpLabelProp))
+            || (idx == Np::Index(Npi::NpTiffOrientationProp))
+            || (idx == Np::Index(Npi::NpNiepceFlagProp))
     }
 
     // cxx

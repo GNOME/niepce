@@ -782,7 +782,6 @@ name = "npc-engine"
 version = "0.1.0"
 dependencies = [
  "async-channel",
- "cbindgen",
  "chrono",
  "cxx",
  "exempi",

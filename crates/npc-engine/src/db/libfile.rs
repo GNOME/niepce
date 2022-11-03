@@ -26,6 +26,7 @@ use super::fsfile::FsFile;
 use super::FromDb;
 use super::LibraryId;
 use super::NiepceProperties as Np;
+use super::NiepcePropertyIdx as Npi;
 
 pub use crate::ffi::FileType;
 
@@ -192,12 +193,11 @@ impl LibFile {
     }
 
     pub fn property(&self, idx: Np) -> i32 {
-        use super::NiepcePropertyIdx::*;
         match idx {
-            Np::Index(NpTiffOrientationProp) => self.orientation(),
-            Np::Index(NpXmpRatingProp) => self.rating(),
-            Np::Index(NpXmpLabelProp) => self.label(),
-            Np::Index(NpNiepceFlagProp) => self.flag(),
+            Np::Index(Npi::NpTiffOrientationProp) => self.orientation(),
+            Np::Index(Npi::NpXmpRatingProp) => self.rating(),
+            Np::Index(Npi::NpXmpLabelProp) => self.label(),
+            Np::Index(Npi::NpNiepceFlagProp) => self.flag(),
             _ => -1,
         }
     }
@@ -208,12 +208,11 @@ impl LibFile {
     }
 
     pub fn set_property(&mut self, idx: Np, value: i32) {
-        use super::NiepcePropertyIdx::*;
         match idx {
-            Np::Index(NpTiffOrientationProp) => self.set_orientation(value),
-            Np::Index(NpXmpRatingProp) => self.set_rating(value),
-            Np::Index(NpXmpLabelProp) => self.set_label(value),
-            Np::Index(NpNiepceFlagProp) => self.set_flag(value),
+            Np::Index(Npi::NpTiffOrientationProp) => self.set_orientation(value),
+            Np::Index(Npi::NpXmpRatingProp) => self.set_rating(value),
+            Np::Index(Npi::NpXmpLabelProp) => self.set_label(value),
+            Np::Index(Npi::NpNiepceFlagProp) => self.set_flag(value),
             _ => err_out!("invalid property {:?} - noop", idx),
         };
     }

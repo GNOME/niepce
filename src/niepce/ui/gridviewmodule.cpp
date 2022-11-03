@@ -67,22 +67,18 @@ GridViewModule::~GridViewModule()
 void
 GridViewModule::on_lib_notification(const eng::LibNotification &ln, const npc::LibraryClientWrapper& client) const
 {
-    switch (ffi::engine_library_notification_type(&ln)) {
+    switch (ln.type_()) {
     case eng::NotificationType::METADATA_QUERIED:
     {
-        auto lm = ffi::engine_library_notification_get_libmetadata(&ln);
+        auto& lm = ln.get_libmetadata();
         DBG_OUT("received metadata");
-        if (lm) {
-            m_metapanecontroller->display(lm->id(), lm);
-        } else {
-            ERR_OUT("Invalid LibMetadata (nullptr)");
-        }
+        m_metapanecontroller->display(lm.id(), &lm);
         break;
     }
     case eng::NotificationType::METADATA_CHANGED:
     {
         DBG_OUT("metadata changed");
-        auto id = ffi::engine_library_notification_get_id(&ln);
+        auto id = ln.id();
         if(id && id == m_metapanecontroller->displayed_file()) {
             // FIXME: actually just update the metadata
             ffi::libraryclient_request_metadata(&client, id);

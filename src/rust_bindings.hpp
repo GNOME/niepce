@@ -55,7 +55,6 @@ typedef eng::LibNotification LibNotification;
 typedef npc::LibraryClientWrapper LibraryClientWrapper;
 }
 
-#include "target/eng_bindings.h"
 #include "target/bindings.h"
 
 namespace fwk {
@@ -74,12 +73,7 @@ typedef rust::Box<Keyword> KeywordPtr;
 typedef rust::Box<Label> LabelPtr;
 typedef std::vector<LabelPtr> LabelList;
 typedef rust::Box<LibFile> LibFilePtr;
-
-typedef ffi::NiepcePropertyIdx Np;
-using NiepcePropertyIdx = ffi::NiepcePropertyIdx;
 typedef ffi::LibraryId library_id_t; // XXX change this to LibraryId
-typedef ffi::Managed Managed;
-typedef ffi::NotificationType NotificationType;
 }
 
 namespace libraryclient {

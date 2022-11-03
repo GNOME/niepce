@@ -93,6 +93,7 @@ pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
 use crate::db::{Keyword, Label, LibFile, LibFolder, LibMetadata};
+use crate::library::notification::LibNotification;
 
 #[cxx::bridge(namespace = "eng")]
 mod ffi {
@@ -104,6 +105,45 @@ mod ffi {
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
         type PropertyValue = npc_fwk::PropertyValue;
         type WrappedPropertyBag = npc_fwk::toolkit::widgets::WrappedPropertyBag;
+    }
+
+    #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[repr(u32)]
+    pub enum NiepcePropertyIdx {
+        NpFileNameProp,
+        NpFileTypeProp,
+        NpFileSizeProp,
+        NpFolderProp,
+        NpSidecarsProp,
+        NpXmpRatingProp,
+        NpXmpLabelProp,
+        NpTiffOrientationProp,
+        NpTiffMakeProp,
+        NpTiffModelProp,
+        NpExifAuxLensProp,
+        NpExifExposureProgramProp,
+        NpExifExposureTimeProp,
+        NpExifFNumberPropProp,
+        NpExifIsoSpeedRatingsProp,
+        NpExifExposureBiasProp,
+        NpExifFlashFiredProp,
+        NpExifAuxFlashCompensationProp,
+        NpExifWbProp,
+        NpExifDateTimeOriginalProp,
+        NpExifFocalLengthProp,
+        NpExifGpsLongProp,
+        NpExifGpsLatProp,
+        NpIptcHeadlineProp,
+        NpIptcDescriptionProp,
+        NpIptcKeywordsProp,
+        NpNiepceFlagProp,
+    }
+
+    #[repr(i32)]
+    #[derive(PartialEq, Clone, Copy, Eq)]
+    pub enum Managed {
+        NO = 0,
+        YES = 1,
     }
 
     #[repr(i32)]
@@ -204,5 +244,41 @@ mod ffi {
 
     extern "Rust" {
         type ThumbnailCache;
+    }
+
+    #[repr(i32)]
+    #[allow(non_camel_case_types)]
+    pub enum NotificationType {
+        NONE,
+        NEW_LIBRARY_CREATED,
+        ADDED_FOLDER,
+        ADDED_FILE,
+        ADDED_FILES,
+        ADDED_KEYWORD,
+        ADDED_LABEL,
+        FOLDER_CONTENT_QUERIED,
+        FOLDER_DELETED,
+        FOLDER_COUNTED,
+        FOLDER_COUNT_CHANGE,
+        KEYWORD_CONTENT_QUERIED,
+        KEYWORD_COUNTED,
+        KEYWORD_COUNT_CHANGE,
+        METADATA_QUERIED,
+        METADATA_CHANGED,
+        LABEL_CHANGED,
+        LABEL_DELETED,
+        XMP_NEEDS_UPDATE,
+        FILE_MOVED,
+        FILE_STATUS_CHANGED,
+        ThumbnailLoaded,
+    }
+
+    extern "Rust" {
+        type LibNotification;
+
+        fn type_(&self) -> NotificationType;
+        fn id(&self) -> i64;
+        fn get_libmetadata(&self) -> &LibMetadata;
+
     }
 }

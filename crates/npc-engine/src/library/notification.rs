@@ -20,9 +20,6 @@
 use super::queriedcontent::QueriedContent;
 use crate::db::libfile::FileStatus;
 use crate::db::{Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
-use npc_fwk::base::PropertyIndex;
-use npc_fwk::err_out;
-use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail;
 use npc_fwk::PropertyValue;
 
@@ -36,32 +33,8 @@ unsafe impl ExternType for LcChannel {
     type Kind = cxx::kind::Opaque;
 }
 
-#[repr(i32)]
-#[allow(non_camel_case_types)]
-pub enum NotificationType {
-    NONE,
-    NEW_LIBRARY_CREATED,
-    ADDED_FOLDER,
-    ADDED_FILE,
-    ADDED_FILES,
-    ADDED_KEYWORD,
-    ADDED_LABEL,
-    FOLDER_CONTENT_QUERIED,
-    FOLDER_DELETED,
-    FOLDER_COUNTED,
-    FOLDER_COUNT_CHANGE,
-    KEYWORD_CONTENT_QUERIED,
-    KEYWORD_COUNTED,
-    KEYWORD_COUNT_CHANGE,
-    METADATA_QUERIED,
-    METADATA_CHANGED,
-    LABEL_CHANGED,
-    LABEL_DELETED,
-    XMP_NEEDS_UPDATE,
-    FILE_MOVED,
-    FILE_STATUS_CHANGED,
-    ThumbnailLoaded,
-}
+// cxx
+pub use crate::ffi::NotificationType;
 
 #[repr(C)]
 #[derive(Clone, Debug)]
@@ -137,64 +110,48 @@ unsafe impl ExternType for LibNotification {
     type Kind = cxx::kind::Opaque;
 }
 
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_notification_type(
-    n: *const LibNotification,
-) -> NotificationType {
-    match n.as_ref() {
-        Some(&LibNotification::AddedFile) => NotificationType::ADDED_FILE,
-        Some(&LibNotification::AddedFiles) => NotificationType::ADDED_FILES,
-        Some(&LibNotification::AddedFolder(_)) => NotificationType::ADDED_FOLDER,
-        Some(&LibNotification::AddedKeyword(_)) => NotificationType::ADDED_KEYWORD,
-        Some(&LibNotification::AddedLabel(_)) => NotificationType::ADDED_LABEL,
-        Some(&LibNotification::FileMoved(_)) => NotificationType::FILE_MOVED,
-        Some(&LibNotification::FileStatusChanged(_)) => NotificationType::FILE_STATUS_CHANGED,
-        Some(&LibNotification::FolderContentQueried(_)) => NotificationType::FOLDER_CONTENT_QUERIED,
-        Some(&LibNotification::FolderCounted(_)) => NotificationType::FOLDER_COUNTED,
-        Some(&LibNotification::FolderCountChanged(_)) => NotificationType::FOLDER_COUNT_CHANGE,
-        Some(&LibNotification::FolderDeleted(_)) => NotificationType::FOLDER_DELETED,
-        Some(&LibNotification::KeywordContentQueried(_)) => {
-            NotificationType::KEYWORD_CONTENT_QUERIED
+impl LibNotification {
+    pub fn type_(&self) -> NotificationType {
+        match *self {
+            LibNotification::AddedFile => NotificationType::ADDED_FILE,
+            LibNotification::AddedFiles => NotificationType::ADDED_FILES,
+            LibNotification::AddedFolder(_) => NotificationType::ADDED_FOLDER,
+            LibNotification::AddedKeyword(_) => NotificationType::ADDED_KEYWORD,
+            LibNotification::AddedLabel(_) => NotificationType::ADDED_LABEL,
+            LibNotification::FileMoved(_) => NotificationType::FILE_MOVED,
+            LibNotification::FileStatusChanged(_) => NotificationType::FILE_STATUS_CHANGED,
+            LibNotification::FolderContentQueried(_) => NotificationType::FOLDER_CONTENT_QUERIED,
+            LibNotification::FolderCounted(_) => NotificationType::FOLDER_COUNTED,
+            LibNotification::FolderCountChanged(_) => NotificationType::FOLDER_COUNT_CHANGE,
+            LibNotification::FolderDeleted(_) => NotificationType::FOLDER_DELETED,
+            LibNotification::KeywordContentQueried(_) => NotificationType::KEYWORD_CONTENT_QUERIED,
+            LibNotification::KeywordCounted(_) => NotificationType::KEYWORD_COUNTED,
+            LibNotification::KeywordCountChanged(_) => NotificationType::KEYWORD_COUNT_CHANGE,
+            LibNotification::LabelChanged(_) => NotificationType::LABEL_CHANGED,
+            LibNotification::LabelDeleted(_) => NotificationType::LABEL_DELETED,
+            LibNotification::LibCreated => NotificationType::NEW_LIBRARY_CREATED,
+            LibNotification::MetadataChanged(_) => NotificationType::METADATA_CHANGED,
+            LibNotification::MetadataQueried(_) => NotificationType::METADATA_QUERIED,
+            LibNotification::XmpNeedsUpdate => NotificationType::XMP_NEEDS_UPDATE,
+            LibNotification::ThumbnailLoaded(_) => NotificationType::ThumbnailLoaded,
         }
-        Some(&LibNotification::KeywordCounted(_)) => NotificationType::KEYWORD_COUNTED,
-        Some(&LibNotification::KeywordCountChanged(_)) => NotificationType::KEYWORD_COUNT_CHANGE,
-        Some(&LibNotification::LabelChanged(_)) => NotificationType::LABEL_CHANGED,
-        Some(&LibNotification::LabelDeleted(_)) => NotificationType::LABEL_DELETED,
-        Some(&LibNotification::LibCreated) => NotificationType::NEW_LIBRARY_CREATED,
-        Some(&LibNotification::MetadataChanged(_)) => NotificationType::METADATA_CHANGED,
-        Some(&LibNotification::MetadataQueried(_)) => NotificationType::METADATA_QUERIED,
-        Some(&LibNotification::XmpNeedsUpdate) => NotificationType::XMP_NEEDS_UPDATE,
-        Some(&LibNotification::ThumbnailLoaded(_)) => NotificationType::ThumbnailLoaded,
-        None => unreachable!(),
     }
-}
 
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_notification_get_id(
-    n: *const LibNotification,
-) -> LibraryId {
-    match n.as_ref() {
-        Some(&LibNotification::MetadataChanged(ref changed)) => changed.id,
-        Some(&LibNotification::FolderDeleted(id)) => id,
-        Some(&LibNotification::LabelDeleted(id)) => id,
-        Some(&LibNotification::FileStatusChanged(ref changed)) => changed.id,
-        Some(&LibNotification::ThumbnailLoaded(ref thumbnail)) => thumbnail.id,
-        _ => unreachable!(),
+    pub fn id(&self) -> i64 {
+        match *self {
+            LibNotification::MetadataChanged(ref changed) => changed.id,
+            LibNotification::FolderDeleted(id) => id,
+            LibNotification::LabelDeleted(id) => id,
+            LibNotification::FileStatusChanged(ref changed) => changed.id,
+            LibNotification::ThumbnailLoaded(ref thumbnail) => thumbnail.id,
+            _ => unreachable!(),
+        }
     }
-}
 
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_notification_get_libmetadata(
-    n: *const LibNotification,
-) -> *const LibMetadata {
-    match n.as_ref() {
-        Some(&LibNotification::MetadataQueried(ref m)) => m,
-        _ => unreachable!(),
+    pub fn get_libmetadata(&self) -> &LibMetadata {
+        match *self {
+            LibNotification::MetadataQueried(ref m) => m,
+            _ => unreachable!(),
+        }
     }
 }

@@ -195,32 +195,32 @@ impl LibMetadata {
     }
 
     pub fn to_properties(&self, propset: &PropertySet<Np>) -> Box<NiepcePropertyBag> {
-        use super::NiepcePropertyIdx::*;
+        use super::NiepcePropertyIdx as Npi;
         let mut property_bag = Box::new(NiepcePropertyBag::default());
         let props = &mut property_bag.deref_mut().0;
         for prop_id in propset {
             match *prop_id {
-                Np::Index(NpXmpRatingProp) => {
+                Np::Index(Npi::NpXmpRatingProp) => {
                     if let Some(rating) = self.xmp.rating() {
                         props.set_value(*prop_id, PropertyValue::Int(rating));
                     }
                 }
-                Np::Index(NpXmpLabelProp) => {
+                Np::Index(Npi::NpXmpLabelProp) => {
                     if let Some(label) = self.xmp.label() {
                         props.set_value(*prop_id, PropertyValue::String(label));
                     }
                 }
-                Np::Index(NpTiffOrientationProp) => {
+                Np::Index(Npi::NpTiffOrientationProp) => {
                     if let Some(orientation) = self.xmp.orientation() {
                         props.set_value(*prop_id, PropertyValue::Int(orientation));
                     }
                 }
-                Np::Index(NpExifDateTimeOriginalProp) => {
+                Np::Index(Npi::NpExifDateTimeOriginalProp) => {
                     if let Some(date) = self.xmp.creation_date().map(Date) {
                         props.set_value(*prop_id, PropertyValue::Date(date));
                     }
                 }
-                Np::Index(NpIptcKeywordsProp) => {
+                Np::Index(Npi::NpIptcKeywordsProp) => {
                     let mut iter = exempi::XmpIterator::new(
                         &self.xmp.xmp,
                         NS_DC,
@@ -237,18 +237,18 @@ impl LibMetadata {
                     }
                     props.set_value(*prop_id, PropertyValue::StringArray(keywords));
                 }
-                Np::Index(NpFileNameProp) => {
+                Np::Index(Npi::NpFileNameProp) => {
                     props.set_value(*prop_id, PropertyValue::String(self.name.clone()));
                 }
-                Np::Index(NpFileTypeProp) => {
+                Np::Index(Npi::NpFileTypeProp) => {
                     let file_type: &str = self.file_type.into();
                     props.set_value(*prop_id, PropertyValue::String(String::from(file_type)));
                 }
-                Np::Index(NpFileSizeProp) => {}
-                Np::Index(NpFolderProp) => {
+                Np::Index(Npi::NpFileSizeProp) => {}
+                Np::Index(Npi::NpFolderProp) => {
                     props.set_value(*prop_id, PropertyValue::String(self.folder.clone()));
                 }
-                Np::Index(NpSidecarsProp) => {
+                Np::Index(Npi::NpSidecarsProp) => {
                     props.set_value(*prop_id, PropertyValue::StringArray(self.sidecars.clone()));
                 }
                 _ => {
