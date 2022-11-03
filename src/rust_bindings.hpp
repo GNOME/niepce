@@ -78,7 +78,6 @@ typedef rust::Box<LibFile> LibFilePtr;
 typedef ffi::NiepcePropertyIdx Np;
 using NiepcePropertyIdx = ffi::NiepcePropertyIdx;
 typedef ffi::LibraryId library_id_t; // XXX change this to LibraryId
-typedef ffi::FileStatus FileStatus;
 typedef ffi::Managed Managed;
 typedef ffi::NotificationType NotificationType;
 }

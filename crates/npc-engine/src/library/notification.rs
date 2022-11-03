@@ -107,21 +107,6 @@ pub struct Thumbnail {
     pub pix: thumbnail::Thumbnail,
 }
 
-#[no_mangle]
-pub extern "C" fn metadatachange_get_id(meta: &MetadataChange) -> LibraryId {
-    meta.id
-}
-
-#[no_mangle]
-pub extern "C" fn metadatachange_get_meta(meta: &MetadataChange) -> PropertyIndex {
-    meta.meta.into()
-}
-
-#[no_mangle]
-pub extern "C" fn metadatachange_get_value(meta: &MetadataChange) -> *const PropertyValue {
-    &meta.value
-}
-
 #[derive(Clone, Debug)]
 pub enum LibNotification {
     AddedFile,
@@ -150,32 +135,6 @@ pub enum LibNotification {
 unsafe impl ExternType for LibNotification {
     type Id = type_id!("eng::LibNotification");
     type Kind = cxx::kind::Opaque;
-}
-
-/// Send a notification for the file status change.
-/// Return `false` if sending failed.
-#[no_mangle]
-pub extern "C" fn engine_library_notify_filestatus_changed(
-    channel: &LcChannel,
-    id: LibraryId,
-    status: FileStatus,
-) -> bool {
-    if let Err(err) = toolkit::thread_context().block_on(channel.0.clone().send(
-        LibNotification::FileStatusChanged(FileStatusChange { id, status }),
-    )) {
-        err_out!("Error sending notification: {}", err);
-        return false;
-    }
-    true
-}
-
-/// Delete the Notification object.
-///
-/// # Safety
-/// Use raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_notification_delete(n: *mut LibNotification) {
-    drop(Box::from_raw(n));
 }
 
 /// # Safety
@@ -228,22 +187,6 @@ pub unsafe extern "C" fn engine_library_notification_get_id(
     }
 }
 
-/// ffi: box the returned label pointer
-///
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_notification_get_label(
-    n: *const LibNotification,
-) -> *mut Label {
-    match n.as_ref() {
-        Some(&LibNotification::AddedLabel(ref l)) | Some(&LibNotification::LabelChanged(ref l)) => {
-            Box::into_raw(Box::new(l.clone()))
-        }
-        _ => unreachable!(),
-    }
-}
-
 /// # Safety
 /// Dereference a pointer.
 #[no_mangle]
@@ -252,45 +195,6 @@ pub unsafe extern "C" fn engine_library_notification_get_libmetadata(
 ) -> *const LibMetadata {
     match n.as_ref() {
         Some(&LibNotification::MetadataQueried(ref m)) => m,
-        _ => unreachable!(),
-    }
-}
-
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_notification_get_count(
-    n: *const LibNotification,
-) -> *const Count {
-    match n.as_ref() {
-        Some(&LibNotification::FolderCountChanged(ref c))
-        | Some(&LibNotification::FolderCounted(ref c))
-        | Some(&LibNotification::KeywordCountChanged(ref c))
-        | Some(&LibNotification::KeywordCounted(ref c)) => c,
-        _ => unreachable!(),
-    }
-}
-
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_notification_get_libfolder(
-    n: *const LibNotification,
-) -> *const LibFolder {
-    match n.as_ref() {
-        Some(&LibNotification::AddedFolder(ref f)) => f,
-        _ => unreachable!(),
-    }
-}
-
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_notification_get_keyword(
-    n: *const LibNotification,
-) -> *mut Keyword {
-    match n.as_ref() {
-        Some(&LibNotification::AddedKeyword(ref f)) => Box::into_raw(Box::new(f.clone())),
         _ => unreachable!(),
     }
 }
