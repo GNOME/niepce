@@ -268,6 +268,13 @@ mod ffi {
         type EditLabels;
 
         fn edit_labels_new(libclient: &LibraryClientHost) -> SharedPtr<EditLabels>;
-        unsafe fn run_modal(&self, parent: *mut GtkWindow, on_ok: fn(i32));
+        /// # Safety
+        /// Dereference a pointer
+        unsafe fn run_modal(
+            &self,
+            parent: *mut GtkWindow,
+            on_ok: unsafe fn(SharedPtr<EditLabels>, i32),
+            this_: SharedPtr<EditLabels>,
+        );
     }
 }

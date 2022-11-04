@@ -442,6 +442,7 @@ impl NiepceWindow {
         hbox.set_wide_handle(true);
         hbox.set_start_child(workspace.widget());
         hbox.set_end_child(module_widget);
+        // set the databinder for the `"workspace_splitter"` bound to hbox `position`
 
         let filmstrip = FilmStripController::new(module_shell.image_list_store());
         self.add(&toolkit::to_controller(filmstrip.clone()));
@@ -473,9 +474,10 @@ impl NiepceWindow {
             unsafe {
                 editlabel_dialog.run_modal(
                     parent as *mut crate::ffi::GtkWindow,
-                    glib::clone!(@strong editlabel_dialog => move |_| {
-                        // XXX find a way to reset editlabal_dialog
-                    }),
+                    move |p, _| {
+                        drop(p);
+                    },
+                    editlabel_dialog.clone(),
                 );
             }
         }

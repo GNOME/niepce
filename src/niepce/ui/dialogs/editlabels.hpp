@@ -33,6 +33,8 @@
 
 namespace ui {
 
+typedef std::shared_ptr<EditLabels> EditLabelsPtr;
+
 class EditLabels
     : public fwk::Dialog
 {
@@ -43,7 +45,7 @@ public:
 
     constexpr static int NUM_LABELS = 5;
 
-    void run_modal(GtkWindow* parent, rust::Fn<void(int32_t)> on_ok) const;
+    void run_modal(GtkWindow* parent, rust::Fn<void(EditLabelsPtr, int32_t)> on_ok, EditLabelsPtr) const;
 private:
     void label_name_changed(size_t idx);
     void label_colour_changed(size_t idx);
@@ -54,8 +56,6 @@ private:
     std::array<bool, NUM_LABELS> m_status;
     const npc::LibraryClientHost& m_lib_client;
 };
-
-typedef std::shared_ptr<EditLabels> EditLabelsPtr;
 
 inline
 EditLabelsPtr edit_labels_new(const npc::LibraryClientHost& client) {

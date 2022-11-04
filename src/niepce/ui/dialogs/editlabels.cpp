@@ -47,9 +47,9 @@ EditLabels::EditLabels(const npc::LibraryClientHost& libclient)
     std::fill(m_status.begin(), m_status.end(), false);
 }
 
-void EditLabels::run_modal(GtkWindow* parent, rust::Fn<void(int32_t)> on_ok) const
+void EditLabels::run_modal(GtkWindow* parent, rust::Fn<void(EditLabelsPtr, int32_t)> on_ok, EditLabelsPtr self) const
 {
-    run_modal_(parent, on_ok);
+    run_modal_(parent, [self, on_ok] (int32_t r) { on_ok(self, r); });
 }
 
 void EditLabels::setup_widget()
