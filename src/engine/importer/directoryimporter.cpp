@@ -93,7 +93,7 @@ bool DirectoryImporter::do_import(const std::string& source, const std::string& 
 {
     fwk::FileListPtr files = fwk::FileList_get_files_from_directory(source);
 
-    return callback(source, files, Managed::NO);
+    return callback(source, *files, Managed::NO);
 }
 
 }

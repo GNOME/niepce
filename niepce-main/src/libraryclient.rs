@@ -64,6 +64,14 @@ impl LibraryClientWrapper {
         }
     }
 
+    /// Re-wrap the LibraryClient
+    // cxx
+    pub fn wrap(client: &Arc<LibraryClient>) -> Self {
+        LibraryClientWrapper {
+            client: client.clone(),
+        }
+    }
+
     #[inline]
     pub fn client(&self) -> Arc<LibraryClient> {
         self.client.clone()

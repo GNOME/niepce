@@ -26,12 +26,14 @@ class LcChannel;
 class LibFile;
 class LibNotification;
 class ThumbnailCache;
+class IImporter;
 }
 
 namespace ui {
 class ModuleShell;
 class GridViewModule;
 class EditLabels;
+class ImportDialog;
 }
 
 namespace mapm {

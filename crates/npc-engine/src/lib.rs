@@ -96,7 +96,7 @@ use crate::db::{Keyword, Label, LibFile, LibFolder, LibMetadata};
 use crate::library::notification::LibNotification;
 
 #[cxx::bridge(namespace = "eng")]
-mod ffi {
+pub mod ffi {
     #[namespace = "fwk"]
     extern "C++" {
         include!("fwk/cxx_prelude.hpp");

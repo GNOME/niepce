@@ -60,6 +60,7 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/build.rs \
 	@top_srcdir@/niepce-main/Cargo.toml \
 	@top_srcdir@/niepce-main/examples/widget-test.rs \
+	@top_srcdir@/niepce-main/src/import/mod.rs \
 	@top_srcdir@/niepce-main/src/lib.rs \
 	@top_srcdir@/niepce-main/src/libraryclient.rs \
 	@top_srcdir@/niepce-main/src/libraryclient/clientimpl.rs \

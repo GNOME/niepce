@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
 
 #pragma once
 
@@ -55,7 +56,7 @@ public:
 
     /** file importer callback
      */
-    typedef std::function<bool (const std::string& path, const fwk::FileListPtr&, Managed)> FileImporter;
+    typedef std::function<bool (const std::string& path, const fwk::FileList&, Managed)> FileImporter;
     /** perform import from source
      * @param source the source identified by a string.
      * @param dest_dir the suggested destination directory is the importer needs to copy
@@ -63,6 +64,16 @@ public:
      */
     virtual bool do_import(const std::string& source, const std::string& dest_dir,
                            const FileImporter& importer) = 0;
+
+    // cxx glue
+    void do_import_(rust::Str source, rust::Str dest_dir,
+                    rust::Fn<bool(const npc::LibraryClientWrapper&, rust::Str, const fwk::FileList&, Managed)> cb,
+                    const npc::LibraryClientWrapper& client) const {
+        const_cast<IImporter*>(this)->do_import(std::string(source), std::string(dest_dir),
+                                                [cb, &client] (const std::string& p, const fwk::FileList& fl, Managed m) -> bool {
+                                                    return cb(client, p, fl, m);
+                                                });
+    }
 
 };
 
@@ -78,3 +89,4 @@ public:
   fill-column:99
   End:
 */
+#endif

@@ -23,6 +23,8 @@ use std::rc::Rc;
 use std::sync::{Arc, Weak};
 
 use gettextrs::gettext;
+use glib::translate::*;
+use glib::Cast;
 use gtk4::gio;
 use gtk4::glib;
 use gtk4::glib::Type;
@@ -31,6 +33,7 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use once_cell::unsync::OnceCell;
 
+use crate::import::ImportRequest;
 use crate::libraryclient::{ClientInterface, LibraryClient};
 use crate::LibraryClientWrapper;
 use npc_engine::db;
@@ -68,7 +71,22 @@ enum Event {
     RowCollapsed(gtk4::TreeIter, gtk4::TreePath),
     NewFolder,
     DeleteFolder,
+    /// Initiate the import
     Import,
+    /// Sent after the import is initiated
+    PerformImport(Box<ImportRequest>),
+}
+
+pub struct ImportDialogArgument {
+    dialog: cxx::SharedPtr<crate::ffi::ImportDialog>,
+    tx: glib::Sender<Event>,
+}
+
+impl std::ops::Drop for ImportDialogArgument {
+    fn drop(&mut self) {
+        let bt = std::backtrace::Backtrace::force_capture();
+        println!("ImportDialogArgument dropped at:\n {}", &bt);
+    }
 }
 
 pub struct WorkspaceController {
@@ -445,6 +463,7 @@ impl WorkspaceController {
             NewFolder => self.action_new_folder(),
             DeleteFolder => self.action_delete_folder(),
             Import => self.action_import(),
+            PerformImport(request) => self.perform_file_import(request.as_ref()),
         }
     }
 
@@ -540,8 +559,72 @@ impl WorkspaceController {
         }
     }
 
+    fn perform_file_import(&self, request: &ImportRequest) {
+        let app = npc_fwk::ffi::Application_app();
+        let cfg = &app.config().cfg; // XXX change to getLibraryConfig()
+                                     // as the last import should be part of the library not the application.
+
+        // import
+        // XXX change the API to provide more details.
+        let source = request.source();
+        if source.is_empty() {
+            return;
+        }
+        // XXX this should be a different config key
+        // specific to the importer.
+        cfg.set_value("last_import_location", source);
+
+        let importer = request.importer();
+        if let Some(client) = self
+            .client
+            .upgrade()
+            .as_ref()
+            .map(LibraryClientWrapper::wrap)
+        {
+            let dest_dir = request.dest_dir();
+            importer.do_import(
+                source,
+                dest_dir,
+                move |client, path, files, manage| -> bool {
+                    client.import_files(path.to_string(), files.0.clone(), manage);
+                    // XXX the libraryclient function returns void
+                    true
+                },
+                &client,
+            );
+        }
+    }
+
     fn action_import(&self) {
-        // XXX port import dialog
+        let import_dialog = crate::ffi::import_dialog_new();
+        let arg = Box::new(ImportDialogArgument {
+            dialog: import_dialog.clone(),
+            tx: self.tx.clone(),
+        });
+        let parent: *mut gtk4_sys::GtkWindow = if let Some(parent) = self
+            .widget()
+            .root()
+            .and_then(|root| root.downcast_ref::<gtk4::Window>().cloned())
+        {
+            parent.to_glib_none().0
+        } else {
+            err_out!("parent not found");
+            std::ptr::null_mut()
+        };
+        unsafe {
+            import_dialog.run_modal(
+                parent as *mut crate::ffi::GtkWindow,
+                |arg, response| {
+                    dbg_out!("import dialog response: {}", response);
+                    let request = arg.dialog.import_request();
+                    arg.dialog.close();
+                    if response == 0 {
+                        on_err_out!(arg.tx.send(Event::PerformImport(request)));
+                    }
+                },
+                Box::into_raw(arg),
+            );
+        }
     }
 
     fn selected_folder_id(&self) -> Option<db::LibraryId> {

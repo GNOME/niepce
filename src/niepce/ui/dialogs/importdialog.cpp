@@ -235,6 +235,20 @@ void ImportDialog::preview_received()
     }
 }
 
+void ImportDialog::run_modal(GtkWindow* parent, rust::Fn<void(const npc::ImportDialogArgument&, int32_t)> on_ok, npc::ImportDialogArgument* args) const
+{
+    run_modal_(parent, [args, on_ok] (int32_t r) {
+        on_ok(*args, r);
+        if (r == GTK_RESPONSE_DELETE_EVENT) {
+            rust::Box<npc::ImportDialogArgument>::from_raw(args);
+        }
+    });
+}
+
+rust::Box<ImportRequest> ImportDialog::import_request() const
+{
+    return ui::import_request_new(m_source, get_dest_dir(), m_current_importer->get_importer());
+}
 
 }
 

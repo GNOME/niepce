@@ -20,6 +20,7 @@
 #[macro_use]
 extern crate gtk_macros;
 
+mod import;
 pub mod libraryclient;
 pub mod modules;
 pub mod niepce;
@@ -44,6 +45,8 @@ use crate::libraryclient::{
     UIDataProvider,
 };
 
+use import::{import_request_new, ImportRequest};
+use niepce::ui::cxx::*;
 use niepce::ui::image_list_store::ImageListStoreWrap;
 use niepce::ui::metadata_pane_controller::get_format;
 use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
@@ -52,7 +55,7 @@ use notification_center::notification_center_new;
 use npc_fwk::toolkit;
 
 #[cxx::bridge(namespace = "npc")]
-mod ffi {
+pub mod ffi {
     #[namespace = ""]
     unsafe extern "C++" {
         type GMenu;
@@ -76,6 +79,7 @@ mod ffi {
 
         type Moniker = npc_fwk::base::Moniker;
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
+        type FileList = npc_fwk::utils::files::FileList;
         type MetadataSectionFormat = crate::toolkit::widgets::MetadataSectionFormat;
     }
 
@@ -85,6 +89,7 @@ mod ffi {
         type Label = npc_engine::db::Label;
         type LibFile = npc_engine::db::LibFile;
         type ThumbnailCache = npc_engine::ThumbnailCache;
+        type Managed = npc_engine::ffi::Managed;
         type LcChannel = npc_engine::library::notification::LcChannel;
         type LibNotification = npc_engine::library::notification::LibNotification;
     }
@@ -277,4 +282,54 @@ mod ffi {
             this_: SharedPtr<EditLabels>,
         );
     }
+
+    #[namespace = "ui"]
+    unsafe extern "C++" {
+        include!("niepce/ui/dialogs/importdialog.hpp");
+        type ImportDialog;
+
+        fn import_dialog_new() -> SharedPtr<ImportDialog>;
+        /// # Safety
+        /// Dereference a pointer
+        unsafe fn run_modal(
+            &self,
+            parent: *mut GtkWindow,
+            on_ok: unsafe fn(&ImportDialogArgument, i32),
+            arg: *mut ImportDialogArgument,
+        );
+        fn close(&self);
+        fn import_request(&self) -> Box<ImportRequest>;
+    }
+
+    #[namespace = "eng"]
+    unsafe extern "C++" {
+        include!("engine/importer/iimporter.hpp");
+        type IImporter;
+
+        #[cxx_name = "do_import_"]
+        fn do_import(
+            &self,
+            source: &str,
+            dest: &str,
+            callback: fn(&LibraryClientWrapper, &str, &FileList, Managed) -> bool,
+            client: &LibraryClientWrapper,
+        );
+    }
+
+    #[namespace = "ui"]
+    extern "Rust" {
+        type ImportRequest;
+
+        fn import_request_new(
+            source: &str,
+            dest: &str,
+            importer: SharedPtr<IImporter>,
+        ) -> Box<ImportRequest>;
+    }
+
+    extern "Rust" {
+        type ImportDialogArgument;
+    }
+
+    impl Box<ImportDialogArgument> {}
 }

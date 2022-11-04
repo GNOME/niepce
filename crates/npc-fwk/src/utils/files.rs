@@ -26,6 +26,11 @@ use crate::toolkit::mimetype::{guess_type, MType};
 #[derive(Clone, Default)]
 pub struct FileList(pub Vec<PathBuf>);
 
+unsafe impl cxx::ExternType for FileList {
+    type Id = cxx::type_id!("fwk::FileList");
+    type Kind = cxx::kind::Opaque;
+}
+
 impl FileList {
     // cxx
     pub fn size(&self) -> usize {

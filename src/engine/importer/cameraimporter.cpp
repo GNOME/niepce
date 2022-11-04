@@ -141,7 +141,7 @@ bool CameraImporter::do_import(const std::string& source, const std::string& des
                 }
             }
 
-            return importer(tmp_dir_path, files, Managed::NO);
+            return importer(tmp_dir_path, *files, Managed::NO);
         });
     return true;
 }
