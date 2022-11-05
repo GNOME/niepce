@@ -304,7 +304,6 @@ impl SelectionController {
                 err_out!("requested file {} not found!", selection);
             }
         }
-        todo!();
     }
 
     pub fn set_properties(&self, props: &WrappedPropertyBag, old: &WrappedPropertyBag) {
