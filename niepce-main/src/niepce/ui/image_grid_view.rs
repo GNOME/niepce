@@ -89,8 +89,7 @@ impl ImageGridView {
 ///
 /// The `store` and `context_menu` will get ref.
 /// context_menu can be `nullptr`
-#[no_mangle]
-pub unsafe extern "C" fn npc_image_grid_view_new(
+pub unsafe fn npc_image_grid_view_new(
     store: *mut crate::ffi::GtkTreeModel,
     context_menu: *mut crate::ffi::GtkPopoverMenu,
 ) -> Box<ImageGridView> {
