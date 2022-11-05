@@ -26,9 +26,7 @@ pub use clientinterface::{ClientInterface, ClientInterfaceSync};
 pub use host::{library_client_host_delete, library_client_host_new, LibraryClientHost};
 pub use ui_data_provider::{ui_data_provider_new, UIDataProvider};
 
-use libc::c_char;
 use std::cell::Cell;
-use std::ffi::CStr;
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -73,6 +71,22 @@ impl LibraryClientWrapper {
     pub fn client(&self) -> Arc<LibraryClient> {
         self.client.clone()
     }
+
+    pub fn request_metadata(&self, id: LibraryId) {
+        self.client.request_metadata(id);
+    }
+
+    pub fn delete_label(&self, id: LibraryId) {
+        self.client.delete_label(id);
+    }
+
+    pub fn update_label(&self, id: i64, new_name: String, new_colour: String) {
+        self.client.update_label(id, new_name, new_colour);
+    }
+
+    pub fn create_label_sync(&self, name: String, colour: String) -> i64 {
+        self.client.create_label_sync(name, colour)
+    }
 }
 
 pub struct LibraryClient {
@@ -104,44 +118,4 @@ impl LibraryClient {
     pub fn set_trash_id(&self, id: LibraryId) {
         self.trash_id.set(id);
     }
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_request_metadata(
-    client: &LibraryClientWrapper,
-    file_id: LibraryId,
-) {
-    client.request_metadata(file_id);
-}
-
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn libraryclient_create_label_sync(
-    client: &LibraryClientWrapper,
-    s: *const c_char,
-    c: *const c_char,
-) -> LibraryId {
-    let name = CStr::from_ptr(s).to_string_lossy();
-    let colour = CStr::from_ptr(c).to_string_lossy();
-    client.create_label_sync(String::from(name), String::from(colour))
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_delete_label(client: &LibraryClientWrapper, label_id: LibraryId) {
-    client.delete_label(label_id);
-}
-
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn libraryclient_update_label(
-    client: &LibraryClientWrapper,
-    label_id: LibraryId,
-    s: *const c_char,
-    c: *const c_char,
-) {
-    let name = CStr::from_ptr(s).to_string_lossy();
-    let colour = CStr::from_ptr(c).to_string_lossy();
-    client.update_label(label_id, String::from(name), String::from(colour));
 }

@@ -120,6 +120,11 @@ pub mod ffi {
 
     extern "Rust" {
         type LibraryClientWrapper;
+
+        fn request_metadata(&self, id: i64);
+        fn delete_label(&self, id: i64);
+        fn update_label(&self, id: i64, new_name: String, new_colour: String);
+        fn create_label_sync(&self, name: String, colour: String) -> i64;
     }
 
     extern "Rust" {

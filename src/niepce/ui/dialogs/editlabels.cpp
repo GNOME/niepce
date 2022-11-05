@@ -120,14 +120,11 @@ void EditLabels::update_labels(int /*response*/)
                 auto command = fwk::UndoCommand_new(
                     std::make_unique<fwk::RedoFnVoid>(
                         [client, new_name, new_colour, label_id] () {
-                            ffi::libraryclient_update_label(
-                                client, label_id, new_name.c_str(), new_colour.c_str());
+                            client->update_label(label_id, new_name, new_colour);
                         }),
                     std::make_unique<fwk::UndoFnVoid>(
                         [client, current_name, current_colour, label_id] () {
-                            ffi::libraryclient_update_label(
-                                client, label_id, current_name.c_str(),
-                                current_colour.c_str());
+                            client->update_label(label_id, current_name, current_colour);
                         })
                     );
                 undo->add(std::move(command));
@@ -135,12 +132,11 @@ void EditLabels::update_labels(int /*response*/)
                 auto command = fwk::UndoCommand_new_int(
                     std::make_unique<fwk::RedoFnInt>(
                         [client, new_name, new_colour] () {
-                            return (int64_t)ffi::libraryclient_create_label_sync(
-                                client, new_name.c_str(), new_colour.c_str());
+                            return client->create_label_sync(new_name, new_colour);
                         }),
                     std::make_unique<fwk::UndoFnInt>(
                         [client] (int64_t label) {
-                            ffi::libraryclient_delete_label(client, label);
+                            client->delete_label(label);
                         })
                     );
                 undo->add(std::move(command));

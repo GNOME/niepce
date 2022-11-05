@@ -31,9 +31,6 @@ uuid = { version = "1.1.2", features = ["v4"] }
 npc-fwk = { path = "../crates/npc-fwk" }
 npc-engine = { path = "../crates/npc-engine" }
 
-[build-dependencies]
-cbindgen = { version = "0.20.0" }
-
 [lib]
 name = "niepce_rust"
 crate-type = ["staticlib", "lib"]
