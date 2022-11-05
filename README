@@ -23,7 +23,7 @@ It is currently work in progress.
 To build you need the following:
 --------------------------------
 
-- A C++11 compiler
+- A C++17 compiler
 - A Rust compiler
 - cairo 1.1
 - glibmm 2.66
@@ -31,7 +31,6 @@ To build you need the following:
 - giomm
 - cairomm
 - shumate 1.0.0
-- sqlite3
 - libxml2 > 2.5.0
 - boost 1.60
 - exempi >= 2.6.0
