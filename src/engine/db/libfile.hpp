@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libfile.hpp
  *
- * Copyright (C) 2007-2021 Hubert Figuière
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,9 @@
 
 namespace eng {
 
-typedef std::shared_ptr<LibFile> LibFilePtr;
-typedef std::weak_ptr<LibFile> LibFileWeakPtr;
 typedef std::list<LibFilePtr> LibFileList;
 typedef std::shared_ptr<LibFileList> LibFileListPtr;
 
-LibFilePtr libfile_wrap(LibFile *);
 }
 
 /*

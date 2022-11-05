@@ -18,8 +18,6 @@
  */
 
 #include <glibmm/i18n.h>
-#include <gtkmm/combobox.h>
-#include <gtkmm/liststore.h>
 #include <gtkmm/checkbutton.h>
 
 #include "fwk/toolkit/configdatabinder.hpp"
@@ -42,12 +40,7 @@ void PreferencesDialog::setup_widget()
     Gtk::CheckButton* theme_checkbutton = nullptr;
     Gtk::CheckButton* reopen_checkbutton = nullptr;
     Gtk::CheckButton* write_xmp_checkbutton = nullptr;
-    fwk::DataBinderPool* binder_pool = new fwk::DataBinderPool();
-
-    gtkDialog().signal_hide().connect(
-        [binder_pool] () {
-            fwk::DataBinderPool::destroy(binder_pool);
-        });
+    m_binder_pool = std::make_unique<fwk::DataBinderPool>();
 
     theme_checkbutton = builder()->get_widget<Gtk::CheckButton>("dark_theme_checkbox");
     theme_checkbutton->set_active(fwk::Application::app()
@@ -59,12 +52,12 @@ void PreferencesDialog::setup_widget()
         });
 
     reopen_checkbutton = builder()->get_widget<Gtk::CheckButton>("reopen_checkbutton");
-    binder_pool->add_binder(new fwk::ConfigDataBinder<bool>(
+    m_binder_pool->add_binder(new fwk::ConfigDataBinder<bool>(
 				    reopen_checkbutton->property_active(),
 				    fwk::Application::app()->config(),
 				    "reopen_last_catalog"));
     write_xmp_checkbutton = builder()->get_widget<Gtk::CheckButton>("write_xmp_checkbutton");
-    binder_pool->add_binder(new fwk::ConfigDataBinder<bool>(
+    m_binder_pool->add_binder(new fwk::ConfigDataBinder<bool>(
 				  write_xmp_checkbutton->property_active(),
 				  fwk::Application::app()->config(),
 				  "write_xmp_automatically"));

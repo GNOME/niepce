@@ -58,7 +58,7 @@ AC_LANG_CPLUSPLUS
 AC_LANG_COMPILER_REQUIRE
 
 dnl Framework requirements.
-PKG_CHECK_MODULES(FRAMEWORK, [glibmm-2.68 >= $LIBGLIBMM_VERSION giomm-2.68 >= $LIBGIOMM_VERSION gthread-2.0 gtkmm-4.0 >= $LIBGTKMM_VERSION sqlite3 >= $SQLITE_VERSION exempi-2.0 >= $EXEMPI_VERSION libxml-2.0 >= $LIBXML2_VERSION shumate-1.0])
+PKG_CHECK_MODULES(FRAMEWORK, [glibmm-2.68 >= $LIBGLIBMM_VERSION giomm-2.68 >= $LIBGIOMM_VERSION gthread-2.0 gtkmm-4.0 >= $LIBGTKMM_VERSION sqlite3 >= $SQLITE_VERSION exempi-2.0 >= $EXEMPI_VERSION libxml-2.0 >= $LIBXML2_VERSION shumate-1.0 >= 1.0.0])
 
 dnl optional framework
 PKG_CHECK_MODULES(GPHOTO, [libgphoto2 >= $LIBGPHOTO_VERSION libgphoto2_port])
@@ -105,6 +105,7 @@ dnl sigc++ 2.10.0 breaks with that warning.
    -Wlogical-not-parentheses \
    -Wmisleading-indentation \
    -Wmissing-noreturn \
+   -Wnon-virtual-dtor \
    -Woverloaded-virtual \
 dnl Gtk+ 3.22.30 breaks with that warning
    -Wno-parentheses \
@@ -156,13 +157,11 @@ data/themes/Makefile
 third_party/Makefile
 src/Makefile
 src/ext/Makefile
-src/ext/libview/Makefile
 src/fwk/Makefile
 src/fwk/base/Makefile
 src/fwk/utils/Makefile
 src/fwk/toolkit/Makefile
 src/engine/Makefile
-src/libraryclient/Makefile
 src/ncr/Makefile
 po/Makefile.in
 ])

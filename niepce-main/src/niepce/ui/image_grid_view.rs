@@ -70,10 +70,15 @@ impl ImageGridView {
         }
 
         if let Some((_, cell)) = icon_view.item_at_pos(x as i32, y as i32) {
-            if let Ok(mut cell) = cell.downcast::<LibraryCellRenderer>() {
+            if let Ok(cell) = cell.downcast::<LibraryCellRenderer>() {
                 cell.hit(x as i32, y as i32);
             }
         }
+    }
+
+    pub fn get_icon_view(&self) -> *mut crate::ffi::GtkIconView {
+        let icon_view: *mut gtk4_sys::GtkIconView = self.icon_view.to_glib_none().0;
+        icon_view as *mut crate::ffi::GtkIconView
     }
 }
 
@@ -84,29 +89,12 @@ impl ImageGridView {
 ///
 /// The `store` and `context_menu` will get ref.
 /// context_menu can be `nullptr`
-#[no_mangle]
-pub unsafe extern "C" fn npc_image_grid_view_new(
-    store: *mut gtk4_sys::GtkTreeModel,
-    context_menu: *mut gtk4_sys::GtkPopoverMenu,
-) -> *mut ImageGridView {
-    Box::into_raw(Box::new(ImageGridView::new(
-        &gtk4::TreeModel::from_glib_none(store),
-        Option::<gtk4::PopoverMenu>::from_glib_none(context_menu),
-    )))
-}
-
-/// # Safety
-/// Use raw pointers
-#[no_mangle]
-pub unsafe extern "C" fn npc_image_grid_view_get_icon_view(
-    view: &ImageGridView,
-) -> *mut gtk4_sys::GtkIconView {
-    view.icon_view.to_glib_none().0
-}
-
-/// # Safety
-/// Use raw pointers
-#[no_mangle]
-pub unsafe extern "C" fn npc_image_grid_view_release(view: *mut ImageGridView) {
-    Box::from_raw(view);
+pub unsafe fn npc_image_grid_view_new(
+    store: *mut crate::ffi::GtkTreeModel,
+    context_menu: *mut crate::ffi::GtkPopoverMenu,
+) -> Box<ImageGridView> {
+    Box::new(ImageGridView::new(
+        &gtk4::TreeModel::from_glib_none(store as *mut gtk4_sys::GtkTreeModel),
+        Option::<gtk4::PopoverMenu>::from_glib_none(context_menu as *mut gtk4_sys::GtkPopoverMenu),
+    ))
 }

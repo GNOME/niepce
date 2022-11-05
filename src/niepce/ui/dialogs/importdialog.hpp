@@ -17,10 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
+
 #pragma once
 
 #include <list>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <glibmm/refptr.h>
@@ -30,8 +33,7 @@
 #include "fwk/toolkit/gtkutils.hpp"
 #include "fwk/toolkit/dialog.hpp"
 #include "fwk/toolkit/uiresult.hpp"
-#include "fwk/toolkit/thumbnail.hpp"
-#include "metadatapanecontroller.hpp"
+#include "niepce/ui/metadatapanecontroller.hpp"
 #include "importers/iimporterui.hpp"
 
 namespace Gtk {
@@ -86,9 +88,14 @@ public:
     std::shared_ptr<eng::IImporter> get_importer() const
         { return m_current_importer->get_importer(); }
     const std::string& get_dest_dir() const;
-private:
-    class ImportParam;
 
+    // cxx
+    void close() const {
+        const_cast<ImportDialog*>(this)->fwk::Dialog::close();
+    }
+    void run_modal(GtkWindow* parent, rust::Fn<void(const npc::ImportDialogArgument&, int32_t)> on_ok, npc::ImportDialogArgument*) const;
+    rust::Box<ImportRequest> import_request() const;
+private:
     void clear_import_list();
     void do_select_directories();
     void append_files_to_import();
@@ -113,7 +120,7 @@ private:
     Glib::RefPtr<Gtk::ListStore> m_images_list_model;
     std::map<std::string, Gtk::TreeModel::iterator> m_images_list_map;
 
-    std::shared_ptr<ffi::ImageGridView> m_image_gridview;
+    std::optional<rust::Box<npc::ImageGridView>> m_image_gridview;
     Gtk::IconView *m_gridview;
 
     MetaDataPaneController::Ptr m_metadata_pane;
@@ -121,6 +128,11 @@ private:
     fwk::UIResultSingle<std::list<eng::ImportedFilePtr>> m_files_to_import;
     fwk::UIResults<std::pair<std::string, fwk::ThumbnailPtr>> m_previews_to_import;
 };
+
+inline
+std::shared_ptr<ImportDialog> import_dialog_new() {
+    return std::make_shared<ImportDialog>();
+}
 
 }
 
@@ -135,3 +147,4 @@ private:
   End:
 */
 
+#endif

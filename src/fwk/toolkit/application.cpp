@@ -36,14 +36,15 @@ Application::Ptr Application::m_application;
 
 Application::Application(int & argc, char** &argv, const char* app_id,
                          const char * name)
-    : m_config(Configuration::make_config_path(name))
+    : m_config(Configuration_new(Configuration_make_config_path(name)))
+    , m_undo(std::move(UndoHistory_new()))
     , m_module_manager(new ModuleManager())
     , m_gtkapp(Gtk::Application::create(app_id))
 {
     Glib::set_prgname(app_id);
     m_gtkapp->signal_startup().connect(
         sigc::mem_fun(*this, &Application::on_startup));
-    getIconTheme()->add_resource_path("/org/gnome/Niepce");
+    getIconTheme()->add_resource_path("/org/gnome/Niepce/pixmaps");
 }
 
 
@@ -68,7 +69,7 @@ bool Application::get_use_dark_theme() const
 {
     bool v;
     try {
-        v = std::stoi(m_config.getValue("ui_dark_theme", "0"));
+        v = std::stoi(std::string(m_config->cfg->getValue("ui_dark_theme", "0")));
     }
     catch(...) {
         v = false;
@@ -78,7 +79,7 @@ bool Application::get_use_dark_theme() const
 
 void Application::set_use_dark_theme(bool value)
 {
-    m_config.setValue("ui_dark_theme",
+    m_config->cfg->setValue("ui_dark_theme",
                       std::to_string(value));
 }
 
@@ -185,11 +186,9 @@ void Application::on_about()
     dlg.show();
 }
 
-std::shared_ptr<UndoTransaction> Application::begin_undo(const std::string & label)
+void Application::begin_undo(rust::Box<UndoTransaction> transaction) const
 {
-    auto undo = std::make_shared<fwk::UndoTransaction>(label);
-    undo_history().add(undo);
-    return undo;
+    return const_cast<rust::Box<UndoHistory>&>(m_undo)->add(std::move(transaction));
 }
 
 

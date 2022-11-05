@@ -2,7 +2,7 @@
 /*
  * niepce - engine/importer/directoryimporter.cpp
  *
- * Copyright (C) 2014-2021 Hubert Figuière
+ * Copyright (C) 2014-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 #include <glibmm/miscutils.h>
 
 #include "fwk/base/debug.hpp"
-#include "fwk/base/string.hpp"
 #include "fwk/utils/pathutils.hpp"
 #include "engine/importer/directoryimporter.hpp"
 #include "engine/importer/importedfile.hpp"
@@ -65,15 +64,12 @@ const std::string& DirectoryImporter::id() const
 bool DirectoryImporter::list_source_content(const std::string & source,
                                             const SourceContentReady& callback)
 {
-    auto files =
-        fwk::wrapFileList(ffi::fwk_file_list_get_files_from_directory(
-                              source.c_str(), &fwk::filter_only_media));
-    DBG_OUT("files size: %lu", ffi::fwk_file_list_size(files.get()));
+    auto files = fwk::FileList_get_media_files_from_directory(source);
+    DBG_OUT("files size: %lu", files->size());
     std::list<ImportedFilePtr> content;
-    for (size_t i = 0; i < ffi::fwk_file_list_size(files.get()); i++)
-    {
-        auto entry = fwk::RustFfiString(ffi::fwk_file_list_at(files.get(), i));
-        content.push_back(ImportedFilePtr(new DirectoryImportedFile(entry.str())));
+    for (size_t i = 0; i < files->size(); i++) {
+        auto entry = files->at(i);
+        content.push_back(ImportedFilePtr(new DirectoryImportedFile(std::string(entry))));
     }
     callback(std::move(content));
 
@@ -86,9 +82,8 @@ bool DirectoryImporter::get_previews_for(const std::string& /*source*/,
 {
     for (auto path : paths) {
         DBG_OUT("path %s", path.c_str());
-        auto thumbnail =
-            fwk::thumbnail_wrap(ffi::fwk_toolkit_thumbnail_file(path.c_str(), 160, 160, 0));
-        callback(path, thumbnail);
+        auto thumbnail = fwk::Thumbnail_for_file(path, 160, 160, 0);
+        callback(std::move(path), std::move(thumbnail));
     }
     return true;
 }
@@ -96,11 +91,9 @@ bool DirectoryImporter::get_previews_for(const std::string& /*source*/,
 bool DirectoryImporter::do_import(const std::string& source, const std::string& /*dest_dir*/,
                                   const FileImporter& callback)
 {
-    fwk::FileListPtr files;
-    files = fwk::wrapFileList(ffi::fwk_file_list_get_files_from_directory(
-                                  source.c_str(), nullptr));
+    fwk::FileListPtr files = fwk::FileList_get_files_from_directory(source);
 
-    return callback(source, files, Managed::NO);
+    return callback(source, *files, Managed::NO);
 }
 
 }

@@ -14,6 +14,9 @@ appdata_in_files = org.gnome.Niepce.appdata.xml.in
 appdata_files = $(appdata_in_files:.xml.in=.xml)
 appdata_DATA  = $(appdata_files)
 
+icondir = $(datarootdir)/icons/hicolor/scalable/apps
+icon_DATA = org.gnome.Niepce.svg
+
 %.appdata.xml: %.appdata.xml.in
 	$(AM_V_GEN)$(MSGFMT) --xml --template $< -d $(top_srcdir)/po -o $@
 
@@ -37,7 +40,7 @@ icon_files = icons/niepce-jpg-fmt.png \
 	$(null)
 
 EXTRA_DIST = \
-        $(desktop_in_files) \
+	$(desktop_in_files) \
 	$(appdata_in_files) \
 	$(icon_files) \
 	$(null)

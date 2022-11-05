@@ -8,10 +8,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-01 03:30+0000\n"
-"PO-Revision-Date: 2013-09-12 19:58+0100\n"
-"Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
+"POT-Creation-Date: 2022-09-26 22:45+0000\n"
+"PO-Revision-Date: 2022-10-10 23:27+0200\n"
+"Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl\n"
 "MIME-Version: 1.0\n"
@@ -20,307 +20,552 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
 "%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 3.1.1\n"
 
-#: ../src/fwk/toolkit/frame.cpp:121
-msgid "Undo "
-msgstr "Razveljavi "
+#: camerawire/src/cwwindow.cpp:62
+#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:36
+msgid "Camera"
+msgstr "Fotoaparat"
 
-#: ../src/fwk/toolkit/frame.cpp:130
-msgid "Redo "
-msgstr "Znova uveljavi "
+#: camerawire/src/cwwindow.cpp:87
+msgid "File"
+msgstr "Datoteka"
 
-#: ../src/fwk/toolkit/widgets/addinstreemodel.cpp:64
+#: camerawire/src/cwwindow.cpp:92 src/niepce/ui/workspacecontroller.cpp:470
+msgid "_Import..."
+msgstr "_Uvozi ..."
+
+#: camerawire/src/cwwindow.cpp:96
+msgid "Close"
+msgstr "Zapri"
+
+#: camerawire/src/cwwindow.cpp:99
+msgid "Edit"
+msgstr "Uredi"
+
+#: camerawire/src/cwwindow.cpp:113
+msgid "Cut"
+msgstr "Izreži"
+
+#: camerawire/src/cwwindow.cpp:117
+msgid "Copy"
+msgstr "Kopiraj"
+
+#: camerawire/src/cwwindow.cpp:121
+msgid "Paste"
+msgstr "Prilepi"
+
+#: camerawire/src/cwwindow.cpp:124
+msgid "Tools"
+msgstr "Orodja"
+
+#: camerawire/src/cwwindow.cpp:129
+msgid "Refresh"
+msgstr "Osveži"
+
+#: camerawire/src/cwwindow.cpp:135 src/niepce/ui/niepcewindow.cpp:242
+msgid "Hide tools"
+msgstr "Skrij orodja"
+
+#: data/org.gnome.Niepce.appdata.xml.in:6 data/org.gnome.Niepce.desktop.in:3
+#, fuzzy
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
+
+#: data/org.gnome.Niepce.appdata.xml.in:7
+msgid "Advanced Photo Editing"
+msgstr "Napredno urejanje fotografij"
+
+#: data/org.gnome.Niepce.appdata.xml.in:9
+msgid "Niepce Digital is an application used to manage and edit photos."
+msgstr ""
+"Niepce Digital je program, ki se uporablja za upravljanje in urejanje "
+"fotografij."
+
+#: data/org.gnome.Niepce.appdata.xml.in:12
+msgid "Features:"
+msgstr "Zmožnosti:"
+
+#: data/org.gnome.Niepce.appdata.xml.in:14
+msgid "Photo library management"
+msgstr "Upravljanje knjižnic fotografij"
+
+#: data/org.gnome.Niepce.appdata.xml.in:15
+#, fuzzy
+msgid "Non destructive image editing"
+msgstr "Neuničujoče urejanje slik"
+
+#: data/org.gnome.Niepce.appdata.xml.in:16
+#, fuzzy
+msgid "RAW processing"
+msgstr "Obdelovanje zapisov RAW"
+
+#: data/org.gnome.Niepce.desktop.in:4
+msgid "Manage and edit your photos"
+msgstr "Upravljajte in urejajte svoje fotografije"
+
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/org.gnome.Niepce.desktop.in:6
+msgid "photo;"
+msgstr "fotografija;"
+
+#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:42
+msgid "OK"
+msgstr "V redu"
+
+#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:43
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:60
+#: src/niepce/ui/niepcewindow.cpp:342
+msgid "Cancel"
+msgstr "Prekliči"
+
+#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:46
+msgid "Folder _name:"
+msgstr "Ime _mape:"
+
+#: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
 msgid "Name"
 msgstr "Ime"
 
-#: ../src/fwk/toolkit/widgets/addinstreemodel.cpp:65
+#: src/fwk/toolkit/widgets/addinstreemodel.cpp:65
 msgid "Description"
 msgstr "Opis"
 
-#: ../src/engine/db/library.cpp:146
-msgid "Trash"
-msgstr "Smeti"
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:38
+msgid "Develop"
+msgstr "Razvijanj"
 
-#: ../src/niepce/ui/dialogs/editlabels.cpp:56
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:56
+msgid "Crop"
+msgstr "Obreži"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:60
+msgid "Tilt"
+msgstr "Nagib"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
+msgid "White balance"
+msgstr "Ravnotežje beline"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:65
+msgid "Color temperature"
+msgstr "Temperatura barve"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
+msgid "Tone and colour"
+msgstr "Ton in barva"
+
+#. s->signal_value_changed().connect();
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:71
+msgid "Exposure"
+msgstr "Osvetljenost"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
+msgid "Recovery"
+msgstr "Obnova"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
+msgid "Fill Light"
+msgstr "Zapolni svetlo"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
+msgid "Blacks"
+msgstr "Črne"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
+msgid "Brightness"
+msgstr "Svetlost"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
+msgid "Contrast"
+msgstr "Kontrast"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
+msgid "Saturation"
+msgstr "Nasičenost"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
+msgid "Vibrance"
+msgstr "Nasičenost portretnih fotografij"
+
+#: src/niepce/ui/dialogs/editlabels.cpp:54
+#: src/niepce/ui/dialogs/editlabels.ui:5
 msgid "Edit Labels"
 msgstr "Uredi oznake"
 
-#: ../src/niepce/ui/dialogs/editlabels.cpp:113
+#: src/niepce/ui/dialogs/editlabels.cpp:112
 msgid "Change Labels"
 msgstr "Spremeni oznake"
 
-#: ../src/niepce/ui/dialogs/editlabels.ui.h:1
-#: ../src/niepce/ui/moduleshell.cpp:79
+#: src/niepce/ui/dialogs/editlabels.ui:26
 msgid "Label _6"
 msgstr "Oznaka _6"
 
-#: ../src/niepce/ui/dialogs/editlabels.ui.h:2
-#: ../src/niepce/ui/moduleshell.cpp:84
+#: src/niepce/ui/dialogs/editlabels.ui:38
 msgid "Label _7"
 msgstr "Oznaka _7"
 
-#: ../src/niepce/ui/dialogs/editlabels.ui.h:3
-#: ../src/niepce/ui/moduleshell.cpp:89
+#: src/niepce/ui/dialogs/editlabels.ui:50
 msgid "Label _8"
 msgstr "Oznaka _8"
 
-#: ../src/niepce/ui/dialogs/editlabels.ui.h:4
-#: ../src/niepce/ui/moduleshell.cpp:94
+#: src/niepce/ui/dialogs/editlabels.ui:62
 msgid "Label _9"
 msgstr "Oznaka _9"
 
-#: ../src/niepce/ui/dialogs/editlabels.ui.h:5
+#: src/niepce/ui/dialogs/editlabels.ui:115
 msgid "Label _10"
 msgstr "Oznaka_10"
 
-#: ../src/niepce/ui/dialogs/editlabels.ui.h:6
+#: src/niepce/ui/dialogs/editlabels.ui:214
 msgid "<b>Labels</b>"
 msgstr "<b>Oznake</b>"
 
-#.
-#. Local Variables:
-#. mode:c++
-#. c-file-style:"stroustrup"
-#. c-file-offsets:((innamespace . 0))
-#. indent-tabs-mode:nil
-#. tab-width:4
-#. fill-column:99
-#. End:
-#.
-#: ../src/niepce/ui/dialogs/importdialog.cpp:62
-#: ../src/niepce/ui/dialogs/importdialog.cpp:90
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:1
+#: src/niepce/ui/dialogs/importdialog.ui:11
+msgid "(none)"
+msgstr "(brez)"
+
+#: src/niepce/ui/dialogs/importdialog.ui:12
+msgid "NONE"
+msgstr "BREZ"
+
+#: src/niepce/ui/dialogs/importdialog.ui:24
+msgid "local"
+msgstr "krajevno"
+
+#: src/niepce/ui/dialogs/importdialog.ui:28
+msgid "utc"
+msgstr "UČ"
+
+#: src/niepce/ui/dialogs/importdialog.ui:33
 msgid "Import"
 msgstr "Uvozi"
 
-#: ../src/niepce/ui/dialogs/importdialog.cpp:86
-msgid "Import picture folder"
-msgstr "Uvozi mapo fotografij"
-
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:2
-#: ../magellan/src/mgwindow.cpp:87
-msgid "_Import"
-msgstr "_Uvozi"
-
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:3
-msgid "_Directory:"
-msgstr "_Mapa:"
-
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:4
-msgid "..."
-msgstr "..."
-
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:5
+#: src/niepce/ui/dialogs/importdialog.ui:73
 msgid "_Images to import"
 msgstr "_Slike za uvoz"
 
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:6
+#: src/niepce/ui/dialogs/importdialog.ui:100
 msgid "Destination _Folder"
 msgstr "Ciljna _mapa"
 
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:7
+#: src/niepce/ui/dialogs/importdialog.ui:131
 msgid "Import _UFRaw"
 msgstr "Uvoz _UFRaw"
 
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:8
+#: src/niepce/ui/dialogs/importdialog.ui:141
 msgid "Import Raw_Studio"
 msgstr "Uvoz Raw_Studio"
 
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:9
-msgid "You can still change this after importing the pictures."
-msgstr "Vrednosti je mogoče spreminjati tudi po uvozu slik."
-
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:10
-msgid "<b>Date:</b>"
-msgstr "<b>Datum:</b>"
-
-#: ../src/niepce/ui/dialogs/importdialog.ui.h:11
+#: src/niepce/ui/dialogs/importdialog.ui:152
 msgid "_Options"
 msgstr "_Možnosti"
 
-#: ../src/niepce/ui/dialogs/preferences.ui.h:1
-msgid "_Reopen Library"
-msgstr "_Ponovno odpiranje knjižnice"
+#: src/niepce/ui/dialogs/importdialog.ui:190
+msgid "Presets:"
+msgstr "Prednastavitve:"
 
-#: ../src/niepce/ui/dialogs/preferences.ui.h:2
-msgid "Write XMP automatically (not recommended)"
-msgstr "Zapiši XMP samodejno (ni priporočljivo)"
+#: src/niepce/ui/dialogs/importdialog.ui:225
+msgid "You can still change this after importing the pictures."
+msgstr "Vrednosti je mogoče spreminjati tudi po uvozu slik."
 
-#: ../src/niepce/ui/dialogs/preferences.ui.h:3
-msgid "_General"
-msgstr "_Splošno"
-
-#: ../src/niepce/ui/dialogs/preferences.ui.h:4
-msgid "Use dark interface"
-msgstr "Uporabi temno različico vmesnika"
-
-#: ../src/niepce/ui/dialogs/preferences.ui.h:5
-msgid "_User Interface"
-msgstr "_Uporabniški vmesnik "
-
-#: ../src/niepce/ui/dialogs/preferencesdialog.cpp:42
-msgid "Preferences"
-msgstr "Možnosti"
-
-#: ../src/niepce/ui/moduleshell.cpp:58
-msgid "_Image"
-msgstr "_Slika"
-
-#: ../src/niepce/ui/moduleshell.cpp:78
-msgid "Set _Label"
-msgstr "Nastavi _oznako"
-
-#: ../src/niepce/ui/moduleshell.cpp:100
-msgid "Set _Rating"
-msgstr "Nastavi _oceno"
-
-#: ../src/niepce/ui/moduleshell.cpp:101
-msgid "Unrated"
-msgstr "Neocenjeno"
-
-#: ../src/niepce/ui/moduleshell.cpp:106
-msgid "Rating _1"
-msgstr "Ocena _1"
-
-#: ../src/niepce/ui/moduleshell.cpp:111
-msgid "Rating _2"
-msgstr "Ocena _2"
-
-#: ../src/niepce/ui/moduleshell.cpp:116
-msgid "Rating _3"
-msgstr "Ocena _3"
-
-#: ../src/niepce/ui/moduleshell.cpp:121
-msgid "Rating _4"
-msgstr "Ocena _4"
-
-#: ../src/niepce/ui/moduleshell.cpp:126
-msgid "Rating _5"
-msgstr "Ocena _5"
-
-#: ../src/niepce/ui/moduleshell.cpp:132
-msgid "Set _Flag"
-msgstr "Nastavi _zastavico"
-
-#: ../src/niepce/ui/moduleshell.cpp:134
-msgid "Flag as _Rejected"
-msgstr "Označi kot _zavrnjeno"
-
-#: ../src/niepce/ui/moduleshell.cpp:140
-msgid "_Unflagged"
-msgstr "_Brez zastavice"
-
-#: ../src/niepce/ui/moduleshell.cpp:146
-msgid "Flag as _Pick"
-msgstr "Označi kot _izbrano"
-
-#: ../src/niepce/ui/moduleshell.cpp:156
-msgid "Write metadata"
-msgstr "Zapiši metapodatke"
-
-#: ../src/niepce/ui/moduleshell.cpp:205
-msgid "Library"
-msgstr "Knjižnica"
-
-#: ../src/niepce/ui/moduleshell.cpp:214
-msgid "Darkroom"
-msgstr "Temnica"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:38
-msgid "Make:"
-msgstr "Izvedba:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:39
-msgid "Model:"
-msgstr "Model:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:40
-msgid "Lens:"
-msgstr "Leča:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:44
-msgid "Exposure Program:"
-msgstr "Program osvetlitve:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:45
-msgid "Speed:"
-msgstr "Hitrost:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:46
-msgid "Aperture:"
-msgstr "Zaslonka:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:47
-msgid "ISO:"
-msgstr "ISO:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:48
-msgid "Exposure Bias:"
-msgstr "Nagnjenost osvetlitve:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:49
-msgid "Flash:"
-msgstr "Bliskavica:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:50
-msgid "Flash compensation:"
-msgstr "Izravnava bliskavice:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:51
-msgid "Focal length:"
-msgstr "Goriščna razdalja:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:52
-msgid "White balance:"
-msgstr "Ravnotežje beline:"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:53
+#: src/niepce/ui/dialogs/importdialog.ui:236
+#: src/niepce/ui/metadatapanecontroller.cpp:67
 msgid "Date:"
 msgstr "Datum:"
 
-#: ../src/niepce/ui/metadatapanecontroller.cpp:57
+#: src/niepce/ui/dialogs/importdialog.ui:264
+msgid "Attributes:"
+msgstr "Atributi:"
+
+#: src/niepce/ui/dialogs/importdialog.ui:276
+msgid "Metadata"
+msgstr "Metapodatki"
+
+#: src/niepce/ui/dialogs/importdialog.ui:303
+msgid "_Import"
+msgstr "_Uvozi"
+
+#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:64
+#, fuzzy
+msgid "No camera found"
+msgstr "Kamera ni bila najdena"
+
+#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:79
+msgid "Camera import %1%"
+msgstr "Uvoz fotoaparata %1%"
+
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:20
+#, fuzzy
+msgid "Available cameras:"
+msgstr "Razpoložljive kamere:"
+
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:29
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:61
+msgid "Select"
+msgstr "Izbor"
+
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:34
+msgid "Directory"
+msgstr "Mapa"
+
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:57
+msgid "Import picture folder"
+msgstr "Uvozi mapo fotografij"
+
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:12
+msgid "_Directory:"
+msgstr "_Mapa:"
+
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:23
+msgid "..."
+msgstr "..."
+
+#: src/niepce/ui/dialogs/preferencesdialog.cpp:40
+#: src/niepce/ui/dialogs/preferences.ui:5
+msgid "Preferences"
+msgstr "Možnosti"
+
+#: src/niepce/ui/dialogs/preferences.ui:35
+msgid "_Reopen Catalog"
+msgstr "_Ponovno odpri katalog"
+
+#: src/niepce/ui/dialogs/preferences.ui:48
+msgid "Write XMP automatically (not recommended)"
+msgstr "Zapiši XMP samodejno (ni priporočljivo)"
+
+#: src/niepce/ui/dialogs/preferences.ui:62
+msgid "_General"
+msgstr "_Splošno"
+
+#: src/niepce/ui/dialogs/preferences.ui:81
+msgid "Use dark interface"
+msgstr "Uporabi temno različico vmesnika"
+
+#: src/niepce/ui/dialogs/preferences.ui:95
+msgid "_User Interface"
+msgstr "_Uporabniški vmesnik"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:40
+msgid "File Information"
+msgstr "Informacije o datoteki"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:42
+msgid "File Name:"
+msgstr "Ime datoteke:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:43
+msgid "Folder:"
+msgstr "Mapa:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:44
+msgid "File Type:"
+msgstr "Vrsta datoteke:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:45
+msgid "File Size:"
+msgstr "Velikost datoteke:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:46
+#, fuzzy
+msgid "Sidecar Files:"
+msgstr "Priklopne datoteke:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:49
+msgid "Camera Information"
+msgstr "Podrobnosti fotoaparata"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:51
+msgid "Make:"
+msgstr "Izvedba:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:52
+msgid "Model:"
+msgstr "Model:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:53
+msgid "Lens:"
+msgstr "Leča:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:56
+msgid "Shooting Information"
+msgstr "Podrobnosti zajema slike"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:58
+msgid "Exposure Program:"
+msgstr "Program osvetlitve:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:59
+msgid "Speed:"
+msgstr "Hitrost:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:60
+msgid "Aperture:"
+msgstr "Zaslonka:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:61
+msgid "ISO:"
+msgstr "ISO:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:62
+msgid "Exposure Bias:"
+msgstr "Nagnjenost osvetlitve:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:63
+msgid "Flash:"
+msgstr "Bliskavica:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:64
+msgid "Flash compensation:"
+msgstr "Izravnava bliskavice:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:65
+msgid "Focal length:"
+msgstr "Goriščna razdalja:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:66
+msgid "White balance:"
+msgstr "Ravnotežje beline:"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:70
+msgid "IPTC"
+msgstr "IPTC"
+
+#: src/niepce/ui/metadatapanecontroller.cpp:72
 msgid "Headline:"
 msgstr "Naslovna vrstica:"
 
-#: ../src/niepce/ui/metadatapanecontroller.cpp:58
+#: src/niepce/ui/metadatapanecontroller.cpp:73
 msgid "Caption:"
 msgstr "Naslov:"
 
-#: ../src/niepce/ui/metadatapanecontroller.cpp:59
+#: src/niepce/ui/metadatapanecontroller.cpp:74
 msgid "Rating:"
 msgstr "Ocena:"
 
 #. FIXME change this type to the right one when there is a widget
-#: ../src/niepce/ui/metadatapanecontroller.cpp:61
+#: src/niepce/ui/metadatapanecontroller.cpp:76
 msgid "Label:"
 msgstr "Oznaka:"
 
-#: ../src/niepce/ui/metadatapanecontroller.cpp:62
+#: src/niepce/ui/metadatapanecontroller.cpp:77
 msgid "Keywords:"
 msgstr "Ključne besede:"
 
-#: ../src/niepce/ui/metadatapanecontroller.cpp:66
-msgid "Camera Information"
-msgstr "Podrobnosti fotoaparata"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:69
-msgid "Shooting Information"
-msgstr "Podrobnosti zajema slike"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:72
-msgid "IPTC"
-msgstr "IPTC"
-
-#: ../src/niepce/ui/metadatapanecontroller.cpp:75
+#: src/niepce/ui/metadatapanecontroller.cpp:80
 msgid "Rights"
 msgstr "Pravice"
 
-#: ../src/niepce/ui/metadatapanecontroller.cpp:105
+#: src/niepce/ui/metadatapanecontroller.cpp:108
 msgid "Image Properties"
 msgstr "Lastnosti slike"
 
-#: ../src/niepce/ui/niepceapplication.cpp:66
+#: src/niepce/ui/moduleshell.cpp:60
+msgid "Back"
+msgstr "Nazaj"
+
+#: src/niepce/ui/moduleshell.cpp:66
+msgid "Forward"
+msgstr "Naprej"
+
+#: src/niepce/ui/moduleshell.cpp:76
+#, fuzzy
+#| msgid "Rotate L_eft"
+msgid "Rotate Left"
+msgstr "Zavrti l_evo"
+
+#: src/niepce/ui/moduleshell.cpp:83
+#, fuzzy
+#| msgid "Rotate R_ight"
+msgid "Rotate Right"
+msgstr "Zavrti _desno"
+
+#: src/niepce/ui/moduleshell.cpp:89 src/niepce/ui/selectioncontroller.cpp:281
+msgid "Set Label"
+msgstr "Nastavi oznako"
+
+#: src/niepce/ui/moduleshell.cpp:96
+msgid "Label 6"
+msgstr "Oznaka 6"
+
+#: src/niepce/ui/moduleshell.cpp:102
+msgid "Label 7"
+msgstr "Oznaka 7"
+
+#: src/niepce/ui/moduleshell.cpp:108
+msgid "Label 8"
+msgstr "Oznaka 8"
+
+#: src/niepce/ui/moduleshell.cpp:114
+msgid "Label 9"
+msgstr "Oznaka 9"
+
+#: src/niepce/ui/moduleshell.cpp:117 src/niepce/ui/selectioncontroller.cpp:278
+msgid "Set Rating"
+msgstr "Nastavi oceno"
+
+#: src/niepce/ui/moduleshell.cpp:124
+msgid "Unrated"
+msgstr "Neocenjeno"
+
+#: src/niepce/ui/moduleshell.cpp:130
+msgid "Rating 1"
+msgstr "Ocena 1"
+
+#: src/niepce/ui/moduleshell.cpp:136
+msgid "Rating 2"
+msgstr "Ocena 2"
+
+#: src/niepce/ui/moduleshell.cpp:142
+msgid "Rating 3"
+msgstr "Ocena 3"
+
+#: src/niepce/ui/moduleshell.cpp:148
+msgid "Rating 4"
+msgstr "Ocena 4"
+
+#: src/niepce/ui/moduleshell.cpp:154
+msgid "Rating 5"
+msgstr "Ocena 5"
+
+#: src/niepce/ui/moduleshell.cpp:157 src/niepce/ui/selectioncontroller.cpp:275
+msgid "Set Flag"
+msgstr "Določi zastavico"
+
+#: src/niepce/ui/moduleshell.cpp:165
+msgid "Flag as Rejected"
+msgstr "Označi kot zavrnjeno"
+
+#: src/niepce/ui/moduleshell.cpp:172
+#, fuzzy
+#| msgid "_Unflagged"
+msgid "Unflagged"
+msgstr "_Brez zastavice"
+
+#: src/niepce/ui/moduleshell.cpp:179
+#, fuzzy
+#| msgid "Flag as _Pick"
+msgid "Flag as Pick"
+msgstr "Označi kot _izbrano"
+
+#: src/niepce/ui/moduleshell.cpp:188
+msgid "Write metadata"
+msgstr "Zapiši metapodatke"
+
+#: src/niepce/ui/moduleshell.cpp:198
+msgid "Catalog"
+msgstr "Katalog"
+
+#: src/niepce/ui/moduleshell.cpp:207
+msgid "Darkroom"
+msgstr "Temnica"
+
+#: src/niepce/ui/moduleshell.cpp:210
+#, fuzzy
+msgid "Map"
+msgstr "Preslikaj/Zemljevid"
+
+#: src/niepce/ui/niepceapplication.cpp:79
 msgid ""
 "A digital photo application.\n"
 "\n"
@@ -328,567 +573,124 @@ msgid ""
 msgstr ""
 "Program za digitalne fotografije.\n"
 "\n"
-"Možnosti izgradnje:"
+"Možnosti izgradnje: "
 
-#: ../src/niepce/ui/niepcewindow.cpp:132
+#: src/niepce/ui/niepcewindow.cpp:77
+msgid "Undo"
+msgstr "Razveljavi"
+
+#: src/niepce/ui/niepcewindow.cpp:88
+msgid "Import..."
+msgstr "Uvozi …"
+
+#: src/niepce/ui/niepcewindow.cpp:167
 msgid "Ready"
 msgstr "Pripravljeno"
 
-#: ../src/niepce/ui/niepcewindow.cpp:227
-msgid "_Library"
-msgstr "_Knjižnica"
+#: src/niepce/ui/niepcewindow.cpp:234
+msgid "New Catalog..."
+msgstr "Nov katalog ..."
 
-#: ../src/niepce/ui/niepcewindow.cpp:233
-msgid "New _Folder..."
-msgstr "Nova _mapa ..."
+#: src/niepce/ui/niepcewindow.cpp:235
+msgid "Open Catalog..."
+msgstr "Odpri katalog ..."
 
-#: ../src/niepce/ui/niepcewindow.cpp:234
-msgid "New _Project..."
-msgstr "Nov _projekt ..."
-
-#: ../src/niepce/ui/niepcewindow.cpp:236 ../camerawire/src/cwwindow.cpp:92
-msgid "_Import..."
-msgstr "_Uvozi ..."
-
-#: ../src/niepce/ui/niepcewindow.cpp:246 ../camerawire/src/cwwindow.cpp:102
-#: ../magellan/src/mgwindow.cpp:98
-msgid "_Edit"
-msgstr "_Uredi"
-
-#: ../src/niepce/ui/niepcewindow.cpp:266 ../camerawire/src/cwwindow.cpp:118
-#: ../magellan/src/mgwindow.cpp:114
-msgid "_Tools"
-msgstr "_Orodja"
-
-#: ../src/niepce/ui/niepcewindow.cpp:267
-msgid "_Edit Labels..."
+#: src/niepce/ui/niepcewindow.cpp:246
+#, fuzzy
+#| msgid "_Edit Labels..."
+msgid "Edit Labels..."
 msgstr "_Uredi oznake ..."
 
-#: ../src/niepce/ui/niepcewindow.cpp:270 ../camerawire/src/cwwindow.cpp:124
-#: ../magellan/src/mgwindow.cpp:120
-msgid "_Hide tools"
-msgstr "_Skrij orodja"
+#: src/niepce/ui/niepcewindow.cpp:247
+msgid "Preferences..."
+msgstr "Nastavitve ..."
 
-#: ../src/niepce/ui/niepcewindow.cpp:274 ../camerawire/src/cwwindow.cpp:128
-#: ../magellan/src/mgwindow.cpp:124
-msgid "_Help"
-msgstr "Pomo_č"
+#: src/niepce/ui/niepcewindow.cpp:251
+msgid "Help"
+msgstr "Pomoč"
+
+#: src/niepce/ui/niepcewindow.cpp:252
+msgid "About"
+msgstr "O programu"
 
 #. TODO make this parametric from resources
-#: ../src/niepce/ui/niepcewindow.cpp:376
+#: src/niepce/ui/niepcewindow.cpp:288
 msgid "Label 1"
 msgstr "Oznaka 1"
 
 #. 217, 37, 17
-#: ../src/niepce/ui/niepcewindow.cpp:377
+#: src/niepce/ui/niepcewindow.cpp:289
 msgid "Label 2"
 msgstr "Oznaka 2"
 
 #. 97, 217, 17
-#: ../src/niepce/ui/niepcewindow.cpp:378
+#: src/niepce/ui/niepcewindow.cpp:290
 msgid "Label 3"
 msgstr "Oznaka 3"
 
 #. 17, 197, 217
-#: ../src/niepce/ui/niepcewindow.cpp:379
+#: src/niepce/ui/niepcewindow.cpp:291
 msgid "Label 4"
 msgstr "Oznaka 4"
 
 #. 137, 17, 217
-#: ../src/niepce/ui/niepcewindow.cpp:380
+#: src/niepce/ui/niepcewindow.cpp:292
 msgid "Label 5"
 msgstr "Oznaka 5"
 
-#: ../src/niepce/ui/niepcewindow.cpp:418
-msgid "Create library"
-msgstr "Ustvari knjižnico"
+#: src/niepce/ui/niepcewindow.cpp:340
+msgid "Open catalog"
+msgstr "Odpri katalog"
 
-#: ../src/niepce/ui/niepcewindow.cpp:421
-msgid "Create"
-msgstr "Ustvari"
+#: src/niepce/ui/niepcewindow.cpp:343
+msgid "Open"
+msgstr "Odpri"
 
-#: ../src/niepce/ui/niepcewindow.cpp:480
+#: src/niepce/ui/niepcewindow.cpp:405
 msgid "Niepce Digital - "
-msgstr "Program Niepce -"
+msgstr "Program Niepce - "
 
-#: ../src/niepce/ui/selectioncontroller.cpp:250
-msgid "Set Flag"
-msgstr "Določi zastavico"
-
-#: ../src/niepce/ui/selectioncontroller.cpp:253
-msgid "Set Rating"
-msgstr "Nastavi oceno"
-
-#: ../src/niepce/ui/selectioncontroller.cpp:256
-msgid "Set Label"
-msgstr "Nastavi oznako"
-
-#: ../src/niepce/ui/selectioncontroller.cpp:259
+#: src/niepce/ui/selectioncontroller.cpp:284
 msgid "Set Property"
 msgstr "Določi lastnost"
 
-#: ../src/niepce/ui/selectioncontroller.cpp:278
+#: src/niepce/ui/selectioncontroller.cpp:299
 msgid "Set Properties"
 msgstr "Določi lastnosti"
 
-#: ../src/niepce/ui/selectioncontroller.cpp:300
+#: src/niepce/ui/selectioncontroller.cpp:326
 msgid "Move to Trash"
 msgstr "Premakni v smeti"
 
-#: ../src/niepce/ui/workspacecontroller.cpp:295
+#: src/niepce/ui/workspacecontroller.cpp:107
+msgid "Delete selected folder?"
+msgstr "Ali želite izbrisati izbrano mapo?"
+
+#: src/niepce/ui/workspacecontroller.cpp:411
 msgid "Pictures"
 msgstr "Slike"
 
-#: ../src/niepce/ui/workspacecontroller.cpp:299
+#: src/niepce/ui/workspacecontroller.cpp:415
 msgid "Projects"
 msgstr "Projekti"
 
-#: ../src/niepce/ui/workspacecontroller.cpp:303
+#: src/niepce/ui/workspacecontroller.cpp:419
 msgid "Keywords"
 msgstr "Ključne besede"
 
 #. TODO make it a mnemonic
-#: ../src/niepce/ui/workspacecontroller.cpp:315
+#: src/niepce/ui/workspacecontroller.cpp:439
 msgid "_Workspace"
 msgstr "_Delovna površina"
 
-#: ../src/niepce/stock.cpp:46
-msgid "Rotate L_eft"
-msgstr "Zavrti l_evo"
-
-#: ../src/niepce/stock.cpp:49
-msgid "Rotate R_ight"
-msgstr "Zavrti _desno"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:39
-msgid "Develop"
-msgstr "Razvijanj"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:57
-msgid "Crop"
-msgstr "Obreži"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:61
-msgid "Tilt"
-msgstr "Nagib"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:63
-msgid "White balance"
-msgstr "Ravnotežje beline"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:66
-msgid "Color temperature"
-msgstr "Temperatura barve"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:68
-msgid "Tone and colour"
-msgstr "Ton in barva"
-
-#. s->signal_value_changed().connect();
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:72
-msgid "Exposure"
-msgstr "Osvetljenost"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:74
-msgid "Recovery"
-msgstr "Obnova"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:76
-msgid "Fill Light"
-msgstr "Zapolni svetlo"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:78
-msgid "Blacks"
-msgstr "Črne"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:80
-msgid "Brightness"
-msgstr "Svetlost"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:82
-msgid "Contrast"
-msgstr "Kontrast"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:84
-msgid "Saturation"
-msgstr "Nasičenost"
-
-#: ../src/niepce/modules/darkroom/toolboxcontroller.cpp:86
-msgid "Vibrance"
-msgstr "Nasičenost portretnih fotografij"
-
-#: ../camerawire/src/cwwindow.cpp:67
-msgid "Camera"
-msgstr "Fotoaparat"
-
-#: ../camerawire/src/cwwindow.cpp:91 ../magellan/src/mgwindow.cpp:86
-msgid "_File"
-msgstr "_Datoteka"
-
-#: ../magellan/src/mgwindow.ui.h:1
-msgid "_Erase after download"
-msgstr "_Izbriši po prejemu"
-
-#: ../magellan/src/mgwindow.ui.h:2
-msgid "<b>GPS Device</b>"
-msgstr "<b>Naprava GPS</b>"
-
-#: ../magellan/src/mgwindow.ui.h:3
-msgid "GPX"
-msgstr "GPX"
-
-#: ../magellan/src/mgwindow.ui.h:4
-msgid "KML"
-msgstr "KML"
-
-#: ../magellan/src/mgwindow.ui.h:5
-msgid "<b>Format</b>"
-msgstr "<b>Zapis</b>"
-
-#: ../magellan/src/mgwindow.ui.h:6
-msgid "<b>Output</b>"
-msgstr "<b>Odvod</b>"
-
-#: ../magellan/src/mgwindow.ui.h:7
-msgid "Download"
-msgstr "Prejmi"
-
-#~ msgid "System"
-#~ msgstr "Sistem"
-
-#~ msgid "_Theme:\t"
-#~ msgstr "_Tema:\t"
-
-#~ msgid "Niepce Dark"
-#~ msgstr "Niepce temno"
-
-#~ msgid "gtk-close"
-#~ msgstr "gtk-close"
-
-#~ msgid "_Folders"
-#~ msgstr "_Mape"
-
-#~ msgid "gtk-cancel"
-#~ msgstr "gtk-cancel"
-
-#~ msgid "_No Rating"
-#~ msgstr "_Ni ocene"
-
-#~ msgid "_1 Star"
-#~ msgstr "_1 zvezda"
-
-#~ msgid "_2 Stars"
-#~ msgstr "_2 zvezdi"
-
-#~ msgid "_3 Stars"
-#~ msgstr "_3 zvezde"
-
-#~ msgid "_4 Stars"
-#~ msgstr "_4 zvezde"
-
-#~ msgid "_5 Stars"
-#~ msgstr "_5 zvezd"
-
-#~ msgid "Master"
-#~ msgstr "Glavni predmet"
-
-#~ msgid "GdlDockMaster object which the dockbar widget is attached to"
-#~ msgstr "Predmet GdlDockMaster na katerega je pripet gradnik"
-
-#~ msgid "Dockbar style"
-#~ msgstr "Slog vrstice sidranja"
-
-#~ msgid "Dockbar style to show items on it"
-#~ msgstr "Slog vrstice sidranja za prikaz predmetov"
-
-#~ msgid "Iconify"
-#~ msgstr "Pomanjšaj v ikono"
-
-#~ msgid "Iconify this dock"
-#~ msgstr "Sidrišče pomanjšaj v ikono"
-
-#~ msgid "Close"
-#~ msgstr "Zapri"
-
-#~ msgid "Close this dock"
-#~ msgstr "Zapri sidrišče"
-
-#~ msgid "Controlling dock item"
-#~ msgstr "Nadzor sidranih predmetov"
-
-#~ msgid "Dockitem which 'owns' this grip"
-#~ msgstr "Predmet sidrišča, ki nadzoruje držalo"
-
-#~ msgid "Orientation"
-#~ msgstr "Usmerjenost"
-
-#~ msgid "Orientation of the docking item"
-#~ msgstr "Usmerjenost sidranega predmeta"
-
-#~ msgid "Resizable"
-#~ msgstr "Spremenljive velikosti"
-
-#~ msgid "If set, the dock item can be resized when docked in a panel"
-#~ msgstr ""
-#~ "Izbrana možnost omogoča spreminjanje velikosti predmeta zasidranega v "
-#~ "pultu"
-
-#~ msgid "Item behavior"
-#~ msgstr "Vedenje predmetov"
-
-#~ msgid ""
-#~ "General behavior for the dock item (i.e. whether it can float, if it's "
-#~ "locked, etc.)"
-#~ msgstr ""
-#~ "Splošne značilnosti vedenja sidranega predmeta (npr.: ali plava, ali je "
-#~ "zaklenjen, itn.)"
-
-#~ msgid "Locked"
-#~ msgstr "Zaklenjeno"
-
-#~ msgid ""
-#~ "If set, the dock item cannot be dragged around and it doesn't show a grip"
-#~ msgstr "Izbrana možnost onemogoča premikanja predmeta in ne prikaže držala"
-
-#~ msgid "Preferred width"
-#~ msgstr "Želena širina"
-
-#~ msgid "Preferred width for the dock item"
-#~ msgstr "Želena širina sidranega predmeta"
-
-#~ msgid "Preferred height"
-#~ msgstr "Želena višina"
-
-#~ msgid "Preferred height for the dock item"
-#~ msgstr "Želena višina sidranega predmeta"
-
-#~ msgid ""
-#~ "You can't add a dock object (%p of type %s) inside a %s. Use a GdlDock or "
-#~ "some other compound dock object."
-#~ msgstr ""
-#~ "Predmet sidrišča (%p vrste %s) ni mogoče dodati znotraj %s. Uporabite "
-#~ "GdlDock ali kateri drugi predmet sidrišča."
-
-#~ msgid ""
-#~ "Attempting to add a widget with type %s to a %s, but it can only contain "
-#~ "one widget at a time; it already contains a widget of type %s"
-#~ msgstr ""
-#~ "Poskus dodajanja gradnika vrste %s na %s, vendar ta lahko vsebuje sočasno "
-#~ "le en gradnik; trenutno je vezan gradnik vrste %s"
-
-#~ msgid "Unsupported docking strategy %s in dock object of type %s"
-#~ msgstr "Nepodprt način sidranja %s v predmet sidrišča vrste %s"
-
-#~ msgid "UnLock"
-#~ msgstr "Odkleni"
-
-#~ msgid "Hide"
-#~ msgstr "Skrij"
-
-#~ msgid "Lock"
-#~ msgstr "Zakleni"
-
-#~ msgid "Attempt to bind an unbound item %p"
-#~ msgstr "Poskus vezave nevezanega predmeta %p"
-
-#~ msgid "Default title"
-#~ msgstr "Privzeti naslov"
-
-#~ msgid "Default title for newly created floating docks"
-#~ msgstr "Privzeti naslov za novo ustvarjena plavajoča sidrišča"
-
-#~ msgid ""
-#~ "If is set to 1, all the dock items bound to the master are locked; if "
-#~ "it's 0, all are unlocked; -1 indicates inconsistency among the items"
-#~ msgstr ""
-#~ "Vrednost 1 zaklepa predmete na glavno sidrišče, vrednost 0 predmete "
-#~ "ohrani odklenjene, vrednost -1 pa predstavlja prosto nastavitev zaklepanja"
-
-#~ msgid "Switcher Style"
-#~ msgstr "Slog preklopnika"
-
-#~ msgid "Switcher buttons style"
-#~ msgstr "Slog gumbov preklopnika"
-
-#~ msgid "Expand direction"
-#~ msgstr "Razširi smer"
-
-#~ msgid ""
-#~ "Allow the master's dock items to expand their container dock objects in "
-#~ "the given direction"
-#~ msgstr ""
-#~ "Glavnim predmetom sidrišča dovoli razširitev vsebnikov predmetov sidrišča "
-#~ "v dano smer"
-
-#~ msgid ""
-#~ "master %p: unable to add object %p[%s] to the hash.  There already is an "
-#~ "item with that name (%p)."
-#~ msgstr ""
-#~ "Glavni predmet %p: ni mogoče dodati predmeta %p[%s] v razpršilo. Predmet "
-#~ "s tem imenom že obstaja (%p)."
-
-#~ msgid ""
-#~ "The new dock controller %p is automatic.  Only manual dock objects should "
-#~ "be named controller."
-#~ msgstr ""
-#~ "Novi nadzornik sidrišča %p je samodejen. Le ročni predmeti sidrišča naj "
-#~ "bi bili imenovani nadzornik."
-
-#~ msgid "Page"
-#~ msgstr "Stran"
-
-#~ msgid "The index of the current page"
-#~ msgstr "Kazalo trenutne strani"
-
-#~ msgid "Unique name for identifying the dock object"
-#~ msgstr "Edinstveno ime za določevanje predmeta sidrišča"
-
-#~ msgid "Long name"
-#~ msgstr "Dolgo ime"
-
-#~ msgid "Human readable name for the dock object"
-#~ msgstr "Človeku berljivo ime predmeta sidrišča"
-
-#~ msgid "Stock Icon"
-#~ msgstr "Založna ikona"
-
-#~ msgid "Stock icon for the dock object"
-#~ msgstr "Založna ikona za predmet sidrišča"
-
-#~ msgid "Pixbuf Icon"
-#~ msgstr "Ikona sličice"
-
-#~ msgid "Pixbuf icon for the dock object"
-#~ msgstr "Ikona slikovnega pomnilnika za predmet sidrišča"
-
-#~ msgid "Dock master"
-#~ msgstr "Glavno sidrišče"
-
-#~ msgid "Dock master this dock object is bound to"
-#~ msgstr "Glavno sidrišče na katerega je vezan predmet sidrišča"
-
-#~ msgid ""
-#~ "Call to gdl_dock_object_dock in a dock object %p (object type is %s) "
-#~ "which hasn't implemented this method"
-#~ msgstr ""
-#~ "Klic gdl_dock_object_dock znotraj predmeta sidrišča %p (vrsta predmeta je "
-#~ "%s) ni podprl tega načina"
-
-#~ msgid ""
-#~ "Dock operation requested in a non-bound object %p. The application might "
-#~ "crash"
-#~ msgstr "Zahteva za sidranje na nevezni predmet %p. Program se lahko sesuje."
-
-#~ msgid "Cannot dock %p to %p because they belong to different masters"
-#~ msgstr ""
-#~ "Ni mogoče sidrati %p na %p saj pripadata različnim glavnim predmetom"
-
-#~ msgid ""
-#~ "Attempt to bind to %p an already bound dock object %p (current master: %p)"
-#~ msgstr ""
-#~ "Poskus vezave na %p že sidranega predmeta %p (trenutni glavni predmet: %p)"
-
-#~ msgid "Position of the divider in pixels"
-#~ msgstr "Položaj ločilnika v točkah"
-
-#~ msgid "Sticky"
-#~ msgstr "Lepljivo"
-
-#~ msgid ""
-#~ "Whether the placeholder will stick to its host or move up the hierarchy "
-#~ "when the host is redocked"
-#~ msgstr ""
-#~ "Možnost določa ali bo vsebnik prilepljen na lastnega gostitelja ali pa se "
-#~ "premakne po hierarhiji, kadar se gostitelj ponovno zasidra"
-
-#~ msgid "Host"
-#~ msgstr "Gostitelj"
-
-#~ msgid "The dock object this placeholder is attached to"
-#~ msgstr "Predmet sidranja na katerega je pripet vsebnik"
-
-#~ msgid "Next placement"
-#~ msgstr "Naslednja postavitev"
-
-#~ msgid ""
-#~ "The position an item will be docked to our host if a request is made to "
-#~ "dock to us"
-#~ msgstr ""
-#~ "Lega zasidranja predmeta na gostitelja, kadar je podana zahteva sidranja"
-
-#~ msgid "Width"
-#~ msgstr "Širina"
-
-#~ msgid "Width for the widget when it's attached to the placeholder"
-#~ msgstr "Širina gradnika med priklopom na vsebnik"
-
-#~ msgid "Height"
-#~ msgstr "Višina"
-
-#~ msgid "Height for the widget when it's attached to the placeholder"
-#~ msgstr "Višina gradnika med priklopom na vsebnik"
-
-#~ msgid "Floating Toplevel"
-#~ msgstr "Plavajoča vrhnja raven"
-
-#~ msgid "Whether the placeholder is standing in for a floating toplevel dock"
-#~ msgstr "Ali je vsebnik prilagojen plavajočemu vrhnjemu sidrišču"
-
-#~ msgid "X-Coordinate"
-#~ msgstr "Koordinata X"
-
-#~ msgid "X coordinate for dock when floating"
-#~ msgstr "Koordinata X za plavajoče sidrišče"
-
-#~ msgid "Y-Coordinate"
-#~ msgstr "Koordinata Y"
-
-#~ msgid "Y coordinate for dock when floating"
-#~ msgstr "Koordinata Y za plavajoče sidrišče"
-
-#~ msgid "Attempt to dock a dock object to an unbound placeholder"
-#~ msgstr "Poskus sidranja sidranega predmeta na nevezani vsebnik"
-
-#~ msgid "Got a detach signal from an object (%p) who is not our host %p"
-#~ msgstr ""
-#~ "Pridobljen signal konca sidranja predmeta (%p), ki ni pravi gostitelj %p"
-
-#~ msgid ""
-#~ "Something weird happened while getting the child placement for %p from "
-#~ "parent %p"
-#~ msgstr ""
-#~ "Nenavadna napaka med branjem podatka o položaju podrejenega elementa %p "
-#~ "preko nadrejenega %p"
-
-#~ msgid "Dockitem which 'owns' this tablabel"
-#~ msgstr "Predmet sidrišča, ki nadzoruje oznako zavihka"
-
-#~ msgid "Floating"
-#~ msgstr "Plavajoče"
-
-#~ msgid "Whether the dock is floating in its own window"
-#~ msgstr "Ali sidrišče plava v svojem oknu"
-
-#~ msgid "Default title for the newly created floating docks"
-#~ msgstr "Privzet naslov za novo ustvarjena plavajoča sidrišča"
-
-#~ msgid "Width for the dock when it's of floating type"
-#~ msgstr "Širina plavajočega sidrišča"
-
-#~ msgid "Height for the dock when it's of floating type"
-#~ msgstr "Višina plavajočega sidrišča"
-
-#~ msgid "Float X"
-#~ msgstr "Plavajoče X"
-
-#~ msgid "X coordinate for a floating dock"
-#~ msgstr "Koordinata X za plavajoče sidrišče"
-
-#~ msgid "Float Y"
-#~ msgstr "Plavajoče Y"
-
-#~ msgid "Y coordinate for a floating dock"
-#~ msgstr "Koordinata Y plavajočega sidrišča"
-
-#~ msgid "Dock #%d"
-#~ msgstr "Zasidraj  #%d"
+#: src/niepce/ui/workspacecontroller.cpp:454
+msgid "New Folder..."
+msgstr "Nova mapa ..."
+
+#: src/niepce/ui/workspacecontroller.cpp:456
+msgid "New Project..."
+msgstr "Nov projekt ..."
+
+#: src/niepce/ui/workspacecontroller.cpp:461
+msgid "Delete Folder"
+msgstr "Izbriši mapo"

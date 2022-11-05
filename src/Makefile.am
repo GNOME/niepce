@@ -2,13 +2,12 @@
 AM_CPPFLAGS = -DNIEPCE_LOCALEDIR=\"${NIEPCE_LOCALEDIR}\"
 
 SUBDIRS = . fwk \
-	engine libraryclient ncr niepce
+	engine ncr niepce
 
 RUST_SOURCES = \
 	@top_srcdir@/Cargo.toml \
 	@top_srcdir@/Cargo.lock \
 	@top_srcdir@/crates/npc-engine/Cargo.toml \
-	@top_srcdir@/crates/npc-engine/build.rs \
 	@top_srcdir@/crates/npc-engine/src/bin/importlr.rs \
 	@top_srcdir@/crates/npc-engine/src/db.rs \
 	@top_srcdir@/crates/npc-engine/src/db/album.rs \
@@ -34,25 +33,38 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-engine/src/library/thumbnail_cache.rs \
 	@top_srcdir@/crates/npc-engine/src/libraryclient.rs \
 	@top_srcdir@/crates/npc-engine/src/libraryclient/clientinterface.rs \
+	@top_srcdir@/crates/npc-engine/src/libraryclient/host.rs \
+	@top_srcdir@/crates/npc-engine/src/libraryclient/ui_data_provider.rs \
 	@top_srcdir@/crates/npc-engine/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/Cargo.toml \
-	@top_srcdir@/crates/npc-fwk/build.rs \
-	@top_srcdir@/crates/npc-fwk/src/capi.rs \
 	@top_srcdir@/crates/npc-fwk/src/base.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/date.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/debug.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/fractions.rs \
+	@top_srcdir@/crates/npc-fwk/src/base/moniker.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertybag.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertyvalue.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/rgbcolour.rs \
+	@top_srcdir@/crates/npc-fwk/src/base/signals.rs \
 	@top_srcdir@/crates/npc-fwk/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/assistant.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/clickable_cell_renderer.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/configuration.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/controller.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/gdk_utils.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/gtk_utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/mimetype.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/movieutils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/thumbnail.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/uicontroller.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/undo.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/metadata_widget.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/rating_label.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/token_text_view.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/toolbox_item.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/window_controller.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils/exempi.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils/exiv2.rs \
@@ -60,21 +72,33 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/build.rs \
 	@top_srcdir@/niepce-main/Cargo.toml \
 	@top_srcdir@/niepce-main/examples/widget-test.rs \
+	@top_srcdir@/niepce-main/src/import/mod.rs \
 	@top_srcdir@/niepce-main/src/lib.rs \
+	@top_srcdir@/niepce-main/src/modules/mod.rs \
+	@top_srcdir@/niepce-main/src/modules/map.rs \
 	@top_srcdir@/niepce-main/src/niepce.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/film_strip_controller.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/grid_view_module.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/imagetoolbar.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_grid_view.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_list_store.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/image_selectable.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/confirm.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/importlibrary.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/selection_controller.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_nav.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/library_cell_renderer.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/library_module.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/module_shell.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/module_shell_widget.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/niepce_window.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_strip_view.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/workspace_controller.rs \
+	@top_srcdir@/niepce-main/src/notification_center.rs \
 	$(NULL)
 
 EXTRA_DIST = \
@@ -94,7 +118,18 @@ endif
 
 CARGO_TARGET_DIR=@abs_top_builddir@/target
 
-all-local: $(CARGO_TARGET_DIR)/@CARGO_TARGET_SUBDIR@/libniepce_rust.a
+RUST_BIN_DIR=$(CARGO_TARGET_DIR)/bin
+RUST_CXXBRIDGE=$(RUST_BIN_DIR)/cxxbridge
+
+# This might be a problem offline
+$(RUST_CXXBRIDGE):
+	mkdir -p $(RUST_BIN_DIR)
+	cargo install --root $(CARGO_TARGET_DIR) cxxbridge-cmd
+
+CLEANFILES = \
+	$(RUST_CXXBRIDGE)
+
+all-local: $(CARGO_TARGET_DIR)/@CARGO_TARGET_SUBDIR@/libniepce_rust.a $(RUST_CXXBRIDGE)
 
 @abs_top_builddir@/target/bindings.h: $(CARGO_TARGET_DIR)/@CARGO_TARGET_SUBDIR@/libniepce_rust.a
 
@@ -113,3 +148,7 @@ check-local:
 clippy:
 	cd $(top_srcdir) && \
 	CARGO_TARGET_DIR=$(CARGO_TARGET_DIR) cargo clippy $(CARGO_VERBOSE) $(CARGO_RELEASE_ARGS)
+
+widget-test:
+	cd $(top_srcdir) && \
+	CARGO_TARGET_DIR=$(CARGO_TARGET_DIR) cargo run --example=widget-test $(CARGO_VERBOSE) $(CARGO_RELEASE_ARGS)

@@ -1,7 +1,7 @@
 /*
  * niepce - utils/exempi.h
  *
- * Copyright (C) 2007-2013 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,9 +87,6 @@ extern const char * UFRAW_INTEROP_NS_PREFIX;
 namespace fwk {
 
 class XmpMeta;
-typedef std::shared_ptr<ExempiManager> ExempiManagerPtr;
-
-ExempiManagerPtr exempi_manager_new();
 
 }
 

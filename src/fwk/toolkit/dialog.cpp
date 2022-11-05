@@ -40,11 +40,21 @@ void Dialog::add_header(const std::string & label)
 /** Run the dialog modal. on_ok is called if the dialog response is ok */
 void Dialog::run_modal(const Frame::Ptr& parent, std::function<void(int)> on_ok)
 {
+    run_modal_(parent->gtkWindow(), on_ok);
+}
+
+void Dialog::run_modal_(GtkWindow* parent, std::function<void(int)> on_ok) const
+{
+    const_cast<Dialog*>(this)->run_modal_(*Glib::wrap(parent), on_ok);
+}
+
+void Dialog::run_modal_(Gtk::Window& parent, std::function<void(int)> on_ok)
+{
     DBG_OUT("run_modal");
     if (!m_is_setup) {
         setup_widget();
     }
-    gtkDialog().set_transient_for(parent->gtkWindow());
+    gtkDialog().set_transient_for(parent);
     gtkDialog().set_default_response(Gtk::ResponseType::CLOSE);
     gtkDialog().set_modal();
     gtkDialog().signal_response().connect(on_ok);

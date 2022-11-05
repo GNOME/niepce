@@ -17,33 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::sync::Arc;
+
 use gettextrs::gettext;
-use glib::translate::*;
 use gtk4::prelude::*;
 use gtk4::{Dialog, Entry, Label};
 
+use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::dbg_out;
 
-use npc_engine::libraryclient::{ClientInterface, LibraryClientWrapper};
-
-/// # Safety
-/// Use raw pointers.
-#[no_mangle]
-pub unsafe extern "C" fn dialog_request_new_folder(
-    client: &mut LibraryClientWrapper,
-    parent: *mut gtk4_sys::GtkWindow,
-) {
-    let parent = gtk4::Window::from_glib_none(parent);
+pub fn request(client: Arc<LibraryClient>, parent: Option<&gtk4::Window>) {
     let dialog = Dialog::with_buttons(
         Some("New folder"),
-        Some(&parent),
+        parent,
         gtk4::DialogFlags::MODAL,
         &[
             (&gettext("OK"), gtk4::ResponseType::Ok),
             (&gettext("Cancel"), gtk4::ResponseType::Cancel),
         ],
     );
-    let label = Label::with_mnemonic(gettext("Folder _name:").as_str());
+    let label = Label::with_mnemonic(&gettext("Folder _name:"));
     let content_area = dialog.content_area();
     content_area.append(&label);
     let entry = Entry::new();
@@ -53,7 +46,6 @@ pub unsafe extern "C" fn dialog_request_new_folder(
 
     dialog.set_modal(true);
 
-    let client = client.client();
     dialog.connect_response(glib::clone!(@strong entry => move |dialog, response| {
         let folder_name = entry.text();
         let cancel = response != gtk4::ResponseType::Ok;

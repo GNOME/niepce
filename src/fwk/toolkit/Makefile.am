@@ -1,18 +1,20 @@
 
 
-niepce_cppflags = -I$(top_srcdir)/src -I$(top_srcdir)/src/ext \
+niepce_cppflags = -I$(top_srcdir)/src -I$(top_builddir)/src -I$(top_srcdir)/src/ext \
 	-DDATADIR=\"$(datadir)\" \
 	@FRAMEWORK_CFLAGS@ \
 	@GPHOTO_CFLAGS@ \
 	@OPENRAW_CFLAGS@ \
 	$(NULL)
 
+rust_ldadd = $(top_builddir)/target/@CARGO_TARGET_SUBDIR@/libniepce_rust.a \
+	@OPENRAW_LIBS@ \
+	@GEXIV2_LIBS@ \
+	$(NULL)
+
 AM_CPPFLAGS = $(niepce_cppflags)
 
 noinst_LIBRARIES = libniepceframework.a
-
-noinst_HEADERS =   \
-	  goocanvas_proxy_header.hpp
 
 TESTS = testconfigdatabinder
 
@@ -27,9 +29,16 @@ testing_ldadd = @top_builddir@/third_party/libgtest.a \
 
 testconfigdatabinder_SOURCES = t/testconfigdatabinder.cpp
 testconfigdatabinder_CPPFLAGS = $(testing_cppflags)
-testconfigdatabinder_LDADD = $(testing_ldadd)
+testconfigdatabinder_LDADD = $(testing_ldadd) \
+	$(rust_ldadd) \
+	$(NULL)
 
-libniepceframework_a_SOURCES = configuration.hpp configuration.cpp \
+libniepceframework_a_SOURCES = \
+	../cxx_colour_bindings.cpp \
+	../cxx_fwk_bindings.cpp \
+	../cxx_eng_bindings.cpp \
+	../cxx_widgets_bindings.cpp \
+	../cxx_npc_bindings.cpp \
 	application.hpp application.cpp \
 	appframe.hpp appframe.cpp \
 	dialog.hpp dialog.cpp \
@@ -37,7 +46,6 @@ libniepceframework_a_SOURCES = configuration.hpp configuration.cpp \
 	controller.hpp controller.cpp \
 	uicontroller.hpp uicontroller.cpp \
 	uiresult.hpp uiresult.cpp \
-	thumbnail.hpp thumbnail.cpp \
 	mapcontroller.hpp mapcontroller.cpp \
 	notification.hpp \
 	mimetype.hpp mimetype.cpp \
@@ -51,10 +59,7 @@ libniepceframework_a_SOURCES = configuration.hpp configuration.cpp \
 	widgets/toolboxitemwidget.hpp widgets/toolboxitemwidget.cpp \
 	widgets/editablehscale.hpp widgets/editablehscale.cpp \
 	widgets/dock.cpp widgets/dock.hpp \
-	widgets/notabtextview.hpp widgets/notabtextview.cpp \
-	widgets/tokentextview.hpp widgets/tokentextview.cpp \
 	dockable.hpp dockable.cpp \
-	metadatawidget.hpp metadatawidget.cpp \
-	undo.hpp undo.cpp \
+	undo.hpp \
 	command.hpp \
 	$(NULL)

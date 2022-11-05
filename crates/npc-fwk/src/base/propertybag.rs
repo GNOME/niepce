@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/propertybag.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,11 @@ impl<Index: Ord + Copy> PropertyBag<Index> {
         }
     }
 
+    /// Return the keys in the order of the bag, i.e. in which they have been added.
+    pub fn keys(&self) -> std::slice::Iter<Index> {
+        self.bag.iter()
+    }
+
     pub fn is_empty(&self) -> bool {
         self.bag.is_empty()
     }
@@ -56,6 +61,10 @@ impl<Index: Ord + Copy> PropertyBag<Index> {
 
     pub fn get(&self, key: &Index) -> Option<&PropertyValue> {
         self.map.get(key)
+    }
+
+    pub fn contains_key(&self, key: &Index) -> bool {
+        self.map.contains_key(key)
     }
 
     pub fn set_value(&mut self, key: Index, value: PropertyValue) -> bool {

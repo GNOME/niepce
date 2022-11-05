@@ -28,8 +28,7 @@ fn linked_box() -> gtk4::Box {
     box_
 }
 
-#[no_mangle]
-pub extern "C" fn image_toolbar_new() -> *mut gtk4_sys::GtkBox {
+pub fn image_toolbar_new() -> *mut crate::ffi::GtkBox {
     let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     // XXX set style class "toolbar"
 
@@ -61,5 +60,6 @@ pub extern "C" fn image_toolbar_new() -> *mut gtk4_sys::GtkBox {
     box_.append(&tool_item);
     toolbar.append(&box_);
 
-    toolbar.to_glib_full()
+    let gtkbox: *mut gtk4_sys::GtkBox = toolbar.to_glib_full();
+    gtkbox as *mut crate::ffi::GtkBox
 }

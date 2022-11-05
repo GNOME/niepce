@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui.rs
  *
- * Copyright (C) 2020-2021 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,10 +18,33 @@
  */
 
 pub mod dialogs;
+mod film_strip_controller;
+mod grid_view_module;
 pub mod image_grid_view;
 pub mod image_list_store;
+mod image_selectable;
 pub mod imagetoolbar;
 pub mod library_cell_renderer;
+pub mod library_module;
+pub mod metadata_pane_controller;
+mod module_shell;
+mod module_shell_widget;
+pub mod niepce_window;
+mod selection_controller;
 pub mod thumb_nav;
 pub mod thumb_strip_view;
-pub mod workspace_controller;
+mod workspace_controller;
+
+pub use film_strip_controller::FilmStripController;
+pub use grid_view_module::GridViewModuleProxy;
+pub use image_grid_view::ImageGridView;
+pub use image_list_store::ImageListStore;
+pub use image_selectable::{are_same_selectable, ImageSelectable};
+pub use library_module::LibraryModule;
+pub use module_shell_widget::ModuleShellWidget;
+pub use selection_controller::SelectionController;
+
+pub mod cxx {
+    pub use super::image_grid_view::npc_image_grid_view_new;
+    pub use super::workspace_controller::ImportDialogArgument;
+}

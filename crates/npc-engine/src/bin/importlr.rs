@@ -22,8 +22,7 @@
 //!
 
 use clap::{App, Arg};
-use serde::Deserialize;
-use toml;
+use serde_derive::Deserialize;
 
 use std::io::Read;
 use std::path::PathBuf;
@@ -87,7 +86,7 @@ fn main() {
 
     let (sender, _recv) = async_channel::unbounded();
 
-    let mut library = LibraryClient::new(PathBuf::from(library), sender);
+    let library = LibraryClient::new(PathBuf::from(library), sender);
     // library.init();
     let mut importer = LrImporter::new();
     if !LrImporter::can_import_library(&PathBuf::from(catalog)) {
@@ -115,7 +114,5 @@ fn main() {
         }
     }
 
-    importer
-        .import_library(&mut library)
-        .expect("Import Library");
+    importer.import_library(&library).expect("Import Library");
 }

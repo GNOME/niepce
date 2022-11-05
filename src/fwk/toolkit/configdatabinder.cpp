@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/configdatabinder.cpp
  *
- * Copyright (C) 2007-2009 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,9 @@
 
 namespace fwk {
 
-
 ConfigDataBinderBase::ConfigDataBinderBase(const property_t & property,
-										   Configuration & config, 
-										   const std::string & key)
+					   const ConfigurationPtr& config,
+					   const std::string & key)
 	: DataBinderBase(),
 	  m_property(property),
 	  m_config_key(key),
@@ -33,7 +32,6 @@ ConfigDataBinderBase::ConfigDataBinderBase(const property_t & property,
 	m_conn = m_property.signal_changed().connect(
 		sigc::mem_fun(*this, &ConfigDataBinderBase::on_changed));
 }
-
 
 }
 

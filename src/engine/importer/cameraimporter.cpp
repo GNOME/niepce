@@ -2,7 +2,7 @@
 /*
  * niepce - engine/importer/cameraimporter.cpp
  *
- * Copyright (C) 2017-2020 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,8 +94,10 @@ bool CameraImporter::get_previews_for(const std::string& source,
     if (ensure_camera_open(source)) {
         for (auto path: paths) {
             DBG_OUT("want thumbnail %s", path.c_str());
-            fwk::ThumbnailPtr thumbnail = m_camera->get_preview(path);
-            callback(path, thumbnail);
+            auto thumbnail = m_camera->get_preview(path);
+            if (thumbnail.has_value()) {
+                callback(std::move(path), std::move(thumbnail.value()));
+            }
         }
 
         return true;
@@ -121,7 +123,7 @@ bool CameraImporter::do_import(const std::string& source, const std::string& des
             DBG_ASSERT(!tmp_dir_path.empty(), "Dest dir is empty");
             // XXX check we don't return an empty string.
 
-            fwk::FileListPtr files = fwk::wrapFileList(ffi::fwk_file_list_new());
+            fwk::FileListPtr files = fwk::FileList_new();
             for (auto file: file_list) {
                 auto imported_camera_file =
                     std::dynamic_pointer_cast<CameraImportedFile>(file);
@@ -135,11 +137,11 @@ bool CameraImporter::do_import(const std::string& source, const std::string& des
                 if (this->m_camera->download_file(imported_camera_file->folder(),
                                                   imported_camera_file->name(),
                                                   output_path)) {
-                    ffi::fwk_file_list_push_back(files.get(), output_path.c_str());
+                    files->push_back(output_path);
                 }
             }
 
-            return importer(tmp_dir_path, files, Managed::NO);
+            return importer(tmp_dir_path, *files, Managed::NO);
         });
     return true;
 }

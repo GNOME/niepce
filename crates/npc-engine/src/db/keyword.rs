@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/keyword.rs
  *
- * Copyright (C) 2017-2019 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +19,8 @@
 
 use super::FromDb;
 use super::LibraryId;
-use libc::c_char;
-use std::ffi::CStr;
-use std::ffi::CString;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Keyword {
     id: LibraryId,
     keyword: String,
@@ -63,26 +60,4 @@ impl FromDb for Keyword {
         let kw: String = row.get(1)?;
         Ok(Keyword::new(row.get(0)?, &kw))
     }
-}
-
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_db_keyword_new(id: i64, keyword: *const c_char) -> *mut Keyword {
-    let kw = Box::new(Keyword::new(
-        id,
-        &*CStr::from_ptr(keyword).to_string_lossy(),
-    ));
-    Box::into_raw(kw)
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_keyword_id(obj: &Keyword) -> i64 {
-    obj.id() as i64
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_keyword_keyword(obj: &Keyword) -> *mut c_char {
-    let cstr = CString::new(obj.keyword()).unwrap();
-    cstr.into_raw()
 }

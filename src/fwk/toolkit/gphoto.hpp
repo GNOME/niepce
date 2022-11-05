@@ -2,7 +2,7 @@
 /*
  * niepce - fwk/toolkit/gphoto.hpp
  *
- * Copyright (C) 2009-2017 Hubert Figuiere
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <list>
 #include <string>
 #include <memory>
+#include <optional>
 
 #include <gphoto2-camera.h>
 #include <gphoto2-port-info-list.h>
@@ -31,7 +32,8 @@
 #include "fwk/base/option.hpp"
 #include "fwk/base/singleton.hpp"
 #include "fwk/base/util.hpp"
-#include "fwk/toolkit/thumbnail.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace fwk {
 
@@ -110,7 +112,7 @@ public:
     bool close();
     bool try_unmount_camera();
     std::list<std::pair<std::string, std::string>> list_content() const;
-    fwk::ThumbnailPtr get_preview(const std::string& path) const;
+    std::optional<fwk::ThumbnailPtr> get_preview(const std::string& path) const;
     bool download_file(const std::string& folder, const std::string& file,
                        const std::string& dest);
 private:

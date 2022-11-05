@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/exempi.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,6 +162,16 @@ pub struct XmpMeta {
     keywords_fetched: bool,
 }
 
+impl std::fmt::Debug for XmpMeta {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        f.debug_struct("XmpMeta")
+            .field("xmp", &format!("{:?}", self.xmp.as_ptr()))
+            .field("keywords", &self.keywords)
+            .field("keywords_fetched", &self.keywords_fetched)
+            .finish()
+    }
+}
+
 impl Default for XmpMeta {
     fn default() -> XmpMeta {
         XmpMeta::new()
@@ -221,8 +231,7 @@ impl XmpMeta {
                 return meta;
             }
             sidecar_meta
-        } else {
-            let mut final_meta = sidecar_meta.unwrap();
+        } else if let Some(mut final_meta) = sidecar_meta {
             if !meta
                 .as_ref()
                 .unwrap()
@@ -235,6 +244,8 @@ impl XmpMeta {
             } else {
                 Some(final_meta)
             }
+        } else {
+            unreachable!("sidecar_meta was None");
         }
     }
 
@@ -354,7 +365,7 @@ impl XmpMeta {
             .to_str()
             .and_then(|s| DateTime::parse_from_rfc3339(s).ok())?;
 
-        Some(date)
+        Some(Date(date))
     }
 
     pub fn creation_date_str(&self) -> Option<String> {
@@ -377,7 +388,7 @@ impl XmpMeta {
         }
         let xmpstring = property.as_ref().ok().and_then(|s| s.to_str()).unwrap();
         match DateTime::parse_from_rfc3339(xmpstring) {
-            Ok(parsed) => Some(parsed),
+            Ok(parsed) => Some(Date(parsed)),
             Err(err) => {
                 err_out!("Error parsing property value '{}': {:?}", xmpstring, err);
                 None
@@ -503,20 +514,6 @@ pub fn xmp_date_from_exif(d: &str) -> Option<exempi2::DateTime> {
     xmp_date.set_timezone(exempi2::TzSign::UTC, 0, 0);
 
     Some(xmp_date)
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_exempi_manager_new() -> *mut ExempiManager {
-    Box::into_raw(Box::new(ExempiManager::new(None)))
-}
-
-/// Delete the ExempiManager
-///
-/// # Safety
-/// Dereference the pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_exempi_manager_delete(em: *mut ExempiManager) {
-    Box::from_raw(em);
 }
 
 #[cfg(test)]

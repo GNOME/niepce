@@ -3,7 +3,6 @@ name = "npc-engine"
 version = "0.1.0"
 authors = ["Hubert Figuière <hub@figuiere.net>"]
 edition = "2018"
-build = "build.rs"
 description = "The Niepce engine. Internal crate."
 license = "GPL-3.0"
 
@@ -12,6 +11,7 @@ license = "GPL-3.0"
 [dependencies]
 async-channel = "1.6.1"
 chrono = "0.4.19"
+cxx = { version = "1.0", features = [ "c++17" ] }
 exempi2 = { version = "0.1.2" }
 gettext-rs = "0.7.0"
 gdk-pixbuf-sys = "*"
@@ -22,7 +22,7 @@ libc = "0.2.39"
 maplit = "1.0.2"
 lrcat-extractor = { version = "0.3.0" }
 # Must be in sync with lrcat-extractor
-rusqlite = { version = "0.28.0", features = ["functions"] }
+rusqlite = { version = "0.28.0", features = ["functions", "bundled"] }
 
 npc-fwk = { path = "../npc-fwk" }
 
@@ -31,9 +31,6 @@ clap = { version = "2.33.3", optional = true }
 toml = { version = "0.5", optional = true }
 serde = { version = "*", optional = true }
 serde_derive = { version = "^1.0", optional = true }
-
-[build-dependencies]
-cbindgen = { version = "0.20.0" }
 
 [[bin]]
 name = "importlr"

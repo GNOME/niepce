@@ -30,33 +30,29 @@
 
 namespace dr {
 
-DarkroomModule::DarkroomModule(const ui::IModuleShell & shell)
-    : m_shell(shell)
-    , m_dr_splitview(Gtk::Orientation::HORIZONTAL)
+DarkroomModule::DarkroomModule()
+    : m_dr_splitview(Gtk::Orientation::HORIZONTAL)
     , m_vbox(Gtk::Orientation::VERTICAL)
     , m_image(new ncr::Image)
     , m_active(false)
     , m_need_reload(true)
 {
-    m_shell.get_selection_controller()->signal_selected.connect([this] (eng::library_id_t id) {
-        this->on_selected(id);
-    });
 }
 
-void DarkroomModule::reload_image()
+void DarkroomModule::reload_image() const
 {
     if(!m_need_reload) {
         return;
     }
-    eng::LibFilePtr file = m_imagefile.lock();
-    if(file) {
+    if (m_imagefile.has_value()) {
+        const eng::LibFilePtr& file = m_imagefile.value();
         // currently we treat RAW + JPEG as RAW.
         // TODO: have a way to actually choose the JPEG.
-        auto file_type = engine_db_libfile_file_type(file.get());
+        auto file_type = file->file_type();
         bool isRaw = (file_type == eng::FileType::Raw)
             || (file_type == eng::FileType::RawJpeg);
-        std::string path = engine_db_libfile_path(file.get());
-        m_image->reload(path, isRaw, engine_db_libfile_orientation(file.get()));
+        std::string path = std::string(file->path());
+        m_image->reload(path, isRaw, file->orientation());
     }
     else {
         // reset
@@ -67,18 +63,16 @@ void DarkroomModule::reload_image()
     m_need_reload = false;
 }
 
-void DarkroomModule::set_image(const eng::LibFilePtr & file)
+void DarkroomModule::set_image(eng::LibFile* file) const
 {
-    if(m_imagefile.expired() || (file != m_imagefile.lock())) {
-        m_imagefile = eng::LibFileWeakPtr(file);
-        m_need_reload = true;
+    if (file) {
+        m_imagefile = std::optional(rust::Box<eng::LibFile>::from_raw(file));
+    } else {
+        m_imagefile = std::nullopt;
     }
-    else if(!static_cast<bool>(file)) {
-        m_imagefile.reset();
-        m_need_reload = true;
-    }
+    m_need_reload = true;
 
-    if(m_need_reload && m_active) {
+    if (m_need_reload && m_active) {
         reload_image();
     }
 }
@@ -88,7 +82,7 @@ void DarkroomModule::dispatch_action(const std::string & /*action_name*/)
 }
 
 
-void DarkroomModule::set_active(bool active)
+void DarkroomModule::set_active(bool active) const
 {
     m_active = active;
     if(active) {
@@ -115,7 +109,7 @@ Gtk::Widget * DarkroomModule::buildWidget()
     m_imagecanvas->set_image(m_image);
 
     // build the toolbar.
-    auto toolbar = ffi::image_toolbar_new();
+    auto toolbar = ui::image_toolbar_new();
     gtk_box_append(m_vbox.gobj(), GTK_WIDGET(toolbar));
 
     m_dr_splitview.set_start_child(m_vbox);
@@ -132,13 +126,6 @@ Gtk::Widget * DarkroomModule::buildWidget()
     m_dock->vbox().append(*m_toolbox_ctrl->buildWidget());
 
     return m_widget;
-}
-
-void DarkroomModule::on_selected(eng::library_id_t id)
-{
-    auto file = m_shell.get_selection_controller()->get_file(id);
-    DBG_OUT("selection is %ld", id);
-    set_image(file);
 }
 
 }

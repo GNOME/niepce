@@ -17,7 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
+
 #pragma once
+
+#include <optional>
 
 #include <gtkmm/gestureclick.h>
 #include <gtkmm/iconview.h>
@@ -29,64 +33,63 @@
 
 #include "fwk/base/propertybag.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
-#include "niepce/ui/imoduleshell.hpp"
+#include "niepce/ui/imageliststore.hpp"
 #include "niepce/ui/metadatapanecontroller.hpp"
-#include "niepce/ui/selectioncontroller.hpp"
 
 namespace fwk {
 class Dock;
 }
 
-namespace libraryclient {
+namespace npc {
 class UIDataProvider;
 }
 
 namespace ui {
 
-class ModuleShell;
-
 class GridViewModule
     : public ILibraryModule
-    , public IImageSelectable
 {
 public:
   typedef std::shared_ptr<GridViewModule> Ptr;
 
-  GridViewModule(const IModuleShell & shell,
-                 const ImageListStorePtr& store);
+  GridViewModule(const ui::SelectionController& selection_controller,
+                 Glib::RefPtr<Gio::Menu> menu, const eng::UIDataProvider& ui_data_provider);
   virtual ~GridViewModule();
 
-  void on_lib_notification(const eng::LibNotification &);
-  void display_none();
+  void on_lib_notification(const eng::LibNotification &, const eng::LibraryClientWrapper& client) const;
+  void display_none() const;
 
   /* ILibraryModule */
   virtual void dispatch_action(const std::string & action_name) override;
-  virtual void set_active(bool active) override;
+  virtual void set_active(bool) const override {}
   virtual Glib::RefPtr<Gio::MenuModel> getMenu() override
     { return Glib::RefPtr<Gio::MenuModel>(); }
 
   /* IImageSelectable */
-  virtual Gtk::IconView * image_list() override;
-  virtual eng::library_id_t get_selected() override;
-  virtual void select_image(eng::library_id_t id) override;
+  virtual Gtk::IconView * image_list() const;
+  virtual eng::library_id_t get_selected() const;
+  virtual void select_image(eng::library_id_t id) const;
 
+  const GtkIconView* cxx_image_list() const {
+    return const_cast<GridViewModule*>(this)->image_list()->gobj();
+  }
 protected:
   virtual Gtk::Widget * buildWidget() override;
 
-
 private:
   static bool get_colour_callback_c(int32_t label, ffi::RgbColour* out, const void* user_data);
-  bool get_colour_callback(int32_t label, ffi::RgbColour* out) const;
-  void on_metadata_changed(const fwk::PropertyBagPtr&, const fwk::PropertyBagPtr& old);
+  std::optional<fwk::RgbColour> get_colour_callback(int32_t label) const;
+  void on_metadata_changed(const fwk::WrappedPropertyBagPtr&, const fwk::WrappedPropertyBagPtr& old);
   static void on_rating_changed(GtkCellRenderer*, eng::library_id_t id, int rating,
                                 gpointer user_data);
   void on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double, double);
 
-  const IModuleShell &               m_shell;
-  ImageListStorePtr m_model;
+  const ui::SelectionController& m_selection_controller;
+  Glib::RefPtr<Gio::Menu> m_menu;
+  const eng::UIDataProvider& m_ui_data_provider;
 
   // library split view
-  std::shared_ptr<ffi::ImageGridView> m_image_grid_view;
+  std::optional<rust::Box<npc::ImageGridView>> m_image_grid_view;
   Gtk::IconView* m_librarylistview;
   Gtk::ScrolledWindow          m_scrollview;
   MetaDataPaneController::Ptr  m_metapanecontroller;
@@ -95,4 +98,10 @@ private:
   Gtk::PopoverMenu* m_context_menu;
 };
 
+std::shared_ptr<GridViewModule> grid_view_module_new(const ui::SelectionController& selection_controller,
+                                                     const GMenu* menu_,
+                                                     const eng::UIDataProvider& ui_data_provider);
+
 }
+
+#endif

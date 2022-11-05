@@ -18,5 +18,7 @@
  */
 
 pub mod confirm;
-pub mod importlibrary;
+mod importlibrary;
 pub mod requestnewfolder;
+
+pub use self::importlibrary::ImportLibraryDialog;

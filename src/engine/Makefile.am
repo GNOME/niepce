@@ -1,5 +1,5 @@
 
-AM_CPPFLAGS = -I$(top_srcdir)/src/  @FRAMEWORK_CFLAGS@ \
+AM_CPPFLAGS = -I$(top_srcdir)/src/ -I$(top_builddir)/src  @FRAMEWORK_CFLAGS@ \
 	@GPHOTO_CFLAGS@ \
 	$(NULL)
 
@@ -19,9 +19,8 @@ TEST_LIBS =  \
 noinst_LIBRARIES = libniepceengine.a
 
 libniepceengine_a_SOURCES = \
-	db/libfile.hpp db/libfile.cpp \
-	db/label.hpp db/label.cpp \
-	db/libmetadata.hpp db/libmetadata.cpp \
+	db/libfile.hpp \
+	db/label.hpp \
 	db/storage.hpp \
 	db/fsfile.hpp \
 	db/metadata.hpp \
@@ -37,3 +36,4 @@ libniepceengine_a_SOURCES = \
 	importer/importedfile.hpp \
 	importer/importedfile.cpp \
 	$(NULL)
+

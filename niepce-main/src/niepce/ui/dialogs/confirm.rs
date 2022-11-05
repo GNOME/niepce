@@ -17,31 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
-use std::ffi::CStr;
-
-use glib::translate::*;
 use gtk4::prelude::*;
 use gtk4::MessageDialog;
 
-/// # Safety
-/// Use raw pointers.
-#[no_mangle]
-pub unsafe extern "C" fn dialog_confirm(
-    message: *const c_char,
-    parent: *mut gtk4_sys::GtkWindow,
-) -> *mut gtk4_sys::GtkMessageDialog {
-    let msg = CStr::from_ptr(message).to_string_lossy();
-    let parent = gtk4::Window::from_glib_none(parent);
+pub fn request(msg: &str, parent: Option<&gtk4::Window>) -> gtk4::MessageDialog {
     let dialog = MessageDialog::new(
-        Some(&parent),
+        parent,
         gtk4::DialogFlags::MODAL,
         gtk4::MessageType::Question,
         gtk4::ButtonsType::YesNo,
-        &*msg,
+        msg,
     );
 
     dialog.set_modal(true);
-
-    dialog.to_glib_none().0
+    dialog
 }

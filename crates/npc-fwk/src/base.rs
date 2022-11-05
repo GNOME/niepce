@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/mod.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,15 @@ pub mod debug;
 
 pub mod date;
 pub mod fractions;
+mod moniker;
 pub mod propertybag;
 pub mod propertyvalue;
 pub mod rgbcolour;
+pub mod signals;
 
 pub type PropertyIndex = u32;
 pub type PropertySet<T> = BTreeSet<T>;
 
-pub use self::propertyvalue::PropertyValue;
+pub use moniker::{moniker_from, Moniker};
+pub use propertyvalue::PropertyValue;
+pub use signals::Signal;

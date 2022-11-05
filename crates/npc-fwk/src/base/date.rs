@@ -17,12 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::ffi::CString;
-
 use chrono::{Datelike, Timelike};
 
 pub type Time = i64;
-pub type Date = chrono::DateTime<chrono::FixedOffset>;
+// XXX a tuple for the cxx bindings
+#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd)]
+pub struct Date(pub chrono::DateTime<chrono::FixedOffset>);
+
+impl std::string::ToString for Date {
+    fn to_string(&self) -> String {
+        self.0.to_string()
+    }
+}
+
+impl std::ops::Deref for Date {
+    type Target = chrono::DateTime<chrono::FixedOffset>;
+
+    fn deref(&self) -> &chrono::DateTime<chrono::FixedOffset> {
+        &self.0
+    }
+}
 
 /// Convert an `exempi2::DateTime` to a `chrono::DateTime<FixedOffset>`
 pub fn xmp_date_from(d: &Date) -> exempi2::DateTime {
@@ -32,12 +46,10 @@ pub fn xmp_date_from(d: &Date) -> exempi2::DateTime {
     xmp_date.set_date(d.year(), d.month() as i32, d.day() as i32);
     xmp_date.set_time(d.hour() as i32, d.minute() as i32, d.second() as i32);
     let offset = d.offset().local_minus_utc();
-    let sign = if offset == 0 {
-        TzSign::UTC
-    } else if offset > 0 {
-        TzSign::East
-    } else {
-        TzSign::West
+    let sign = match offset {
+        0 => TzSign::UTC,
+        1.. => TzSign::East,
+        _ => TzSign::West,
     };
     let offset = offset.abs();
     xmp_date.set_timezone(sign, offset / 3600, offset / 60);
@@ -45,34 +57,18 @@ pub fn xmp_date_from(d: &Date) -> exempi2::DateTime {
     xmp_date
 }
 
-/// Delete a %Date object
-///
-/// # Safety
-/// Dereference the raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn fwk_date_delete(date: *mut Date) {
-    Box::from_raw(date);
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_date_to_string(date: &Date) -> *mut libc::c_char {
-    CString::new(date.to_string().as_bytes())
-        .unwrap()
-        .into_raw()
-}
-
 #[cfg(test)]
 mod test {
     use chrono::TimeZone;
 
-    use super::xmp_date_from;
+    use super::{xmp_date_from, Date};
 
     #[test]
     fn test_xmp_date_from() {
         let date = chrono::FixedOffset::west(5 * 3600)
             .ymd(2021, 12, 25)
             .and_hms(10, 42, 12);
-        let xmp_date = xmp_date_from(&date);
+        let xmp_date = xmp_date_from(&Date(date));
         assert_eq!(xmp_date.year(), 2021);
         assert_eq!(xmp_date.month(), 12);
         assert_eq!(xmp_date.day(), 25);

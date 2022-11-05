@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/db/album.rs
  *
- * Copyright (C) 2021 Hubert Figuière
+ * Copyright (C) 2021-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
-use std::ffi::CString;
-
 use super::FromDb;
 use super::LibraryId;
 use super::SortOrder;
 
 /// Represents an album, that contains image
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Album {
     /// Album ID
     id: LibraryId,
@@ -91,15 +88,4 @@ impl FromDb for Album {
         let name: String = row.get(1)?;
         Ok(Album::new(row.get(0)?, &name, row.get(2)?))
     }
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_album_id(obj: &Album) -> i64 {
-    obj.id() as i64
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_album_name(obj: &Album) -> *mut c_char {
-    let cstr = CString::new(obj.name()).unwrap();
-    cstr.into_raw()
 }

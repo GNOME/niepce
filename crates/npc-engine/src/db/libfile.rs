@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libfile.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
-use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::{Path, PathBuf};
 
@@ -28,26 +26,12 @@ use super::fsfile::FsFile;
 use super::FromDb;
 use super::LibraryId;
 use super::NiepceProperties as Np;
-use super::NiepcePropertyIdx;
+use super::NiepcePropertyIdx as Npi;
+
+pub use crate::ffi::FileType;
 
 #[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq)]
-/// A general type of the LibFile.
-pub enum FileType {
-    /// Don't know
-    Unknown = 0,
-    /// Camera Raw
-    Raw = 1,
-    /// Bundle of RAW + processed. Don't assume JPEG.
-    RawJpeg = 2,
-    /// Processed Image
-    Image = 3,
-    /// Video
-    Video = 4,
-}
-
-#[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 /// FileStatus indicate the transient status of the file on the storage.
 pub enum FileStatus {
     /// File is OK
@@ -89,6 +73,7 @@ impl From<FileType> for &'static str {
             FileType::RawJpeg => "RAW + JPEG",
             FileType::Image => "Image",
             FileType::Video => "Video",
+            _ => unreachable!(),
         }
     }
 }
@@ -101,11 +86,12 @@ impl From<FileType> for i32 {
             FileType::RawJpeg => 2,
             FileType::Image => 3,
             FileType::Video => 4,
+            _ => unreachable!(),
         }
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct LibFile {
     id: LibraryId,
     folder_id: LibraryId,
@@ -117,6 +103,13 @@ pub struct LibFile {
     label: i32,
     flag: i32,
     file_type: FileType,
+}
+
+use cxx::{type_id, ExternType};
+
+unsafe impl ExternType for LibFile {
+    type Id = type_id!("eng::LibFile");
+    type Kind = cxx::kind::Opaque;
 }
 
 impl LibFile {
@@ -158,6 +151,11 @@ impl LibFile {
         self.main_file.path()
     }
 
+    // For cxx
+    pub fn path_str(&self) -> String {
+        self.path().to_string_lossy().to_string()
+    }
+
     pub fn orientation(&self) -> i32 {
         self.orientation
     }
@@ -189,36 +187,45 @@ impl LibFile {
     pub fn file_type(&self) -> FileType {
         self.file_type.to_owned()
     }
+
     pub fn set_file_type(&mut self, ft: FileType) {
         self.file_type = ft;
     }
 
     pub fn property(&self, idx: Np) -> i32 {
-        use super::NiepcePropertyIdx::*;
         match idx {
-            Np::Index(NpTiffOrientationProp) => self.orientation(),
-            Np::Index(NpXmpRatingProp) => self.rating(),
-            Np::Index(NpXmpLabelProp) => self.label(),
-            Np::Index(NpNiepceFlagProp) => self.flag(),
+            Np::Index(Npi::NpTiffOrientationProp) => self.orientation(),
+            Np::Index(Npi::NpXmpRatingProp) => self.rating(),
+            Np::Index(Npi::NpXmpLabelProp) => self.label(),
+            Np::Index(Npi::NpNiepceFlagProp) => self.flag(),
             _ => -1,
         }
     }
 
+    // cxx
+    pub fn property_int(&self, idx: u32) -> i32 {
+        self.property(Np::from(idx))
+    }
+
     pub fn set_property(&mut self, idx: Np, value: i32) {
-        use super::NiepcePropertyIdx::*;
         match idx {
-            Np::Index(NpTiffOrientationProp) => self.set_orientation(value),
-            Np::Index(NpXmpRatingProp) => self.set_rating(value),
-            Np::Index(NpXmpLabelProp) => self.set_label(value),
-            Np::Index(NpNiepceFlagProp) => self.set_flag(value),
+            Np::Index(Npi::NpTiffOrientationProp) => self.set_orientation(value),
+            Np::Index(Npi::NpXmpRatingProp) => self.set_rating(value),
+            Np::Index(Npi::NpXmpLabelProp) => self.set_label(value),
+            Np::Index(Npi::NpNiepceFlagProp) => self.set_flag(value),
             _ => err_out!("invalid property {:?} - noop", idx),
         };
+    }
+
+    // cxx
+    pub fn set_property_int(&mut self, idx: u32, v: i32) {
+        self.set_property(Np::from(idx), v);
     }
 
     /// return an URI of the real path as Glib want this, oftern
     pub fn uri(&self) -> String {
         let mut s = String::from("file://");
-        s.push_str(&*self.main_file.path().to_string_lossy());
+        s.push_str(&self.main_file.path().to_string_lossy());
         s
     }
 }
@@ -273,71 +280,4 @@ pub fn mimetype_to_filetype(mime: &npc_fwk::MimeType) -> FileType {
     } else {
         FileType::Unknown
     }
-}
-
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_db_libfile_new(
-    id: LibraryId,
-    folder_id: LibraryId,
-    fs_file_id: LibraryId,
-    path: *const c_char,
-    name: *const c_char,
-) -> *mut LibFile {
-    let lf = Box::new(LibFile::new(
-        id,
-        folder_id,
-        fs_file_id,
-        PathBuf::from(&*CStr::from_ptr(path).to_string_lossy()),
-        &*CStr::from_ptr(name).to_string_lossy(),
-    ));
-    Box::into_raw(lf)
-}
-
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_db_libfile_delete(lf: *mut LibFile) {
-    Box::from_raw(lf);
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_path(obj: &mut LibFile) -> *const c_char {
-    obj.cstr = CString::new(obj.path().to_str().unwrap_or("")).unwrap();
-    obj.cstr.as_ptr()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_id(obj: &LibFile) -> LibraryId {
-    obj.id()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_folderid(obj: &LibFile) -> LibraryId {
-    obj.folder_id()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_orientation(obj: &LibFile) -> i32 {
-    obj.orientation()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_property(obj: &LibFile, idx: NiepcePropertyIdx) -> i32 {
-    obj.property(Np::Index(idx))
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_file_type(obj: &LibFile) -> FileType {
-    obj.file_type()
-}
-
-#[no_mangle]
-pub extern "C" fn engine_db_libfile_set_property(
-    obj: &mut LibFile,
-    idx: NiepcePropertyIdx,
-    v: i32,
-) {
-    obj.set_property(Np::Index(idx), v);
 }

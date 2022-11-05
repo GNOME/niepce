@@ -2,7 +2,7 @@
 SUBDIRS = ui modules
 
 AM_CPPFLAGS = -DDATADIR=\"$(datadir)\" \
-	-I$(top_srcdir)/src/niepce -I$(top_srcdir)/src  \
+	-I$(top_srcdir)/src/niepce -I$(top_srcdir)/src -I$(top_builddir)/src \
 	@FRAMEWORK_CFLAGS@ \
 	-DNIEPCE_LOCALEDIR=\"@NIEPCE_LOCALEDIR@\"
 
@@ -11,7 +11,6 @@ bin_PROGRAMS = niepce
 niepce_LDFLAGS = -Wl,--start-group
 niepce_LDADD = \
 	$(top_builddir)/src/niepce/ui/libniepceui.a \
-	$(top_builddir)/src/libraryclient/liblibraryclient.a \
 	$(top_builddir)/src/engine/libniepceengine.a \
 	$(top_builddir)/src/niepce/modules/darkroom/libmoduledarkroom.a \
 	$(top_builddir)/src/niepce/modules/map/libmodulemap.a \
@@ -19,7 +18,6 @@ niepce_LDADD = \
 	$(top_builddir)/src/fwk/toolkit/libniepceframework.a \
 	$(top_builddir)/src/fwk/base/libfwkbase.a \
 	$(top_builddir)/src/ncr/libncr.a \
-	$(top_builddir)/src/ext/libview/libview.a \
 	$(top_builddir)/target/@CARGO_TARGET_SUBDIR@/libniepce_rust.a \
 	$(top_builddir)/src/engine/libniepceengine.a \
 	$(top_builddir)/src/fwk/utils/libniepceutils.a \
@@ -64,7 +62,7 @@ BUILT_SOURCES = \
         npc-resources.gresource
 
 niepce_SOURCES = \
-	notificationcenter.hpp notificationcenter.cpp \
-        npc-resources.c \
-        npc-resources.h \
+	lnlistener.hpp \
+	npc-resources.c \
+	npc-resources.h \
 	main.cpp

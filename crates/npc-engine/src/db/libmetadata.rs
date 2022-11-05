@@ -17,16 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::ops::DerefMut;
+
 use super::libfile::FileType;
 use super::props;
 use super::NiepceProperties as Np;
 use super::{FromDb, LibraryId};
-use crate::{NiepcePropertyBag, NiepcePropertySet};
+use crate::NiepcePropertyBag;
+use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
 use npc_fwk::{dbg_out, err_out};
 use npc_fwk::{xmp_date_from, Date, PropertyBag, PropertySet, PropertyValue, XmpMeta};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct LibMetadata {
     /// The XmpMeta block
     xmp_meta: XmpMeta,
@@ -75,6 +78,10 @@ impl LibMetadata {
             name: String::new(),
             folder: String::new(),
         }
+    }
+
+    pub fn id(&self) -> LibraryId {
+        self.id
     }
 
     pub fn serialize_inline(&self) -> String {
@@ -196,32 +203,33 @@ impl LibMetadata {
         false
     }
 
-    pub fn to_properties(&self, propset: &PropertySet<Np>) -> PropertyBag<Np> {
-        use super::NiepcePropertyIdx::*;
-        let mut props = PropertyBag::new();
+    pub fn to_properties(&self, propset: &PropertySet<Np>) -> Box<NiepcePropertyBag> {
+        use super::NiepcePropertyIdx as Npi;
+        let mut property_bag = Box::new(NiepcePropertyBag::default());
+        let props = &mut property_bag.deref_mut().0;
         for prop_id in propset {
             match *prop_id {
-                Np::Index(NpXmpRatingProp) => {
+                Np::Index(Npi::NpXmpRatingProp) => {
                     if let Some(rating) = self.xmp_meta.rating() {
                         props.set_value(*prop_id, PropertyValue::Int(rating));
                     }
                 }
-                Np::Index(NpXmpLabelProp) => {
+                Np::Index(Npi::NpXmpLabelProp) => {
                     if let Some(label) = self.xmp_meta.label() {
                         props.set_value(*prop_id, PropertyValue::String(label));
                     }
                 }
-                Np::Index(NpTiffOrientationProp) => {
+                Np::Index(Npi::NpTiffOrientationProp) => {
                     if let Some(orientation) = self.xmp_meta.orientation() {
                         props.set_value(*prop_id, PropertyValue::Int(orientation));
                     }
                 }
-                Np::Index(NpExifDateTimeOriginalProp) => {
+                Np::Index(Npi::NpExifDateTimeOriginalProp) => {
                     if let Some(date) = self.xmp_meta.creation_date() {
                         props.set_value(*prop_id, PropertyValue::Date(date));
                     }
                 }
-                Np::Index(NpIptcKeywordsProp) => {
+                Np::Index(Npi::NpIptcKeywordsProp) => {
                     let iter = exempi2::XmpIterator::new(
                         &self.xmp_meta.xmp,
                         NS_DC,
@@ -234,18 +242,18 @@ impl LibMetadata {
                     }
                     props.set_value(*prop_id, PropertyValue::StringArray(keywords));
                 }
-                Np::Index(NpFileNameProp) => {
+                Np::Index(Npi::NpFileNameProp) => {
                     props.set_value(*prop_id, PropertyValue::String(self.name.clone()));
                 }
-                Np::Index(NpFileTypeProp) => {
+                Np::Index(Npi::NpFileTypeProp) => {
                     let file_type: &str = self.file_type.into();
                     props.set_value(*prop_id, PropertyValue::String(String::from(file_type)));
                 }
-                Np::Index(NpFileSizeProp) => {}
-                Np::Index(NpFolderProp) => {
+                Np::Index(Npi::NpFileSizeProp) => {}
+                Np::Index(Npi::NpFolderProp) => {
                     props.set_value(*prop_id, PropertyValue::String(self.folder.clone()));
                 }
-                Np::Index(NpSidecarsProp) => {
+                Np::Index(Npi::NpSidecarsProp) => {
                     props.set_value(*prop_id, PropertyValue::StringArray(self.sidecars.clone()));
                 }
                 _ => {
@@ -257,12 +265,18 @@ impl LibMetadata {
                 }
             }
         }
-        props
+        property_bag
+    }
+
+    // cxx
+    pub fn to_wrapped_properties(&self, propset: &PropertySet<Np>) -> *mut WrappedPropertyBag {
+        let bag = self.to_properties(propset);
+        Box::into_raw(Box::new(WrappedPropertyBag(into_u32(*bag))))
     }
 
     pub fn touch(&mut self) -> bool {
         let local = chrono::Local::now();
-        let xmpdate = xmp_date_from(&Date::from(local));
+        let xmpdate = xmp_date_from(&Date(chrono::DateTime::from(local)));
         self.xmp_meta
             .xmp
             .set_property_date(NS_XAP, "MetadataDate", &xmpdate, exempi2::PropFlags::NONE)
@@ -298,27 +312,24 @@ impl FromDb for LibMetadata {
     }
 }
 
-#[no_mangle]
-pub extern "C" fn engine_libmetadata_get_id(meta: &LibMetadata) -> LibraryId {
-    meta.id
-}
-
-#[no_mangle]
-pub extern "C" fn engine_libmetadata_to_properties(
-    meta: &LibMetadata,
-    propset: &NiepcePropertySet,
-) -> *mut NiepcePropertyBag {
-    let result = Box::new(meta.to_properties(propset));
-    Box::into_raw(result)
+fn into_u32(from: NiepcePropertyBag) -> PropertyBag<u32> {
+    PropertyBag {
+        bag: from.bag.iter().map(|v| (*v).into()).collect(),
+        map: from
+            .map
+            .iter()
+            .map(|(k, v)| ((*k).into(), v.clone()))
+            .collect(),
+    }
 }
 
 #[cfg(test)]
 mod test {
 
     use super::{LibMetadata, Np};
-    use crate::NiepcePropertyIdx::*;
+    use crate::db::NiepcePropertyIdx as Npi;
     use chrono::TimeZone;
-    use npc_fwk::{PropertySet, PropertyValue, XmpMeta};
+    use npc_fwk::{Date, PropertySet, PropertyValue, XmpMeta};
 
     const XMP_PACKET: &[u8] = include_bytes!("../../tests/test.xmp");
 
@@ -331,14 +342,14 @@ mod test {
         let xmp_meta = XmpMeta::new_with_xmp(xmp);
         let libmetadata = LibMetadata::new_with_xmp(1, xmp_meta);
         let mut propset = PropertySet::new();
-        propset.insert(Np::Index(NpIptcKeywordsProp));
-        propset.insert(Np::Index(NpTiffOrientationProp));
-        propset.insert(Np::Index(NpExifDateTimeOriginalProp));
+        propset.insert(Np::Index(Npi::NpIptcKeywordsProp));
+        propset.insert(Np::Index(Npi::NpTiffOrientationProp));
+        propset.insert(Np::Index(Npi::NpExifDateTimeOriginalProp));
 
         let bag = libmetadata.to_properties(&propset);
         assert_eq!(bag.len(), 3);
 
-        let keywords = bag.get(&Np::Index(NpIptcKeywordsProp));
+        let keywords = bag.get(&Np::Index(Npi::NpIptcKeywordsProp));
         assert!(keywords.is_some());
 
         if let PropertyValue::StringArray(keywords) = keywords.unwrap() {
@@ -352,7 +363,7 @@ mod test {
             unreachable!();
         }
 
-        let orientation = bag.get(&Np::Index(NpTiffOrientationProp));
+        let orientation = bag.get(&Np::Index(Npi::NpTiffOrientationProp));
         assert!(orientation.is_some());
 
         if let PropertyValue::Int(orientation) = orientation.unwrap() {
@@ -361,14 +372,14 @@ mod test {
             unreachable!();
         }
 
-        let creation_date = bag.get(&Np::Index(NpExifDateTimeOriginalProp));
+        let creation_date = bag.get(&Np::Index(Npi::NpExifDateTimeOriginalProp));
         assert!(creation_date.is_some());
 
         if let PropertyValue::Date(creation_date) = creation_date.unwrap() {
             let date = chrono::FixedOffset::west(5 * 3600)
                 .ymd(2006, 12, 07)
                 .and_hms(23, 37, 30);
-            assert_eq!(creation_date, &date);
+            assert_eq!(creation_date, &Date(date));
         } else {
             unreachable!();
         }

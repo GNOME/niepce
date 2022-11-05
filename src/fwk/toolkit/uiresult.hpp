@@ -22,10 +22,9 @@
 
 #include <deque>
 #include <mutex>
+#include <memory>
 
 #include <glibmm/dispatcher.h>
-
-#include "fwk/base/option.hpp"
 
 namespace fwk {
 
@@ -33,6 +32,7 @@ namespace fwk {
 class UIResult
 {
 public:
+    virtual ~UIResult() {}
     virtual void clear() = 0;
 
     sigc::connection connect(sigc::slot<void()> slot) {
@@ -75,28 +75,35 @@ class UIResults
     : public UIResult
 {
 public:
+    typedef T value_type;
+
     void clear() override {
         m_data.clear();
     }
 
-    void send_data(T&& d) {
+    void send_data(std::shared_ptr<T>&& d) {
         {
             std::lock_guard<std::mutex> lock(m_data_mutex);
             m_data.push_back(std::move(d));
         }
         m_notifier.emit();
     }
-    Option<T> recv_data() {
+
+    std::shared_ptr<T> recv_data() {
         std::lock_guard<std::mutex> lock(m_data_mutex);
         if (m_data.empty()) {
-            return Option<T>();
+            return std::shared_ptr<T>();
         }
-        auto result = Option<T>(m_data.front());
+        auto result = m_data.front();
         m_data.pop_front();
         return result;
     }
 private:
-    std::deque<T> m_data;
+    // the value_type has to be a shared_ptr
+    // otherwise it will mysteriously fail build
+    // with a non-default constructible T.
+    // There may be other solutions.
+    std::deque<std::shared_ptr<T>> m_data;
 };
 
 }

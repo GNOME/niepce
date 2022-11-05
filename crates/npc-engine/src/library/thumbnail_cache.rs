@@ -1,7 +1,7 @@
 /*
  * niepce - library/thumbnail_cache.rs
  *
- * Copyright (C) 2020-2021 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
 use std::cmp;
 use std::collections::VecDeque;
-use std::ffi::CStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync;
@@ -31,8 +29,7 @@ use crate::db::libfile::{FileStatus, LibFile};
 use crate::db::LibraryId;
 use crate::library::notification;
 use crate::library::notification::LibNotification::{FileStatusChanged, ThumbnailLoaded};
-use crate::library::notification::{FileStatusChange, LcChannel, LibNotification};
-use crate::library::queriedcontent::QueriedContent;
+use crate::library::notification::{FileStatusChange, LibNotification};
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::{dbg_out, err_out};
@@ -91,8 +88,15 @@ pub struct ThumbnailCache {
     sender: async_channel::Sender<LibNotification>,
 }
 
+use cxx::{type_id, ExternType};
+
+unsafe impl ExternType for ThumbnailCache {
+    type Id = type_id!("eng::ThumbnailCache");
+    type Kind = cxx::kind::Opaque;
+}
+
 impl ThumbnailCache {
-    fn new(dir: &Path, sender: async_channel::Sender<LibNotification>) -> Self {
+    pub fn new(dir: &Path, sender: async_channel::Sender<LibNotification>) -> Self {
         Self {
             cache_dir: PathBuf::from(dir),
             tasks: sync::Arc::new((sync::Mutex::new(VecDeque::new()), sync::Condvar::new())),
@@ -220,30 +224,4 @@ impl ThumbnailCache {
         dir.push(subdir);
         dir
     }
-}
-
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_thumbnail_cache_new(
-    dir: *const c_char,
-    channel: *const LcChannel,
-) -> *mut ThumbnailCache {
-    let path = PathBuf::from(&*CStr::from_ptr(dir).to_string_lossy());
-    Box::into_raw(Box::new(ThumbnailCache::new(&path, (*channel).0.clone())))
-}
-
-/// # Safety
-/// Dereference raw pointer.
-#[no_mangle]
-pub unsafe extern "C" fn engine_library_thumbnail_cache_delete(obj: *mut ThumbnailCache) {
-    Box::from_raw(obj);
-}
-
-#[no_mangle]
-pub extern "C" fn engine_library_thumbnail_cache_request(
-    self_: &mut ThumbnailCache,
-    content: &QueriedContent,
-) {
-    self_.request(content.get_content())
 }

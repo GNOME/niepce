@@ -63,7 +63,7 @@ fn init_schema_v9(conn: &rusqlite::Connection) -> Result<()> {
     )
     .unwrap();
     //
-    let trash_type = libfolder::FolderVirtualType::TRASH as i32;
+    let trash_type = i32::from(libfolder::FolderVirtualType::TRASH);
     conn.execute(
         "insert into folders (name, locked, virtual, parent_id, path) \
          values (?1, 1, ?2, 0, '')",

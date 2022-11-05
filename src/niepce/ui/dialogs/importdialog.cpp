@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <memory>
+
 #include <glibmm/miscutils.h>
 #include <gtkmm/button.h>
 #include <gtkmm/checkbutton.h>
@@ -31,7 +33,6 @@
 #include "fwk/base/debug.hpp"
 #include "fwk/utils/pathutils.hpp"
 #include "fwk/toolkit/application.hpp"
-#include "fwk/toolkit/configuration.hpp"
 #include "engine/importer/directoryimporter.hpp"
 #include "engine/importer/importedfile.hpp"
 #include "importdialog.hpp"
@@ -52,10 +53,10 @@ ImportDialog::ImportDialog()
   , m_attributes_scrolled(nullptr)
   , m_images_list_scrolled(nullptr)
 {
-    fwk::Configuration & cfg = fwk::Application::app()->config();
-    m_base_dest_dir = cfg.getValue("base_import_dest_dir",
+    auto& cfg = fwk::Application::app()->config()->cfg;
+    m_base_dest_dir = std::string(cfg->getValue("base_import_dest_dir",
                                    Glib::get_user_special_dir(
-                                       Glib::UserDirectory::PICTURES));
+                                       Glib::UserDirectory::PICTURES)));
     DBG_OUT("base_dest_dir set to %s", m_base_dest_dir.c_str());
 }
 
@@ -81,7 +82,7 @@ void ImportDialog::setup_widget()
         return;
     }
 
-    fwk::Configuration & cfg = fwk::Application::app()->config();
+    auto& cfg = fwk::Application::app()->config()->cfg;
 
     Glib::RefPtr<Gtk::Builder> a_builder = builder();
     m_date_tz_combo = a_builder->get_widget<Gtk::ComboBox>("date_tz_combo");
@@ -104,7 +105,7 @@ void ImportDialog::setup_widget()
     m_importers[importer->id()] = importer;
     add_importer_ui(*importer);
 
-    auto last_importer = cfg.getValue("last_importer", "DirectoryImporter");
+    auto last_importer = std::string(cfg->getValue("last_importer", "DirectoryImporter"));
     m_import_source_combo->set_active_id(last_importer);
 
     // Metadata pane.
@@ -117,13 +118,10 @@ void ImportDialog::setup_widget()
     // Gridview of previews.
     m_images_list_scrolled = a_builder->get_widget<Gtk::ScrolledWindow>("images_list_scrolled");
     m_images_list_model = Gtk::ListStore::create(m_grid_columns);
-    m_image_gridview = std::shared_ptr<ffi::ImageGridView>(
-        ffi::npc_image_grid_view_new(
-            GTK_TREE_MODEL(g_object_ref(m_images_list_model->gobj())), nullptr),
-        ffi::npc_image_grid_view_release);
-    m_gridview = Gtk::manage(Glib::wrap(GTK_ICON_VIEW(
-                                            ffi::npc_image_grid_view_get_icon_view(
-                                                m_image_gridview.get()))));
+    auto image_gridview = npc::npc_image_grid_view_new(
+        GTK_TREE_MODEL(g_object_ref(m_images_list_model->gobj())), nullptr);
+    m_gridview = Gtk::manage(Glib::wrap(image_gridview->get_icon_view()));
+    m_image_gridview = std::move(image_gridview);
     m_gridview->set_pixbuf_column(m_grid_columns.pixbuf);
     m_gridview->set_text_column(m_grid_columns.filename);
     m_gridview->set_item_width(100);
@@ -161,8 +159,8 @@ void ImportDialog::import_source_changed()
 
     clear_import_list();
 
-    fwk::Configuration & cfg = fwk::Application::app()->config();
-    cfg.setValue("last_importer", id);
+    auto& cfg = fwk::Application::app()->config()->cfg;
+    cfg->setValue("last_importer", id.c_str());
 }
 
 void ImportDialog::set_source(const std::string& source, const std::string& dest_dir)
@@ -214,27 +212,40 @@ void ImportDialog::append_files_to_import()
         [this, importer, source, paths] () {
             return importer->get_previews_for(
                 source, paths,
-                [this] (const std::string& path, const fwk::ThumbnailPtr& thumbnail) {
+                [this] (std::string&& path, fwk::ThumbnailPtr&& thumbnail) {
                     this->m_previews_to_import.send_data(
-                        std::make_pair(path, thumbnail));
+                        std::shared_ptr<decltype(this->m_previews_to_import)::value_type>(new std::pair(std::move(path), std::move(thumbnail))));
                 });
         });
 }
 
 void ImportDialog::preview_received()
 {
-    auto result = m_previews_to_import.recv_data();
-    if (!result.empty()) {
-        auto preview = result.unwrap();
-        auto iter = m_images_list_map.find(preview.first);
+    auto preview = m_previews_to_import.recv_data();
+    if (preview) {
+        auto iter = m_images_list_map.find(preview->first);
         if (iter != m_images_list_map.end()) {
             iter->second->set_value(m_grid_columns.pixbuf,
-                                    Glib::wrap(ffi::fwk_toolkit_thumbnail_to_pixbuf(
-                                                   preview.second.get())));
+                                    Glib::wrap((GdkPixbuf*)fwk::Thumbnail_to_pixbuf(
+                                                   *preview->second)));
         }
     }
 }
 
+void ImportDialog::run_modal(GtkWindow* parent, rust::Fn<void(const npc::ImportDialogArgument&, int32_t)> on_ok, npc::ImportDialogArgument* args) const
+{
+    run_modal_(parent, [args, on_ok] (int32_t r) {
+        on_ok(*args, r);
+        if (r == GTK_RESPONSE_DELETE_EVENT) {
+            rust::Box<npc::ImportDialogArgument>::from_raw(args);
+        }
+    });
+}
+
+rust::Box<ImportRequest> ImportDialog::import_request() const
+{
+    return ui::import_request_new(m_source, get_dest_dir(), m_current_importer->get_importer());
+}
 
 }
 

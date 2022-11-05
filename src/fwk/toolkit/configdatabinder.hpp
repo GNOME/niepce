@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/configdatabinder.h
  *
- * Copyright (C) 2007-2009 Hubert Figuiere
+ * Copyright (C) 2007-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef _FRAMEWORK_CONFIGDATABINDER_H_
-#define _FRAMEWORK_CONFIGDATABINDER_H_
+#pragma once
 
 #include <exception>
 #include <string>
@@ -30,7 +28,8 @@
 
 #include "fwk/base/debug.hpp"
 #include "fwk/utils/databinder.hpp"
-#include "fwk/toolkit/configuration.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace fwk {
 
@@ -41,13 +40,13 @@ public:
 	typedef Glib::PropertyProxy_Base property_t;
 
 	ConfigDataBinderBase(const property_t & property,
-                             Configuration & config, const std::string & key);
+                             const ConfigurationPtr& config, const std::string & key);
 
 	virtual void on_changed(void) = 0;
 protected:
 	property_t        m_property;
 	std::string       m_config_key;
-	Configuration   & m_config;
+	ConfigurationPtr m_config;
 	sigc::connection  m_conn;
 };
 
@@ -59,11 +58,10 @@ public:
     typedef Glib::PropertyProxy<T> property_t;
 
     ConfigDataBinder(const property_t & property,
-                     Configuration & config, const std::string & key)
+                     const ConfigurationPtr & config, const std::string & key)
         : ConfigDataBinderBase(property, config, key)
         {
-            Glib::ustring value;
-            value = m_config.getValue(m_config_key, "");
+            std::string value = std::string(m_config->cfg->getValue(m_config_key, ""));
             if(!value.empty()) {
                 try {
                     T real_value;
@@ -81,7 +79,7 @@ public:
     virtual ~ConfigDataBinder()
         {
             try {
-                m_config.setValue(m_config_key,
+                m_config->cfg->setValue(m_config_key,
                                   boost::lexical_cast<std::string>(m_value));
             }
             catch(const boost::bad_lexical_cast &)
@@ -105,11 +103,7 @@ private:
     T m_value;
 };
 
-
 }
-
-
-#endif
 /*
   Local Variables:
   mode:c++

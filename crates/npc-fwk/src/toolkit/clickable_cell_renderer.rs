@@ -20,9 +20,9 @@
 /// Trait for get clicks from cell renderer.
 /// This is used to work around some bug in Gtk.
 pub trait ClickableCellRenderer {
-    fn hit(&mut self, x: i32, y: i32);
+    fn hit(&self, x: i32, y: i32);
     fn x(&self) -> i32;
     fn y(&self) -> i32;
     fn is_hit(&self) -> bool;
-    fn reset_hit(&mut self);
+    fn reset_hit(&self);
 }

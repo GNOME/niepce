@@ -18,12 +18,11 @@
  */
 
 use libc::c_void;
-use once_cell::unsync::Lazy;
 use std::cell::{Cell, RefCell};
 use std::ptr;
 
 use gdk4::prelude::*;
-use gdk_pixbuf::Pixbuf;
+use gdk4::Texture;
 use glib::subclass::prelude::*;
 use glib::subclass::Signal;
 use glib::translate::*;
@@ -41,26 +40,28 @@ use npc_fwk::{dbg_out, err_out, on_err_out};
 const CELL_PADDING: f32 = 4.0;
 
 struct Emblems {
-    raw: Pixbuf,
-    raw_jpeg: Pixbuf,
-    img: Pixbuf,
-    video: Pixbuf,
-    unknown: Pixbuf,
-    status_missing: Pixbuf,
-    flag_reject: Pixbuf,
-    flag_pick: Pixbuf,
+    raw: Texture,
+    raw_jpeg: Texture,
+    img: Texture,
+    video: Texture,
+    unknown: Texture,
+    status_missing: Texture,
+    flag_reject: Texture,
+    flag_pick: Texture,
 }
 
-const EMBLEMS: Lazy<Emblems> = Lazy::new(|| Emblems {
-    raw: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-raw-fmt.png").unwrap(),
-    raw_jpeg: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-rawjpeg-fmt.png").unwrap(),
-    img: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-img-fmt.png").unwrap(),
-    video: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-video-fmt.png").unwrap(),
-    unknown: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-unknown-fmt.png").unwrap(),
-    status_missing: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-missing.png").unwrap(),
-    flag_reject: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-reject.png").unwrap(),
-    flag_pick: Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-pick.png").unwrap(),
-});
+lazy_static::lazy_static! {
+    static ref EMBLEMS: Emblems = Emblems {
+        raw: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-raw-fmt.png"),
+        raw_jpeg: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-rawjpeg-fmt.png"),
+        img: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-img-fmt.png"),
+        video: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-video-fmt.png"),
+        unknown: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-unknown-fmt.png"),
+        status_missing: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-missing.png"),
+        flag_reject: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-reject.png"),
+        flag_pick: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-pick.png"),
+    };
+}
 
 glib::wrapper! {
     pub struct LibraryCellRenderer(
@@ -73,11 +74,10 @@ impl LibraryCellRenderer {
     /// callback: an optional callback used to get a colour for labels.
     /// callback_data: raw pointer passed as is to the callback.
     pub fn new(callback: Option<GetColourCallback>, callback_data: *const c_void) -> Self {
-        let obj: Self = glib::Object::new(&[("mode", &gtk4::CellRendererMode::Activatable)])
-            .expect("Failed to create Library Cell Renderer");
+        let obj: Self = glib::Object::new(&[("mode", &gtk4::CellRendererMode::Activatable)]);
 
         if callback.is_some() {
-            let priv_ = LibraryCellRendererPriv::from_instance(&obj);
+            let priv_ = obj.imp();
             priv_.get_colour_callback.replace(callback);
             priv_.callback_data.set(callback_data);
         }
@@ -103,8 +103,7 @@ impl LibraryCellRenderer {
     }
 
     pub fn pixbuf(&self) -> Option<gdk4::Paintable> {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.pixbuf.borrow().clone()
+        self.imp().pixbuf.borrow().clone()
     }
 }
 
@@ -128,32 +127,25 @@ pub trait LibraryCellRendererExt {
 
 impl LibraryCellRendererExt for LibraryCellRenderer {
     fn set_pad(&self, pad: i32) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.pad.set(pad);
+        self.imp().pad.set(pad);
     }
     fn set_size(&self, size: i32) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.size.set(size);
+        self.imp().size.set(size);
     }
     fn set_drawborder(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.drawborder.set(draw);
+        self.imp().drawborder.set(draw);
     }
     fn set_drawemblem(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.draw_emblem.set(draw);
+        self.imp().draw_emblem.set(draw);
     }
     fn set_drawrating(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.draw_rating.set(draw);
+        self.imp().draw_rating.set(draw);
     }
     fn set_drawlabel(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.draw_label.set(draw);
+        self.imp().draw_label.set(draw);
     }
     fn set_drawflag(&self, draw: bool) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.draw_flag.set(draw);
+        self.imp().draw_flag.set(draw);
     }
 }
 
@@ -165,31 +157,26 @@ struct ClickableCell {
 }
 
 impl ClickableCellRenderer for LibraryCellRenderer {
-    fn hit(&mut self, x: i32, y: i32) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_
+    fn hit(&self, x: i32, y: i32) {
+        self.imp()
             .clickable_cell
             .replace(ClickableCell { x, y, hit: true });
     }
 
     fn x(&self) -> i32 {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.clickable_cell.borrow().x
+        self.imp().clickable_cell.borrow().x
     }
 
     fn y(&self) -> i32 {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.clickable_cell.borrow().y
+        self.imp().clickable_cell.borrow().y
     }
 
     fn is_hit(&self) -> bool {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.clickable_cell.borrow().hit
+        self.imp().clickable_cell.borrow().hit
     }
 
-    fn reset_hit(&mut self) {
-        let priv_ = LibraryCellRendererPriv::from_instance(self);
-        priv_.clickable_cell.borrow_mut().hit = false;
+    fn reset_hit(&self) {
+        self.imp().clickable_cell.borrow_mut().hit = false;
     }
 }
 
@@ -260,41 +247,57 @@ impl LibraryCellRendererPriv {
         snapshot.restore();
     }
 
-    fn do_draw_flag(cr: &cairo::Context, flag: i32, r: &Rect) {
+    fn do_draw_flag(snapshot: &gtk4::Snapshot, flag: i32, r: &Rect) {
         if flag == 0 {
             return;
         }
-        let pixbuf = match flag {
+        let texture = match flag {
             -1 => EMBLEMS.flag_reject.clone(),
             1 => EMBLEMS.flag_pick.clone(),
             _ => return,
         };
 
-        let w = pixbuf.width() as f32;
+        let w = texture.width() as f32;
         let x = r.x() + r.width() - CELL_PADDING - w;
         let y = r.y() + CELL_PADDING;
-        cr.set_source_pixbuf(&pixbuf, x.into(), y.into());
-        on_err_out!(cr.paint());
+        snapshot.save();
+        snapshot.translate(&graphene::Point::new(x, y));
+        texture.snapshot(
+            snapshot.upcast_ref::<gdk4::Snapshot>(),
+            texture.width() as f64,
+            texture.height() as f64,
+        );
+        snapshot.restore();
     }
 
-    fn do_draw_status(cr: &cairo::Context, status: FileStatus, r: &Rect) {
+    fn do_draw_status(snapshot: &gtk4::Snapshot, status: FileStatus, r: &Rect) {
         if status == FileStatus::Ok {
             return;
         }
         let x = r.x() + CELL_PADDING;
         let y = r.y() + CELL_PADDING;
-        cr.set_source_pixbuf(&EMBLEMS.status_missing, x.into(), y.into());
-        on_err_out!(cr.paint());
+        snapshot.save();
+        snapshot.translate(&graphene::Point::new(x, y));
+        let texture = &EMBLEMS.status_missing;
+        texture.snapshot(
+            snapshot.upcast_ref::<gdk4::Snapshot>(),
+            texture.width() as f64,
+            texture.height() as f64,
+        );
+        snapshot.restore();
     }
 
-    fn do_draw_format_emblem(cr: &cairo::Context, emblem: &Pixbuf, r: &Rect) -> f32 {
+    fn do_draw_format_emblem(snapshot: &gtk4::Snapshot, emblem: &Texture, r: &Rect) -> f32 {
         let w = emblem.width() as f32;
         let h = emblem.height() as f32;
         let left = CELL_PADDING + w;
         let x = r.x() + r.width() - left;
         let y = r.y() + r.height() - CELL_PADDING - h;
-        cr.set_source_pixbuf(emblem, x.into(), y.into());
-        on_err_out!(cr.paint());
+        snapshot.save();
+        snapshot.translate(&graphene::Point::new(x, y));
+        emblem.snapshot(snapshot.upcast_ref::<gdk4::Snapshot>(), w as f64, h as f64);
+        snapshot.restore();
+
         left
     }
 
@@ -357,10 +360,6 @@ impl ObjectSubclass for LibraryCellRendererPriv {
 }
 
 impl ObjectImpl for LibraryCellRendererPriv {
-    fn constructed(&self, obj: &LibraryCellRenderer) {
-        self.parent_constructed(obj);
-    }
-
     fn properties() -> &'static [glib::ParamSpec] {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
@@ -397,25 +396,16 @@ impl ObjectImpl for LibraryCellRendererPriv {
     fn signals() -> &'static [Signal] {
         use once_cell::sync::Lazy;
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-            vec![Signal::builder(
-                "rating-changed",
-                &[<i64>::static_type().into(), <i32>::static_type().into()],
-                <()>::static_type().into(),
-            )
-            .run_last()
-            .build()]
+            vec![Signal::builder("rating-changed")
+                .param_types([<i64>::static_type(), <i32>::static_type()])
+                .run_last()
+                .build()]
         });
 
         SIGNALS.as_ref()
     }
 
-    fn set_property(
-        &self,
-        _obj: &LibraryCellRenderer,
-        _id: usize,
-        value: &glib::Value,
-        pspec: &glib::ParamSpec,
-    ) {
+    fn set_property(&self, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
         match pspec.name() {
             "pixbuf" => {
                 let pixbuf = value.get::<gdk4::Paintable>().ok();
@@ -435,12 +425,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
         }
     }
 
-    fn property(
-        &self,
-        _obj: &LibraryCellRenderer,
-        _id: usize,
-        pspec: &glib::ParamSpec,
-    ) -> glib::Value {
+    fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
         match pspec.name() {
             "pixbuf" => self.pixbuf.borrow().to_value(),
             "libfile" => self.libfile.borrow().to_value(),
@@ -451,27 +436,18 @@ impl ObjectImpl for LibraryCellRendererPriv {
 }
 
 impl CellRendererImpl for LibraryCellRendererPriv {
-    fn preferred_width<P: IsA<gtk4::Widget>>(
-        &self,
-        _renderer: &LibraryCellRenderer,
-        _widget: &P,
-    ) -> (i32, i32) {
+    fn preferred_width<P: IsA<gtk4::Widget>>(&self, _widget: &P) -> (i32, i32) {
         let maxdim: i32 = self.size.get() + self.pad.get() * 2;
         (maxdim, maxdim)
     }
 
-    fn preferred_height<P: IsA<gtk4::Widget>>(
-        &self,
-        _renderer: &LibraryCellRenderer,
-        _widget: &P,
-    ) -> (i32, i32) {
+    fn preferred_height<P: IsA<gtk4::Widget>>(&self, _widget: &P) -> (i32, i32) {
         let maxdim: i32 = self.size.get() + self.pad.get() * 2;
         (maxdim, maxdim)
     }
 
     fn snapshot<P: IsA<gtk4::Widget>>(
         &self,
-        _renderer: &Self::Type,
         snapshot: &gtk4::Snapshot,
         widget: &P,
         _background_area: &gdk4::Rectangle,
@@ -529,7 +505,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
             let x = r.x() + CELL_PADDING;
             let y = r.y() + r.height() - CELL_PADDING;
             RatingLabel::draw_rating(
-                &cr,
+                snapshot,
                 rating,
                 &RatingLabel::star(),
                 &RatingLabel::unstar(),
@@ -539,14 +515,14 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         }
         if self.draw_flag.get() {
             match &*file {
-                Some(f) => Self::do_draw_flag(&cr, f.0.flag(), &r),
+                Some(f) => Self::do_draw_flag(snapshot, f.0.flag(), &r),
                 None => {}
             }
         }
 
         let status = self.status.get();
         if self.draw_status.get() && status != FileStatus::Ok {
-            Self::do_draw_status(&cr, status, &r);
+            Self::do_draw_status(snapshot, status, &r);
         }
 
         if self.draw_emblem.get() {
@@ -554,14 +530,15 @@ impl CellRendererImpl for LibraryCellRendererPriv {
                 Some(f) => f.0.file_type(),
                 None => FileType::Unknown,
             };
-            let emblem: Pixbuf = match file_type {
+            let emblem: Texture = match file_type {
                 FileType::Raw => EMBLEMS.raw.clone(),
                 FileType::RawJpeg => EMBLEMS.raw_jpeg.clone(),
                 FileType::Image => EMBLEMS.img.clone(),
                 FileType::Video => EMBLEMS.video.clone(),
                 FileType::Unknown => EMBLEMS.unknown.clone(),
+                _ => unreachable!(),
             };
-            let left = Self::do_draw_format_emblem(&cr, &emblem, &r);
+            let left = Self::do_draw_format_emblem(snapshot, &emblem, &r);
 
             if self.draw_label.get() {
                 let label_id = match &*file {
@@ -579,7 +556,6 @@ impl CellRendererImpl for LibraryCellRendererPriv {
 
     fn activate<P: IsA<gtk4::Widget>>(
         &self,
-        _renderer: &LibraryCellRenderer,
         _event: Option<&gdk4::Event>,
         _widget: &P,
         _path: &str,
@@ -587,7 +563,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         cell_area: &gdk4::Rectangle,
         _flags: gtk4::CellRendererState,
     ) -> bool {
-        let mut instance = self.instance().downcast::<LibraryCellRenderer>().unwrap();
+        let instance = self.instance();
 
         if instance.is_hit() {
             instance.reset_hit();

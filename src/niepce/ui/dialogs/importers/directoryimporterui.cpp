@@ -24,7 +24,6 @@
 
 #include "fwk/utils/pathutils.hpp"
 #include "fwk/toolkit/application.hpp"
-#include "fwk/toolkit/configuration.hpp"
 #include "engine/importer/directoryimporter.hpp"
 #include "directoryimporterui.hpp"
 
@@ -51,7 +50,7 @@ Gtk::Widget* DirectoryImporterUI::setup_widget(const fwk::Frame::Ptr& frame)
 
 void DirectoryImporterUI::do_select_directories()
 {
-    fwk::Configuration & cfg = fwk::Application::app()->config();
+    auto& cfg = fwk::Application::app()->config()->cfg;
 
     auto frame = m_frame.lock();
     auto dialog = new Gtk::FileChooserDialog(frame->gtkWindow(), _("Import picture folder"),
@@ -61,7 +60,7 @@ void DirectoryImporterUI::do_select_directories()
     dialog->add_button(_("Select"), Gtk::ResponseType::OK);
     dialog->set_select_multiple(false);
 
-    std::string last_import_location = cfg.getValue("last_import_location", "");
+    std::string last_import_location(cfg->getValue("last_import_location", ""));
     if (!last_import_location.empty()) {
         auto file = Gio::File::create_for_path(last_import_location);
         dialog->set_current_folder(file);

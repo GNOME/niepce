@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/filebundle.rs
  *
- * Copyright (C) 2017-2020 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ use npc_fwk::toolkit::mimetype::{IsRaw, MType};
 use npc_fwk::MimeType;
 
 /// Sidecar.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Sidecar {
     Invalid,
     /// Sidecar for Live image (MOV file form iPhone)

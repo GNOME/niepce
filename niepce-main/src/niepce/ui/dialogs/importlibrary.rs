@@ -27,34 +27,18 @@ use std::sync::Arc;
 
 use gettextrs::gettext;
 use glib::clone;
-use glib::translate::*;
 use gtk4;
 use gtk4::prelude::*;
 use gtk4::{Assistant, Builder};
-use gtk4_sys;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 
 use npc_engine::importer::LibraryImporter;
-use npc_engine::libraryclient::{LibraryClient, LibraryClientWrapper};
+use npc_engine::libraryclient::LibraryClient;
 use npc_fwk::toolkit;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
 use lrimport_root_row::LrImportRootRow;
-
-/// # Safety
-/// Dereference a raw pointer
-#[no_mangle]
-pub unsafe extern "C" fn dialog_import_library(
-    client: &mut LibraryClientWrapper,
-    parent: *mut gtk4_sys::GtkWindow,
-) {
-    let parent_window = gtk4::Window::from_glib_none(parent);
-
-    let dialog = ImportLibraryDialog::new(client.client());
-    dialog.run(&parent_window);
-    dbg_out!("dialog out of scope");
-}
 
 #[repr(i32)]
 #[derive(Debug, FromPrimitive, ToPrimitive)]
@@ -129,7 +113,7 @@ enum Command {
     Close,
 }
 
-struct ImportLibraryDialog {
+pub struct ImportLibraryDialog {
     assistant: gtk4::Assistant,
     client: Arc<LibraryClient>,
     state: ImportStateRef,
@@ -138,7 +122,7 @@ struct ImportLibraryDialog {
 }
 
 impl ImportLibraryDialog {
-    fn new(client: Arc<LibraryClient>) -> Rc<Self> {
+    pub fn new(client: Arc<LibraryClient>) -> Rc<Self> {
         let (sender, receiver) = glib::MainContext::channel::<Command>(glib::Priority::default());
         let assistant = Assistant::new();
 
@@ -272,8 +256,8 @@ impl ImportLibraryDialog {
         glib::Continue(true)
     }
 
-    fn run(&self, parent: &gtk4::Window) {
-        self.assistant.set_transient_for(Some(parent));
+    pub fn run(&self, parent: Option<&gtk4::Window>) {
+        self.assistant.set_transient_for(parent);
         self.assistant.set_modal(true);
         self.assistant.present();
     }
@@ -331,7 +315,7 @@ impl ImportLibraryDialog {
         self.state.borrow_mut().importer_root_remap();
         if let Some(ref mut importer) = &mut self.state.borrow_mut().importer {
             importer
-                .import_library(&*self.client)
+                .import_library(&self.client)
                 .expect("import library");
         }
         self.set_page_complete(Page::Progress);
@@ -356,7 +340,7 @@ impl ImportLibraryDialog {
         }
 
         if let Some(ref button) = self.state.borrow().import_file_button {
-            button.set_label(&*path.to_string_lossy());
+            button.set_label(&path.to_string_lossy());
         }
         self.state.borrow_mut().library_path = Some(path);
         self.state.borrow_mut().importer = importer;

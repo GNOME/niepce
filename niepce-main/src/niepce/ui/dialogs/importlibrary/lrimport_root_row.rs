@@ -61,7 +61,7 @@ glib::wrapper! {
 
 impl Default for LrImportRootRow {
     fn default() -> Self {
-        glib::Object::new(&[]).expect("Failed to create LrImportRootRow")
+        glib::Object::new(&[])
     }
 }
 

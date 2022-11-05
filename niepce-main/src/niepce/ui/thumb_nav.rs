@@ -23,7 +23,6 @@ use std::rc::Rc;
 use once_cell::unsync::OnceCell;
 
 use glib::subclass::prelude::*;
-use glib::translate::*;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
@@ -34,7 +33,7 @@ const SCROLL_MOVE: f64 = 20.;
 const SCROLL_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(20);
 
 #[repr(i32)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub enum ThumbNavMode {
     OneRow,
     OneColumn,
@@ -83,7 +82,6 @@ impl ThumbNav {
             ("homogeneous", &false),
             ("spacing", &0),
         ])
-        .expect("Failed to create Thumbnail Navigator")
     }
 }
 
@@ -116,23 +114,19 @@ pub trait ThumbNavExt {
 
 impl ThumbNavExt for ThumbNav {
     fn show_buttons(&self) -> bool {
-        let priv_ = ThumbNavPriv::from_instance(self);
-        priv_.show_buttons.get()
+        self.imp().show_buttons.get()
     }
 
     fn set_show_buttons(&self, show_buttons: bool) {
-        let priv_ = ThumbNavPriv::from_instance(self);
-        priv_.set_show_buttons(show_buttons);
+        self.imp().set_show_buttons(show_buttons);
     }
 
     fn mode(&self) -> ThumbNavMode {
-        let priv_ = ThumbNavPriv::from_instance(self);
-        priv_.mode.get()
+        self.imp().mode.get()
     }
 
     fn set_mode(&self, mode: ThumbNavMode) {
-        let priv_ = ThumbNavPriv::from_instance(self);
-        priv_.set_mode(mode);
+        self.imp().set_mode(mode);
     }
 }
 
@@ -290,17 +284,17 @@ impl ObjectSubclass for ThumbNavPriv {
 }
 
 impl ObjectImpl for ThumbNavPriv {
-    fn constructed(&self, obj: &ThumbNav) {
-        self.parent_constructed(obj);
+    fn constructed(&self) {
+        self.parent_constructed();
 
+        let obj = self.instance();
         let button_left = gtk4::Button::from_icon_name("pan-start-symbolic");
         // XXX
         // button_left.set_relief(gtk4::ReliefStyle::None);
         button_left.set_size_request(20, 0);
         obj.append(&button_left);
         button_left.connect_clicked(glib::clone!(@weak obj => move |_| {
-            let priv_ = ThumbNavPriv::from_instance(&obj);
-            priv_.left_button_clicked();
+            obj.imp().left_button_clicked();
         }));
 
         let sw = gtk4::ScrolledWindow::new();
@@ -309,12 +303,10 @@ impl ObjectImpl for ThumbNavPriv {
         sw.set_policy(gtk4::PolicyType::Always, gtk4::PolicyType::Never);
         let adj = sw.hadjustment();
         adj.connect_changed(glib::clone!(@weak obj => move |adj| {
-            let priv_ = ThumbNavPriv::from_instance(&obj);
-            priv_.adj_changed(adj);
+            obj.imp().adj_changed(adj);
         }));
         adj.connect_value_changed(glib::clone!(@weak obj => move |adj| {
-            let priv_ = ThumbNavPriv::from_instance(&obj);
-            priv_.adj_value_changed(adj);
+            obj.imp().adj_value_changed(adj);
         }));
         obj.append(&sw);
 
@@ -324,8 +316,7 @@ impl ObjectImpl for ThumbNavPriv {
         button_right.set_size_request(20, 0);
         obj.append(&button_right);
         button_right.connect_clicked(glib::clone!(@weak obj => move |_| {
-            let priv_ = ThumbNavPriv::from_instance(&obj);
-            priv_.right_button_clicked();
+            obj.imp().right_button_clicked();
         }));
         let adj = sw.hadjustment();
 
@@ -381,13 +372,7 @@ impl ObjectImpl for ThumbNavPriv {
         PROPERTIES.as_ref()
     }
 
-    fn set_property(
-        &self,
-        _obj: &ThumbNav,
-        _id: usize,
-        value: &glib::Value,
-        pspec: &glib::ParamSpec,
-    ) {
+    fn set_property(&self, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
         match pspec.name() {
             "show-buttons" => {
                 let show_buttons = value
@@ -412,7 +397,7 @@ impl ObjectImpl for ThumbNavPriv {
         }
     }
 
-    fn property(&self, _obj: &ThumbNav, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
+    fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
         match pspec.name() {
             "show-buttons" => self.show_buttons.get().to_value(),
             "thumbview" => self.thumbview.borrow().to_value(),
@@ -428,20 +413,3 @@ impl ObjectImpl for ThumbNavPriv {
 impl WidgetImpl for ThumbNavPriv {}
 
 impl BoxImpl for ThumbNavPriv {}
-
-/// # Safety
-/// Use raw pointers
-#[no_mangle]
-pub unsafe extern "C" fn npc_thumb_nav_new(
-    thumbview: *mut gtk4_sys::GtkIconView,
-    mode: ThumbNavMode,
-    show_buttons: bool,
-) -> *mut gtk4_sys::GtkWidget {
-    ThumbNav::new(
-        &gtk4::IconView::from_glib_full(thumbview),
-        mode,
-        show_buttons,
-    )
-    .upcast::<gtk4::Widget>()
-    .to_glib_full()
-}

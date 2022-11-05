@@ -29,10 +29,10 @@ use super::{Error, Result};
 pub(super) fn pragma_schema_version(conn: &rusqlite::Connection) -> Result<i64> {
     let mut stmt = conn.prepare("PRAGMA schema_version")?;
     let mut rows = stmt.query([])?;
-    return match rows.next()? {
+    match rows.next()? {
         Some(row) => Ok(row.get(0)?),
         None => Err(Error::NotFound),
-    };
+    }
 }
 
 /// Get the SQL for the table.

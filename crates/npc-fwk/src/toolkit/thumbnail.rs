@@ -1,7 +1,7 @@
 /*
  * niepce - toolkit/thumbnail.rs
  *
- * Copyright (C) 2020 Hubert Figuière
+ * Copyright (C) 2020-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_char;
 use std::cmp;
 use std::convert::From;
-use std::ffi::CStr;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use gdk_pixbuf::Colorspace;
-use glib::translate::*;
 
 use super::gdk_utils;
 use super::mimetype::MimeType;
@@ -40,6 +37,21 @@ pub struct Thumbnail {
     bits_per_sample: i32,
     has_alpha: bool,
     colorspace: Colorspace,
+}
+
+impl std::fmt::Debug for Thumbnail {
+    // implemented manually to skip dumping all the bytes.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        f.debug_struct("Thumbnail")
+            .field("bytes.len()", &self.bytes.len())
+            .field("width", &self.width)
+            .field("height", &self.height)
+            .field("stride", &self.stride)
+            .field("bits_per_sample", &self.bits_per_sample)
+            .field("has_alpha", &self.has_alpha)
+            .field("colorspace", &self.colorspace)
+            .finish()
+    }
 }
 
 impl Default for Thumbnail {
@@ -175,53 +187,4 @@ impl From<&Thumbnail> for gdk_pixbuf::Pixbuf {
             v.stride,
         )
     }
-}
-
-/// Generate the %Thumbnail for the file
-///
-/// # Safety
-/// Dereference filename pointer (C string)
-#[no_mangle]
-pub unsafe extern "C" fn fwk_toolkit_thumbnail_file(
-    filename: *const c_char,
-    w: i32,
-    h: i32,
-    orientation: i32,
-) -> *mut Thumbnail {
-    Box::into_raw(Box::new(Thumbnail::thumbnail_file(
-        &PathBuf::from(&*CStr::from_ptr(filename).to_string_lossy()),
-        w,
-        h,
-        orientation,
-    )))
-}
-
-/// Delete the %Thumbnail object
-///
-/// # Safety
-/// Dereference the pointer
-#[no_mangle]
-pub unsafe extern "C" fn fwk_toolkit_thumbnail_delete(obj: *mut Thumbnail) {
-    Box::from_raw(obj);
-}
-
-/// Create a %Thumbnail from a %GdkPixbuf
-///
-/// The resulting object must be freed by %fwk_toolkit_thumbnail_delete
-///
-/// # Safety
-/// Dereference the pointer
-#[no_mangle]
-pub unsafe extern "C" fn fwk_toolkit_thumbnail_from_pixbuf(
-    pixbuf: *mut gdk_pixbuf_sys::GdkPixbuf,
-) -> *mut Thumbnail {
-    let pixbuf: Option<gdk_pixbuf::Pixbuf> = from_glib_none(pixbuf);
-    Box::into_raw(Box::new(Thumbnail::from(pixbuf)))
-}
-
-#[no_mangle]
-pub extern "C" fn fwk_toolkit_thumbnail_to_pixbuf(
-    self_: &Thumbnail,
-) -> *mut gdk_pixbuf_sys::GdkPixbuf {
-    self_.make_pixbuf().to_glib_full()
 }

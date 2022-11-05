@@ -41,20 +41,15 @@ use crate::db::libfile::LibFile;
 use crate::db::libfolder;
 use crate::db::libfolder::LibFolder;
 use crate::db::libmetadata::LibMetadata;
+use crate::db::props::NiepceProperties as Np;
+use crate::db::NiepcePropertyIdx as Npi;
 use crate::library::notification::LibNotification;
-use crate::NiepceProperties as Np;
 use crate::NiepcePropertyBag;
-use crate::NiepcePropertyIdx::*;
 use npc_fwk::toolkit;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_assert, dbg_out, err_out};
 
-#[repr(i32)]
-#[derive(PartialEq, Clone, Copy)]
-pub enum Managed {
-    NO = 0,
-    YES = 1,
-}
+pub use crate::ffi::Managed;
 
 const DB_SCHEMA_VERSION: i32 = 11;
 const DATABASENAME: &str = "niepcelibrary.db";
@@ -279,7 +274,7 @@ impl Library {
             )
             .unwrap();
             //
-            let trash_type = libfolder::FolderVirtualType::TRASH as i32;
+            let trash_type = i32::from(libfolder::FolderVirtualType::TRASH);
             conn.execute(
                 "insert into folders (name, locked, virtual, parent_id, path) \
                  values (?1, 1, ?2, 0, '')",
@@ -470,8 +465,8 @@ impl Library {
             Some(ext2) => ext2.to_string_lossy(),
             _ => return Err(Error::InvalidArg),
         };
-        let fsfile_id = self.add_fs_file(&sidecar_t.1)?;
-        self.add_sidecar_fsfile_to_bundle(file_id, fsfile_id, sidecar_t.0, &*ext)
+        let fsfile_id = self.add_fs_file(sidecar_t.1)?;
+        self.add_sidecar_fsfile_to_bundle(file_id, fsfile_id, sidecar_t.0, &ext)
     }
 
     fn add_sidecar_fsfile_to_bundle(
@@ -867,7 +862,7 @@ impl Library {
         }
 
         if let Some(ref conn) = self.dbconn {
-            let ifile_type = file_type as i32;
+            let ifile_type = i32::from(file_type);
             let time = Utc::now().timestamp();
             let c = conn.execute(
                 "INSERT INTO files (\
@@ -1022,7 +1017,8 @@ impl Library {
         props: &NiepcePropertyBag,
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            if let Some(PropertyValue::String(xmp)) = props.get(&Np::Index(NpNiepceXmpPacket)) {
+            if let Some(PropertyValue::String(xmp)) = props.get(&Np::Index(Npi::NpNiepceXmpPacket))
+            {
                 let mut stmt = conn.prepare("UPDATE files SET xmp=?1 WHERE id=?2;")?;
                 stmt.execute(params![xmp, image_id])?;
             }
@@ -1070,19 +1066,19 @@ impl Library {
     ) -> Result<()> {
         #[allow(non_upper_case_globals)]
         match meta {
-            Np::Index(NpXmpRatingProp)
-            | Np::Index(NpXmpLabelProp)
-            | Np::Index(NpTiffOrientationProp)
-            | Np::Index(NpNiepceFlagProp) => {
+            Np::Index(Npi::NpXmpRatingProp)
+            | Np::Index(Npi::NpXmpLabelProp)
+            | Np::Index(Npi::NpTiffOrientationProp)
+            | Np::Index(Npi::NpNiepceFlagProp) => {
                 match *value {
                     PropertyValue::Int(i) => {
                         // internal
                         // make the column mapping more generic.
                         let column = match meta {
-                            Np::Index(NpXmpRatingProp) => "rating",
-                            Np::Index(NpXmpLabelProp) => "label",
-                            Np::Index(NpTiffOrientationProp) => "orientation",
-                            Np::Index(NpNiepceFlagProp) => "flag",
+                            Np::Index(Npi::NpXmpRatingProp) => "rating",
+                            Np::Index(Npi::NpXmpLabelProp) => "label",
+                            Np::Index(Npi::NpTiffOrientationProp) => "orientation",
+                            Np::Index(Npi::NpNiepceFlagProp) => "flag",
                             _ => unreachable!(),
                         };
                         if !column.is_empty() {
@@ -1092,7 +1088,7 @@ impl Library {
                     _ => err_out!("improper value type for {:?}", meta),
                 }
             }
-            Np::Index(NpIptcKeywordsProp) => {
+            Np::Index(Npi::NpIptcKeywordsProp) => {
                 self.unassign_all_keywords_for_file(file_id)?;
 
                 match *value {
@@ -1192,7 +1188,7 @@ impl Library {
 
     pub(crate) fn delete_label(&self, label_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute("DELETE FROM labels WHERE id=?1;", &[&label_id])?;
+            let c = conn.execute("DELETE FROM labels WHERE id=?1;", [&label_id])?;
             if c != 1 {
                 return Err(Error::InvalidResult);
             }
@@ -1228,7 +1224,7 @@ impl Library {
         // clobber the xmp.
         if let Some(ref conn) = self.dbconn {
             if conn
-                .execute("DELETE FROM xmp_update_queue WHERE id=?1;", &[&id])
+                .execute("DELETE FROM xmp_update_queue WHERE id=?1;", [&id])
                 .is_ok()
             {
                 // we don't want to write the XMP so we don't need to list them.
@@ -1239,7 +1235,7 @@ impl Library {
                     "SELECT xmp, main_file, xmp_file FROM files \
                      WHERE id=?1;",
                 ) {
-                    let mut rows = stmt.query(&[&id])?;
+                    let mut rows = stmt.query([&id])?;
                     while let Ok(Some(row)) = rows.next() {
                         let xmp_buffer: String = row.get(0)?;
                         let main_file_id: LibraryId = row.get(1)?;
@@ -1312,9 +1308,9 @@ impl Library {
 #[cfg(test)]
 mod test {
     use crate::db::filebundle::FileBundle;
+    use crate::db::NiepcePropertyIdx as Npi;
     use crate::NiepceProperties as Np;
     use crate::NiepcePropertyBag;
-    use crate::NiepcePropertyIdx as NpI;
 
     use super::{Library, Managed};
 
@@ -1447,8 +1443,8 @@ mod test {
 
         // Test setting properties
 
-        let mut props = NiepcePropertyBag::new();
-        props.set_value(Np::Index(NpI::NpNiepceXmpPacket), XMP_PACKET.into());
+        let mut props = NiepcePropertyBag::default();
+        props.set_value(Np::Index(Npi::NpNiepceXmpPacket), XMP_PACKET.into());
         // one of the problem with XMP packet serialisation is that the version
         // of the XMP SDK is written in the header so we can do comparisons
         // byte by byte

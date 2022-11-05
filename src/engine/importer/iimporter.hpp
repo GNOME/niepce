@@ -1,7 +1,7 @@
 /*
  * niepce - engine/importer/iimporter.hpp
  *
- * Copyright (C) 2014-2020 Hubert Figuière
+ * Copyright (C) 2014-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
 
 #pragma once
 
@@ -24,9 +25,10 @@
 #include <list>
 #include <functional>
 
-#include "fwk/toolkit/thumbnail.hpp"
 #include "fwk/utils/files.hpp"
 #include "engine/importer/importedfile.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace eng {
 
@@ -46,15 +48,15 @@ public:
     virtual bool list_source_content(const std::string& source,
                                      const SourceContentReady& callback) = 0;
 
-    typedef std::function<void (const std::string& path,
-                                const fwk::ThumbnailPtr&)> PreviewReady;
+    typedef std::function<void (std::string&& path,
+                                fwk::ThumbnailPtr&&)> PreviewReady;
     virtual bool get_previews_for(const std::string& source,
                                   const std::list<std::string>& paths,
                                   const PreviewReady& callback) = 0;
 
     /** file importer callback
      */
-    typedef std::function<bool (const std::string& path, const fwk::FileListPtr&, Managed)> FileImporter;
+    typedef std::function<bool (const std::string& path, const fwk::FileList&, Managed)> FileImporter;
     /** perform import from source
      * @param source the source identified by a string.
      * @param dest_dir the suggested destination directory is the importer needs to copy
@@ -62,6 +64,16 @@ public:
      */
     virtual bool do_import(const std::string& source, const std::string& dest_dir,
                            const FileImporter& importer) = 0;
+
+    // cxx glue
+    void do_import_(rust::Str source, rust::Str dest_dir,
+                    rust::Fn<bool(const eng::LibraryClientWrapper&, rust::Str, const fwk::FileList&, Managed)> cb,
+                    const eng::LibraryClientWrapper& client) const {
+        const_cast<IImporter*>(this)->do_import(std::string(source), std::string(dest_dir),
+                                                [cb, &client] (const std::string& p, const fwk::FileList& fl, Managed m) -> bool {
+                                                    return cb(client, p, fl, m);
+                                                });
+    }
 
 };
 
@@ -77,3 +89,4 @@ public:
   fill-column:99
   End:
 */
+#endif

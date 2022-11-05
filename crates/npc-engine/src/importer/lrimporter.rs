@@ -167,7 +167,7 @@ impl LrImporter {
             }
 
             let metadata = if let Some(image) = image {
-                let mut metadata = NiepcePropertyBag::new();
+                let mut metadata = NiepcePropertyBag::default();
                 metadata.set_value(
                     Np::Index(NpI::NpTiffOrientationProp),
                     image.exif_orientation().into(),

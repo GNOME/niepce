@@ -5,39 +5,9 @@ use npc_fwk::utils::exempi::{NS_DC, NS_EXIF, NS_PHOTOSHOP, NS_TIFF, NS_XAP};
 mod xmp {
     pub use npc_fwk::utils::exempi::NIEPCE_XMP_NAMESPACE;
 }
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[repr(u32)]
-pub enum NiepcePropertyIdx {
-    NpFileNameProp,
-    NpFileTypeProp,
-    NpFileSizeProp,
-    NpFolderProp,
-    NpSidecarsProp,
-    NpXmpRatingProp,
-    NpXmpLabelProp,
-    NpTiffOrientationProp,
-    NpTiffMakeProp,
-    NpTiffModelProp,
-    NpExifAuxLensProp,
-    NpExifExposureProgramProp,
-    NpExifExposureTimeProp,
-    NpExifFNumberPropProp,
-    NpExifIsoSpeedRatingsProp,
-    NpExifExposureBiasProp,
-    NpExifFlashFiredProp,
-    NpExifAuxFlashCompensationProp,
-    NpExifWbProp,
-    NpExifDateTimeOriginalProp,
-    NpExifFocalLengthProp,
-    NpExifGpsLongProp,
-    NpExifGpsLatProp,
-    NpIptcHeadlineProp,
-    NpIptcDescriptionProp,
-    NpIptcKeywordsProp,
-    NpNiepceFlagProp,
-    /// The XMP Packet
-    NpNiepceXmpPacket,
-}
+
+pub use crate::ffi::NiepcePropertyIdx;
+
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[allow(unused_parens)]
 #[repr(C)]
@@ -49,7 +19,7 @@ pub enum NiepceProperties {
 impl From<NiepceProperties> for u32 {
     fn from(v: NiepceProperties) -> u32 {
         match v {
-            NiepceProperties::Index(i) => i as u32,
+            NiepceProperties::Index(i) => i.repr as u32,
             NiepceProperties::Other(i) => i,
         }
     }

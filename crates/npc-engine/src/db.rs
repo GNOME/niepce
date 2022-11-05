@@ -30,7 +30,7 @@ pub mod props;
 
 pub type LibraryId = i64;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum SortOrder {
     NoSorting,
     Ascending,
@@ -41,6 +41,7 @@ pub enum SortOrder {
 pub use self::album::Album;
 pub use self::keyword::Keyword;
 pub use self::label::Label;
+pub use self::libfile::LibFile;
 pub use self::libfolder::LibFolder;
 pub use self::libmetadata::LibMetadata;
 pub use self::library::Library;

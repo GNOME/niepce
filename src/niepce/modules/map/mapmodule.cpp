@@ -1,7 +1,7 @@
 /*
  * niepce - modules/map/mapmodule.cpp
  *
- * Copyright (C) 2014-2017 Hubert Figuiere
+ * Copyright (C) 2014-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +23,14 @@
 #include "fwk/utils/exempi.hpp"
 #include "fwk/toolkit/application.hpp"
 #include "engine/db/properties.hpp"
-#include "engine/db/libmetadata.hpp"
 #include "mapmodule.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace mapm {
 
-MapModule::MapModule(const ui::IModuleShell & shell)
-    : m_shell(shell)
-    , m_box(nullptr)
+MapModule::MapModule()
+    : m_box(nullptr)
     , m_active(false)
 {
 }
@@ -40,7 +40,7 @@ void MapModule::dispatch_action(const std::string & /*action_name*/)
 }
 
 
-void MapModule::set_active(bool active)
+void MapModule::set_active(bool active) const
 {
     m_active = active;
 }
@@ -66,47 +66,41 @@ Gtk::Widget * MapModule::buildWidget()
 }
 
 void
-MapModule::on_lib_notification(const eng::LibNotification &ln)
+MapModule::on_lib_notification(const eng::LibNotification &ln) const
 {
     if (!m_active) {
         return;
     }
-    switch (engine_library_notification_type(&ln)) {
+    switch (ln.type_()) {
     case eng::NotificationType::METADATA_QUERIED:
     {
-        auto lm = engine_library_notification_get_libmetadata(&ln);
+        auto& lm = ln.get_libmetadata();
         DBG_OUT("received metadata in MapModule");
 
-        if (lm) {
-            fwk::PropertySetPtr propset = fwk::property_set_new();
-            ffi::eng_property_set_add(propset.get(), ffi::NiepcePropertyIdx::NpExifGpsLongProp);
-            ffi::eng_property_set_add(propset.get(), ffi::NiepcePropertyIdx::NpExifGpsLatProp);
+        fwk::PropertySetPtr propset = fwk::PropertySet_new();
+        propset->add((uint32_t)eng::NiepcePropertyIdx::NpExifGpsLongProp);
+        propset->add((uint32_t)eng::NiepcePropertyIdx::NpExifGpsLatProp);
 
-            fwk::PropertyBagPtr properties = eng::libmetadata_to_properties(lm, *propset);
-            double latitude, longitude;
-            latitude = longitude = NAN;
-            auto result = fwk::get_value_for_property(*properties, ffi::NiepcePropertyIdx::NpExifGpsLongProp);
-            if (!result.empty()) {
-                fwk::PropertyValuePtr val = result.unwrap();
-                // it is a string
-                if (fwk_property_value_is_string(val.get())) {
-                    longitude = ffi::fwk_gps_coord_from_xmp(
-                        fwk::property_value_get_string(*val).c_str());
-                }
+        fwk::PropertyBagPtr properties = lm.to_properties(*propset);
+        double latitude, longitude;
+        latitude = longitude = NAN;
+        if (properties->contains_key((uint32_t)eng::NiepcePropertyIdx::NpExifGpsLongProp)) {
+            const fwk::PropertyValue& val = properties->value((uint32_t)eng::NiepcePropertyIdx::NpExifGpsLongProp);
+            // it is a string
+            if (val.is_string()) {
+                longitude = fwk::gps_coord_from_xmp(val.get_string());
             }
-            result = fwk::get_value_for_property(*properties, ffi::NiepcePropertyIdx::NpExifGpsLatProp);
-            if (!result.empty()) {
-                fwk::PropertyValuePtr val = result.unwrap();
-                // it is a string
-                if (fwk_property_value_is_string(val.get())) {
-                    latitude = ffi::fwk_gps_coord_from_xmp(
-                        fwk::property_value_get_string(*val).c_str());
-                }
+        }
+        if (properties->contains_key((uint32_t)eng::NiepcePropertyIdx::NpExifGpsLatProp)) {
+            const fwk::PropertyValue& val = properties->value((uint32_t)eng::NiepcePropertyIdx::NpExifGpsLatProp);
+            // it is a string
+            if (val.is_string()) {
+                latitude = fwk::gps_coord_from_xmp(val.get_string());
             }
+        }
 
-            if (!std::isnan(latitude) && !std::isnan(longitude)) {
-                m_map->centerOn(latitude, longitude);
-            }
+        if (!std::isnan(latitude) && !std::isnan(longitude)) {
+            m_map->centerOn(latitude, longitude);
         }
         break;
     }

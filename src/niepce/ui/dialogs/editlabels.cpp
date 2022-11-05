@@ -28,24 +28,29 @@
 #include "fwk/base/debug.hpp"
 #include "fwk/toolkit/application.hpp"
 #include "fwk/toolkit/gdkutils.hpp"
-#include "fwk/toolkit/undo.hpp"
-#include "libraryclient/libraryclient.hpp"
-#include "libraryclient/uidataprovider.hpp"
 #include "editlabels.hpp"
 
-
-using libraryclient::LibraryClientPtr;
+using eng::LibraryClientPtr;
 
 namespace ui {
 
-EditLabels::EditLabels(const LibraryClientPtr & libclient)
+EditLabels::EditLabels(const eng::LibraryClientHost& libclient)
     : fwk::Dialog("/org/gnome/Niepce/ui/editlabels.ui", "editLabels")
-    , m_labels(libclient->getDataProvider()->getLabels())
     , m_lib_client(libclient)
 {
+    auto& provider = libclient.getDataProvider();
+    auto count = provider.label_count();
+    for (size_t i = 0; i < count; i++) {
+        m_labels.push_back(rust::Box<eng::Label>::from_raw(provider.label_at(i)));
+    }
+
     std::fill(m_status.begin(), m_status.end(), false);
 }
 
+void EditLabels::run_modal(GtkWindow* parent, rust::Fn<void(EditLabelsPtr, int32_t)> on_ok, EditLabelsPtr self) const
+{
+    run_modal_(parent, [self, on_ok] (int32_t r) { on_ok(self, r); });
+}
 
 void EditLabels::setup_widget()
 {
@@ -66,10 +71,9 @@ void EditLabels::setup_widget()
         m_entries[i] = labelentry = _builder->get_widget<Gtk::Entry>(str(boost::format(value_fmt) % (i+1)));
 
         if(has_label) {
-            Gdk::RGBA colour = fwk::rgbcolour_to_gdkcolor(
-                *engine_db_label_colour(m_labels[i].get()));
+            Gdk::RGBA colour = fwk::rgbcolour_to_gdkcolor(m_labels[i]->colour());
             colourbutton->set_rgba(colour);
-            labelentry->set_text(engine_db_label_label(m_labels[i].get()));
+            labelentry->set_text(std::string(m_labels[i]->label()));
         }
         colourbutton->signal_color_set().connect(
             sigc::bind(sigc::mem_fun(*this, &EditLabels::label_colour_changed), i));
@@ -94,7 +98,7 @@ void EditLabels::label_colour_changed(size_t idx)
 
 void EditLabels::update_labels(int /*response*/)
 {
-    std::shared_ptr<fwk::UndoTransaction> undo;
+    rust::Box<fwk::UndoTransaction> undo = fwk::UndoTransaction_new(_("Change Labels"));
     for(size_t i = 0; i < 5; i++) {
         if(m_status[i]) {
             bool has_label = m_labels.size() > i;
@@ -105,44 +109,43 @@ void EditLabels::update_labels(int /*response*/)
             if(new_name.empty()) {
                 continue;
             }
-            std::string new_colour
-                = fwk::rgbcolour_to_string(
-                    fwk::gdkcolor_to_rgbcolour(m_colours[i]->get_rgba()).get());
-            if(!undo) {
-                undo = fwk::Application::app()->begin_undo(_("Change Labels"));
-            }
+            std::string new_colour(fwk::gdkcolor_to_rgbcolour(m_colours[i]->get_rgba())->to_string());
 
-            auto libclient = m_lib_client;
+            auto client = &m_lib_client.client();
             if(has_label) {
-                std::string current_name = engine_db_label_label(m_labels[i].get());
-                std::string current_colour =
-                    fwk::rgbcolour_to_string(engine_db_label_colour(m_labels[i].get()));
-                auto label_id = engine_db_label_id(m_labels[i].get());
+                std::string current_name(m_labels[i]->label());
+                std::string current_colour(m_labels[i]->colour().to_string());
+                auto label_id = m_labels[i]->id();
 
-                undo->new_command<void>(
-                    [libclient, new_name, new_colour, label_id] () {
-                        ffi::libraryclient_update_label(
-                            libclient->client(), label_id, new_name.c_str(), new_colour.c_str());
-                    },
-                    [libclient, current_name, current_colour, label_id] () {
-                        ffi::libraryclient_update_label(
-                            libclient->client(), label_id, current_name.c_str(),
-                            current_colour.c_str());
-                    });
+                auto command = fwk::UndoCommand_new(
+                    std::make_unique<fwk::RedoFnVoid>(
+                        [client, new_name, new_colour, label_id] () {
+                            client->update_label(label_id, new_name, new_colour);
+                        }),
+                    std::make_unique<fwk::UndoFnVoid>(
+                        [client, current_name, current_colour, label_id] () {
+                            client->update_label(label_id, current_name, current_colour);
+                        })
+                    );
+                undo->add(std::move(command));
             } else {
-                undo->new_command<int>(
-                    [libclient, new_name, new_colour] () {
-                        return ffi::libraryclient_create_label_sync(
-                            libclient->client(), new_name.c_str(), new_colour.c_str());
-                    },
-                    [libclient] (int label) {
-                        ffi::libraryclient_delete_label(libclient->client(), label);
-                    });
+                auto command = fwk::UndoCommand_new_int(
+                    std::make_unique<fwk::RedoFnInt>(
+                        [client, new_name, new_colour] () {
+                            return client->create_label_sync(new_name, new_colour);
+                        }),
+                    std::make_unique<fwk::UndoFnInt>(
+                        [client] (int64_t label) {
+                            client->delete_label(label);
+                        })
+                    );
+                undo->add(std::move(command));
             }
         }
     }
-    if(undo) {
+    if (!undo->is_empty()) {
         undo->execute();
+        fwk::Application::app()->begin_undo(std::move(undo));
     }
 }
 

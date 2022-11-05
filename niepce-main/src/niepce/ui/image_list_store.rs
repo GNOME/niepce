@@ -17,20 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::cell::{Cell, RefCell};
 use std::collections::BTreeMap;
 use std::ptr;
+use std::rc::Rc;
+use std::sync::Arc;
 
 use glib::translate::*;
 use gtk4::prelude::*;
-
 use once_cell::unsync::OnceCell;
 
 use npc_engine::db::libfile::{FileStatus, LibFile};
 use npc_engine::db::props::NiepceProperties as Np;
-use npc_engine::db::props::NiepcePropertyIdx::*;
+use npc_engine::db::props::NiepcePropertyIdx as Npi;
 use npc_engine::db::LibraryId;
 use npc_engine::library::notification::{LibNotification, MetadataChange};
 use npc_engine::library::thumbnail_cache::ThumbnailCache;
+use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::toolkit::gdk_utils;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_out, err_out};
@@ -48,6 +51,7 @@ pub enum ColIndex {
     FileStatus = 3,
 }
 
+#[derive(Clone, Copy)]
 enum CurrentContainer {
     None,
     Folder(LibraryId),
@@ -55,12 +59,38 @@ enum CurrentContainer {
     Album(LibraryId),
 }
 
+/// Binding raw because it's a Rc.
+#[derive(Default)]
+pub struct ImageListStoreWrap(pub Rc<ImageListStore>);
+
+impl std::ops::Deref for ImageListStoreWrap {
+    type Target = ImageListStore;
+
+    fn deref(&self) -> &Self::Target {
+        self.0.deref()
+    }
+}
+
+impl ImageListStoreWrap {
+    /// # Safety
+    /// Deref a pointer
+    pub unsafe fn unwrap_ref(&self) -> &ImageListStore {
+        &*Rc::as_ptr(&self.0)
+    }
+
+    // cxx
+    /// Clone to a new `Box`.
+    pub fn clone_(&self) -> Box<Self> {
+        Box::new(Self(self.0.clone()))
+    }
+}
+
 /// The Image list store.
 /// It wraps the tree model/store.
 pub struct ImageListStore {
     store: gtk4::ListStore,
-    current: CurrentContainer,
-    idmap: BTreeMap<LibraryId, gtk4::TreeIter>,
+    current: Cell<CurrentContainer>,
+    idmap: RefCell<BTreeMap<LibraryId, gtk4::TreeIter>>,
     image_loading_icon: OnceCell<gtk4::IconPaintable>,
 }
 
@@ -83,10 +113,15 @@ impl ImageListStore {
 
         Self {
             store,
-            current: CurrentContainer::None,
-            idmap: BTreeMap::new(),
+            current: Cell::new(CurrentContainer::None),
+            idmap: RefCell::new(BTreeMap::new()),
             image_loading_icon: OnceCell::new(),
         }
+    }
+
+    /// Return the `GtkListStore`
+    pub fn liststore(&self) -> &gtk4::ListStore {
+        &self.store
     }
 
     fn get_loading_icon(&self) -> &gtk4::IconPaintable {
@@ -103,23 +138,36 @@ impl ImageListStore {
     }
 
     fn is_property_interesting(idx: Np) -> bool {
-        (idx == Np::Index(NpXmpRatingProp))
-            || (idx == Np::Index(NpXmpLabelProp))
-            || (idx == Np::Index(NpTiffOrientationProp))
-            || (idx == Np::Index(NpNiepceFlagProp))
+        (idx == Np::Index(Npi::NpXmpRatingProp))
+            || (idx == Np::Index(Npi::NpXmpLabelProp))
+            || (idx == Np::Index(Npi::NpTiffOrientationProp))
+            || (idx == Np::Index(Npi::NpNiepceFlagProp))
     }
 
-    fn get_iter_from_id(&self, id: LibraryId) -> Option<&gtk4::TreeIter> {
-        self.idmap.get(&id)
+    // cxx
+    pub fn get_iter_from_id_(&self, id: i64) -> *const crate::ffi::GtkTreeIter {
+        self.idmap
+            .borrow()
+            .get(&id)
+            .map(|iter| {
+                let c_iter: *const gtk4_sys::GtkTreeIter = iter.to_glib_none().0;
+                c_iter as *const crate::ffi::GtkTreeIter
+            })
+            .unwrap_or(ptr::null())
     }
 
-    fn clear_content(&mut self) {
+    pub fn iter_from_id(&self, id: LibraryId) -> Option<gtk4::TreeIter> {
+        self.idmap.borrow().get(&id).cloned()
+    }
+
+    /// Clear the content of the store.
+    pub fn clear_content(&self) {
         // clear the map before the list.
-        self.idmap.clear();
+        self.idmap.borrow_mut().clear();
         self.store.clear();
     }
 
-    fn add_libfile(&mut self, f: &LibFile) {
+    fn add_libfile(&self, f: &LibFile) {
         let icon = self.get_loading_icon().clone();
         let thumb_icon = icon.clone();
         let iter = self.add_row(
@@ -128,10 +176,10 @@ impl ImageListStore {
             Some(thumb_icon.upcast()),
             FileStatus::Ok,
         );
-        self.idmap.insert(f.id(), iter);
+        self.idmap.borrow_mut().insert(f.id(), iter);
     }
 
-    fn add_libfiles(&mut self, content: &[LibFile]) {
+    fn add_libfiles(&self, content: &[LibFile]) {
         for f in content.iter() {
             self.add_libfile(f);
         }
@@ -140,22 +188,33 @@ impl ImageListStore {
     /// Process the notification.
     /// Returns false if it hasn't been
     pub fn on_lib_notification(
-        &mut self,
+        &self,
         notification: &LibNotification,
+        client: &Arc<LibraryClient>,
         thumbnail_cache: &ThumbnailCache,
     ) -> bool {
         use self::LibNotification::*;
 
         match *notification {
+            XmpNeedsUpdate => {
+                let app = npc_fwk::ffi::Application_app();
+                let cfg = &app.config().cfg;
+                let write_xmp = cfg
+                    .value("write_xmp_automatically", "0")
+                    .parse::<bool>()
+                    .unwrap_or(false);
+                client.process_xmp_update_queue(write_xmp);
+                true
+            }
             FolderContentQueried(ref c)
             | KeywordContentQueried(ref c)
             | AlbumContentQueried(ref c) => {
-                self.current = match *notification {
+                self.current.set(match *notification {
                     FolderContentQueried(_) => CurrentContainer::Folder(c.id),
                     KeywordContentQueried(_) => CurrentContainer::Keyword(c.id),
                     AlbumContentQueried(_) => CurrentContainer::Album(c.id),
                     _ => CurrentContainer::None,
-                };
+                });
                 self.clear_content();
                 dbg_out!("received folder content file # {}", c.content.len());
                 self.add_libfiles(&c.content);
@@ -164,14 +223,14 @@ impl ImageListStore {
                 true
             }
             FileMoved(ref param) => {
-                if let CurrentContainer::Folder(current_folder) = self.current {
+                if let CurrentContainer::Folder(current_folder) = self.current.get() {
                     dbg_out!("File moved. Current folder {}", current_folder);
                     if param.from == current_folder {
                         // remove from list
                         dbg_out!("from this folder");
-                        if let Some(iter) = self.get_iter_from_id(param.file) {
-                            self.store.remove(iter);
-                            self.idmap.remove(&param.file);
+                        if let Some(iter) = self.iter_from_id(param.file) {
+                            self.store.remove(&iter);
+                            self.idmap.borrow_mut().remove(&param.file);
                         }
                     } else if param.to == current_folder {
                         // XXX add to list. but this isn't likely to happen atm.
@@ -180,7 +239,7 @@ impl ImageListStore {
                 true
             }
             FileStatusChanged(ref status) => {
-                if let Some(iter) = self.idmap.get(&status.id) {
+                if let Some(iter) = self.idmap.borrow().get(&status.id) {
                     self.store.set_value(
                         iter,
                         ColIndex::FileStatus as u32,
@@ -193,7 +252,7 @@ impl ImageListStore {
                 dbg_out!("metadata changed {:?}", m.meta);
                 // only interested in a few props
                 if Self::is_property_interesting(m.meta) {
-                    if let Some(iter) = self.idmap.get(&m.id) {
+                    if let Some(iter) = self.idmap.borrow().get(&m.id) {
                         self.set_property(iter, m);
                     }
                 }
@@ -222,8 +281,17 @@ impl ImageListStore {
         0
     }
 
-    pub fn get_file(&self, id: LibraryId) -> Option<LibFile> {
-        if let Some(iter) = self.idmap.get(&id) {
+    // cxx
+    pub fn get_file_(&self, id: LibraryId) -> *mut LibFile {
+        if let Some(file) = self.file(id) {
+            Box::into_raw(Box::new(file))
+        } else {
+            ptr::null_mut()
+        }
+    }
+
+    pub fn file(&self, id: LibraryId) -> Option<LibFile> {
+        if let Some(iter) = self.idmap.borrow().get(&id) {
             self.store
                 .get_value(iter, ColIndex::File as i32)
                 .get::<&StoreLibFile>()
@@ -235,7 +303,7 @@ impl ImageListStore {
     }
 
     pub fn add_row(
-        &mut self,
+        &self,
         thumb: Option<gdk4::Paintable>,
         file: &LibFile,
         strip_thumb: Option<gdk4::Paintable>,
@@ -255,8 +323,8 @@ impl ImageListStore {
         iter
     }
 
-    pub fn set_thumbnail(&mut self, id: LibraryId, thumb: &gdk_pixbuf::Pixbuf) {
-        if let Some(iter) = self.idmap.get(&id) {
+    pub fn set_thumbnail(&self, id: LibraryId, thumb: &gdk_pixbuf::Pixbuf) {
+        if let Some(iter) = self.idmap.borrow().get(&id) {
             let strip_thumb = gdk_utils::gdkpixbuf_scale_to_fit(Some(thumb), 100)
                 .map(|pix| gdk4::Texture::for_pixbuf(&pix));
             let thumb = gdk4::Texture::for_pixbuf(thumb);
@@ -289,96 +357,22 @@ impl ImageListStore {
             }
         }
     }
-}
 
-#[no_mangle]
-pub extern "C" fn npc_image_list_store_new() -> *mut ImageListStore {
-    let box_ = Box::new(ImageListStore::new());
-    Box::into_raw(box_)
-}
-
-/// # Safety
-/// Dereference pointer.
-#[no_mangle]
-pub unsafe extern "C" fn npc_image_list_store_delete(self_: *mut ImageListStore) {
-    assert!(!self_.is_null());
-    Box::from_raw(self_);
-}
-
-/// Return the gobj for the GtkListStore. You must ref it to hold it.
-#[no_mangle]
-pub extern "C" fn npc_image_list_store_gobj(self_: &ImageListStore) -> *mut gtk4_sys::GtkListStore {
-    self_.store.to_glib_none().0
-}
-
-/// Return the ID of the file at the given GtkTreePath
-///
-/// # Safety
-/// Use glib pointers.
-#[no_mangle]
-pub unsafe extern "C" fn npc_image_list_store_get_file_id_at_path(
-    self_: &ImageListStore,
-    path: *const gtk4_sys::GtkTreePath,
-) -> LibraryId {
-    assert!(!path.is_null());
-    self_.get_file_id_at_path(&from_glib_borrow(path))
-}
-
-/// # Safety
-/// Dereference pointers.
-#[no_mangle]
-pub unsafe extern "C" fn npc_image_list_store_add_row(
-    self_: &mut ImageListStore,
-    thumb: *mut gdk_pixbuf_sys::GdkPixbuf,
-    file: *const LibFile,
-    strip_thumb: *mut gdk_pixbuf_sys::GdkPixbuf,
-    status: FileStatus,
-) -> gtk4_sys::GtkTreeIter {
-    let thumb: Option<gdk_pixbuf::Pixbuf> = from_glib_none(thumb);
-    let strip_thumb: Option<gdk_pixbuf::Pixbuf> = from_glib_none(strip_thumb);
-    let thumb = thumb.as_ref().map(gdk4::Texture::for_pixbuf);
-    let strip_thumb = strip_thumb.as_ref().map(gdk4::Texture::for_pixbuf);
-    *self_
-        .add_row(
-            thumb.map(|t| t.upcast()),
-            &*file,
-            strip_thumb.map(|t| t.upcast()),
-            status,
-        )
-        .to_glib_none()
-        .0
-}
-
-#[no_mangle]
-pub extern "C" fn npc_image_list_store_get_iter_from_id(
-    self_: &mut ImageListStore,
-    id: LibraryId,
-) -> *const gtk4_sys::GtkTreeIter {
-    self_.idmap.get(&id).to_glib_none().0
-}
-
-#[no_mangle]
-pub extern "C" fn npc_image_list_store_get_file(
-    self_: &mut ImageListStore,
-    id: LibraryId,
-) -> *mut LibFile {
-    if let Some(libfile) = self_.get_file(id) {
-        Box::into_raw(Box::new(libfile))
-    } else {
-        ptr::null_mut()
+    // cxx
+    /// Return the gobj for the GtkListStore. You must ref it to hold it.
+    pub fn gobj(&self) -> *mut crate::ffi::GtkListStore {
+        let w: *mut gtk4_sys::GtkListStore = self.store.to_glib_none().0;
+        w as *mut crate::ffi::GtkListStore
     }
-}
 
-#[no_mangle]
-pub extern "C" fn npc_image_list_store_on_lib_notification(
-    self_: &mut ImageListStore,
-    notification: &LibNotification,
-    thumbnail_cache: &ThumbnailCache,
-) -> bool {
-    self_.on_lib_notification(notification, thumbnail_cache)
-}
-
-#[no_mangle]
-pub extern "C" fn npc_image_list_store_clear_content(self_: &mut ImageListStore) {
-    self_.clear_content()
+    // cxx
+    /// Return the ID of the file at the given GtkTreePath
+    ///
+    /// # Safety
+    /// Use glib pointers.
+    pub unsafe fn get_file_id_at_path_(&self, path: *const crate::ffi::GtkTreePath) -> i64 {
+        assert!(!path.is_null());
+        let path = path as *const gtk4_sys::GtkTreePath;
+        self.get_file_id_at_path(&from_glib_borrow(path))
+    }
 }

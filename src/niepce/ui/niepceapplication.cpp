@@ -24,12 +24,12 @@
 #include <gtkmm/aboutdialog.h>
 
 #include "fwk/utils/modulemanager.hpp"
-#include "fwk/toolkit/appframe.hpp"
+#include "fwk/toolkit/frame.hpp"
 #include "dialogs/preferencesdialog.hpp"
 #include "niepceapplication.hpp"
 #include "niepcewindow.hpp"
 
-using fwk::AppFrame;
+using fwk::Frame;
 using fwk::Application;
 
 namespace ui {
@@ -56,9 +56,9 @@ Application::Ptr NiepceApplication::create(int & argc, char** & argv)
 }
 
 
-AppFrame::Ptr NiepceApplication::makeMainFrame()
+Frame::Ptr NiepceApplication::makeMainFrame()
 {
-    auto ptr = AppFrame::Ptr(new NiepceWindow);
+    auto ptr = Frame::Ptr(new NiepceWindow_2(npc::niepce_window_new(gtkApp()->gobj())));
     m_main_frame = ptr;
     return ptr;
 }
@@ -90,7 +90,12 @@ void NiepceApplication::on_action_preferences()
     DBG_OUT("on_preferences");
 
     auto dlg(new PreferencesDialog());
-    dlg->run_modal(AppFrame::Ptr(m_main_frame));
+    dlg->run_modal(Frame::Ptr(m_main_frame),
+                   [dlg] (int) {
+                       delete dlg;
+                       DBG_OUT("destroyed pref dialog");
+                       return false;
+                   });
 
     DBG_OUT("end on_preferences");
 }

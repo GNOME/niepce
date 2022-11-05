@@ -33,7 +33,7 @@ void init()
 {
   Gio::init();
 
-  ffi::niepce_init();
+  npc::niepce_init();
 }
 
 

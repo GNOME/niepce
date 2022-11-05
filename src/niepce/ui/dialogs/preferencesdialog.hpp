@@ -1,7 +1,7 @@
 /*
  * niepce - ui/dialogs/preferencesdialog.hpp
  *
- * Copyright (C) 2009-2014 Hubert Figuiere
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _UI_PREFERENCESDIALOG_H_
-#define _UI_PREFERENCESDIALOG_H_
+#pragma once
+
+#include <memory>
 
 #include "fwk/toolkit/gtkutils.hpp"
 #include "fwk/toolkit/dialog.hpp"
@@ -36,9 +37,9 @@ public:
     virtual void setup_widget() override;
 
 private:
+    std::unique_ptr<fwk::DataBinderPool> m_binder_pool;
     fwk::TextPairModelRecord m_theme_combo_model;
 };
-
 
 }
 
@@ -52,4 +53,3 @@ private:
   End:
 */
 
-#endif
