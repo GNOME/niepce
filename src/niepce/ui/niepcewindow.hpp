@@ -19,69 +19,42 @@
 
 #pragma once
 
-#include <giomm/simpleactiongroup.h>
-#include <gtkmm/treemodel.h>
-#include <gtkmm/box.h>
-#include <gtkmm/statusbar.h>
-#include <gtkmm/paned.h>
+#include <memory>
 
-#include "fwk/toolkit/appframe.hpp"
-#include "fwk/toolkit/configdatabinder.hpp"
-#include "ui/moduleshell.hpp"
-#include "ui/workspacecontroller.hpp"
-#include "ui/selectioncontroller.hpp"
-#include "ui/filmstripcontroller.hpp"
-#include "dialogs/editlabels.hpp"
+#include <gtkmm/widget.h>
+
+#include "fwk/base/debug.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace ui {
 
-class NiepceWindow
-    : public fwk::AppFrame
+class NiepceWindow_2
+    : public fwk::Frame
 {
 public:
-    NiepceWindow();
-    virtual ~NiepceWindow();
-
-
-    virtual void set_title(const std::string & title) override;
-
-    libraryclient::LibraryClientPtr getLibraryClient() const
-        { return m_libClient; }
-    const fwk::ConfigurationPtr& getLibraryConfig() const
-        { return m_library_cfg; }
-
+    NiepceWindow_2(::rust::Box<npc::NiepceWindowWrapper>&& wrapper)
+        : Frame(Glib::wrap((GtkWindow*)wrapper->window(), "mainWindow-frame"))
+        , m_wrapper(std::move(wrapper)) {}
 protected:
-    virtual Gtk::Widget * buildWidget() override;
+    virtual Gtk::Widget* buildWidget() override
+    {
+        DBG_OUT("wrapper buildWidget");
+        auto w = Gtk::manage(Glib::wrap((GtkWidget*)m_wrapper->widget()));
+        m_wrapper->on_open_catalog();
+        return w;
+    }
+    virtual void on_ready() override
+    {
+        gtkWindow().show();
+        m_wrapper->on_ready();
+    }
+    virtual Glib::RefPtr<Gio::Menu> get_menu() const override
+    {
+        return Glib::RefPtr<Gio::Menu>(Glib::wrap((GMenu*)m_wrapper->menu()));
+    }
 private:
-    void on_open_library();
-    void on_action_edit_labels();
-    void on_action_edit_delete();
-
-    void create_initial_labels();
-    void on_lib_notification(const eng::LibNotification & n);
-
-    void init_actions();
-
-    // UI to open library
-    void prompt_open_library();
-    // open the library
-    // @return false if error.
-    bool open_library(const std::string & libMoniker);
-
-    void _createModuleShell();
-
-    npc::NotificationCenterPtr m_notifcenter;
-    ModuleShell::Ptr               m_moduleshell; // the main views stacked.
-
-    Gtk::Box                       m_vbox;
-    Gtk::Paned                     m_hbox;
-    Glib::RefPtr<Gio::Menu>        m_main_menu;
-    WorkspaceController::Ptr       m_workspacectrl;
-    FilmStripController::Ptr       m_filmstrip;
-    Gtk::Statusbar                 m_statusBar;
-    EditLabels::Ptr m_editlabel_dialog;
-    libraryclient::LibraryClientPtr m_libClient;
-    fwk::ConfigurationPtr m_library_cfg;
+    ::rust::Box<npc::NiepceWindowWrapper> m_wrapper;
 };
 
 }

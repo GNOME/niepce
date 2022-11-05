@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
+
 #pragma once
 
 #include <gtkmm/widget.h>
@@ -24,9 +26,9 @@
 
 #include "fwk/toolkit/controller.hpp"
 #include "fwk/toolkit/mapcontroller.hpp"
-#include "engine/db/libfile.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
-#include "niepce/ui/imoduleshell.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace mapm {
 
@@ -34,17 +36,15 @@ class MapModule
     : public ui::ILibraryModule
 {
 public:
-    typedef std::shared_ptr<MapModule> Ptr;
-
-    MapModule(const ui::IModuleShell & shell);
+    MapModule();
 
     /* ILibraryModule */
     virtual void dispatch_action(const std::string & action_name) override;
-    virtual void set_active(bool active) override;
+    virtual void set_active(bool active) const override;
     virtual Glib::RefPtr<Gio::MenuModel> getMenu() override
         { return Glib::RefPtr<Gio::MenuModel>(); }
 
-    void on_lib_notification(const eng::LibNotification &ln);
+    void on_lib_notification(const eng::LibNotification &ln) const;
 
 protected:
     virtual Gtk::Widget * buildWidget() override;
@@ -52,13 +52,17 @@ protected:
 private:
     void on_selected(eng::library_id_t id);
 
-    const ui::IModuleShell &     m_shell;
     Gtk::Box*                    m_box;
     fwk::MapController::Ptr           m_map;
 
     // state
-    bool                         m_active;
+    mutable bool m_active;
 };
+
+inline
+std::shared_ptr<MapModule> map_module_new() {
+    return std::make_shared<MapModule>();
+}
 
 }
 /*
@@ -70,3 +74,5 @@ private:
   fill-column:80
   End:
 */
+
+#endif

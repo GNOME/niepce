@@ -55,6 +55,8 @@ public:
     void run_modal(const Frame::Ptr& parent, std::function<void(int)> on_ok = [](int){});
 protected:
     virtual Gtk::Widget *buildWidget() override;
+    void run_modal_(GtkWindow* parent, std::function<void(int)> on_ok) const;
+    void run_modal_(Gtk::Window& parent, std::function<void(int)> on_ok);
 
     bool m_is_setup;
 };

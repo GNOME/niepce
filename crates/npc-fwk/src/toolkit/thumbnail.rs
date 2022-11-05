@@ -39,6 +39,21 @@ pub struct Thumbnail {
     colorspace: Colorspace,
 }
 
+impl std::fmt::Debug for Thumbnail {
+    // implemented manually to skip dumping all the bytes.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        f.debug_struct("Thumbnail")
+            .field("bytes.len()", &self.bytes.len())
+            .field("width", &self.width)
+            .field("height", &self.height)
+            .field("stride", &self.stride)
+            .field("bits_per_sample", &self.bits_per_sample)
+            .field("has_alpha", &self.has_alpha)
+            .field("colorspace", &self.colorspace)
+            .finish()
+    }
+}
+
 impl Default for Thumbnail {
     fn default() -> Self {
         Self {

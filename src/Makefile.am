@@ -8,7 +8,6 @@ RUST_SOURCES = \
 	@top_srcdir@/Cargo.toml \
 	@top_srcdir@/Cargo.lock \
 	@top_srcdir@/crates/npc-engine/Cargo.toml \
-	@top_srcdir@/crates/npc-engine/build.rs \
 	@top_srcdir@/crates/npc-engine/src/db.rs \
 	@top_srcdir@/crates/npc-engine/src/db/filebundle.rs \
 	@top_srcdir@/crates/npc-engine/src/db/fsfile.rs \
@@ -40,15 +39,20 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/toolkit.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/clickable_cell_renderer.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/configuration.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/controller.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/gdk_utils.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/gtk_utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/mimetype.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/movieutils.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/thumbnail.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/uicontroller.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/undo.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/metadata_widget.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/rating_label.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/token_text_view.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/widgets/toolbox_item.rs \
+	@top_srcdir@/crates/npc-fwk/src/toolkit/window_controller.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils/exempi.rs \
 	@top_srcdir@/crates/npc-fwk/src/utils/exiv2.rs \
@@ -56,22 +60,34 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/build.rs \
 	@top_srcdir@/niepce-main/Cargo.toml \
 	@top_srcdir@/niepce-main/examples/widget-test.rs \
+	@top_srcdir@/niepce-main/src/import/mod.rs \
 	@top_srcdir@/niepce-main/src/lib.rs \
 	@top_srcdir@/niepce-main/src/libraryclient.rs \
 	@top_srcdir@/niepce-main/src/libraryclient/clientimpl.rs \
 	@top_srcdir@/niepce-main/src/libraryclient/clientinterface.rs \
 	@top_srcdir@/niepce-main/src/libraryclient/ui_data_provider.rs \
+	@top_srcdir@/niepce-main/src/modules/mod.rs \
+	@top_srcdir@/niepce-main/src/modules/map.rs \
 	@top_srcdir@/niepce-main/src/niepce.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/film_strip_controller.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/grid_view_module.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/imagetoolbar.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_grid_view.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_list_store.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/image_selectable.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/confirm.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/selection_controller.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_nav.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/library_cell_renderer.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/library_module.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/module_shell.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/module_shell_widget.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/niepce_window.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_strip_view.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/workspace_controller.rs \
 	@top_srcdir@/niepce-main/src/notification_center.rs \
 	$(NULL)
 

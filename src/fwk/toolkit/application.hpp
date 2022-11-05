@@ -26,7 +26,6 @@
 #include <gtkmm/icontheme.h>
 
 #include "fwk/toolkit/appframe.hpp"
-#include "fwk/toolkit/undo.hpp"
 
 #include "rust_bindings.hpp"
 
@@ -47,7 +46,7 @@ public:
     virtual void set_use_dark_theme(bool value);
 
     // MUST set m_main_frame
-    virtual AppFrame::Ptr makeMainFrame() = 0;
+    virtual Frame::Ptr makeMainFrame() = 0;
     const Glib::RefPtr<Gtk::Application> & gtkApp() const
         { return m_gtkapp; }
 
@@ -67,9 +66,11 @@ public:
     static int main(const Application::Ptr & app,
                     int argc, char **argv);
 
-    UndoHistory & undo_history()
-        { return m_undo; }
-    std::shared_ptr<UndoTransaction> begin_undo(const std::string & label);
+    UndoHistory& undo_history()
+        { return *m_undo; }
+    const UndoHistory& undo_history() const
+        { return *m_undo; }
+    void begin_undo(rust::Box<UndoTransaction>) const;
 
     // Module management
     /** @return the module manager
@@ -87,15 +88,15 @@ protected:
 
     void init_actions();
 
-    const AppFrame::Ptr get_main_frame() const
-        { return AppFrame::Ptr(m_main_frame); }
+    const Frame::Ptr get_main_frame() const
+        { return Frame::Ptr(m_main_frame); }
     /** bound the the GtkApplication startup signal */
     void on_startup();
 
-    AppFrame::WeakPtr            m_main_frame;
+    Frame::WeakPtr            m_main_frame;
 private:
     ConfigurationPtr m_config;
-    UndoHistory                  m_undo;
+    rust::Box<UndoHistory> m_undo;
     ModuleManager               *m_module_manager;
     Glib::RefPtr<Gtk::Application> m_gtkapp;
 };

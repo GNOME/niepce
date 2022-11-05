@@ -21,7 +21,7 @@ use crate::db::libfile::LibFile;
 use crate::db::LibraryId;
 
 /// Queried content to pass a list of LibFile and the id of the container.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct QueriedContent {
     pub id: LibraryId,
     pub content: Vec<LibFile>,

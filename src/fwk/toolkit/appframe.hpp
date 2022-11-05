@@ -40,7 +40,7 @@ public:
     {
       return dynamic_cast<Gtk::ApplicationWindow*>(&gtkWindow());
     }
-  Glib::RefPtr<Gio::Menu> get_menu() const
+  virtual Glib::RefPtr<Gio::Menu> get_menu() const override
     { return m_menu; }
 
 protected:

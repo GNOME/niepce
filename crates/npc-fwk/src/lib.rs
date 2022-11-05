@@ -49,12 +49,13 @@ use gdk_pixbuf_sys::GdkPixbuf;
 use glib::translate::*;
 
 use crate::base::date::Date;
-use crate::base::propertyvalue::property_value_new_int;
 use crate::base::rgbcolour::RgbColour;
 use crate::base::{moniker_from, Moniker};
+use crate::toolkit::cxx::*;
 use crate::toolkit::thumbnail::Thumbnail;
+use crate::toolkit::widgets::cxx::*;
 use crate::toolkit::widgets::MetadataWidget;
-use crate::toolkit::Configuration;
+use crate::toolkit::{Configuration, UndoCommand, UndoHistory, UndoTransaction};
 use crate::utils::files::FileList;
 
 fn make_config_path(file: &str) -> String {
@@ -232,8 +233,6 @@ pub mod ffi {
     extern "Rust" {
         type PropertyValue;
 
-        fn property_value_new_int(v: i32) -> Box<PropertyValue>;
-
         fn is_empty(&self) -> bool;
         fn is_string(&self) -> bool;
         #[cxx_name = "get_string"]
@@ -258,6 +257,8 @@ pub mod ffi {
         #[cxx_name = "set_data_source"]
         fn set_data_source_wrapped(&self, properties: &WrappedPropertyBag);
         fn set_data_source_none(&self);
+        fn wrapped_property_bag_clone(bag: &WrappedPropertyBag) -> *mut WrappedPropertyBag;
+        unsafe fn wrapped_property_bag_drop(bag: *mut WrappedPropertyBag);
     }
 
     extern "Rust" {
@@ -266,5 +267,89 @@ pub mod ffi {
         #[cxx_name = "Moniker_from"]
         fn moniker_from(v: &str) -> Box<Moniker>;
         fn path(&self) -> &str;
+    }
+
+    unsafe extern "C++" {
+        include!("fwk/toolkit/undo.hpp");
+        type UndoListener;
+
+        fn call(&self);
+    }
+
+    unsafe extern "C++" {
+        type UndoFnInt;
+
+        fn call(&self, v: i64);
+    }
+
+    unsafe extern "C++" {
+        type RedoFnInt;
+
+        fn call(&self) -> i64;
+    }
+
+    unsafe extern "C++" {
+        type UndoFnVoid;
+
+        fn call(&self);
+    }
+
+    unsafe extern "C++" {
+        type RedoFnVoid;
+
+        fn call(&self);
+    }
+
+    extern "Rust" {
+        type UndoCommand;
+
+        #[cxx_name = "UndoCommand_new"]
+        pub fn undo_command_new(
+            redo_fn: UniquePtr<RedoFnVoid>,
+            undo_fn: UniquePtr<UndoFnVoid>,
+        ) -> Box<UndoCommand>;
+        #[cxx_name = "UndoCommand_new_int"]
+        pub fn undo_command_new_int(
+            redo_fn: UniquePtr<RedoFnInt>,
+            undo_fn: UniquePtr<UndoFnInt>,
+        ) -> Box<UndoCommand>;
+    }
+
+    extern "Rust" {
+        type UndoTransaction;
+
+        #[cxx_name = "UndoTransaction_new"]
+        fn undo_transaction_new(name: &str) -> Box<UndoTransaction>;
+        #[cxx_name = "add"]
+        fn add_(&mut self, command: Box<UndoCommand>);
+        fn is_empty(&self) -> bool;
+        fn execute(&self);
+    }
+
+    extern "Rust" {
+        type UndoHistory;
+
+        #[cxx_name = "UndoHistory_new"]
+        fn undo_history_new() -> Box<UndoHistory>;
+        #[cxx_name = "add"]
+        fn add_(&mut self, transaction: Box<UndoTransaction>);
+        fn has_redo(&self) -> bool;
+        fn next_redo(&self) -> String;
+        fn redo(&mut self);
+        fn has_undo(&self) -> bool;
+        fn next_undo(&self) -> String;
+        fn undo(&mut self);
+
+        fn add_listener(&self, listener: UniquePtr<UndoListener>);
+    }
+
+    unsafe extern "C++" {
+        include!("fwk/toolkit/application.hpp");
+        type Application;
+
+        fn Application_app() -> SharedPtr<Application>;
+        fn config(&self) -> &SharedPtr<SharedConfiguration>;
+        fn undo_history(&self) -> &UndoHistory;
+        fn begin_undo(&self, undo: Box<UndoTransaction>);
     }
 }

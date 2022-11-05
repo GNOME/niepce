@@ -30,20 +30,16 @@
 
 namespace dr {
 
-DarkroomModule::DarkroomModule(const ui::IModuleShell & shell)
-    : m_shell(shell)
-    , m_dr_splitview(Gtk::Orientation::HORIZONTAL)
+DarkroomModule::DarkroomModule()
+    : m_dr_splitview(Gtk::Orientation::HORIZONTAL)
     , m_vbox(Gtk::Orientation::VERTICAL)
     , m_image(new ncr::Image)
     , m_active(false)
     , m_need_reload(true)
 {
-    m_shell.get_selection_controller()->signal_selected.connect([this] (eng::library_id_t id) {
-        this->on_selected(id);
-    });
 }
 
-void DarkroomModule::reload_image()
+void DarkroomModule::reload_image() const
 {
     if(!m_need_reload) {
         return;
@@ -67,9 +63,13 @@ void DarkroomModule::reload_image()
     m_need_reload = false;
 }
 
-void DarkroomModule::set_image(std::optional<eng::LibFilePtr>&& file)
+void DarkroomModule::set_image(eng::LibFile* file) const
 {
-    m_imagefile = std::move(file);
+    if (file) {
+        m_imagefile = std::optional(rust::Box<eng::LibFile>::from_raw(file));
+    } else {
+        m_imagefile = std::nullopt;
+    }
     m_need_reload = true;
 
     if (m_need_reload && m_active) {
@@ -82,7 +82,7 @@ void DarkroomModule::dispatch_action(const std::string & /*action_name*/)
 }
 
 
-void DarkroomModule::set_active(bool active)
+void DarkroomModule::set_active(bool active) const
 {
     m_active = active;
     if(active) {
@@ -126,13 +126,6 @@ Gtk::Widget * DarkroomModule::buildWidget()
     m_dock->vbox().append(*m_toolbox_ctrl->buildWidget());
 
     return m_widget;
-}
-
-void DarkroomModule::on_selected(eng::library_id_t id)
-{
-    auto file = m_shell.get_selection_controller()->get_file(id);
-    DBG_OUT("selection is %ld", id);
-    set_image(std::move(file));
 }
 
 }

@@ -19,11 +19,28 @@
 
 pub mod clickable_cell_renderer;
 mod configuration;
+mod controller;
 pub mod gdk_utils;
+pub mod gtk_utils;
 pub mod mimetype;
 pub mod movieutils;
 pub mod thumbnail;
+mod uicontroller;
+mod undo;
 pub mod widgets;
+mod window_controller;
+
+/// Module to re-export cxx only.
+pub mod cxx {
+    pub use super::undo::{
+        undo_command_new, undo_command_new_int, undo_history_new, undo_transaction_new,
+    };
+}
+
+pub use controller::{new_controller, to_controller, Controller, ControllerImpl};
+pub use uicontroller::UiController;
+pub use undo::{Storage, UndoCommand, UndoHistory, UndoTransaction};
+pub use window_controller::{create_redo_action, create_undo_action, WindowController};
 
 pub use configuration::Configuration;
 

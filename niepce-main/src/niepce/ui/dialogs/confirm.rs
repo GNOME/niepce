@@ -17,27 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use glib::translate::*;
 use gtk4::prelude::*;
 use gtk4::MessageDialog;
 
-/// # Safety
-/// Use raw pointers.
-pub unsafe fn dialog_confirm(
-    message: &str,
-    parent: *mut crate::ffi::GtkWindow,
-) -> *mut crate::ffi::GtkMessageDialog {
-    let parent = gtk4::Window::from_glib_none(parent as *mut gtk4_sys::GtkWindow);
+pub fn request(msg: &str, parent: Option<&gtk4::Window>) -> gtk4::MessageDialog {
     let dialog = MessageDialog::new(
-        Some(&parent),
+        parent,
         gtk4::DialogFlags::MODAL,
         gtk4::MessageType::Question,
         gtk4::ButtonsType::YesNo,
-        message,
+        msg,
     );
 
     dialog.set_modal(true);
-
-    let d: *mut gtk4_sys::GtkMessageDialog = dialog.to_glib_none().0;
-    d as *mut crate::ffi::GtkMessageDialog
+    dialog
 }

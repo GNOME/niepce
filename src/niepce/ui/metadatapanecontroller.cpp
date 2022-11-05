@@ -25,14 +25,13 @@
 
 #include "fwk/base/debug.hpp"
 #include "engine/db/properties.hpp"
-#include "engine/db/libmetadata.hpp"
 #include "metadatapanecontroller.hpp"
 
 #include "rust_bindings.hpp"
 
 namespace ui {
 
-using ffi::NiepcePropertyIdx;
+using eng::NiepcePropertyIdx;
 
 const fwk::PropertySet* MetaDataPaneController::get_property_set()
 {
@@ -76,9 +75,9 @@ MetaDataPaneController::metadata_changed_cb(GtkWidget*, const fwk::WrappedProper
 {
     self->on_metadata_changed(
         fwk::wrapped_property_bag_wrap(
-            ffi::fwk_wrapped_property_bag_clone(props)),
+            fwk::wrapped_property_bag_clone(*props)),
         fwk::wrapped_property_bag_wrap(
-            ffi::fwk_wrapped_property_bag_clone(old_props)));
+            fwk::wrapped_property_bag_clone(*old_props)));
 }
 
 Gtk::Widget *
@@ -121,20 +120,31 @@ void MetaDataPaneController::display(eng::library_id_t file_id, const eng::LibMe
 {
     m_fileid = file_id;
     DBG_OUT("displaying metadata");
-    fwk::WrappedPropertyBagPtr properties;
     if (meta) {
         const fwk::PropertySet* propset = get_property_set();
-        properties = eng::libmetadata_to_wrapped_properties(meta, *propset);
-    }
-    for (const auto& w : m_widgets) {
-        if (properties) {
+        auto properties = rust::Box<fwk::WrappedPropertyBag>::from_raw(meta->to_wrapped_properties(*propset));
+        for (const auto& w : m_widgets) {
             w.first->set_data_source(*properties);
-        } else {
+        }
+    } else {
+        for (const auto& w : m_widgets) {
             w.first->set_data_source_none();
         }
     }
 }
 
+}
+
+// Required because this is implemented as an extern C++ type
+// So we have to specialise.
+namespace rust{
+namespace cxxbridge1 {
+template <>
+void Box<::fwk::WrappedPropertyBag>::drop() noexcept {
+    fwk::wrapped_property_bag_drop(this->ptr);
+}
+
+}
 }
 
 /*

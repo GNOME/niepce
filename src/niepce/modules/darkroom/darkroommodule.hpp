@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
+
 #pragma once
 
 #include <optional>
@@ -30,9 +32,8 @@
 #include "engine/db/libfile.hpp"
 #include "ncr/image.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
-#include "niepce/ui/imoduleshell.hpp"
-#include "modules/darkroom/imagecanvas.hpp"
-#include "modules/darkroom/toolboxcontroller.hpp"
+#include "niepce/modules/darkroom/imagecanvas.hpp"
+#include "niepce/modules/darkroom/toolboxcontroller.hpp"
 
 namespace fwk {
 class Dock;
@@ -44,28 +45,23 @@ class DarkroomModule
     : public ui::ILibraryModule
 {
 public:
-    typedef std::shared_ptr<DarkroomModule> Ptr;
+    DarkroomModule();
 
-    DarkroomModule(const ui::IModuleShell & shell);
-
-    void set_image(std::optional<eng::LibFilePtr>&& file);
+    void set_image(eng::LibFile* file) const;
 
     virtual void dispatch_action(const std::string & action_name) override;
 
-    virtual void set_active(bool active) override;
+    virtual void set_active(bool active) const override;
 
     virtual Glib::RefPtr<Gio::MenuModel> getMenu() override
         { return Glib::RefPtr<Gio::MenuModel>(); }
 
 protected:
-    void reload_image();
+    void reload_image() const;
 
     virtual Gtk::Widget * buildWidget() override;
 
 private:
-    void on_selected(eng::library_id_t id);
-
-    const ui::IModuleShell &     m_shell;
     // darkroom split view
     Gtk::Paned                   m_dr_splitview;
     Gtk::Box                     m_vbox;
@@ -73,14 +69,19 @@ private:
     Gtk::ScrolledWindow          m_canvas_scroll;
     ToolboxController::Ptr       m_toolbox_ctrl;
     Glib::RefPtr<Gio::ActionGroup> m_actionGroup;
-    std::optional<eng::LibFilePtr> m_imagefile;
+    mutable std::optional<eng::LibFilePtr> m_imagefile;
     ncr::Image::Ptr              m_image;
     fwk::Dock                   *m_dock;
 
     // state
-    bool                         m_active;
-    bool                         m_need_reload;
+    mutable bool m_active;
+    mutable bool m_need_reload;
 };
+
+inline
+std::shared_ptr<DarkroomModule> darkroom_module_new() {
+    return std::make_shared<DarkroomModule>();
+}
 
 }
 /*
@@ -92,3 +93,5 @@ private:
   fill-column:80
   End:
 */
+
+#endif

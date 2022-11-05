@@ -34,12 +34,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use self::clientimpl::ClientImpl;
-use npc_engine::db::library::Managed;
 use npc_engine::db::LibraryId;
-use npc_engine::db::{NiepceProperties, NiepcePropertyIdx};
 use npc_engine::library::notification::{LcChannel, LibNotification};
-use npc_fwk::base::PropertyValue;
-use npc_fwk::utils::files::FileList;
 
 /// Wrap the libclient Arc so that it can be passed around
 /// Used in the ffi for example.
@@ -62,6 +58,14 @@ impl LibraryClientWrapper {
     ) -> LibraryClientWrapper {
         LibraryClientWrapper {
             client: Arc::new(LibraryClient::new(dir, sender)),
+        }
+    }
+
+    /// Re-wrap the LibraryClient
+    // cxx
+    pub fn wrap(client: &Arc<LibraryClient>) -> Self {
+        LibraryClientWrapper {
+            client: client.clone(),
         }
     }
 
@@ -103,105 +107,11 @@ impl LibraryClient {
 }
 
 #[no_mangle]
-pub extern "C" fn libraryclient_set_trash_id(client: &LibraryClientWrapper, id: LibraryId) {
-    client.set_trash_id(id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_get_trash_id(client: &LibraryClientWrapper) -> LibraryId {
-    client.get_trash_id()
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_get_all_keywords(client: &LibraryClientWrapper) {
-    client.get_all_keywords();
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_get_all_folders(client: &LibraryClientWrapper) {
-    client.get_all_folders();
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_query_folder_content(
-    client: &LibraryClientWrapper,
-    folder_id: LibraryId,
-) {
-    client.query_folder_content(folder_id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_delete_folder(client: &LibraryClientWrapper, id: LibraryId) {
-    client.delete_folder(id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_count_folder(client: &LibraryClientWrapper, folder_id: LibraryId) {
-    client.count_folder(folder_id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_query_keyword_content(
-    client: &LibraryClientWrapper,
-    keyword_id: LibraryId,
-) {
-    client.query_keyword_content(keyword_id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_count_keyword(client: &LibraryClientWrapper, id: LibraryId) {
-    client.count_keyword(id);
-}
-
-#[no_mangle]
 pub extern "C" fn libraryclient_request_metadata(
     client: &LibraryClientWrapper,
     file_id: LibraryId,
 ) {
     client.request_metadata(file_id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_set_metadata(
-    client: &LibraryClientWrapper,
-    file_id: LibraryId,
-    meta: NiepcePropertyIdx,
-    value: &PropertyValue,
-) {
-    client.set_metadata(file_id, NiepceProperties::Index(meta), value);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_write_metadata(client: &LibraryClientWrapper, file_id: LibraryId) {
-    client.write_metadata(file_id);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_move_file_to_folder(
-    client: &LibraryClientWrapper,
-    file_id: LibraryId,
-    from: LibraryId,
-    to: LibraryId,
-) {
-    client.move_file_to_folder(file_id, from, to);
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_get_all_labels(client: &LibraryClientWrapper) {
-    client.get_all_labels();
-}
-
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn libraryclient_create_label(
-    client: &LibraryClientWrapper,
-    s: *const c_char,
-    c: *const c_char,
-) {
-    let name = CStr::from_ptr(s).to_string_lossy();
-    let colour = CStr::from_ptr(c).to_string_lossy();
-    client.create_label(String::from(name), String::from(colour));
 }
 
 /// # Safety
@@ -234,25 +144,4 @@ pub unsafe extern "C" fn libraryclient_update_label(
     let name = CStr::from_ptr(s).to_string_lossy();
     let colour = CStr::from_ptr(c).to_string_lossy();
     client.update_label(label_id, String::from(name), String::from(colour));
-}
-
-#[no_mangle]
-pub extern "C" fn libraryclient_process_xmp_update_queue(
-    client: &LibraryClientWrapper,
-    write_xmp: bool,
-) {
-    client.process_xmp_update_queue(write_xmp);
-}
-
-/// # Safety
-/// Dereference a pointer.
-#[no_mangle]
-pub unsafe extern "C" fn libraryclient_import_files(
-    client: &LibraryClientWrapper,
-    dir: *const c_char,
-    files: &FileList,
-    manage: Managed,
-) {
-    let folder = CStr::from_ptr(dir).to_string_lossy();
-    client.import_files(String::from(folder), files.0.clone(), manage);
 }

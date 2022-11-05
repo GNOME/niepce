@@ -32,7 +32,6 @@ typedef uint32_t PropertyIndex;
 typedef std::shared_ptr<WrappedPropertyBag> WrappedPropertyBagPtr;
 
 WrappedPropertyBagPtr wrapped_property_bag_wrap(WrappedPropertyBag* bag);
-PropertyValuePtr wrapped_property_bag_value(const WrappedPropertyBagPtr& bag, PropertyIndex key);
 }
 
 /*

@@ -18,6 +18,7 @@
  */
 
 /// URL like spec with a `scheme`:`path`.
+#[derive(Debug)]
 pub struct Moniker {
     scheme: String,
     path: String,
@@ -28,6 +29,12 @@ use cxx::{type_id, ExternType};
 unsafe impl ExternType for Moniker {
     type Id = type_id!("fwk::Moniker");
     type Kind = cxx::kind::Opaque;
+}
+
+impl From<&String> for Moniker {
+    fn from(v: &String) -> Moniker {
+        Moniker::from(v.as_str())
+    }
 }
 
 impl From<&str> for Moniker {

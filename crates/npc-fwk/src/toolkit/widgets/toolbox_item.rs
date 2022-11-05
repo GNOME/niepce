@@ -53,9 +53,6 @@ pub trait ToolboxItemExt {
 impl ToolboxItemExt for ToolboxItem {
     fn set_child(&self, child: Option<&impl IsA<gtk4::Widget>>) {
         self.imp().expander.set_child(child);
-        if let Some(child) = child {
-            child.set_vexpand(true);
-        }
     }
 }
 

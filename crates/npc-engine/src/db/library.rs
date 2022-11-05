@@ -27,7 +27,7 @@ use chrono::Utc;
 use rusqlite::{functions::FunctionFlags, params};
 
 use super::props::NiepceProperties as Np;
-use super::props::NiepcePropertyIdx::*;
+use super::NiepcePropertyIdx as Npi;
 use super::{FromDb, LibraryId};
 use crate::db::filebundle::{FileBundle, Sidecar};
 use crate::db::keyword::Keyword;
@@ -42,12 +42,7 @@ use npc_fwk::toolkit;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_assert, dbg_out, err_out};
 
-#[repr(i32)]
-#[derive(PartialEq, Clone, Copy, Eq)]
-pub enum Managed {
-    NO = 0,
-    YES = 1,
-}
+pub use crate::ffi::Managed;
 
 const DB_SCHEMA_VERSION: i32 = 10;
 const DATABASENAME: &str = "niepcelibrary.db";
@@ -904,19 +899,19 @@ impl Library {
     ) -> Result<()> {
         #[allow(non_upper_case_globals)]
         match meta {
-            Np::Index(NpXmpRatingProp)
-            | Np::Index(NpXmpLabelProp)
-            | Np::Index(NpTiffOrientationProp)
-            | Np::Index(NpNiepceFlagProp) => {
+            Np::Index(Npi::NpXmpRatingProp)
+            | Np::Index(Npi::NpXmpLabelProp)
+            | Np::Index(Npi::NpTiffOrientationProp)
+            | Np::Index(Npi::NpNiepceFlagProp) => {
                 match *value {
                     PropertyValue::Int(i) => {
                         // internal
                         // make the column mapping more generic.
                         let column = match meta {
-                            Np::Index(NpXmpRatingProp) => "rating",
-                            Np::Index(NpXmpLabelProp) => "label",
-                            Np::Index(NpTiffOrientationProp) => "orientation",
-                            Np::Index(NpNiepceFlagProp) => "flag",
+                            Np::Index(Npi::NpXmpRatingProp) => "rating",
+                            Np::Index(Npi::NpXmpLabelProp) => "label",
+                            Np::Index(Npi::NpTiffOrientationProp) => "orientation",
+                            Np::Index(Npi::NpNiepceFlagProp) => "flag",
                             _ => unreachable!(),
                         };
                         if !column.is_empty() {
@@ -926,7 +921,7 @@ impl Library {
                     _ => err_out!("improper value type for {:?}", meta),
                 }
             }
-            Np::Index(NpIptcKeywordsProp) => {
+            Np::Index(Npi::NpIptcKeywordsProp) => {
                 self.unassign_all_keywords_for_file(file_id)?;
 
                 match *value {

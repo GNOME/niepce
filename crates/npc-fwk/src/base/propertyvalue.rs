@@ -90,7 +90,3 @@ impl PropertyValue {
         }
     }
 }
-
-pub fn property_value_new_int(v: i32) -> Box<PropertyValue> {
-    Box::new(PropertyValue::Int(v))
-}

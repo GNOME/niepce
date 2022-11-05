@@ -19,87 +19,83 @@
 
 #pragma once
 
-#include <list>
-#include <stack>
-#include <string>
-#include <memory>
-
-#include <sigc++/signal.h>
-#include <sigc++/trackable.h>
-
-#include "fwk/toolkit/command.hpp"
-#include "fwk/base/util.hpp"
+#include <functional>
 
 namespace fwk {
 
-
-class UndoTransaction
-{
+class UndoListener {
 public:
-    NON_COPYABLE(UndoTransaction);
+  typedef std::function<void ()> function_t;
 
-    UndoTransaction(const std::string & n);
-    ~UndoTransaction();
+  UndoListener(function_t&& f)
+    : m_f(f)
+  {}
+  void call() const
+  {
+    m_f();
+  }
 
-    template <typename _RetType>
-    std::shared_ptr<Command> new_command(
-        const typename CommandWithArg<_RetType>::RedoFunction&,
-        const typename CommandWithArg<_RetType>::UndoFunction&);
-    void undo();
-    void redo();
-    /** execute the transaction after adding it. (calls %undo) */
-    void execute()
-        { redo(); }
-    const std::string & name() const
-        { return m_name; }
-protected:
-    /** add the command. Use %new_command instead */
-    void add(const std::shared_ptr<Command>&);
 private:
-    std::list<std::shared_ptr<Command>> m_operations;
-    std::string m_name;
+  function_t m_f;
 };
 
-template <typename _ArgType>
-std::shared_ptr<Command> UndoTransaction::new_command(
-    const typename CommandWithArg<_ArgType>::RedoFunction & _redo,
-    const typename CommandWithArg<_ArgType>::UndoFunction & _undo)
-{
-    auto cmd = std::make_shared<CommandWithArg<_ArgType>>(_redo, _undo);
-    add(cmd);
-    return cmd;
-}
-
-
-class UndoHistory
-    : public sigc::trackable
-{
+template<class T>
+class UndoFn {
 public:
-    NON_COPYABLE(UndoHistory);
+    typedef std::function<void (T)> function_t;
 
-    UndoHistory() {}
-    ~UndoHistory();
+    UndoFn(function_t&& f)
+        : m_f(f)
+        {}
+    void call(T v) const
+        {
+            m_f(v);
+        }
 
-    /** the history becomes owner */
-    void add(const std::shared_ptr<UndoTransaction>&);
-    void undo();
-    void redo();
-    void clear();
-    bool has_undo() const
-        { return !m_undos.empty(); }
-    bool has_redo() const
-        { return !m_redos.empty(); }
-    std::string next_undo() const;
-    std::string next_redo() const;
-
-    // called when the undo history change.
-    sigc::signal<void(void)> signal_changed;
 private:
-    std::list<std::shared_ptr<UndoTransaction>> m_undos;
-    std::list<std::shared_ptr<UndoTransaction>> m_redos;
+    function_t m_f;
 };
 
+template<>
+class UndoFn<void> {
+public:
+    typedef std::function<void ()> function_t;
+
+    UndoFn<void>(function_t&& f)
+        : m_f(f)
+        {}
+    void call() const
+        {
+            m_f();
+        }
+
+private:
+    function_t m_f;
+};
+
+template<class T>
+class RedoFn {
+public:
+  typedef std::function<T ()> function_t;
+
+  RedoFn(function_t&& f)
+    : m_f(f)
+  {}
+  T call() const
+  {
+    return m_f();
+  }
+
+private:
+  function_t m_f;
+};
+
+typedef RedoFn<int64_t> RedoFnInt;
+typedef UndoFn<int64_t> UndoFnInt;
+typedef RedoFn<void> RedoFnVoid;
+typedef UndoFn<void> UndoFnVoid;
 }
+
 /*
   Local Variables:
   mode:c++

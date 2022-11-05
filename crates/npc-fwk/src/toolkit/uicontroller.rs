@@ -1,7 +1,7 @@
 /*
- * niepce - db/libmetadata.cpp
+ * niepce - crates/npc-fwk/src/toolkit/uicontroller.rs
  *
- * Copyright (C) 2008-2022 Hubert Figuière
+ * Copyright (C) 2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "libmetadata.hpp"
+use super::Controller;
 
-namespace eng {
-
-fwk::WrappedPropertyBagPtr libmetadata_to_wrapped_properties(const LibMetadata* meta,
-                                              const fwk::PropertySet& propset)
-{
-    return fwk::wrapped_property_bag_wrap(ffi::engine_libmetadata_to_wrapped_properties(meta, &propset));
+/// UI Controller
+pub trait UiController: Controller {
+    /// Get the widget. Will lazy load it.
+    fn widget(&self) -> &gtk4::Widget;
+    /// Get the action group if any. Lazy loaded
+    fn actions(&self) -> Option<(&str, &gio::ActionGroup)>;
 }
-
-}
-
-/*
-  Local Variables:
-  mode:c++
-  c-file-style:"stroustrup"
-  c-file-offsets:((innamespace . 0))
-  indent-tabs-mode:nil
-  fill-column:99
-  End:
-*/

@@ -41,7 +41,7 @@ impl From<FolderVirtualType> for i32 {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct LibFolder {
     id: LibraryId,
     /// Name of the folder

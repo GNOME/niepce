@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/niepcelibrarymodule.hpp
  *
- * Copyright (C) 2009-2014 Hubert Figuiere
+ * Copyright (C) 2009-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef __NIEPCE_UI_ILIBRARYMODULE_HPP_
-#define __NIEPCE_UI_ILIBRARYMODULE_HPP_
+#pragma once
 
 #include <string>
 #include <memory>
@@ -40,16 +38,12 @@ public:
   /** dispatch action by name to the controller */
   virtual void dispatch_action(const std::string & action_name) = 0;
 
-  /** called when the module is set activate or unactive 
+  /** called when the module is set activate or inactive
       @param active true if brought to the front, false if defocused.
    */
-  virtual void set_active(bool active) = 0;
+  virtual void set_active(bool active) const = 0;
   /** Get the module menu */
   virtual Glib::RefPtr<Gio::MenuModel> getMenu() = 0;
 };
 
-
 }
-
-
-#endif

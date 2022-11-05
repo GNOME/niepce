@@ -20,7 +20,7 @@
 use super::FromDb;
 use super::LibraryId;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Keyword {
     id: LibraryId,
     keyword: String,

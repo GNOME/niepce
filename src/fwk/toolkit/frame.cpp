@@ -114,9 +114,9 @@ void Frame::toggle_tools_visible()
 void Frame::undo_state()
 {
     DBG_ASSERT(static_cast<bool>(m_undo_action), "undo action is NULL");
-    fwk::UndoHistory & history(Application::app()->undo_history());
+    auto& history = Application::app()->undo_history();
     m_undo_action->set_enabled(history.has_undo());
-    std::string s = history.next_undo();
+    std::string s(history.next_undo());
 //    m_undo_action->property_label() = Glib::ustring(_("Undo ")) + s;
 }
 
@@ -124,9 +124,9 @@ void Frame::undo_state()
 void Frame::redo_state()
 {
     DBG_ASSERT(static_cast<bool>(m_redo_action), "redo action is NULL");
-    fwk::UndoHistory & history(Application::app()->undo_history());
+    auto& history = Application::app()->undo_history();
     m_redo_action->set_enabled(history.has_redo());
-    std::string s = history.next_redo();
+    std::string s(history.next_redo());
 //    m_redo_action->property_label() = Glib::ustring(_("Redo ")) + s;
 }
 
@@ -135,11 +135,14 @@ Glib::RefPtr<Gio::Action>
 Frame::create_undo_action(Gio::ActionMap* g)
 {
     m_undo_action = fwk::add_action(g, "Undo",
-                                    sigc::mem_fun(Application::app()->undo_history(),
-                                                  &UndoHistory::undo),
+                                    [] {
+                                        Application::app()->undo_history().undo();
+                                    },
                                     "win", "<control>Z");
-    Application::app()->undo_history().signal_changed.connect(
-        sigc::mem_fun(*this, &Frame::undo_state));
+    Application::app()->undo_history().add_listener(
+        std::make_unique<UndoListener>([this] {
+            this->undo_state();
+        }));
     undo_state();
     return m_undo_action;
 }
@@ -149,11 +152,14 @@ Glib::RefPtr<Gio::Action>
 Frame::create_redo_action(Gio::ActionMap* g)
 {
     m_redo_action = fwk::add_action(g, "Redo",
-                                    sigc::mem_fun(Application::app()->undo_history(),
-                                                  &UndoHistory::redo),
+                                    [] {
+                                        Application::app()->undo_history().redo();
+                                    },
                                     "win", "<control><shift>Z");
-    Application::app()->undo_history().signal_changed.connect(
-        sigc::mem_fun(*this, &Frame::redo_state));
+    Application::app()->undo_history().add_listener(
+        std::make_unique<UndoListener>([this] {
+            this->redo_state();
+        }));
     redo_state();
     return m_redo_action;
 }

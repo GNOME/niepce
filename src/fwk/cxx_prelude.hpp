@@ -16,13 +16,32 @@ class PropertyValue;
 class WrappedPropertyBag;
 class SharedConfiguration;
 typedef std::shared_ptr<SharedConfiguration> ConfigurationPtr;
+class UndoHistory;
+class UndoTransaction;
 }
 
 namespace eng {
 class Label;
 class LcChannel;
+class LibFile;
 class LibNotification;
 class ThumbnailCache;
+class IImporter;
+}
+
+namespace ui {
+class ModuleShell;
+class GridViewModule;
+class EditLabels;
+class ImportDialog;
+}
+
+namespace mapm {
+class MapModule;
+}
+
+namespace dr {
+class DarkroomModule;
 }
 
 typedef struct _GdkPixbuf GdkPixbuf;

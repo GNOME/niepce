@@ -26,6 +26,7 @@ use gtk4::prelude::*;
 use niepce_rust::niepce::ui::image_grid_view::ImageGridView;
 use niepce_rust::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
 use niepce_rust::niepce::ui::thumb_strip_view::ThumbStripView;
+use niepce_rust::niepce::ui::ModuleShellWidget;
 use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
 
@@ -74,17 +75,21 @@ pub fn main() {
         let box_ = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
         let rating = RatingLabel::new(3, true);
 
-        let image_grid = ImageGridView::new(model.upcast_ref::<gtk4::TreeModel>(), None);
-        (&image_grid).set_hexpand(true);
-        (&image_grid).set_vexpand(true);
-        box_.append(&rating);
-        let tb_item = npc_fwk::toolkit::widgets::ToolboxItem::new("Grid View");
-        tb_item.set_child(Some(image_grid.deref()));
+        let tb_item = npc_fwk::toolkit::widgets::ToolboxItem::new("Rating");
+        tb_item.set_child(Some(&rating));
         box_.append(&tb_item);
         box_.append(&thn);
 
+        let shell = ModuleShellWidget::new();
+        shell.append_page(&box_, "main", "Main");
+
+        let image_grid = ImageGridView::new(model.upcast_ref::<gtk4::TreeModel>(), None);
+        (&image_grid).set_hexpand(true);
+        (&image_grid).set_vexpand(true);
+        shell.append_page(image_grid.deref(), "grid", "Grid View");
+
         let window = gtk4::Window::new();
-        window.set_child(Some(&box_));
+        window.set_child(Some(&shell));
         window.connect_close_request(move |win| {
             if let Some(app) = win.application() {
                 app.quit();

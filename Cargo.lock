@@ -599,6 +599,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "gtk-macros"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da5bf7748fd4cd0b2490df8debcc911809dbcbee4ece9531b96c29a9c729de5a"
+
+[[package]]
 name = "gtk4"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -862,13 +868,17 @@ dependencies = [
  "gio-sys",
  "glib",
  "graphene-rs",
+ "gtk-macros",
  "gtk4",
  "gtk4-sys",
  "lazy_static",
  "libc",
  "npc-engine",
  "npc-fwk",
+ "num-derive",
+ "num-traits",
  "once_cell",
+ "uuid",
 ]
 
 [[package]]
@@ -876,7 +886,6 @@ name = "npc-engine"
 version = "0.1.0"
 dependencies = [
  "async-channel",
- "cbindgen",
  "chrono",
  "cxx",
  "exempi",
@@ -916,6 +925,18 @@ dependencies = [
  "once_cell",
  "rexiv2",
  "tempfile",
+ "uuid",
+]
+
+[[package]]
+name = "num-derive"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "876a53fff98e03a936a674b29568b0e605f06b29372c2489ff4de23f1949743d"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -1315,6 +1336,15 @@ name = "unicode-width"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
+
+[[package]]
+name = "uuid"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "feb41e78f93363bb2df8b0e86a2ca30eed7806ea16ea0c790d757cf93f79be83"
+dependencies = [
+ "getrandom",
+]
 
 [[package]]
 name = "vcpkg"

@@ -25,13 +25,14 @@ use super::libfile::FileType;
 use super::props;
 use super::NiepceProperties as Np;
 use super::{FromDb, LibraryId};
-use crate::{NiepcePropertyBag, NiepcePropertySet};
+use crate::NiepcePropertyBag;
 use npc_fwk::base::date::Date;
+use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
 use npc_fwk::{dbg_out, err_out};
 use npc_fwk::{xmp_date_from, PropertyBag, PropertySet, PropertyValue, XmpMeta};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct LibMetadata {
     xmp: XmpMeta,
     id: LibraryId,
@@ -194,32 +195,32 @@ impl LibMetadata {
     }
 
     pub fn to_properties(&self, propset: &PropertySet<Np>) -> Box<NiepcePropertyBag> {
-        use super::NiepcePropertyIdx::*;
+        use super::NiepcePropertyIdx as Npi;
         let mut property_bag = Box::new(NiepcePropertyBag::default());
         let props = &mut property_bag.deref_mut().0;
         for prop_id in propset {
             match *prop_id {
-                Np::Index(NpXmpRatingProp) => {
+                Np::Index(Npi::NpXmpRatingProp) => {
                     if let Some(rating) = self.xmp.rating() {
                         props.set_value(*prop_id, PropertyValue::Int(rating));
                     }
                 }
-                Np::Index(NpXmpLabelProp) => {
+                Np::Index(Npi::NpXmpLabelProp) => {
                     if let Some(label) = self.xmp.label() {
                         props.set_value(*prop_id, PropertyValue::String(label));
                     }
                 }
-                Np::Index(NpTiffOrientationProp) => {
+                Np::Index(Npi::NpTiffOrientationProp) => {
                     if let Some(orientation) = self.xmp.orientation() {
                         props.set_value(*prop_id, PropertyValue::Int(orientation));
                     }
                 }
-                Np::Index(NpExifDateTimeOriginalProp) => {
+                Np::Index(Npi::NpExifDateTimeOriginalProp) => {
                     if let Some(date) = self.xmp.creation_date().map(Date) {
                         props.set_value(*prop_id, PropertyValue::Date(date));
                     }
                 }
-                Np::Index(NpIptcKeywordsProp) => {
+                Np::Index(Npi::NpIptcKeywordsProp) => {
                     let mut iter = exempi::XmpIterator::new(
                         &self.xmp.xmp,
                         NS_DC,
@@ -236,18 +237,18 @@ impl LibMetadata {
                     }
                     props.set_value(*prop_id, PropertyValue::StringArray(keywords));
                 }
-                Np::Index(NpFileNameProp) => {
+                Np::Index(Npi::NpFileNameProp) => {
                     props.set_value(*prop_id, PropertyValue::String(self.name.clone()));
                 }
-                Np::Index(NpFileTypeProp) => {
+                Np::Index(Npi::NpFileTypeProp) => {
                     let file_type: &str = self.file_type.into();
                     props.set_value(*prop_id, PropertyValue::String(String::from(file_type)));
                 }
-                Np::Index(NpFileSizeProp) => {}
-                Np::Index(NpFolderProp) => {
+                Np::Index(Npi::NpFileSizeProp) => {}
+                Np::Index(Npi::NpFolderProp) => {
                     props.set_value(*prop_id, PropertyValue::String(self.folder.clone()));
                 }
-                Np::Index(NpSidecarsProp) => {
+                Np::Index(Npi::NpSidecarsProp) => {
                     props.set_value(*prop_id, PropertyValue::StringArray(self.sidecars.clone()));
                 }
                 _ => {
@@ -260,6 +261,12 @@ impl LibMetadata {
             }
         }
         property_bag
+    }
+
+    // cxx
+    pub fn to_wrapped_properties(&self, propset: &PropertySet<Np>) -> *mut WrappedPropertyBag {
+        let bag = self.to_properties(propset);
+        Box::into_raw(Box::new(WrappedPropertyBag(into_u32(*bag))))
     }
 
     pub fn touch(&mut self) -> bool {
@@ -299,8 +306,6 @@ impl FromDb for LibMetadata {
     }
 }
 
-use npc_fwk::toolkit::widgets::WrappedPropertyBag;
-
 fn into_u32(from: NiepcePropertyBag) -> PropertyBag<u32> {
     PropertyBag {
         bag: from.bag.iter().map(|v| (*v).into()).collect(),
@@ -310,15 +315,4 @@ fn into_u32(from: NiepcePropertyBag) -> PropertyBag<u32> {
             .map(|(k, v)| ((*k).into(), v.clone()))
             .collect(),
     }
-}
-
-#[no_mangle]
-pub extern "C" fn engine_libmetadata_to_wrapped_properties(
-    meta: &LibMetadata,
-    propset: &NiepcePropertySet,
-) -> *mut WrappedPropertyBag {
-    let bag = meta.to_properties(propset);
-    let bag = into_u32(*bag);
-    let result = Box::new(WrappedPropertyBag(bag));
-    Box::into_raw(result)
 }

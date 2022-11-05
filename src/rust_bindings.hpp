@@ -19,6 +19,8 @@
 
 #pragma once
 
+#define _IN_RUST_BINDINGS_
+
 #include <memory>
 #include <vector>
 
@@ -53,7 +55,6 @@ typedef eng::LibNotification LibNotification;
 typedef npc::LibraryClientWrapper LibraryClientWrapper;
 }
 
-#include "target/eng_bindings.h"
 #include "target/bindings.h"
 
 namespace fwk {
@@ -72,17 +73,11 @@ typedef rust::Box<Keyword> KeywordPtr;
 typedef rust::Box<Label> LabelPtr;
 typedef std::vector<LabelPtr> LabelList;
 typedef rust::Box<LibFile> LibFilePtr;
-
-typedef ffi::NiepcePropertyIdx Np;
-using NiepcePropertyIdx = ffi::NiepcePropertyIdx;
 typedef ffi::LibraryId library_id_t; // XXX change this to LibraryId
-typedef ffi::FileStatus FileStatus;
-typedef ffi::Managed Managed;
-typedef ffi::NotificationType NotificationType;
 }
 
 namespace libraryclient {
-typedef std::shared_ptr<npc::LibraryClientHost> LibraryClientPtr;
+typedef rust::Box<npc::LibraryClientHost> LibraryClientPtr;
 }
 
 namespace npc {
@@ -90,6 +85,4 @@ typedef rust::Box<UIDataProvider> UIDataProviderPtr;
 typedef rust::Box<NotificationCenter> NotificationCenterPtr;
 }
 
-namespace ui {
-  using ffi::dialog_request_new_folder;
-}
+#undef _IN_RUST_BINDINGS_
