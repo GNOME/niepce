@@ -28,7 +28,7 @@ use gtk4::prelude::*;
 use super::{
     GridViewModuleProxy, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,
 };
-use crate::libraryclient::{ClientInterface, LibraryClientHost};
+use crate::libraryclient::LibraryClientHost;
 use crate::modules::{DarkroomModuleProxy, MapModuleProxy};
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;

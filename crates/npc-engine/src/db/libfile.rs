@@ -225,7 +225,7 @@ impl LibFile {
     /// return an URI of the real path as Glib want this, oftern
     pub fn uri(&self) -> String {
         let mut s = String::from("file://");
-        s.push_str(&*self.main_file.path().to_string_lossy());
+        s.push_str(&self.main_file.path().to_string_lossy());
         s
     }
 }

@@ -146,7 +146,7 @@ impl SelectionController {
     }
 
     pub fn list_store(&self) -> &ImageListStoreWrap {
-        &*self.handler.store
+        &self.handler.store
     }
 
     /// Get the file with `id`.

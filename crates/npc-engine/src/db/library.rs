@@ -392,8 +392,8 @@ impl Library {
             Some(ext2) => ext2.to_string_lossy(),
             _ => return Err(Error::InvalidArg),
         };
-        let fsfile_id = self.add_fs_file(&sidecar_t.1)?;
-        self.add_sidecar_fsfile_to_bundle(file_id, fsfile_id, sidecar_t.0, &*ext)
+        let fsfile_id = self.add_fs_file(sidecar_t.1)?;
+        self.add_sidecar_fsfile_to_bundle(file_id, fsfile_id, sidecar_t.0, &ext)
     }
 
     fn add_sidecar_fsfile_to_bundle(
@@ -1021,7 +1021,7 @@ impl Library {
 
     pub(crate) fn delete_label(&self, label_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute("DELETE FROM labels WHERE id=?1;", &[&label_id])?;
+            let c = conn.execute("DELETE FROM labels WHERE id=?1;", [&label_id])?;
             if c != 1 {
                 return Err(Error::InvalidResult);
             }
@@ -1057,7 +1057,7 @@ impl Library {
         // clobber the xmp.
         if let Some(ref conn) = self.dbconn {
             if conn
-                .execute("DELETE FROM xmp_update_queue WHERE id=?1;", &[&id])
+                .execute("DELETE FROM xmp_update_queue WHERE id=?1;", [&id])
                 .is_ok()
             {
                 // we don't want to write the XMP so we don't need to list them.
@@ -1068,7 +1068,7 @@ impl Library {
                     "SELECT xmp, main_file, xmp_file FROM files \
                      WHERE id=?1;",
                 ) {
-                    let mut rows = stmt.query(&[&id])?;
+                    let mut rows = stmt.query([&id])?;
                     while let Ok(Some(row)) = rows.next() {
                         let xmp_buffer: String = row.get(0)?;
                         let main_file_id: LibraryId = row.get(1)?;

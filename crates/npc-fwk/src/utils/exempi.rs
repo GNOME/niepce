@@ -195,7 +195,7 @@ impl XmpMeta {
         let mut meta: Option<XmpMeta> = None;
         if !sidecar_only {
             if let Ok(xmpfile) =
-                exempi::XmpFile::open_new(&*file.to_string_lossy(), exempi::OpenFlags::READ)
+                exempi::XmpFile::open_new(&file.to_string_lossy(), exempi::OpenFlags::READ)
             {
                 meta = match xmpfile.get_new_xmp() {
                     Ok(xmp) => Some(Self::new_with_xmp(xmp)),
