@@ -24,6 +24,7 @@
 
 #include <glibmm/i18n.h>
 
+#include "fwk/base/debug.hpp"
 #include "fwk/utils/init.hpp"
 #include "fwk/utils/exempi.hpp"
 #include "ui/niepceapplication.hpp"
@@ -38,6 +39,7 @@ int main(int argc, char ** argv)
 
   auto manager = fwk::ExempiManager_new();
 
+  DBG_OUT("Starting up. DEBUG is on");
   fwk::Application::Ptr app = ui::NiepceApplication::create(argc, argv);
   return fwk::Application::main(app, argc, argv);
 }

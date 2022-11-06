@@ -1,0 +1,18 @@
+#pragma once
+
+/* The domain to use with gettext */
+#define GETTEXT_PACKAGE @GETTEXT_PACKAGE@ 
+
+/* Where to find the locale */
+#define NIEPCE_LOCALEDIR @NIEPCE_LOCALEDIR@
+
+/* The string used to hardcode the build config. */
+#define NIEPCE_BUILD_CONFIG @NIEPCE_BUILD_CONFIG@
+
+#define DATADIR @DATADIR@
+
+/* Name of package */
+#define PACKAGE @PACKAGE@
+
+/* Version number of package */
+#define VERSION @VERSION@

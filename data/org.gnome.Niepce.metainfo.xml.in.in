@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>org.gnome.Niepce</id>
+  <id>@app-id@</id>
   <licence>CC0-1.0</licence>
   <project_license>GPL-3.0-or-later</project_license>
   <name>Niepce Digital</name>
@@ -22,5 +22,10 @@
   <url type="homepage">https://wiki.gnome.org/Apps/Niepce</url>
   <updatecontact>hub@figuiere.net</updatecontact>
 
-  <translation type="gettext">niepce</translation>
+  <translation type="gettext">@gettext-package@</translation>
+  <launchable type="desktop-id">@app-id@.desktop</launchable>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2019-07-11" />
+  </releases>
 </component>

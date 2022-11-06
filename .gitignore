@@ -123,6 +123,7 @@ po/en@quot.header
 po/insert-header.sin
 po/quot.sed
 po/remove-potcdate.s*
+/niepce-main/src/config.rs
 target/
 **/*.rs.bk
 crates/npc-*/Cargo.lock

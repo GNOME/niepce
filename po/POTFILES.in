@@ -4,7 +4,7 @@ camerawire/src/cwwindow.cpp
 crates/npc-engine/src/importer/lrimporter.rs
 crates/npc-fwk/src/toolkit/confirm.rs
 crates/npc-fwk/src/toolkit/request.rs
-data/org.gnome.Niepce.appdata.xml.in
+data/org.gnome.Niepce.metainfo.xml.in.in
 data/org.gnome.Niepce.desktop.in
 niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary.rs

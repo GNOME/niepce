@@ -320,7 +320,7 @@
         },
         {
             "name": "niepce",
-            "builddir": true,
+	    "buildsystem": "meson",
             "sources": [
                 {
                     "type": "dir",

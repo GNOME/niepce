@@ -1,4 +1,4 @@
-AC_INIT(niepce, 2022.5.1)
+AC_INIT(niepce, 0.1.0)
 AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR(README)
 AM_INIT_AUTOMAKE([1.11 no-dist-gzip dist-xz subdir-objects])
@@ -11,13 +11,13 @@ m4_pattern_allow([^BOOST_])
 
 dnl all the library version.
 dnl if one is harcoded elsewhere, it is a bug
-LIBGIOMM_VERSION=2.66
-LIBGLIBMM_VERSION=2.66
+LIBGIOMM_VERSION=2.68
+LIBGLIBMM_VERSION=2.68
 LIBGTKMM_VERSION=4.4
 LIBADWAITA_VERSION=1.2
 EXEMPI_VERSION=2.4.0
 SQLITE_VERSION=3.0
-GEGL_VERSION=0.3.0
+GEGL_VERSION=0.4.0
 LIBOPENRAW_VERSION=0.3.0
 LIBGPHOTO_VERSION=2.5
 dnl need at least 2.5.0 because of xmlTextReader
@@ -154,6 +154,7 @@ doc/Doxyfile
 doc/Makefile
 doc/doxygen/Makefile
 data/Makefile
+data/org.gnome.Niepce.metainfo.xml.in
 data/themes/Makefile
 third_party/Makefile
 src/Makefile
