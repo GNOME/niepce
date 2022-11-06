@@ -143,7 +143,7 @@ impl ThumbStripView {
         }
     }
 
-    fn set_model(&self, model: Option<gtk4::TreeModel>) {
+    pub fn set_model(&self, model: Option<gtk4::TreeModel>) {
         if let Some(store) = &*self.store.borrow() {
             let mut signals = self.signals.borrow_mut();
             if signals.model_add.is_some() {
