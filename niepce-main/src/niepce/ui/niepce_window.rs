@@ -481,7 +481,8 @@ impl NiepceWindow {
 
         statusbar.push(0, &gettext("Ready"));
 
-        self.shell_widgets.set(ShellWidgets {
+        // `ShellWidget` isn't `Debug` so we can't unwrap.
+        let _ = self.shell_widgets.set(ShellWidgets {
             _workspace: workspace.clone(),
             shell: module_shell,
             _filmstrip: filmstrip,
