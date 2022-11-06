@@ -97,7 +97,7 @@ pub struct WorkspaceController {
     icon_trash: gio::Icon,
     icon_roll: gio::Icon,
     icon_folder: gio::Icon,
-    icon_project: gio::Icon,
+    // icon_project: gio::Icon,
     icon_keyword: gio::Icon,
     icon_album: gio::Icon,
 }
@@ -112,7 +112,8 @@ struct Widgets {
     keywordsidmap: RefCell<HashMap<db::LibraryId, gtk4::TreeIter>>,
     albumsidmap: RefCell<HashMap<db::LibraryId, gtk4::TreeIter>>,
     folder_node: gtk4::TreeIter,
-    project_node: gtk4::TreeIter,
+    // Projects are not implemented yet.
+    // project_node: gtk4::TreeIter,
     keywords_node: gtk4::TreeIter,
     albums_node: gtk4::TreeIter,
     cfg: Rc<toolkit::Configuration>,
@@ -267,14 +268,15 @@ impl UiController for WorkspaceController {
                     0,
                     TreeItemType::Folders,
                 );
-                let project_node = Self::add_item(
-                    &treestore,
-                    None,
-                    &self.icon_project,
-                    &gettext("Projects"),
-                    0,
-                    TreeItemType::Projects,
-                );
+                // Projects are not implemented yet
+                // let project_node = Self::add_item(
+                //     &treestore,
+                //     None,
+                //     &self.icon_project,
+                //     &gettext("Projects"),
+                //     0,
+                //     TreeItemType::Projects,
+                // );
                 let albums_node = Self::add_item(
                     &treestore,
                     None,
@@ -395,7 +397,7 @@ impl UiController for WorkspaceController {
                     folderidmap: RefCell::new(HashMap::new()),
                     keywordsidmap: RefCell::new(HashMap::new()),
                     albumsidmap: RefCell::new(HashMap::new()),
-                    project_node,
+                    // project_node,
                     folder_node,
                     albums_node,
                     keywords_node,
@@ -466,7 +468,7 @@ impl WorkspaceController {
             icon_folder: gio::ThemedIcon::new("folder-symbolic").upcast(),
             icon_trash: gio::ThemedIcon::new("user-trash").upcast(),
             icon_roll: gio::ThemedIcon::new("emblem-photos").upcast(),
-            icon_project: gio::ThemedIcon::new("file-cabinet-symbolic").upcast(),
+            // icon_project: gio::ThemedIcon::new("file-cabinet-symbolic").upcast(),
             icon_keyword: gio::ThemedIcon::new("tag-symbolic").upcast(),
             icon_album: gio::ThemedIcon::new("open-book-symbolic").upcast(),
         });
