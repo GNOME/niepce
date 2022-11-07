@@ -21,8 +21,8 @@ use std::cmp;
 use std::path::Path;
 
 use gdk_pixbuf::prelude::*;
-use libopenraw_rs as or;
-use libopenraw_rs::DataType;
+use libopenraw as or;
+use libopenraw::DataType;
 
 /// Scale the pixbuf to fit in a square of %dim pixels
 pub fn gdkpixbuf_scale_to_fit(
