@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::ffi::CString;
 use std::path::{Path, PathBuf};
 
 use npc_fwk::err_out;
@@ -96,7 +95,6 @@ pub struct LibFile {
     id: LibraryId,
     folder_id: LibraryId,
     name: String,
-    pub cstr: CString,
     main_file: FsFile,
     orientation: i32,
     rating: i32,
@@ -125,7 +123,6 @@ impl LibFile {
             id,
             folder_id,
             name: String::from(name),
-            cstr: CString::new("").unwrap(),
             main_file,
             orientation: 0,
             rating: 0,
