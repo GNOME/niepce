@@ -25,7 +25,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use gettextrs::gettext;
+use gettextrs::gettext as i18n;
 use glib::clone;
 use gtk4;
 use gtk4::prelude::*;
@@ -286,7 +286,7 @@ impl ImportLibraryDialog {
         let label = self.state.borrow().importer_name_label.clone();
         if let Some(ref mut importer) = self.state.borrow_mut().importer {
             if let Some(label) = label {
-                let importing = format!("{} {}", &gettext("Importing from"), importer.name());
+                let importing = format!("{} {}", &i18n("Importing from"), importer.name());
                 label.set_text(&importing);
             }
             let roots = importer.root_folders();
@@ -349,14 +349,14 @@ impl ImportLibraryDialog {
     }
 
     fn select_file(&self) {
-        let message = gettext("Select Lightromm Library");
+        let message = i18n("Select Lightromm Library");
         let file_dialog = gtk4::FileChooserDialog::new(
             Some(&message),
             Some(&self.assistant),
             gtk4::FileChooserAction::Open,
             &[
-                (&gettext("Import"), gtk4::ResponseType::Accept),
-                (&gettext("Cancel"), gtk4::ResponseType::Cancel),
+                (&i18n("Import"), gtk4::ResponseType::Accept),
+                (&i18n("Cancel"), gtk4::ResponseType::Cancel),
             ],
         );
         let sender = self.sender.clone();

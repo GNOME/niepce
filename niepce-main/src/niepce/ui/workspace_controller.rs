@@ -22,7 +22,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::{Arc, Weak};
 
-use gettextrs::gettext;
+use gettextrs::gettext as i18n;
 use glib::translate::*;
 use glib::Cast;
 use gtk4::gio;
@@ -264,7 +264,7 @@ impl UiController for WorkspaceController {
                     &treestore,
                     None,
                     &self.icon_folder,
-                    &gettext("Pictures"),
+                    &i18n("Pictures"),
                     0,
                     TreeItemType::Folders,
                 );
@@ -273,7 +273,7 @@ impl UiController for WorkspaceController {
                 //     &treestore,
                 //     None,
                 //     &self.icon_project,
-                //     &gettext("Projects"),
+                //     &i18n("Projects"),
                 //     0,
                 //     TreeItemType::Projects,
                 // );
@@ -281,7 +281,7 @@ impl UiController for WorkspaceController {
                     &treestore,
                     None,
                     &self.icon_album,
-                    &gettext("Albums"),
+                    &i18n("Albums"),
                     0,
                     TreeItemType::Albums,
                 );
@@ -289,7 +289,7 @@ impl UiController for WorkspaceController {
                     &treestore,
                     None,
                     &self.icon_keyword,
-                    &gettext("Keywords"),
+                    &i18n("Keywords"),
                     0,
                     TreeItemType::Keywords,
                 );
@@ -316,7 +316,7 @@ impl UiController for WorkspaceController {
 
                 let header = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
                 // header.set_margin(4);
-                let label = gtk4::Label::with_mnemonic(&gettext("_Workspace"));
+                let label = gtk4::Label::with_mnemonic(&i18n("_Workspace"));
                 label.set_mnemonic_widget(Some(&librarytree));
                 label.set_hexpand(true);
                 header.append(&label);
@@ -330,21 +330,15 @@ impl UiController for WorkspaceController {
                 let menu = gio::Menu::new();
                 let section = gio::Menu::new();
                 menu.append_section(None, &section);
-                section.append(Some(&gettext("New Folder...")), Some("workspace.NewFolder"));
-                section.append(
-                    Some(&gettext("New Project...")),
-                    Some("workspace.NewProject"),
-                );
-                section.append(
-                    Some(&gettext("Delete Folder")),
-                    Some("workspace.DeleteFolder"),
-                );
+                section.append(Some(&i18n("New Folder...")), Some("workspace.NewFolder"));
+                section.append(Some(&i18n("New Project...")), Some("workspace.NewProject"));
+                section.append(Some(&i18n("Delete Folder")), Some("workspace.DeleteFolder"));
 
                 let section = gio::Menu::new();
                 menu.append_section(None, &section);
-                section.append(Some(&gettext("Import...")), Some("workspace.Import"));
+                section.append(Some(&i18n("Import...")), Some("workspace.Import"));
                 section.append(
-                    Some(&gettext("Import Library...")),
+                    Some(&i18n("Import Library...")),
                     Some("workspace.ImportLibrary"),
                 );
 
@@ -587,10 +581,8 @@ impl WorkspaceController {
                 .widget()
                 .ancestor(gtk4::Window::static_type())
                 .and_then(|w| w.downcast::<gtk4::Window>().ok());
-            let dialog = super::dialogs::confirm::request(
-                &gettext("Delete selected folder?"),
-                window.as_ref(),
-            );
+            let dialog =
+                super::dialogs::confirm::request(&i18n("Delete selected folder?"), window.as_ref());
             dialog.connect_response(
                 glib::clone!(@strong dialog, @strong self.client as client => move |_, response| {
                 if response == gtk4::ResponseType::Yes {

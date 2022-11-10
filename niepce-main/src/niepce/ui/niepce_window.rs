@@ -20,7 +20,7 @@
 use std::cell::{Ref, RefCell, RefMut};
 use std::rc::Rc;
 
-use gettextrs::gettext;
+use gettextrs::gettext as i18n;
 use gtk4::gio;
 use gtk4::gio::prelude::*;
 use gtk4::glib::translate::*;
@@ -111,17 +111,17 @@ impl UiController for NiepceWindow {
 
                 let button_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
                 button_box.style_context().add_class("linked");
-                let undo_button = gtk4::Button::with_label(&gettext("Undo"));
+                let undo_button = gtk4::Button::with_label(&i18n("Undo"));
                 undo_button.set_icon_name("edit-undo-symbolic");
                 undo_button.set_action_name(Some("win.Undo"));
-                let redo_button = gtk4::Button::with_label(&gettext("Redo"));
+                let redo_button = gtk4::Button::with_label(&i18n("Redo"));
                 redo_button.set_icon_name("edit-redo-symbolic");
                 redo_button.set_action_name(Some("win.Redo"));
                 button_box.append(&undo_button);
                 button_box.append(&redo_button);
                 header.pack_start(&button_box);
 
-                let import_button = gtk4::Button::with_label(&gettext("Import..."));
+                let import_button = gtk4::Button::with_label(&i18n("Import..."));
                 import_button.set_action_name(Some("workspace.Import"));
                 header.pack_start(&import_button);
 
@@ -131,19 +131,19 @@ impl UiController for NiepceWindow {
                 // Main hamburger menu
                 let section = gio::Menu::new();
                 main_menu.append_section(None, &section);
-                section.append(Some(&gettext("New Catalog...")), Some("app.NewCatalog"));
-                section.append(Some(&gettext("Open Catalog...")), Some("app.OpenCatalog"));
+                section.append(Some(&i18n("New Catalog...")), Some("app.NewCatalog"));
+                section.append(Some(&i18n("Open Catalog...")), Some("app.OpenCatalog"));
 
                 let section = gio::Menu::new();
                 main_menu.append_section(None, &section);
-                section.append(Some(&gettext("Hide tools")), Some("win.ToggleToolsVisible"));
-                section.append(Some(&gettext("Edit Labels...")), Some("win.EditLabels"));
-                section.append(Some(&gettext("Preferences...")), Some("app.Preferences"));
+                section.append(Some(&i18n("Hide tools")), Some("win.ToggleToolsVisible"));
+                section.append(Some(&i18n("Edit Labels...")), Some("win.EditLabels"));
+                section.append(Some(&i18n("Preferences...")), Some("app.Preferences"));
 
                 let section = gio::Menu::new();
                 main_menu.append_section(None, &section);
-                section.append(Some(&gettext("Help")), Some("app.Help"));
-                section.append(Some(&gettext("About")), Some("app.About"));
+                section.append(Some(&i18n("Help")), Some("app.Help"));
+                section.append(Some(&i18n("About")), Some("app.About"));
 
                 self.window.set_child(Some(&vbox));
 
@@ -249,23 +249,23 @@ impl NiepceWindow {
         if let Some(ref libraryclient) = *client {
             let client = libraryclient.client();
             client.create_label(
-                gettext("Label 1"),
+                i18n("Label 1"),
                 RgbColour::new(55769, 9509, 4369).to_string(),
             );
             client.create_label(
-                gettext("Label 2"),
+                i18n("Label 2"),
                 RgbColour::new(24929, 55769, 4369).to_string(),
             );
             client.create_label(
-                gettext("Label 3"),
+                i18n("Label 3"),
                 RgbColour::new(4369, 50629, 55769).to_string(),
             );
             client.create_label(
-                gettext("Label 4"),
+                i18n("Label 4"),
                 RgbColour::new(35209, 4369, 55769).to_string(),
             );
             client.create_label(
-                gettext("Label 5"),
+                i18n("Label 5"),
                 RgbColour::new(35209, 4369, 55769).to_string(),
             );
         }
@@ -310,7 +310,7 @@ impl NiepceWindow {
             DatabaseNeedUpgrade(v) => {
                 dbg_out!("Database need upgrade {}.", v);
                 let dialog = super::dialogs::confirm::request(
-                    &gettext("Catalog need to be upgraded"),
+                    &i18n("Catalog need to be upgraded"),
                     Some(self.window()),
                 );
                 dialog.connect_response(
@@ -345,7 +345,7 @@ impl NiepceWindow {
 
     fn set_title(&self, title: &str) {
         if let Some(widgets) = self.widgets.get() {
-            let title = format!("{} - {}", gettext("Niepce Digital"), title);
+            let title = format!("{} - {}", i18n("Niepce Digital"), title);
             let label = gtk4::Label::new(Some(&title));
             widgets.header.set_title_widget(Some(&label));
         }
@@ -375,12 +375,12 @@ impl NiepceWindow {
 
     fn prompt_open_catalog(&self) {
         let dialog = gtk4::FileChooserDialog::new(
-            Some(&gettext("Open catalog")),
+            Some(&i18n("Open catalog")),
             Some(self.window()),
             gtk4::FileChooserAction::SelectFolder,
             &[
-                (&gettext("Cancel"), gtk4::ResponseType::Cancel),
-                (&gettext("Open"), gtk4::ResponseType::Accept),
+                (&i18n("Cancel"), gtk4::ResponseType::Cancel),
+                (&i18n("Open"), gtk4::ResponseType::Accept),
             ],
         );
         dialog.set_modal(true);
@@ -479,7 +479,7 @@ impl NiepceWindow {
 
         module_shell.selection_controller.add_selectable(&filmstrip);
 
-        statusbar.push(0, &gettext("Ready"));
+        statusbar.push(0, &i18n("Ready"));
 
         // `ShellWidget` isn't `Debug` so we can't unwrap.
         let _ = self.shell_widgets.set(ShellWidgets {

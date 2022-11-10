@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use gettextrs::gettext;
+use gettextrs::gettext as i18n;
 
 use std::cell::RefCell;
 use std::collections::BTreeMap;
@@ -87,7 +87,7 @@ impl LrImporter {
         let folder_name = Path::new(&path)
             .file_name()
             .map(|name| String::from(name.to_string_lossy()))
-            .unwrap_or_else(|| gettext("Untitled"));
+            .unwrap_or_else(|| i18n("Untitled"));
         let nid = libclient.create_folder_sync(folder_name, Some(path.into()));
         self.folder_map
             .borrow_mut()

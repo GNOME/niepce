@@ -436,12 +436,6 @@ dependencies = [
 
 [[package]]
 name = "gettext-rs"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "823d7e5d0e615f937c7629991bc9f4c090ad582303214c38744e1a16d6ffbe5e"
-
-[[package]]
-name = "gettext-rs"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e49ea8a8fad198aaa1f9655a2524b64b70eb06b2f3ff37da407566c93054f364"
@@ -901,7 +895,7 @@ dependencies = [
  "gdk-pixbuf",
  "gdk-pixbuf-sys",
  "gdk4",
- "gettext-rs 0.3.0",
+ "gettext-rs",
  "gio",
  "gio-sys",
  "glib",
@@ -930,7 +924,7 @@ dependencies = [
  "exempi2",
  "gdk-pixbuf",
  "gdk-pixbuf-sys",
- "gettext-rs 0.7.0",
+ "gettext-rs",
  "glib",
  "lazy_static",
  "libc",

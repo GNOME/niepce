@@ -19,7 +19,7 @@
 
 use std::sync::Arc;
 
-use gettextrs::gettext;
+use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use gtk4::{Dialog, Entry, Label};
 
@@ -32,11 +32,11 @@ pub fn request(client: Arc<LibraryClient>, parent: Option<&gtk4::Window>) {
         parent,
         gtk4::DialogFlags::MODAL,
         &[
-            (&gettext("OK"), gtk4::ResponseType::Ok),
-            (&gettext("Cancel"), gtk4::ResponseType::Cancel),
+            (&i18n("OK"), gtk4::ResponseType::Ok),
+            (&i18n("Cancel"), gtk4::ResponseType::Cancel),
         ],
     );
-    let label = Label::with_mnemonic(&gettext("Folder _name:"));
+    let label = Label::with_mnemonic(&i18n("Folder _name:"));
     let content_area = dialog.content_area();
     content_area.append(&label);
     let entry = Entry::new();

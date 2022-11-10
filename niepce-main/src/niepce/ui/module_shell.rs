@@ -21,7 +21,7 @@ use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use gettextrs::gettext;
+use gettextrs::gettext as i18n;
 use glib::Cast;
 use gtk4::prelude::*;
 
@@ -103,7 +103,7 @@ impl ModuleShell {
                 selection_controller.select_previous()
             }),
             &shell.menu,
-            Some(&gettext("Back")),
+            Some(&i18n("Back")),
             Some("shell"),
             Some("Left"),
         );
@@ -115,7 +115,7 @@ impl ModuleShell {
                 selection_controller.select_next()
             }),
             &shell.menu,
-            Some(&gettext("Forward")),
+            Some(&i18n("Forward")),
             Some("shell"),
             Some("Right"),
         );
@@ -130,7 +130,7 @@ impl ModuleShell {
                 selection_controller.rotate(-90)
             }),
             &section,
-            Some(&gettext("Rotate Left")),
+            Some(&i18n("Rotate Left")),
             Some("shell"),
             Some("bracketleft"),
         );
@@ -142,7 +142,7 @@ impl ModuleShell {
                 selection_controller.rotate(90)
             }),
             &section,
-            Some(&gettext("Rotate Right")),
+            Some(&i18n("Rotate Right")),
             Some("shell"),
             Some("bracketright"),
         );
@@ -150,7 +150,7 @@ impl ModuleShell {
         let section = gio::Menu::new();
         shell.menu.append_section(None, &section);
         let submenu = gio::Menu::new();
-        section.append_submenu(Some(&gettext("Set Label")), &submenu);
+        section.append_submenu(Some(&i18n("Set Label")), &submenu);
 
         add_menu_action(
             group,
@@ -160,7 +160,7 @@ impl ModuleShell {
                 selection_controller.set_label(1)
             }),
             &submenu,
-            Some(&gettext("Label 6")),
+            Some(&i18n("Label 6")),
             Some("shell"),
             Some("<Primary>6"),
         );
@@ -172,7 +172,7 @@ impl ModuleShell {
                 selection_controller.set_label(2)
             }),
             &submenu,
-            Some(&gettext("Label 7")),
+            Some(&i18n("Label 7")),
             Some("shell"),
             Some("<Primary>7"),
         );
@@ -184,7 +184,7 @@ impl ModuleShell {
                 selection_controller.set_label(3)
             }),
             &submenu,
-            Some(&gettext("Label 8")),
+            Some(&i18n("Label 8")),
             Some("shell"),
             Some("<Primary>8"),
         );
@@ -196,13 +196,13 @@ impl ModuleShell {
                 selection_controller.set_label(4)
             }),
             &submenu,
-            Some(&gettext("Label 9")),
+            Some(&i18n("Label 9")),
             Some("shell"),
             Some("<Primary>9"),
         );
 
         let submenu = gio::Menu::new();
-        section.append_submenu(Some(&gettext("Set Rating")), &submenu);
+        section.append_submenu(Some(&i18n("Set Rating")), &submenu);
         add_menu_action(
             group,
             "SetRating0",
@@ -211,7 +211,7 @@ impl ModuleShell {
                 selection_controller.set_rating(0)
             }),
             &submenu,
-            Some(&gettext("Unrated")),
+            Some(&i18n("Unrated")),
             Some("shell"),
             Some("<Primary>0"),
         );
@@ -223,7 +223,7 @@ impl ModuleShell {
                 selection_controller.set_rating(1)
             }),
             &submenu,
-            Some(&gettext("Rating 1")),
+            Some(&i18n("Rating 1")),
             Some("shell"),
             Some("<Primary>1"),
         );
@@ -235,7 +235,7 @@ impl ModuleShell {
                 selection_controller.set_rating(2)
             }),
             &submenu,
-            Some(&gettext("Rating 2")),
+            Some(&i18n("Rating 2")),
             Some("shell"),
             Some("<Primary>2"),
         );
@@ -247,7 +247,7 @@ impl ModuleShell {
                 selection_controller.set_rating(3)
             }),
             &submenu,
-            Some(&gettext("Rating 3")),
+            Some(&i18n("Rating 3")),
             Some("shell"),
             Some("<Primary>3"),
         );
@@ -259,7 +259,7 @@ impl ModuleShell {
                 selection_controller.set_rating(4)
             }),
             &submenu,
-            Some(&gettext("Rating 4")),
+            Some(&i18n("Rating 4")),
             Some("shell"),
             Some("<Primary>4"),
         );
@@ -271,13 +271,13 @@ impl ModuleShell {
                 selection_controller.set_rating(5)
             }),
             &submenu,
-            Some(&gettext("Rating 5")),
+            Some(&i18n("Rating 5")),
             Some("shell"),
             Some("<Primary>5"),
         );
 
         let submenu = gio::Menu::new();
-        section.append_submenu(Some(&gettext("Set Flag")), &submenu);
+        section.append_submenu(Some(&i18n("Set Flag")), &submenu);
         add_menu_action(
             group,
             "SetFlagReject",
@@ -286,7 +286,7 @@ impl ModuleShell {
                 selection_controller.set_flag(-1)
             }),
             &submenu,
-            Some(&gettext("Flag as Rejected")),
+            Some(&i18n("Flag as Rejected")),
             Some("shell"),
             Some("<Primary><Shift>x"),
         );
@@ -298,7 +298,7 @@ impl ModuleShell {
                 selection_controller.set_flag(0)
             }),
             &submenu,
-            Some(&gettext("Unflagged")),
+            Some(&i18n("Unflagged")),
             Some("shell"),
             Some("<Primary><Shift>u"),
         );
@@ -310,7 +310,7 @@ impl ModuleShell {
                 selection_controller.set_flag(1)
             }),
             &submenu,
-            Some(&gettext("Flag as Pick")),
+            Some(&i18n("Flag as Pick")),
             Some("shell"),
             Some("<Primary><Shift>p"),
         );
@@ -325,7 +325,7 @@ impl ModuleShell {
                 selection_controller.write_metadata()
             }),
             &section,
-            Some(&gettext("Write metadata")),
+            Some(&i18n("Write metadata")),
             Some("shell"),
             None,
         );
@@ -333,7 +333,7 @@ impl ModuleShell {
         shell.menu.append_section(None, &shell.module_menu);
         shell.widget.menu_button().set_menu_model(Some(&shell.menu));
 
-        shell.add_library_module(&shell.gridview, "grid", &gettext("Catalog"));
+        shell.add_library_module(&shell.gridview, "grid", &i18n("Catalog"));
         shell.selection_controller.add_selectable(&shell.gridview);
 
         shell.selection_controller.handler.signal_selected.connect(
@@ -348,8 +348,8 @@ impl ModuleShell {
         );
 
         // built-in modules;
-        shell.add_library_module(&shell.darkroom, "darkroom", &gettext("Darkroom"));
-        shell.add_library_module(&shell.mapm, "map", &gettext("Map"));
+        shell.add_library_module(&shell.darkroom, "darkroom", &i18n("Darkroom"));
+        shell.add_library_module(&shell.mapm, "map", &i18n("Map"));
 
         shell.widget.connect(
             "activated",

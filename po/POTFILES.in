@@ -5,6 +5,8 @@ crates/npc-engine/src/importer/lrimporter.rs
 data/org.gnome.Niepce.appdata.xml.in
 data/org.gnome.Niepce.desktop.in
 niepce-main/src/niepce/ui/dialogs/importlibrary.rs
+niepce-main/src/niepce/ui/dialogs/importlibrary.ui
+niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
 niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs
 niepce-main/src/niepce/ui/metadata_pane_controller.rs
 niepce-main/src/niepce/ui/module_shell.rs
