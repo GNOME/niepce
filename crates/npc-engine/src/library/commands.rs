@@ -235,6 +235,21 @@ pub fn cmd_create_album(lib: &Library, name: &str, parent: LibraryId) -> Library
     }
 }
 
+pub fn cmd_delete_album(lib: &Library, id: LibraryId) -> bool {
+    match lib.delete_album(id) {
+        Ok(_) => {
+            if lib.notify(LibNotification::AlbumDeleted(id)).is_err() {
+                err_out!("Failed to notify AlbumDeleted");
+            }
+            true
+        }
+        Err(err) => {
+            err_out_line!("Delete album failed {:?}", err);
+            false
+        }
+    }
+}
+
 /// Command to add an image to an album.
 pub fn cmd_add_to_album(lib: &Library, image_id: LibraryId, album_id: LibraryId) -> bool {
     match lib.add_to_album(image_id, album_id) {

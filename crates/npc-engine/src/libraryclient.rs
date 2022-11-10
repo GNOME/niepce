@@ -225,6 +225,11 @@ impl ClientInterface for LibraryClient {
         self.schedule_op(move |lib| commands::cmd_create_album(lib, &name, parent) != 0);
     }
 
+    /// Delete an album
+    fn delete_album(&self, id: LibraryId) {
+        self.schedule_op(move |lib| commands::cmd_delete_album(lib, id));
+    }
+
     /// Add an image to an album.
     fn add_to_album(&self, image_id: LibraryId, album_id: LibraryId) {
         self.schedule_op(move |lib| commands::cmd_add_to_album(lib, image_id, album_id));

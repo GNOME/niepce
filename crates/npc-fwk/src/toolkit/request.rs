@@ -1,5 +1,5 @@
 /*
- * niepce - niepce/ui/dialogs/requestnewfolder.rs
+ * niepce - npc-fwk/toolkit/request.rs
  *
  * Copyright (C) 2017-2022 Hubert Figuière
  *
@@ -17,18 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::sync::Arc;
-
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use gtk4::{Dialog, Entry, Label};
 
-use npc_engine::libraryclient::{ClientInterface, LibraryClient};
-use npc_fwk::dbg_out;
-
-pub fn request(client: Arc<LibraryClient>, parent: Option<&gtk4::Window>) {
+/// Request a name. On Ok call `action`
+///
+/// `title` is the dialog title
+/// `label` is the label
+pub fn request_name<F: Fn(&str) + 'static>(
+    parent: Option<&gtk4::Window>,
+    title: &str,
+    label: &str,
+    action: F,
+) {
     let dialog = Dialog::with_buttons(
-        Some("New folder"),
+        Some(title),
         parent,
         gtk4::DialogFlags::MODAL,
         &[
@@ -36,8 +40,9 @@ pub fn request(client: Arc<LibraryClient>, parent: Option<&gtk4::Window>) {
             (&i18n("Cancel"), gtk4::ResponseType::Cancel),
         ],
     );
-    let label = Label::with_mnemonic(&i18n("Folder _name:"));
+    let label = Label::with_mnemonic(label);
     let content_area = dialog.content_area();
+    content_area.set_spacing(12);
     content_area.append(&label);
     let entry = Entry::new();
     entry.set_text("foobar");
@@ -47,11 +52,9 @@ pub fn request(client: Arc<LibraryClient>, parent: Option<&gtk4::Window>) {
     dialog.set_modal(true);
 
     dialog.connect_response(glib::clone!(@strong entry => move |dialog, response| {
-        let folder_name = entry.text();
-        let cancel = response != gtk4::ResponseType::Ok;
-        if !cancel {
-            dbg_out!("Create folder {}", &folder_name);
-            client.create_folder(folder_name.to_string(), None);
+        let name = entry.text();
+        if response == gtk4::ResponseType::Ok {
+            action(&name);
         }
         dialog.close();
     }));

@@ -733,6 +733,17 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
+    pub(crate) fn delete_album(&self, id: LibraryId) -> Result<()> {
+        if let Some(ref conn) = self.dbconn {
+            let c = conn.execute("DELETE FROM albums WHERE id=?1", params![id])?;
+            if c == 1 {
+                return Ok(());
+            }
+            return Err(Error::InvalidResult);
+        }
+        Err(Error::NoSqlDb)
+    }
+
     /// Get all the albums.
     pub(crate) fn get_all_albums(&self) -> Result<Vec<Album>> {
         if let Some(ref conn) = self.dbconn {

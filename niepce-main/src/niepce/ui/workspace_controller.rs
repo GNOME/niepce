@@ -71,8 +71,10 @@ enum Event {
     RowExpanded(gtk4::TreeIter, gtk4::TreePath),
     RowCollapsed(gtk4::TreeIter, gtk4::TreePath),
     NewFolder,
-    DeleteFolder,
-    /// Initiate the import
+    NewAlbum,
+    /// Delete the current item.
+    DeleteItem,
+    /// Initiate the import.
     Import,
     /// Sent after the import is initiated
     PerformImport(Box<ImportRequest>),
@@ -185,6 +187,14 @@ impl Widgets {
             self.expand_from_cfg("workspace_albums_expanded", &self.albums_node);
         }
         self.albumsidmap.borrow_mut().insert(album.id(), iter);
+    }
+
+    fn remove_album_item(&self, id: db::LibraryId) {
+        let iter = self.albumsidmap.borrow().get(&id).cloned();
+        if let Some(iter) = iter {
+            self.treestore.remove(&iter);
+            self.albumsidmap.borrow_mut().remove(&id);
+        }
     }
 
     fn expand_from_cfg(&self, key: &str, node: &gtk4::TreeIter) {
@@ -332,8 +342,12 @@ impl UiController for WorkspaceController {
                 let section = gio::Menu::new();
                 menu.append_section(None, &section);
                 section.append(Some(&i18n("New Folder...")), Some("workspace.NewFolder"));
-                section.append(Some(&i18n("New Project...")), Some("workspace.NewProject"));
-                section.append(Some(&i18n("Delete Folder")), Some("workspace.DeleteFolder"));
+                section.append(Some(&i18n("New Album...")), Some("workspace.NewAlbum"));
+                // section.append(
+                //     Some(&i18n("New Project...")),
+                //     Some("workspace.NewProject"),
+                // );
+                section.append(Some(&i18n("Delete")), Some("workspace.DeleteItem"));
 
                 let section = gio::Menu::new();
                 menu.append_section(None, &section);
@@ -419,6 +433,13 @@ impl UiController for WorkspaceController {
                 );
                 action!(
                     group,
+                    "NewAlbum",
+                    glib::clone!(@strong tx => move |_, _| {
+                        on_err_out!(tx.send(Event::NewAlbum));
+                    })
+                );
+                action!(
+                    group,
                     "Import",
                     glib::clone!(@strong tx => move |_, _| {
                         on_err_out!(tx.send(Event::Import));
@@ -433,9 +454,9 @@ impl UiController for WorkspaceController {
                 );
                 action!(
                     group,
-                    "DeleteFolder",
+                    "DeleteItem",
                     glib::clone!(@strong tx => move |_, _| {
-                        on_err_out!(tx.send(Event::DeleteFolder));
+                        on_err_out!(tx.send(Event::DeleteItem));
                     })
                 );
 
@@ -499,7 +520,8 @@ impl WorkspaceController {
             RowExpanded(iter, _) => self.row_expanded_collapsed(iter, true),
             RowCollapsed(iter, _) => self.row_expanded_collapsed(iter, false),
             NewFolder => self.action_new_folder(),
-            DeleteFolder => self.action_delete_folder(),
+            NewAlbum => self.action_new_album(),
+            DeleteItem => self.action_delete_item(),
             Import => self.action_import(),
             PerformImport(request) => self.perform_file_import(request.as_ref()),
             ImportLibrary => self.action_import_library(),
@@ -537,7 +559,7 @@ impl WorkspaceController {
                 }
             }
             // XXX
-            // disable DeleteFolder of type != folder
+            // disable DeleteItem of type != folder or album
             self.selection_changed.emit(());
         }
     }
@@ -572,30 +594,84 @@ impl WorkspaceController {
                 .widget()
                 .ancestor(gtk4::Window::static_type())
                 .and_then(|w| w.downcast::<gtk4::Window>().ok());
-            super::dialogs::requestnewfolder::request(client, window.as_ref());
+            npc_fwk::toolkit::request::request_name(
+                window.as_ref(),
+                &i18n("New folder"),
+                &i18n("Folder _name:"),
+                move |name| {
+                    dbg_out!("Create folder {}", &name);
+                    client.create_folder(name.to_string(), None);
+                },
+            );
         }
     }
 
-    fn action_delete_folder(&self) {
-        if let Some(id) = self.selected_folder_id() {
+    /// Delete the selected item
+    fn action_delete_item(&self) {
+        if let Some((type_, id)) = self.selected_item_id() {
+            match type_ {
+                TreeItemType::Folder => self.action_delete_folder(id),
+                TreeItemType::Album => self.action_delete_album(id),
+                _ => err_out!("Wrong type {:?}", type_),
+            }
+        }
+    }
+
+    fn action_delete_folder(&self, id: db::LibraryId) {
+        let window = self
+            .widget()
+            .ancestor(gtk4::Window::static_type())
+            .and_then(|w| w.downcast::<gtk4::Window>().ok());
+        let dialog =
+            super::dialogs::confirm::request(&i18n("Delete selected folder?"), window.as_ref());
+        dialog.connect_response(
+            glib::clone!(@strong dialog, @strong self.client as client => move |_, response| {
+                if response == gtk4::ResponseType::Yes {
+                    if let Some(client) = client.upgrade() {
+                        client.delete_folder(id);
+                    }
+                }
+                dialog.destroy();
+            }),
+        );
+        dialog.show();
+    }
+
+    fn action_new_album(&self) {
+        if let Some(client) = self.client.upgrade() {
             let window = self
                 .widget()
                 .ancestor(gtk4::Window::static_type())
                 .and_then(|w| w.downcast::<gtk4::Window>().ok());
-            let dialog =
-                super::dialogs::confirm::request(&i18n("Delete selected folder?"), window.as_ref());
-            dialog.connect_response(
-                glib::clone!(@strong dialog, @strong self.client as client => move |_, response| {
+            npc_fwk::toolkit::request::request_name(
+                window.as_ref(),
+                &i18n("New Album"),
+                &i18n("Album _name:"),
+                move |name| {
+                    client.create_album(name.to_string(), -1);
+                },
+            );
+        }
+    }
+
+    fn action_delete_album(&self, id: db::LibraryId) {
+        let window = self
+            .widget()
+            .ancestor(gtk4::Window::static_type())
+            .and_then(|w| w.downcast::<gtk4::Window>().ok());
+        let dialog =
+            super::dialogs::confirm::request(&i18n("Delete selected album?"), window.as_ref());
+        dialog.connect_response(
+            glib::clone!(@strong dialog, @strong self.client as client => move |_, response| {
                 if response == gtk4::ResponseType::Yes {
                     if let Some(client) = client.upgrade() {
-                    client.delete_folder(id);
+                        client.delete_album(id);
                     }
                 }
                 dialog.destroy();
-                }),
-            );
-            dialog.show();
-        }
+            }),
+        );
+        dialog.show();
     }
 
     fn perform_file_import(&self, request: &ImportRequest) {
@@ -680,16 +756,16 @@ impl WorkspaceController {
         }
     }
 
-    fn selected_folder_id(&self) -> Option<db::LibraryId> {
+    fn selected_item_id(&self) -> Option<(TreeItemType, db::LibraryId)> {
         self.widgets.get().and_then(|widgets| {
             let selection = widgets.librarytree.selection();
             selection.selected().and_then(|selected| {
                 let t: Option<TreeItemType> =
                     FromPrimitive::from_i32(selected.0.get(&selected.1, Columns::Type as i32));
-                if t != Some(TreeItemType::Folder) {
-                    None
+                if let Some(type_) = t {
+                    Some((type_, selected.0.get(&selected.1, Columns::Id as i32)))
                 } else {
-                    Some(selected.0.get(&selected.1, Columns::Id as i32))
+                    None
                 }
             })
         })
@@ -748,6 +824,14 @@ impl WorkspaceController {
         }
     }
 
+    fn remove_album_item(&self, id: db::LibraryId) {
+        if let Some(widgets) = self.widgets.get() {
+            widgets.remove_album_item(id);
+        } else {
+            err_out!("couldn't get widgets");
+        }
+    }
+
     fn add_item(
         treestore: &gtk4::TreeStore,
         subtree: Option<&gtk4::TreeIter>,
@@ -778,6 +862,7 @@ impl WorkspaceController {
             LibNotification::FolderDeleted(id) => self.remove_folder_item(*id),
             LibNotification::AddedKeyword(k) => self.add_keyword_item(k),
             LibNotification::AddedAlbum(a) => self.add_album_item(a),
+            LibNotification::AlbumDeleted(id) => self.remove_album_item(*id),
             LibNotification::FolderCounted(count)
             | LibNotification::KeywordCounted(count)
             | LibNotification::AlbumCounted(count) => {

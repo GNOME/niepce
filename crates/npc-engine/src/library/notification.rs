@@ -92,6 +92,7 @@ pub enum LibNotification {
     AlbumContentQueried(QueriedContent),
     AlbumCounted(Count),
     AlbumCountChanged(Count),
+    AlbumDeleted(LibraryId),
     FileMoved(FileMove),
     FileStatusChanged(FileStatusChange),
     FolderContentQueried(QueriedContent),
@@ -130,6 +131,7 @@ impl LibNotification {
             LibNotification::AlbumCounted(_) => NotificationType::ALBUM_COUNTED,
             LibNotification::AlbumCountChanged(_) => NotificationType::ALBUM_COUNT_CHANGE,
             LibNotification::AlbumContentQueried(_) => NotificationType::ALBUM_CONTENT_QUERIED,
+            LibNotification::AlbumDeleted(_) => NotificationType::AlbumDeleted,
             LibNotification::FileMoved(_) => NotificationType::FILE_MOVED,
             LibNotification::FileStatusChanged(_) => NotificationType::FILE_STATUS_CHANGED,
             LibNotification::FolderContentQueried(_) => NotificationType::FOLDER_CONTENT_QUERIED,
@@ -154,6 +156,7 @@ impl LibNotification {
     pub fn id(&self) -> i64 {
         match *self {
             LibNotification::MetadataChanged(ref changed) => changed.id,
+            LibNotification::AlbumDeleted(id) => id,
             LibNotification::FolderDeleted(id) => id,
             LibNotification::LabelDeleted(id) => id,
             LibNotification::FileStatusChanged(ref changed) => changed.id,

@@ -25,6 +25,7 @@ pub mod gdk_utils;
 pub mod gtk_utils;
 pub mod mimetype;
 pub mod movieutils;
+pub mod request;
 pub mod thumbnail;
 mod uicontroller;
 mod undo;
