@@ -142,8 +142,9 @@ impl Widgets {
     }
 
     fn remove_folder_item(&self, id: db::LibraryId) {
-        if let Some(iter) = self.folderidmap.borrow().get(&id) {
-            self.treestore.remove(iter);
+        let iter = self.folderidmap.borrow().get(&id).cloned();
+        if let Some(iter) = iter {
+            self.treestore.remove(&iter);
             self.folderidmap.borrow_mut().remove(&id);
         }
     }
