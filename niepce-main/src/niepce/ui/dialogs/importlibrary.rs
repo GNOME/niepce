@@ -349,7 +349,7 @@ impl ImportLibraryDialog {
     }
 
     fn select_file(&self) {
-        let message = i18n("Select Lightromm Library");
+        let message = i18n("Select Lightroom™ Library");
         let file_dialog = gtk4::FileChooserDialog::new(
             Some(&message),
             Some(&self.assistant),
