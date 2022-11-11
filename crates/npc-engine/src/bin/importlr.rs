@@ -21,7 +21,7 @@
 //! Sample command line tool to import a Lr Catalog
 //!
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 use serde_derive::Deserialize;
 
 use std::io::Read;
@@ -49,40 +49,38 @@ struct Remaps {
 fn main() {
     npc_fwk::init();
 
-    let matches = App::new("LrImporter")
+    let matches = Command::new("LrImporter")
         .version("0.1.0")
         .about("Import a Lr catalog")
         .arg(
-            Arg::with_name("v")
-                .short("v")
-                .multiple(true)
+            Arg::new("v")
+                .short('v')
+                .action(clap::ArgAction::Count)
                 .help("Sets the level of verbosity"),
         )
         .arg(
-            Arg::with_name("CATALOG")
+            Arg::new("CATALOG")
                 .help("The catalog to import")
                 .required(true),
         )
         .arg(
-            Arg::with_name("roots")
-                .short("r")
+            Arg::new("roots")
+                .short('r')
                 .value_name("ROOTS")
-                .help("File containing roots remap")
-                .takes_value(true),
+                .help("File containing roots remap"),
         )
         .arg(
-            Arg::with_name("library")
-                .short("L")
+            Arg::new("library")
+                .short('L')
                 .value_name("LIBRARY")
                 .help("Which library to import into")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .get_matches();
 
-    let library = matches.value_of("library").unwrap();
-    let catalog = matches.value_of("CATALOG").unwrap();
-    let verbosity = matches.occurrences_of("v");
+    let library = matches.get_one::<String>("library").unwrap();
+    let catalog = matches.get_one::<String>("CATALOG").unwrap();
+    let verbosity = matches.get_count("v");
 
     let (sender, _recv) = async_channel::unbounded();
 
@@ -98,7 +96,7 @@ fn main() {
         .init_importer(&PathBuf::from(catalog))
         .expect("Init importer");
 
-    if let Some(roots) = matches.value_of("roots") {
+    if let Some(roots) = matches.get_one::<String>("roots") {
         let mut file = std::fs::File::open(roots).expect("Can't open roots file");
         let mut content = String::new();
         file.read_to_string(&mut content).expect("Can't read roots");

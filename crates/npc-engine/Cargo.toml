@@ -27,7 +27,7 @@ rusqlite = { version = "0.28.0", features = ["functions", "backup", "bundled"] }
 npc-fwk = { path = "../npc-fwk" }
 
 # optional dependpencies
-clap = { version = "2.33.3", optional = true }
+clap = { version = "4.0.19", optional = true }
 toml = { version = "0.5", optional = true }
 serde = { version = "*", optional = true }
 serde_derive = { version = "^1.0", optional = true }
