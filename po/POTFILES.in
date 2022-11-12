@@ -2,12 +2,12 @@
 # Please keep this file sorted alphabetically.
 camerawire/src/cwwindow.cpp
 crates/npc-engine/src/importer/lrimporter.rs
+crates/npc-fwk/src/toolkit/request.rs
 data/org.gnome.Niepce.appdata.xml.in
 data/org.gnome.Niepce.desktop.in
+niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary.rs
 niepce-main/src/niepce/ui/dialogs/importlibrary.ui
-niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
-niepce-main/src/niepce/ui/dialogs/request.rs
 niepce-main/src/niepce/ui/metadata_pane_controller.rs
 niepce-main/src/niepce/ui/module_shell.rs
 niepce-main/src/niepce/ui/niepce_window.rs
