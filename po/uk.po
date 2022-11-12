@@ -2,13 +2,13 @@
 # Copyright (C) 2020 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
 #
-# yurchor <yurchor@ukr.net>, 2020.
+# yurchor <yurchor@ukr.net>, 2020, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2020-02-18 05:44+0000\n"
-"PO-Revision-Date: 2020-03-01 15:44+0200\n"
+"POT-Creation-Date: 2022-11-11 12:45+0000\n"
+"PO-Revision-Date: 2022-11-12 09:51+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -17,10 +17,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n"
 "%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Lokalize 20.03.70\n"
+"X-Generator: Lokalize 20.12.0\n"
 
 #: camerawire/src/cwwindow.cpp:62
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:36
+#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:37
 msgid "Camera"
 msgstr "Камера"
 
@@ -28,7 +28,7 @@ msgstr "Камера"
 msgid "File"
 msgstr "Файл"
 
-#: camerawire/src/cwwindow.cpp:92 src/niepce/ui/workspacecontroller.cpp:456
+#: camerawire/src/cwwindow.cpp:92
 msgid "_Import..."
 msgstr "_Імпортувати…"
 
@@ -60,37 +60,41 @@ msgstr "Інструменти"
 msgid "Refresh"
 msgstr "Оновити"
 
-#: camerawire/src/cwwindow.cpp:135 src/niepce/ui/niepcewindow.cpp:245
+#: camerawire/src/cwwindow.cpp:135
+#: niepce-main/src/niepce/ui/niepce_window.rs:139
 msgid "Hide tools"
 msgstr "Сховати інструменти"
 
-#. Only include 'name' if you want the software center name to be different to the 'Name' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:8 data/org.gnome.Niepce.desktop.in:3
+#: crates/npc-engine/src/importer/lrimporter.rs:90
+msgid "Untitled"
+msgstr "Без назви"
+
+#: data/org.gnome.Niepce.appdata.xml.in:6 data/org.gnome.Niepce.desktop.in:3
+#: niepce-main/src/niepce/ui/niepce_window.rs:348
 msgid "Niepce Digital"
 msgstr "Niepce Digital"
 
-#. Only include 'summary' if you want the software center name to be different to the 'Comment' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:10
+#: data/org.gnome.Niepce.appdata.xml.in:7
 msgid "Advanced Photo Editing"
 msgstr "Редагування фотографій із додатковими можливостями"
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/org.gnome.Niepce.appdata.xml.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr "Niepce Digital — програма для керування і редагування фотографій."
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/org.gnome.Niepce.appdata.xml.in:12
 msgid "Features:"
 msgstr "Можливості:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:18
+#: data/org.gnome.Niepce.appdata.xml.in:14
 msgid "Photo library management"
 msgstr "Керування бібліотекою фотографій"
 
-#: data/org.gnome.Niepce.appdata.xml.in:19
+#: data/org.gnome.Niepce.appdata.xml.in:15
 msgid "Non destructive image editing"
 msgstr "Недеструктивне редагування зображень"
 
-#: data/org.gnome.Niepce.appdata.xml.in:20
+#: data/org.gnome.Niepce.appdata.xml.in:16
 msgid "RAW processing"
 msgstr "Обробка цифрових негативів"
 
@@ -103,19 +107,257 @@ msgstr "Керування вашими фотографіями і редагу
 msgid "photo;"
 msgstr "photo;фото;фотографія;"
 
-#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:40
-msgid "OK"
-msgstr "Гаразд"
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:289
+#| msgid "Import"
+msgid "Importing from"
+msgstr "Імпортуємо з"
 
-#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:41
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:72
-#: src/niepce/ui/niepcewindow.cpp:345
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:352
+msgid "Select Lightromm Library"
+msgstr "Виберіть бібліотеку Lightroom"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:358
+#: src/niepce/ui/dialogs/importdialog.ui:33
+msgid "Import"
+msgstr "Імпортувати"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:359
+#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:36
+#: niepce-main/src/niepce/ui/niepce_window.rs:382
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:59
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:44
+#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:35
+msgid "OK"
+msgstr "Гаразд"
+
+#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:39
 msgid "Folder _name:"
 msgstr "_Назва теки:"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:106
+msgid "Back"
+msgstr "Назад"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:118
+msgid "Forward"
+msgstr "Вперед"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:133
+msgid "Rotate Left"
+msgstr "Обертати ліворуч"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:145
+msgid "Rotate Right"
+msgstr "Обертати праворуч"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:153
+#: niepce-main/src/niepce/ui/selection_controller.rs:294
+msgid "Set Label"
+msgstr "Встановити мітку"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:163
+msgid "Label 6"
+msgstr "Мітка 6"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:175
+msgid "Label 7"
+msgstr "Мітка 7"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:187
+msgid "Label 8"
+msgstr "Мітка 8"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:199
+msgid "Label 9"
+msgstr "Мітка 9"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:205
+#: niepce-main/src/niepce/ui/selection_controller.rs:293
+msgid "Set Rating"
+msgstr "Встановити оцінку"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:214
+msgid "Unrated"
+msgstr "Без оцінки"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:226
+msgid "Rating 1"
+msgstr "Оцінка 1"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:238
+msgid "Rating 2"
+msgstr "Оцінка 2"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:250
+msgid "Rating 3"
+msgstr "Оцінка 3"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:262
+msgid "Rating 4"
+msgstr "Оцінка 4"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:274
+msgid "Rating 5"
+msgstr "Оцінка 5"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:280
+#: niepce-main/src/niepce/ui/selection_controller.rs:292
+msgid "Set Flag"
+msgstr "Встановити прапорець"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:289
+msgid "Flag as Rejected"
+msgstr "Позначити як відкинуту"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:301
+msgid "Unflagged"
+msgstr "Без прапорця"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:313
+msgid "Flag as Pick"
+msgstr "Позначити як вибрану"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:328
+msgid "Write metadata"
+msgstr "Записати метадані"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:336
+msgid "Catalog"
+msgstr "Каталог"
+
+#. built-in modules;
+#: niepce-main/src/niepce/ui/module_shell.rs:351
+msgid "Darkroom"
+msgstr "Темна кімната"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:352
+msgid "Map"
+msgstr "Карта"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:114
+msgid "Undo"
+msgstr "Скасувати"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:117
+msgid "Redo"
+msgstr "Повторити"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:124
+#: niepce-main/src/niepce/ui/workspace_controller.rs:345
+msgid "Import..."
+msgstr "Імпортувати…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:134
+msgid "New Catalog..."
+msgstr "Створити каталог…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:135
+msgid "Open Catalog..."
+msgstr "Відкрити каталог…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:140
+msgid "Edit Labels..."
+msgstr "Редагувати мітки…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:141
+msgid "Preferences..."
+msgstr "Налаштування…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:145
+msgid "Help"
+msgstr "Довідка"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:146
+msgid "About"
+msgstr "Про програму"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:252
+msgid "Label 1"
+msgstr "Мітка 1"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:256
+msgid "Label 2"
+msgstr "Мітка 2"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:260
+msgid "Label 3"
+msgstr "Мітка 3"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:264
+msgid "Label 4"
+msgstr "Мітка 4"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:268
+msgid "Label 5"
+msgstr "Мітка 5"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:313
+msgid "Catalog need to be upgraded"
+msgstr "Слід оновити каталог"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:378
+msgid "Open catalog"
+msgstr "Відкрити каталог"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:383
+msgid "Open"
+msgstr "Відкрити"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:482
+msgid "Ready"
+msgstr "Виконано"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:295
+msgid "Set Property"
+msgstr "Встановити властивість"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:309
+msgid "Set Properties"
+msgstr "Встановити властивості"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:329
+msgid "Move to Trash"
+msgstr "Пересунути до смітника"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:267
+msgid "Pictures"
+msgstr "Картинки"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:284
+msgid "Albums"
+msgstr "Альбоми"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:292
+msgid "Keywords"
+msgstr "Ключові слова"
+
+#. header.set_margin(4);
+#: niepce-main/src/niepce/ui/workspace_controller.rs:319
+msgid "_Workspace"
+msgstr "_Робочий простір"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:333
+msgid "New Folder..."
+msgstr "Створити теку…"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:335
+msgid "New Project..."
+msgstr "Створити проєкт…"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:339
+msgid "Delete Folder"
+msgstr "Вилучити теку"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:347
+#| msgid "Import..."
+msgid "Import Library..."
+msgstr "Імпортувати бібліотеку…"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:591
+msgid "Delete selected folder?"
+msgstr "Вилучити позначену теку?"
 
 #: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
 msgid "Name"
@@ -182,103 +424,98 @@ msgstr "Насиченість"
 msgid "Vibrance"
 msgstr "Резонанс"
 
-#: src/niepce/ui/dialogs/editlabels.cpp:55
-#: src/niepce/ui/dialogs/editlabels.ui:8
+#: src/niepce/ui/dialogs/editlabels.cpp:59
+#: src/niepce/ui/dialogs/editlabels.ui:5
 msgid "Edit Labels"
 msgstr "Редагувати мітки"
 
-#: src/niepce/ui/dialogs/editlabels.cpp:114
+#: src/niepce/ui/dialogs/editlabels.cpp:101
 msgid "Change Labels"
 msgstr "Змінити мітки"
 
-#: src/niepce/ui/dialogs/editlabels.ui:71
+#: src/niepce/ui/dialogs/editlabels.ui:26
 msgid "Label _6"
 msgstr "Мітка _6"
 
-#: src/niepce/ui/dialogs/editlabels.ui:85
+#: src/niepce/ui/dialogs/editlabels.ui:38
 msgid "Label _7"
 msgstr "Мітка _7"
 
-#: src/niepce/ui/dialogs/editlabels.ui:99
+#: src/niepce/ui/dialogs/editlabels.ui:50
 msgid "Label _8"
 msgstr "Мітка _8"
 
-#: src/niepce/ui/dialogs/editlabels.ui:113
+#: src/niepce/ui/dialogs/editlabels.ui:62
 msgid "Label _9"
 msgstr "Мітка _9"
 
-#: src/niepce/ui/dialogs/editlabels.ui:172
+#: src/niepce/ui/dialogs/editlabels.ui:115
 msgid "Label _10"
 msgstr "Мітка _10"
 
-#: src/niepce/ui/dialogs/editlabels.ui:275
+#: src/niepce/ui/dialogs/editlabels.ui:214
 msgid "<b>Labels</b>"
 msgstr "<b>Мітки</b>"
 
-#: src/niepce/ui/dialogs/importdialog.ui:14
+#: src/niepce/ui/dialogs/importdialog.ui:11
 msgid "(none)"
 msgstr "(немає)"
 
-#: src/niepce/ui/dialogs/importdialog.ui:15
+#: src/niepce/ui/dialogs/importdialog.ui:12
 msgid "NONE"
 msgstr "Немає"
 
-#: src/niepce/ui/dialogs/importdialog.ui:29
+#: src/niepce/ui/dialogs/importdialog.ui:24
 msgid "local"
 msgstr "місцевий"
 
-#: src/niepce/ui/dialogs/importdialog.ui:33
+#: src/niepce/ui/dialogs/importdialog.ui:28
 msgid "utc"
 msgstr "UTC"
 
-#: src/niepce/ui/dialogs/importdialog.ui:41
-msgid "Import"
-msgstr "Імпортувати"
-
-#: src/niepce/ui/dialogs/importdialog.ui:76
-msgid "_Import"
-msgstr "_Імпорт"
-
-#: src/niepce/ui/dialogs/importdialog.ui:142
+#: src/niepce/ui/dialogs/importdialog.ui:73
 msgid "_Images to import"
 msgstr "З_ображення для імпортування"
 
-#: src/niepce/ui/dialogs/importdialog.ui:189
+#: src/niepce/ui/dialogs/importdialog.ui:100
 msgid "Destination _Folder"
 msgstr "_Тека призначення"
 
-#: src/niepce/ui/dialogs/importdialog.ui:232
+#: src/niepce/ui/dialogs/importdialog.ui:131
 msgid "Import _UFRaw"
 msgstr "Імпортувати з _UFRaw"
 
-#: src/niepce/ui/dialogs/importdialog.ui:249
+#: src/niepce/ui/dialogs/importdialog.ui:141
 msgid "Import Raw_Studio"
 msgstr "Імпортувати з Raw_Studio"
 
-#: src/niepce/ui/dialogs/importdialog.ui:270
+#: src/niepce/ui/dialogs/importdialog.ui:152
 msgid "_Options"
 msgstr "П_араметри"
 
-#: src/niepce/ui/dialogs/importdialog.ui:326
+#: src/niepce/ui/dialogs/importdialog.ui:190
 msgid "Presets:"
 msgstr "Шаблони:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:385
+#: src/niepce/ui/dialogs/importdialog.ui:225
 msgid "You can still change this after importing the pictures."
 msgstr "Ви зможете внести додаткові зміни після імпортування зображень."
 
-#: src/niepce/ui/dialogs/importdialog.ui:406
-#: src/niepce/ui/metadatapanecontroller.cpp:59
+#: src/niepce/ui/dialogs/importdialog.ui:236
 msgid "Date:"
 msgstr "Дата:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:450
+#: src/niepce/ui/dialogs/importdialog.ui:264
 msgid "Attributes:"
 msgstr "Атрибути:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:469
+#: src/niepce/ui/dialogs/importdialog.ui:276
 msgid "Metadata"
 msgstr "Метадані"
+
+#: src/niepce/ui/dialogs/importdialog.ui:303
+msgid "_Import"
+msgstr "_Імпорт"
 
 #: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:65
 msgid "No camera found"
@@ -288,264 +525,59 @@ msgstr "Не знайдено камери"
 msgid "Camera import %1%"
 msgstr "Імпортування з камери — %1%"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:28
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:20
 msgid "Available cameras:"
 msgstr "Доступні камери:"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:37
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:73
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:29
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:60
 msgid "Select"
 msgstr "Вибрати"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:34
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:33
 msgid "Directory"
 msgstr "Каталог"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:69
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:56
 msgid "Import picture folder"
 msgstr "Імпортувати теку із зображеннями"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:16
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:12
 msgid "_Directory:"
 msgstr "_Каталог:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:39
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:23
 msgid "..."
 msgstr "…"
 
-#: src/niepce/ui/dialogs/preferencesdialog.cpp:40
-#: src/niepce/ui/dialogs/preferences.ui:9
+#: src/niepce/ui/dialogs/preferencesdialog.cpp:38
+#: src/niepce/ui/dialogs/preferences.ui:5
 msgid "Preferences"
 msgstr "Налаштування"
 
-#: src/niepce/ui/dialogs/preferences.ui:70
+#: src/niepce/ui/dialogs/preferences.ui:35
 msgid "_Reopen Catalog"
 msgstr "П_овторно відкрити каталог"
 
-#: src/niepce/ui/dialogs/preferences.ui:86
+#: src/niepce/ui/dialogs/preferences.ui:48
 msgid "Write XMP automatically (not recommended)"
 msgstr "Записувати XMP автоматично (не рекомендуємо)"
 
-#: src/niepce/ui/dialogs/preferences.ui:105
+#: src/niepce/ui/dialogs/preferences.ui:62
 msgid "_General"
 msgstr "_Загальне"
 
-#: src/niepce/ui/dialogs/preferences.ui:119
+#: src/niepce/ui/dialogs/preferences.ui:81
 msgid "Use dark interface"
 msgstr "Темний інтерфейс"
 
-#: src/niepce/ui/dialogs/preferences.ui:141
+#: src/niepce/ui/dialogs/preferences.ui:95
 msgid "_User Interface"
 msgstr "Інтерфейс _користувача"
 
-#: src/niepce/ui/metadatapanecontroller.cpp:36
-msgid "File Name:"
-msgstr "Назва файла:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:37
-msgid "Folder:"
-msgstr "Тека:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:38
-msgid "File Type:"
-msgstr "Тип файла:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:39
-msgid "File Size:"
-msgstr "Розмір файла:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:40
-msgid "Sidecar Files:"
-msgstr "Додаткові файли:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:44
-msgid "Make:"
-msgstr "Виробник:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:45
-msgid "Model:"
-msgstr "Модель:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:46
-msgid "Lens:"
-msgstr "Об’єктив:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:50
-msgid "Exposure Program:"
-msgstr "Програма експозиції:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:51
-msgid "Speed:"
-msgstr "Швидкість:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:52
-msgid "Aperture:"
-msgstr "Апертура:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:53
-msgid "ISO:"
-msgstr "ISO:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:54
-msgid "Exposure Bias:"
-msgstr "Ухил експозиції:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:55
-msgid "Flash:"
-msgstr "Спалах:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:56
-msgid "Flash compensation:"
-msgstr "Компенсація спалаху:"
-
 #: src/niepce/ui/metadatapanecontroller.cpp:57
-msgid "Focal length:"
-msgstr "Фокусна відстань:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:58
-msgid "White balance:"
-msgstr "Баланс білого:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:63
-msgid "Headline:"
-msgstr "Заголовок:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:64
-msgid "Caption:"
-msgstr "Підпис:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:65
-msgid "Rating:"
-msgstr "Оцінка:"
-
-#. FIXME change this type to the right one when there is a widget
-#: src/niepce/ui/metadatapanecontroller.cpp:67
-msgid "Label:"
-msgstr "Мітка:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:68
-msgid "Keywords:"
-msgstr "Ключові слова:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:72
-msgid "File Information"
-msgstr "Інформація про файл"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:75
-msgid "Camera Information"
-msgstr "Дані щодо камери"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:78
-msgid "Shooting Information"
-msgstr "Дані щодо зйомки"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:81
-msgid "IPTC"
-msgstr "IPTC"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:84
-msgid "Rights"
-msgstr "Права"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:114
 msgid "Image Properties"
 msgstr "Властивості зображення"
-
-#: src/niepce/ui/moduleshell.cpp:60
-msgid "Back"
-msgstr "Назад"
-
-#: src/niepce/ui/moduleshell.cpp:66
-msgid "Forward"
-msgstr "Вперед"
-
-#: src/niepce/ui/moduleshell.cpp:76
-msgid "Rotate Left"
-msgstr "Обертати ліворуч"
-
-#: src/niepce/ui/moduleshell.cpp:83
-msgid "Rotate Right"
-msgstr "Обертати праворуч"
-
-#: src/niepce/ui/moduleshell.cpp:89 src/niepce/ui/selectioncontroller.cpp:281
-msgid "Set Label"
-msgstr "Встановити мітку"
-
-#: src/niepce/ui/moduleshell.cpp:96
-msgid "Label 6"
-msgstr "Мітка 6"
-
-#: src/niepce/ui/moduleshell.cpp:102
-msgid "Label 7"
-msgstr "Мітка 7"
-
-#: src/niepce/ui/moduleshell.cpp:108
-msgid "Label 8"
-msgstr "Мітка 8"
-
-#: src/niepce/ui/moduleshell.cpp:114
-msgid "Label 9"
-msgstr "Мітка 9"
-
-#: src/niepce/ui/moduleshell.cpp:117 src/niepce/ui/selectioncontroller.cpp:278
-msgid "Set Rating"
-msgstr "Встановити оцінку"
-
-#: src/niepce/ui/moduleshell.cpp:124
-msgid "Unrated"
-msgstr "Без оцінки"
-
-#: src/niepce/ui/moduleshell.cpp:130
-msgid "Rating 1"
-msgstr "Оцінка 1"
-
-#: src/niepce/ui/moduleshell.cpp:136
-msgid "Rating 2"
-msgstr "Оцінка 2"
-
-#: src/niepce/ui/moduleshell.cpp:142
-msgid "Rating 3"
-msgstr "Оцінка 3"
-
-#: src/niepce/ui/moduleshell.cpp:148
-msgid "Rating 4"
-msgstr "Оцінка 4"
-
-#: src/niepce/ui/moduleshell.cpp:154
-msgid "Rating 5"
-msgstr "Оцінка 5"
-
-#: src/niepce/ui/moduleshell.cpp:157 src/niepce/ui/selectioncontroller.cpp:275
-msgid "Set Flag"
-msgstr "Встановити прапорець"
-
-#: src/niepce/ui/moduleshell.cpp:165
-msgid "Flag as Rejected"
-msgstr "Позначити як відкинуту"
-
-#: src/niepce/ui/moduleshell.cpp:172
-msgid "Unflagged"
-msgstr "Без прапорця"
-
-#: src/niepce/ui/moduleshell.cpp:179
-msgid "Flag as Pick"
-msgstr "Позначити як вибрану"
-
-#: src/niepce/ui/moduleshell.cpp:188
-msgid "Write metadata"
-msgstr "Записати метадані"
-
-#: src/niepce/ui/moduleshell.cpp:198
-msgid "Catalog"
-msgstr "Каталог"
-
-#: src/niepce/ui/moduleshell.cpp:207
-msgid "Darkroom"
-msgstr "Темна кімната"
-
-#: src/niepce/ui/moduleshell.cpp:210
-msgid "Map"
-msgstr "Карта"
 
 #: src/niepce/ui/niepceapplication.cpp:79
 msgid ""
@@ -557,120 +589,89 @@ msgstr ""
 "\n"
 "Параметри збирання: "
 
-#: src/niepce/ui/niepcewindow.cpp:78
-msgid "Undo"
-msgstr "Скасувати"
+#~ msgid "File Name:"
+#~ msgstr "Назва файла:"
 
-#: src/niepce/ui/niepcewindow.cpp:89
-msgid "Import..."
-msgstr "Імпортувати…"
+#~ msgid "Folder:"
+#~ msgstr "Тека:"
 
-#: src/niepce/ui/niepcewindow.cpp:166
-msgid "Ready"
-msgstr "Виконано"
+#~ msgid "File Type:"
+#~ msgstr "Тип файла:"
 
-#: src/niepce/ui/niepcewindow.cpp:237
-msgid "New Catalog..."
-msgstr "Створити каталог…"
+#~ msgid "File Size:"
+#~ msgstr "Розмір файла:"
 
-#: src/niepce/ui/niepcewindow.cpp:238
-msgid "Open Catalog..."
-msgstr "Відкрити каталог…"
+#~ msgid "Sidecar Files:"
+#~ msgstr "Додаткові файли:"
 
-#: src/niepce/ui/niepcewindow.cpp:249
-msgid "Edit Labels..."
-msgstr "Редагувати мітки…"
+#~ msgid "Make:"
+#~ msgstr "Виробник:"
 
-#: src/niepce/ui/niepcewindow.cpp:250
-msgid "Preferences..."
-msgstr "Налаштування…"
+#~ msgid "Model:"
+#~ msgstr "Модель:"
 
-#: src/niepce/ui/niepcewindow.cpp:254
-msgid "Help"
-msgstr "Довідка"
+#~ msgid "Lens:"
+#~ msgstr "Об’єктив:"
 
-#: src/niepce/ui/niepcewindow.cpp:255
-msgid "About"
-msgstr "Про програму"
+#~ msgid "Exposure Program:"
+#~ msgstr "Програма експозиції:"
 
-#. TODO make this parametric from resources
-#: src/niepce/ui/niepcewindow.cpp:291
-msgid "Label 1"
-msgstr "Мітка 1"
+#~ msgid "Speed:"
+#~ msgstr "Швидкість:"
 
-#. 217, 37, 17
-#: src/niepce/ui/niepcewindow.cpp:292
-msgid "Label 2"
-msgstr "Мітка 2"
+#~ msgid "Aperture:"
+#~ msgstr "Апертура:"
 
-#. 97, 217, 17
-#: src/niepce/ui/niepcewindow.cpp:293
-msgid "Label 3"
-msgstr "Мітка 3"
+#~ msgid "ISO:"
+#~ msgstr "ISO:"
 
-#. 17, 197, 217
-#: src/niepce/ui/niepcewindow.cpp:294
-msgid "Label 4"
-msgstr "Мітка 4"
+#~ msgid "Exposure Bias:"
+#~ msgstr "Ухил експозиції:"
 
-#. 137, 17, 217
-#: src/niepce/ui/niepcewindow.cpp:295
-msgid "Label 5"
-msgstr "Мітка 5"
+#~ msgid "Flash:"
+#~ msgstr "Спалах:"
 
-#: src/niepce/ui/niepcewindow.cpp:343
-msgid "Open catalog"
-msgstr "Відкрити каталог"
+#~ msgid "Flash compensation:"
+#~ msgstr "Компенсація спалаху:"
 
-#: src/niepce/ui/niepcewindow.cpp:346
-msgid "Open"
-msgstr "Відкрити"
+#~ msgid "Focal length:"
+#~ msgstr "Фокусна відстань:"
 
-#: src/niepce/ui/niepcewindow.cpp:403
-msgid "Niepce Digital - "
-msgstr "Niepce Digital – "
+#~ msgid "White balance:"
+#~ msgstr "Баланс білого:"
 
-#: src/niepce/ui/selectioncontroller.cpp:284
-msgid "Set Property"
-msgstr "Встановити властивість"
+#~ msgid "Headline:"
+#~ msgstr "Заголовок:"
 
-#: src/niepce/ui/selectioncontroller.cpp:299
-msgid "Set Properties"
-msgstr "Встановити властивості"
+#~ msgid "Caption:"
+#~ msgstr "Підпис:"
 
-#: src/niepce/ui/selectioncontroller.cpp:326
-msgid "Move to Trash"
-msgstr "Пересунути до смітника"
+#~ msgid "Rating:"
+#~ msgstr "Оцінка:"
 
-#: src/niepce/ui/workspacecontroller.cpp:102
-msgid "Delete selected folder?"
-msgstr "Вилучити позначену теку?"
+#~ msgid "Label:"
+#~ msgstr "Мітка:"
 
-#: src/niepce/ui/workspacecontroller.cpp:402
-msgid "Pictures"
-msgstr "Картинки"
+#~ msgid "Keywords:"
+#~ msgstr "Ключові слова:"
 
-#: src/niepce/ui/workspacecontroller.cpp:406
-msgid "Projects"
-msgstr "Проєкти"
+#~ msgid "File Information"
+#~ msgstr "Інформація про файл"
 
-#: src/niepce/ui/workspacecontroller.cpp:410
-msgid "Keywords"
-msgstr "Ключові слова"
+#~ msgid "Camera Information"
+#~ msgstr "Дані щодо камери"
 
-#. TODO make it a mnemonic
-#: src/niepce/ui/workspacecontroller.cpp:424
-msgid "_Workspace"
-msgstr "_Робочий простір"
+#~ msgid "Shooting Information"
+#~ msgstr "Дані щодо зйомки"
 
-#: src/niepce/ui/workspacecontroller.cpp:440
-msgid "New Folder..."
-msgstr "Створити теку…"
+#~ msgid "IPTC"
+#~ msgstr "IPTC"
 
-#: src/niepce/ui/workspacecontroller.cpp:442
-msgid "New Project..."
-msgstr "Створити проєкт…"
+#~ msgid "Rights"
+#~ msgstr "Права"
 
-#: src/niepce/ui/workspacecontroller.cpp:447
-msgid "Delete Folder"
-msgstr "Вилучити теку"
+#~ msgid "Niepce Digital - "
+#~ msgstr "Niepce Digital – "
+
+#~ msgid "Projects"
+#~ msgstr "Проєкти"
