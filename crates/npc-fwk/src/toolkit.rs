@@ -18,7 +18,6 @@
  */
 
 pub mod assistant;
-pub mod clickable_cell_renderer;
 mod configuration;
 mod controller;
 pub mod gdk_utils;

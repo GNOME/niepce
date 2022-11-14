@@ -20,117 +20,94 @@
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
-use once_cell::unsync::OnceCell;
-
 use gtk4::prelude::*;
 
+use crate::niepce::ui::image_list_item::ImageListItem;
 use crate::niepce::ui::library_cell_renderer::LibraryCellRenderer;
+use npc_fwk::{dbg_out, err_out};
 
 const THUMB_STRIP_VIEW_DEFAULT_ITEM_HEIGHT: i32 = 0;
-const THUMB_STRIP_VIEW_SPACING: i32 = 0;
-
-#[repr(i32)]
-pub enum ImageListStoreColIndex {
-    ThumbIndex = 0,
-    FileIndex = 1,
-    StripThumbIndex = 2,
-    FileStatusIndex = 3,
-}
 
 #[derive(Default)]
 struct Signals {
-    model_add: Option<glib::SignalHandlerId>,
-    model_remove: Option<glib::SignalHandlerId>,
+    model_changed: Option<glib::SignalHandlerId>,
 }
 
 struct ItemCount {
-    count: Cell<i32>,
+    count: Cell<u32>,
 }
 
 impl ItemCount {
-    fn set(&self, count: i32) {
+    fn set(&self, count: u32) {
         self.count.set(count);
     }
 
-    fn row_added(&self, view: &gtk4::IconView) {
-        self.count.replace(self.count.get() + 1);
-        self.update(view);
-    }
-
-    fn row_deleted(&self, view: &gtk4::IconView) {
-        let count = self.count.get();
-        if count > 0 {
-            self.count.replace(count + 1);
+    fn changed(&self, view: &gtk4::GridView, change: i32) {
+        let mut count = self.count.get() as i64;
+        count += change as i64;
+        if count < 0 {
+            err_out!("Count is negative");
+            count = 0;
         }
+        self.count.replace(count as u32);
         self.update(view);
     }
 
-    fn update(&self, view: &gtk4::IconView) {
-        view.set_columns(self.count.get());
+    fn update(&self, view: &gtk4::GridView) {
+        view.set_min_columns(std::cmp::max(1, self.count.get()));
     }
 }
 
 pub struct ThumbStripView {
     item_height: Cell<i32>,
     item_count: Rc<ItemCount>,
-    icon_view: gtk4::IconView,
-    renderer: OnceCell<LibraryCellRenderer>,
-    store: RefCell<Option<gtk4::TreeModel>>,
+    grid_view: gtk4::GridView,
+    store: RefCell<Option<gtk4::SingleSelection>>,
     signals: RefCell<Signals>,
 }
 
 impl std::ops::Deref for ThumbStripView {
-    type Target = gtk4::IconView;
+    type Target = gtk4::GridView;
 
-    fn deref(&self) -> &gtk4::IconView {
-        &self.icon_view
+    fn deref(&self) -> &gtk4::GridView {
+        &self.grid_view
     }
 }
 
 impl ThumbStripView {
-    pub fn new(store: &gtk4::TreeModel) -> Self {
+    pub fn new(store: &gtk4::SingleSelection) -> Self {
+        let factory = gtk4::SignalListItemFactory::new();
+        factory.connect_setup(move |_, item| {
+            let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
+            let renderer = LibraryCellRenderer::new_thumb_renderer();
+            item.set_child(Some(&renderer));
+        });
+
+        factory.connect_bind(move |_, item| {
+            let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
+            let image_item = item.item().unwrap().downcast::<ImageListItem>().unwrap();
+            let renderer = item
+                .child()
+                .unwrap()
+                .downcast::<LibraryCellRenderer>()
+                .unwrap();
+            renderer.set_property("pixbuf", image_item.thumbnail());
+            renderer.set_property("libfile", image_item.file());
+            renderer.set_property("status", image_item.status() as i32);
+        });
+
         let tsv = Self {
             item_height: Cell::new(THUMB_STRIP_VIEW_DEFAULT_ITEM_HEIGHT),
             item_count: Rc::new(ItemCount {
                 count: Cell::new(0),
             }),
-            icon_view: gtk4::IconView::with_model(store),
-            renderer: OnceCell::new(),
+            grid_view: gtk4::GridView::new(Some(store), Some(&factory)),
             store: RefCell::new(Some(store.clone())),
             signals: RefCell::new(Signals::default()),
         };
 
-        let cell_renderer = LibraryCellRenderer::new_thumb_renderer();
-
-        tsv.icon_view.pack_start(&cell_renderer, false);
-        cell_renderer.set_height(100);
-        cell_renderer.set_yalign(0.5);
-        cell_renderer.set_xalign(0.5);
-
-        tsv.icon_view
-            .set_selection_mode(gtk4::SelectionMode::Multiple);
-        tsv.icon_view.set_column_spacing(THUMB_STRIP_VIEW_SPACING);
-        tsv.icon_view.set_row_spacing(THUMB_STRIP_VIEW_SPACING);
-        tsv.icon_view.set_margin(0);
-        tsv.icon_view.add_attribute(
-            &cell_renderer,
-            "pixbuf",
-            ImageListStoreColIndex::StripThumbIndex as i32,
-        );
-        tsv.icon_view.add_attribute(
-            &cell_renderer,
-            "libfile",
-            ImageListStoreColIndex::FileIndex as i32,
-        );
-        tsv.icon_view.add_attribute(
-            &cell_renderer,
-            "status",
-            ImageListStoreColIndex::FileStatusIndex as i32,
-        );
-        tsv.renderer
-            .set(cell_renderer)
-            .expect("ThumbStripView::constructed set cell render failed.");
-
+        // ideally this should be the max, but `std::u32::MAX` is too much
+        tsv.grid_view.set_max_columns(100000);
         tsv.setup_model();
 
         tsv
@@ -138,19 +115,14 @@ impl ThumbStripView {
 
     pub fn set_item_height(&self, height: i32) {
         self.item_height.set(height);
-        if let Some(renderer) = self.renderer.get() {
-            renderer.set_height(height);
-        }
+        dbg_out!("set_item_height {}", height);
     }
 
-    pub fn set_model(&self, model: Option<gtk4::TreeModel>) {
+    pub fn set_model(&self, model: Option<gtk4::SingleSelection>) {
         if let Some(store) = &*self.store.borrow() {
             let mut signals = self.signals.borrow_mut();
-            if signals.model_add.is_some() {
-                glib::signal_handler_disconnect(store, signals.model_add.take().unwrap());
-            }
-            if signals.model_remove.is_some() {
-                glib::signal_handler_disconnect(store, signals.model_remove.take().unwrap());
+            if signals.model_changed.is_some() {
+                glib::signal_handler_disconnect(store, signals.model_changed.take().unwrap());
             }
         }
 
@@ -160,17 +132,7 @@ impl ThumbStripView {
 
     fn setup_model(&self) {
         if let Some(store) = &*self.store.borrow() {
-            // model item count
-            let iter = store.iter_first();
-            let count = if let Some(ref iter) = iter {
-                let mut c = 0;
-                while store.iter_next(iter) {
-                    c += 1;
-                }
-                c
-            } else {
-                0
-            };
+            let count = store.n_items();
             self.item_count.set(count);
 
             // update item count
@@ -178,15 +140,11 @@ impl ThumbStripView {
 
             let mut signals = self.signals.borrow_mut();
             let item_count = self.item_count.clone();
-            let view = self.icon_view.clone();
-            signals.model_add = Some(store.connect_row_inserted(
-                glib::clone!(@strong item_count, @weak view => move |_,_,_| {
-                    item_count.row_added(&view);
-                }),
-            ));
-            signals.model_remove = Some(store.connect_row_deleted(
-                glib::clone!(@strong item_count, @weak view => move |_,_| {
-                    item_count.row_deleted(&view);
+            let view = self.grid_view.clone();
+            signals.model_changed = Some(store.connect_items_changed(
+                glib::clone!(@strong item_count, @weak view => move |_, _, removed, added| {
+                    let changed: i32 = added as i32 - removed as i32;
+                    item_count.changed(&view, changed);
                 }),
             ));
         }

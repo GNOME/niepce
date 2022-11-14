@@ -73,7 +73,7 @@ glib::wrapper! {
 }
 
 impl ThumbNav {
-    pub fn new(thumbview: &gtk4::IconView, mode: ThumbNavMode, show_buttons: bool) -> Self {
+    pub fn new(thumbview: &gtk4::GridView, mode: ThumbNavMode, show_buttons: bool) -> Self {
         let mode_n: i32 = mode.into();
         glib::Object::new(&[
             ("mode", &mode_n),
@@ -98,7 +98,7 @@ pub struct ThumbNavPriv {
     left_i: Cell<f64>,
     right_i: Cell<f64>,
     widgets: OnceCell<ThumbNavWidgets>,
-    thumbview: RefCell<Option<gtk4::IconView>>,
+    thumbview: RefCell<Option<gtk4::GridView>>,
 }
 
 pub trait ThumbNavExt {
@@ -222,11 +222,6 @@ impl ThumbNavPriv {
 
         match mode {
             ThumbNavMode::OneRow => {
-                if let Some(thumbview) = &*self.thumbview.borrow() {
-                    thumbview.set_size_request(-1, -1);
-                    // XXX property is gone, need an API
-                    // thumbview.set_property("item-height", &100);
-                }
                 self.widgets
                     .get()
                     .unwrap()
@@ -239,11 +234,7 @@ impl ThumbNavPriv {
             | ThumbNavMode::MultipleRows
             | ThumbNavMode::MultipleColumns => {
                 if let Some(thumbview) = &*self.thumbview.borrow() {
-                    thumbview.set_columns(1);
-
-                    thumbview.set_size_request(-1, -1);
-                    // XXX property is gone, need an API
-                    // thumbview.set_property("item-height", &-1);
+                    thumbview.set_max_columns(1);
                 }
                 if let Some(widgets) = self.widgets.get() {
                     widgets
@@ -355,7 +346,7 @@ impl ObjectImpl for ThumbNavPriv {
                     "thumbview",
                     "Thumbnail View",
                     "The internal thumbnail viewer widget",
-                    gtk4::IconView::static_type(),
+                    gtk4::GridView::static_type(),
                     glib::ParamFlags::READWRITE | glib::ParamFlags::CONSTRUCT_ONLY,
                 ),
                 glib::ParamSpecInt::new(
@@ -381,7 +372,7 @@ impl ObjectImpl for ThumbNavPriv {
                 self.set_show_buttons(show_buttons);
             }
             "thumbview" => {
-                let thumbview: Option<gtk4::IconView> = value
+                let thumbview: Option<gtk4::GridView> = value
                     .get()
                     .expect("type conformity checked by `Object::set_property`");
                 self.thumbview.replace(thumbview);

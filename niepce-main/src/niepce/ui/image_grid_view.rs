@@ -17,44 +17,88 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+pub use super::image_list_item::ImageListItem;
+
+use std::rc::Rc;
+
 use glib::translate::*;
 use gtk4::prelude::*;
 
 use super::library_cell_renderer::LibraryCellRenderer;
-use npc_fwk::toolkit::clickable_cell_renderer::ClickableCellRenderer;
+use npc_engine::db;
+use npc_fwk::base::Signal;
 
 pub struct ImageGridView {
-    icon_view: gtk4::IconView,
+    grid_view: gtk4::GridView,
+    signal_rating_changed: Rc<Signal<(db::LibraryId, i32)>>,
 }
 
 impl ImageGridView {
-    pub fn new(store: &gtk4::TreeModel, context_menu: Option<gtk4::PopoverMenu>) -> Self {
-        let icon_view = gtk4::IconView::with_model(store);
+    pub fn new(store: &gtk4::SingleSelection, context_menu: Option<gtk4::PopoverMenu>) -> Self {
+        let factory = gtk4::SignalListItemFactory::new();
+        let grid_view = gtk4::GridView::new(Some(store), Some(&factory));
+        let signal_rating_changed = Rc::new(Signal::default());
+        let weak_signal = Rc::downgrade(&signal_rating_changed);
+
+        factory.connect_setup(move |_, item| {
+            let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
+            let renderer = LibraryCellRenderer::new(None, std::ptr::null());
+            let weak_signal = weak_signal.clone();
+            renderer.connect_local("rating-changed", false, move |values| {
+                if let Some(signal) = weak_signal.upgrade() {
+                    signal.emit((values[1].get().unwrap(), values[2].get().unwrap()));
+                }
+                None
+            });
+            item.set_child(Some(&renderer));
+        });
+
+        factory.connect_bind(move |_, item| {
+            let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
+            let image_item = item.item().unwrap().downcast::<ImageListItem>().unwrap();
+            let renderer = item
+                .child()
+                .unwrap()
+                .downcast::<LibraryCellRenderer>()
+                .unwrap();
+            renderer.set_property("pixbuf", image_item.thumbnail());
+            renderer.set_property("libfile", image_item.file());
+            renderer.set_property("status", image_item.status() as i32);
+        });
 
         let click = gtk4::GestureClick::new();
         click.set_button(0);
         click.connect_pressed(
-            glib::clone!(@weak icon_view, @strong context_menu => move |gesture, _, x, y| {
-                Self::press_event(&icon_view, &context_menu, gesture, x, y);
+            glib::clone!(@weak grid_view, @strong context_menu => move |gesture, _, x, y| {
+                Self::press_event(&grid_view, &context_menu, gesture, x, y);
             }),
         );
-        icon_view.add_controller(&click);
+        grid_view.add_controller(&click);
 
-        ImageGridView { icon_view }
+        ImageGridView {
+            grid_view,
+            signal_rating_changed,
+        }
+    }
+
+    pub fn add_rating_listener(&self, listener: cxx::UniquePtr<crate::ffi::RatingClickListener>) {
+        self.signal_rating_changed.connect(move |(id, rating)| {
+            listener.call(id, rating);
+        });
     }
 }
 
 impl std::ops::Deref for ImageGridView {
-    type Target = gtk4::IconView;
+    type Target = gtk4::GridView;
 
-    fn deref(&self) -> &gtk4::IconView {
-        &self.icon_view
+    fn deref(&self) -> &gtk4::GridView {
+        &self.grid_view
     }
 }
 
 impl ImageGridView {
     fn press_event(
-        icon_view: &gtk4::IconView,
+        _grid_view: &gtk4::GridView,
         menu: &Option<gtk4::PopoverMenu>,
         gesture: &gtk4::GestureClick,
         x: f64,
@@ -68,17 +112,12 @@ impl ImageGridView {
                 }
             }
         }
-
-        if let Some((_, cell)) = icon_view.item_at_pos(x as i32, y as i32) {
-            if let Ok(cell) = cell.downcast::<LibraryCellRenderer>() {
-                cell.hit(x as i32, y as i32);
-            }
-        }
     }
 
-    pub fn get_icon_view(&self) -> *mut crate::ffi::GtkIconView {
-        let icon_view: *mut gtk4_sys::GtkIconView = self.icon_view.to_glib_none().0;
-        icon_view as *mut crate::ffi::GtkIconView
+    // cxx
+    pub fn get_grid_view(&self) -> *mut crate::ffi::GtkGridView {
+        let grid_view: *mut gtk4_sys::GtkGridView = self.grid_view.to_glib_none().0;
+        grid_view as *mut crate::ffi::GtkGridView
     }
 }
 
@@ -90,11 +129,11 @@ impl ImageGridView {
 /// The `store` and `context_menu` will get ref.
 /// context_menu can be `nullptr`
 pub unsafe fn npc_image_grid_view_new(
-    store: *mut crate::ffi::GtkTreeModel,
+    store: *mut crate::ffi::GtkSingleSelection,
     context_menu: *mut crate::ffi::GtkPopoverMenu,
 ) -> Box<ImageGridView> {
     Box::new(ImageGridView::new(
-        &gtk4::TreeModel::from_glib_none(store as *mut gtk4_sys::GtkTreeModel),
+        &gtk4::SingleSelection::from_glib_none(store as *mut gtk4_sys::GtkSingleSelection),
         Option::<gtk4::PopoverMenu>::from_glib_none(context_menu as *mut gtk4_sys::GtkPopoverMenu),
     ))
 }

@@ -23,10 +23,11 @@ use gio::{resources_register, Resource};
 use glib::{Bytes, Error};
 use gtk4::prelude::*;
 
-use niepce_rust::niepce::ui::image_grid_view::ImageGridView;
+use niepce_rust::niepce::ui::image_grid_view::{ImageGridView, ImageListItem};
 use niepce_rust::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
 use niepce_rust::niepce::ui::thumb_strip_view::ThumbStripView;
 use niepce_rust::niepce::ui::ModuleShellWidget;
+use npc_engine::db::libfile::FileStatus;
 use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
 
@@ -49,6 +50,25 @@ fn init() -> Result<(), Error> {
     Ok(())
 }
 
+const ICON_NAMES: [&str; 3] = [
+    "/org/gnome/Niepce/pixmaps/niepce-transform-rotate.png",
+    "/org/gnome/Niepce/pixmaps/niepce-missing.png",
+    "/org/gnome/Niepce/pixmaps/niepce-image-generic.png",
+];
+
+fn add_icon(store: &gio::ListStore) {
+    let num = store.n_items() as usize;
+    let index = num % ICON_NAMES.len();
+    let texture = gdk4::Texture::from_resource(ICON_NAMES[index]);
+    let item = ImageListItem::new(
+        Some(texture.clone().upcast::<gdk4::Paintable>()),
+        None,
+        Some(texture.upcast::<gdk4::Paintable>()),
+        FileStatus::Ok,
+    );
+    store.append(&item);
+}
+
 pub fn main() {
     if let Err(err) = gtk4::init() {
         println!("main: gtk::init failed: {}", err);
@@ -66,8 +86,12 @@ pub fn main() {
     );
 
     app.connect_activate(|app| {
-        let model = gtk4::ListStore::new(&[gdk_pixbuf::Pixbuf::static_type()]);
-        let thumbview = ThumbStripView::new(model.upcast_ref::<gtk4::TreeModel>());
+        let store = gio::ListStore::new(ImageListItem::static_type());
+        let model = gtk4::SingleSelection::new(Some(&store));
+        add_icon(&store);
+        add_icon(&store);
+        add_icon(&store);
+        let thumbview = ThumbStripView::new(&model);
         (&thumbview).set_hexpand(true);
         let thn = ThumbNav::new(&thumbview.deref(), ThumbNavMode::OneRow, true);
         thn.set_size_request(-1, 134);
@@ -83,7 +107,7 @@ pub fn main() {
         let shell = ModuleShellWidget::new();
         shell.append_page(&box_, "main", "Main");
 
-        let image_grid = ImageGridView::new(model.upcast_ref::<gtk4::TreeModel>(), None);
+        let image_grid = ImageGridView::new(&model, None);
         (&image_grid).set_hexpand(true);
         (&image_grid).set_vexpand(true);
         shell.append_page(image_grid.deref(), "grid", "Grid View");

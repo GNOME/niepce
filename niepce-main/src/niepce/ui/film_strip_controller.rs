@@ -22,16 +22,12 @@ use std::rc::Rc;
 
 use gtk4::prelude::*;
 use once_cell::unsync::OnceCell;
-use uuid::Uuid;
 
-use npc_engine::db;
-use npc_fwk::dbg_out;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 
 use super::image_list_store::ImageListStore;
 use super::thumb_nav::{ThumbNav, ThumbNavMode};
 use super::thumb_strip_view::ThumbStripView;
-use super::ImageSelectable;
 
 struct Widgets {
     widget_: gtk4::Widget,
@@ -63,11 +59,10 @@ impl UiController for FilmStripController {
         &self
             .widgets
             .get_or_init(|| {
-                let thumb_strip_view = ThumbStripView::new(self.store.liststore().as_ref());
+                let thumb_strip_view = ThumbStripView::new(self.store.selection_model());
                 thumb_strip_view.set_item_height(120);
 
                 let thumb_nav = ThumbNav::new(&thumb_strip_view, ThumbNavMode::OneRow, true);
-                thumb_strip_view.set_selection_mode(gtk4::SelectionMode::Single);
                 thumb_strip_view.set_hexpand(true);
                 thumb_nav.set_size_request(-1, 134);
                 thumb_nav.set_hexpand(true);
@@ -85,45 +80,6 @@ impl UiController for FilmStripController {
         None
     }
 }
-impl ImageSelectable for FilmStripController {
-    fn id(&self) -> Uuid {
-        self.imp_.borrow().id
-    }
-
-    fn image_list(&self) -> Option<&gtk4::IconView> {
-        self.widgets.get().map(|w| &*w.thumb_strip_view)
-    }
-
-    fn selected(&self) -> Option<db::LibraryId> {
-        self.widgets.get().and_then(|widgets| {
-            let paths = widgets.thumb_strip_view.selected_items();
-            if paths.is_empty() {
-                return None;
-            }
-            let id = self.store.get_file_id_at_path(&paths[0]);
-            if id == 0 {
-                None
-            } else {
-                Some(id)
-            }
-        })
-    }
-
-    fn select_image(&self, id: db::LibraryId) {
-        dbg_out!("filmstrip select {}", id);
-        if let Some(widgets) = self.widgets.get() {
-            if let Some(iter) = self.store.iter_from_id(id) {
-                let path = self.store.liststore().path(&iter);
-                widgets
-                    .thumb_strip_view
-                    .scroll_to_path(&path, false, 0.0, 0.0);
-                widgets.thumb_strip_view.select_path(&path);
-            } else {
-                widgets.thumb_strip_view.unselect_all();
-            }
-        }
-    }
-}
 
 impl FilmStripController {
     pub fn new(store: Rc<ImageListStore>) -> Rc<FilmStripController> {
@@ -132,5 +88,10 @@ impl FilmStripController {
             widgets: OnceCell::new(),
             store,
         })
+    }
+
+    pub fn grid_view(&self) -> gtk4::GridView {
+        let _ = self.widget();
+        self.widgets.get().unwrap().thumb_strip_view.clone()
     }
 }

@@ -477,8 +477,10 @@ impl NiepceWindow {
         let statusbar = gtk4::Statusbar::new();
         vbox.append(&statusbar);
 
-        module_shell.selection_controller.add_selectable(&filmstrip);
-
+        filmstrip.grid_view().connect_activate(glib::clone!(
+        @weak module_shell.selection_controller.handler as handler => move |_, pos| {
+            handler.activated(pos)
+        }));
         statusbar.push(0, &i18n("Ready"));
 
         // `ShellWidget` isn't `Debug` so we can't unwrap.

@@ -18,15 +18,13 @@
  */
 
 use std::cell::{Ref, RefCell, RefMut};
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
 use std::sync::Arc;
 
 use gettextrs::gettext;
 use gtk4::prelude::*;
 
 use super::image_list_store::ImageListStoreWrap;
-use super::{are_same_selectable, ImageSelectable};
-use crate::ffi::SelectionListener;
 use npc_engine::db;
 use npc_engine::db::props::NiepceProperties as Np;
 use npc_engine::db::{LibFile, NiepcePropertyIdx};
@@ -47,34 +45,23 @@ enum Direction {
 #[derive(Default)]
 pub struct SelectionHandler {
     store: Box<ImageListStoreWrap>,
-    selectables: RefCell<Vec<Weak<dyn ImageSelectable>>>,
     pub signal_selected: Signal<db::LibraryId>,
     pub signal_activated: Signal<db::LibraryId>,
 }
 
 impl SelectionHandler {
-    fn activated(&self, path: &gtk4::TreePath) {
-        let selection = self.store.get_file_id_at_path(path);
+    pub fn activated(&self, pos: u32) {
+        let selection = self.store.get_file_id_at_pos(pos);
         if selection != 0 {
             self.signal_activated.emit(selection);
         }
     }
 
-    fn selected(&self, selectable: Rc<dyn ImageSelectable>) {
-        if let Some(selection) = selectable.selected() {
-            for all_selectable in self.selectables.borrow().iter() {
-                if let Some(all_selectable) = all_selectable.upgrade() {
-                    if !are_same_selectable(&*all_selectable, &*selectable) {
-                        all_selectable.select_image(selection);
-                    }
-                }
-            }
+    pub fn selected(&self, pos: u32) {
+        let selection = self.store.get_file_id_at_pos(pos);
+        if selection != 0 {
             self.signal_selected.emit(selection);
         }
-    }
-
-    fn add_selectable(&self, selectable: Weak<dyn ImageSelectable>) {
-        self.selectables.borrow_mut().push(selectable);
     }
 }
 
@@ -101,10 +88,18 @@ impl Controller for SelectionController {
 
 impl SelectionController {
     pub fn new(client_host: &LibraryClientHost) -> Rc<SelectionController> {
+        let handler = Rc::new(SelectionHandler::default());
+        handler.store.selection_model().connect_selection_changed(
+            glib::clone!(@weak handler => move |model, _, _| {
+                let pos = model.selected();
+                handler.selected(pos);
+            }),
+        );
+
         Rc::new(SelectionController {
             imp_: RefCell::new(ControllerImpl::default()),
             client: client_host.client().client(),
-            handler: Rc::new(SelectionHandler::default()),
+            handler,
         })
     }
 
@@ -112,35 +107,6 @@ impl SelectionController {
         self.handler
             .store
             .on_lib_notification(ln, &self.client, thumbnail_cache);
-    }
-
-    pub fn add_selected_listener(&self, listener: cxx::UniquePtr<SelectionListener>) {
-        self.handler.signal_selected.connect(move |id| {
-            listener.call(id);
-        })
-    }
-
-    pub fn add_activated_listener(&self, listener: cxx::UniquePtr<SelectionListener>) {
-        self.handler.signal_activated.connect(move |id| {
-            listener.call(id);
-        })
-    }
-
-    pub fn add_selectable<S: ImageSelectable + 'static>(&self, selectable: &Rc<S>) {
-        let wselectable = Rc::downgrade(selectable);
-        selectable.image_list().unwrap().connect_selection_changed(
-            glib::clone!(@strong wselectable, @weak self.handler as handler => move |_| {
-                if let Some(selectable) = wselectable.upgrade() {
-                    handler.selected(selectable);
-                }
-            }),
-        );
-        selectable.image_list().unwrap().connect_item_activated(
-            glib::clone!(@weak self.handler as handler => move |_, path| {
-                handler.activated(path);
-            }),
-        );
-        self.handler.add_selectable(wselectable);
     }
 
     pub fn list_store(&self) -> &ImageListStoreWrap {
@@ -153,14 +119,12 @@ impl SelectionController {
     }
 
     pub fn selection(&self) -> Option<db::LibraryId> {
-        if self.handler.selectables.borrow().is_empty() {
-            err_out!("Selectables list is empty");
-            return None;
+        let pos = self.handler.store.selection_model().selected();
+        if pos == gtk4::INVALID_LIST_POSITION {
+            None
+        } else {
+            Some(self.handler.store.get_file_id_at_pos(pos))
         }
-
-        self.handler.selectables.borrow()[0]
-            .upgrade()
-            .and_then(|selectable| selectable.selected())
     }
 
     pub fn select_previous(&self) {
@@ -177,34 +141,26 @@ impl SelectionController {
             return;
         }
 
-        let iter = self.handler.store.iter_from_id(selection.unwrap());
-        if iter.is_none() {
+        let pos = self.handler.store.pos_from_id(selection.unwrap());
+        if pos.is_none() {
             return;
         }
-
-        let mut path = self.handler.store.liststore().path(iter.as_ref().unwrap());
+        let mut pos = pos.unwrap();
 
         let moved = if direction == Direction::Backwards {
-            path.prev()
+            if pos != 0 {
+                pos -= 1;
+                true
+            } else {
+                false
+            }
         } else {
-            path.next();
-            true
+            pos += 1;
+            (pos as usize) < self.handler.store.len()
         };
 
         if moved {
-            let file_id = self.handler.store.get_file_id_at_path(&path);
-
-            self.handler
-                .selectables
-                .borrow()
-                .iter()
-                .for_each(move |selectable| {
-                    if let Some(selectable) = selectable.upgrade() {
-                        selectable.select_image(file_id);
-                    }
-                });
-
-            self.handler.signal_selected.emit(file_id)
+            self.handler.store.selection_model().set_selected(pos);
         }
     }
 
@@ -274,8 +230,14 @@ impl SelectionController {
         self.set_property(db::NiepcePropertyIdx::NpXmpLabelProp, label);
     }
 
+    /// Set rating of selection
     pub fn set_rating(&self, rating: i32) {
         self.set_property(db::NiepcePropertyIdx::NpXmpRatingProp, rating);
+    }
+
+    /// Set rating of specific file.
+    pub fn set_rating_of(&self, id: db::LibraryId, rating: i32) {
+        self.set_property_of(id, db::NiepcePropertyIdx::NpXmpRatingProp, rating);
     }
 
     pub fn set_flag(&self, flag: i32) {
@@ -285,22 +247,26 @@ impl SelectionController {
     fn set_property(&self, idx: db::NiepcePropertyIdx, value: i32) {
         dbg_out!("property {} = {}", idx.repr, value);
         if let Some(selection) = self.selection() {
-            if let Some(mut file) = self.handler.store.file(selection) {
-                dbg_out!("old property is {}", file.property(Np::Index(idx)));
-                let old_value = file.property(Np::Index(idx));
-                let action = match idx {
-                    NiepcePropertyIdx::NpNiepceFlagProp => gettext("Set Flag"),
-                    NiepcePropertyIdx::NpXmpRatingProp => gettext("Set Rating"),
-                    NiepcePropertyIdx::NpXmpLabelProp => gettext("Set Label"),
-                    _ => gettext("Set Property"),
-                };
-                self.set_one_metadata(&action, selection, idx, old_value, value);
-                // we need to set the property here so that undo/redo works
-                // consistently.
-                file.set_property(Np::Index(idx), value);
-            } else {
-                err_out!("requested file {} not found!", selection);
-            }
+            self.set_property_of(selection, idx, value)
+        }
+    }
+
+    fn set_property_of(&self, id: db::LibraryId, idx: db::NiepcePropertyIdx, value: i32) {
+        if let Some(mut file) = self.handler.store.file(id) {
+            dbg_out!("old property is {}", file.property(Np::Index(idx)));
+            let old_value = file.property(Np::Index(idx));
+            let action = match idx {
+                NiepcePropertyIdx::NpNiepceFlagProp => gettext("Set Flag"),
+                NiepcePropertyIdx::NpXmpRatingProp => gettext("Set Rating"),
+                NiepcePropertyIdx::NpXmpLabelProp => gettext("Set Label"),
+                _ => gettext("Set Property"),
+            };
+            self.set_one_metadata(&action, id, idx, old_value, value);
+            // we need to set the property here so that undo/redo works
+            // consistently.
+            file.set_property(Np::Index(idx), value);
+        } else {
+            err_out!("requested file {} not found!", id);
         }
     }
 

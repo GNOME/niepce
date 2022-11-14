@@ -1,7 +1,7 @@
 /*
- * niepce - npc-fwk/toolkit/clickable_cell_renderer.rs
+ * niepce - niepce/ui/rating_click_listener.hpp
  *
- * Copyright (C) 2020 Hubert Figuière
+ * Copyright (C) 2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Trait for get clicks from cell renderer.
-/// This is used to work around some bug in Gtk.
-pub trait ClickableCellRenderer {
-    fn hit(&self, x: i32, y: i32);
-    fn x(&self) -> i32;
-    fn y(&self) -> i32;
-    fn is_hit(&self) -> bool;
-    fn reset_hit(&self);
+#pragma once
+
+#include <functional>
+
+namespace npc {
+
+class RatingClickListener {
+public:
+  typedef std::function<void (int64_t, int32_t)> function_t;
+
+  RatingClickListener(function_t&& f)
+    : m_f(f)
+  {}
+  void call(int64_t id, int32_t rating) const
+  {
+    m_f(id, rating);
+  }
+
+private:
+  function_t m_f;
+};
+
 }

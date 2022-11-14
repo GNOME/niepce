@@ -30,7 +30,7 @@ use super::NiepcePropertyIdx as Npi;
 pub use crate::ffi::FileType;
 
 #[repr(i32)]
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
 /// FileStatus indicate the transient status of the file on the storage.
 pub enum FileStatus {
     /// File is OK
@@ -38,6 +38,7 @@ pub enum FileStatus {
     /// File is missing
     Missing = 1,
     /// Invalid
+    #[default]
     Invalid = -1,
 }
 
@@ -90,7 +91,8 @@ impl From<FileType> for i32 {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, glib::Boxed)]
+#[boxed_type(name = "LibFile", nullable)]
 pub struct LibFile {
     id: LibraryId,
     folder_id: LibraryId,

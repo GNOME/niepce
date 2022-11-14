@@ -17,9 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtkmm/liststore.h>
-#include <gtkmm/treestore.h>
-#include <gtkmm/treeselection.h>
 #include <gtkmm/popovermenu.h>
 
 #include <exempi/xmpconsts.h>
@@ -30,7 +27,6 @@
 #include "fwk/toolkit/application.hpp"
 #include "fwk/toolkit/configdatabinder.hpp"
 #include "fwk/toolkit/widgets/dock.hpp"
-#include "niepce/ui/imageliststore.hpp"
 #include "gridviewmodule.hpp"
 
 #include "rust_bindings.hpp"
@@ -128,16 +124,11 @@ Gtk::Widget * GridViewModule::buildWidget()
   auto& model = m_selection_controller.get_list_store();
 
   auto image_grid_view = npc::npc_image_grid_view_new(
-      GTK_TREE_MODEL(model.unwrap_ref().gobj()),
+      GTK_SINGLE_SELECTION(model.unwrap_ref().gobj()),
       GTK_POPOVER_MENU(m_context_menu->gobj())
   );
-  m_librarylistview = Gtk::manage(Glib::wrap(image_grid_view->get_icon_view()));
+  m_librarylistview = Gtk::manage(Glib::wrap(image_grid_view->get_grid_view()));
   m_image_grid_view = std::move(image_grid_view);
-  m_librarylistview->set_selection_mode(Gtk::SelectionMode::SINGLE);
-  m_librarylistview->property_row_spacing() = 0;
-  m_librarylistview->property_column_spacing() = 0;
-  m_librarylistview->property_spacing() = 0;
-  m_librarylistview->property_margin() = 0;
   m_librarylistview->set_vexpand(true);
 
   m_context_menu->set_parent(*m_librarylistview);
@@ -151,21 +142,11 @@ Gtk::Widget * GridViewModule::buildWidget()
       this->on_librarylistview_click(gesture, x, y);
   });
 
-  // the main cell
-  Gtk::CellRenderer* libcell = manage(
-      Glib::wrap(
-          ffi::npc_library_cell_renderer_new(&get_colour_callback_c, this)));
-  g_signal_connect(
-      libcell->gobj(), "rating-changed", G_CALLBACK(GridViewModule::on_rating_changed), this);
-
-  Glib::RefPtr<Gtk::CellArea> cell_area = m_librarylistview->property_cell_area();
-  cell_area->pack_start(*libcell, FALSE);
-  cell_area->add_attribute(*libcell, "pixbuf",
-                           static_cast<gint>(ffi::ColIndex::Thumb));
-  cell_area->add_attribute(*libcell, "libfile",
-                           static_cast<gint>(ffi::ColIndex::File));
-  cell_area->add_attribute(*libcell, "status",
-                           static_cast<gint>(ffi::ColIndex::FileStatus));
+  m_image_grid_view.value()->add_rating_listener(
+      std::make_unique<npc::RatingClickListener>([this] (int64_t id, int32_t rating) {
+          DBG_OUT("rating changed %ld %d", id, rating);
+          this->on_rating_changed(id, rating);
+      }));
 
   m_scrollview.set_child(*m_librarylistview);
   m_scrollview.set_policy(Gtk::PolicyType::AUTOMATIC, Gtk::PolicyType::AUTOMATIC);
@@ -197,39 +178,9 @@ void GridViewModule::dispatch_action(const std::string & /*action_name*/)
 {
 }
 
-Gtk::IconView * GridViewModule::image_list() const
+Gtk::GridView * GridViewModule::image_list() const
 {
     return m_librarylistview;
-}
-
-eng::library_id_t GridViewModule::get_selected() const
-{
-    eng::library_id_t id = 0;
-    Glib::RefPtr<Gtk::TreeSelection> selection;
-
-    std::vector<Gtk::TreePath> paths = m_librarylistview->get_selected_items();
-    if(!paths.empty()) {
-        auto& model = m_selection_controller.get_list_store();
-        Gtk::TreePath path(*(paths.begin()));
-        DBG_OUT("found path %s", path.to_string().c_str());
-        id = model.unwrap_ref().get_libfile_id_at_path(path.gobj());
-    }
-    DBG_OUT("get_selected %Ld", (long long)id);
-    return id;
-}
-
-void GridViewModule::select_image(eng::library_id_t id) const
-{
-    DBG_OUT("library select %Ld", (long long)id);
-    auto& model = m_selection_controller.get_list_store();
-    auto path = ImageListStore_get_path_from_id(model.unwrap_ref(), id);
-    if (path) {
-        m_librarylistview->scroll_to_path(path, false, 0, 0);
-        m_librarylistview->select_path(path);
-    }
-    else {
-        m_librarylistview->unselect_all();
-    }
 }
 
 void GridViewModule::on_metadata_changed(const fwk::WrappedPropertyBagPtr& props,
@@ -240,29 +191,27 @@ void GridViewModule::on_metadata_changed(const fwk::WrappedPropertyBagPtr& props
     m_selection_controller.set_properties(*props, *old);
 }
 
-void GridViewModule::on_rating_changed(GtkCellRenderer*, eng::library_id_t /*id*/,
-                                       int32_t rating, gpointer user_data)
+void GridViewModule::on_rating_changed(eng::library_id_t id, int32_t rating) const
 {
-    auto self = static_cast<GridViewModule*>(user_data);
-    self->m_selection_controller.set_rating(rating);
+    m_selection_controller.set_rating_of(id, rating);
 }
 
 void GridViewModule::on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double x, double y)
 {
     auto button = gesture->get_current_button();
     DBG_OUT("GridView click handler, button: %u", button);
-    if (button == 3 && !m_librarylistview->get_selected_items().empty()) {
+    if (button == 3 && !m_librarylistview->get_model()->get_selection()->is_empty()) {
         m_context_menu->set_pointing_to(Gdk::Rectangle(x, y, 1, 1));
         m_context_menu->popup();
 
         return;
     }
-    Gtk::TreeModel::Path path;
-    Gtk::CellRenderer * renderer = nullptr;
-    DBG_OUT("GridView click (%f, %f)", x, y);
-    if (m_librarylistview->get_item_at_pos(x, y, path, renderer)){
-        DBG_OUT("found an item");
-    }
+    // Gtk::TreeModel::Path path;
+    // Gtk::CellRenderer * renderer = nullptr;
+    // DBG_OUT("GridView click (%f, %f)", x, y);
+    // if (m_librarylistview->get_item_at_pos(x, y, path, renderer)){
+    //     DBG_OUT("found an item");
+    // }
 }
 
 }

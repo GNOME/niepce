@@ -30,10 +30,9 @@ use graphene::Rect;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
-use crate::niepce::ui::image_list_store::StoreLibFile;
-use npc_engine::db::libfile::{FileStatus, FileType};
+use npc_engine::db::libfile::{FileStatus, FileType, LibFile};
 use npc_fwk::base::rgbcolour::RgbColour;
-use npc_fwk::toolkit::clickable_cell_renderer::ClickableCellRenderer;
+use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
@@ -64,9 +63,10 @@ lazy_static::lazy_static! {
 }
 
 glib::wrapper! {
+    /// The cell renderer is actually a gtk widget as a per the new `GtkGridView`.
     pub struct LibraryCellRenderer(
         ObjectSubclass<LibraryCellRendererPriv>)
-        @extends gtk4::CellRenderer;
+        @extends gtk4::Widget;
 }
 
 impl LibraryCellRenderer {
@@ -74,7 +74,7 @@ impl LibraryCellRenderer {
     /// callback: an optional callback used to get a colour for labels.
     /// callback_data: raw pointer passed as is to the callback.
     pub fn new(callback: Option<GetColourCallback>, callback_data: *const c_void) -> Self {
-        let obj: Self = glib::Object::new(&[("mode", &gtk4::CellRendererMode::Activatable)]);
+        let obj: Self = glib::Object::new(&[]);
 
         if callback.is_some() {
             let priv_ = obj.imp();
@@ -85,13 +85,13 @@ impl LibraryCellRenderer {
         obj
     }
 
-    /// Create a new thumb renderer, basicall a LibraryCellRender with some options.
+    /// Create a `LibraryCellRenderer` with some options for the fil strip.
     /// Mostly just draw the thumbnail.
     /// Doesn't need the get_colour_callback
     pub fn new_thumb_renderer() -> Self {
         let cell_renderer = Self::new(None, ptr::null());
 
-        cell_renderer.set_pad(0);
+        cell_renderer.set_pad(6);
         cell_renderer.set_size(100);
         cell_renderer.set_drawborder(false);
         cell_renderer.set_drawemblem(false);
@@ -102,17 +102,25 @@ impl LibraryCellRenderer {
         cell_renderer
     }
 
+    pub fn hit(&self, x: f64, y: f64) -> bool {
+        self.imp().hit(x, y)
+    }
+
     pub fn pixbuf(&self) -> Option<gdk4::Paintable> {
         self.imp().pixbuf.borrow().clone()
+    }
+
+    pub fn set_height(&self, h: i32) {
+        err_out!("set_height {} isn't implemented", h);
     }
 }
 
 /// Option to set for the LibraryCellRenderer
 pub trait LibraryCellRendererExt {
     /// Set padding
-    fn set_pad(&self, pad: i32);
+    fn set_pad(&self, pad: u32);
     /// Set size
-    fn set_size(&self, size: i32);
+    fn set_size(&self, size: u32);
     /// Whether to draw the border
     fn set_drawborder(&self, draw: bool);
     /// Whether to draw the emblem
@@ -126,10 +134,10 @@ pub trait LibraryCellRendererExt {
 }
 
 impl LibraryCellRendererExt for LibraryCellRenderer {
-    fn set_pad(&self, pad: i32) {
+    fn set_pad(&self, pad: u32) {
         self.imp().pad.set(pad);
     }
-    fn set_size(&self, size: i32) {
+    fn set_size(&self, size: u32) {
         self.imp().size.set(size);
     }
     fn set_drawborder(&self, draw: bool) {
@@ -149,54 +157,22 @@ impl LibraryCellRendererExt for LibraryCellRenderer {
     }
 }
 
-#[derive(Default)]
-struct ClickableCell {
-    x: i32,
-    y: i32,
-    hit: bool,
-}
-
-impl ClickableCellRenderer for LibraryCellRenderer {
-    fn hit(&self, x: i32, y: i32) {
-        self.imp()
-            .clickable_cell
-            .replace(ClickableCell { x, y, hit: true });
-    }
-
-    fn x(&self) -> i32 {
-        self.imp().clickable_cell.borrow().x
-    }
-
-    fn y(&self) -> i32 {
-        self.imp().clickable_cell.borrow().y
-    }
-
-    fn is_hit(&self) -> bool {
-        self.imp().clickable_cell.borrow().hit
-    }
-
-    fn reset_hit(&self) {
-        self.imp().clickable_cell.borrow_mut().hit = false;
-    }
-}
-
 /// Callback type to get the label colour.
 /// Return false if none is returned.
 type GetColourCallback = unsafe extern "C" fn(i32, *mut RgbColour, *const c_void) -> bool;
 
 pub struct LibraryCellRendererPriv {
     pixbuf: RefCell<Option<gdk4::Paintable>>,
-    libfile: RefCell<Option<StoreLibFile>>,
+    libfile: RefCell<Option<LibFile>>,
     status: Cell<FileStatus>,
-    size: Cell<i32>,
-    pad: Cell<i32>,
+    size: Cell<u32>,
+    pad: Cell<u32>,
     drawborder: Cell<bool>,
     draw_emblem: Cell<bool>,
     draw_rating: Cell<bool>,
     draw_label: Cell<bool>,
     draw_flag: Cell<bool>,
     draw_status: Cell<bool>,
-    clickable_cell: RefCell<ClickableCell>,
     get_colour_callback: RefCell<Option<GetColourCallback>>,
     callback_data: Cell<*const c_void>,
 }
@@ -206,7 +182,7 @@ impl LibraryCellRendererPriv {
         self.status.set(status);
     }
 
-    fn set_libfile(&self, libfile: Option<StoreLibFile>) {
+    fn set_libfile(&self, libfile: Option<LibFile>) {
         self.libfile.replace(libfile);
     }
 
@@ -331,13 +307,73 @@ impl LibraryCellRendererPriv {
         }
         None
     }
+
+    /// Test hit on rating and emit the signal if applicable.
+    /// Returns `true` if it hits.
+    fn hit(&self, x: f64, y: f64) -> bool {
+        // if we don't draw the rating, then nothing.
+        if !self.draw_rating.get() {
+            return false;
+        }
+
+        // hit test with the rating region
+        let x = x as f32;
+        let y = y as f32;
+        let allocation = self.instance().allocation();
+        let r = Rect::new(
+            allocation.x() as f32,
+            allocation.y() as f32,
+            allocation.width() as f32,
+            allocation.height() as f32,
+        );
+
+        let (rw, rh) = RatingLabel::geometry();
+        let rect = Rect::new(
+            r.x() + CELL_PADDING,
+            r.y() + r.height() - rh - CELL_PADDING,
+            rw,
+            rh,
+        );
+
+        dbg_out!(
+            "r({}, {}, {}, {}) p({}, {})",
+            rect.x(),
+            rect.y(),
+            rect.width(),
+            rect.height(),
+            x,
+            y
+        );
+        let hit = (rect.x() <= x)
+            && (rect.x() + rect.width() >= x)
+            && (rect.y() <= y)
+            && (rect.y() + rect.height() >= y);
+        if !hit {
+            dbg_out!("not a hit");
+            return false;
+        }
+
+        // hit test for the rating value
+        let new_rating = RatingLabel::rating_value_from_hit_x((x - rect.x()).into());
+        dbg_out!("new_rating {}", new_rating);
+
+        let file = self.libfile.borrow();
+        if let Some(f) = &*file {
+            if f.rating() != new_rating {
+                // emit signal if changed
+                self.instance()
+                    .emit_by_name::<()>("rating-changed", &[&f.id(), &new_rating]);
+            }
+        }
+        true
+    }
 }
 
 #[glib::object_subclass]
 impl ObjectSubclass for LibraryCellRendererPriv {
     const NAME: &'static str = "LibraryCellRenderer";
     type Type = LibraryCellRenderer;
-    type ParentType = gtk4::CellRenderer;
+    type ParentType = gtk4::Widget;
 
     fn new() -> Self {
         Self {
@@ -352,7 +388,6 @@ impl ObjectSubclass for LibraryCellRendererPriv {
             draw_label: Cell::new(true),
             draw_flag: Cell::new(true),
             draw_status: Cell::new(true),
-            clickable_cell: RefCell::new(ClickableCell::default()),
             get_colour_callback: RefCell::new(None),
             callback_data: Cell::new(ptr::null()),
         }
@@ -360,6 +395,21 @@ impl ObjectSubclass for LibraryCellRendererPriv {
 }
 
 impl ObjectImpl for LibraryCellRendererPriv {
+    fn constructed(&self) {
+        self.parent_constructed();
+
+        let gesture = gtk4::GestureClick::new();
+        gesture.connect_pressed(move |gesture, n_press, x, y| {
+            dbg_out!("list item clicked {}={},{}", n_press, x, y);
+            let renderer = gesture
+                .widget()
+                .downcast::<LibraryCellRenderer>()
+                .expect("couldn't get renderer");
+            renderer.hit(x, y);
+        });
+        self.instance().add_controller(&gesture);
+    }
+
     fn properties() -> &'static [glib::ParamSpec] {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
@@ -375,14 +425,14 @@ impl ObjectImpl for LibraryCellRendererPriv {
                     "libfile",
                     "Library File",
                     "File from the library in the cell",
-                    StoreLibFile::static_type(),
+                    LibFile::static_type(),
                     glib::ParamFlags::READWRITE,
                 ),
                 glib::ParamSpecInt::new(
                     "status",
                     "File Status",
                     "Status of the file in the cell",
-                    FileStatus::Ok as i32,
+                    FileStatus::Invalid as i32,
                     FileStatus::Missing as i32,
                     FileStatus::Ok as i32,
                     glib::ParamFlags::READWRITE,
@@ -412,7 +462,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
                 self.set_pixbuf(pixbuf);
             }
             "libfile" => {
-                let libfile = value.get::<&StoreLibFile>().map(|f| f.clone()).ok();
+                let libfile = value.get::<&LibFile>().map(|f| f.clone()).ok();
                 self.set_libfile(libfile);
             }
             "status" => {
@@ -423,6 +473,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
             }
             _ => unimplemented!(),
         }
+        self.instance().queue_draw();
     }
 
     fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
@@ -435,28 +486,21 @@ impl ObjectImpl for LibraryCellRendererPriv {
     }
 }
 
-impl CellRendererImpl for LibraryCellRendererPriv {
-    fn preferred_width<P: IsA<gtk4::Widget>>(&self, _widget: &P) -> (i32, i32) {
-        let maxdim: i32 = self.size.get() + self.pad.get() * 2;
-        (maxdim, maxdim)
+impl WidgetImpl for LibraryCellRendererPriv {
+    fn request_mode(&self) -> gtk4::SizeRequestMode {
+       gtk4::SizeRequestMode::ConstantSize
     }
 
-    fn preferred_height<P: IsA<gtk4::Widget>>(&self, _widget: &P) -> (i32, i32) {
-        let maxdim: i32 = self.size.get() + self.pad.get() * 2;
-        (maxdim, maxdim)
+    fn measure(&self, _orientation: gtk4::Orientation, _for_size: i32) -> (i32, i32, i32, i32) {
+        let size = self.size.get() + self.pad.get() * 2;
+        (size as i32, size as i32, -1, -1)
     }
 
-    fn snapshot<P: IsA<gtk4::Widget>>(
-        &self,
-        snapshot: &gtk4::Snapshot,
-        widget: &P,
-        _background_area: &gdk4::Rectangle,
-        cell_area: &gdk4::Rectangle,
-        flags: gtk4::CellRendererState,
-    ) {
+    fn snapshot(&self, snapshot: &gtk4::Snapshot) {
         let self_ = self.instance();
-        let xpad = self_.xpad() as f32;
-        let ypad = self_.ypad() as f32;
+        let xpad = 0.0; // self_.xpad() as f32;
+        let ypad = 0.0; // self_.ypad() as f32;
+        let cell_area = self.instance().allocation();
 
         let mut r = Rect::new(
             cell_area.x() as f32,
@@ -469,24 +513,16 @@ impl CellRendererImpl for LibraryCellRendererPriv {
 
         let file = self.libfile.borrow();
 
-        let style_context = widget.style_context();
-
-        style_context.save();
-        style_context.set_state(if flags.contains(gtk4::CellRendererState::SELECTED) {
-            gtk4::StateFlags::SELECTED
-        } else {
-            gtk4::StateFlags::NORMAL
-        });
-
-        style_context.restore();
-
         let cr = snapshot.append_cairo(&r);
         if let Some(pixbuf) = self_.pixbuf() {
-            let w = pixbuf.intrinsic_width() as f32;
-            let h = pixbuf.intrinsic_height() as f32;
-            let thumb_size = graphene::Size::new(w, h);
-            let offset_x = (self.size.get() as f32 - w) / 2.0;
-            let offset_y = (self.size.get() as f32 - h) / 2.0;
+            let size = Size {
+                w: pixbuf.intrinsic_width() as u32,
+                h: pixbuf.intrinsic_height() as u32,
+            };
+            let size = size.fit_into_square(self.size.get());
+            let thumb_size = graphene::Size::new(size.w as f32, size.h as f32);
+            let offset_x = (self.size.get() - size.w) as f32 / 2.0;
+            let offset_y = (self.size.get() - size.h) as f32 / 2.0;
 
             let thumb_pos = graphene::Point::new(
                 r.x() + self.pad.get() as f32 + offset_x,
@@ -499,7 +535,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
 
         if self.draw_rating.get() {
             let rating = match &*file {
-                Some(f) => f.0.rating(),
+                Some(f) => f.rating(),
                 None => 0,
             };
             let x = r.x() + CELL_PADDING;
@@ -515,7 +551,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
         }
         if self.draw_flag.get() {
             match &*file {
-                Some(f) => Self::do_draw_flag(snapshot, f.0.flag(), &r),
+                Some(f) => Self::do_draw_flag(snapshot, f.flag(), &r),
                 None => {}
             }
         }
@@ -527,7 +563,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
 
         if self.draw_emblem.get() {
             let file_type = match &*file {
-                Some(f) => f.0.file_type(),
+                Some(f) => f.file_type(),
                 None => FileType::Unknown,
             };
             let emblem: Texture = match file_type {
@@ -542,7 +578,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
 
             if self.draw_label.get() {
                 let label_id = match &*file {
-                    Some(f) => f.0.label(),
+                    Some(f) => f.label(),
                     None => 0,
                 };
                 if label_id != 0 {
@@ -553,79 +589,7 @@ impl CellRendererImpl for LibraryCellRendererPriv {
             }
         }
     }
-
-    fn activate<P: IsA<gtk4::Widget>>(
-        &self,
-        _event: Option<&gdk4::Event>,
-        _widget: &P,
-        _path: &str,
-        _background_area: &gdk4::Rectangle,
-        cell_area: &gdk4::Rectangle,
-        _flags: gtk4::CellRendererState,
-    ) -> bool {
-        let instance = self.instance();
-
-        if instance.is_hit() {
-            instance.reset_hit();
-
-            // hit test with the rating region
-            let xpad = instance.xpad() as f32;
-            let ypad = instance.ypad() as f32;
-            let mut r = Rect::new(
-                cell_area.x() as f32,
-                cell_area.y() as f32,
-                cell_area.width() as f32,
-                cell_area.height() as f32,
-            );
-            r.offset(xpad, ypad);
-
-            let (rw, rh) = RatingLabel::geometry();
-            let rect = Rect::new(
-                r.x() + CELL_PADDING,
-                r.y() + r.height() - rh - CELL_PADDING,
-                rw,
-                rh,
-            );
-            let x = instance.x() as f32;
-            let y = instance.y() as f32;
-            dbg_out!(
-                "r({}, {}, {}, {}) p({}, {})",
-                rect.x(),
-                rect.y(),
-                rect.width(),
-                rect.height(),
-                x,
-                y
-            );
-            let hit = (rect.x() <= x)
-                && (rect.x() + rect.width() >= x)
-                && (rect.y() <= y)
-                && (rect.y() + rect.height() >= y);
-            if !hit {
-                dbg_out!("not a hit");
-                return false;
-            }
-
-            // hit test for the rating value
-            let new_rating = RatingLabel::rating_value_from_hit_x((x - rect.x()).into());
-            dbg_out!("new_rating {}", new_rating);
-
-            let file = self.libfile.borrow();
-            if let Some(f) = &*file {
-                if f.0.rating() != new_rating {
-                    // emit signal if changed
-                    instance.emit_by_name::<()>("rating-changed", &[&f.0.id(), &new_rating]);
-                }
-            }
-            true
-        } else {
-            false
-        }
-    }
 }
-
-// allow subclassing this
-pub trait LibraryCellRendererImpl: CellRendererImpl + 'static {}
 
 /// # Safety
 /// Use raw pointers
@@ -633,8 +597,8 @@ pub trait LibraryCellRendererImpl: CellRendererImpl + 'static {}
 pub unsafe extern "C" fn npc_library_cell_renderer_new(
     get_colour: Option<unsafe extern "C" fn(i32, *mut RgbColour, *const c_void) -> bool>,
     callback_data: *const c_void,
-) -> *mut gtk4_sys::GtkCellRenderer {
+) -> *mut gtk4_sys::GtkWidget {
     LibraryCellRenderer::new(get_colour, callback_data)
-        .upcast::<gtk4::CellRenderer>()
+        .upcast::<gtk4::Widget>()
         .to_glib_full()
 }

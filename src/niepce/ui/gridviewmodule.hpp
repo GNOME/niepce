@@ -24,16 +24,13 @@
 #include <optional>
 
 #include <gtkmm/gestureclick.h>
-#include <gtkmm/iconview.h>
-#include <gtkmm/liststore.h>
+#include <gtkmm/gridview.h>
 #include <gtkmm/paned.h>
 #include <gtkmm/popovermenu.h>
 #include <gtkmm/scrolledwindow.h>
-#include <gtkmm/treestore.h>
 
 #include "fwk/base/propertybag.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
-#include "niepce/ui/imageliststore.hpp"
 #include "niepce/ui/metadatapanecontroller.hpp"
 
 namespace fwk {
@@ -65,12 +62,9 @@ public:
   virtual Glib::RefPtr<Gio::MenuModel> getMenu() override
     { return Glib::RefPtr<Gio::MenuModel>(); }
 
-  /* IImageSelectable */
-  virtual Gtk::IconView * image_list() const;
-  virtual eng::library_id_t get_selected() const;
-  virtual void select_image(eng::library_id_t id) const;
+  virtual Gtk::GridView * image_list() const;
 
-  const GtkIconView* cxx_image_list() const {
+  const GtkGridView* cxx_image_list() const {
     return const_cast<GridViewModule*>(this)->image_list()->gobj();
   }
 protected:
@@ -80,8 +74,7 @@ private:
   static bool get_colour_callback_c(int32_t label, ffi::RgbColour* out, const void* user_data);
   std::optional<fwk::RgbColour> get_colour_callback(int32_t label) const;
   void on_metadata_changed(const fwk::WrappedPropertyBagPtr&, const fwk::WrappedPropertyBagPtr& old);
-  static void on_rating_changed(GtkCellRenderer*, eng::library_id_t id, int rating,
-                                gpointer user_data);
+  void on_rating_changed(eng::library_id_t id, int rating) const;
   void on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double, double);
 
   const ui::SelectionController& m_selection_controller;
@@ -90,7 +83,7 @@ private:
 
   // library split view
   std::optional<rust::Box<npc::ImageGridView>> m_image_grid_view;
-  Gtk::IconView* m_librarylistview;
+  Gtk::GridView* m_librarylistview;
   Gtk::ScrolledWindow          m_scrollview;
   MetaDataPaneController::Ptr  m_metapanecontroller;
   Gtk::Paned                   m_lib_splitview;

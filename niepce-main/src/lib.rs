@@ -57,12 +57,9 @@ pub mod ffi {
         type GMenu;
         type GtkApplication;
         type GtkBox;
-        type GtkIconView;
-        type GtkListStore;
+        type GtkGridView;
         type GtkPopoverMenu;
-        type GtkTreeIter;
-        type GtkTreeModel;
-        type GtkTreePath;
+        type GtkSingleSelection;
         type GtkWidget;
         type GtkWindow;
     }
@@ -132,18 +129,17 @@ pub mod ffi {
         type ImageListStore;
 
         fn clear_content(&self);
-        fn gobj(&self) -> *mut GtkListStore;
+        fn gobj(&self) -> *mut GtkSingleSelection;
         fn get_file_(&self, id: i64) -> *mut LibFile;
-        #[cxx_name = "get_libfile_id_at_path"]
-        unsafe fn get_file_id_at_path_(&self, path: *const GtkTreePath) -> i64;
-        fn get_iter_from_id_(&self, id: i64) -> *const GtkTreeIter;
+        fn get_file_id_at_pos(&self, pos: u32) -> i64;
+        fn get_pos_from_id_(&self, id: i64) -> u32;
     }
 
     #[namespace = "ui"]
     extern "Rust" {
         type ImageListStoreWrap;
 
-        unsafe fn unwrap_ref(&self) -> &ImageListStore;
+        fn unwrap_ref(&self) -> &ImageListStore;
         #[cxx_name = "clone"]
         fn clone_(&self) -> Box<ImageListStoreWrap>;
     }
@@ -164,25 +160,17 @@ pub mod ffi {
         type ImageGridView;
 
         unsafe fn npc_image_grid_view_new(
-            store: *mut GtkTreeModel,
+            store: *mut GtkSingleSelection,
             context_menu: *mut GtkPopoverMenu,
         ) -> Box<ImageGridView>;
-        fn get_icon_view(&self) -> *mut GtkIconView;
-    }
-
-    unsafe extern "C++" {
-        include!("niepce/ui/selection_listener.hpp");
-        type SelectionListener;
-
-        fn call(&self, id: i64);
+        fn get_grid_view(&self) -> *mut GtkGridView;
+        fn add_rating_listener(&self, listener: UniquePtr<RatingClickListener>);
     }
 
     #[namespace = "ui"]
     extern "Rust" {
         type SelectionController;
 
-        fn add_selected_listener(&self, listener: UniquePtr<SelectionListener>);
-        fn add_activated_listener(&self, listener: UniquePtr<SelectionListener>);
         fn select_previous(&self);
         fn select_next(&self);
         #[cxx_name = "get_list_store"]
@@ -191,11 +179,19 @@ pub mod ffi {
         fn rotate(&self, angle: i32);
         fn set_label(&self, label: i32);
         fn set_rating(&self, rating: i32);
+        fn set_rating_of(&self, id: i64, rating: i32);
         fn set_flag(&self, flag: i32);
         fn set_properties(&self, props: &WrappedPropertyBag, old: &WrappedPropertyBag);
         fn content_will_change(&self);
         fn write_metadata(&self);
         fn move_to_trash(&self);
+    }
+
+    unsafe extern "C++" {
+        include!("niepce/ui/rating_click_listener.hpp");
+        type RatingClickListener;
+
+        fn call(&self, id: i64, rating: i32);
     }
 
     #[namespace = "ui"]
@@ -215,9 +211,7 @@ pub mod ffi {
         fn on_lib_notification(&self, ln: &LibNotification, client: &LibraryClientWrapper);
         fn display_none(&self);
         #[cxx_name = "cxx_image_list"]
-        fn image_list(&self) -> *const GtkIconView;
-        fn get_selected(&self) -> i64;
-        fn select_image(&self, id: i64);
+        fn image_list(&self) -> *const GtkGridView;
     }
 
     #[namespace = "mapm"]

@@ -13,7 +13,6 @@ libniepceui_a_SOURCES = \
 	niepcewindow.hpp \
 	niepceapplication.hpp niepceapplication.cpp \
 	gridviewmodule.hpp gridviewmodule.cpp \
-	imageliststore.hpp imageliststore.cpp\
 	metadatapanecontroller.hpp metadatapanecontroller.cpp \
 	dialogs/editlabels.hpp dialogs/editlabels.cpp \
 	dialogs/importdialog.hpp dialogs/importdialog.cpp \

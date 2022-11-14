@@ -41,6 +41,7 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/base/date.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/debug.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/fractions.rs \
+	@top_srcdir@/crates/npc-fwk/src/base/geometry.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/moniker.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertybag.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertyvalue.rs \
@@ -49,7 +50,6 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/lib.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/assistant.rs \
-	@top_srcdir@/crates/npc-fwk/src/toolkit/clickable_cell_renderer.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/configuration.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/controller.rs \
 	@top_srcdir@/crates/npc-fwk/src/toolkit/gdk_utils.rs \
@@ -83,8 +83,8 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/niepce/ui/grid_view_module.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/imagetoolbar.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_grid_view.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/image_list_item.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/image_list_store.rs \
-	@top_srcdir@/niepce-main/src/niepce/ui/image_selectable.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/confirm.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/dialogs/importlibrary.rs \

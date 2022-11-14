@@ -27,6 +27,7 @@ use glib::translate::*;
 use gtk4::prelude::*;
 use once_cell::unsync::OnceCell;
 
+use super::image_grid_view::ImageListItem;
 use npc_engine::db::libfile::{FileStatus, LibFile};
 use npc_engine::db::props::NiepceProperties as Np;
 use npc_engine::db::props::NiepcePropertyIdx as Npi;
@@ -37,19 +38,6 @@ use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::toolkit::gdk_utils;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_out, err_out};
-
-/// Wrap a libfile into something that can be in a glib::Value
-#[derive(Clone, glib::Boxed)]
-#[boxed_type(name = "StoreLibFile", nullable)]
-pub struct StoreLibFile(pub LibFile);
-
-#[repr(i32)]
-pub enum ColIndex {
-    Thumb = 0,
-    File = 1,
-    StripThumb = 2,
-    FileStatus = 3,
-}
 
 #[derive(Clone, Copy)]
 enum CurrentContainer {
@@ -72,10 +60,8 @@ impl std::ops::Deref for ImageListStoreWrap {
 }
 
 impl ImageListStoreWrap {
-    /// # Safety
-    /// Deref a pointer
-    pub unsafe fn unwrap_ref(&self) -> &ImageListStore {
-        &*Rc::as_ptr(&self.0)
+    pub fn unwrap_ref(&self) -> &ImageListStore {
+        unsafe { &*Rc::as_ptr(&self.0) }
     }
 
     // cxx
@@ -88,9 +74,10 @@ impl ImageListStoreWrap {
 /// The Image list store.
 /// It wraps the tree model/store.
 pub struct ImageListStore {
-    store: gtk4::ListStore,
+    store: gio::ListStore,
+    model: gtk4::SingleSelection,
     current: Cell<CurrentContainer>,
-    idmap: RefCell<BTreeMap<LibraryId, gtk4::TreeIter>>,
+    idmap: RefCell<BTreeMap<LibraryId, u32>>,
     image_loading_icon: OnceCell<gtk4::IconPaintable>,
 }
 
@@ -102,26 +89,31 @@ impl Default for ImageListStore {
 
 impl ImageListStore {
     pub fn new() -> Self {
-        let col_types: [glib::Type; 4] = [
-            gdk4::Paintable::static_type(),
-            StoreLibFile::static_type(),
-            gdk4::Paintable::static_type(),
-            glib::Type::I32,
-        ];
-
-        let store = gtk4::ListStore::new(&col_types);
+        let store = gio::ListStore::new(ImageListItem::static_type());
+        let model = gtk4::SingleSelection::new(Some(&store));
 
         Self {
             store,
+            model,
             current: Cell::new(CurrentContainer::None),
             idmap: RefCell::new(BTreeMap::new()),
             image_loading_icon: OnceCell::new(),
         }
     }
 
-    /// Return the `GtkListStore`
-    pub fn liststore(&self) -> &gtk4::ListStore {
-        &self.store
+    /// Return the number of items in the store.
+    pub fn is_empty(&self) -> bool {
+        self.store.n_items() == 0
+    }
+
+    /// Return the number of items in the store.
+    pub fn len(&self) -> usize {
+        self.store.n_items() as usize
+    }
+
+    /// Return the `Gtk::SelectionModel`
+    pub fn selection_model(&self) -> &gtk4::SingleSelection {
+        &self.model
     }
 
     fn get_loading_icon(&self) -> &gtk4::IconPaintable {
@@ -145,18 +137,15 @@ impl ImageListStore {
     }
 
     // cxx
-    pub fn get_iter_from_id_(&self, id: i64) -> *const crate::ffi::GtkTreeIter {
-        self.idmap
+    pub fn get_pos_from_id_(&self, id: i64) -> u32 {
+        *self
+            .idmap
             .borrow()
             .get(&id)
-            .map(|iter| {
-                let c_iter: *const gtk4_sys::GtkTreeIter = iter.to_glib_none().0;
-                c_iter as *const crate::ffi::GtkTreeIter
-            })
-            .unwrap_or(ptr::null())
+            .unwrap_or(&gtk4::INVALID_LIST_POSITION)
     }
 
-    pub fn iter_from_id(&self, id: LibraryId) -> Option<gtk4::TreeIter> {
+    pub fn pos_from_id(&self, id: LibraryId) -> Option<u32> {
         self.idmap.borrow().get(&id).cloned()
     }
 
@@ -164,7 +153,7 @@ impl ImageListStore {
     pub fn clear_content(&self) {
         // clear the map before the list.
         self.idmap.borrow_mut().clear();
-        self.store.clear();
+        self.store.remove_all();
     }
 
     fn add_libfile(&self, f: &LibFile) {
@@ -172,7 +161,7 @@ impl ImageListStore {
         let thumb_icon = icon.clone();
         let iter = self.add_row(
             Some(icon.upcast()),
-            f,
+            f.clone(),
             Some(thumb_icon.upcast()),
             FileStatus::Ok,
         );
@@ -228,8 +217,8 @@ impl ImageListStore {
                     if param.from == current_folder {
                         // remove from list
                         dbg_out!("from this folder");
-                        if let Some(iter) = self.iter_from_id(param.file) {
-                            self.store.remove(&iter);
+                        if let Some(pos) = self.pos_from_id(param.file) {
+                            self.store.remove(pos);
                             self.idmap.borrow_mut().remove(&param.file);
                         }
                     } else if param.to == current_folder {
@@ -239,12 +228,14 @@ impl ImageListStore {
                 true
             }
             FileStatusChanged(ref status) => {
-                if let Some(iter) = self.idmap.borrow().get(&status.id) {
-                    self.store.set_value(
-                        iter,
-                        ColIndex::FileStatus as u32,
-                        &(status.status as i32).to_value(),
-                    );
+                if let Some(pos) = self.idmap.borrow().get(&status.id) {
+                    if let Some(item) = self
+                        .store
+                        .item(*pos)
+                        .and_then(|obj| obj.downcast::<ImageListItem>().ok())
+                    {
+                        item.set_status(status.status);
+                    }
                 }
                 true
             }
@@ -252,8 +243,8 @@ impl ImageListStore {
                 dbg_out!("metadata changed {:?}", m.meta);
                 // only interested in a few props
                 if Self::is_property_interesting(m.meta) {
-                    if let Some(iter) = self.idmap.borrow().get(&m.id) {
-                        self.set_property(iter, m);
+                    if let Some(pos) = self.idmap.borrow().get(&m.id) {
+                        self.set_property(*pos, m);
                     }
                 }
                 true
@@ -268,17 +259,15 @@ impl ImageListStore {
         }
     }
 
-    pub fn get_file_id_at_path(&self, path: &gtk4::TreePath) -> LibraryId {
-        if let Some(iter) = self.store.iter(path) {
-            if let Ok(libfile) = self
-                .store
-                .get_value(&iter, ColIndex::File as i32)
-                .get::<&StoreLibFile>()
-            {
-                return libfile.0.id();
-            }
-        }
-        0
+    pub fn get_file_id_at_pos(&self, pos: u32) -> LibraryId {
+        self.store
+            .item(pos)
+            .and_then(|item| {
+                item.downcast_ref::<ImageListItem>()
+                    .and_then(|item| item.file())
+                    .map(|file| file.id())
+            })
+            .unwrap_or(0)
     }
 
     // cxx
@@ -291,88 +280,67 @@ impl ImageListStore {
     }
 
     pub fn file(&self, id: LibraryId) -> Option<LibFile> {
-        if let Some(iter) = self.idmap.borrow().get(&id) {
-            self.store
-                .get_value(iter, ColIndex::File as i32)
-                .get::<&StoreLibFile>()
-                .map(|v| v.0.clone())
-                .ok()
-        } else {
-            None
-        }
+        self.idmap.borrow().get(&id).and_then(|pos| {
+            self.store.item(*pos).and_then(|item| {
+                item.downcast_ref::<ImageListItem>()
+                    .and_then(ImageListItem::file)
+            })
+        })
     }
 
     pub fn add_row(
         &self,
-        thumb: Option<gdk4::Paintable>,
-        file: &LibFile,
-        strip_thumb: Option<gdk4::Paintable>,
-        status: FileStatus,
-    ) -> gtk4::TreeIter {
-        let iter = self.store.append();
-        let store_libfile = StoreLibFile(file.clone());
-        self.store.set(
-            &iter,
-            &[
-                (ColIndex::Thumb as u32, &thumb),
-                (ColIndex::File as u32, &store_libfile),
-                (ColIndex::StripThumb as u32, &strip_thumb),
-                (ColIndex::FileStatus as u32, &(status as i32)),
-            ],
-        );
-        iter
+        thumbnail: Option<gdk4::Paintable>,
+        file: LibFile,
+        strip_thumbnail: Option<gdk4::Paintable>,
+        file_status: FileStatus,
+    ) -> u32 {
+        let item = ImageListItem::new(thumbnail, Some(file), strip_thumbnail, file_status);
+        self.store.append(&item);
+        self.store.n_items() - 1
     }
 
     pub fn set_thumbnail(&self, id: LibraryId, thumb: &gdk_pixbuf::Pixbuf) {
-        if let Some(iter) = self.idmap.borrow().get(&id) {
+        if let Some(pos) = self.idmap.borrow().get(&id) {
             let strip_thumb = gdk_utils::gdkpixbuf_scale_to_fit(Some(thumb), 100)
                 .map(|pix| gdk4::Texture::for_pixbuf(&pix));
             let thumb = gdk4::Texture::for_pixbuf(thumb);
-            assert!(thumb.ref_count() > 0);
-            self.store.set(
-                iter,
-                &[
-                    (ColIndex::Thumb as u32, &thumb),
-                    (ColIndex::StripThumb as u32, &strip_thumb),
-                ],
-            );
+
+            self.store.item(*pos).and_then(|obj| {
+                obj.downcast_ref::<ImageListItem>().map(|item| {
+                    item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
+                    item.set_strip_thumbnail(strip_thumb.map(|t| t.upcast::<gdk4::Paintable>()));
+                    self.store.items_changed(*pos, 1, 1);
+                })
+            });
         }
     }
 
-    pub fn set_property(&self, iter: &gtk4::TreeIter, change: &MetadataChange) {
-        if let Ok(libfile) = self
-            .store
-            .get_value(iter, ColIndex::File as i32)
-            .get::<&StoreLibFile>()
-        {
-            assert!(libfile.0.id() == change.id);
-            let meta = change.meta;
-            if let PropertyValue::Int(value) = change.value {
-                let mut file = libfile.0.clone();
-                file.set_property(meta, value);
-                self.store
-                    .set_value(iter, ColIndex::File as u32, &StoreLibFile(file).to_value());
-            } else {
-                err_out!("Wrong property type");
-            }
-        }
+    pub fn set_property(&self, pos: u32, change: &MetadataChange) {
+        self.store.item(pos).and_then(|item| {
+            item.downcast_ref::<ImageListItem>().map(|item| {
+                if let Some(mut file) = item.file() {
+                    assert!(file.id() == change.id);
+                    let meta = change.meta;
+                    if let PropertyValue::Int(value) = change.value {
+                        // XXX can we make this less suboptimal
+                        file.set_property(meta, value);
+                        item.set_file(Some(file));
+                        self.store.items_changed(pos, 1, 1);
+                    } else {
+                        err_out!("Wrong property type");
+                    }
+                } else {
+                    err_out!("No file found");
+                }
+            })
+        });
     }
 
     // cxx
-    /// Return the gobj for the GtkListStore. You must ref it to hold it.
-    pub fn gobj(&self) -> *mut crate::ffi::GtkListStore {
-        let w: *mut gtk4_sys::GtkListStore = self.store.to_glib_none().0;
-        w as *mut crate::ffi::GtkListStore
-    }
-
-    // cxx
-    /// Return the ID of the file at the given GtkTreePath
-    ///
-    /// # Safety
-    /// Use glib pointers.
-    pub unsafe fn get_file_id_at_path_(&self, path: *const crate::ffi::GtkTreePath) -> i64 {
-        assert!(!path.is_null());
-        let path = path as *const gtk4_sys::GtkTreePath;
-        self.get_file_id_at_path(&from_glib_borrow(path))
+    /// Return the gobj `GtkSelectionModel`. You must ref it to hold it.
+    pub fn gobj(&self) -> *mut crate::ffi::GtkSingleSelection {
+        let w: *mut gtk4_sys::GtkSingleSelection = self.model.to_glib_none().0;
+        w as *mut crate::ffi::GtkSingleSelection
     }
 }

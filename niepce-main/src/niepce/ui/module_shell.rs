@@ -334,7 +334,10 @@ impl ModuleShell {
         shell.widget.menu_button().set_menu_model(Some(&shell.menu));
 
         shell.add_library_module(&shell.gridview, "grid", &i18n("Catalog"));
-        shell.selection_controller.add_selectable(&shell.gridview);
+        shell.gridview.grid_view.connect_activate(glib::clone!(
+        @weak shell.selection_controller.handler as handler => move |_, pos| {
+            handler.activated(pos)
+        }));
 
         shell.selection_controller.handler.signal_selected.connect(
             glib::clone!(@weak shell => move |id| {

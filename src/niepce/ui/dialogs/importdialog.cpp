@@ -24,10 +24,9 @@
 #include <gtkmm/checkbutton.h>
 #include <gtkmm/combobox.h>
 #include <gtkmm/comboboxtext.h>
-#include <gtkmm/iconview.h>
 #include <gtkmm/label.h>
-#include <gtkmm/liststore.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/signallistitemfactory.h>
 #include <gtkmm/stack.h>
 
 #include "fwk/base/debug.hpp"
@@ -40,6 +39,18 @@
 #include "importers/cameraimporterui.hpp"
 
 namespace ui {
+
+class ThumbItem
+    : public Glib::Object
+{
+public:
+    ThumbItem(eng::ImportedFilePtr imported_file)
+        : Glib::ObjectBase(typeid(ThumbItem))
+        , m_imported_file(imported_file) {}
+
+    eng::ImportedFilePtr m_imported_file;
+    Glib::RefPtr<Gdk::Pixbuf> m_pixbuf;
+};
 
 ImportDialog::ImportDialog()
   : fwk::Dialog("/org/gnome/Niepce/ui/importdialog.ui", "importDialog")
@@ -117,14 +128,25 @@ void ImportDialog::setup_widget()
 
     // Gridview of previews.
     m_images_list_scrolled = a_builder->get_widget<Gtk::ScrolledWindow>("images_list_scrolled");
-    m_images_list_model = Gtk::ListStore::create(m_grid_columns);
-    auto image_gridview = npc::npc_image_grid_view_new(
-        GTK_TREE_MODEL(g_object_ref(m_images_list_model->gobj())), nullptr);
-    m_gridview = Gtk::manage(Glib::wrap(image_gridview->get_icon_view()));
+    m_images_list_model = Gio::ListStore<ThumbItem>::create();
+    auto selection_model = Gtk::SingleSelection::create(m_images_list_model);
+    auto image_gridview = npc::npc_image_grid_view_new(selection_model->gobj(), nullptr);
+    m_gridview = Gtk::manage(Glib::wrap(image_gridview->get_grid_view()));
     m_image_gridview = std::move(image_gridview);
-    m_gridview->set_pixbuf_column(m_grid_columns.pixbuf);
-    m_gridview->set_text_column(m_grid_columns.filename);
-    m_gridview->set_item_width(100);
+    auto item_factory = Gtk::SignalListItemFactory::create();
+    m_gridview->set_factory(item_factory);
+    item_factory->signal_setup().connect([] (const Glib::RefPtr<Gtk::ListItem>& list_item) {
+        auto image = Gtk::manage(new Gtk::Image());
+        list_item->set_child(*image);
+    });
+    item_factory->signal_bind().connect([] (const Glib::RefPtr<Gtk::ListItem>& list_item) {
+        auto image = static_cast<Gtk::Image*>(list_item->get_child());
+        auto item = std::dynamic_pointer_cast<ThumbItem>(list_item->get_item());
+        image->set(item->m_pixbuf);
+    });
+    // m_gridview->set_pixbuf_column(m_grid_columns.pixbuf);
+    // m_gridview->set_text_column(m_grid_columns.filename);
+    // m_gridview->set_item_width(100);
     m_images_list_scrolled->set_child(*m_gridview);
     m_images_list_scrolled->set_policy(Gtk::PolicyType::AUTOMATIC, Gtk::PolicyType::AUTOMATIC);
 
@@ -141,7 +163,7 @@ void ImportDialog::setup_widget()
 void ImportDialog::clear_import_list()
 {
     if (m_images_list_model) {
-        m_images_list_model->clear();
+        m_images_list_model->remove_all();
     }
     m_images_list_map.clear();
     m_files_to_import.clear();
@@ -200,10 +222,8 @@ void ImportDialog::append_files_to_import()
     for(const auto & f : files_to_import) {
         DBG_OUT("selected %s", f->name().c_str());
         paths.push_back(f->path());
-        Gtk::TreeIter iter = m_images_list_model->append();
-        m_images_list_map.insert(std::make_pair(f->path(), iter));
-        iter->set_value(m_grid_columns.filename, Glib::ustring(f->name()));
-        iter->set_value(m_grid_columns.file, std::move(f));
+        m_images_list_model->append(std::make_shared<ThumbItem>(f));
+        m_images_list_map.insert(std::make_pair(f->path(), m_images_list_model->get_n_items() - 1));
     }
 
     auto importer = get_importer();
@@ -225,9 +245,9 @@ void ImportDialog::preview_received()
     if (preview) {
         auto iter = m_images_list_map.find(preview->first);
         if (iter != m_images_list_map.end()) {
-            iter->second->set_value(m_grid_columns.pixbuf,
-                                    Glib::wrap((GdkPixbuf*)fwk::Thumbnail_to_pixbuf(
-                                                   *preview->second)));
+            auto index = iter->second;
+            auto item = m_images_list_model->get_item(index);
+            item->m_pixbuf = Glib::wrap((GdkPixbuf*)fwk::Thumbnail_to_pixbuf(*preview->second));
         }
     }
 }

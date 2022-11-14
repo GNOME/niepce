@@ -28,6 +28,9 @@
 
 #include <glibmm/refptr.h>
 #include <glibmm/dispatcher.h>
+#include <giomm/liststore.h>
+#include <gtkmm/gridview.h>
+#include <gtkmm/singleselection.h>
 
 #include "engine/importer/importedfile.hpp"
 #include "fwk/toolkit/gtkutils.hpp"
@@ -55,22 +58,13 @@ class IImporter;
 
 namespace ui {
 
+class ThumbItem;
+
 class ImportDialog
 	: public fwk::Dialog
 {
 public:
     typedef std::shared_ptr<ImportDialog> Ptr;
-
-    class PreviewGridModel
-        : public Gtk::TreeModel::ColumnRecord
-    {
-    public:
-        Gtk::TreeModelColumn<Glib::ustring> filename;
-        Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> pixbuf;
-        Gtk::TreeModelColumn<eng::ImportedFilePtr> file;
-        PreviewGridModel()
-            { add(filename); add(pixbuf); add(file); }
-    };
 
     ImportDialog();
     virtual ~ImportDialog();
@@ -116,12 +110,11 @@ private:
     Gtk::ComboBoxText *m_import_source_combo;
     Gtk::ScrolledWindow *m_attributes_scrolled;
     Gtk::ScrolledWindow *m_images_list_scrolled;
-    PreviewGridModel m_grid_columns;
-    Glib::RefPtr<Gtk::ListStore> m_images_list_model;
-    std::map<std::string, Gtk::TreeModel::iterator> m_images_list_map;
+    Glib::RefPtr<Gio::ListStore<ThumbItem>> m_images_list_model;
+    std::map<std::string, guint> m_images_list_map;
 
     std::optional<rust::Box<npc::ImageGridView>> m_image_gridview;
-    Gtk::IconView *m_gridview;
+    Gtk::GridView *m_gridview;
 
     MetaDataPaneController::Ptr m_metadata_pane;
 
