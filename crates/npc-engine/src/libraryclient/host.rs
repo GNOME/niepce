@@ -62,15 +62,3 @@ impl LibraryClientHost {
         &self.ui_provider
     }
 }
-
-pub fn library_client_host_new(moniker: &Moniker, channel: &LcChannel) -> *mut LibraryClientHost {
-    Box::into_raw(Box::new(LibraryClientHost::new(moniker, channel)))
-}
-
-/// Delete the boxed object. cxx bindings only.
-///
-/// # Safety
-/// Dereference the raw pointer.
-pub unsafe fn library_client_host_delete(host: *mut LibraryClientHost) {
-    drop(Box::from_raw(host))
-}

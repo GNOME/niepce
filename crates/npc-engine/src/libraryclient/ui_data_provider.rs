@@ -81,7 +81,3 @@ impl UIDataProvider {
         Box::into_raw(Box::new(self.labels.borrow()[idx].clone()))
     }
 }
-
-pub fn ui_data_provider_new() -> Box<UIDataProvider> {
-    Box::new(UIDataProvider::default())
-}

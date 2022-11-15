@@ -22,8 +22,8 @@ mod host;
 mod ui_data_provider;
 
 pub use clientinterface::{ClientInterface, ClientInterfaceSync};
-pub use host::{library_client_host_delete, library_client_host_new, LibraryClientHost};
-pub use ui_data_provider::{ui_data_provider_new, UIDataProvider};
+pub use host::LibraryClientHost;
+pub use ui_data_provider::UIDataProvider;
 
 use std::cell::Cell;
 use std::ops::Deref;

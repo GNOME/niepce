@@ -97,7 +97,7 @@ pub type NiepcePropertyBag = PropertyBag;
 use crate::db::{Keyword, Label, LibFile, LibFolder, LibMetadata};
 use crate::library::notification::{LcChannel, LibNotification};
 use crate::libraryclient::{
-    library_client_host_delete, library_client_host_new, LibraryClientHost, LibraryClientWrapper,
+    LibraryClientHost, LibraryClientWrapper,
     UIDataProvider,
 };
 
@@ -327,14 +327,6 @@ pub mod ffi {
 
     extern "Rust" {
         type LibraryClientHost;
-
-        #[cxx_name = "LibraryClientHost_new"]
-        fn library_client_host_new(
-            moniker: &Moniker,
-            channel: &LcChannel,
-        ) -> *mut LibraryClientHost;
-        #[cxx_name = "LibraryClientHost_delete"]
-        unsafe fn library_client_host_delete(host: *mut LibraryClientHost);
 
         #[cxx_name = "getDataProvider"]
         fn ui_provider(&self) -> &UIDataProvider;
