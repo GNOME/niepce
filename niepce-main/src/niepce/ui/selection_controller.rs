@@ -21,7 +21,7 @@ use std::cell::{Ref, RefCell, RefMut};
 use std::rc::Rc;
 use std::sync::Arc;
 
-use gettextrs::gettext;
+use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
 use super::image_list_store::ImageListStoreWrap;
@@ -256,10 +256,10 @@ impl SelectionController {
             dbg_out!("old property is {}", file.property(Np::Index(idx)));
             let old_value = file.property(Np::Index(idx));
             let action = match idx {
-                NiepcePropertyIdx::NpNiepceFlagProp => gettext("Set Flag"),
-                NiepcePropertyIdx::NpXmpRatingProp => gettext("Set Rating"),
-                NiepcePropertyIdx::NpXmpLabelProp => gettext("Set Label"),
-                _ => gettext("Set Property"),
+                NiepcePropertyIdx::NpNiepceFlagProp => i18n("Set Flag"),
+                NiepcePropertyIdx::NpXmpRatingProp => i18n("Set Rating"),
+                NiepcePropertyIdx::NpXmpLabelProp => i18n("Set Label"),
+                _ => i18n("Set Property"),
             };
             self.set_one_metadata(&action, id, idx, old_value, value);
             // we need to set the property here so that undo/redo works
@@ -272,7 +272,7 @@ impl SelectionController {
 
     pub fn set_properties(&self, props: &WrappedPropertyBag, old: &WrappedPropertyBag) {
         if let Some(selection) = self.selection() {
-            self.set_metadata(&gettext("Set Properties"), selection, props, old);
+            self.set_metadata(&i18n("Set Properties"), selection, props, old);
         }
     }
 
@@ -292,7 +292,7 @@ impl SelectionController {
         if let Some(selection) = self.selection() {
             if let Some(f) = self.handler.store.file(selection) {
                 let from_folder = f.folder_id();
-                let mut undo = Box::new(UndoTransaction::new(&gettext("Move to Trash")));
+                let mut undo = Box::new(UndoTransaction::new(&i18n("Move to Trash")));
                 let client_undo = self.client.clone();
                 let client_redo = self.client.clone();
                 let command = UndoCommand::new(
