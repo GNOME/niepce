@@ -96,10 +96,7 @@ pub type NiepcePropertyBag = PropertyBag;
 
 use crate::db::{Keyword, Label, LibFile, LibFolder, LibMetadata};
 use crate::library::notification::{LcChannel, LibNotification};
-use crate::libraryclient::{
-    LibraryClientHost, LibraryClientWrapper,
-    UIDataProvider,
-};
+use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper, UIDataProvider};
 
 #[cxx::bridge(namespace = "eng")]
 pub mod ffi {

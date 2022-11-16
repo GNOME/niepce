@@ -44,6 +44,6 @@ pub use module_shell_widget::ModuleShellWidget;
 pub use selection_controller::SelectionController;
 
 pub mod cxx {
-    pub use super::image_grid_view::npc_image_grid_view_new;
+    pub use super::image_grid_view::{npc_image_grid_view_new, npc_image_grid_view_new2};
     pub use super::workspace_controller::ImportDialogArgument;
 }

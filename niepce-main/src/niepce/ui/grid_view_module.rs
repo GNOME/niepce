@@ -23,7 +23,7 @@ use std::rc::Rc;
 use glib::translate::*;
 
 use npc_engine::library::notification::LibNotification;
-use npc_engine::libraryclient::{LibraryClientWrapper, UIDataProvider};
+use npc_engine::libraryclient::{LibraryClientHost, LibraryClientWrapper};
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 
 use crate::ffi::{grid_view_module_new, GridViewModule};
@@ -77,7 +77,7 @@ impl GridViewModuleProxy {
     pub fn new(
         selection_controller: &Rc<SelectionController>,
         menu: &gio::Menu,
-        ui_data_provider: &UIDataProvider,
+        libclient_host: &LibraryClientHost,
     ) -> Self {
         let menu: *const gio_sys::GMenu = menu.to_glib_none().0;
         let module = unsafe {
@@ -87,7 +87,7 @@ impl GridViewModuleProxy {
             grid_view_module_new(
                 &*selection_controller,
                 menu as *const crate::ffi::GMenu,
-                ui_data_provider,
+                libclient_host,
             )
         };
         let widget = unsafe {

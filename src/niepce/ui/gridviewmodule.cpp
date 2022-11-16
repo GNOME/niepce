@@ -34,20 +34,20 @@
 namespace ui {
 
 std::shared_ptr<GridViewModule> grid_view_module_new(const ui::SelectionController& selection_controller,
-                                                     const GMenu* menu_, const eng::UIDataProvider& ui_data_provider)
+                                                     const GMenu* menu_, const eng::LibraryClientHost& client_host)
 {
     Glib::RefPtr<Gio::Menu> menu;
     if (menu_) {
         menu = Glib::wrap(const_cast<GMenu*>(menu_));
     }
-    return std::make_shared<GridViewModule>(selection_controller, menu, ui_data_provider);
+    return std::make_shared<GridViewModule>(selection_controller, menu, client_host);
 }
 
 GridViewModule::GridViewModule(const ui::SelectionController& selection_controller,
-                               Glib::RefPtr<Gio::Menu> menu, const eng::UIDataProvider& ui_data_provider)
+                               Glib::RefPtr<Gio::Menu> menu, const eng::LibraryClientHost& client_host)
   : m_selection_controller(selection_controller)
   , m_menu(menu)
-  , m_ui_data_provider(ui_data_provider)
+  , m_libclient_host(client_host)
   , m_librarylistview(nullptr)
   , m_lib_splitview(Gtk::Orientation::HORIZONTAL)
   , m_dock(nullptr)
@@ -91,29 +91,6 @@ void GridViewModule::display_none() const
     m_metapanecontroller->display(0, nullptr);
 }
 
-bool GridViewModule::get_colour_callback_c(int32_t label, ffi::RgbColour* out,
-                                           const void* user_data)
-{
-    if (user_data == nullptr) {
-        return false;
-    }
-
-    std::optional<fwk::RgbColour> colour =
-        static_cast<const GridViewModule*>(user_data)->get_colour_callback(label);
-
-    if (colour.has_value() && out) {
-        *out = colour.value();
-        return true;
-    }
-
-    return false;
-}
-
-std::optional<fwk::RgbColour> GridViewModule::get_colour_callback(int32_t label) const
-{
-    return std::optional(m_ui_data_provider.colourForLabel(label));
-}
-
 Gtk::Widget * GridViewModule::buildWidget()
 {
   if(m_widget) {
@@ -125,7 +102,8 @@ Gtk::Widget * GridViewModule::buildWidget()
 
   auto image_grid_view = npc::npc_image_grid_view_new(
       GTK_SINGLE_SELECTION(model.unwrap_ref().gobj()),
-      GTK_POPOVER_MENU(m_context_menu->gobj())
+      GTK_POPOVER_MENU(m_context_menu->gobj()),
+      m_libclient_host
   );
   m_librarylistview = Gtk::manage(Glib::wrap(image_grid_view->get_grid_view()));
   m_image_grid_view = std::move(image_grid_view);
@@ -206,12 +184,6 @@ void GridViewModule::on_librarylistview_click(const Glib::RefPtr<Gtk::GestureCli
 
         return;
     }
-    // Gtk::TreeModel::Path path;
-    // Gtk::CellRenderer * renderer = nullptr;
-    // DBG_OUT("GridView click (%f, %f)", x, y);
-    // if (m_librarylistview->get_item_at_pos(x, y, path, renderer)){
-    //     DBG_OUT("found an item");
-    // }
 }
 
 }

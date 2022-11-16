@@ -162,7 +162,9 @@ pub mod ffi {
         unsafe fn npc_image_grid_view_new(
             store: *mut GtkSingleSelection,
             context_menu: *mut GtkPopoverMenu,
+            libclient_host: &LibraryClientHost,
         ) -> Box<ImageGridView>;
+        unsafe fn npc_image_grid_view_new2(store: *mut GtkSingleSelection) -> Box<ImageGridView>;
         fn get_grid_view(&self) -> *mut GtkGridView;
         fn add_rating_listener(&self, listener: UniquePtr<RatingClickListener>);
     }
@@ -204,7 +206,7 @@ pub mod ffi {
         unsafe fn grid_view_module_new(
             selection_controller: &SelectionController,
             menu: *const GMenu,
-            ui_data_provider: &UIDataProvider,
+            libclient_host: &LibraryClientHost,
         ) -> SharedPtr<GridViewModule>;
         // call buildWidget(). But it's mutable.
         fn build_widget(&self) -> *const GtkWidget;

@@ -26,6 +26,7 @@ use gtk4::prelude::*;
 
 use super::library_cell_renderer::LibraryCellRenderer;
 use npc_engine::db;
+use npc_engine::libraryclient::{LibraryClientHost, UIDataProvider};
 use npc_fwk::base::Signal;
 
 pub struct ImageGridView {
@@ -34,15 +35,20 @@ pub struct ImageGridView {
 }
 
 impl ImageGridView {
-    pub fn new(store: &gtk4::SingleSelection, context_menu: Option<gtk4::PopoverMenu>) -> Self {
+    pub fn new(
+        store: &gtk4::SingleSelection,
+        context_menu: Option<gtk4::PopoverMenu>,
+        ui_provider: Option<Rc<UIDataProvider>>,
+    ) -> Self {
         let factory = gtk4::SignalListItemFactory::new();
         let grid_view = gtk4::GridView::new(Some(store), Some(&factory));
         let signal_rating_changed = Rc::new(Signal::default());
         let weak_signal = Rc::downgrade(&signal_rating_changed);
 
+        let ui_provider = ui_provider.map(|v| Rc::downgrade(&v));
         factory.connect_setup(move |_, item| {
             let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
-            let renderer = LibraryCellRenderer::new(None, std::ptr::null());
+            let renderer = LibraryCellRenderer::new(ui_provider.clone());
             let weak_signal = weak_signal.clone();
             renderer.connect_local("rating-changed", false, move |values| {
                 if let Some(signal) = weak_signal.upgrade() {
@@ -131,9 +137,27 @@ impl ImageGridView {
 pub unsafe fn npc_image_grid_view_new(
     store: *mut crate::ffi::GtkSingleSelection,
     context_menu: *mut crate::ffi::GtkPopoverMenu,
+    libclient_host: &LibraryClientHost,
 ) -> Box<ImageGridView> {
     Box::new(ImageGridView::new(
         &gtk4::SingleSelection::from_glib_none(store as *mut gtk4_sys::GtkSingleSelection),
         Option::<gtk4::PopoverMenu>::from_glib_none(context_menu as *mut gtk4_sys::GtkPopoverMenu),
+        Some(libclient_host.shared_ui_provider()),
+    ))
+}
+
+/// Create a new `ImageGridView`
+///
+/// # Safety
+/// Use raw pointers.
+///
+/// The `store` will get ref.
+pub unsafe fn npc_image_grid_view_new2(
+    store: *mut crate::ffi::GtkSingleSelection,
+) -> Box<ImageGridView> {
+    Box::new(ImageGridView::new(
+        &gtk4::SingleSelection::from_glib_none(store as *mut gtk4_sys::GtkSingleSelection),
+        None,
+        None,
     ))
 }

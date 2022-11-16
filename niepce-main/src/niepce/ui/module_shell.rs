@@ -70,7 +70,7 @@ impl ModuleShell {
             gridview: Rc::new(GridViewModuleProxy::new(
                 &selection_controller,
                 &menu,
-                client_host.ui_provider(),
+                client_host,
             )),
             mapm: Rc::new(MapModuleProxy::default()),
             darkroom: Rc::new(DarkroomModuleProxy::new(&selection_controller)),

@@ -130,7 +130,7 @@ void ImportDialog::setup_widget()
     m_images_list_scrolled = a_builder->get_widget<Gtk::ScrolledWindow>("images_list_scrolled");
     m_images_list_model = Gio::ListStore<ThumbItem>::create();
     auto selection_model = Gtk::SingleSelection::create(m_images_list_model);
-    auto image_gridview = npc::npc_image_grid_view_new(selection_model->gobj(), nullptr);
+    auto image_gridview = npc::npc_image_grid_view_new2(selection_model->gobj());
     m_gridview = Gtk::manage(Glib::wrap(image_gridview->get_grid_view()));
     m_image_gridview = std::move(image_gridview);
     auto item_factory = Gtk::SignalListItemFactory::create();

@@ -17,20 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use libc::c_void;
 use std::cell::{Cell, RefCell};
-use std::ptr;
+use std::rc::Weak;
 
 use gdk4::prelude::*;
 use gdk4::Texture;
 use glib::subclass::prelude::*;
 use glib::subclass::Signal;
-use glib::translate::*;
 use graphene::Rect;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
+use npc_engine::db;
 use npc_engine::db::libfile::{FileStatus, FileType, LibFile};
+use npc_engine::libraryclient::UIDataProvider;
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
@@ -72,24 +72,18 @@ glib::wrapper! {
 impl LibraryCellRenderer {
     /// Create a library cell renderer.
     /// callback: an optional callback used to get a colour for labels.
-    /// callback_data: raw pointer passed as is to the callback.
-    pub fn new(callback: Option<GetColourCallback>, callback_data: *const c_void) -> Self {
+    pub fn new(ui_provider: Option<Weak<UIDataProvider>>) -> Self {
         let obj: Self = glib::Object::new(&[]);
 
-        if callback.is_some() {
-            let priv_ = obj.imp();
-            priv_.get_colour_callback.replace(callback);
-            priv_.callback_data.set(callback_data);
-        }
+        obj.imp().ui_provider.replace(ui_provider);
 
         obj
     }
 
     /// Create a `LibraryCellRenderer` with some options for the fil strip.
     /// Mostly just draw the thumbnail.
-    /// Doesn't need the get_colour_callback
     pub fn new_thumb_renderer() -> Self {
-        let cell_renderer = Self::new(None, ptr::null());
+        let cell_renderer = Self::new(None);
 
         cell_renderer.set_pad(6);
         cell_renderer.set_size(100);
@@ -157,10 +151,6 @@ impl LibraryCellRendererExt for LibraryCellRenderer {
     }
 }
 
-/// Callback type to get the label colour.
-/// Return false if none is returned.
-type GetColourCallback = unsafe extern "C" fn(i32, *mut RgbColour, *const c_void) -> bool;
-
 pub struct LibraryCellRendererPriv {
     pixbuf: RefCell<Option<gdk4::Paintable>>,
     libfile: RefCell<Option<LibFile>>,
@@ -173,8 +163,7 @@ pub struct LibraryCellRendererPriv {
     draw_label: Cell<bool>,
     draw_flag: Cell<bool>,
     draw_status: Cell<bool>,
-    get_colour_callback: RefCell<Option<GetColourCallback>>,
-    callback_data: Cell<*const c_void>,
+    ui_provider: RefCell<Option<Weak<UIDataProvider>>>,
 }
 
 impl LibraryCellRendererPriv {
@@ -297,15 +286,11 @@ impl LibraryCellRendererPriv {
     }
 
     fn get_colour(&self, label_id: i32) -> Option<RgbColour> {
-        if let Some(f) = *self.get_colour_callback.borrow() {
-            unsafe {
-                let mut c = RgbColour::default();
-                if f(label_id, &mut c, self.callback_data.get()) {
-                    return Some(c);
-                }
-            }
-        }
-        None
+        self.ui_provider
+            .borrow()
+            .as_ref()
+            .and_then(|weak| weak.upgrade())
+            .map(|ui_provider| ui_provider.colour_for_label(label_id as db::LibraryId))
     }
 
     /// Test hit on rating and emit the signal if applicable.
@@ -388,8 +373,7 @@ impl ObjectSubclass for LibraryCellRendererPriv {
             draw_label: Cell::new(true),
             draw_flag: Cell::new(true),
             draw_status: Cell::new(true),
-            get_colour_callback: RefCell::new(None),
-            callback_data: Cell::new(ptr::null()),
+            ui_provider: RefCell::new(None),
         }
     }
 }
@@ -488,7 +472,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
 
 impl WidgetImpl for LibraryCellRendererPriv {
     fn request_mode(&self) -> gtk4::SizeRequestMode {
-       gtk4::SizeRequestMode::ConstantSize
+        gtk4::SizeRequestMode::ConstantSize
     }
 
     fn measure(&self, _orientation: gtk4::Orientation, _for_size: i32) -> (i32, i32, i32, i32) {
@@ -589,16 +573,4 @@ impl WidgetImpl for LibraryCellRendererPriv {
             }
         }
     }
-}
-
-/// # Safety
-/// Use raw pointers
-#[no_mangle]
-pub unsafe extern "C" fn npc_library_cell_renderer_new(
-    get_colour: Option<unsafe extern "C" fn(i32, *mut RgbColour, *const c_void) -> bool>,
-    callback_data: *const c_void,
-) -> *mut gtk4_sys::GtkWidget {
-    LibraryCellRenderer::new(get_colour, callback_data)
-        .upcast::<gtk4::Widget>()
-        .to_glib_full()
 }

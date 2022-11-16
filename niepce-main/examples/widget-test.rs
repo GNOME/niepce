@@ -107,7 +107,7 @@ pub fn main() {
         let shell = ModuleShellWidget::new();
         shell.append_page(&box_, "main", "Main");
 
-        let image_grid = ImageGridView::new(&model, None);
+        let image_grid = ImageGridView::new(&model, None, None);
         (&image_grid).set_hexpand(true);
         (&image_grid).set_vexpand(true);
         shell.append_page(image_grid.deref(), "grid", "Grid View");

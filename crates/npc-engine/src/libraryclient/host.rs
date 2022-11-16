@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::rc::Rc;
+
 use crate::ThumbnailCache;
 use npc_fwk::base::Moniker;
 
@@ -29,7 +31,7 @@ pub struct LibraryClientHost {
     // XXX get rid of the wrapper
     client: LibraryClientWrapper,
     thumbnail_cache: ThumbnailCache,
-    ui_provider: UIDataProvider,
+    ui_provider: std::rc::Rc<UIDataProvider>,
 }
 
 unsafe impl cxx::ExternType for LibraryClientHost {
@@ -46,7 +48,7 @@ impl LibraryClientHost {
         LibraryClientHost {
             client: LibraryClientWrapper::new(path, channel.0.clone()),
             thumbnail_cache: ThumbnailCache::new(&cache_path, channel.0.clone()),
-            ui_provider: UIDataProvider::default(),
+            ui_provider: Rc::new(UIDataProvider::default()),
         }
     }
 
@@ -59,6 +61,12 @@ impl LibraryClientHost {
     }
 
     pub fn ui_provider(&self) -> &UIDataProvider {
-        &self.ui_provider
+        self.ui_provider.as_ref()
+    }
+
+    /// If you need a Rc.
+    // XXX figure out which one should be prefered.
+    pub fn shared_ui_provider(&self) -> Rc<UIDataProvider> {
+        self.ui_provider.clone()
     }
 }

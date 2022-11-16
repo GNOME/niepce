@@ -50,7 +50,7 @@ public:
   typedef std::shared_ptr<GridViewModule> Ptr;
 
   GridViewModule(const ui::SelectionController& selection_controller,
-                 Glib::RefPtr<Gio::Menu> menu, const eng::UIDataProvider& ui_data_provider);
+                 Glib::RefPtr<Gio::Menu> menu, const eng::LibraryClientHost& libclient_host);
   virtual ~GridViewModule();
 
   void on_lib_notification(const eng::LibNotification &, const eng::LibraryClientWrapper& client) const;
@@ -71,15 +71,13 @@ protected:
   virtual Gtk::Widget * buildWidget() override;
 
 private:
-  static bool get_colour_callback_c(int32_t label, ffi::RgbColour* out, const void* user_data);
-  std::optional<fwk::RgbColour> get_colour_callback(int32_t label) const;
   void on_metadata_changed(const fwk::WrappedPropertyBagPtr&, const fwk::WrappedPropertyBagPtr& old);
   void on_rating_changed(eng::library_id_t id, int rating) const;
   void on_librarylistview_click(const Glib::RefPtr<Gtk::GestureClick>& gesture, double, double);
 
   const ui::SelectionController& m_selection_controller;
   Glib::RefPtr<Gio::Menu> m_menu;
-  const eng::UIDataProvider& m_ui_data_provider;
+  const eng::LibraryClientHost& m_libclient_host;
 
   // library split view
   std::optional<rust::Box<npc::ImageGridView>> m_image_grid_view;
@@ -93,7 +91,7 @@ private:
 
 std::shared_ptr<GridViewModule> grid_view_module_new(const ui::SelectionController& selection_controller,
                                                      const GMenu* menu_,
-                                                     const eng::UIDataProvider& ui_data_provider);
+                                                     const eng::LibraryClientHost& libclient_host);
 
 }
 
