@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-pub mod confirm;
 mod importlibrary;
 
 pub use self::importlibrary::ImportLibraryDialog;

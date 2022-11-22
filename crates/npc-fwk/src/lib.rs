@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+extern crate libadwaita as adw;
+
 #[macro_use]
 pub mod base;
 pub mod toolkit;

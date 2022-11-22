@@ -2,6 +2,7 @@
 # Please keep this file sorted alphabetically.
 camerawire/src/cwwindow.cpp
 crates/npc-engine/src/importer/lrimporter.rs
+crates/npc-fwk/src/toolkit/confirm.rs
 crates/npc-fwk/src/toolkit/request.rs
 data/org.gnome.Niepce.appdata.xml.in
 data/org.gnome.Niepce.desktop.in

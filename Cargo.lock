@@ -991,6 +991,7 @@ dependencies = [
  "gtk4",
  "gtk4-sys",
  "lazy_static",
+ "libadwaita",
  "libc",
  "libopenraw",
  "mime_guess",

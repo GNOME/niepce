@@ -19,6 +19,7 @@
 
 pub mod assistant;
 mod configuration;
+pub mod confirm;
 mod controller;
 pub mod gdk_utils;
 pub mod gtk_utils;

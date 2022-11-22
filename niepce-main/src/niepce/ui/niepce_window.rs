@@ -20,11 +20,10 @@
 use std::cell::{Ref, RefCell, RefMut};
 use std::rc::Rc;
 
+use adw::prelude::*;
 use gettextrs::gettext as i18n;
 use gtk4::gio;
-use gtk4::gio::prelude::*;
 use gtk4::glib::translate::*;
-use gtk4::prelude::*;
 use once_cell::unsync::OnceCell;
 
 use npc_engine::db;
@@ -309,13 +308,17 @@ impl NiepceWindow {
             }
             DatabaseNeedUpgrade(v) => {
                 dbg_out!("Database need upgrade {}.", v);
-                let dialog = super::dialogs::confirm::request(
-                    &i18n("Catalog need to be upgraded"),
+                let dialog = npc_fwk::toolkit::confirm::request(
+                    &i18n("Catalog needs to be upgraded"),
+                    &i18n("The catalog will be upgraded to the latest version. A copy of the old version will be save. Upgrade?"),
+                    Some(i18n("_Upgrade")),
+                    false,
                     Some(self.window()),
                 );
                 dialog.connect_response(
+                    None,
                     glib::clone!(@strong self.libraryclient as client => move |dialog, response| {
-                        if response == gtk4::ResponseType::Yes {
+                        if response == "confirm" {
                             if let Some(client_host) = client.borrow().as_ref() {
                                 client_host.client().upgrade_library_from_sync(v);
                             }

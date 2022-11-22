@@ -22,13 +22,13 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::{Arc, Weak};
 
+use adw::prelude::*;
 use gettextrs::gettext as i18n;
 use glib::translate::*;
 use glib::Cast;
 use gtk4::gio;
 use gtk4::glib;
 use gtk4::glib::Type;
-use gtk4::prelude::*;
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use once_cell::unsync::OnceCell;
@@ -622,11 +622,17 @@ impl WorkspaceController {
             .widget()
             .ancestor(gtk4::Window::static_type())
             .and_then(|w| w.downcast::<gtk4::Window>().ok());
-        let dialog =
-            super::dialogs::confirm::request(&i18n("Delete selected folder?"), window.as_ref());
+        let dialog = npc_fwk::toolkit::confirm::request(
+            &i18n("Delete selected folder?"),
+            &i18n("The folder will be deleted."),
+            Some(i18n("_Delete")),
+            true,
+            window.as_ref(),
+        );
         dialog.connect_response(
+            None,
             glib::clone!(@strong dialog, @strong self.client as client => move |_, response| {
-                if response == gtk4::ResponseType::Yes {
+                if response == "confirm" {
                     if let Some(client) = client.upgrade() {
                         client.delete_folder(id);
                     }
@@ -659,11 +665,17 @@ impl WorkspaceController {
             .widget()
             .ancestor(gtk4::Window::static_type())
             .and_then(|w| w.downcast::<gtk4::Window>().ok());
-        let dialog =
-            super::dialogs::confirm::request(&i18n("Delete selected album?"), window.as_ref());
+        let dialog = npc_fwk::toolkit::confirm::request(
+            &i18n("Delete selected album?"),
+            &i18n("The album will be deleted."),
+            Some(i18n("_Delete")),
+            true,
+            window.as_ref(),
+        );
         dialog.connect_response(
+            None,
             glib::clone!(@strong dialog, @strong self.client as client => move |_, response| {
-                if response == gtk4::ResponseType::Yes {
+                if response == "confirm" {
                     if let Some(client) = client.upgrade() {
                         client.delete_album(id);
                     }

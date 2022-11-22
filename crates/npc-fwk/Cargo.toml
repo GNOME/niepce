@@ -24,6 +24,7 @@ gettext-rs = "0.7.0"
 graphene-rs = "0.16"
 gtk4 = "^0.5"
 lazy_static = "^1.2.0"
+libadwaita = { version = "0.2.1", features = [ "v1_2" ] }
 libc = "0.2.39"
 libopenraw = "0.1.0"
 multimap = "0.4.0"
