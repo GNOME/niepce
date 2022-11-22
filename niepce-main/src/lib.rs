@@ -19,6 +19,7 @@
 
 #[macro_use]
 extern crate gtk_macros;
+extern crate libadwaita as adw;
 
 mod import;
 pub mod modules;
@@ -32,6 +33,7 @@ fn niepce_init() {
 
     START.call_once(|| {
         gtk4::init().unwrap();
+        adw::init().unwrap();
         npc_fwk::init();
     });
 }

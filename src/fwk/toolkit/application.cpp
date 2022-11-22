@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <adwaita.h>
+
 #include <glibmm/i18n.h>
 #include <glibmm/miscutils.h>
 
@@ -93,8 +95,12 @@ int Application::main(const Application::Ptr & app,
                       int argc, char ** argv)
 {
     bool use_dark = app->get_use_dark_theme();
-    auto settings = Gtk::Settings::get_default();
-    settings->set_property("gtk-application-prefer-dark-theme", use_dark);
+    auto settings = adw_style_manager_get_default();
+    if (use_dark) {
+        adw_style_manager_set_color_scheme(settings, ADW_COLOR_SCHEME_FORCE_DARK);
+    } else {
+        adw_style_manager_set_color_scheme(settings, ADW_COLOR_SCHEME_PREFER_LIGHT);
+    }
 
     app->m_gtkapp->run(argc, argv);
 
