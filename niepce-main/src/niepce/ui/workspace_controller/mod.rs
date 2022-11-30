@@ -1,5 +1,5 @@
 /*
- * niepce - niepce/ui/workspace_controller.rs
+ * niepce - niepce/ui/workspace_controller/mod.rs
  *
  * Copyright (C) 2021-2022 Hubert Figuière
  *
@@ -17,8 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod ws_item_row;
+mod ws_list_item;
+mod ws_list_model;
+
 use std::cell::{Ref, RefCell, RefMut};
-use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::{Arc, Weak};
 
@@ -28,9 +31,7 @@ use glib::translate::*;
 use glib::Cast;
 use gtk4::gio;
 use gtk4::glib;
-use gtk4::glib::Type;
 use num_derive::FromPrimitive;
-use num_traits::FromPrimitive;
 use once_cell::unsync::OnceCell;
 
 use crate::import::ImportRequest;
@@ -40,36 +41,31 @@ use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientWra
 use npc_fwk::base::Signal;
 use npc_fwk::toolkit::{self, Controller, ControllerImpl, UiController};
 use npc_fwk::{dbg_out, err_out, on_err_out};
+use ws_item_row::WsItemRow;
+use ws_list_item::Item;
+use ws_list_model::WorkspaceList;
 
-#[derive(Debug, FromPrimitive, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, FromPrimitive, PartialEq)]
 #[repr(i32)]
 enum TreeItemType {
+    #[default]
+    None,
     Folders,
     Projects,
     Keywords,
     Albums,
+    Trash,
     Folder,
     Project,
     Keyword,
     Album,
 }
 
-#[repr(i32)]
-/// Columns indices
-enum Columns {
-    Icon = 0,
-    Id = 1,
-    Label = 2,
-    Type = 3,
-    Count = 4,
-    CountN = 5,
-}
-
 enum Event {
     ButtonPress(f64, f64),
     SelectionChanged,
-    RowExpanded(gtk4::TreeIter, gtk4::TreePath),
-    RowCollapsed(gtk4::TreeIter, gtk4::TreePath),
+    RowExpanded(u32),
+    RowCollapsed(u32),
     NewFolder,
     NewAlbum,
     /// Delete the current item.
@@ -106,132 +102,165 @@ pub struct WorkspaceController {
 
 struct Widgets {
     widget_: gtk4::Widget,
-    treestore: gtk4::TreeStore,
-    librarytree: gtk4::TreeView,
+    treemodel: gtk4::TreeListModel,
+    librarytree: gtk4::ListView,
     context_menu: gtk4::PopoverMenu,
 
-    folderidmap: RefCell<HashMap<db::LibraryId, gtk4::TreeIter>>,
-    keywordsidmap: RefCell<HashMap<db::LibraryId, gtk4::TreeIter>>,
-    albumsidmap: RefCell<HashMap<db::LibraryId, gtk4::TreeIter>>,
-    folder_node: gtk4::TreeIter,
+    // position of the nodes in the rootstore
+    folders_node: gtk4::TreeListRow,
     // Projects are not implemented yet.
-    // project_node: gtk4::TreeIter,
-    keywords_node: gtk4::TreeIter,
-    albums_node: gtk4::TreeIter,
+    // project_node: gtk4::TreeListRow,
+    keywords_node: gtk4::TreeListRow,
+    albums_node: gtk4::TreeListRow,
     cfg: Rc<toolkit::Configuration>,
 }
 
 impl Widgets {
-    fn add_folder_item(&self, folder: &db::LibFolder, icon: &gio::Icon) -> gtk4::TreeIter {
+    fn add_folder_item(&self, folder: &db::LibFolder, icon: &gio::Icon) -> Option<u32> {
         let was_empty = self
-            .treestore
-            .iter_children(Some(&self.folder_node))
-            .is_none();
-        let iter = WorkspaceController::add_item(
-            &self.treestore,
-            Some(&self.folder_node),
+            .folders_node
+            .children()
+            .map(|children| children.n_items() == 0)
+            .unwrap_or(true);
+        let tree_item_type = if folder.virtual_type() == db::libfolder::FolderVirtualType::TRASH {
+            TreeItemType::Trash
+        } else {
+            TreeItemType::Folder
+        };
+        WorkspaceController::add_item(
+            &self.folders_node,
             icon,
             folder.name(),
             folder.id(),
-            TreeItemType::Folder,
-        );
-        if was_empty {
-            self.expand_from_cfg("workspace_folders_expanded", &self.folder_node);
-        }
-        self.folderidmap.borrow_mut().insert(folder.id(), iter);
+            tree_item_type,
+        )
+        .map(|pos| {
+            if was_empty {
+                self.expand_from_cfg("workspace_folders_expanded", &self.folders_node);
+            }
 
-        iter
+            pos
+        })
     }
 
     fn remove_folder_item(&self, id: db::LibraryId) {
-        let iter = self.folderidmap.borrow().get(&id).cloned();
-        if let Some(iter) = iter {
-            self.treestore.remove(&iter);
-            self.folderidmap.borrow_mut().remove(&id);
+        if let Some(store) = self
+            .folders_node
+            .children()
+            .and_then(|store| store.downcast::<WorkspaceList>().ok())
+        {
+            if let Err(err) = store.remove_by_id(&id) {
+                err_out!("Couldn't remove folder item {}: {:?}", id, err);
+            }
         }
     }
 
     fn add_keyword_item(&self, keyword: &db::Keyword, icon: &gio::Icon) {
         let was_empty = self
-            .treestore
-            .iter_children(Some(&self.keywords_node))
-            .is_none();
-        let iter = WorkspaceController::add_item(
-            &self.treestore,
-            Some(&self.keywords_node),
+            .keywords_node
+            .children()
+            .map(|children| children.n_items() == 0)
+            .unwrap_or(true);
+        if WorkspaceController::add_item(
+            &self.keywords_node,
             icon,
             keyword.keyword(),
             keyword.id(),
             TreeItemType::Keyword,
-        );
-        if was_empty {
+        )
+        .is_some()
+            && was_empty
+        {
             self.expand_from_cfg("workspace_keywords_expanded", &self.keywords_node);
         }
-        self.keywordsidmap.borrow_mut().insert(keyword.id(), iter);
     }
 
     fn add_album_item(&self, album: &db::Album, icon: &gio::Icon) {
         let was_empty = self
-            .treestore
-            .iter_children(Some(&self.albums_node))
-            .is_none();
-        let iter = WorkspaceController::add_item(
-            &self.treestore,
-            Some(&self.albums_node),
+            .albums_node
+            .children()
+            .map(|children| children.n_items() == 0)
+            .unwrap_or(true);
+        if WorkspaceController::add_item(
+            &self.albums_node,
             icon,
             album.name(),
             album.id(),
             TreeItemType::Album,
-        );
-        if was_empty {
+        )
+        .is_some()
+            && was_empty
+        {
             self.expand_from_cfg("workspace_albums_expanded", &self.albums_node);
         }
-        self.albumsidmap.borrow_mut().insert(album.id(), iter);
     }
 
     fn remove_album_item(&self, id: db::LibraryId) {
-        let iter = self.albumsidmap.borrow().get(&id).cloned();
-        if let Some(iter) = iter {
-            self.treestore.remove(&iter);
-            self.albumsidmap.borrow_mut().remove(&id);
+        if let Some(store) = self
+            .albums_node
+            .children()
+            .and_then(|children| children.downcast::<WorkspaceList>().ok())
+        {
+            if let Err(err) = store.remove_by_id(&id) {
+                err_out!("Couldn't remove album item {}: {:?}", id, err);
+            }
         }
     }
 
-    fn expand_from_cfg(&self, key: &str, node: &gtk4::TreeIter) {
+    fn expand_from_cfg(&self, key: &str, row: &gtk4::TreeListRow) {
         let expanded = self.cfg.value(key, "true");
         dbg_out!("expand from cfg {} - {}", key, &expanded);
-        if expanded == "true" {
-            self.librarytree
-                .expand_row(&self.treestore.path(node), false);
+        row.set_expanded(expanded == "true");
+    }
+
+    fn find_item_index(
+        &self,
+        tree_item_type: TreeItemType,
+        id: db::LibraryId,
+    ) -> Option<(WorkspaceList, u32)> {
+        match tree_item_type {
+            TreeItemType::Folders => self.folders_node.children(),
+            TreeItemType::Keywords => self.keywords_node.children(),
+            TreeItemType::Albums => self.albums_node.children(),
+            _ => {
+                err_out!("Incorrect node type {:?}", tree_item_type);
+                None
+            }
+        }
+        .and_then(|children| children.downcast::<WorkspaceList>().ok())
+        .and_then(|store| store.pos_by_id(&id).map(|pos| (store, pos)))
+    }
+
+    fn increase_count(&self, tree_item_type: TreeItemType, id: db::LibraryId, count: i32) {
+        if let Some(item_index) = self.find_item_index(tree_item_type, id) {
+            let store = item_index.0;
+            if let Some(item) = store
+                .item(item_index.1)
+                .and_then(|item| item.downcast::<Item>().ok())
+            {
+                item.set_count(count + item.count());
+                store.items_changed(item_index.1, 0, 0);
+            }
         }
     }
 
-    fn increase_count(&self, at: &gtk4::TreeIter, count: i32) {
-        let new_count: i32 = self.treestore.get::<i32>(at, Columns::CountN as i32) + count as i32;
-        let count_string = new_count.to_string();
-        self.treestore.set(
-            at,
-            &[
-                (Columns::CountN as u32, &new_count),
-                (Columns::Count as u32, &count_string),
-            ],
-        );
+    fn set_count(&self, tree_item_type: TreeItemType, id: db::LibraryId, count: i32) {
+        if let Some(item_index) = self.find_item_index(tree_item_type, id) {
+            let store = item_index.0;
+            if let Some(item) = store
+                .item(item_index.1)
+                .and_then(|item| item.downcast::<Item>().ok())
+            {
+                item.set_count(count);
+                store.items_changed(item_index.1, 0, 0);
+            }
+        }
     }
 
-    fn set_count(&self, at: &gtk4::TreeIter, count: i32) {
-        let count_string = count.to_string();
-        self.treestore.set(
-            at,
-            &[
-                (Columns::CountN as u32, &count),
-                (Columns::Count as u32, &count_string),
-            ],
-        );
-    }
-
-    fn expand_row(&self, at: &gtk4::TreeIter, open_all: bool) -> bool {
-        let path = self.treestore.path(at);
-        self.librarytree.expand_row(&path, open_all)
+    fn expand_row(&self, at: u32) {
+        if let Some(row) = self.treemodel.row(at) {
+            row.set_expanded(true);
+        }
     }
 }
 
@@ -254,75 +283,79 @@ impl UiController for WorkspaceController {
             .get_or_init(|| {
                 let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
 
-                let treestore = gtk4::TreeStore::new(&[
-                    // icon
-                    gio::Icon::static_type(),
-                    // id
-                    Type::I64,
-                    // label
-                    Type::STRING,
-                    // type
-                    Type::I32,
-                    // count (string)
-                    Type::STRING,
-                    // count (int)
-                    Type::I32,
-                ]);
-                let librarytree = gtk4::TreeView::with_model(&treestore);
-                librarytree.set_activate_on_single_click(true);
+                let rootstore = gio::ListStore::new(Item::static_type());
+                let treemodel = gtk4::TreeListModel::new(&rootstore, false, true, |item| {
+                    Some(item.downcast_ref::<Item>()?.create_children()?.upcast_ref::<gio::ListModel>().clone())
+                });
+                let selection_model = gtk4::SingleSelection::new(Some(&treemodel));
 
-                let folder_node = Self::add_item(
-                    &treestore,
-                    None,
+                let factory = gtk4::SignalListItemFactory::new();
+                factory.connect_setup(move |_, item| {
+                    let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
+                    let item_row = WsItemRow::new();
+                    item.set_child(Some(&item_row));
+                });
+                factory.connect_bind(glib::clone!(@strong self.tx as tx => move |_, list_item| {
+                    let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
+                    let ws_item_row = list_item.child().unwrap().downcast_ref::<WsItemRow>().unwrap().clone();
+                    if let Some(item) = list_item.item() {
+                        let tree_list_row = item.downcast_ref::<gtk4::TreeListRow>().expect("to be a TreeListRow");
+                        if let Some(item) = tree_list_row.item() {
+                            match item.downcast_ref::<Item>().unwrap().tree_item_type() {
+                                TreeItemType::Folders |
+                                TreeItemType::Albums |
+                                TreeItemType::Keywords => {
+                                    // We connect the expanded notify signal only
+                                    // for these top level tree item.
+                                    tree_list_row.connect_expanded_notify(glib::clone!(@strong tx => move |tree_list_row| {
+                                        let expanded = tree_list_row.is_expanded();
+                                        let pos = tree_list_row.position();
+                                        if expanded {
+                                            on_err_out!(tx.send(Event::RowExpanded(pos)));
+                                        } else {
+                                            on_err_out!(tx.send(Event::RowCollapsed(pos)));
+                                        }
+                                    }));
+                                }
+                            _ => {}
+                            };
+                            let ws_item = item.downcast::<Item>().expect("is an item");
+                            ws_item_row.bind(&ws_item, tree_list_row);
+                        }
+                    }
+                }));
+                factory.connect_unbind(move |_, list_item| {
+                    let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
+                    let ws_item_row = list_item.child().unwrap().downcast_ref::<WsItemRow>().unwrap().clone();
+                    ws_item_row.unbind();
+                });
+                let librarytree = gtk4::ListView::new(Some(&selection_model), Some(&factory));
+                librarytree.set_single_click_activate(false);
+
+                let folders_node = WorkspaceController::add_toplevel_item(
+                    &treemodel,
                     &self.icon_folder,
                     &i18n("Pictures"),
-                    0,
                     TreeItemType::Folders,
                 );
                 // Projects are not implemented yet
-                // let project_node = Self::add_item(
+                // let project_node = Self::add_toplevel_item(
                 //     &treestore,
-                //     None,
                 //     &self.icon_project,
                 //     &i18n("Projects"),
-                //     0,
                 //     TreeItemType::Projects,
                 // );
-                let albums_node = Self::add_item(
-                    &treestore,
-                    None,
+                let albums_node = WorkspaceController::add_toplevel_item(
+                    &treemodel,
                     &self.icon_album,
                     &i18n("Albums"),
-                    0,
                     TreeItemType::Albums,
                 );
-                let keywords_node = Self::add_item(
-                    &treestore,
-                    None,
+                let keywords_node = WorkspaceController::add_toplevel_item(
+                    &treemodel,
                     &self.icon_keyword,
                     &i18n("Keywords"),
-                    0,
                     TreeItemType::Keywords,
-                );
-                librarytree.set_headers_visible(false);
-
-                librarytree.insert_column_with_attributes(
-                    -1,
-                    "",
-                    &gtk4::CellRendererPixbuf::new(),
-                    &[("gicon", Columns::Icon as i32)],
-                );
-                librarytree.insert_column_with_attributes(
-                    -1,
-                    "",
-                    &gtk4::CellRendererText::new(),
-                    &[("text", Columns::Label as i32)],
-                );
-                librarytree.insert_column_with_attributes(
-                    -1,
-                    "",
-                    &gtk4::CellRendererText::new(),
-                    &[("text", Columns::Count as i32)],
                 );
 
                 let header = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
@@ -376,21 +409,13 @@ impl UiController for WorkspaceController {
                 main_box.append(&scrolled);
 
                 // connect signals
-                librarytree.selection().connect_changed(
-                    glib::clone!(@strong self.tx as tx => move |_| {
-                        on_err_out!(tx.send(Event::SelectionChanged));
-                    }),
-                );
-                librarytree.connect_row_expanded(
-                    glib::clone!(@strong self.tx as tx => move |_, iter, path| {
-                        on_err_out!(tx.send(Event::RowExpanded(*iter, path.clone())));
-                    }),
-                );
-                librarytree.connect_row_collapsed(
-                    glib::clone!(@strong self.tx as tx => move |_, iter, path| {
-                        on_err_out!(tx.send(Event::RowCollapsed(*iter, path.clone())));
-                    }),
-                );
+                if let Some(model) = librarytree.model() {
+                    model.connect_selection_changed(
+                        glib::clone!(@strong self.tx as tx => move |_, _, _| {
+                            on_err_out!(tx.send(Event::SelectionChanged));
+                        }),
+                    );
+                }
                 let gesture = gtk4::GestureClick::new();
                 gesture.set_button(3);
                 librarytree.add_controller(&gesture);
@@ -401,15 +426,12 @@ impl UiController for WorkspaceController {
                 Widgets {
                     widget_: main_box.upcast(),
                     librarytree,
-                    treestore,
+                    treemodel,
                     context_menu,
-                    folderidmap: RefCell::new(HashMap::new()),
-                    keywordsidmap: RefCell::new(HashMap::new()),
-                    albumsidmap: RefCell::new(HashMap::new()),
                     // project_node,
-                    folder_node,
-                    albums_node,
-                    keywords_node,
+                    folders_node: folders_node.unwrap(),
+                    albums_node: albums_node.unwrap(),
+                    keywords_node: keywords_node.unwrap(),
                     cfg: self.cfg.clone(),
                 }
             })
@@ -517,8 +539,8 @@ impl WorkspaceController {
         match e {
             ButtonPress(x, y) => self.button_press_event(x, y),
             SelectionChanged => self.on_libtree_selection(),
-            RowExpanded(iter, _) => self.row_expanded_collapsed(iter, true),
-            RowCollapsed(iter, _) => self.row_expanded_collapsed(iter, false),
+            RowExpanded(pos) => self.row_expanded_collapsed(pos, true),
+            RowCollapsed(pos) => self.row_expanded_collapsed(pos, false),
             NewFolder => self.action_new_folder(),
             NewAlbum => self.action_new_album(),
             DeleteItem => self.action_delete_item(),
@@ -530,7 +552,13 @@ impl WorkspaceController {
 
     fn button_press_event(&self, x: f64, y: f64) {
         if let Some(widgets) = self.widgets.get() {
-            if widgets.librarytree.selection().count_selected_rows() != 0 {
+            if widgets
+                .librarytree
+                .model()
+                .and_then(|m| m.downcast::<gtk4::SingleSelection>().ok())
+                .and_then(|m| m.selected_item())
+                .is_some()
+            {
                 widgets
                     .context_menu
                     .set_pointing_to(Some(&gdk4::Rectangle::new(x as i32, y as i32, 1, 1)));
@@ -540,20 +568,26 @@ impl WorkspaceController {
     }
 
     fn on_libtree_selection(&self) {
-        if let Some(widgets) = self.widgets.get() {
-            if let Some((model, iter)) = widgets.librarytree.selection().selected() {
-                let type_: i32 = model.get(&iter, Columns::Type as i32);
-                let id: i64 = model.get(&iter, Columns::Id as i32);
-                dbg_out!("selected type {}, id {}", type_, id);
-                if let Some(type_) = FromPrimitive::from_i32(type_) {
-                    if let Some(client) = self.client.upgrade() {
-                        match type_ {
-                            TreeItemType::Folder => client.query_folder_content(id),
-                            TreeItemType::Keyword => client.query_keyword_content(id),
-                            TreeItemType::Album => client.query_album_content(id),
-                            _ => {
-                                dbg_out!("Something selected of type {:?}", type_);
-                            }
+        if let Some(model) = self
+            .widgets
+            .get()
+            .and_then(|widgets| widgets.librarytree.model())
+            .and_then(|model| model.downcast::<gtk4::SingleSelection>().ok())
+        {
+            if let Some(item) = model
+                .selected_item()
+                .and_then(|item| item.downcast_ref::<gtk4::TreeListRow>()?.item())
+                .and_then(|item| item.downcast::<Item>().ok())
+            {
+                let type_ = item.tree_item_type();
+                let id = item.id();
+                if let Some(client) = self.client.upgrade() {
+                    match type_ {
+                        TreeItemType::Folder => client.query_folder_content(id),
+                        TreeItemType::Keyword => client.query_keyword_content(id),
+                        TreeItemType::Album => client.query_album_content(id),
+                        _ => {
+                            dbg_out!("Something selected of type {:?}", type_);
                         }
                     }
                 }
@@ -564,26 +598,26 @@ impl WorkspaceController {
         }
     }
 
-    fn row_expanded_collapsed(&self, iter: gtk4::TreeIter, expanded: bool) {
-        if let Some(widgets) = self.widgets.get() {
-            let value = widgets.treestore.get_value(&iter, Columns::Type as i32);
-            if let Ok(n) = value.get() {
-                FromPrimitive::from_i32(n)
-                    .and_then(|v| match v {
-                        TreeItemType::Folders => Some("workspace_folders_expanded"),
-                        TreeItemType::Projects => Some("workspace_projects_expanded"),
-                        TreeItemType::Keywords => Some("workspace_keywords_expanded"),
-                        TreeItemType::Albums => Some("workspace_albums_expanded"),
-                        x => {
-                            err_out!("Incorrect node type {}", x as i32);
-                            None
-                        }
-                    })
-                    .map(|key| self.cfg.set_value(key, &expanded.to_string()))
-                    .or_else(|| {
-                        err_out!("Invalid node type {}", n);
-                        None
-                    });
+    fn row_expanded_collapsed(&self, pos: u32, expanded: bool) {
+        if let Some(item) = self
+            .widgets
+            .get()
+            .and_then(|widgets| widgets.treemodel.item(pos))
+            .and_then(|item| item.downcast_ref::<gtk4::TreeListRow>()?.item())
+            .and_then(|item| item.downcast::<Item>().ok())
+        {
+            let type_ = item.tree_item_type();
+            if let Some(key) = match type_ {
+                TreeItemType::Folders => Some("workspace_folders_expanded"),
+                TreeItemType::Projects => Some("workspace_projects_expanded"),
+                TreeItemType::Keywords => Some("workspace_keywords_expanded"),
+                TreeItemType::Albums => Some("workspace_albums_expanded"),
+                x => {
+                    err_out!("Incorrect node type {:?}", x);
+                    None
+                }
+            } {
+                self.cfg.set_value(key, &expanded.to_string());
             }
         }
     }
@@ -770,16 +804,18 @@ impl WorkspaceController {
 
     fn selected_item_id(&self) -> Option<(TreeItemType, db::LibraryId)> {
         self.widgets.get().and_then(|widgets| {
-            let selection = widgets.librarytree.selection();
-            selection.selected().and_then(|selected| {
-                let t: Option<TreeItemType> =
-                    FromPrimitive::from_i32(selected.0.get(&selected.1, Columns::Type as i32));
-                if let Some(type_) = t {
-                    Some((type_, selected.0.get(&selected.1, Columns::Id as i32)))
-                } else {
-                    None
-                }
-            })
+            widgets
+                .librarytree
+                .model()
+                .and_then(|selection| {
+                    selection
+                        .downcast_ref::<gtk4::SingleSelection>()
+                        .and_then(|selection| selection.selected_item())
+                })
+                .and_then(|item| {
+                    item.downcast_ref::<Item>()
+                        .map(|item| (item.tree_item_type(), item.id()))
+                })
         })
     }
 
@@ -794,9 +830,10 @@ impl WorkspaceController {
                 &self.icon_roll
             };
 
-            let iter = widgets.add_folder_item(folder, icon);
-            if folder.expanded() {
-                widgets.expand_row(&iter, false);
+            if let Some(pos) = widgets.add_folder_item(folder, icon) {
+                if folder.expanded() {
+                    widgets.expand_row(pos);
+                }
             }
             if let Some(client) = self.client.upgrade() {
                 client.count_folder(folder.id());
@@ -844,27 +881,49 @@ impl WorkspaceController {
         }
     }
 
+    /// Add a toplevel item
+    fn add_toplevel_item(
+        treestore: &gtk4::TreeListModel,
+        icon: &gio::Icon,
+        label: &str,
+        type_: TreeItemType,
+    ) -> Option<gtk4::TreeListRow> {
+        let store = treestore.model().downcast::<gio::ListStore>().ok()?;
+
+        let idx = store.n_items();
+        store.append(&Item::with_values(icon, label, 0, type_));
+
+        treestore.row(idx)
+    }
+
+    /// Add an item as a child of subtree.
     fn add_item(
-        treestore: &gtk4::TreeStore,
-        subtree: Option<&gtk4::TreeIter>,
+        subtree: &gtk4::TreeListRow,
         icon: &gio::Icon,
         label: &str,
         id: db::LibraryId,
         type_: TreeItemType,
-    ) -> gtk4::TreeIter {
-        let iter = treestore.append(subtree);
-        treestore.set(
-            &iter,
-            &[
-                (Columns::Icon as u32, icon),
-                (Columns::Id as u32, &id),
-                (Columns::Label as u32, &label),
-                (Columns::Type as u32, &(type_ as i32)),
-                (Columns::Count as u32, &"--"),
-                (Columns::CountN as u32, &0),
-            ],
-        );
-        iter
+    ) -> Option<u32> {
+        // XXX probably there is a different way
+        let item = subtree.item()?.downcast::<Item>().expect("not an item");
+        item.create_children().and_then(|children| {
+            dbg_out!(
+                "children created for item {:?} {}",
+                item.tree_item_type(),
+                item.label()
+            );
+
+            let idx = children.n_items();
+            dbg_out!("store has {} items", idx);
+            children
+                .append(&Item::with_values(icon, label, id, type_))
+                .ok()
+                .map(|_| idx)
+                .or_else(|| {
+                    err_out!("Coudln't add item {}", label);
+                    None
+                })
+        })
     }
 
     pub fn on_lib_notification(&self, ln: &LibNotification) {
@@ -879,54 +938,30 @@ impl WorkspaceController {
             | LibNotification::KeywordCounted(count)
             | LibNotification::AlbumCounted(count) => {
                 dbg_out!("count for container {} is {}", count.id, count.count);
-                let iter = match ln {
-                    LibNotification::FolderCounted(count) => self
-                        .widgets
-                        .get()
-                        .and_then(|w| w.folderidmap.borrow().get(&count.id).cloned()),
-                    LibNotification::KeywordCounted(count) => self
-                        .widgets
-                        .get()
-                        .and_then(|w| w.keywordsidmap.borrow().get(&count.id).cloned()),
-                    LibNotification::AlbumCounted(count) => self
-                        .widgets
-                        .get()
-                        .and_then(|w| w.albumsidmap.borrow().get(&count.id).cloned()),
+                let type_ = match ln {
+                    LibNotification::FolderCounted(_) => TreeItemType::Folders,
+                    LibNotification::KeywordCounted(_) => TreeItemType::Keywords,
+                    LibNotification::AlbumCounted(_) => TreeItemType::Albums,
                     _ => unreachable!(),
                 };
-                if let Some(iter) = iter {
-                    if let Some(widgets) = self.widgets.get() {
-                        widgets.set_count(&iter, count.count as i32);
-                    } else {
-                        err_out!("No widget");
-                    }
+                if let Some(widgets) = self.widgets.get() {
+                    widgets.set_count(type_, count.id, count.count as i32);
                 } else {
-                    err_out!("Iter not found");
+                    err_out!("No widget");
                 }
             }
             LibNotification::FolderCountChanged(count)
             | LibNotification::KeywordCountChanged(count)
             | LibNotification::AlbumCountChanged(count) => {
                 dbg_out!("count change for container {} is {}", count.id, count.count);
-                let iter = match ln {
-                    LibNotification::FolderCountChanged(count) => self
-                        .widgets
-                        .get()
-                        .and_then(|w| w.folderidmap.borrow().get(&count.id).cloned()),
-                    LibNotification::KeywordCountChanged(count) => self
-                        .widgets
-                        .get()
-                        .and_then(|w| w.keywordsidmap.borrow().get(&count.id).cloned()),
-                    LibNotification::AlbumCountChanged(count) => self
-                        .widgets
-                        .get()
-                        .and_then(|w| w.albumsidmap.borrow().get(&count.id).cloned()),
+                let type_ = match ln {
+                    LibNotification::FolderCountChanged(_) => TreeItemType::Folders,
+                    LibNotification::KeywordCountChanged(_) => TreeItemType::Keywords,
+                    LibNotification::AlbumCountChanged(_) => TreeItemType::Albums,
                     _ => unreachable!(),
                 };
-                if let Some(iter) = iter {
-                    if let Some(widgets) = self.widgets.get() {
-                        widgets.increase_count(&iter, count.count as i32);
-                    }
+                if let Some(widgets) = self.widgets.get() {
+                    widgets.increase_count(type_, count.id, count.count as i32);
                 }
             }
             _ => {}

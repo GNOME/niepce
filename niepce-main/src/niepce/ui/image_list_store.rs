@@ -310,7 +310,7 @@ impl ImageListStore {
                 obj.downcast_ref::<ImageListItem>().map(|item| {
                     item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
                     item.set_strip_thumbnail(strip_thumb.map(|t| t.upcast::<gdk4::Paintable>()));
-                    self.store.items_changed(*pos, 1, 1);
+                    self.store.items_changed(*pos, 0, 0);
                 })
             });
         }

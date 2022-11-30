@@ -25,6 +25,7 @@ pub mod debug;
 pub mod date;
 pub mod fractions;
 mod geometry;
+mod indexed_map;
 mod moniker;
 pub mod propertybag;
 pub mod propertyvalue;
@@ -35,6 +36,7 @@ pub type PropertyIndex = u32;
 pub type PropertySet<T> = BTreeSet<T>;
 
 pub use geometry::Size;
+pub use indexed_map::IndexedMap;
 pub use moniker::{moniker_from, Moniker};
 pub use propertyvalue::PropertyValue;
 pub use signals::Signal;

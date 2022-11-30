@@ -18,7 +18,7 @@ gio = "*"
 glib = "*"
 graphene-rs = "0.16"
 gtk4-sys = "*"
-gtk4 = "*"
+gtk4 = { version = "*", features = [ "v4_6" ] }
 gtk-macros = "0.3.0"
 lazy_static = "^1.4.0"
 libadwaita = "*"

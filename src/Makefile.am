@@ -42,6 +42,7 @@ RUST_SOURCES = \
 	@top_srcdir@/crates/npc-fwk/src/base/debug.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/fractions.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/geometry.rs \
+	@top_srcdir@/crates/npc-fwk/src/base/indexed_map.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/moniker.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertybag.rs \
 	@top_srcdir@/crates/npc-fwk/src/base/propertyvalue.rs \
@@ -97,7 +98,10 @@ RUST_SOURCES = \
 	@top_srcdir@/niepce-main/src/niepce/ui/module_shell_widget.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/niepce_window.rs \
 	@top_srcdir@/niepce-main/src/niepce/ui/thumb_strip_view.rs \
-	@top_srcdir@/niepce-main/src/niepce/ui/workspace_controller.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/workspace_controller/mod.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/workspace_controller/ws_item_row.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/workspace_controller/ws_list_item.rs \
+	@top_srcdir@/niepce-main/src/niepce/ui/workspace_controller/ws_list_model.rs \
 	@top_srcdir@/niepce-main/src/notification_center.rs \
 	$(NULL)
 
