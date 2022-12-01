@@ -44,12 +44,17 @@ class ThumbItem
     : public Glib::Object
 {
 public:
-    ThumbItem(eng::ImportedFilePtr imported_file)
-        : Glib::ObjectBase(typeid(ThumbItem))
-        , m_imported_file(imported_file) {}
+    static Glib::RefPtr<ThumbItem> create(eng::ImportedFilePtr imported_file) {
+        return Glib::make_refptr_for_instance(new ThumbItem(imported_file));
+    }
 
     eng::ImportedFilePtr m_imported_file;
     Glib::RefPtr<Gdk::Pixbuf> m_pixbuf;
+protected:
+    ThumbItem(eng::ImportedFilePtr imported_file)
+        : Glib::ObjectBase(typeid(ThumbItem))
+        , Glib::Object()
+        , m_imported_file(imported_file) {}
 };
 
 ImportDialog::ImportDialog()
@@ -222,7 +227,7 @@ void ImportDialog::append_files_to_import()
     for(const auto & f : files_to_import) {
         DBG_OUT("selected %s", f->name().c_str());
         paths.push_back(f->path());
-        m_images_list_model->append(std::make_shared<ThumbItem>(f));
+        m_images_list_model->append(ThumbItem::create(f));
         m_images_list_map.insert(std::make_pair(f->path(), m_images_list_model->get_n_items() - 1));
     }
 
@@ -247,6 +252,10 @@ void ImportDialog::preview_received()
         if (iter != m_images_list_map.end()) {
             auto index = iter->second;
             auto item = m_images_list_model->get_item(index);
+            if (!item) {
+                ERR_OUT("item at index %u not found", index);
+                return;
+            }
             item->m_pixbuf = Glib::wrap((GdkPixbuf*)fwk::Thumbnail_to_pixbuf(*preview->second));
         }
     }
