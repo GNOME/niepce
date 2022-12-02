@@ -3,19 +3,6 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/ -I$(top_builddir)/src  @FRAMEWORK_CFLAGS@ \
 	@GPHOTO_CFLAGS@ \
 	$(NULL)
 
-TEST_LIBS =  \
-	libniepceengine.a \
-	$(top_builddir)/target/debug/libniepce_rust.a \
-	libniepceengineglue.a \
-	$(top_builddir)/src/fwk/utils/libniepceutils.a \
-	$(top_builddir)/src/fwk/toolkit/libniepceframework.a \
-	$(top_builddir)/src/fwk/base/libfwkbase.a \
-	@BOOST_UNIT_TEST_FRAMEWORK_LIBS@ \
-	@FRAMEWORK_LIBS@ \
-	@OPENRAW_LIBS@ \
-	-ldl \
-	$(NULL)
-
 noinst_LIBRARIES = libniepceengine.a
 
 libniepceengine_a_SOURCES = \
