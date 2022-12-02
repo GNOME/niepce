@@ -65,9 +65,9 @@ mod test {
 
     #[test]
     fn test_xmp_date_from() {
-        let date = chrono::FixedOffset::west(5 * 3600)
-            .ymd(2021, 12, 25)
-            .and_hms(10, 42, 12);
+        let date = chrono::FixedOffset::west_opt(5 * 3600)
+            .and_then(|tz| tz.with_ymd_and_hms(2021, 12, 25, 10, 42, 12).single())
+            .unwrap();
         let xmp_date = xmp_date_from(&Date(date));
         assert_eq!(xmp_date.year(), 2021);
         assert_eq!(xmp_date.month(), 12);
