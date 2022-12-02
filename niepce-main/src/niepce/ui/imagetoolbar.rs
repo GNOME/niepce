@@ -30,7 +30,8 @@ fn linked_box() -> gtk4::Box {
 
 pub fn image_toolbar_new() -> *mut crate::ffi::GtkBox {
     let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
-    // XXX set style class "toolbar"
+    // Adwaita class
+    toolbar.add_css_class("toolbar");
 
     toolbar.set_margin_top(4);
     toolbar.set_margin_bottom(4);
@@ -47,8 +48,9 @@ pub fn image_toolbar_new() -> *mut crate::ffi::GtkBox {
     box_.append(&tool_item);
     toolbar.append(&box_);
 
-    // let separator = gtk4::SeparatorToolItem::new();
-    // toolbar.add(&separator);
+    let separator = gtk4::Separator::new(gtk4::Orientation::Vertical);
+    toolbar.append(&separator);
+    separator.add_css_class("spacer");
 
     let box_ = linked_box();
     let tool_item = gtk4::Button::from_icon_name("object-rotate-left-symbolic");
