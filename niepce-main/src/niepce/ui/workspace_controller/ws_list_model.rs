@@ -105,7 +105,6 @@ mod imp {
 
     use npc_engine::db;
     use npc_fwk::base::IndexedMap;
-    use npc_fwk::dbg_out;
 
     #[derive(Default)]
     pub struct WorkspaceList {
@@ -136,11 +135,6 @@ mod imp {
             if position >= self.items.borrow().len() {
                 return None;
             }
-            dbg_out!(
-                "item at {}: {:?}",
-                position,
-                self.items.borrow()[position].type_()
-            );
             Some(
                 self.items.borrow()[position]
                     .upcast_ref::<glib::Object>()

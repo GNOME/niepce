@@ -223,7 +223,7 @@ impl Widgets {
             TreeItemType::Keywords => self.keywords_node.children(),
             TreeItemType::Albums => self.albums_node.children(),
             _ => {
-                err_out!("Incorrect node type {:?}", tree_item_type);
+                err_out!("find_item_index: Incorrect node type {:?}", tree_item_type);
                 None
             }
         }
@@ -612,10 +612,8 @@ impl WorkspaceController {
                 TreeItemType::Projects => Some("workspace_projects_expanded"),
                 TreeItemType::Keywords => Some("workspace_keywords_expanded"),
                 TreeItemType::Albums => Some("workspace_albums_expanded"),
-                x => {
-                    err_out!("Incorrect node type {:?}", x);
-                    None
-                }
+                // Not an error. This is no-op
+                _ => None,
             } {
                 self.cfg.set_value(key, &expanded.to_string());
             }
