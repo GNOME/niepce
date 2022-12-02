@@ -40,22 +40,43 @@
 
 namespace ui {
 
-class ThumbItem
-    : public Glib::Object
+/** The Item row (Widget) for the listview */
+class ItemRow
+    : public Gtk::Box
 {
 public:
-    static Glib::RefPtr<ThumbItem> create(eng::ImportedFilePtr imported_file) {
-        return Glib::make_refptr_for_instance(new ThumbItem(imported_file));
-    }
-
-    eng::ImportedFilePtr m_imported_file;
-    Glib::RefPtr<Gdk::Pixbuf> m_pixbuf;
-protected:
-    ThumbItem(eng::ImportedFilePtr imported_file)
-        : Glib::ObjectBase(typeid(ThumbItem))
-        , Glib::Object()
-        , m_imported_file(imported_file) {}
+    ItemRow()
+        : Gtk::Box(Gtk::Orientation::VERTICAL, 2)
+        {
+            append(m_image);
+            append(m_filename);
+            m_image.set_size_request(100, 100);
+            // Adwaita class
+            m_filename.add_css_class("caption");
+        }
+    Gtk::Image m_image;
+    Gtk::Label m_filename;
 };
+
+Glib::RefPtr<ThumbItem> ThumbItem::create(const eng::ImportedFilePtr& imported_file) {
+    return Glib::make_refptr_for_instance(new ThumbItem(imported_file));
+}
+
+Glib::RefPtr<ThumbListStore> ThumbListStore::create()
+{
+    return Glib::make_refptr_for_instance(new ThumbListStore());
+}
+
+void ThumbListStore::set_thumbnail(uint32_t index, const Glib::RefPtr<Gdk::Pixbuf>& pixbuf)
+{
+    auto item = get_item(index);
+    if (!item) {
+        ERR_OUT("item at index %u not found", index);
+        return;
+    }
+    item->m_pixbuf = pixbuf;
+    items_changed(index, 0, 0);
+}
 
 ImportDialog::ImportDialog()
   : fwk::Dialog("/org/gnome/Niepce/ui/importdialog.ui", "importDialog")
@@ -133,7 +154,7 @@ void ImportDialog::setup_widget()
 
     // Gridview of previews.
     m_images_list_scrolled = a_builder->get_widget<Gtk::ScrolledWindow>("images_list_scrolled");
-    m_images_list_model = Gio::ListStore<ThumbItem>::create();
+    m_images_list_model = ThumbListStore::create();
     auto selection_model = Gtk::SingleSelection::create(m_images_list_model);
     auto image_gridview = npc::npc_image_grid_view_new2(selection_model->gobj());
     m_gridview = Gtk::manage(Glib::wrap(image_gridview->get_grid_view()));
@@ -141,17 +162,16 @@ void ImportDialog::setup_widget()
     auto item_factory = Gtk::SignalListItemFactory::create();
     m_gridview->set_factory(item_factory);
     item_factory->signal_setup().connect([] (const Glib::RefPtr<Gtk::ListItem>& list_item) {
-        auto image = Gtk::manage(new Gtk::Image());
-        list_item->set_child(*image);
+        auto child = Gtk::manage(new ItemRow());
+        list_item->set_child(*child);
     });
     item_factory->signal_bind().connect([] (const Glib::RefPtr<Gtk::ListItem>& list_item) {
-        auto image = static_cast<Gtk::Image*>(list_item->get_child());
+        auto row = static_cast<ItemRow*>(list_item->get_child());
         auto item = std::dynamic_pointer_cast<ThumbItem>(list_item->get_item());
-        image->set(item->m_pixbuf);
+        row->m_filename.set_label(item->m_imported_file->name());
+        row->m_image.set(item->m_pixbuf);
     });
-    // m_gridview->set_pixbuf_column(m_grid_columns.pixbuf);
-    // m_gridview->set_text_column(m_grid_columns.filename);
-    // m_gridview->set_item_width(100);
+
     m_images_list_scrolled->set_child(*m_gridview);
     m_images_list_scrolled->set_policy(Gtk::PolicyType::AUTOMATIC, Gtk::PolicyType::AUTOMATIC);
 
@@ -251,12 +271,7 @@ void ImportDialog::preview_received()
         auto iter = m_images_list_map.find(preview->first);
         if (iter != m_images_list_map.end()) {
             auto index = iter->second;
-            auto item = m_images_list_model->get_item(index);
-            if (!item) {
-                ERR_OUT("item at index %u not found", index);
-                return;
-            }
-            item->m_pixbuf = Glib::wrap((GdkPixbuf*)fwk::Thumbnail_to_pixbuf(*preview->second));
+            m_images_list_model->set_thumbnail(index, Glib::wrap((GdkPixbuf*)fwk::Thumbnail_to_pixbuf(*preview->second)));
         }
     }
 }

@@ -58,7 +58,31 @@ class IImporter;
 
 namespace ui {
 
-class ThumbItem;
+class ThumbItem
+    : public Glib::Object
+{
+public:
+    static Glib::RefPtr<ThumbItem> create(const eng::ImportedFilePtr& imported_file);
+
+    eng::ImportedFilePtr m_imported_file;
+    Glib::RefPtr<Gdk::Pixbuf> m_pixbuf;
+protected:
+    ThumbItem(const eng::ImportedFilePtr& imported_file)
+        : Glib::ObjectBase(typeid(ThumbItem))
+        , Glib::Object()
+        , m_imported_file(imported_file) {}
+};
+
+class ThumbListStore
+    : public Gio::ListStore<ThumbItem>
+{
+public:
+    static Glib::RefPtr<ThumbListStore> create();
+    void set_thumbnail(uint32_t index, const Glib::RefPtr<Gdk::Pixbuf>& pixbuf);
+protected:
+    ThumbListStore()
+        : Glib::ObjectBase(typeid(ThumbListStore)) {}
+};
 
 class ImportDialog
 	: public fwk::Dialog
@@ -110,7 +134,7 @@ private:
     Gtk::ComboBoxText *m_import_source_combo;
     Gtk::ScrolledWindow *m_attributes_scrolled;
     Gtk::ScrolledWindow *m_images_list_scrolled;
-    Glib::RefPtr<Gio::ListStore<ThumbItem>> m_images_list_model;
+    Glib::RefPtr<ThumbListStore> m_images_list_model;
     std::map<std::string, guint> m_images_list_map;
 
     std::optional<rust::Box<npc::ImageGridView>> m_image_gridview;
