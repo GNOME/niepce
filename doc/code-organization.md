@@ -15,7 +15,6 @@ Here are the different directories for the source code:
         * db - the database storage
         * library - the library ("server" side). Relies on DB
                     for the data storage.
-    * libraryclient - the library client
     * ncr - Niepce Camera RAW: the RAW processing engine
     * niepce - The application
         * ui - the UI code

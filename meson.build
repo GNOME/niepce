@@ -111,7 +111,7 @@ subdir('niepce-main/src')
 subdir('third_party')
 # TODO this should be built as a dependency
 subdir('src')
-
+subdir('doc')
 
 gnome.post_install(
   gtk_update_icon_cache: true,
