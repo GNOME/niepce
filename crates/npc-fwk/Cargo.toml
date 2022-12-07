@@ -20,7 +20,7 @@ gtk4-sys = "*"
 gdk4 = "^0.5"
 gdk-pixbuf-sys = "*"
 gdk-pixbuf = "^0.16"
-gettext-rs = "0.7.0"
+gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
 graphene-rs = "0.16"
 gtk4 = "^0.5"
 lazy_static = "^1.2.0"
