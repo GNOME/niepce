@@ -6,8 +6,8 @@
 msgid ""
 msgstr "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2020-06-07 15:10+0000\n"
-"PO-Revision-Date: 2022-03-26 10:00+0100\n"
+"POT-Creation-Date: 2022-11-25 04:44+0000\n"
+"PO-Revision-Date: 2022-12-07 10:00+0100\n"
 "Last-Translator: Asier Sarasua Garmendia <asiersarasua@ni.eus>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -16,7 +16,7 @@ msgstr "Project-Id-Version: niepce master\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: camerawire/src/cwwindow.cpp:62
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:36
+#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:37
 msgid "Camera"
 msgstr "Kamera"
 
@@ -24,7 +24,7 @@ msgstr "Kamera"
 msgid "File"
 msgstr "Fitxategia"
 
-#: camerawire/src/cwwindow.cpp:92 src/niepce/ui/workspacecontroller.cpp:456
+#: camerawire/src/cwwindow.cpp:92
 msgid "_Import..."
 msgstr "_Inportatu…"
 
@@ -56,37 +56,35 @@ msgstr "Tresnak"
 msgid "Refresh"
 msgstr "Freskatu"
 
-#: camerawire/src/cwwindow.cpp:135 src/niepce/ui/niepcewindow.cpp:245
+#: camerawire/src/cwwindow.cpp:135
 msgid "Hide tools"
 msgstr "Ezkutatu tresnak"
 
-#. Only include 'name' if you want the software center name to be different to the 'Name' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:8 data/org.gnome.Niepce.desktop.in:3
+#: data/org.gnome.Niepce.appdata.xml.in:6 data/org.gnome.Niepce.desktop.in:3
 msgid "Niepce Digital"
 msgstr "Niepce Digital"
 
-#. Only include 'summary' if you want the software center name to be different to the 'Comment' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:10
+#: data/org.gnome.Niepce.appdata.xml.in:7
 msgid "Advanced Photo Editing"
 msgstr "Argazkien edizio aurreratua"
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/org.gnome.Niepce.appdata.xml.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr "Niepce Digital argazkiak kudeatu eta editatzeko aplikazio bat da."
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/org.gnome.Niepce.appdata.xml.in:12
 msgid "Features:"
 msgstr "Eginbideak:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:18
+#: data/org.gnome.Niepce.appdata.xml.in:14
 msgid "Photo library management"
 msgstr "Argazki-liburutegien kudeaketa"
 
-#: data/org.gnome.Niepce.appdata.xml.in:19
+#: data/org.gnome.Niepce.appdata.xml.in:15
 msgid "Non destructive image editing"
 msgstr "Irudien edizio ez suntsikorra"
 
-#: data/org.gnome.Niepce.appdata.xml.in:20
+#: data/org.gnome.Niepce.appdata.xml.in:16
 msgid "RAW processing"
 msgstr "RAW prozesamendua"
 
@@ -99,19 +97,25 @@ msgstr "Kudeatu eta editatu zure argazkiak"
 msgid "photo;"
 msgstr "argazkia;"
 
-#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:40
-msgid "OK"
-msgstr "Ados"
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
+msgid "Import Library"
+msgstr "Inportatu liburutegia"
 
-#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:41
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:72
-#: src/niepce/ui/niepcewindow.cpp:345
-msgid "Cancel"
-msgstr "Utzi"
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:65
+msgid "Folder Roots"
+msgstr "Karpeta erroak"
 
-#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:44
-msgid "Folder _name:"
-msgstr "_Karpetaren izena:"
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:73
+msgid "Start import"
+msgstr "Hasi inportazioa"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:81
+msgid "Import in progress"
+msgstr "Inportazioa abian"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:89
+msgid "All done"
+msgstr "Eginda"
 
 #: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
 msgid "Name"
@@ -178,103 +182,102 @@ msgstr "Saturazioa"
 msgid "Vibrance"
 msgstr "Distira"
 
-#: src/niepce/ui/dialogs/editlabels.cpp:55
-#: src/niepce/ui/dialogs/editlabels.ui:8
+#: src/niepce/ui/dialogs/editlabels.cpp:59
+#: src/niepce/ui/dialogs/editlabels.ui:5
 msgid "Edit Labels"
 msgstr "Editatu etiketak"
 
-#: src/niepce/ui/dialogs/editlabels.cpp:114
+#: src/niepce/ui/dialogs/editlabels.cpp:101
 msgid "Change Labels"
 msgstr "Aldatu etiketak"
 
-#: src/niepce/ui/dialogs/editlabels.ui:71
+#: src/niepce/ui/dialogs/editlabels.ui:26
 msgid "Label _6"
 msgstr "6. etiketa"
 
-#: src/niepce/ui/dialogs/editlabels.ui:85
+#: src/niepce/ui/dialogs/editlabels.ui:38
 msgid "Label _7"
 msgstr "7. etiketa"
 
-#: src/niepce/ui/dialogs/editlabels.ui:99
+#: src/niepce/ui/dialogs/editlabels.ui:50
 msgid "Label _8"
 msgstr "8. etiketa"
 
-#: src/niepce/ui/dialogs/editlabels.ui:113
+#: src/niepce/ui/dialogs/editlabels.ui:62
 msgid "Label _9"
 msgstr "9. etiketa"
 
-#: src/niepce/ui/dialogs/editlabels.ui:172
+#: src/niepce/ui/dialogs/editlabels.ui:115
 msgid "Label _10"
 msgstr "10. etiketa"
 
-#: src/niepce/ui/dialogs/editlabels.ui:275
+#: src/niepce/ui/dialogs/editlabels.ui:214
 msgid "<b>Labels</b>"
 msgstr "<b>Etiketak</b>"
 
-#: src/niepce/ui/dialogs/importdialog.ui:14
+#: src/niepce/ui/dialogs/importdialog.ui:11
 msgid "(none)"
 msgstr "(bat ere ez)"
 
-#: src/niepce/ui/dialogs/importdialog.ui:15
+#: src/niepce/ui/dialogs/importdialog.ui:12
 msgid "NONE"
 msgstr "BAT ERE EZ"
 
-#: src/niepce/ui/dialogs/importdialog.ui:29
+#: src/niepce/ui/dialogs/importdialog.ui:24
 msgid "local"
 msgstr "lokala"
 
-#: src/niepce/ui/dialogs/importdialog.ui:33
+#: src/niepce/ui/dialogs/importdialog.ui:28
 msgid "utc"
 msgstr "utc"
 
-#: src/niepce/ui/dialogs/importdialog.ui:41
+#: src/niepce/ui/dialogs/importdialog.ui:33
 msgid "Import"
 msgstr "Inportatu"
 
-#: src/niepce/ui/dialogs/importdialog.ui:76
-msgid "_Import"
-msgstr "_Inportatu"
-
-#: src/niepce/ui/dialogs/importdialog.ui:142
+#: src/niepce/ui/dialogs/importdialog.ui:73
 msgid "_Images to import"
 msgstr "Inportatuko diren i_rudiak"
 
-#: src/niepce/ui/dialogs/importdialog.ui:189
+#: src/niepce/ui/dialogs/importdialog.ui:100
 msgid "Destination _Folder"
 msgstr "Helburuko _karpeta"
 
-#: src/niepce/ui/dialogs/importdialog.ui:232
+#: src/niepce/ui/dialogs/importdialog.ui:131
 msgid "Import _UFRaw"
 msgstr "Inportatu _UFRaw"
 
-#: src/niepce/ui/dialogs/importdialog.ui:249
+#: src/niepce/ui/dialogs/importdialog.ui:141
 msgid "Import Raw_Studio"
 msgstr "Inportatu Raw_Studio"
 
-#: src/niepce/ui/dialogs/importdialog.ui:270
+#: src/niepce/ui/dialogs/importdialog.ui:152
 msgid "_Options"
 msgstr "Au_kerak"
 
-#: src/niepce/ui/dialogs/importdialog.ui:326
+#: src/niepce/ui/dialogs/importdialog.ui:190
 msgid "Presets:"
 msgstr "Aurrezarpenak:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:385
+#: src/niepce/ui/dialogs/importdialog.ui:225
 msgid "You can still change this after importing the pictures."
 msgstr "Irudiak inportatu ondoren ere alda dezakezu."
 
-#: src/niepce/ui/dialogs/importdialog.ui:406
-#: src/niepce/ui/metadatapanecontroller.cpp:59
+#: src/niepce/ui/dialogs/importdialog.ui:236
 msgid "Date:"
 msgstr "Data:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:450
+#: src/niepce/ui/dialogs/importdialog.ui:264
 msgid "Attributes:"
 msgstr "Atributuak:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:469
+#: src/niepce/ui/dialogs/importdialog.ui:276
 msgid "Metadata"
 msgstr "Metadatuak"
+
+#: src/niepce/ui/dialogs/importdialog.ui:303
+msgid "_Import"
+msgstr "_Inportatu"
 
 #: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:65
 msgid "No camera found"
@@ -284,264 +287,63 @@ msgstr "Ez da kamerarik aurkitu"
 msgid "Camera import %1%"
 msgstr "Kameraren inportazioa: %1%"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:28
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:20
 msgid "Available cameras:"
 msgstr "Kamera erabilgarriak:"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:37
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:73
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:29
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:60
 msgid "Select"
 msgstr "Hautatu"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:34
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:33
 msgid "Directory"
 msgstr "Direktorioa"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:69
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:56
 msgid "Import picture folder"
 msgstr "Inportatu irudien karpeta"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:16
+#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:59
+msgid "Cancel"
+msgstr "Utzi"
+
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:12
 msgid "_Directory:"
 msgstr "_Direktorioa:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:39
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:23
 msgid "..."
 msgstr "…"
 
-#: src/niepce/ui/dialogs/preferencesdialog.cpp:40
-#: src/niepce/ui/dialogs/preferences.ui:9
+#: src/niepce/ui/dialogs/preferencesdialog.cpp:38
+#: src/niepce/ui/dialogs/preferences.ui:5
 msgid "Preferences"
 msgstr "Hobespenak"
 
-#: src/niepce/ui/dialogs/preferences.ui:70
+#: src/niepce/ui/dialogs/preferences.ui:35
 msgid "_Reopen Catalog"
 msgstr "Ireki _berriro katalogoa"
 
-#: src/niepce/ui/dialogs/preferences.ui:86
+#: src/niepce/ui/dialogs/preferences.ui:48
 msgid "Write XMP automatically (not recommended)"
 msgstr "Idatxi XMP automatikoki (ez dago gomendatuta)"
 
-#: src/niepce/ui/dialogs/preferences.ui:105
+#: src/niepce/ui/dialogs/preferences.ui:62
 msgid "_General"
 msgstr "_Orokorra"
 
-#: src/niepce/ui/dialogs/preferences.ui:119
+#: src/niepce/ui/dialogs/preferences.ui:81
 msgid "Use dark interface"
 msgstr "Erabili interfaze iluna"
 
-#: src/niepce/ui/dialogs/preferences.ui:141
+#: src/niepce/ui/dialogs/preferences.ui:95
 msgid "_User Interface"
 msgstr "Erabiltzaile-i_nterfazea"
 
-#: src/niepce/ui/metadatapanecontroller.cpp:36
-msgid "File Name:"
-msgstr "Fitxategi-izena:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:37
-msgid "Folder:"
-msgstr "Karpeta:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:38
-msgid "File Type:"
-msgstr "Fitxategi mota:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:39
-msgid "File Size:"
-msgstr "Fitxategi-tamaina:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:40
-msgid "Sidecar Files:"
-msgstr "Fitxategi laguntzaileak:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:44
-msgid "Make:"
-msgstr "Marka:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:45
-msgid "Model:"
-msgstr "Modeloa:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:46
-msgid "Lens:"
-msgstr "Lenteak:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:50
-msgid "Exposure Program:"
-msgstr "Esposizio-programa:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:51
-msgid "Speed:"
-msgstr "Abiadura:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:52
-msgid "Aperture:"
-msgstr "Irekiera:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:53
-msgid "ISO:"
-msgstr "ISO:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:54
-msgid "Exposure Bias:"
-msgstr "Esposizio-joera:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:55
-msgid "Flash:"
-msgstr "Flasha:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:56
-msgid "Flash compensation:"
-msgstr "Flash-konpentsazioa:"
-
 #: src/niepce/ui/metadatapanecontroller.cpp:57
-msgid "Focal length:"
-msgstr "Foku-distantzia:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:58
-msgid "White balance:"
-msgstr "Zuri-balantzea:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:63
-msgid "Headline:"
-msgstr "Titulua:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:64
-msgid "Caption:"
-msgstr "Epigrafea:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:65
-msgid "Rating:"
-msgstr "Balorazioa:"
-
-#. FIXME change this type to the right one when there is a widget
-#: src/niepce/ui/metadatapanecontroller.cpp:67
-msgid "Label:"
-msgstr "Etiketa:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:68
-msgid "Keywords:"
-msgstr "Gako-hitzak:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:72
-msgid "File Information"
-msgstr "Fitxategiaren informazioa"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:75
-msgid "Camera Information"
-msgstr "Kameraren informazioa"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:78
-msgid "Shooting Information"
-msgstr "Kapturaren informazioa"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:81
-msgid "IPTC"
-msgstr "IPTC"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:84
-msgid "Rights"
-msgstr "Eskubideak"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:114
 msgid "Image Properties"
 msgstr "Irudiaren propietateak"
-
-#: src/niepce/ui/moduleshell.cpp:60
-msgid "Back"
-msgstr "Atzera"
-
-#: src/niepce/ui/moduleshell.cpp:66
-msgid "Forward"
-msgstr "Aurrera"
-
-#: src/niepce/ui/moduleshell.cpp:76
-msgid "Rotate Left"
-msgstr "Biratu ezkerrera"
-
-#: src/niepce/ui/moduleshell.cpp:83
-msgid "Rotate Right"
-msgstr "Biratu eskuinera"
-
-#: src/niepce/ui/moduleshell.cpp:89 src/niepce/ui/selectioncontroller.cpp:281
-msgid "Set Label"
-msgstr "Ezarri etiketa"
-
-#: src/niepce/ui/moduleshell.cpp:96
-msgid "Label 6"
-msgstr "6. etiketa"
-
-#: src/niepce/ui/moduleshell.cpp:102
-msgid "Label 7"
-msgstr "7. etiketa"
-
-#: src/niepce/ui/moduleshell.cpp:108
-msgid "Label 8"
-msgstr "8. etiketa"
-
-#: src/niepce/ui/moduleshell.cpp:114
-msgid "Label 9"
-msgstr "9. etiketa"
-
-#: src/niepce/ui/moduleshell.cpp:117 src/niepce/ui/selectioncontroller.cpp:278
-msgid "Set Rating"
-msgstr "Ezarri balorazioa"
-
-#: src/niepce/ui/moduleshell.cpp:124
-msgid "Unrated"
-msgstr "Baloratu gabea"
-
-#: src/niepce/ui/moduleshell.cpp:130
-msgid "Rating 1"
-msgstr "1. balorazioa"
-
-#: src/niepce/ui/moduleshell.cpp:136
-msgid "Rating 2"
-msgstr "2. balorazioa"
-
-#: src/niepce/ui/moduleshell.cpp:142
-msgid "Rating 3"
-msgstr "3. balorazioa"
-
-#: src/niepce/ui/moduleshell.cpp:148
-msgid "Rating 4"
-msgstr "4. balorazioa"
-
-#: src/niepce/ui/moduleshell.cpp:154
-msgid "Rating 5"
-msgstr "5. balorazioa"
-
-#: src/niepce/ui/moduleshell.cpp:157 src/niepce/ui/selectioncontroller.cpp:275
-msgid "Set Flag"
-msgstr "Ezarri bandera"
-
-#: src/niepce/ui/moduleshell.cpp:165
-msgid "Flag as Rejected"
-msgstr "Ezarri ezetsitakoaren bandera"
-
-#: src/niepce/ui/moduleshell.cpp:172
-msgid "Unflagged"
-msgstr "Banderarik gabea"
-
-#: src/niepce/ui/moduleshell.cpp:179
-msgid "Flag as Pick"
-msgstr "Ezarri aukeratutakoaren bandera"
-
-#: src/niepce/ui/moduleshell.cpp:188
-msgid "Write metadata"
-msgstr "Idatzi metadatuak"
-
-#: src/niepce/ui/moduleshell.cpp:198
-msgid "Catalog"
-msgstr "Katalogoa"
-
-#: src/niepce/ui/moduleshell.cpp:207
-msgid "Darkroom"
-msgstr "Gela iluna"
-
-#: src/niepce/ui/moduleshell.cpp:210
-msgid "Map"
-msgstr "Mapa"
 
 #: src/niepce/ui/niepceapplication.cpp:79
 msgid ""
@@ -552,120 +354,242 @@ msgstr "Argazki digitalen aplikazioa.\n"
 "\n"
 "Eraikuntza-aukerak: "
 
-#: src/niepce/ui/niepcewindow.cpp:78
-msgid "Undo"
-msgstr "Desegin"
+#~ msgid "OK"
+#~ msgstr "Ados"
 
-#: src/niepce/ui/niepcewindow.cpp:89
-msgid "Import..."
-msgstr "Inportatu…"
+#~ msgid "Folder _name:"
+#~ msgstr "_Karpetaren izena:"
 
-#: src/niepce/ui/niepcewindow.cpp:166
-msgid "Ready"
-msgstr "Prest"
+#~ msgid "File Name:"
+#~ msgstr "Fitxategi-izena:"
 
-#: src/niepce/ui/niepcewindow.cpp:237
-msgid "New Catalog..."
-msgstr "Katalogo berria…"
+#~ msgid "File Type:"
+#~ msgstr "Fitxategi mota:"
 
-#: src/niepce/ui/niepcewindow.cpp:238
-msgid "Open Catalog..."
-msgstr "Ireki katalogoa…"
+#~ msgid "File Size:"
+#~ msgstr "Fitxategi-tamaina:"
 
-#: src/niepce/ui/niepcewindow.cpp:249
-msgid "Edit Labels..."
-msgstr "Editatu etiketak…"
+#~ msgid "Sidecar Files:"
+#~ msgstr "Fitxategi laguntzaileak:"
 
-#: src/niepce/ui/niepcewindow.cpp:250
-msgid "Preferences..."
-msgstr "Hobespenak…"
+#~ msgid "Make:"
+#~ msgstr "Marka:"
 
-#: src/niepce/ui/niepcewindow.cpp:254
-msgid "Help"
-msgstr "Laguntza"
+#~ msgid "Model:"
+#~ msgstr "Modeloa:"
 
-#: src/niepce/ui/niepcewindow.cpp:255
-msgid "About"
-msgstr "Honi buruz"
+#~ msgid "Lens:"
+#~ msgstr "Lenteak:"
 
-#. TODO make this parametric from resources
-#: src/niepce/ui/niepcewindow.cpp:291
-msgid "Label 1"
-msgstr "1. etiketa"
+#~ msgid "Exposure Program:"
+#~ msgstr "Esposizio-programa:"
 
-#. 217, 37, 17
-#: src/niepce/ui/niepcewindow.cpp:292
-msgid "Label 2"
-msgstr "2. etiketa"
+#~ msgid "Speed:"
+#~ msgstr "Abiadura:"
 
-#. 97, 217, 17
-#: src/niepce/ui/niepcewindow.cpp:293
-msgid "Label 3"
-msgstr "3. etiketa"
+#~ msgid "Aperture:"
+#~ msgstr "Irekiera:"
 
-#. 17, 197, 217
-#: src/niepce/ui/niepcewindow.cpp:294
-msgid "Label 4"
-msgstr "4. etiketa"
+#~ msgid "ISO:"
+#~ msgstr "ISO:"
 
-#. 137, 17, 217
-#: src/niepce/ui/niepcewindow.cpp:295
-msgid "Label 5"
-msgstr "5. etiketa"
+#~ msgid "Exposure Bias:"
+#~ msgstr "Esposizio-joera:"
 
-#: src/niepce/ui/niepcewindow.cpp:343
-msgid "Open catalog"
-msgstr "Ireki katalogoa"
+#~ msgid "Flash:"
+#~ msgstr "Flasha:"
 
-#: src/niepce/ui/niepcewindow.cpp:346
-msgid "Open"
-msgstr "Ireki"
+#~ msgid "Flash compensation:"
+#~ msgstr "Flash-konpentsazioa:"
 
-#: src/niepce/ui/niepcewindow.cpp:403
-msgid "Niepce Digital - "
-msgstr "Niepce Digital - "
+#~ msgid "Focal length:"
+#~ msgstr "Foku-distantzia:"
 
-#: src/niepce/ui/selectioncontroller.cpp:284
-msgid "Set Property"
-msgstr "Ezarri propietatea"
+#~ msgid "White balance:"
+#~ msgstr "Zuri-balantzea:"
 
-#: src/niepce/ui/selectioncontroller.cpp:299
-msgid "Set Properties"
-msgstr "Ezarri propietateak"
+#~ msgid "Headline:"
+#~ msgstr "Titulua:"
 
-#: src/niepce/ui/selectioncontroller.cpp:326
-msgid "Move to Trash"
-msgstr "Bota zakarrontzira"
+#~ msgid "Caption:"
+#~ msgstr "Epigrafea:"
 
-#: src/niepce/ui/workspacecontroller.cpp:102
-msgid "Delete selected folder?"
-msgstr "Ezabatu hautatutako karpeta?"
+#~ msgid "Rating:"
+#~ msgstr "Balorazioa:"
 
-#: src/niepce/ui/workspacecontroller.cpp:402
-msgid "Pictures"
-msgstr "Argazkiak"
+#~ msgid "Label:"
+#~ msgstr "Etiketa:"
 
-#: src/niepce/ui/workspacecontroller.cpp:406
-msgid "Projects"
-msgstr "Proiektuak"
+#~ msgid "Keywords:"
+#~ msgstr "Gako-hitzak:"
 
-#: src/niepce/ui/workspacecontroller.cpp:410
-msgid "Keywords"
-msgstr "Gako-hitzak"
+#~ msgid "File Information"
+#~ msgstr "Fitxategiaren informazioa"
 
-#. TODO make it a mnemonic
-#: src/niepce/ui/workspacecontroller.cpp:424
-msgid "_Workspace"
-msgstr "_Laneko area"
+#~ msgid "Camera Information"
+#~ msgstr "Kameraren informazioa"
 
-#: src/niepce/ui/workspacecontroller.cpp:440
-msgid "New Folder..."
-msgstr "Karpeta berria…"
+#~ msgid "Shooting Information"
+#~ msgstr "Kapturaren informazioa"
 
-#: src/niepce/ui/workspacecontroller.cpp:442
-msgid "New Project..."
-msgstr "Proiektu berria…"
+#~ msgid "IPTC"
+#~ msgstr "IPTC"
 
-#: src/niepce/ui/workspacecontroller.cpp:447
-msgid "Delete Folder"
-msgstr "Ezabatu karpeta"
+#~ msgid "Rights"
+#~ msgstr "Eskubideak"
+
+#~ msgid "Back"
+#~ msgstr "Atzera"
+
+#~ msgid "Forward"
+#~ msgstr "Aurrera"
+
+#~ msgid "Rotate Left"
+#~ msgstr "Biratu ezkerrera"
+
+#~ msgid "Rotate Right"
+#~ msgstr "Biratu eskuinera"
+
+#~ msgid "Set Label"
+#~ msgstr "Ezarri etiketa"
+
+#~ msgid "Label 6"
+#~ msgstr "6. etiketa"
+
+#~ msgid "Label 7"
+#~ msgstr "7. etiketa"
+
+#~ msgid "Label 8"
+#~ msgstr "8. etiketa"
+
+#~ msgid "Label 9"
+#~ msgstr "9. etiketa"
+
+#~ msgid "Set Rating"
+#~ msgstr "Ezarri balorazioa"
+
+#~ msgid "Unrated"
+#~ msgstr "Baloratu gabea"
+
+#~ msgid "Rating 1"
+#~ msgstr "1. balorazioa"
+
+#~ msgid "Rating 2"
+#~ msgstr "2. balorazioa"
+
+#~ msgid "Rating 3"
+#~ msgstr "3. balorazioa"
+
+#~ msgid "Rating 4"
+#~ msgstr "4. balorazioa"
+
+#~ msgid "Rating 5"
+#~ msgstr "5. balorazioa"
+
+#~ msgid "Set Flag"
+#~ msgstr "Ezarri bandera"
+
+#~ msgid "Flag as Rejected"
+#~ msgstr "Ezarri ezetsitakoaren bandera"
+
+#~ msgid "Unflagged"
+#~ msgstr "Banderarik gabea"
+
+#~ msgid "Flag as Pick"
+#~ msgstr "Ezarri aukeratutakoaren bandera"
+
+#~ msgid "Write metadata"
+#~ msgstr "Idatzi metadatuak"
+
+#~ msgid "Catalog"
+#~ msgstr "Katalogoa"
+
+#~ msgid "Darkroom"
+#~ msgstr "Gela iluna"
+
+#~ msgid "Map"
+#~ msgstr "Mapa"
+
+#~ msgid "Undo"
+#~ msgstr "Desegin"
+
+#~ msgid "Import..."
+#~ msgstr "Inportatu…"
+
+#~ msgid "Ready"
+#~ msgstr "Prest"
+
+#~ msgid "New Catalog..."
+#~ msgstr "Katalogo berria…"
+
+#~ msgid "Open Catalog..."
+#~ msgstr "Ireki katalogoa…"
+
+#~ msgid "Edit Labels..."
+#~ msgstr "Editatu etiketak…"
+
+#~ msgid "Preferences..."
+#~ msgstr "Hobespenak…"
+
+#~ msgid "Help"
+#~ msgstr "Laguntza"
+
+#~ msgid "About"
+#~ msgstr "Honi buruz"
+
+#~ msgid "Label 1"
+#~ msgstr "1. etiketa"
+
+#~ msgid "Label 2"
+#~ msgstr "2. etiketa"
+
+#~ msgid "Label 3"
+#~ msgstr "3. etiketa"
+
+#~ msgid "Label 4"
+#~ msgstr "4. etiketa"
+
+#~ msgid "Label 5"
+#~ msgstr "5. etiketa"
+
+#~ msgid "Open catalog"
+#~ msgstr "Ireki katalogoa"
+
+#~ msgid "Open"
+#~ msgstr "Ireki"
+
+#~ msgid "Niepce Digital - "
+#~ msgstr "Niepce Digital - "
+
+#~ msgid "Set Property"
+#~ msgstr "Ezarri propietatea"
+
+#~ msgid "Set Properties"
+#~ msgstr "Ezarri propietateak"
+
+#~ msgid "Move to Trash"
+#~ msgstr "Bota zakarrontzira"
+
+#~ msgid "Delete selected folder?"
+#~ msgstr "Ezabatu hautatutako karpeta?"
+
+#~ msgid "Pictures"
+#~ msgstr "Argazkiak"
+
+#~ msgid "Projects"
+#~ msgstr "Proiektuak"
+
+#~ msgid "Keywords"
+#~ msgstr "Gako-hitzak"
+
+#~ msgid "_Workspace"
+#~ msgstr "_Laneko area"
+
+#~ msgid "New Folder..."
+#~ msgstr "Karpeta berria…"
+
+#~ msgid "New Project..."
+#~ msgstr "Proiektu berria…"
+
+#~ msgid "Delete Folder"
+#~ msgstr "Ezabatu karpeta"
