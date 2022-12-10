@@ -11,8 +11,6 @@ libniepceengine_a_SOURCES = \
 	db/storage.hpp \
 	db/fsfile.hpp \
 	db/metadata.hpp \
-	db/properties.hpp db/properties.cpp \
-	db/properties-def.hpp \
 	library/clienttypes.hpp \
 	library/thumbnailnotification.hpp \
 	importer/iimporter.hpp \

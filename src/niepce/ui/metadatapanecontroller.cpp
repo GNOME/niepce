@@ -24,7 +24,6 @@
 #include <gtkmm/entry.h>
 
 #include "fwk/base/debug.hpp"
-#include "engine/db/properties.hpp"
 #include "metadatapanecontroller.hpp"
 
 #include "rust_bindings.hpp"

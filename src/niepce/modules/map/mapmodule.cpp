@@ -22,7 +22,6 @@
 #include "fwk/base/debug.hpp"
 #include "fwk/utils/exempi.hpp"
 #include "fwk/toolkit/application.hpp"
-#include "engine/db/properties.hpp"
 #include "mapmodule.hpp"
 
 #include "rust_bindings.hpp"
