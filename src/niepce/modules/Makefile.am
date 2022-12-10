@@ -1,3 +1,3 @@
 
 
-SUBDIRS = darkroom interfaces map
+SUBDIRS = darkroom map

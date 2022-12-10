@@ -29,7 +29,6 @@
 #include <gtkmm/scrolledwindow.h>
 
 #include "fwk/toolkit/controller.hpp"
-#include "engine/db/libfile.hpp"
 #include "ncr/image.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
 #include "niepce/modules/darkroom/imagecanvas.hpp"

@@ -1,8 +1,6 @@
 
 engine = static_library(
     'engine',
-    'db' / 'libfile.hpp',
-    'db' / 'metadata.hpp',
     'importer' / 'cameraimporter.cpp',
     'importer' / 'cameraimporter.hpp',
     'importer' / 'directoryimporter.cpp',
