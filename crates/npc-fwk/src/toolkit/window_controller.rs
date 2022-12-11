@@ -30,7 +30,7 @@ pub fn create_undo_action(action_map: &gio::ActionMap) -> gio::SimpleAction {
     let action = gio::SimpleAction::new("Undo", None);
     action.connect_activate(move |_, _| {
         let app = Application_app();
-        app.undo_history().redo();
+        app.undo_history().undo();
     });
     action_map.add_action(&action);
     gtk4::Application::default().set_accels_for_action("win.Undo", &["<control>Z"]);
