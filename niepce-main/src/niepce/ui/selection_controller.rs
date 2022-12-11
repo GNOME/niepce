@@ -178,10 +178,10 @@ impl SelectionController {
         old_value: i32,
         new_value: i32,
     ) -> bool {
-        let mut undo = Box::new(UndoTransaction::new(undo_label));
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
-        let command = UndoCommand::new(
+        npc_fwk::toolkit::undo_do_command(
+            undo_label,
             Box::new(move || {
                 client_redo.set_metadata(file_id, Np::Index(meta), &PropertyValue::Int(new_value));
                 npc_fwk::toolkit::Storage::Void
@@ -190,9 +190,6 @@ impl SelectionController {
                 client_undo.set_metadata(file_id, Np::Index(meta), &PropertyValue::Int(old_value));
             }),
         );
-        undo.add(command);
-        undo.execute();
-        npc_fwk::ffi::Application_app().begin_undo(undo);
         true
     }
 
@@ -292,21 +289,18 @@ impl SelectionController {
         if let Some(selection) = self.selection() {
             if let Some(f) = self.handler.store.file(selection) {
                 let from_folder = f.folder_id();
-                let mut undo = Box::new(UndoTransaction::new(&i18n("Move to Trash")));
                 let client_undo = self.client.clone();
                 let client_redo = self.client.clone();
-                let command = UndoCommand::new(
+                npc_fwk::toolkit::undo_do_command(
+                    &i18n("Move to Trash"),
                     Box::new(move || {
-                        client_undo.move_file_to_folder(selection, from_folder, trash_folder);
+                        client_redo.move_file_to_folder(selection, from_folder, trash_folder);
                         npc_fwk::toolkit::Storage::Void
                     }),
                     Box::new(move |_| {
-                        client_redo.move_file_to_folder(selection, trash_folder, from_folder)
+                        client_undo.move_file_to_folder(selection, trash_folder, from_folder)
                     }),
                 );
-                undo.add(command);
-                undo.execute();
-                npc_fwk::ffi::Application_app().begin_undo(undo);
             }
         }
     }

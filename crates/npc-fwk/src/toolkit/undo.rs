@@ -245,6 +245,15 @@ impl UndoHistory {
     }
 }
 
+/// An all around wrapper to create and run and undoable command
+pub fn do_command(label: &str, redo_fn: Box<dyn Fn() -> Storage>, undo_fn: Box<dyn Fn(&Storage)>) {
+    let mut transaction = Box::new(UndoTransaction::new(label));
+    let command = UndoCommand::new(redo_fn, undo_fn);
+    transaction.add(command);
+    transaction.execute();
+    crate::ffi::Application_app().begin_undo(transaction);
+}
+
 // cxx
 pub fn undo_history_new() -> Box<UndoHistory> {
     Box::new(UndoHistory::default())
