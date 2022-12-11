@@ -1,7 +1,7 @@
 /*
  * niepce - engine/library/op.rs
  *
- * Copyright (C) 2017-2019 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,23 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::sync::Arc;
-
 use crate::db::Library;
 
-// When we can use a FnOnce here, we should.
-type Function = dyn Fn(&Library) -> bool + Send + Sync + 'static;
+type Function = dyn FnOnce(&Library) -> bool + Send + Sync + 'static;
 
 pub struct Op {
-    op: Arc<Function>,
+    op: Box<Function>,
 }
 
 impl Op {
     pub fn new<F>(f: F) -> Op
     where
-        F: Fn(&Library) -> bool + Send + Sync + 'static,
+        F: FnOnce(&Library) -> bool + Send + Sync + 'static,
     {
-        Op { op: Arc::new(f) }
+        Op { op: Box::new(f) }
     }
 
     pub fn execute(self, lib: &Library) -> bool {

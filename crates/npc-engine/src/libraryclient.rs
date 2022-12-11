@@ -167,7 +167,7 @@ impl LibraryClient {
 
     pub fn schedule_op<F>(&self, f: F)
     where
-        F: Fn(&Library) -> bool + Send + Sync + 'static,
+        F: FnOnce(&Library) -> bool + Send + Sync + 'static,
     {
         let op = Op::new(f);
 
