@@ -184,9 +184,10 @@ pub struct UndoHistory {
 impl UndoHistory {
     /// Add the transaction. This clear the redos.
     pub fn add(&mut self, transaction: UndoTransaction) {
-        self.undos.borrow_mut().push_back(transaction);
-        self.redos.borrow_mut().clear();
-
+        {
+            self.undos.borrow_mut().push_back(transaction);
+            self.redos.borrow_mut().clear();
+        }
         self.signal_changed.emit(());
     }
 
@@ -228,18 +229,28 @@ impl UndoHistory {
 
     /// Perform the undo operation
     pub fn undo(&self) {
-        if let Some(transaction) = self.undos.borrow_mut().pop_back() {
+        let changed = if let Some(transaction) = self.undos.borrow_mut().pop_back() {
             transaction.undo();
             self.redos.borrow_mut().push_back(transaction);
+            true
+        } else {
+            false
+        };
+        if changed {
             self.signal_changed.emit(());
         }
     }
 
     /// Perform the redo operation
     pub fn redo(&self) {
-        if let Some(transaction) = self.redos.borrow_mut().pop_back() {
+        let changed = if let Some(transaction) = self.redos.borrow_mut().pop_back() {
             transaction.redo();
             self.undos.borrow_mut().push_back(transaction);
+            true
+        } else {
+            false
+        };
+        if changed {
             self.signal_changed.emit(());
         }
     }
