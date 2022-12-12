@@ -49,6 +49,16 @@ niepce_rust = custom_target(
   ]
 )
 
+clippy = run_target(
+  'clippy',
+  command: [
+    'env',
+    cargo_env,
+    cargo, 'clippy',
+    cargo_options,
+  ]
+)
+
 niepce_rust_deps = declare_dependency(link_with: niepce_rust[0], sources: [ niepce_rust[1], niepce_rust[2] ])
 
 test(
