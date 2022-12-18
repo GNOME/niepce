@@ -47,8 +47,10 @@ pub trait ClientInterface {
     /// Create an album (async)
     fn create_album(&self, name: String, parent: LibraryId);
     fn delete_album(&self, id: LibraryId);
-    /// Add an image to an album.
-    fn add_to_album(&self, image_id: LibraryId, album_id: LibraryId);
+    /// Add images to an album.
+    fn add_to_album(&self, images: &[LibraryId], album: LibraryId);
+    /// Remove images from an album.
+    fn remove_from_album(&self, images: &[LibraryId], album: LibraryId);
     /// Query content for album.
     fn query_album_content(&self, album_id: LibraryId);
 

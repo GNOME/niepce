@@ -112,12 +112,13 @@ impl LrImporter {
 
         if let Some(images) = images {
             dbg_out!("Has images");
-            images.iter().for_each(|id| {
-                if let Some(npc_image_id) = self.image_map.borrow().get(id) {
-                    dbg_out!("adding {} to album {}", npc_image_id, nid);
-                    libclient.add_to_album(*npc_image_id, nid);
-                }
-            });
+            let npc_ids: Vec<LibraryId> = images
+                .iter()
+                .filter_map(|id| self.image_map.borrow().get(id).cloned())
+                .collect();
+
+            dbg_out!("adding {:?} to album {}", npc_ids, nid);
+            libclient.add_to_album(&npc_ids, nid);
         }
     }
 

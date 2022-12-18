@@ -76,6 +76,8 @@ enum Event {
     PerformImport(Box<ImportRequest>),
     /// Import a library
     ImportLibrary,
+    /// `LibFile`s dropped onto workspace. (target, type, source)
+    DropLibFile(db::LibraryId, TreeItemType, Vec<db::LibraryId>),
 }
 
 pub struct ImportDialogArgument {
@@ -290,11 +292,11 @@ impl UiController for WorkspaceController {
                 let selection_model = gtk4::SingleSelection::new(Some(&treemodel));
 
                 let factory = gtk4::SignalListItemFactory::new();
-                factory.connect_setup(move |_, item| {
+                factory.connect_setup(glib::clone!(@strong self.tx as tx => move |_, item| {
                     let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
-                    let item_row = WsItemRow::new();
+                    let item_row = WsItemRow::new(tx.clone());
                     item.set_child(Some(&item_row));
-                });
+                }));
                 factory.connect_bind(glib::clone!(@strong self.tx as tx => move |_, list_item| {
                     let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
                     let ws_item_row = list_item.child().unwrap().downcast_ref::<WsItemRow>().unwrap().clone();
@@ -547,6 +549,7 @@ impl WorkspaceController {
             Import => self.action_import(),
             PerformImport(request) => self.perform_file_import(request.as_ref()),
             ImportLibrary => self.action_import_library(),
+            DropLibFile(target, type_, source) => self.action_drop_libfile(target, type_, source),
         }
     }
 
@@ -797,6 +800,44 @@ impl WorkspaceController {
             let dialog = ImportLibraryDialog::new(client);
             dialog.run(parent.as_ref());
             dbg_out!("dialog out of scope");
+        }
+    }
+
+    /// A `LibFile` with `source` id was dropped onto `target` of `type_`.
+    /// Act upon it.
+    fn action_drop_libfile(
+        &self,
+        target: db::LibraryId,
+        type_: TreeItemType,
+        source: Vec<db::LibraryId>,
+    ) {
+        dbg_out!(
+            "dropped files id {:?} onto a {:?}({})",
+            source,
+            type_,
+            target
+        );
+        use TreeItemType::*;
+        match type_ {
+            Trash => {
+                // let source_container = self.selected_item_id();
+            }
+            Album => {
+                if let Some(client) = self.client.upgrade() {
+                    let client_redo = client.clone();
+                    let redo_source = source.clone();
+                    npc_fwk::toolkit::undo_do_command(
+                        &i18n("Add to Album"),
+                        Box::new(move || {
+                            client_redo.add_to_album(&redo_source, target);
+                            npc_fwk::toolkit::Storage::Void
+                        }),
+                        Box::new(move |_| client.remove_from_album(&source, target)),
+                    );
+                }
+            }
+            Keyword => {}
+            _ => err_out!("Unhandled drop target of type {:?}", type_),
         }
     }
 

@@ -788,15 +788,32 @@ impl Library {
         )
     }
 
-    /// Add an image to an album.
-    pub(crate) fn add_to_album(&self, image_id: LibraryId, album_id: LibraryId) -> Result<()> {
+    /// Add `images` to an `album`.
+    pub(crate) fn add_to_album(&self, images: &[LibraryId], album: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute(
-                "INSERT INTO albuming (file_id, album_id) VALUES(?1, ?2)",
-                params![image_id, album_id],
-            )?;
-            if c != 1 {
-                return Err(Error::InvalidResult);
+            let mut stmt =
+                conn.prepare("INSERT INTO albuming (file_id, album_id) VALUES(?1, ?2)")?;
+            for image in images {
+                let c = stmt.execute(params![image, album])?;
+                if c != 1 {
+                    return Err(Error::InvalidResult);
+                }
+            }
+            return Ok(());
+        }
+        Err(Error::NoSqlDb)
+    }
+
+    /// Remove images from an album.
+    pub(crate) fn remove_from_album(&self, images: &[LibraryId], album: LibraryId) -> Result<()> {
+        if let Some(ref conn) = self.dbconn {
+            let mut stmt =
+                conn.prepare("DELETE FROM albuming WHERE (file_id=?1 AND album_id=?2)")?;
+            for image in images {
+                let c = stmt.execute(params![image, album])?;
+                if c != 1 {
+                    return Err(Error::InvalidResult);
+                }
             }
             return Ok(());
         }

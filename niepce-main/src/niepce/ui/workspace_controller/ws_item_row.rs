@@ -19,7 +19,7 @@
 
 use glib::subclass::prelude::*;
 
-use super::Item;
+use super::{Event, Item};
 
 glib::wrapper! {
     /// This is the row item for the workspace.
@@ -29,15 +29,11 @@ glib::wrapper! {
     @extends gtk4::Box, gtk4::Widget;
 }
 
-impl Default for WsItemRow {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl WsItemRow {
-    pub fn new() -> Self {
-        glib::Object::new(&[])
+    pub(super) fn new(tx: glib::Sender<Event>) -> Self {
+        let obj: Self = glib::Object::new(&[]);
+        obj.imp().tx.replace(Some(tx));
+        obj
     }
 
     pub fn bind(&self, item: &Item, tree_list_row: &gtk4::TreeListRow) {
@@ -51,17 +47,24 @@ impl WsItemRow {
 }
 
 mod imp {
+    use std::cell::{Cell, RefCell};
+
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
 
-    use super::super::Item;
+    use super::super::{Event, Item, TreeItemType};
+    use npc_engine::db;
+    use npc_fwk::{dbg_out, err_out, on_err_out};
 
     #[derive(Default)]
     pub struct WsItemRow {
+        pub(super) tx: RefCell<Option<glib::Sender<Event>>>,
         pub(super) expander: gtk4::TreeExpander,
         icon: gtk4::Image,
         label: gtk4::Label,
         count: gtk4::Label,
+        type_: Cell<TreeItemType>,
+        id: Cell<db::LibraryId>,
     }
 
     impl WsItemRow {
@@ -69,6 +72,8 @@ mod imp {
             self.icon.set_from_gicon(&item.icon());
             self.label.set_label(&item.label());
             self.count.set_label(&format!("{}", item.count()));
+            self.type_.set(item.tree_item_type());
+            self.id.set(item.id());
         }
     }
 
@@ -83,7 +88,7 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
 
-            let box_ = &self.instance();
+            let box_ = &self.obj();
             self.expander.set_hexpand(true);
             self.expander.set_indent_for_icon(true);
             box_.append(&self.expander);
@@ -100,6 +105,29 @@ mod imp {
             self.label.set_hexpand(true);
             self.label.set_xalign(0.0);
             inner.append(&self.count);
+
+            let drop_target = gtk4::DropTarget::new(
+                npc_engine::db::LibFile::static_type(),
+                gdk4::DragAction::COPY,
+            );
+            drop_target.connect_accept(
+                glib::clone!(@weak self as this => @default-return false, move |_, _| {
+                    matches!(this.type_.get(), TreeItemType::Album)
+                }),
+            );
+            drop_target.connect_drop(glib::clone!(@weak self as this => @default-return false, move |_, value, _, _| {
+                if let Ok(libfile) = value.get::<npc_engine::db::LibFile>() {
+                    dbg_out!("accepted value {}", libfile.id());
+                    if let Some(ref tx) = *this.tx.borrow() {
+                        on_err_out!(tx.send(Event::DropLibFile(this.id.get(), this.type_.get(), vec![libfile.id()])));
+                    }
+                    true
+                } else {
+                    dbg_out!("no value to accept");
+                    false
+                }
+            }));
+            self.obj().add_controller(&drop_target);
         }
     }
 

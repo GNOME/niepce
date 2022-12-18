@@ -56,6 +56,7 @@ impl ImageGridView {
                 }
                 None
             });
+
             item.set_child(Some(&renderer));
         });
 
@@ -72,6 +73,7 @@ impl ImageGridView {
             renderer.set_property("status", image_item.status() as i32);
         });
 
+        // Context menu
         let click = gtk4::GestureClick::new();
         click.set_button(0);
         click.connect_pressed(

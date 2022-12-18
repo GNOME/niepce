@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/library/commands.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2022 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -250,12 +250,12 @@ pub fn cmd_delete_album(lib: &Library, id: LibraryId) -> bool {
     }
 }
 
-/// Command to add an image to an album.
-pub fn cmd_add_to_album(lib: &Library, image_id: LibraryId, album_id: LibraryId) -> bool {
-    match lib.add_to_album(image_id, album_id) {
+/// Command to add `images` to an `album`.
+pub fn cmd_add_to_album(lib: &Library, images: Vec<LibraryId>, album: LibraryId) -> bool {
+    match lib.add_to_album(&images, album) {
         Ok(_) => {
             if lib
-                .notify(LibNotification::AddedToAlbum((image_id, album_id)))
+                .notify(LibNotification::AddedToAlbum(images, album))
                 .is_err()
             {
                 err_out!("Failed to notify AddedToAlbum");
@@ -264,9 +264,33 @@ pub fn cmd_add_to_album(lib: &Library, image_id: LibraryId, album_id: LibraryId)
         }
         Err(err) => {
             err_out_line!(
-                "Adding image {} to album {} failed {:?}",
-                image_id,
-                album_id,
+                "Adding images {:?} to album {} failed {:?}",
+                images,
+                album,
+                err
+            );
+            false
+        }
+    }
+}
+
+/// Command to remove `images` from an `album`.
+pub fn cmd_remove_from_album(lib: &Library, images: Vec<LibraryId>, album: LibraryId) -> bool {
+    match lib.remove_from_album(&images, album) {
+        Ok(_) => {
+            if lib
+                .notify(LibNotification::RemovedFromAlbum(images, album))
+                .is_err()
+            {
+                err_out!("Failed to notify RemovedFromAlbum");
+            }
+            true
+        }
+        Err(err) => {
+            err_out_line!(
+                "Removing images {:?} from album {} failed {:?}",
+                images,
+                album,
                 err
             );
             false

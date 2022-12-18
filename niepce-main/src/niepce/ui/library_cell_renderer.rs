@@ -391,7 +391,18 @@ impl ObjectImpl for LibraryCellRendererPriv {
                 .expect("couldn't get renderer");
             renderer.hit(x, y);
         });
-        self.instance().add_controller(&gesture);
+        self.obj().add_controller(&gesture);
+
+        // Drag and drop
+        let drag_source = gtk4::DragSource::new();
+        drag_source.connect_prepare(
+            glib::clone!(@weak self as this => @default-return None, move |source, _, _| {
+                source.set_icon(this.pixbuf.borrow().as_ref(), 0, 0);
+                let libfile = this.libfile.borrow().clone();
+                libfile.map(|libfile| gdk4::ContentProvider::for_value(&libfile.to_value()))
+            }),
+        );
+        self.obj().add_controller(&drag_source);
     }
 
     fn properties() -> &'static [glib::ParamSpec] {

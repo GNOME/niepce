@@ -230,9 +230,28 @@ impl ClientInterface for LibraryClient {
         self.schedule_op(move |lib| commands::cmd_delete_album(lib, id));
     }
 
-    /// Add an image to an album.
-    fn add_to_album(&self, image_id: LibraryId, album_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_add_to_album(lib, image_id, album_id));
+    /// Add images to an album.
+    fn add_to_album(&self, images: &[LibraryId], album_id: LibraryId) {
+        let images = images.to_vec();
+        self.schedule_op(move |lib| {
+            if commands::cmd_add_to_album(lib, images, album_id) {
+                commands::cmd_count_album(lib, album_id)
+            } else {
+                false
+            }
+        });
+    }
+
+    /// Remove images to an album.
+    fn remove_from_album(&self, images: &[LibraryId], album_id: LibraryId) {
+        let images = images.to_vec();
+        self.schedule_op(move |lib| {
+            if commands::cmd_remove_from_album(lib, images, album_id) {
+                commands::cmd_count_album(lib, album_id)
+            } else {
+                false
+            }
+        });
     }
 
     /// Query content for album.

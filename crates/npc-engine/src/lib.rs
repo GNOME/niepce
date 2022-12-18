@@ -269,6 +269,7 @@ pub mod ffi {
         ADDED_LABEL,
         ADDED_ALBUM,
         ADDED_TO_ALBUM,
+        RemovedFromAlbum,
         ALBUM_CONTENT_QUERIED,
         ALBUM_COUNTED,
         ALBUM_COUNT_CHANGE,
