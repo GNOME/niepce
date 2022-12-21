@@ -78,11 +78,12 @@ impl WorkspaceList {
 
     /// Remove the item with `id`. Return it if found or an error.
     pub fn remove_by_id(&self, id: &db::LibraryId) -> Result<Item, Error> {
-        self.imp()
-            .items
-            .borrow_mut()
-            .remove(id)
-            .ok_or(Error::NotFound)
+        let items = &self.imp().items;
+        let index = items.borrow().index_of(id).ok_or(Error::NotFound)?;
+        let item = items.borrow_mut().remove_at(index).ok_or(Error::NotFound)?;
+
+        self.items_changed(index as u32, 1, 0);
+        Ok(item)
     }
 
     /// Get item with `id`

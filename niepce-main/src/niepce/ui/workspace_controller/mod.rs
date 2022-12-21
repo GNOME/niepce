@@ -853,6 +853,7 @@ impl WorkspaceController {
         }
     }
 
+    /// Get the selected item id and type in the workspace.
     fn selected_item_id(&self) -> Option<(TreeItemType, db::LibraryId)> {
         self.widgets.get().and_then(|widgets| {
             widgets
@@ -860,11 +861,14 @@ impl WorkspaceController {
                 .model()
                 .and_then(|selection| {
                     selection
-                        .downcast_ref::<gtk4::SingleSelection>()
-                        .and_then(|selection| selection.selected_item())
+                        .downcast::<gtk4::SingleSelection>()
+                        .ok()?
+                        .selected_item()
                 })
+                .and_then(|item| item.downcast_ref::<gtk4::TreeListRow>()?.item())
                 .and_then(|item| {
-                    item.downcast_ref::<Item>()
+                    item.downcast::<Item>()
+                        .ok()
                         .map(|item| (item.tree_item_type(), item.id()))
                 })
         })
