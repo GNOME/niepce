@@ -34,6 +34,7 @@ use gtk4::glib;
 use num_derive::FromPrimitive;
 use once_cell::unsync::OnceCell;
 
+use super::ContentView;
 use crate::import::ImportRequest;
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
@@ -92,7 +93,7 @@ pub struct WorkspaceController {
     widgets: OnceCell<Widgets>,
     client: Weak<LibraryClient>,
     action_group: OnceCell<gio::ActionGroup>,
-    pub selection_changed: Signal<()>,
+    pub selection_changed: Signal<ContentView>,
 
     icon_trash: gio::Icon,
     icon_roll: gio::Icon,
@@ -577,6 +578,7 @@ impl WorkspaceController {
             .and_then(|widgets| widgets.librarytree.model())
             .and_then(|model| model.downcast::<gtk4::SingleSelection>().ok())
         {
+            let mut content = ContentView::Empty;
             if let Some(item) = model
                 .selected_item()
                 .and_then(|item| item.downcast_ref::<gtk4::TreeListRow>()?.item())
@@ -585,19 +587,29 @@ impl WorkspaceController {
                 let type_ = item.tree_item_type();
                 let id = item.id();
                 if let Some(client) = self.client.upgrade() {
-                    match type_ {
-                        TreeItemType::Folder => client.query_folder_content(id),
-                        TreeItemType::Keyword => client.query_keyword_content(id),
-                        TreeItemType::Album => client.query_album_content(id),
+                    content = match type_ {
+                        TreeItemType::Folder => {
+                            client.query_folder_content(id);
+                            ContentView::Folder(id)
+                        }
+                        TreeItemType::Keyword => {
+                            client.query_keyword_content(id);
+                            ContentView::Keyword(id)
+                        }
+                        TreeItemType::Album => {
+                            client.query_album_content(id);
+                            ContentView::Album(id)
+                        }
                         _ => {
                             dbg_out!("Something selected of type {:?}", type_);
+                            ContentView::Empty
                         }
                     }
                 }
             }
             // XXX
             // disable DeleteItem of type != folder or album
-            self.selection_changed.emit(());
+            self.selection_changed.emit(content);
         }
     }
 

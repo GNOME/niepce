@@ -94,6 +94,54 @@ impl ModuleShell {
             .widget
             .insert_action_group("shell", Some(&shell.action_group));
 
+        Self::build_gridview_context_menu(&shell);
+        shell.widget.menu_button().set_menu_model(Some(&shell.menu));
+
+        shell.add_library_module(&shell.gridview, "grid", &i18n("Catalog"));
+        shell.gridview.grid_view.connect_activate(glib::clone!(
+        @weak shell.selection_controller.handler as handler => move |_, pos| {
+            handler.activated(pos)
+        }));
+
+        shell.selection_controller.handler.signal_selected.connect(
+            glib::clone!(@weak shell => move |id| {
+                shell.on_image_selected(id);
+            }),
+        );
+        shell.selection_controller.handler.signal_activated.connect(
+            glib::clone!(@weak shell => move |id| {
+                shell.on_image_activated(id);
+            }),
+        );
+
+        // built-in modules;
+        shell.add_library_module(&shell.darkroom, "darkroom", &i18n("Darkroom"));
+        shell.add_library_module(&shell.mapm, "map", &i18n("Map"));
+
+        shell.widget.connect(
+            "activated",
+            true,
+            glib::clone!(@strong tx => move |value| {
+                let name = value[1].get::<&str>().expect("Failed to convert callback parameter");
+                on_err_out!(tx.send(Event::ModuleActivated(name.to_string())));
+                None
+            }),
+        );
+        let tx = shell.tx.clone();
+        shell.widget.connect(
+            "deactivated",
+            true,
+            glib::clone!(@strong tx => move |value| {
+                let name = value[1].get::<&str>().expect("Failed to convert callback parameter");
+                on_err_out!(tx.send(Event::ModuleDeactivated(name.to_string())));
+                None
+            }),
+        );
+        shell
+    }
+
+    /// Build the GridView context menu.
+    fn build_gridview_context_menu(shell: &Rc<Self>) {
         let group = shell.action_group.upcast_ref::<gio::ActionMap>();
         add_menu_action(
             group,
@@ -330,50 +378,22 @@ impl ModuleShell {
             None,
         );
 
+        let section = gio::Menu::new();
+        shell.menu.append_section(None, &section);
+        add_menu_action(
+            group,
+            "Delete",
+            glib::clone!(
+            @weak shell.selection_controller as selection_controller => move |_, _| {
+                selection_controller.delete_from_view()
+            }),
+            &section,
+            Some(&i18n("Delete")),
+            Some("shell"),
+            None,
+        );
+
         shell.menu.append_section(None, &shell.module_menu);
-        shell.widget.menu_button().set_menu_model(Some(&shell.menu));
-
-        shell.add_library_module(&shell.gridview, "grid", &i18n("Catalog"));
-        shell.gridview.grid_view.connect_activate(glib::clone!(
-        @weak shell.selection_controller.handler as handler => move |_, pos| {
-            handler.activated(pos)
-        }));
-
-        shell.selection_controller.handler.signal_selected.connect(
-            glib::clone!(@weak shell => move |id| {
-                shell.on_image_selected(id);
-            }),
-        );
-        shell.selection_controller.handler.signal_activated.connect(
-            glib::clone!(@weak shell => move |id| {
-                shell.on_image_activated(id);
-            }),
-        );
-
-        // built-in modules;
-        shell.add_library_module(&shell.darkroom, "darkroom", &i18n("Darkroom"));
-        shell.add_library_module(&shell.mapm, "map", &i18n("Map"));
-
-        shell.widget.connect(
-            "activated",
-            true,
-            glib::clone!(@strong tx => move |value| {
-                let name = value[1].get::<&str>().expect("Failed to convert callback parameter");
-                on_err_out!(tx.send(Event::ModuleActivated(name.to_string())));
-                None
-            }),
-        );
-        let tx = shell.tx.clone();
-        shell.widget.connect(
-            "deactivated",
-            true,
-            glib::clone!(@strong tx => move |value| {
-                let name = value[1].get::<&str>().expect("Failed to convert callback parameter");
-                on_err_out!(tx.send(Event::ModuleDeactivated(name.to_string())));
-                None
-            }),
-        );
-        shell
     }
 
     fn dispatch(&self, e: Event) {
@@ -413,8 +433,8 @@ impl ModuleShell {
             .insert(name.to_string(), module.clone());
     }
 
-    pub fn on_content_will_change(&self) {
-        self.selection_controller.content_will_change();
+    pub fn on_content_will_change(&self, content: super::ContentView) {
+        self.selection_controller.content_will_change(content);
     }
 
     fn on_image_selected(&self, id: db::LibraryId) {

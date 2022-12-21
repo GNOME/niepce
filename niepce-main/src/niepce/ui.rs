@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod content_view;
 pub mod dialogs;
 mod film_strip_controller;
 mod grid_view_module;
@@ -35,6 +36,7 @@ pub mod thumb_nav;
 pub mod thumb_strip_view;
 mod workspace_controller;
 
+pub use content_view::ContentView;
 pub use film_strip_controller::FilmStripController;
 pub use grid_view_module::GridViewModuleProxy;
 pub use image_grid_view::ImageGridView;

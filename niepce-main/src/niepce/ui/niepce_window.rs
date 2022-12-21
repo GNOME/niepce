@@ -455,7 +455,7 @@ impl NiepceWindow {
             self.window.insert_action_group(actions.0, Some(actions.1));
         }
         workspace.selection_changed.connect(
-            glib::clone!(@weak module_shell => move |_| module_shell.on_content_will_change()),
+            glib::clone!(@weak module_shell => move |content| module_shell.on_content_will_change(content)),
         );
         if let Some(notif_center) = self.widgets.get().map(|w| &w.notif_center) {
             let workspace = workspace.clone();

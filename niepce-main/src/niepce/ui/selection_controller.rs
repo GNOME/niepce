@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Ref, RefCell, RefMut};
+use std::cell::{Cell, Ref, RefCell, RefMut};
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -25,6 +25,7 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
 use super::image_list_store::ImageListStoreWrap;
+use super::ContentView;
 use npc_engine::db;
 use npc_engine::db::props::NiepceProperties as Np;
 use npc_engine::db::{LibFile, NiepcePropertyIdx};
@@ -45,6 +46,7 @@ enum Direction {
 #[derive(Default)]
 pub struct SelectionHandler {
     store: Box<ImageListStoreWrap>,
+    content: Cell<ContentView>,
     pub signal_selected: Signal<db::LibraryId>,
     pub signal_activated: Signal<db::LibraryId>,
 }
@@ -273,8 +275,9 @@ impl SelectionController {
         }
     }
 
-    pub fn content_will_change(&self) {
+    pub fn content_will_change(&self, content: super::ContentView) {
         self.handler.store.clear_content();
+        self.handler.content.set(content);
     }
 
     pub fn write_metadata(&self) {
@@ -283,24 +286,63 @@ impl SelectionController {
         }
     }
 
+    /// Delete the selecton fron the view.
+    /// What delete means depend on the view. In an album it removes from the album
+    /// From a folder it moves to trash.
+    pub fn delete_from_view(&self) {
+        if let Some(selection) = self.selection() {
+            if let Some(ref f) = self.handler.store.file(selection) {
+                match self.handler.content.get() {
+                    ContentView::Album(id) => {
+                        self.remove_from_album(id, f);
+                    }
+                    ContentView::Folder(_) => {
+                        self.move_file_to_trash(f);
+                    }
+                    // XXX handle remove from keyword.
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    /// Remove file `f` from `album`
+    fn remove_from_album(&self, album: db::LibraryId, f: &LibFile) {
+        let file_id = f.id();
+        let client_undo = self.client.clone();
+        let client_redo = self.client.clone();
+        npc_fwk::toolkit::undo_do_command(
+            &i18n("Remove from album"),
+            Box::new(move || {
+                client_redo.remove_from_album(&[file_id], album);
+                npc_fwk::toolkit::Storage::Void
+            }),
+            Box::new(move |_| client_undo.add_to_album(&[file_id], album)),
+        );
+    }
+
+    /// Move the file `f` to the trash.
+    fn move_file_to_trash(&self, f: &LibFile) {
+        let trash_folder = self.client.get_trash_id();
+        let file_id = f.id();
+        let from_folder = f.folder_id();
+        let client_undo = self.client.clone();
+        let client_redo = self.client.clone();
+        npc_fwk::toolkit::undo_do_command(
+            &i18n("Move to Trash"),
+            Box::new(move || {
+                client_redo.move_file_to_folder(file_id, from_folder, trash_folder);
+                npc_fwk::toolkit::Storage::Void
+            }),
+            Box::new(move |_| client_undo.move_file_to_folder(file_id, trash_folder, from_folder)),
+        );
+    }
+
     /// Move selection to trash
     pub fn move_to_trash(&self) {
-        let trash_folder = self.client.get_trash_id();
         if let Some(selection) = self.selection() {
-            if let Some(f) = self.handler.store.file(selection) {
-                let from_folder = f.folder_id();
-                let client_undo = self.client.clone();
-                let client_redo = self.client.clone();
-                npc_fwk::toolkit::undo_do_command(
-                    &i18n("Move to Trash"),
-                    Box::new(move || {
-                        client_redo.move_file_to_folder(selection, from_folder, trash_folder);
-                        npc_fwk::toolkit::Storage::Void
-                    }),
-                    Box::new(move |_| {
-                        client_undo.move_file_to_folder(selection, trash_folder, from_folder)
-                    }),
-                );
+            if let Some(ref f) = self.handler.store.file(selection) {
+                self.move_file_to_trash(f);
             }
         }
     }
