@@ -175,20 +175,11 @@ pub mod ffi {
     extern "Rust" {
         type SelectionController;
 
-        fn select_previous(&self);
-        fn select_next(&self);
         #[cxx_name = "get_list_store"]
         fn list_store(&self) -> &ImageListStoreWrap;
 
-        fn rotate(&self, angle: i32);
-        fn set_label(&self, label: i32);
-        fn set_rating(&self, rating: i32);
         fn set_rating_of(&self, id: i64, rating: i32);
-        fn set_flag(&self, flag: i32);
         fn set_properties(&self, props: &WrappedPropertyBag, old: &WrappedPropertyBag);
-        fn content_will_change(&self);
-        fn write_metadata(&self);
-        fn move_to_trash(&self);
     }
 
     unsafe extern "C++" {
