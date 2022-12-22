@@ -298,6 +298,24 @@ pub fn cmd_remove_from_album(lib: &Library, images: Vec<LibraryId>, album: Libra
     }
 }
 
+pub fn cmd_rename_album(lib: &Library, album: LibraryId, name: &str) -> bool {
+    match lib.rename_album(album, name) {
+        Ok(_) => {
+            if lib
+                .notify(LibNotification::AlbumRenamed(album, name.to_string()))
+                .is_err()
+            {
+                err_out!("Failed to notify RenamedAlbum");
+            }
+            true
+        }
+        Err(err) => {
+            err_out_line!("Renaming album {} to {} failed {:?}", album, name, err);
+            false
+        }
+    }
+}
+
 pub fn cmd_query_album_content(lib: &Library, album_id: LibraryId) -> bool {
     match lib.get_album_content(album_id) {
         Ok(fl) => {

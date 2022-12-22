@@ -274,6 +274,7 @@ pub mod ffi {
         ALBUM_COUNTED,
         ALBUM_COUNT_CHANGE,
         AlbumDeleted,
+        AlbumRenamed,
         FOLDER_CONTENT_QUERIED,
         FOLDER_DELETED,
         FOLDER_COUNTED,

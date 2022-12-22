@@ -51,6 +51,8 @@ pub trait ClientInterface {
     fn add_to_album(&self, images: &[LibraryId], album: LibraryId);
     /// Remove images from an album.
     fn remove_from_album(&self, images: &[LibraryId], album: LibraryId);
+    /// Rename album `album_id` to `name`.
+    fn rename_album(&self, album_id: LibraryId, name: String);
     /// Query content for album.
     fn query_album_content(&self, album_id: LibraryId);
 

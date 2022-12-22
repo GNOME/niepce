@@ -744,6 +744,18 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
+    /// Rename album `id` to `name`.
+    pub(crate) fn rename_album(&self, id: LibraryId, name: &str) -> Result<()> {
+        if let Some(ref conn) = self.dbconn {
+            let c = conn.execute("UPDATE albums SET name=?2 WHERE id=?1", params![id, name])?;
+            if c == 1 {
+                return Ok(());
+            }
+            return Err(Error::InvalidResult);
+        }
+        Err(Error::NoSqlDb)
+    }
+
     /// Get all the albums.
     pub(crate) fn get_all_albums(&self) -> Result<Vec<Album>> {
         if let Some(ref conn) = self.dbconn {

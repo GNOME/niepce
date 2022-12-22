@@ -71,6 +71,8 @@ enum Event {
     NewAlbum,
     /// Delete the current item.
     DeleteItem,
+    /// Rename the current item.
+    RenameItem,
     /// Initiate the import.
     Import,
     /// Sent after the import is initiated
@@ -260,6 +262,20 @@ impl Widgets {
         }
     }
 
+    /// Change the label of an item in the list
+    fn rename_item(&self, tree_item_type: TreeItemType, id: db::LibraryId, name: &str) {
+        if let Some(item_index) = self.find_item_index(tree_item_type, id) {
+            let store = item_index.0;
+            if let Some(item) = store
+                .item(item_index.1)
+                .and_then(|item| item.downcast::<Item>().ok())
+            {
+                item.set_label(name);
+                store.items_changed(item_index.1, 0, 0);
+            }
+        }
+    }
+
     fn expand_row(&self, at: u32) {
         if let Some(row) = self.treemodel.row(at) {
             row.set_expanded(true);
@@ -377,19 +393,20 @@ impl UiController for WorkspaceController {
                 let menu = gio::Menu::new();
                 let section = gio::Menu::new();
                 menu.append_section(None, &section);
-                section.append(Some(&i18n("New Folder...")), Some("workspace.NewFolder"));
-                section.append(Some(&i18n("New Album...")), Some("workspace.NewAlbum"));
+                section.append(Some(&i18n("New Folder…")), Some("workspace.NewFolder"));
+                section.append(Some(&i18n("New Album…")), Some("workspace.NewAlbum"));
                 // section.append(
-                //     Some(&i18n("New Project...")),
+                //     Some(&i18n("New Project…")),
                 //     Some("workspace.NewProject"),
                 // );
+                section.append(Some(&i18n("Rename…")), Some("workspace.RenameItem"));
                 section.append(Some(&i18n("Delete")), Some("workspace.DeleteItem"));
 
                 let section = gio::Menu::new();
                 menu.append_section(None, &section);
-                section.append(Some(&i18n("Import...")), Some("workspace.Import"));
+                section.append(Some(&i18n("Import…")), Some("workspace.Import"));
                 section.append(
-                    Some(&i18n("Import Library...")),
+                    Some(&i18n("Import Library…")),
                     Some("workspace.ImportLibrary"),
                 );
 
@@ -479,6 +496,13 @@ impl UiController for WorkspaceController {
                 );
                 action!(
                     group,
+                    "RenameItem",
+                    glib::clone!(@strong tx => move |_, _| {
+                        on_err_out!(tx.send(Event::RenameItem));
+                    })
+                );
+                action!(
+                    group,
                     "DeleteItem",
                     glib::clone!(@strong tx => move |_, _| {
                         on_err_out!(tx.send(Event::DeleteItem));
@@ -546,6 +570,7 @@ impl WorkspaceController {
             RowCollapsed(pos) => self.row_expanded_collapsed(pos, false),
             NewFolder => self.action_new_folder(),
             NewAlbum => self.action_new_album(),
+            RenameItem => self.action_rename_item(),
             DeleteItem => self.action_delete_item(),
             Import => self.action_import(),
             PerformImport(request) => self.perform_file_import(request.as_ref()),
@@ -572,45 +597,32 @@ impl WorkspaceController {
     }
 
     fn on_libtree_selection(&self) {
-        if let Some(model) = self
-            .widgets
-            .get()
-            .and_then(|widgets| widgets.librarytree.model())
-            .and_then(|model| model.downcast::<gtk4::SingleSelection>().ok())
-        {
-            let mut content = ContentView::Empty;
-            if let Some(item) = model
-                .selected_item()
-                .and_then(|item| item.downcast_ref::<gtk4::TreeListRow>()?.item())
-                .and_then(|item| item.downcast::<Item>().ok())
-            {
-                let type_ = item.tree_item_type();
-                let id = item.id();
-                if let Some(client) = self.client.upgrade() {
-                    content = match type_ {
-                        TreeItemType::Folder => {
-                            client.query_folder_content(id);
-                            ContentView::Folder(id)
-                        }
-                        TreeItemType::Keyword => {
-                            client.query_keyword_content(id);
-                            ContentView::Keyword(id)
-                        }
-                        TreeItemType::Album => {
-                            client.query_album_content(id);
-                            ContentView::Album(id)
-                        }
-                        _ => {
-                            dbg_out!("Something selected of type {:?}", type_);
-                            ContentView::Empty
-                        }
+        let mut content = ContentView::Empty;
+        if let Some((type_, id)) = self.selected_item_id() {
+            if let Some(client) = self.client.upgrade() {
+                content = match type_ {
+                    TreeItemType::Folder => {
+                        client.query_folder_content(id);
+                        ContentView::Folder(id)
+                    }
+                    TreeItemType::Keyword => {
+                        client.query_keyword_content(id);
+                        ContentView::Keyword(id)
+                    }
+                    TreeItemType::Album => {
+                        client.query_album_content(id);
+                        ContentView::Album(id)
+                    }
+                    _ => {
+                        dbg_out!("Something selected of type {:?}", type_);
+                        ContentView::Empty
                     }
                 }
             }
-            // XXX
-            // disable DeleteItem of type != folder or album
-            self.selection_changed.emit(content);
         }
+        // XXX
+        // disable DeleteItem of type != folder or album
+        self.selection_changed.emit(content);
     }
 
     fn row_expanded_collapsed(&self, pos: u32, expanded: bool) {
@@ -645,11 +657,45 @@ impl WorkspaceController {
                 window.as_ref(),
                 &i18n("New folder"),
                 &i18n("Folder _name:"),
+                Some(&i18n("Untitled folder")),
                 move |name| {
                     dbg_out!("Create folder {}", &name);
                     client.create_folder(name.to_string(), None);
                 },
             );
+        }
+    }
+
+    fn action_rename_album(&self, album: db::LibraryId, name: &str) {
+        if let Some(client) = self.client.upgrade() {
+            let window = self
+                .widget()
+                .ancestor(gtk4::Window::static_type())
+                .and_then(|w| w.downcast::<gtk4::Window>().ok());
+            npc_fwk::toolkit::request::request_name(
+                window.as_ref(),
+                &i18n("Rename album"),
+                &i18n("Album _name:"),
+                // XXX fix this
+                Some(name),
+                move |name| {
+                    dbg_out!("Rename album {}", &name);
+                    client.rename_album(album, name.to_string());
+                },
+            );
+        }
+    }
+
+    /// Rename the selected item
+    fn action_rename_item(&self) {
+        if let Some(item) = self.selected_item() {
+            let id = item.id();
+            let name = item.label();
+            let type_ = item.tree_item_type();
+            match type_ {
+                TreeItemType::Album => self.action_rename_album(id, &name),
+                _ => err_out!("Wrong type {:?}", type_),
+            }
         }
     }
 
@@ -700,6 +746,7 @@ impl WorkspaceController {
                 window.as_ref(),
                 &i18n("New Album"),
                 &i18n("Album _name:"),
+                Some(&i18n("Untitled album")),
                 move |name| {
                     client.create_album(name.to_string(), -1);
                 },
@@ -853,25 +900,25 @@ impl WorkspaceController {
         }
     }
 
+    fn selected_item(&self) -> Option<Item> {
+        self.widgets
+            .get()?
+            .librarytree
+            .model()
+            .and_then(|selection| {
+                selection
+                    .downcast::<gtk4::SingleSelection>()
+                    .ok()?
+                    .selected_item()
+            })
+            .and_then(|item| item.downcast_ref::<gtk4::TreeListRow>()?.item())
+            .and_then(|item| item.downcast::<Item>().ok())
+    }
+
     /// Get the selected item id and type in the workspace.
     fn selected_item_id(&self) -> Option<(TreeItemType, db::LibraryId)> {
-        self.widgets.get().and_then(|widgets| {
-            widgets
-                .librarytree
-                .model()
-                .and_then(|selection| {
-                    selection
-                        .downcast::<gtk4::SingleSelection>()
-                        .ok()?
-                        .selected_item()
-                })
-                .and_then(|item| item.downcast_ref::<gtk4::TreeListRow>()?.item())
-                .and_then(|item| {
-                    item.downcast::<Item>()
-                        .ok()
-                        .map(|item| (item.tree_item_type(), item.id()))
-                })
-        })
+        self.selected_item()
+            .map(|item| (item.tree_item_type(), item.id()))
     }
 
     fn add_folder_item(&self, folder: &db::LibFolder) {
@@ -1017,6 +1064,11 @@ impl WorkspaceController {
                 };
                 if let Some(widgets) = self.widgets.get() {
                     widgets.increase_count(type_, count.id, count.count as i32);
+                }
+            }
+            LibNotification::AlbumRenamed(id, name) => {
+                if let Some(widgets) = self.widgets.get() {
+                    widgets.rename_item(TreeItemType::Albums, *id, name);
                 }
             }
             _ => {}

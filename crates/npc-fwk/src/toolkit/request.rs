@@ -25,10 +25,12 @@ use gtk4::{Dialog, Entry, Label};
 ///
 /// `title` is the dialog title
 /// `label` is the label
+/// `value` is the optional default name.
 pub fn request_name<F: Fn(&str) + 'static>(
     parent: Option<&gtk4::Window>,
     title: &str,
     label: &str,
+    value: Option<&str>,
     action: F,
 ) {
     let dialog = Dialog::with_buttons(
@@ -45,7 +47,9 @@ pub fn request_name<F: Fn(&str) + 'static>(
     content_area.set_spacing(12);
     content_area.append(&label);
     let entry = Entry::new();
-    entry.set_text("foobar");
+    if let Some(value) = value {
+        entry.set_text(value);
+    }
     entry.add_mnemonic_label(&label);
     content_area.append(&entry);
 

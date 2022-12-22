@@ -86,6 +86,10 @@ impl Item {
         self.imp().data.borrow().label.to_string()
     }
 
+    pub fn set_label(&self, label: &str) {
+        self.imp().data.borrow_mut().label = label.to_string()
+    }
+
     pub fn children(&self) -> Option<&WorkspaceList> {
         dbg_out!("children called");
         self.imp().children.get()

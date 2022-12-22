@@ -254,6 +254,11 @@ impl ClientInterface for LibraryClient {
         });
     }
 
+    /// Rename album `album_id` to `name`.
+    fn rename_album(&self, album_id: LibraryId, name: String) {
+        self.schedule_op(move |lib| commands::cmd_rename_album(lib, album_id, &name));
+    }
+
     /// Query content for album.
     fn query_album_content(&self, album_id: LibraryId) {
         self.schedule_op(move |lib| commands::cmd_query_album_content(lib, album_id));
