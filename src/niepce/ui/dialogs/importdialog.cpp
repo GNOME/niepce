@@ -33,7 +33,6 @@
 #include "fwk/utils/pathutils.hpp"
 #include "fwk/toolkit/application.hpp"
 #include "engine/importer/directoryimporter.hpp"
-#include "engine/importer/importedfile.hpp"
 #include "importdialog.hpp"
 #include "importers/directoryimporterui.hpp"
 #include "importers/cameraimporterui.hpp"
@@ -58,7 +57,7 @@ public:
     Gtk::Label m_filename;
 };
 
-Glib::RefPtr<ThumbItem> ThumbItem::create(const eng::ImportedFilePtr& imported_file) {
+Glib::RefPtr<ThumbItem> ThumbItem::create(const rust::Box<eng::WrappedImportedFile>& imported_file) {
     return Glib::make_refptr_for_instance(new ThumbItem(imported_file));
 }
 
@@ -168,7 +167,7 @@ void ImportDialog::setup_widget()
     item_factory->signal_bind().connect([] (const Glib::RefPtr<Gtk::ListItem>& list_item) {
         auto row = static_cast<ItemRow*>(list_item->get_child());
         auto item = std::dynamic_pointer_cast<ThumbItem>(list_item->get_item());
-        row->m_filename.set_label(item->m_imported_file->name());
+        row->m_filename.set_label(std::string(item->m_imported_file->name()));
         row->m_image.set(item->m_pixbuf);
     });
 
@@ -219,7 +218,7 @@ void ImportDialog::set_source(const std::string& source, const std::string& dest
         [this, source, importer] () {
             return importer->list_source_content(
                 source,
-                [this] (std::list<eng::ImportedFilePtr>&& list_to_import) {
+                [this] (std::vector<rust::Box<eng::WrappedImportedFile>>&& list_to_import) {
                     this->m_files_to_import.send_data(std::move(list_to_import));
                 });
         });
@@ -242,13 +241,18 @@ void ImportDialog::append_files_to_import()
         ERR_OUT("No image list model");
         return;
     }
+    if (!files_to_import) {
+        ERR_OUT("No file to import");
+        return;
+    }
     // request the previews to the importer.
     std::list<std::string> paths;
-    for(const auto & f : files_to_import) {
-        DBG_OUT("selected %s", f->name().c_str());
-        paths.push_back(f->path());
+    for(const auto & f : files_to_import.value()) {
+        DBG_OUT("selected %s", std::string(f->name()).c_str());
+        auto path = std::string(f->path());
+        paths.push_back(path);
         m_images_list_model->append(ThumbItem::create(f));
-        m_images_list_map.insert(std::make_pair(f->path(), m_images_list_model->get_n_items() - 1));
+        m_images_list_map.insert(std::make_pair(path, m_images_list_model->get_n_items() - 1));
     }
 
     auto importer = get_importer();

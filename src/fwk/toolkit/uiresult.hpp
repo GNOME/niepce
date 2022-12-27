@@ -23,6 +23,7 @@
 #include <deque>
 #include <mutex>
 #include <memory>
+#include <optional>
 
 #include <glibmm/dispatcher.h>
 
@@ -51,22 +52,22 @@ class UIResultSingle
 {
 public:
     void clear() override {
-        m_data = T();
+        m_data = std::nullopt;
     }
 
     void send_data(T&& d) {
         {
             std::lock_guard<std::mutex> lock(m_data_mutex);
-            m_data = std::move(d);
+            m_data = std::make_optional(std::move(d));
         }
         m_notifier.emit();
     }
-    T recv_data() {
+    std::optional<T> recv_data() {
         std::lock_guard<std::mutex> lock(m_data_mutex);
-        return m_data;
+        return std::move(m_data);
     }
 private:
-  T m_data;
+    std::optional<T> m_data;
 };
 
 /** @brief Fetch many "results" asynchronously */

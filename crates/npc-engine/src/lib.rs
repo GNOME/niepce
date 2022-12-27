@@ -95,6 +95,7 @@ pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
 use crate::db::{Keyword, Label, LibFile, LibFolder, LibMetadata};
+use crate::importer::cxx::*;
 use crate::library::notification::{LcChannel, LibNotification};
 use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper, UIDataProvider};
 
@@ -332,5 +333,18 @@ pub mod ffi {
         fn client(&self) -> &LibraryClientWrapper;
         #[cxx_name = "thumbnailCache"]
         fn thumbnail_cache(&self) -> &ThumbnailCache;
+    }
+
+    extern "Rust" {
+        type WrappedImportedFile;
+
+        fn directory_imported_file_new(path: &str) -> Box<WrappedImportedFile>;
+        fn camera_imported_file_new(folder: &str, name: &str) -> Box<WrappedImportedFile>;
+        fn name(&self) -> &str;
+        fn path(&self) -> &str;
+        fn folder(&self) -> &str;
+        fn is_camera(&self) -> bool;
+        #[cxx_name = "clone"]
+        fn clone_(&self) -> Box<WrappedImportedFile>;
     }
 }

@@ -24,28 +24,8 @@
 #include "fwk/base/debug.hpp"
 #include "fwk/utils/pathutils.hpp"
 #include "engine/importer/directoryimporter.hpp"
-#include "engine/importer/importedfile.hpp"
 
 namespace eng {
-
-class DirectoryImportedFile
-  : public ImportedFile
-{
-public:
-    DirectoryImportedFile(const std::string & path)
-        : m_path(path)
-        {
-            m_name = fwk::path_basename(path);
-        }
-    const std::string& name() const override
-        { return m_name; }
-    const std::string& path() const override
-        { return m_path; }
-private:
-    std::string m_name;
-    std::string m_path;
-};
-
 
 DirectoryImporter::DirectoryImporter()
 {
@@ -66,10 +46,10 @@ bool DirectoryImporter::list_source_content(const std::string & source,
 {
     auto files = fwk::FileList_get_media_files_from_directory(source);
     DBG_OUT("files size: %lu", files->size());
-    std::list<ImportedFilePtr> content;
+    std::vector<rust::Box<eng::WrappedImportedFile>> content;
     for (size_t i = 0; i < files->size(); i++) {
         auto entry = files->at(i);
-        content.push_back(ImportedFilePtr(new DirectoryImportedFile(std::string(entry))));
+        content.push_back(eng::directory_imported_file_new(std::string(entry)));
     }
     callback(std::move(content));
 

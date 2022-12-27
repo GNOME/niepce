@@ -21,10 +21,10 @@
 
 #pragma once
 
-#include <list>
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <glibmm/refptr.h>
 #include <glibmm/dispatcher.h>
@@ -32,7 +32,6 @@
 #include <gtkmm/gridview.h>
 #include <gtkmm/singleselection.h>
 
-#include "engine/importer/importedfile.hpp"
 #include "fwk/toolkit/gtkutils.hpp"
 #include "fwk/toolkit/dialog.hpp"
 #include "fwk/toolkit/uiresult.hpp"
@@ -62,15 +61,15 @@ class ThumbItem
     : public Glib::Object
 {
 public:
-    static Glib::RefPtr<ThumbItem> create(const eng::ImportedFilePtr& imported_file);
+    static Glib::RefPtr<ThumbItem> create(const rust::Box<eng::WrappedImportedFile>& imported_file);
 
-    eng::ImportedFilePtr m_imported_file;
+    rust::Box<eng::WrappedImportedFile> m_imported_file;
     Glib::RefPtr<Gdk::Pixbuf> m_pixbuf;
 protected:
-    ThumbItem(const eng::ImportedFilePtr& imported_file)
+    ThumbItem(const rust::Box<eng::WrappedImportedFile>& imported_file)
         : Glib::ObjectBase(typeid(ThumbItem))
         , Glib::Object()
-        , m_imported_file(imported_file) {}
+        , m_imported_file(imported_file->clone()) {}
 };
 
 class ThumbListStore
@@ -142,7 +141,7 @@ private:
 
     MetaDataPaneController::Ptr m_metadata_pane;
 
-    fwk::UIResultSingle<std::list<eng::ImportedFilePtr>> m_files_to_import;
+    fwk::UIResultSingle<std::vector<rust::Box<eng::WrappedImportedFile>>> m_files_to_import;
     fwk::UIResults<std::pair<std::string, fwk::ThumbnailPtr>> m_previews_to_import;
 };
 

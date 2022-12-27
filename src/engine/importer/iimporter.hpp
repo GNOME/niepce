@@ -22,11 +22,10 @@
 #pragma once
 
 #include <string>
-#include <list>
+#include <vector>
 #include <functional>
 
 #include "fwk/utils/files.hpp"
-#include "engine/importer/importedfile.hpp"
 
 #include "rust_bindings.hpp"
 
@@ -43,7 +42,7 @@ public:
     virtual const std::string& id() const = 0;
 
     /** Source content is ready */
-    typedef std::function<void (std::list<ImportedFilePtr>&&)> SourceContentReady;
+    typedef std::function<void (std::vector<::rust::Box<eng::WrappedImportedFile>>&&)> SourceContentReady;
     /** list the source content and store it. */
     virtual bool list_source_content(const std::string& source,
                                      const SourceContentReady& callback) = 0;

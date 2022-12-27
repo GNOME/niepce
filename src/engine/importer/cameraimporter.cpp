@@ -27,33 +27,6 @@
 
 namespace eng {
 
-
-class CameraImportedFile
-    : public ImportedFile
-{
-public:
-    CameraImportedFile(const std::pair<std::string, std::string>& desc)
-        : CameraImportedFile(desc.first, desc.second)
-        { }
-
-    CameraImportedFile(const std::string& folder, const std::string& filename)
-        : m_folder(folder)
-        , m_filename(filename)
-        , m_path(m_folder + "/" + m_filename)
-        { }
-    const std::string& name() const override
-        { return m_filename; }
-    const std::string& path() const override
-        { return m_path; }
-    const std::string& folder() const
-        { return m_folder; }
-private:
-    std::string m_folder;
-    std::string m_filename;
-    std::string m_path;
-};
-
-
 CameraImporter::CameraImporter()
 {
 }
@@ -76,9 +49,9 @@ bool CameraImporter::list_source_content(const std::string& source,
 {
     if (ensure_camera_open(source)) {
         auto content = m_camera->list_content();
-        std::list<ImportedFilePtr> file_list;
+        std::vector<rust::Box<WrappedImportedFile>> file_list;
         for (auto item : content) {
-            file_list.push_back(ImportedFilePtr(new CameraImportedFile(item)));
+            file_list.push_back(camera_imported_file_new(item.first, item.second));
         }
 
         callback(std::move(file_list));
@@ -111,7 +84,7 @@ bool CameraImporter::do_import(const std::string& source, const std::string& des
     // XXX we shouldn't have to do that.
     list_source_content(
         source,
-        [this, dest_dir, importer] (std::list<ImportedFilePtr>&& file_list) {
+        [this, dest_dir, importer] (std::vector<rust::Box<WrappedImportedFile>>&& file_list) {
             auto tmp_dir_path = dest_dir.empty() ?
                 fwk::make_tmp_dir("niepce-camera-import-XXXXXX") :
                 dest_dir;
@@ -124,19 +97,16 @@ bool CameraImporter::do_import(const std::string& source, const std::string& des
             // XXX check we don't return an empty string.
 
             fwk::FileListPtr files = fwk::FileList_new();
-            for (auto file: file_list) {
-                auto imported_camera_file =
-                    std::dynamic_pointer_cast<CameraImportedFile>(file);
-                if (!imported_camera_file) {
+            for (auto& file: file_list) {
+                if (!file->is_camera()) {
                     continue;
                 }
 
-                std::string output_path =
-                    Glib::build_filename(tmp_dir_path,
-                                         imported_camera_file->name());
-                if (this->m_camera->download_file(imported_camera_file->folder(),
-                                                  imported_camera_file->name(),
-                                                  output_path)) {
+                auto name = std::string(file->name());
+
+                std::string output_path = Glib::build_filename(tmp_dir_path, name);
+                if (this->m_camera->download_file(std::string(file->folder()),
+                                                  name, output_path)) {
                     files->push_back(output_path);
                 }
             }

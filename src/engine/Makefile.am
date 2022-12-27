@@ -11,7 +11,5 @@ libniepceengine_a_SOURCES = \
 	importer/directoryimporter.cpp \
 	importer/cameraimporter.hpp \
 	importer/cameraimporter.cpp \
-	importer/importedfile.hpp \
-	importer/importedfile.cpp \
 	$(NULL)
 

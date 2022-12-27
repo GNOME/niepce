@@ -6,8 +6,6 @@ engine = static_library(
     'importer' / 'directoryimporter.cpp',
     'importer' / 'directoryimporter.hpp',
     'importer' / 'iimporter.hpp',
-    'importer' / 'importedfile.cpp',
-    'importer' / 'importedfile.hpp',
 
     dependencies: [cxx_headers, exempi_deps, gphoto2_deps, gtkmm_deps, niepce_rust_deps],
     include_directories: [include_directories('..'), rust_inc]
