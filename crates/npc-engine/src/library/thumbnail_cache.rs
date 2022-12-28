@@ -116,34 +116,36 @@ impl ThumbnailCache {
 
         let path = libfile.path();
         let id = libfile.id();
-        let dest = Self::path_for_thumbnail(path, id, cmp::max(w, h), cache_dir);
+        if let Some(dest) = Self::path_for_thumbnail(path, id, cmp::max(w, h), cache_dir) {
+            let pix = get_thumbnail(&libfile, w, h, &dest);
+            if !path.is_file() {
+                dbg_out!("file doesn't exist");
+                if let Err(err) = toolkit::thread_context().block_on(sender.send(
+                    FileStatusChanged(FileStatusChange {
+                        id,
+                        status: FileStatus::Missing,
+                    }),
+                )) {
+                    err_out!("Sending file status change notification failed: {}", err);
+                }
+            }
 
-        let pix = get_thumbnail(&libfile, w, h, &dest);
-        if !path.is_file() {
-            dbg_out!("file doesn't exist");
-            if let Err(err) = toolkit::thread_context().block_on(sender.send(FileStatusChanged(
-                FileStatusChange {
+            if !pix.ok() {
+                return;
+            }
+            // notify the thumbnail
+            if let Err(err) = toolkit::thread_context().block_on(sender.send(ThumbnailLoaded(
+                notification::Thumbnail {
                     id,
-                    status: FileStatus::Missing,
+                    width: pix.get_width(),
+                    height: pix.get_height(),
+                    pix,
                 },
             ))) {
-                err_out!("Sending file status change notification failed: {}", err);
+                err_out!("Sending thumbnail notification failed: {}", err);
             }
-        }
-
-        if !pix.ok() {
-            return;
-        }
-        // notify the thumbnail
-        if let Err(err) = toolkit::thread_context().block_on(sender.send(ThumbnailLoaded(
-            notification::Thumbnail {
-                id,
-                width: pix.get_width(),
-                height: pix.get_height(),
-                pix,
-            },
-        ))) {
-            err_out!("Sending thumbnail notification failed: {}", err);
+        } else {
+            err_out!("Failed to get thumbnail for {:?}", path);
         }
     }
 
@@ -191,30 +193,32 @@ impl ThumbnailCache {
         }
     }
 
+    /// Request thumbnails.
     pub fn request(&self, fl: &[LibFile]) {
         for f in fl {
             self.schedule(ThumbnailTask::new(f.clone(), 160, 160));
         }
     }
 
-    pub fn is_thumbnail_cached(_file: &Path, thumb: &Path) -> bool {
+    fn is_thumbnail_cached(_file: &Path, thumb: &Path) -> bool {
         thumb.is_file()
     }
 
-    pub fn path_for_thumbnail(
+    fn path_for_thumbnail(
         filename: &Path,
         id: LibraryId,
         size: i32,
         cache_dir: &Path,
-    ) -> PathBuf {
-        let base_name = filename.file_name().and_then(|f| f.to_str()).unwrap(); // XXX fatal if fails.
+    ) -> Option<PathBuf> {
+        // XXX properly report the error
+        let base_name = filename.file_name().and_then(|f| f.to_str())?;
         let thumb_name = format!("{}-{}.png", id, base_name);
         let mut path = Self::dir_for_thumbnail(size, cache_dir);
         path.push(thumb_name);
-        path
+        Some(path)
     }
 
-    pub fn dir_for_thumbnail(size: i32, cache_dir: &Path) -> PathBuf {
+    fn dir_for_thumbnail(size: i32, cache_dir: &Path) -> PathBuf {
         let subdir = if size == 0 {
             "full".to_string()
         } else {
