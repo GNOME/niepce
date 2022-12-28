@@ -21,9 +21,9 @@ use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 use crate::db::libfile::FileType;
-use npc_fwk::dbg_out;
 use npc_fwk::toolkit::mimetype::{IsRaw, MType};
 use npc_fwk::MimeType;
+use npc_fwk::{dbg_out, err_out};
 
 /// Sidecar.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -123,16 +123,23 @@ impl FileBundle {
                     }
                 }
                 if basename == current_base {
-                    current_bundle.as_mut().unwrap().add(path);
+                    if !current_bundle.as_mut().unwrap().add(path) {
+                        err_out!("FileBundle add to existing bundle failed for {:?}", path);
+                    }
                     continue;
                 }
                 if let Some(current_bundle) = current_bundle {
                     bundles.push(current_bundle);
                 }
                 let mut bundle = FileBundle::new();
-                bundle.add(path);
-                current_base = basename;
-                current_bundle = Some(bundle);
+                if bundle.add(path) {
+                    current_base = basename;
+                    current_bundle = Some(bundle);
+                } else {
+                    err_out!("FileBundle add to new bundle failed for {:?}", path);
+                    // adding to the bundle failed, we'll skip this.
+                    current_bundle = None;
+                }
             }
         }
         if let Some(current_bundle) = current_bundle {
@@ -249,6 +256,11 @@ mod test {
         thelist.push(PathBuf::from("/foo/bar/scs_3446.jpg"));
         thelist.push(PathBuf::from("/foo/bar/scs_3446.raf"));
         thelist.push(PathBuf::from("/foo/bar/scs_3446.raf.pp3"));
+
+        // This file is invalid and should cause the bundle to be rejected.
+        // This would be number 9.
+        // Case occur when the mime type detection returns None.
+        thelist.push(PathBuf::from("/foo/bar/some_file.invalid"));
 
         let bundles_list = FileBundle::filter_bundles(&thelist);
 
