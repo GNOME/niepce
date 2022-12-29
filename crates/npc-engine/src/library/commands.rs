@@ -117,7 +117,7 @@ pub fn cmd_import_files(lib: &Library, folder: &str, files: &[PathBuf], manage: 
         Ok(libfolder) => {
             let folder_id = libfolder.id();
             for bundle in bundles {
-                // XXX properle handle this error. Should be a failure.
+                // XXX properly handle this error. Should be a failure.
                 if let Err(err) = lib.add_bundle(folder_id, &bundle, manage) {
                     err_out!("Add bundle failed: {:?}", err);
                 }

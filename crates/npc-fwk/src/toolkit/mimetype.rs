@@ -40,7 +40,7 @@ pub enum MType {
 pub struct MimeType(MType);
 
 /// Guess the type from the gio type string
-pub fn guess_type(gmtype: &str) -> MType {
+fn guess_type(gmtype: &str) -> MType {
     if gio::content_type_is_a(gmtype, "image/*") {
         if gio::content_type_is_a(gmtype, "image/x-dcraw") {
             return MType::Image(IsRaw::Yes);
@@ -55,9 +55,20 @@ pub fn guess_type(gmtype: &str) -> MType {
 /// Guess the type from a file
 pub fn guess_type_for_file<P: AsRef<Path>>(p: P) -> MType {
     let path = p.as_ref();
+    if let Some(ext) = path.extension().map(|e| e.to_ascii_lowercase()) {
+        let extensions = libopenraw::file_extensions();
+        if extensions.iter().any(|e| e == &ext) {
+            return MType::Image(IsRaw::Yes);
+        }
+        match ext.to_str() {
+            Some("xmp") => return MType::Xmp,
+            Some("thm") => return MType::Thumbnail,
+            _ => {}
+        }
+    }
     let guess = mime_guess::from_path(path);
     if !guess.is_empty() {
-        if let Some(mime) = guess.first_raw() {
+        for mime in guess.iter_raw() {
             let t = guess_type(mime);
             if t != MType::None {
                 return t;
@@ -65,13 +76,6 @@ pub fn guess_type_for_file<P: AsRef<Path>>(p: P) -> MType {
         }
     }
 
-    if let Some(ext) = path.extension() {
-        match ext.to_str() {
-            Some("xmp") => return MType::Xmp,
-            Some("thm") => return MType::Thumbnail,
-            _ => {}
-        }
-    }
     // alternative
     let (content_type, _) = gio::content_type_guess(path.to_str(), &[]);
 
@@ -123,6 +127,28 @@ mod tests {
         let mimetype = MimeType::new("/foo/bar/img_0001.cr2");
         assert_eq!(
             guess_type_for_file("/foo/bar/img_0001.cr2"),
+            MType::Image(IsRaw::Yes)
+        );
+        assert!(mimetype.is_image());
+        assert!(mimetype.is_digicam_raw());
+    }
+
+    #[test]
+    fn mime_type_detect_erf() {
+        let mimetype = MimeType::new("/foo/bar/img_0001.erf");
+        assert_eq!(
+            guess_type_for_file("/foo/bar/img_0001.erf"),
+            MType::Image(IsRaw::Yes)
+        );
+        assert!(mimetype.is_image());
+        assert!(mimetype.is_digicam_raw());
+    }
+
+    #[test]
+    fn mime_type_detect_nrw() {
+        let mimetype = MimeType::new("/foo/bar/img_0001.nrw");
+        assert_eq!(
+            guess_type_for_file("/foo/bar/img_0001.NRW"),
             MType::Image(IsRaw::Yes)
         );
         assert!(mimetype.is_image());

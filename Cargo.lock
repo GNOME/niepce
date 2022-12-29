@@ -829,18 +829,19 @@ checksum = "fc7fcc620a3bff7cdd7a365be3376c97191aeaccc2a603e600951e452615bf89"
 
 [[package]]
 name = "libopenraw"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "414d2b5483e374e36f017e25a5282bdd14da22342083d5bf0a70e57be3a55441"
+checksum = "9bda1f80c35a387f8e198fd2d0b75c78daa533408dcaa50f6f46b754bc5c1844"
 dependencies = [
+ "lazy_static",
  "libopenraw-sys",
 ]
 
 [[package]]
 name = "libopenraw-sys"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d793e20f533018c8ccbb82072e6ea8c727ad631448ad2c5a1d7ec97b7131c7b"
+checksum = "71f2ab11748f9bd57d1d3ad3df9d423efa78b23b11a1243f37eac4bd63f4aede"
 dependencies = [
  "pkg-config",
 ]

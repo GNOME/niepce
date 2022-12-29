@@ -71,7 +71,7 @@ impl FileList {
                 if let Ok(ftype) = entry.file_type() {
                     if ftype.is_file() || ftype.is_symlink() {
                         if !filter(&entry.path()) {
-                            dbg_out!("Filtered out");
+                            dbg_out!("Filtered out {:?}", entry);
                             continue;
                         }
                         l.0.push(entry.path());
