@@ -175,6 +175,7 @@ fwk = static_library(
 testgeometry = executable(
   'testgeometry',
   'base' / 't' / 'testgeometry.cpp',
+  build_by_default: false,
   include_directories: [ gtest_inc, include_directories('..', 'base') ],
   link_with: [ gtest, fwk ]
 )
@@ -182,6 +183,7 @@ test('Test base/geometry', testgeometry)
 testmap = executable(
   'testmap',
   'base' / 't' / 'testmap.cpp',
+  build_by_default: false,
   include_directories: [ gtest_inc, include_directories('..', 'base') ],
   link_with: [ gtest, fwk ]
 )
@@ -189,6 +191,7 @@ test('Test base/map', testmap)
 testoption = executable(
   'testoption',
   'base' / 't' / 'testoption.cpp',
+  build_by_default: false,
   include_directories: [ gtest_inc, include_directories('..', 'base') ],
   link_with: [ gtest, fwk ]
 )
@@ -198,6 +201,7 @@ test('Test base/option', testoption)
 testconfigdatabinder = executable(
   'testconfigdatabinder',
   'toolkit' / 't' / 'testconfigdatabinder.cpp',
+  build_by_default: false,
   dependencies: [ cxx_headers, gtkmm_deps, exempi_deps, libopenraw_deps, gexiv2_deps ],
   include_directories: [ gtest_inc, include_directories('..', 'toolkit') ],
   link_with: [ gtest, fwk ]
@@ -208,6 +212,7 @@ test('Test toolkit/configdatabinder', testconfigdatabinder)
 testpathutils = executable(
   'testpathutils',
   'utils' / 't' / 'testpathutils.cpp',
+  build_by_default: false,
   include_directories: [ gtest_inc, include_directories('utils') ],
   link_with: [ gtest, fwk ]
 )
@@ -215,6 +220,7 @@ test('Test utils/pathutils', testpathutils)
 teststringutils = executable(
   'teststringutils',
   'utils' / 't' / 'teststringutils.cpp',
+  build_by_default: false,
   include_directories: [ gtest_inc, include_directories('utils') ],
   link_with: [ gtest, fwk ]
 )
