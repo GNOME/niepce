@@ -22,10 +22,12 @@
 
 #include <string>
 #include <list>
+#include <optional>
 
 #include "fwk/utils/files.hpp"
-#include "fwk/toolkit/gphoto.hpp"
 #include "engine/importer/iimporter.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace eng {
 
@@ -47,7 +49,7 @@ public:
 private:
     bool ensure_camera_open(const std::string&);
     std::string m_camera_desc;
-    fwk::GpCameraPtr m_camera;
+    std::optional<rust::Box<fwk::GpCamera>> m_camera;
 };
 
 }

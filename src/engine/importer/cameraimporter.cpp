@@ -24,6 +24,7 @@
 #include "cameraimporter.hpp"
 
 #include "fwk/base/debug.hpp"
+#include "fwk/utils/pathutils.hpp"
 
 namespace eng {
 
@@ -34,7 +35,7 @@ CameraImporter::CameraImporter()
 CameraImporter::~CameraImporter()
 {
     if (m_camera) {
-        m_camera->close();
+        (*m_camera)->close();
     }
 }
 
@@ -48,10 +49,10 @@ bool CameraImporter::list_source_content(const std::string& source,
                                          const SourceContentReady& callback)
 {
     if (ensure_camera_open(source)) {
-        auto content = m_camera->list_content();
+        auto content = (*m_camera)->list_content();
         std::vector<rust::Box<WrappedImportedFile>> file_list;
-        for (auto item : content) {
-            file_list.push_back(camera_imported_file_new(item.first, item.second));
+        for (auto& item : content) {
+            file_list.push_back(camera_imported_file_new(item.folder, item.name));
         }
 
         callback(std::move(file_list));
@@ -67,9 +68,11 @@ bool CameraImporter::get_previews_for(const std::string& source,
     if (ensure_camera_open(source)) {
         for (auto path: paths) {
             DBG_OUT("want thumbnail %s", path.c_str());
-            auto thumbnail = m_camera->get_preview(path);
-            if (thumbnail.has_value()) {
-                callback(std::move(path), std::move(thumbnail.value()));
+            std::string folder = fwk::path_dirname(path);
+            std::string name = fwk::path_basename(path);
+            auto thumbnail = (*m_camera)->get_preview(rust::Str(folder), rust::Str(name));
+            if (thumbnail) {
+                callback(std::move(path), rust::Box<fwk::Thumbnail>::from_raw(thumbnail));
             }
         }
 
@@ -105,7 +108,7 @@ bool CameraImporter::do_import(const std::string& source, const std::string& des
                 auto name = std::string(file->name());
 
                 std::string output_path = Glib::build_filename(tmp_dir_path, name);
-                if (this->m_camera->download_file(std::string(file->folder()),
+                if ((*this->m_camera)->download_file(std::string(file->folder()),
                                                   name, output_path)) {
                     files->push_back(output_path);
                 }
@@ -118,14 +121,17 @@ bool CameraImporter::do_import(const std::string& source, const std::string& des
 
 bool CameraImporter::ensure_camera_open(const std::string& source)
 {
-    if (!m_camera || m_camera->path() != source) {
-        auto result = fwk::GpDeviceList::obj().get_device(source);
-        if (result.ok()) {
-            m_camera.reset(new fwk::GpCamera(result.unwrap()));
+    if (!m_camera || ((*m_camera)->path() != source)) {
+        auto result = fwk::gp_device_list_obj().get_device(source);
+        if (result) {
+            auto device = rust::Box<fwk::GpDevice>::from_raw(result);
+            m_camera = std::make_optional(fwk::gp_camera_new(*device));
+        } else {
+            m_camera = std::nullopt;
         }
     }
     if (m_camera) {
-        m_camera->open();
+        (*m_camera)->open();
     }
     return !!m_camera;
 }

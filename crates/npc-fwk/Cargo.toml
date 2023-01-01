@@ -21,6 +21,8 @@ gdk4 = "^0.5"
 gdk-pixbuf-sys = "*"
 gdk-pixbuf = "^0.16"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
+# Fork used because of missing API, submitted upstream. Branch is `niepce`.
+gphoto2 = { version = "3.0.1", git = "https://github.com/hfiguiere/gphoto2-rs.git", rev = "d21c6ebcde63ca38d5fd4e9d471dd1eb577e7d1c" }
 graphene-rs = "0.16"
 gtk4 = "^0.5"
 lazy_static = "^1.2.0"

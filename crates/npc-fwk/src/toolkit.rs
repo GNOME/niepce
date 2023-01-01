@@ -22,6 +22,7 @@ mod configuration;
 pub mod confirm;
 mod controller;
 pub mod gdk_utils;
+mod gphoto;
 pub mod gtk_utils;
 pub mod mimetype;
 pub mod movieutils;
@@ -34,12 +35,14 @@ mod window_controller;
 
 /// Module to re-export cxx only.
 pub mod cxx {
+    pub use super::gphoto::{gp_camera_new, gp_device_list_obj};
     pub use super::undo::{
         undo_command_new, undo_command_new_int, undo_history_new, undo_transaction_new,
     };
 }
 
 pub use controller::{new_controller, to_controller, Controller, ControllerImpl};
+pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
 pub use uicontroller::UiController;
 pub use undo::do_command as undo_do_command;
 pub use undo::{Storage, UndoCommand, UndoHistory, UndoTransaction};

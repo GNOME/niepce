@@ -50,18 +50,19 @@ Gtk::Widget* CameraImporterUI::setup_widget(const fwk::Frame::Ptr&)
         .connect(sigc::mem_fun(*this, &CameraImporterUI::select_camera));
     m_camera_list_combo = m_builder->get_widget<Gtk::ComboBoxText>("camera_list_combo");
 
-    fwk::GpDeviceList::obj().detect();
+    fwk::gp_device_list_obj().detect();
 
     // XXX restore the selection from the preferences.
-    int i = 0;
-    for (auto device : fwk::GpDeviceList::obj()) {
-        m_camera_list_combo->append(device->get_path(), device->get_model());
+    auto count = fwk::gp_device_list_obj().device_count();
+    for (size_t i = 0; i < count; i++) {
+        auto device = fwk::gp_device_list_obj().device_at(i);
+        m_camera_list_combo->append(
+            std::string(device->get_path()), std::string(device->get_model()));
         if (i == 0) {
-            m_camera_list_combo->set_active_id(device->get_path());
+            m_camera_list_combo->set_active_id(std::string(device->get_path()));
         }
-        i++;
     }
-    if (i == 0) {
+    if (count == 0) {
         m_camera_list_combo->append("", _("No camera found"));
         m_camera_list_combo->set_active_id("");
         m_camera_list_combo->set_sensitive(false);

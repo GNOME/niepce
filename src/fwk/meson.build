@@ -109,8 +109,6 @@ fwk = static_library(
   'toolkit' / 'frame.cpp',
   'toolkit' / 'gdkutils.hpp',
   'toolkit' / 'gdkutils.cpp',
-  'toolkit' / 'gphoto.hpp',
-  'toolkit' / 'gphoto.cpp',
   'toolkit' / 'gtkutils.hpp',
   'toolkit' / 'gtkutils.cpp',
   'toolkit' / 'imageloader.hpp',
