@@ -329,6 +329,13 @@ impl GpCamera {
                     .wait()
                     .map(|_| true)
                     .map_err(|err| {
+                        if let Ok(attr) = std::fs::metadata(&destination) {
+                            if attr.is_file() && attr.len() == 0 {
+                                on_err_out!(std::fs::remove_file(&destination));
+                            } else {
+                                err_out!("File {:?} not deleted after error.", &destination);
+                            }
+                        }
                         err_out!("Camera error {:?}", err);
                         false
                     })
