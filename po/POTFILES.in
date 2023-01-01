@@ -13,7 +13,7 @@ niepce-main/src/niepce/ui/metadata_pane_controller.rs
 niepce-main/src/niepce/ui/module_shell.rs
 niepce-main/src/niepce/ui/niepce_window.rs
 niepce-main/src/niepce/ui/selection_controller.rs
-niepce-main/src/niepce/ui/workspace_controller.rs
+niepce-main/src/niepce/ui/workspace_controller/mod.rs
 src/fwk/toolkit/application.cpp
 src/fwk/toolkit/frame.cpp
 src/fwk/toolkit/widgets/addinstreemodel.cpp
