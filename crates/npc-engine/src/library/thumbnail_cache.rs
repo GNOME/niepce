@@ -88,13 +88,6 @@ pub struct ThumbnailCache {
     sender: LcChannel,
 }
 
-use cxx::{type_id, ExternType};
-
-unsafe impl ExternType for ThumbnailCache {
-    type Id = type_id!("eng::ThumbnailCache");
-    type Kind = cxx::kind::Opaque;
-}
-
 impl ThumbnailCache {
     pub fn new(dir: &Path, sender: async_channel::Sender<LibNotification>) -> Self {
         Self {

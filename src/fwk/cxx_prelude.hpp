@@ -23,8 +23,6 @@ namespace eng {
 class Label;
 class LibFile;
 class LibNotification;
-class ThumbnailCache;
-class IImporter;
 }
 
 namespace ui {

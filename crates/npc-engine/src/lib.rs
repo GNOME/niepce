@@ -239,10 +239,6 @@ pub mod ffi {
         fn add(&mut self, v: u32);
     }
 
-    extern "Rust" {
-        type ThumbnailCache;
-    }
-
     #[repr(i32)]
     #[allow(non_camel_case_types)]
     pub enum NotificationType {
@@ -318,7 +314,5 @@ pub mod ffi {
         #[cxx_name = "getDataProvider"]
         fn ui_provider(&self) -> &UIDataProvider;
         fn client(&self) -> &LibraryClientWrapper;
-        #[cxx_name = "thumbnailCache"]
-        fn thumbnail_cache(&self) -> &ThumbnailCache;
     }
 }

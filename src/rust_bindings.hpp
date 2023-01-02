@@ -49,7 +49,6 @@ typedef eng::Keyword Keyword;
 typedef fwk::PropertyBag NiepcePropertyBag;
 typedef fwk::PropertySet NiepcePropertySet;
 typedef eng::FolderVirtualType FolderVirtualType;
-typedef eng::ThumbnailCache ThumbnailCache;
 typedef eng::LibNotification LibNotification;
 typedef eng::LibraryClientWrapper LibraryClientWrapper;
 }
