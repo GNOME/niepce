@@ -43,12 +43,10 @@ typedef fwk::RgbColour RgbColour;
 typedef fwk::WrappedPropertyBag WrappedPropertyBag;
 typedef eng::Label Label;
 typedef eng::LibFile LibFile;
-typedef eng::LibFolder LibFolder;
 typedef eng::LibMetadata LibMetadata;
 typedef eng::Keyword Keyword;
 typedef fwk::PropertyBag NiepcePropertyBag;
 typedef fwk::PropertySet NiepcePropertySet;
-typedef eng::FolderVirtualType FolderVirtualType;
 typedef eng::LibNotification LibNotification;
 typedef eng::LibraryClientWrapper LibraryClientWrapper;
 }

@@ -121,7 +121,7 @@ impl Widgets {
             .children()
             .map(|children| children.n_items() == 0)
             .unwrap_or(true);
-        let tree_item_type = if folder.virtual_type() == db::libfolder::FolderVirtualType::TRASH {
+        let tree_item_type = if folder.virtual_type() == db::libfolder::FolderVirtualType::Trash {
             TreeItemType::Trash
         } else {
             TreeItemType::Folder
@@ -907,7 +907,7 @@ impl WorkspaceController {
 
     fn add_folder_item(&self, folder: &db::LibFolder) {
         if let Some(widgets) = self.widgets.get() {
-            let icon = if folder.virtual_type() == db::libfolder::FolderVirtualType::TRASH {
+            let icon = if folder.virtual_type() == db::libfolder::FolderVirtualType::Trash {
                 if let Some(client) = self.client.upgrade() {
                     client.set_trash_id(folder.id());
                 }

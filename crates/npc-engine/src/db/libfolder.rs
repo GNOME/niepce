@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libfolder.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,15 +20,19 @@
 use super::FromDb;
 use super::LibraryId;
 
-// defined in the cxx bridge
-pub use crate::ffi::FolderVirtualType;
+#[repr(i32)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum FolderVirtualType {
+    None = 0,
+    Trash = 1,
+}
 
 impl From<i32> for FolderVirtualType {
     fn from(t: i32) -> Self {
         match t {
-            0 => FolderVirtualType::NONE,
-            1 => FolderVirtualType::TRASH,
-            _ => FolderVirtualType::NONE,
+            0 => FolderVirtualType::None,
+            1 => FolderVirtualType::Trash,
+            _ => FolderVirtualType::None,
         }
     }
 }
@@ -37,7 +41,7 @@ impl From<i32> for FolderVirtualType {
 // of enums
 impl From<FolderVirtualType> for i32 {
     fn from(t: FolderVirtualType) -> i32 {
-        t.repr
+        t as i32
     }
 }
 
@@ -62,7 +66,7 @@ impl LibFolder {
             path,
             locked: false,
             expanded: false,
-            virt: FolderVirtualType::NONE,
+            virt: FolderVirtualType::None,
             parent: 0,
         }
     }

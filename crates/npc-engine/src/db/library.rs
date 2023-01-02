@@ -337,7 +337,7 @@ impl Library {
             )
             .unwrap();
             //
-            let trash_type = i32::from(libfolder::FolderVirtualType::TRASH);
+            let trash_type = i32::from(libfolder::FolderVirtualType::Trash);
             conn.execute(
                 "insert into folders (name, locked, virtual, parent_id, path) \
                  values (?1, 1, ?2, 0, '')",
