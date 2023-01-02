@@ -353,9 +353,4 @@ pub mod ffi {
         fn undo_history(&self) -> &UndoHistory;
         fn begin_undo(&self, undo: Box<UndoTransaction>);
     }
-
-    struct CameraContent {
-        pub folder: String,
-        pub name: String,
-    }
 }

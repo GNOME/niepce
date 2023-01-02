@@ -23,6 +23,11 @@ use gdk_pixbuf::prelude::*;
 
 pub type GpDevice = gphoto2::list::CameraDescriptor;
 
+pub struct CameraContent {
+    pub folder: String,
+    pub name: String,
+}
+
 lazy_static::lazy_static! {
     static ref DEVICE_LIST: GpDeviceList = GpDeviceList::default();
 }
@@ -118,7 +123,7 @@ impl GpCamera {
         &self.device.port
     }
 
-    fn process_folders(&self, folders: Vec<String>) -> Vec<crate::ffi::CameraContent> {
+    fn process_folders(&self, folders: Vec<String>) -> Vec<CameraContent> {
         folders
             .iter()
             .flat_map(|folder| {
@@ -127,7 +132,7 @@ impl GpCamera {
                     dbg_out!("processing folder '{}'", folder);
                     task.wait()
                         .map(|iter| {
-                            iter.map(|name| crate::ffi::CameraContent {
+                            iter.map(|name| CameraContent {
                                 folder: folder.to_string(),
                                 name,
                             })
@@ -141,7 +146,7 @@ impl GpCamera {
             .collect()
     }
 
-    pub fn list_content(&self) -> Vec<crate::ffi::CameraContent> {
+    pub fn list_content(&self) -> Vec<CameraContent> {
         // XXX fixme this should not be hardcoded.
         // This is the path for PTP.
         // XXX use Camera::storages to get the list of the root folders.
