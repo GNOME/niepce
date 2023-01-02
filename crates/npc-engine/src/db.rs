@@ -25,7 +25,7 @@ pub mod label;
 pub mod libfile;
 pub mod libfolder;
 pub mod libmetadata;
-pub mod library;
+mod library;
 pub mod props;
 
 pub type LibraryId = i64;
@@ -44,7 +44,7 @@ pub use self::label::Label;
 pub use self::libfile::LibFile;
 pub use self::libfolder::LibFolder;
 pub use self::libmetadata::LibMetadata;
-pub use self::library::Library;
+pub use self::library::{Error as LibError, Library, Managed, Result as LibResult};
 pub use self::props::NiepceProperties;
 pub use self::props::NiepcePropertyIdx;
 

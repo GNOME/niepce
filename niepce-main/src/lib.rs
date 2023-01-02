@@ -84,7 +84,6 @@ pub mod ffi {
         type Label = npc_engine::db::Label;
         type LibFile = npc_engine::db::LibFile;
         type ThumbnailCache = npc_engine::ThumbnailCache;
-        type Managed = npc_engine::ffi::Managed;
         type LcChannel = npc_engine::library::notification::LcChannel;
         type LibNotification = npc_engine::library::notification::LibNotification;
         type UIDataProvider = npc_engine::libraryclient::UIDataProvider;

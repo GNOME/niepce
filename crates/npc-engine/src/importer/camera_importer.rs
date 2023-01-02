@@ -21,7 +21,7 @@ use std::cell::RefCell;
 use std::path::Path;
 
 use super::{FileImporter, ImportedFile, Importer, PreviewReady, SourceContentReady};
-use crate::ffi::Managed;
+use crate::db::Managed;
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
 use npc_fwk::utils::files::FileList;
 use npc_fwk::{err_out, on_err_out};
@@ -148,7 +148,7 @@ impl Importer for CameraImporter {
                             None
                         })
                         .collect();
-                    callback(&dest_dir, &FileList(files), Managed::NO);
+                    callback(&dest_dir, &FileList(files), Managed::No);
                 });
             }
         }

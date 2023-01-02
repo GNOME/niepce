@@ -31,7 +31,7 @@ pub use lrimporter::LrImporter;
 
 use std::path::Path;
 
-use crate::ffi::Managed;
+use crate::db::Managed;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::utils::files::FileList;
 

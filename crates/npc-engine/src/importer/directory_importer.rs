@@ -23,7 +23,7 @@ use npc_fwk::dbg_out;
 use npc_fwk::utils::files::FileList;
 
 use super::ImportedFile;
-use crate::ffi::Managed;
+use crate::db::Managed;
 use crate::importer::{FileImporter, Importer, PreviewReady, SourceContentReady};
 
 #[derive(Clone)]
@@ -100,6 +100,6 @@ impl Importer for DirectoryImporter {
     /// Do the import
     fn do_import(&self, source: &str, _dest_dir: &Path, callback: FileImporter) {
         let files = FileList::get_files_from_directory(source, |_| true);
-        callback(&std::path::PathBuf::from(source), &files, Managed::NO);
+        callback(&std::path::PathBuf::from(source), &files, Managed::No);
     }
 }

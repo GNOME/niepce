@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/clientinterface.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@
 use std::path::PathBuf;
 
 use crate::db::filebundle::FileBundle;
-use crate::db::library::Managed;
 use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
+use crate::db::Managed;
 use crate::NiepcePropertyBag;
 use npc_fwk::base::PropertyValue;
 

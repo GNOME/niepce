@@ -49,12 +49,17 @@ use npc_fwk::toolkit;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_assert, dbg_out, err_out, on_err_out};
 
-pub use crate::ffi::Managed;
+#[repr(i32)]
+#[derive(PartialEq, Clone, Copy, Eq)]
+pub enum Managed {
+    No = 0,
+    Yes = 1,
+}
 
 const DB_SCHEMA_VERSION: i32 = 11;
 const DATABASENAME: &str = "niepcelibrary.db";
 
-// Error from the library database
+/// Error from the library database
 #[derive(Debug, PartialEq)]
 pub enum Error {
     /// Operation is unimplemented
@@ -904,7 +909,7 @@ impl Library {
         bundle: Option<&FileBundle>,
         manage: Managed,
     ) -> Result<LibraryId> {
-        dbg_assert!(manage == Managed::NO, "manage not supported");
+        dbg_assert!(manage == Managed::No, "manage not supported");
         dbg_assert!(folder_id != -1, "invalid folder ID");
         let file_path: &Path = file.as_ref();
         let mime = npc_fwk::MimeType::new(file_path);
@@ -1467,7 +1472,7 @@ mod test {
         let folders = folders.ok().unwrap();
         assert_eq!(folders.len(), 3);
 
-        let file_id = lib.add_file(folder_added.id(), "foo/myfile", None, super::Managed::NO);
+        let file_id = lib.add_file(folder_added.id(), "foo/myfile", None, super::Managed::No);
         assert!(file_id.is_ok());
         let file_id = file_id.ok().unwrap();
         assert!(file_id > 0);
@@ -1522,7 +1527,7 @@ mod test {
         assert!(bundle.add("img_0123.thm"));
         assert!(bundle.add("img_0123.xmp"));
 
-        let bundle_id = lib.add_bundle(folder_added.id(), &bundle, Managed::NO);
+        let bundle_id = lib.add_bundle(folder_added.id(), &bundle, Managed::No);
         assert!(bundle_id.is_ok());
         assert!(bundle_id.unwrap() > 0);
     }
@@ -1550,7 +1555,7 @@ mod test {
         assert!(bundle0.add("img_0123.jpg"));
         assert!(bundle0.add("img_0123.raf"));
 
-        let bundle_id = lib.add_bundle(folder_added.id(), &bundle0, Managed::NO);
+        let bundle_id = lib.add_bundle(folder_added.id(), &bundle0, Managed::No);
         assert!(bundle_id.is_ok());
         assert!(bundle_id.ok().unwrap() > 0);
 
@@ -1558,7 +1563,7 @@ mod test {
         assert!(bundle.add("img_0124.jpg"));
         assert!(bundle.add("img_0124.raf"));
 
-        let bundle_id = lib.add_bundle(folder_added.id(), &bundle, Managed::NO);
+        let bundle_id = lib.add_bundle(folder_added.id(), &bundle, Managed::No);
         assert!(bundle_id.is_ok());
         let bundle_id = bundle_id.unwrap();
         assert!(bundle_id > 0);

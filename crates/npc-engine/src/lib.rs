@@ -148,13 +148,6 @@ pub mod ffi {
     }
 
     #[repr(i32)]
-    #[derive(PartialEq, Clone, Copy, Eq)]
-    pub enum Managed {
-        NO = 0,
-        YES = 1,
-    }
-
-    #[repr(i32)]
     #[derive(Debug, Copy, Clone, Eq, PartialEq)]
     pub enum FileType {
         /// Don't know

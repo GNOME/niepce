@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/library/commands.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +26,9 @@ use crate::db::filebundle::FileBundle;
 use crate::db::keyword::Keyword;
 use crate::db::label::Label;
 use crate::db::libfolder::LibFolder;
-use crate::db::library;
-use crate::db::library::{Library, Managed};
 use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
+use crate::db::{LibError, LibResult, Library, Managed};
 use crate::NiepcePropertyBag;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_assert, err_out, err_out_line};
@@ -75,10 +74,10 @@ pub fn cmd_list_all_folders(lib: &Library) -> bool {
 //
 // Get the folder for import. Create it if needed otherwise return the one that exists
 //
-fn get_folder_for_import(lib: &Library, folder: &str) -> library::Result<LibFolder> {
+fn get_folder_for_import(lib: &Library, folder: &str) -> LibResult<LibFolder> {
     match lib.get_folder(folder) {
         Ok(lf) => Ok(lf),
-        Err(library::Error::NotFound) => {
+        Err(LibError::NotFound) => {
             // folder doesn't exist, we'll create it
             if let Some(name) = Library::leaf_name_for_pathname(folder) {
                 match lib.add_folder(&name, Some(String::from(folder))) {
@@ -96,7 +95,7 @@ fn get_folder_for_import(lib: &Library, folder: &str) -> library::Result<LibFold
                 }
             } else {
                 err_out_line!("Can't get folder name.");
-                Err(library::Error::InvalidResult)
+                Err(LibError::InvalidResult)
             }
         }
         Err(err) => {
@@ -108,7 +107,7 @@ fn get_folder_for_import(lib: &Library, folder: &str) -> library::Result<LibFold
 
 pub fn cmd_import_files(lib: &Library, folder: &str, files: &[PathBuf], manage: Managed) -> bool {
     dbg_assert!(
-        manage == Managed::NO,
+        manage == Managed::No,
         "managing file is currently unsupported"
     );
 
@@ -135,7 +134,7 @@ pub fn cmd_import_files(lib: &Library, folder: &str, files: &[PathBuf], manage: 
 }
 
 pub fn cmd_add_bundle(lib: &Library, bundle: &FileBundle, folder: LibraryId) -> LibraryId {
-    match lib.add_bundle(folder, bundle, library::Managed::NO) {
+    match lib.add_bundle(folder, bundle, Managed::No) {
         Ok(id) => {
             if lib.notify(LibNotification::AddedFiles).is_err() {
                 err_out!("Failed to notify AddedFiles");

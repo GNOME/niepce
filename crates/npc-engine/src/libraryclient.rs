@@ -34,9 +34,8 @@ use std::sync::{atomic, Arc};
 use std::thread;
 
 use crate::db::filebundle::FileBundle;
-use crate::db::library::Managed;
 use crate::db::props::NiepceProperties as Np;
-use crate::db::{Library, LibraryId};
+use crate::db::{Library, LibraryId, Managed};
 use crate::library::commands;
 use crate::library::notification::{LcChannel, LibNotification};
 use crate::library::op::Op;
