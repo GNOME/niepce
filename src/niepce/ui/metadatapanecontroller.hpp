@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
+
 #pragma once
 
 #include "fwk/base/propertybag.hpp"
@@ -39,6 +41,10 @@ public:
     MetaDataPaneController();
     ~MetaDataPaneController();
     virtual Gtk::Widget * buildWidget() override;
+
+    GtkWidget* build_widget() const {
+        return const_cast<MetaDataPaneController*>(this)->buildWidget()->gobj();
+    }
     void display(eng::library_id_t file_id, const eng::LibMetadata* meta);
     eng::library_id_t displayed_file() const
         { return m_fileid; }
@@ -58,7 +64,14 @@ private:
     eng::library_id_t m_fileid;
 };
 
+inline
+std::shared_ptr<MetaDataPaneController> metadata_pane_controller_new()
+{
+    return std::make_shared<MetaDataPaneController>();
 }
+
+}
+#endif
 /*
   Local Variables:
   mode:c++

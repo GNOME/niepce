@@ -11,7 +11,6 @@ bin_PROGRAMS = niepce
 niepce_LDFLAGS = -Wl,--start-group
 niepce_LDADD = \
 	$(top_builddir)/src/niepce/ui/libniepceui.a \
-	$(top_builddir)/src/engine/libniepceengine.a \
 	$(top_builddir)/src/niepce/modules/darkroom/libmoduledarkroom.a \
 	$(top_builddir)/src/niepce/modules/map/libmodulemap.a \
 	$(top_builddir)/src/niepce/modules/interfaces/libinterfaces.a \

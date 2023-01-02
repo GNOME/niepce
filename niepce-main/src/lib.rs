@@ -1,7 +1,7 @@
 /*
  * niepce - lib.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,6 @@ fn niepce_init() {
 pub use notification_center::NotificationCenter;
 
 // cxx bindings
-use import::{import_request_new, ImportRequest};
 use niepce::ui::cxx::*;
 use niepce::ui::image_list_store::ImageListStoreWrap;
 use niepce::ui::imagetoolbar::image_toolbar_new;
@@ -76,7 +75,6 @@ pub mod ffi {
         include!("fwk/cxx_widgets_bindings.hpp");
 
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
-        type FileList = npc_fwk::utils::files::FileList;
         type MetadataSectionFormat = crate::toolkit::widgets::MetadataSectionFormat;
     }
 
@@ -103,6 +101,15 @@ pub mod ffi {
         type LnListener;
 
         fn call(&self, ln: &LibNotification);
+    }
+
+    #[namespace = "ui"]
+    unsafe extern "C++" {
+        include!("niepce/ui/metadatapanecontroller.hpp");
+        type MetaDataPaneController;
+
+        fn metadata_pane_controller_new() -> SharedPtr<MetaDataPaneController>;
+        fn build_widget(&self) -> *mut GtkWidget;
     }
 
     extern "Rust" {
@@ -166,7 +173,6 @@ pub mod ffi {
             context_menu: *mut GtkPopoverMenu,
             libclient_host: &LibraryClientHost,
         ) -> Box<ImageGridView>;
-        unsafe fn npc_image_grid_view_new2(store: *mut GtkSingleSelection) -> Box<ImageGridView>;
         fn get_grid_view(&self) -> *mut GtkGridView;
         fn add_rating_listener(&self, listener: UniquePtr<RatingClickListener>);
     }
@@ -246,58 +252,8 @@ pub mod ffi {
         unsafe fn run_modal(
             &self,
             parent: *mut GtkWindow,
-            on_ok: unsafe fn(SharedPtr<EditLabels>, i32),
+            on_ok: fn(SharedPtr<EditLabels>, i32),
             this_: SharedPtr<EditLabels>,
         );
     }
-
-    #[namespace = "ui"]
-    unsafe extern "C++" {
-        include!("niepce/ui/dialogs/importdialog.hpp");
-        type ImportDialog;
-
-        fn import_dialog_new() -> SharedPtr<ImportDialog>;
-        /// # Safety
-        /// Dereference a pointer
-        unsafe fn run_modal(
-            &self,
-            parent: *mut GtkWindow,
-            on_ok: unsafe fn(&ImportDialogArgument, i32),
-            arg: *mut ImportDialogArgument,
-        );
-        fn close(&self);
-        fn import_request(&self) -> Box<ImportRequest>;
-    }
-
-    #[namespace = "eng"]
-    unsafe extern "C++" {
-        include!("engine/importer/iimporter.hpp");
-        type IImporter;
-
-        #[cxx_name = "do_import_"]
-        fn do_import(
-            &self,
-            source: &str,
-            dest: &str,
-            callback: fn(&LibraryClientWrapper, &str, &FileList, Managed) -> bool,
-            client: &LibraryClientWrapper,
-        );
-    }
-
-    #[namespace = "ui"]
-    extern "Rust" {
-        type ImportRequest;
-
-        fn import_request_new(
-            source: &str,
-            dest: &str,
-            importer: SharedPtr<IImporter>,
-        ) -> Box<ImportRequest>;
-    }
-
-    extern "Rust" {
-        type ImportDialogArgument;
-    }
-
-    impl Box<ImportDialogArgument> {}
 }

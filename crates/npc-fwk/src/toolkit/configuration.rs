@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/configuration.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,13 +55,18 @@ impl Configuration {
 
     /// Return string value for `key`, or `def` if not found.
     pub fn value(&self, key: &str, def: &str) -> String {
+        self.value_opt(key).unwrap_or_else(|| def.to_string())
+    }
+
+    /// Return the string value for `key` or `None` if not found.
+    pub fn value_opt(&self, key: &str) -> Option<String> {
         if !self.has(key) {
-            return def.to_string();
+            return None;
         }
         self.keyfile
             .string(&self.root, key)
             .map(|v| v.as_str().to_string())
-            .unwrap_or_else(|_| def.to_string())
+            .ok()
     }
 
     /// Set `value` for `key`

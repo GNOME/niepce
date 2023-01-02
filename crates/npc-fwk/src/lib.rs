@@ -57,7 +57,6 @@ use crate::toolkit::thumbnail::Thumbnail;
 use crate::toolkit::widgets::cxx::*;
 use crate::toolkit::widgets::MetadataWidget;
 use crate::toolkit::{Configuration, UndoCommand, UndoHistory, UndoTransaction};
-use crate::toolkit::{GpCamera, GpDevice, GpDeviceList};
 use crate::utils::files::FileList;
 
 fn make_config_path(file: &str) -> String {
@@ -355,41 +354,8 @@ pub mod ffi {
         fn begin_undo(&self, undo: Box<UndoTransaction>);
     }
 
-    extern "Rust" {
-        type GpDevice;
-
-        #[cxx_name = "get_model"]
-        fn model(&self) -> &str;
-        #[cxx_name = "get_path"]
-        fn path(&self) -> &str;
-    }
-
-    extern "Rust" {
-        type GpDeviceList;
-
-        fn gp_device_list_obj() -> &'static GpDeviceList;
-        #[cxx_name = "get_device"]
-        fn get_device_(&self, source: &str) -> *mut GpDevice;
-        fn detect(&self);
-        fn device_count(&self) -> usize;
-        fn device_at(&self, idx: usize) -> Box<GpDevice>;
-    }
-
     struct CameraContent {
         pub folder: String,
         pub name: String,
-    }
-
-    extern "Rust" {
-        type GpCamera;
-
-        fn gp_camera_new(device: &GpDevice) -> Box<GpCamera>;
-        fn open(&self) -> bool;
-        fn close(&self);
-        fn path(&self) -> &str;
-        fn list_content(&self) -> Vec<CameraContent>;
-        #[cxx_name = "get_preview"]
-        fn get_preview_(&self, folder: &str, name: &str) -> *mut Thumbnail;
-        fn download_file(&self, folder: &str, name: &str, dest: &str) -> bool;
     }
 }

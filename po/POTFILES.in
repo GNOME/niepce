@@ -6,6 +6,8 @@ crates/npc-fwk/src/toolkit/confirm.rs
 crates/npc-fwk/src/toolkit/request.rs
 data/org.gnome.Niepce.metainfo.xml.in.in
 data/org.gnome.Niepce.desktop.in
+niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs
+niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs
 niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary.rs
 niepce-main/src/niepce/ui/dialogs/importlibrary.ui
@@ -21,9 +23,7 @@ src/niepce/modules/darkroom/toolboxcontroller.cpp
 src/niepce/ui/dialogs/editlabels.cpp
 src/niepce/ui/dialogs/editlabels.ui
 src/niepce/ui/dialogs/importdialog.ui
-src/niepce/ui/dialogs/importers/cameraimporterui.cpp
 src/niepce/ui/dialogs/importers/cameraimporterui.ui
-src/niepce/ui/dialogs/importers/directoryimporterui.cpp
 src/niepce/ui/dialogs/importers/directoryimporterui.ui
 src/niepce/ui/dialogs/preferencesdialog.cpp
 src/niepce/ui/dialogs/preferences.ui

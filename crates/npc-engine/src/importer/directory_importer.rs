@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/importer/directory_importer.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::imported_file::WrappedImportedFile;
+use std::path::Path;
+
+use npc_fwk::dbg_out;
+use npc_fwk::utils::files::FileList;
+
 use super::ImportedFile;
+use crate::ffi::Managed;
+use crate::importer::{FileImporter, Importer, PreviewReady, SourceContentReady};
 
 #[derive(Clone)]
 pub struct DirectoryImportedFile {
@@ -27,7 +33,7 @@ pub struct DirectoryImportedFile {
 }
 
 impl DirectoryImportedFile {
-    pub fn new(path: &str) -> Box<Self> {
+    pub fn new_dyn(path: &Path) -> Box<dyn ImportedFile> {
         let path = std::path::PathBuf::from(path);
         let name = path
             .file_name()
@@ -54,12 +60,46 @@ impl ImportedFile for DirectoryImportedFile {
     fn folder(&self) -> &str {
         unreachable!()
     }
-
-    fn clone_(&self) -> Box<dyn ImportedFile> {
-        Box::new(self.clone())
-    }
 }
 
-pub fn directory_imported_file_new(path: &str) -> Box<WrappedImportedFile> {
-    Box::new(WrappedImportedFile(DirectoryImportedFile::new(path), false))
+#[derive(Default)]
+pub struct DirectoryImporter {}
+
+impl Importer for DirectoryImporter {
+    fn id(&self) -> &'static str {
+        "DirectoryImporter"
+    }
+
+    /// List the source content
+    fn list_source_content(&self, source: &str, callback: SourceContentReady) {
+        let source = source.to_string();
+        std::thread::spawn(move || {
+            let files = FileList::get_files_from_directory(source, FileList::file_is_media);
+            dbg_out!("files size: {}", files.0.len());
+            let content = files
+                .0
+                .iter()
+                .map(|path| DirectoryImportedFile::new_dyn(path))
+                .collect();
+
+            callback(content);
+        });
+    }
+
+    /// Fetch the previews
+    fn get_previews_for(&self, _source: &str, paths: Vec<String>, callback: PreviewReady) {
+        std::thread::spawn(move || {
+            for path in paths {
+                dbg_out!("path {}", path);
+                let thumbnail = npc_fwk::toolkit::Thumbnail::thumbnail_file(&path, 160, 160, 0);
+                callback(path.to_string(), thumbnail);
+            }
+        });
+    }
+
+    /// Do the import
+    fn do_import(&self, source: &str, _dest_dir: &Path, callback: FileImporter) {
+        let files = FileList::get_files_from_directory(source, |_| true);
+        callback(&std::path::PathBuf::from(source), &files, Managed::NO);
+    }
 }

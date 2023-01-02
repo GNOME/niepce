@@ -1,7 +1,7 @@
 /*
  * niepce - npc_fwk/toolkit/gphoto.rs
  *
- * Copyright (C) 2009-2022 Hubert Figuière
+ * Copyright (C) 2009-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
-use std::sync::{Mutex, RwLock};
+use std::sync::{Mutex, RwLock, RwLockReadGuard};
 
 use gdk_pixbuf::prelude::*;
 
@@ -54,14 +53,7 @@ lazy_static::lazy_static! {
 
 pub struct GpDeviceList {
     context: Mutex<gphoto2::Context>,
-    // This is necessary for cxx.
-    #[allow(clippy::vec_box)]
-    list: RwLock<Vec<Box<GpDevice>>>,
-}
-
-// cxx
-pub fn gp_device_list_obj() -> &'static GpDeviceList {
-    &DEVICE_LIST
+    list: RwLock<Vec<GpDevice>>,
 }
 
 impl Default for GpDeviceList {
@@ -74,25 +66,26 @@ impl Default for GpDeviceList {
 }
 
 impl GpDeviceList {
+    pub fn instance() -> &'static GpDeviceList {
+        &DEVICE_LIST
+    }
+
+    pub fn list(&self) -> RwLockReadGuard<'_, Vec<GpDevice>> {
+        self.list.read().unwrap()
+    }
+
     pub fn detect(&self) {
         dbg_out!("Detecting cameras");
         let task = self.context.lock().unwrap().list_cameras();
         *self.list.write().unwrap() = if let Ok(camera_list) = task.wait() {
-            camera_list.map(|d| Box::new(GpDevice::from(d))).collect()
+            camera_list.map(GpDevice::from).collect()
         } else {
             err_out!("error detecting cameras");
             vec![]
         };
     }
 
-    // cxx
-    pub fn get_device_(&self, source: &str) -> *mut GpDevice {
-        self.get_device(source)
-            .map(Box::into_raw)
-            .unwrap_or_else(std::ptr::null_mut)
-    }
-
-    pub fn get_device(&self, source: &str) -> Option<Box<GpDevice>> {
+    pub fn device(&self, source: &str) -> Option<GpDevice> {
         self.list
             .read()
             .unwrap()
@@ -100,37 +93,24 @@ impl GpDeviceList {
             .find(|d| d.path() == source)
             .cloned()
     }
-
-    pub fn device_count(&self) -> usize {
-        self.list.read().unwrap().len()
-    }
-
-    pub fn device_at(&self, idx: usize) -> Box<GpDevice> {
-        self.list.read().unwrap()[idx].clone()
-    }
 }
 
 pub struct GpCamera {
     device: GpDevice,
-    camera: RefCell<Option<gphoto2::Camera>>,
-}
-
-// cxx
-pub fn gp_camera_new(device: &GpDevice) -> Box<GpCamera> {
-    Box::new(GpCamera::new(device.clone()))
+    camera: RwLock<Option<gphoto2::Camera>>,
 }
 
 impl GpCamera {
     pub fn new(device: GpDevice) -> GpCamera {
         GpCamera {
             device,
-            camera: RefCell::new(None),
+            camera: RwLock::new(None),
         }
     }
 
     pub fn open(&self) -> bool {
         dbg_out!("opening camera {}", self.device.path());
-        if self.camera.borrow().is_some() {
+        if self.camera.read().unwrap().is_some() {
             self.close();
         }
 
@@ -151,7 +131,7 @@ impl GpCamera {
                         self.try_unmount_camera();
                     }
                 }
-                *self.camera.borrow_mut() = Some(c);
+                *self.camera.write().unwrap() = Some(c);
                 dbg_out!("Camera open and initialized");
                 true
             }
@@ -170,7 +150,7 @@ impl GpCamera {
         folders
             .iter()
             .flat_map(|folder| {
-                if let Some(camera) = self.camera.borrow().as_ref() {
+                if let Some(camera) = self.camera.read().unwrap().as_ref() {
                     let task = camera.fs().list_files(folder);
                     dbg_out!("processing folder '{}'", folder);
                     task.wait()
@@ -197,7 +177,8 @@ impl GpCamera {
         // This is the path for a regular DCF.
         let mut root_folder = "/DCIM";
         self.camera
-            .borrow()
+            .read()
+            .unwrap()
             .as_ref()
             .and_then(|camera| {
                 let storages = camera.storages().wait();
@@ -289,18 +270,11 @@ impl GpCamera {
     }
 
     pub fn close(&self) {
-        *self.camera.borrow_mut() = None;
-    }
-
-    // cxx
-    pub fn get_preview_(&self, folder: &str, name: &str) -> *mut crate::Thumbnail {
-        self.get_preview(folder, name)
-            .map(|v| Box::into_raw(Box::new(v)))
-            .unwrap_or_else(std::ptr::null_mut)
+        *self.camera.write().unwrap() = None;
     }
 
     pub fn get_preview(&self, folder: &str, name: &str) -> Option<crate::Thumbnail> {
-        if let Some(camera) = self.camera.borrow().as_ref() {
+        if let Some(camera) = self.camera.write().unwrap().as_ref() {
             let task = camera.fs().download_preview(folder, name);
             let file = task.wait().ok()?;
 
@@ -320,7 +294,8 @@ impl GpCamera {
         let destination = std::path::PathBuf::from(dest);
         dbg_out!("Downloading '{}/{}' into {}", folder, name, &dest);
         self.camera
-            .borrow()
+            .write()
+            .unwrap()
             .as_ref()
             .and_then(|camera| {
                 camera

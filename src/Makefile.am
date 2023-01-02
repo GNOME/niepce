@@ -1,8 +1,7 @@
 
 AM_CPPFLAGS = -DNIEPCE_LOCALEDIR=\"${NIEPCE_LOCALEDIR}\"
 
-SUBDIRS = . fwk \
-	engine ncr niepce
+SUBDIRS = . fwk ncr niepce
 
 RUST_SOURCES = \
 	@top_srcdir@/Cargo.toml \

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_grid_view.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,21 +145,5 @@ pub unsafe fn npc_image_grid_view_new(
         &gtk4::SingleSelection::from_glib_none(store as *mut gtk4_sys::GtkSingleSelection),
         Option::<gtk4::PopoverMenu>::from_glib_none(context_menu as *mut gtk4_sys::GtkPopoverMenu),
         Some(libclient_host.shared_ui_provider()),
-    ))
-}
-
-/// Create a new `ImageGridView`
-///
-/// # Safety
-/// Use raw pointers.
-///
-/// The `store` will get ref.
-pub unsafe fn npc_image_grid_view_new2(
-    store: *mut crate::ffi::GtkSingleSelection,
-) -> Box<ImageGridView> {
-    Box::new(ImageGridView::new(
-        &gtk4::SingleSelection::from_glib_none(store as *mut gtk4_sys::GtkSingleSelection),
-        None,
-        None,
     ))
 }

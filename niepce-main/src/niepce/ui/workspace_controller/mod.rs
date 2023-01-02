@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/mod.rs
  *
- * Copyright (C) 2021-2022 Hubert Figuière
+ * Copyright (C) 2021-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ use std::sync::{Arc, Weak};
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
-use glib::translate::*;
 use glib::Cast;
 use gtk4::gio;
 use gtk4::glib;
@@ -76,16 +75,11 @@ enum Event {
     /// Initiate the import.
     Import,
     /// Sent after the import is initiated
-    PerformImport(Box<ImportRequest>),
+    PerformImport(ImportRequest),
     /// Import a library
     ImportLibrary,
     /// `LibFile`s dropped onto workspace. (target, type, source)
     DropLibFile(db::LibraryId, TreeItemType, Vec<db::LibraryId>),
-}
-
-pub struct ImportDialogArgument {
-    dialog: cxx::SharedPtr<crate::ffi::ImportDialog>,
-    tx: glib::Sender<Event>,
 }
 
 pub struct WorkspaceController {
@@ -573,7 +567,7 @@ impl WorkspaceController {
             RenameItem => self.action_rename_item(),
             DeleteItem => self.action_delete_item(),
             Import => self.action_import(),
-            PerformImport(request) => self.perform_file_import(request.as_ref()),
+            PerformImport(request) => self.perform_file_import(&request),
             ImportLibrary => self.action_import_library(),
             DropLibFile(target, type_, source) => self.action_drop_libfile(target, type_, source),
         }
@@ -796,56 +790,46 @@ impl WorkspaceController {
         cfg.set_value("last_import_location", source);
 
         let importer = request.importer();
-        if let Some(client) = self
-            .client
-            .upgrade()
-            .as_ref()
-            .map(LibraryClientWrapper::wrap)
-        {
+        if let Some(client) = self.client.upgrade() {
             let dest_dir = request.dest_dir();
+            let client = client.sender().clone();
             importer.do_import(
                 source,
                 dest_dir,
-                move |client, path, files, manage| -> bool {
-                    client.import_files(path.to_string(), files.0.clone(), manage);
-                    // XXX the libraryclient function returns void
-                    true
-                },
-                &client,
+                Box::new(
+                    move |path: &std::path::Path,
+                          files: &npc_fwk::utils::files::FileList,
+                          manage| {
+                        client.import_files(
+                            path.to_string_lossy().to_string(),
+                            files.0.clone(),
+                            manage,
+                        );
+                    },
+                ),
             );
         }
     }
 
     fn action_import(&self) {
-        let import_dialog = crate::ffi::import_dialog_new();
-        let arg = Box::new(ImportDialogArgument {
-            dialog: import_dialog.clone(),
-            tx: self.tx.clone(),
-        });
-        let parent: *mut gtk4_sys::GtkWindow = if let Some(parent) = self
+        let import_dialog = super::dialogs::ImportDialog::new();
+        let parent = self
             .widget()
             .root()
-            .and_then(|root| root.downcast_ref::<gtk4::Window>().cloned())
-        {
-            parent.to_glib_none().0
-        } else {
-            err_out!("parent not found");
-            std::ptr::null_mut()
-        };
-        unsafe {
-            import_dialog.run_modal(
-                parent as *mut crate::ffi::GtkWindow,
-                |arg, response| {
-                    dbg_out!("import dialog response: {}", response);
-                    let request = arg.dialog.import_request();
-                    arg.dialog.close();
+            .and_then(|root| root.downcast::<gtk4::Window>().ok());
+        import_dialog.run_modal(
+            parent.as_ref(),
+            glib::clone!(@weak import_dialog, @strong self.tx as tx => move |dialog, response| {
+                dbg_out!("import dialog response: {}", response);
+                let request = import_dialog.import_request();
+                dialog.close();
+                if let Some(request) = request {
                     if response == 0 {
-                        on_err_out!(arg.tx.send(Event::PerformImport(request)));
+                        on_err_out!(tx.send(Event::PerformImport(request)));
                     }
-                },
-                Box::into_raw(arg),
-            );
-        }
+                }
+            }),
+        );
     }
 
     fn action_import_library(&self) {

@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ mod window_controller;
 
 /// Module to re-export cxx only.
 pub mod cxx {
-    pub use super::gphoto::{gp_camera_new, gp_device_list_obj};
     pub use super::undo::{
         undo_command_new, undo_command_new_int, undo_history_new, undo_transaction_new,
     };
@@ -43,6 +42,7 @@ pub mod cxx {
 
 pub use controller::{new_controller, to_controller, Controller, ControllerImpl};
 pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
+pub use thumbnail::Thumbnail;
 pub use uicontroller::UiController;
 pub use undo::do_command as undo_do_command;
 pub use undo::{Storage, UndoCommand, UndoHistory, UndoTransaction};

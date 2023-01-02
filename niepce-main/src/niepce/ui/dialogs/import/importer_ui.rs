@@ -1,5 +1,5 @@
 /*
- * niepce - import/mod.rs
+ * niepce - ui/dialogs/import/importer_ui.rs
  *
  * Copyright (C) 2022-2023 Hubert Figuière
  *
@@ -17,36 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 use npc_engine::importer::Importer;
 
-/// An import request
-pub struct ImportRequest {
-    source: String,
-    dest: PathBuf,
-    importer: Rc<dyn Importer>,
-}
+pub type SourceSelectedCallback = Box<dyn Fn(&str, &str)>;
 
-impl ImportRequest {
-    pub fn new<P: AsRef<Path>>(source: String, dest: P, importer: Rc<dyn Importer>) -> Self {
-        Self {
-            source,
-            dest: dest.as_ref().to_path_buf(),
-            importer,
-        }
-    }
+/// An importer UI.
+pub(super) trait ImporterUI {
+    /// ID of the importer.
+    fn id(&self) -> String;
+    /// Name of the importer, displayed
+    fn name(&self) -> &str;
 
-    pub fn source(&self) -> &str {
-        &self.source
-    }
+    /// The actual importer
+    fn importer(&self) -> Rc<dyn Importer>;
 
-    pub fn dest_dir(&self) -> &Path {
-        &self.dest
-    }
+    /// Setup the widget
+    fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget;
 
-    pub fn importer(&self) -> &Rc<dyn Importer> {
-        &self.importer
-    }
+    /// Callback for when the source is selected.
+    ///
+    /// XXX shall we switch to a signal?
+    fn set_source_selected_callback(&self, callback: SourceSelectedCallback);
 }

@@ -15,15 +15,7 @@ libniepceui_a_SOURCES = \
 	gridviewmodule.hpp gridviewmodule.cpp \
 	metadatapanecontroller.hpp metadatapanecontroller.cpp \
 	dialogs/editlabels.hpp dialogs/editlabels.cpp \
-	dialogs/importdialog.hpp dialogs/importdialog.cpp \
 	dialogs/preferencesdialog.hpp dialogs/preferencesdialog.cpp \
-	dialogs/importdialog.hpp dialogs/importdialog.cpp \
-	dialogs/importers/importerui.hpp \
-	dialogs/importers/importerui.cpp \
-	dialogs/importers/directoryimporterui.hpp \
-	dialogs/importers/directoryimporterui.cpp \
-	dialogs/importers/cameraimporterui.hpp \
-	dialogs/importers/cameraimporterui.cpp \
 	selectioncontroller.hpp \
 	filmstripcontroller.hpp \
 	$(PUBLICHEADERS) \

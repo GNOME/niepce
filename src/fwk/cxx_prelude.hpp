@@ -33,7 +33,7 @@ namespace ui {
 class ModuleShell;
 class GridViewModule;
 class EditLabels;
-class ImportDialog;
+class MetaDataPaneController;
 }
 
 namespace mapm {

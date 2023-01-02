@@ -29,7 +29,7 @@
       </row>
     </data>
   </object>
-  <object class="GtkDialog" id="importDialog">
+  <object class="GtkDialog" id="import_dialog">
     <property name="title" translatable="yes">Import</property>
     <property name="default-width">900</property>
     <property name="default-height">700</property>
@@ -105,7 +105,7 @@
                       <placeholder/>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="destinationFolder">
+                      <object class="GtkEntry" id="destination_folder">
                         <property name="hexpand">1</property>
                         <property name="focusable">1</property>
                         <property name="invisible-char">•</property>

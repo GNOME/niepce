@@ -1,7 +1,7 @@
 /*
  * niepce - engine/importer/mod.rs
  *
- * Copyright (C) 2021-2022 Hubert Figuière
+ * Copyright (C) 2021-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,15 +23,11 @@ mod imported_file;
 pub mod libraryimporter;
 pub mod lrimporter;
 
+pub use camera_importer::CameraImporter;
+pub use directory_importer::DirectoryImporter;
 pub use imported_file::ImportedFile;
 pub use libraryimporter::{LibraryImporter, LibraryImporterProbe};
 pub use lrimporter::LrImporter;
-
-pub mod cxx {
-    pub use super::camera_importer::camera_imported_file_new;
-    pub use super::directory_importer::directory_imported_file_new;
-    pub use super::imported_file::WrappedImportedFile;
-}
 
 use std::path::Path;
 
@@ -47,19 +43,21 @@ pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>>
     }
 }
 
-type SourceContentReady = Box<dyn Fn(Vec<Box<dyn ImportedFile>>)>;
-type PreviewReady = Box<dyn Fn(String, Thumbnail)>;
-type FileImporter = Box<dyn Fn(&Path, &FileList, Managed)>;
+type SourceContentReady = Box<dyn Fn(Vec<Box<dyn ImportedFile>>) + Send>;
+type PreviewReady = Box<dyn Fn(String, Thumbnail) + Send>;
+type FileImporter = Box<dyn Fn(&Path, &FileList, Managed) + Send>;
 
 /// Trait for file importers.
 pub trait Importer {
     /// ID of the importer.
-    fn id(&self) -> &str;
+    fn id(&self) -> &'static str;
 
-    /// List the source content
+    /// List the source content. If possible this should be spawning a thread. `callback`
+    /// well be run on that thread.
     fn list_source_content(&self, source: &str, callback: SourceContentReady);
-    /// Fetch the previews
-    fn get_previews_for(&self, source: &str, paths: &[String], callback: PreviewReady);
+    /// Fetch the previews. If possible this should be spawning a thread. `callback`
+    /// well be run on that thread.
+    fn get_previews_for(&self, source: &str, paths: Vec<String>, callback: PreviewReady);
 
     /// Do the import
     fn do_import(&self, source: &str, dest_dir: &Path, callback: FileImporter);
