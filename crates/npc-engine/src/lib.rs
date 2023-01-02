@@ -105,7 +105,6 @@ pub mod ffi {
         include!("fwk/cxx_prelude.hpp");
         include!("fwk/cxx_colour_bindings.hpp");
 
-        type Moniker = npc_fwk::base::Moniker;
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
         type PropertyValue = npc_fwk::PropertyValue;
         type WrappedPropertyBag = npc_fwk::toolkit::widgets::WrappedPropertyBag;

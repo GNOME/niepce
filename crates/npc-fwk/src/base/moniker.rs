@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/moniker.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,6 @@
 pub struct Moniker {
     scheme: String,
     path: String,
-}
-
-use cxx::{type_id, ExternType};
-
-unsafe impl ExternType for Moniker {
-    type Id = type_id!("fwk::Moniker");
-    type Kind = cxx::kind::Opaque;
 }
 
 impl From<&String> for Moniker {
@@ -80,11 +73,6 @@ impl Moniker {
     pub fn path(&self) -> &str {
         &self.path
     }
-}
-
-// cxx
-pub fn moniker_from(v: &str) -> Box<Moniker> {
-    Box::new(Moniker::from(v))
 }
 
 #[cfg(test)]

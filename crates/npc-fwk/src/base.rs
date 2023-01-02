@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/mod.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,6 @@ pub type PropertySet<T> = BTreeSet<T>;
 
 pub use geometry::Size;
 pub use indexed_map::IndexedMap;
-pub use moniker::{moniker_from, Moniker};
+pub use moniker::Moniker;
 pub use propertyvalue::PropertyValue;
 pub use signals::Signal;

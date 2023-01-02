@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/lib.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,6 @@ use gdk_pixbuf_sys::GdkPixbuf;
 use glib::translate::*;
 
 use crate::base::rgbcolour::RgbColour;
-use crate::base::{moniker_from, Moniker};
 use crate::toolkit::cxx::*;
 use crate::toolkit::thumbnail::Thumbnail;
 use crate::toolkit::widgets::cxx::*;
@@ -260,14 +259,6 @@ pub mod ffi {
         fn set_data_source_none(&self);
         fn wrapped_property_bag_clone(bag: &WrappedPropertyBag) -> *mut WrappedPropertyBag;
         unsafe fn wrapped_property_bag_drop(bag: *mut WrappedPropertyBag);
-    }
-
-    extern "Rust" {
-        type Moniker;
-
-        #[cxx_name = "Moniker_from"]
-        fn moniker_from(v: &str) -> Box<Moniker>;
-        fn path(&self) -> &str;
     }
 
     unsafe extern "C++" {
