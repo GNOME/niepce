@@ -35,7 +35,7 @@ impl NotificationCenter {
     pub fn new() -> NotificationCenter {
         let (sender, receiver) = async_channel::unbounded();
         let nc = NotificationCenter {
-            channel: LcChannel(sender),
+            channel: sender,
             signal_notify: Signal::new(),
         };
 
@@ -54,15 +54,4 @@ impl NotificationCenter {
     pub fn channel(&self) -> &LcChannel {
         &self.channel
     }
-
-    /// Add a listener
-    pub fn add_listener(&self, listener: cxx::UniquePtr<crate::ffi::LnListener>) {
-        self.signal_notify.connect(move |ln| {
-            listener.call(&ln);
-        });
-    }
-}
-
-pub fn notification_center_new() -> Box<NotificationCenter> {
-    Box::new(NotificationCenter::new())
 }

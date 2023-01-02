@@ -1,7 +1,7 @@
 /*
  * niepce - engine/library/notification.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,15 +23,10 @@ use crate::db::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, Niepce
 use npc_fwk::toolkit::thumbnail;
 use npc_fwk::PropertyValue;
 
-#[derive(Clone)]
-pub struct LcChannel(pub async_channel::Sender<LibNotification>);
+/// Library client channel sender, to send `LibNotification`.
+pub type LcChannel = async_channel::Sender<LibNotification>;
 
 use cxx::{type_id, ExternType};
-
-unsafe impl ExternType for LcChannel {
-    type Id = type_id!("eng::LcChannel");
-    type Kind = cxx::kind::Opaque;
-}
 
 // cxx
 pub use crate::ffi::NotificationType;

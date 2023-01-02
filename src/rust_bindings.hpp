@@ -1,7 +1,7 @@
 /*
  * niepce - rust_bindings.hpp
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,6 @@ typedef fwk::PropertyBag NiepcePropertyBag;
 typedef fwk::PropertySet NiepcePropertySet;
 typedef eng::FolderVirtualType FolderVirtualType;
 typedef eng::ThumbnailCache ThumbnailCache;
-typedef eng::LcChannel LcChannel;
 typedef eng::LibNotification LibNotification;
 typedef eng::LibraryClientWrapper LibraryClientWrapper;
 }
@@ -74,11 +73,6 @@ typedef rust::Box<LibFile> LibFilePtr;
 typedef int64_t library_id_t;
 typedef rust::Box<LibraryClientHost> LibraryClientPtr;
 typedef rust::Box<UIDataProvider> UIDataProviderPtr;
-}
-
-
-namespace npc {
-typedef rust::Box<NotificationCenter> NotificationCenterPtr;
 }
 
 #undef _IN_RUST_BINDINGS_

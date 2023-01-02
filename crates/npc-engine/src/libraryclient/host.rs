@@ -46,8 +46,8 @@ impl LibraryClientHost {
         cache_path.push(THUMBCACHE_DIRNAME);
 
         LibraryClientHost {
-            client: LibraryClientWrapper::new(path, channel.0.clone()),
-            thumbnail_cache: ThumbnailCache::new(&cache_path, channel.0.clone()),
+            client: LibraryClientWrapper::new(path, channel.clone()),
+            thumbnail_cache: ThumbnailCache::new(&cache_path, channel.clone()),
             ui_provider: Rc::new(UIDataProvider::default()),
         }
     }

@@ -95,7 +95,7 @@ pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
 use crate::db::{Keyword, Label, LibFile, LibFolder, LibMetadata};
-use crate::library::notification::{LcChannel, LibNotification};
+use crate::library::notification::LibNotification;
 use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper, UIDataProvider};
 
 #[cxx::bridge(namespace = "eng")]
@@ -108,10 +108,6 @@ pub mod ffi {
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
         type PropertyValue = npc_fwk::PropertyValue;
         type WrappedPropertyBag = npc_fwk::toolkit::widgets::WrappedPropertyBag;
-    }
-
-    extern "Rust" {
-        type LcChannel;
     }
 
     #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

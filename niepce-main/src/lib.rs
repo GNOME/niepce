@@ -48,7 +48,6 @@ use niepce::ui::metadata_pane_controller::get_format;
 use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
 use niepce::ui::ImageGridView;
 use niepce::ui::{ImageListStore, SelectionController};
-use notification_center::notification_center_new;
 use npc_fwk::toolkit;
 
 #[cxx::bridge(namespace = "npc")]
@@ -84,7 +83,6 @@ pub mod ffi {
         type Label = npc_engine::db::Label;
         type LibFile = npc_engine::db::LibFile;
         type ThumbnailCache = npc_engine::ThumbnailCache;
-        type LcChannel = npc_engine::library::notification::LcChannel;
         type LibNotification = npc_engine::library::notification::LibNotification;
         type UIDataProvider = npc_engine::libraryclient::UIDataProvider;
         type LibraryClientWrapper = npc_engine::libraryclient::LibraryClientWrapper;
@@ -95,13 +93,6 @@ pub mod ffi {
         fn get_format() -> &'static [MetadataSectionFormat];
     }
 
-    unsafe extern "C++" {
-        include!("niepce/lnlistener.hpp");
-        type LnListener;
-
-        fn call(&self, ln: &LibNotification);
-    }
-
     #[namespace = "ui"]
     unsafe extern "C++" {
         include!("niepce/ui/metadatapanecontroller.hpp");
@@ -109,16 +100,6 @@ pub mod ffi {
 
         fn metadata_pane_controller_new() -> SharedPtr<MetaDataPaneController>;
         fn build_widget(&self) -> *mut GtkWidget;
-    }
-
-    extern "Rust" {
-        type NotificationCenter;
-
-        #[cxx_name = "NotificationCenter_new"]
-        fn notification_center_new() -> Box<NotificationCenter>;
-        #[cxx_name = "get_channel"]
-        fn channel(&self) -> &LcChannel;
-        fn add_listener(&self, listener: UniquePtr<LnListener>);
     }
 
     extern "Rust" {

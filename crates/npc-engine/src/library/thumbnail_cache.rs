@@ -1,7 +1,7 @@
 /*
  * niepce - library/thumbnail_cache.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ use crate::db::libfile::{FileStatus, LibFile};
 use crate::db::LibraryId;
 use crate::library::notification;
 use crate::library::notification::LibNotification::{FileStatusChanged, ThumbnailLoaded};
-use crate::library::notification::{FileStatusChange, LibNotification};
+use crate::library::notification::{FileStatusChange, LcChannel, LibNotification};
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::{dbg_out, err_out};
@@ -85,7 +85,7 @@ pub struct ThumbnailCache {
     cache_dir: PathBuf,
     tasks: Tasks,
     running: Running,
-    sender: async_channel::Sender<LibNotification>,
+    sender: LcChannel,
 }
 
 use cxx::{type_id, ExternType};

@@ -63,10 +63,7 @@ unsafe impl cxx::ExternType for LibraryClientWrapper {
 }
 
 impl LibraryClientWrapper {
-    pub fn new(
-        dir: PathBuf,
-        sender: async_channel::Sender<LibNotification>,
-    ) -> LibraryClientWrapper {
+    pub fn new(dir: PathBuf, sender: LcChannel) -> LibraryClientWrapper {
         LibraryClientWrapper {
             client: sync::Arc::new(LibraryClient::new(dir, sender)),
         }

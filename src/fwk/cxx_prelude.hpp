@@ -21,7 +21,6 @@ class UndoTransaction;
 
 namespace eng {
 class Label;
-class LcChannel;
 class LibFile;
 class LibNotification;
 class ThumbnailCache;
