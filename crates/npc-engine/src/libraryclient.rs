@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/mod.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,15 +107,25 @@ impl LibraryClientWrapper {
     }
 }
 
+/// LibraryClient is in charge of creating both side of the worker:
+/// the sender and the actual library on a separate thread.
 pub struct LibraryClient {
     terminate: sync::Arc<atomic::AtomicBool>,
-    sender: mpsc::Sender<Op>,
     trash_id: Cell<LibraryId>,
+    /// This is what will implement the interface.
+    sender: LibraryClientSender,
 }
 
 impl Drop for LibraryClient {
     fn drop(&mut self) {
         self.stop();
+    }
+}
+
+impl Deref for LibraryClient {
+    type Target = LibraryClientSender;
+    fn deref(&self) -> &Self::Target {
+        &self.sender
     }
 }
 
@@ -134,7 +144,7 @@ impl LibraryClient {
 
         LibraryClient {
             terminate: terminate2,
-            sender: task_sender,
+            sender: LibraryClientSender(task_sender),
             trash_id: Cell::new(0),
         }
     }
@@ -165,17 +175,28 @@ impl LibraryClient {
         }
     }
 
+    pub fn sender(&self) -> &LibraryClientSender {
+        &self.sender
+    }
+}
+
+#[derive(Clone)]
+/// The sender for the library client.
+/// It is all you should need to perform ops on the library
+pub struct LibraryClientSender(mpsc::Sender<Op>);
+
+impl LibraryClientSender {
     pub fn schedule_op<F>(&self, f: F)
     where
         F: FnOnce(&Library) -> bool + Send + Sync + 'static,
     {
         let op = Op::new(f);
 
-        on_err_out!(self.sender.send(op));
+        on_err_out!(self.0.send(op));
     }
 }
 
-impl ClientInterface for LibraryClient {
+impl ClientInterface for LibraryClientSender {
     /// get all the keywords
     fn get_all_keywords(&self) {
         self.schedule_op(commands::cmd_list_all_keywords);
@@ -320,7 +341,7 @@ impl ClientInterface for LibraryClient {
     }
 }
 
-impl ClientInterfaceSync for LibraryClient {
+impl ClientInterfaceSync for LibraryClientSender {
     fn create_label_sync(&self, name: String, colour: String) -> LibraryId {
         // can't use futures::sync::oneshot
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
