@@ -21,31 +21,7 @@ use std::sync::{Mutex, RwLock, RwLockReadGuard};
 
 use gdk_pixbuf::prelude::*;
 
-#[derive(Clone)]
-/// This is like gphoto2::CameraDescriptor
-pub struct GpDevice {
-    model: String,
-    path: String,
-}
-
-impl From<gphoto2::list::CameraDescriptor> for GpDevice {
-    fn from(desc: gphoto2::list::CameraDescriptor) -> GpDevice {
-        GpDevice {
-            model: desc.model,
-            path: desc.port,
-        }
-    }
-}
-
-impl GpDevice {
-    pub fn model(&self) -> &str {
-        &self.model
-    }
-
-    pub fn path(&self) -> &str {
-        &self.path
-    }
-}
+pub type GpDevice = gphoto2::list::CameraDescriptor;
 
 lazy_static::lazy_static! {
     static ref DEVICE_LIST: GpDeviceList = GpDeviceList::default();
@@ -90,7 +66,7 @@ impl GpDeviceList {
             .read()
             .unwrap()
             .iter()
-            .find(|d| d.path() == source)
+            .find(|d| d.port == source)
             .cloned()
     }
 }
@@ -109,16 +85,12 @@ impl GpCamera {
     }
 
     pub fn open(&self) -> bool {
-        dbg_out!("opening camera {}", self.device.path());
+        dbg_out!("opening camera {}", self.device.port);
         if self.camera.read().unwrap().is_some() {
             self.close();
         }
 
-        let desc = gphoto2::list::CameraDescriptor {
-            model: self.device.model().to_string(),
-            port: self.device.path().to_string(),
-        };
-        let task = DEVICE_LIST.context.lock().unwrap().get_camera(&desc);
+        let task = DEVICE_LIST.context.lock().unwrap().get_camera(&self.device);
         let camera = task.wait();
         // XXX handle errors
         match camera {
@@ -143,7 +115,7 @@ impl GpCamera {
     }
 
     pub fn path(&self) -> &str {
-        &self.device.path
+        &self.device.port
     }
 
     fn process_folders(&self, folders: Vec<String>) -> Vec<crate::ffi::CameraContent> {
@@ -218,7 +190,7 @@ impl GpCamera {
     fn try_unmount_camera(&self) -> bool {
         // Turn the gphoto device ID into a device path.
         // This code is Linux specific at the moment.
-        let mut device_path = self.device.path.to_string();
+        let mut device_path = self.device.port.to_string();
         // The device path has to start with "usb:".
         // XXX figure out non USB.
         if device_path.find("usb:") != Some(0) {

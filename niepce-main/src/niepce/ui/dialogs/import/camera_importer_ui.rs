@@ -124,9 +124,9 @@ impl ImporterUI for CameraImporterUI {
 
         // XXX restore the selection from the preferences.
         for (idx, device) in toolkit::GpDeviceList::instance().list().iter().enumerate() {
-            camera_list_combo.append(Some(device.path()), device.model());
+            camera_list_combo.append(Some(&device.port), &device.model);
             if idx == 0 {
-                camera_list_combo.set_active_id(Some(device.path()));
+                camera_list_combo.set_active_id(Some(&device.port));
             }
         }
         if camera_list_combo.active_id().is_none() {
