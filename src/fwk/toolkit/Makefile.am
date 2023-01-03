@@ -25,7 +25,8 @@ testing_ldadd = @top_builddir@/third_party/libgtest.a \
 	libniepceframework.a \
 	../base/libfwkbase.a \
 	../utils/libniepceutils.a \
-        @FRAMEWORK_LIBS@
+	@GPHOTO_LIBS@ \
+	@FRAMEWORK_LIBS@
 
 testconfigdatabinder_SOURCES = t/testconfigdatabinder.cpp
 testconfigdatabinder_CPPFLAGS = $(testing_cppflags)
@@ -45,12 +46,7 @@ libniepceframework_a_SOURCES = \
 	frame.hpp frame.cpp \
 	controller.hpp controller.cpp \
 	uicontroller.hpp uicontroller.cpp \
-	uiresult.hpp uiresult.cpp \
 	mapcontroller.hpp mapcontroller.cpp \
-	notification.hpp \
-	mimetype.hpp mimetype.cpp \
-	imageloader.hpp imageloader.cpp \
-	notificationcenter.hpp notificationcenter.cpp \
 	configdatabinder.hpp configdatabinder.cpp \
 	gdkutils.hpp gdkutils.cpp \
 	gtkutils.hpp gtkutils.cpp \

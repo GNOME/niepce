@@ -3,7 +3,7 @@
  * copied from
  * gnote
  *
- * Copyright (C) 2009-2022 Hubert Figuière
+ * Copyright (C) 2009-2023 Hubert Figuière
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -31,12 +31,13 @@
 #include <gmodule.h>
 #include <glibmm/module.h>
 
-#include "fwk/utils/files.hpp"
 #include "fwk/utils/pathutils.hpp"
 #include "fwk/base/debug.hpp"
 #include "fwk/base/map.hpp"
 #include "dynamicmodule.hpp"
 #include "modulemanager.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace fwk {
 

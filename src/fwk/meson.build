@@ -87,7 +87,6 @@ fwk = static_library(
   'base' / 'geometry.hpp',
   'base' / 'geometry.cpp',
   'base' / 'map.hpp',
-  'base' / 'option.hpp',
   'base' / 'propertybag.hpp',
   'base' / 'propertybag.cpp',
   'base' / 'singleton.hpp',
@@ -111,19 +110,10 @@ fwk = static_library(
   'toolkit' / 'gdkutils.cpp',
   'toolkit' / 'gtkutils.hpp',
   'toolkit' / 'gtkutils.cpp',
-  'toolkit' / 'imageloader.hpp',
-  'toolkit' / 'imageloader.cpp',
   'toolkit' / 'mapcontroller.hpp',
   'toolkit' / 'mapcontroller.cpp',
-  'toolkit' / 'mimetype.hpp',
-  'toolkit' / 'mimetype.cpp',
-  'toolkit' / 'notification.hpp',
-  'toolkit' / 'notificationcenter.hpp',
-  'toolkit' / 'notificationcenter.cpp',
   'toolkit' / 'uicontroller.hpp',
   'toolkit' / 'uicontroller.cpp',
-  'toolkit' / 'uiresult.hpp',
-  'toolkit' / 'uiresult.cpp',
   'toolkit' / 'widgets' / 'addinstreemodel.hpp',
   'toolkit' / 'widgets' / 'addinstreemodel.cpp',
   'toolkit' / 'widgets' / 'dock.hpp',
@@ -132,35 +122,21 @@ fwk = static_library(
   'toolkit' / 'widgets' / 'editablehscale.cpp',
   'toolkit' / 'widgets' / 'toolboxitemwidget.hpp',
   'toolkit' / 'widgets' / 'toolboxitemwidget.cpp',
-  'utils' / 'boost.hpp',
-  'utils' / 'buffer.hpp',
   'utils' / 'databinder.hpp',
   'utils' / 'databinder.cpp',
   'utils' / 'dynamicmodule.hpp',
   'utils' / 'dynamicmodule.cpp',
-  'utils' / 'exception.hpp',
-  'utils' / 'exception.cpp',
   'utils' / 'exempi.hpp',
   'utils' / 'exempi.cpp',
-  'utils' / 'files.hpp',
-  'utils' / 'files.cpp',
-  'utils' / 'fsutils.hpp',
-  'utils' / 'fsutils.cpp',
   'utils' / 'init.hpp',
   'utils' / 'init.cpp',
-  'utils' / 'logstreamutils.hpp',
   'utils' / 'modulefactory.hpp',
   'utils' / 'modulemanager.hpp',
   'utils' / 'modulemanager.cpp',
-  'utils' / 'mtqueue.hpp',
   'utils' / 'pathutils.hpp',
   'utils' / 'pathutils.cpp',
-  'utils' / 'stringutils.hpp',
-  'utils' / 'thread.hpp',
-  'utils' / 'thread.cpp',
   'utils' / 'ufrawmeta.hpp',
   'utils' / 'ufrawmeta.cpp',
-  'utils' / 'worker.hpp',
 
   install: false,
   dependencies: [cxx_headers, exempi_deps, gphoto2_deps, adw_deps, gtkmm_deps, shumate_deps, niepce_rust_deps],
@@ -178,22 +154,6 @@ testgeometry = executable(
   link_with: [ gtest, fwk ]
 )
 test('Test base/geometry', testgeometry)
-testmap = executable(
-  'testmap',
-  'base' / 't' / 'testmap.cpp',
-  build_by_default: false,
-  include_directories: [ gtest_inc, include_directories('..', 'base') ],
-  link_with: [ gtest, fwk ]
-)
-test('Test base/map', testmap)
-testoption = executable(
-  'testoption',
-  'base' / 't' / 'testoption.cpp',
-  build_by_default: false,
-  include_directories: [ gtest_inc, include_directories('..', 'base') ],
-  link_with: [ gtest, fwk ]
-)
-test('Test base/option', testoption)
 
 # toolkit
 testconfigdatabinder = executable(
@@ -215,11 +175,3 @@ testpathutils = executable(
   link_with: [ gtest, fwk ]
 )
 test('Test utils/pathutils', testpathutils)
-teststringutils = executable(
-  'teststringutils',
-  'utils' / 't' / 'teststringutils.cpp',
-  build_by_default: false,
-  include_directories: [ gtest_inc, include_directories('utils') ],
-  link_with: [ gtest, fwk ]
-)
-test('Test utils/stringutils', teststringutils)

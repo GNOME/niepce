@@ -1,7 +1,7 @@
 /*
  * niepce - src/fwk/utils/t/testpathutils.cpp
  *
- * Copyright (C) 2009-2018 Hubert Figuière
+ * Copyright (C) 2009-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,14 +26,5 @@
 TEST(testPathUtils, testPathUtilsSanity)
 {
   ASSERT_EQ(fwk::path_basename("/foo/bar/baz.txt"), "baz.txt");
-
-  ASSERT_EQ(fwk::path_dirname("/foo/bar/"), "/foo/bar");
-  ASSERT_EQ(fwk::path_dirname("/foo/bar/baz.txt"), "/foo/bar");
-  ASSERT_EQ(fwk::path_dirname("baz.txt"), ".");
-
-  ASSERT_EQ(fwk::path_extension("/foo/bar/baz.txt"), ".txt");
-  ASSERT_EQ(fwk::path_extension("img_2114.xmp"), ".xmp");
-
-  ASSERT_EQ(fwk::path_replace_extension("/foo/bar/baz.txt", ".xmp"), "/foo/bar/baz.xmp");
 }
 

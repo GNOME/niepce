@@ -1,7 +1,7 @@
 /*
  * gnote
  *
- * Copyright (C) 2009-2013 Hubert Figuiere
+ * Copyright (C) 2009-2023 Hubert Figuiere
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -23,41 +23,12 @@
  */
 
 
-
-#ifndef __FWK_MAP_HPP_
-#define __FWK_MAP_HPP_
+#pragma once
 
 #include <algorithm>
-#include <vector>
 #include <map>
 
 namespace fwk {
-
-  /** get all the keys from the map. */
-  template <typename _Map>
-  void map_get_keys(const _Map & m, std::vector<typename _Map::key_type> & l)
-  {
-    l.clear();
-    std::for_each(m.cbegin(), m.cend(),
-                  [&l] (const typename _Map::value_type & p) {
-                      l.push_back(p.first);
-                  }
-        );
-  }
-
-
-  /** get all the mapped elements from the map. */
-  template <typename _Map>
-  void map_get_values(const _Map & m, std::vector<typename _Map::mapped_type> & l)
-  {
-    l.clear();
-    std::for_each(m.cbegin(), m.cend(),
-                  [&l] (const typename _Map::value_type & p) {
-                      l.push_back(p.second);
-                  }
-        );
-  }
-
 
   /** call operator delete on all the data element. */
   template <typename _Map>
@@ -72,8 +43,6 @@ namespace fwk {
 
 }
 
-
-#endif
 /*
   Local Variables:
   mode:c++

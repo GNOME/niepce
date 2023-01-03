@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/pathutils.hpp
  *
- * Copyright (C) 2009-2015 Hubert Figuière
+ * Copyright (C) 2009-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,24 +29,7 @@ namespace fwk {
  */
 std::string path_basename(const std::string & path);
 
-/** return the dirname of a path and trailing slash removed.
-    Assume the last component is a file.
-    /foo/bar/baz.txt returns /foo/bar
- */
-std::string path_dirname(const std::string & path);
-
-/** return the extension of a path
-    /foo/bar/baz.txt returns .txt
-    It always return the "." if any. No extension = "".
- */
-std::string path_extension(const std::string & path);
-
-std::string path_replace_extension(const std::string & path, const char * ext);
-
-
 bool path_exists(const std::string & path);
-bool ensure_path_for_file(const std::string & path);
-void path_remove_recursive(const std::string & path);
 
 }
 
