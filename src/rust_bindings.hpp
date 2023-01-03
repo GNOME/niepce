@@ -44,7 +44,6 @@ typedef fwk::WrappedPropertyBag WrappedPropertyBag;
 typedef eng::Label Label;
 typedef eng::LibFile LibFile;
 typedef eng::LibMetadata LibMetadata;
-typedef eng::Keyword Keyword;
 typedef fwk::PropertyBag NiepcePropertyBag;
 typedef fwk::PropertySet NiepcePropertySet;
 typedef eng::LibNotification LibNotification;
@@ -63,7 +62,6 @@ typedef rust::Box<PropertySet> PropertySetPtr;
 }
 
 namespace eng {
-typedef rust::Box<Keyword> KeywordPtr;
 typedef rust::Box<Label> LabelPtr;
 typedef std::vector<LabelPtr> LabelList;
 typedef rust::Box<LibFile> LibFilePtr;

@@ -94,7 +94,7 @@ pub fn property_set_new() -> Box<PropertySet> {
 pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
-use crate::db::{Keyword, Label, LibFile, LibMetadata};
+use crate::db::{Label, LibFile, LibMetadata};
 use crate::library::notification::LibNotification;
 use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper, UIDataProvider};
 
@@ -157,15 +157,6 @@ pub mod ffi {
         /// Video
         Video = 4,
     }
-
-    extern "Rust" {
-        type Keyword;
-
-        fn id(&self) -> i64;
-        fn keyword(&self) -> &str;
-    }
-
-    impl Box<Keyword> {}
 
     extern "Rust" {
         type Label;
