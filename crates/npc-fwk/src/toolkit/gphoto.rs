@@ -21,10 +21,14 @@ use std::sync::{Mutex, RwLock, RwLockReadGuard};
 
 use gdk_pixbuf::prelude::*;
 
+/// Describe the camera.
 pub type GpDevice = gphoto2::list::CameraDescriptor;
 
+/// Camera content entry
 pub struct CameraContent {
+    /// Folder path
     pub folder: String,
+    /// Filename
     pub name: String,
 }
 
@@ -38,6 +42,8 @@ pub struct GpDeviceList {
 }
 
 impl Default for GpDeviceList {
+    /// # Panic
+    /// Will panic if the `gphoto2::Context` can't be created.
     fn default() -> GpDeviceList {
         GpDeviceList {
             context: Mutex::new(gphoto2::Context::new().expect("Coudln't initialise gphoto2")),
@@ -51,10 +57,12 @@ impl GpDeviceList {
         &DEVICE_LIST
     }
 
+    /// Return the read lock for the list.
     pub fn list(&self) -> RwLockReadGuard<'_, Vec<GpDevice>> {
         self.list.read().unwrap()
     }
 
+    /// Rescan the devices and update the list.
     pub fn detect(&self) {
         dbg_out!("Detecting cameras");
         let task = self.context.lock().unwrap().list_cameras();
@@ -66,6 +74,7 @@ impl GpDeviceList {
         };
     }
 
+    /// Find a device by its port.
     pub fn device(&self, source: &str) -> Option<GpDevice> {
         self.list
             .read()
@@ -89,6 +98,7 @@ impl GpCamera {
         }
     }
 
+    /// Open the device as per the descriptor.
     pub fn open(&self) -> bool {
         dbg_out!("opening camera {}", self.device.port);
         if self.camera.read().unwrap().is_some() {
@@ -100,6 +110,8 @@ impl GpCamera {
         // XXX handle errors
         match camera {
             Ok(c) => {
+                // This is used to check if the camera isn't busy.
+                // XXX Maybe there is a better call...
                 let task = c.fs().file_info("/", "DCIM");
                 if let Err(err) = task.wait() {
                     dbg_out!("file info returned an error, of course {:?}", err);
@@ -119,10 +131,13 @@ impl GpCamera {
         }
     }
 
+    /// Return the port of the camera. This is the unique device at the time.
+    /// Unplugging the device is likely to change this.
     pub fn path(&self) -> &str {
         &self.device.port
     }
 
+    /// For a list of folder, get the content of each and return a flattened list.
     fn process_folders(&self, folders: Vec<String>) -> Vec<CameraContent> {
         folders
             .iter()
@@ -146,43 +161,47 @@ impl GpCamera {
             .collect()
     }
 
+    /// List the content of the camera (DCIM only).
     pub fn list_content(&self) -> Vec<CameraContent> {
-        // XXX fixme this should not be hardcoded.
-        // This is the path for PTP.
-        // XXX use Camera::storages to get the list of the root folders.
-        let root_folder_ptp = "/store_00010001/DCIM";
-        // This is the path for a regular DCF.
-        let mut root_folder = "/DCIM";
         self.camera
             .read()
             .unwrap()
             .as_ref()
-            .and_then(|camera| {
+            .map(|camera| {
                 let storages = camera.storages().wait();
                 dbg_out!("Storages {:?}", storages);
-                camera
-                    .fs()
-                    .list_folders(root_folder)
-                    .wait()
-                    .or_else(|err| {
-                        dbg_out!(
-                            "Folder {} not found, trying {}, error {}",
-                            root_folder,
-                            root_folder_ptp,
-                            err
-                        );
-                        root_folder = root_folder_ptp;
-                        camera.fs().list_folders(root_folder).wait()
-                    })
-                    .map(|iter| {
-                        iter.map(|name| {
-                            dbg_out!("Found folder '{}'", &name);
-                            root_folder.to_owned() + "/" + &name
-                        })
-                        .collect()
-                    })
-                    .map(|folders| self.process_folders(folders))
+                // XXX a '/' is always added, leading to '//DCIM'
+                // Map the storages to refer the DCIM folder.
+                let root_folders = storages
                     .ok()
+                    .map(|storages| {
+                        storages
+                            .iter()
+                            .filter_map(|info| {
+                                info.base_directory().map(|s| s.into_owned() + "/DCIM")
+                            })
+                            .collect()
+                    })
+                    .unwrap_or_else(|| vec!["/DCIM".to_owned()]);
+                // List the content of each root folders, and flatten.
+                root_folders
+                    .iter()
+                    .flat_map(|root_folder| {
+                        camera
+                            .fs()
+                            .list_folders(root_folder)
+                            .wait()
+                            .map(|iter| {
+                                iter.map(|name| {
+                                    dbg_out!("Found folder '{}'", &name);
+                                    root_folder.to_owned() + "/" + &name
+                                })
+                                .collect()
+                            })
+                            .map(|folders| self.process_folders(folders))
+                            .unwrap_or_default()
+                    })
+                    .collect()
             })
             .unwrap_or_default()
     }
