@@ -99,6 +99,7 @@
                         <property name="hexpand">1</property>
                         <property name="label" translatable="yes">Destination _Folder</property>
                         <property name="use-underline">1</property>
+                        <property name="xalign">0</property>
                       </object>
                     </child>
                     <child>
