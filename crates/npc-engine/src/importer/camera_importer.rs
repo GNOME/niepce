@@ -24,12 +24,13 @@ use super::{FileImporter, ImportedFile, Importer, PreviewReady, SourceContentRea
 use crate::db::Managed;
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
 use npc_fwk::utils::files::FileList;
-use npc_fwk::{err_out, on_err_out};
+use npc_fwk::{err_out, on_err_out, Date};
 
 #[derive(Clone, Default)]
 pub struct CameraImportedFile {
     name: String,
     path: String,
+    date: Option<Date>,
     folder: String,
 }
 
@@ -38,6 +39,7 @@ impl CameraImportedFile {
         Box::new(CameraImportedFile {
             folder: folder.to_string(),
             name: name.to_string(),
+            date: None,
             path: folder.to_string() + "/" + name,
         })
     }
@@ -50,6 +52,10 @@ impl ImportedFile for CameraImportedFile {
 
     fn path(&self) -> &str {
         &self.path
+    }
+
+    fn date(&self) -> Option<&Date> {
+        self.date.as_ref()
     }
 
     fn folder(&self) -> &str {
@@ -110,13 +116,14 @@ impl Importer for CameraImporter {
                 if let Some(last_slash) = path.rfind('/') {
                     let name = &path[last_slash + 1..];
                     let folder = &path[..last_slash];
-                    if let Some(thumbnail) = self
+                    let thumbnail = self
                         .camera
                         .borrow()
                         .as_ref()
-                        .and_then(|camera| camera.get_preview(folder, name))
-                    {
-                        callback(path.to_string(), thumbnail);
+                        .and_then(|camera| camera.get_preview(folder, name));
+
+                    if thumbnail.is_some() {
+                        callback(path.to_string(), thumbnail, None);
                     }
                 }
             });

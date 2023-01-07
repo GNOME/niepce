@@ -34,6 +34,7 @@ use std::path::Path;
 use crate::db::Managed;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::utils::files::FileList;
+use npc_fwk::Date;
 
 pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>> {
     if LrImporter::can_import_library(path) {
@@ -44,7 +45,7 @@ pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>>
 }
 
 type SourceContentReady = Box<dyn Fn(Vec<Box<dyn ImportedFile>>) + Send>;
-type PreviewReady = Box<dyn Fn(String, Thumbnail) + Send>;
+type PreviewReady = Box<dyn Fn(String, Option<Thumbnail>, Option<Date>) + Send>;
 type FileImporter = Box<dyn Fn(&Path, &FileList, Managed) + Send>;
 
 /// Trait for file importers.

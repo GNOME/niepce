@@ -41,7 +41,7 @@ use crate::ffi;
 use crate::import::ImportRequest;
 use npc_engine::importer::{ImportedFile, Importer};
 use npc_fwk::toolkit::Thumbnail;
-use npc_fwk::{dbg_out, err_out, on_err_out};
+use npc_fwk::{dbg_out, err_out, on_err_out, Date};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
 
@@ -50,7 +50,7 @@ enum Event {
     SetSource(String, String),
     /// The source changed. `id` in the combo box.
     SourceChanged(String),
-    PreviewReceived(String, Thumbnail),
+    PreviewReceived(String, Option<Thumbnail>, Option<Date>),
     AppendFiles(Vec<Box<dyn ImportedFile>>),
 }
 
@@ -142,7 +142,9 @@ impl ImportDialog {
         match e {
             Event::SetSource(source, destdir) => self.set_source(&source, &destdir),
             Event::SourceChanged(source) => self.import_source_changed(&source),
-            Event::PreviewReceived(path, thumbnail) => self.preview_received(&path, thumbnail),
+            Event::PreviewReceived(path, thumbnail, date) => {
+                self.preview_received(&path, thumbnail, date)
+            }
             Event::AppendFiles(files) => self.append_files_to_import(&files),
         }
     }
@@ -330,14 +332,20 @@ impl ImportDialog {
             importer.get_previews_for(
                 &self.state.borrow().source,
                 paths,
-                Box::new(move |path, thumbnail| {
-                    on_err_out!(tx.send(Event::PreviewReceived(path, thumbnail)));
+                Box::new(move |path, thumbnail, date| {
+                    on_err_out!(tx.send(Event::PreviewReceived(path, thumbnail, date)));
                 }),
             );
         }
     }
 
-    fn preview_received(&self, path: &str, thumbnail: Thumbnail) {
+    fn preview_received(&self, path: &str, thumbnail: Option<Thumbnail>, date: Option<Date>) {
+        if thumbnail.is_none() && date.is_none() {
+            return;
+        }
+
+        dbg_out!("preview and date received {:?}", date);
+
         if let Some(idx) = self.state.borrow_mut().images_list_map.get(path) {
             self.widgets.get().and_then(|widgets| {
                 widgets
@@ -345,7 +353,8 @@ impl ImportDialog {
                     .item(*idx)
                     .and_then(|item| item.downcast::<ThumbItem>().ok())
                     .map(|item| {
-                        item.set_pixbuf(thumbnail.make_pixbuf());
+                        item.set_pixbuf(thumbnail.and_then(|t| t.make_pixbuf()));
+                        item.set_date(date);
                         widgets.images_list_model.items_changed(*idx, 0, 0);
 
                         item

@@ -17,9 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use npc_fwk::Date;
+
 pub trait ImportedFile: Send {
     fn name(&self) -> &str;
     fn path(&self) -> &str;
+    fn date(&self) -> Option<&Date>;
     /// remove when the cxx binding is gone
     fn folder(&self) -> &str;
 }

@@ -19,8 +19,8 @@
 
 use std::path::Path;
 
-use npc_fwk::dbg_out;
 use npc_fwk::utils::files::FileList;
+use npc_fwk::{dbg_out, Date, XmpMeta};
 
 use super::ImportedFile;
 use crate::db::Managed;
@@ -30,6 +30,7 @@ use crate::importer::{FileImporter, Importer, PreviewReady, SourceContentReady};
 pub struct DirectoryImportedFile {
     name: String,
     path: String,
+    date: Option<Date>,
 }
 
 impl DirectoryImportedFile {
@@ -44,6 +45,7 @@ impl DirectoryImportedFile {
         Box::new(Self {
             name,
             path: path.to_str().unwrap_or("").to_owned(),
+            date: None,
         })
     }
 }
@@ -55,6 +57,10 @@ impl ImportedFile for DirectoryImportedFile {
 
     fn path(&self) -> &str {
         &self.path
+    }
+
+    fn date(&self) -> Option<&Date> {
+        self.date.as_ref()
     }
 
     fn folder(&self) -> &str {
@@ -92,7 +98,8 @@ impl Importer for DirectoryImporter {
             for path in paths {
                 dbg_out!("path {}", path);
                 let thumbnail = npc_fwk::toolkit::Thumbnail::thumbnail_file(&path, 160, 160, 0);
-                callback(path.to_string(), thumbnail);
+                let date = XmpMeta::new_from_file(&path, false).and_then(|xmp| xmp.creation_date());
+                callback(path.to_string(), Some(thumbnail), date);
             }
         });
     }

@@ -20,6 +20,7 @@
 use glib::subclass::prelude::*;
 
 use npc_engine::importer::ImportedFile;
+use npc_fwk::Date;
 
 glib::wrapper! {
     /// Item in the workspace
@@ -32,6 +33,7 @@ impl ThumbItem {
         let obj: Self = glib::Object::new(&[]);
         obj.imp().data.replace(Some(imp::ItemData {
             name: imported_file.name().to_string(),
+            date: None,
             pixbuf: None,
         }));
 
@@ -44,6 +46,12 @@ impl ThumbItem {
             .borrow()
             .as_ref()
             .map(|data| data.name.clone())
+    }
+
+    pub fn set_date(&self, date: Option<Date>) {
+        if let Some(ref mut data) = *self.imp().data.borrow_mut() {
+            data.date = date;
+        }
     }
 
     pub fn set_pixbuf(&self, pixbuf: Option<gdk_pixbuf::Pixbuf>) {
@@ -66,6 +74,8 @@ mod imp {
 
     use gio::subclass::prelude::*;
 
+    use npc_fwk::Date;
+
     #[derive(Default)]
     pub struct ThumbItem {
         pub(super) data: RefCell<Option<ItemData>>,
@@ -74,6 +84,7 @@ mod imp {
     pub(super) struct ItemData {
         pub(super) name: String,
         pub(super) pixbuf: Option<gdk_pixbuf::Pixbuf>,
+        pub(super) date: Option<Date>,
     }
 
     #[glib::object_subclass]
