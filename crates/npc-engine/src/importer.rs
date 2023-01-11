@@ -48,9 +48,9 @@ type SourceContentReady = Box<dyn Fn(Vec<Box<dyn ImportedFile>>) + Send>;
 type PreviewReady = Box<dyn Fn(String, Option<Thumbnail>, Option<Date>) + Send>;
 type FileImporter = Box<dyn Fn(&Path, &FileList, Managed) + Send>;
 
-/// Trait for file importers.
-pub trait Importer {
-    /// ID of the importer.
+/// Trait for file importers backends.
+pub trait ImportBackend {
+    /// ID of the importer backend.
     fn id(&self) -> &'static str;
 
     /// List the source content. If possible this should be spawning a thread. `callback`

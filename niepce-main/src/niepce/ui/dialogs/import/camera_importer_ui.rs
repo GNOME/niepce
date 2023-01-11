@@ -24,7 +24,7 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
 use super::{ImporterUI, SourceSelectedCallback};
-use npc_engine::importer::{CameraImporter, Importer};
+use npc_engine::importer::{CameraImporter, ImportBackend};
 use npc_fwk::toolkit;
 use npc_fwk::{err_out, on_err_out};
 
@@ -43,7 +43,7 @@ struct Widgets {
 pub(super) struct CameraImporterUI {
     tx: glib::Sender<Event>,
     name: String,
-    importer: Rc<dyn Importer>,
+    importer: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
 }
 
@@ -102,7 +102,7 @@ impl ImporterUI for CameraImporterUI {
         self.importer.id().to_string()
     }
 
-    fn importer(&self) -> Rc<dyn Importer> {
+    fn importer(&self) -> Rc<dyn ImportBackend> {
         self.importer.clone()
     }
 

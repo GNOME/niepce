@@ -24,7 +24,7 @@ use npc_fwk::{dbg_out, Date, XmpMeta};
 
 use super::ImportedFile;
 use crate::db::Managed;
-use crate::importer::{FileImporter, Importer, PreviewReady, SourceContentReady};
+use crate::importer::{FileImporter, ImportBackend, PreviewReady, SourceContentReady};
 
 #[derive(Clone)]
 pub struct DirectoryImportedFile {
@@ -71,7 +71,7 @@ impl ImportedFile for DirectoryImportedFile {
 #[derive(Default)]
 pub struct DirectoryImporter {}
 
-impl Importer for DirectoryImporter {
+impl ImportBackend for DirectoryImporter {
     fn id(&self) -> &'static str {
         "DirectoryImporter"
     }

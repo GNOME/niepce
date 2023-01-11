@@ -24,7 +24,7 @@ use std::rc::Rc;
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
-use npc_engine::importer::{DirectoryImporter, Importer};
+use npc_engine::importer::{DirectoryImporter, ImportBackend};
 use npc_fwk::{err_out, on_err_out};
 
 use super::{ImporterUI, SourceSelectedCallback};
@@ -45,7 +45,7 @@ struct Widgets {
 pub(super) struct DirectoryImporterUI {
     tx: glib::Sender<Event>,
     name: String,
-    importer: Rc<dyn Importer>,
+    importer: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
 }
 
@@ -134,7 +134,7 @@ impl ImporterUI for DirectoryImporterUI {
         self.importer.id().to_string()
     }
 
-    fn importer(&self) -> Rc<dyn Importer> {
+    fn importer(&self) -> Rc<dyn ImportBackend> {
         self.importer.clone()
     }
 

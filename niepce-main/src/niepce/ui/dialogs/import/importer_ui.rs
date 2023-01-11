@@ -19,7 +19,7 @@
 
 use std::rc::Rc;
 
-use npc_engine::importer::Importer;
+use npc_engine::importer::ImportBackend;
 
 pub type SourceSelectedCallback = Box<dyn Fn(&str, &str)>;
 
@@ -31,7 +31,7 @@ pub(super) trait ImporterUI {
     fn name(&self) -> &str;
 
     /// The actual importer
-    fn importer(&self) -> Rc<dyn Importer>;
+    fn importer(&self) -> Rc<dyn ImportBackend>;
 
     /// Setup the widget
     fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget;

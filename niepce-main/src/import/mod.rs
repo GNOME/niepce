@@ -20,17 +20,17 @@
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
-use npc_engine::importer::Importer;
+use npc_engine::importer::ImportBackend;
 
 /// An import request
 pub struct ImportRequest {
     source: String,
     dest: PathBuf,
-    importer: Rc<dyn Importer>,
+    importer: Rc<dyn ImportBackend>,
 }
 
 impl ImportRequest {
-    pub fn new<P: AsRef<Path>>(source: String, dest: P, importer: Rc<dyn Importer>) -> Self {
+    pub fn new<P: AsRef<Path>>(source: String, dest: P, importer: Rc<dyn ImportBackend>) -> Self {
         Self {
             source,
             dest: dest.as_ref().to_path_buf(),
@@ -46,7 +46,7 @@ impl ImportRequest {
         &self.dest
     }
 
-    pub fn importer(&self) -> &Rc<dyn Importer> {
+    pub fn importer(&self) -> &Rc<dyn ImportBackend> {
         &self.importer
     }
 }

@@ -20,7 +20,7 @@
 use std::cell::RefCell;
 use std::path::Path;
 
-use super::{FileImporter, ImportedFile, Importer, PreviewReady, SourceContentReady};
+use super::{FileImporter, ImportBackend, ImportedFile, PreviewReady, SourceContentReady};
 use crate::db::Managed;
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
 use npc_fwk::utils::files::FileList;
@@ -96,7 +96,7 @@ impl CameraImporter {
     }
 }
 
-impl Importer for CameraImporter {
+impl ImportBackend for CameraImporter {
     fn id(&self) -> &'static str {
         "CameraImporter"
     }

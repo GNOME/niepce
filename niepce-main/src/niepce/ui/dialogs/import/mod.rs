@@ -39,7 +39,7 @@ use once_cell::sync::OnceCell;
 
 use crate::ffi;
 use crate::import::ImportRequest;
-use npc_engine::importer::{ImportedFile, Importer};
+use npc_engine::importer::{ImportBackend, ImportedFile};
 use npc_fwk::toolkit::Thumbnail;
 use npc_fwk::{dbg_out, err_out, on_err_out, Date};
 use thumb_item::ThumbItem;
@@ -275,7 +275,7 @@ impl ImportDialog {
         }
     }
 
-    fn importer(&self) -> Option<Rc<dyn Importer>> {
+    fn importer(&self) -> Option<Rc<dyn ImportBackend>> {
         self.widgets
             .get()?
             .current_importer
