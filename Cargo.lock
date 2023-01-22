@@ -856,6 +856,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
+name = "i18n-format"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f249c6dcfe2e8403f0e309da6f6b552dcfb607b094b5038db0709f8010fa4ea0"
+dependencies = [
+ "gettext-rs",
+ "quote",
+]
+
+[[package]]
 name = "iana-time-zone"
 version = "0.1.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1159,6 +1169,7 @@ dependencies = [
  "gtk-macros",
  "gtk4",
  "gtk4-sys",
+ "i18n-format",
  "lazy_static",
  "libadwaita",
  "libc",

@@ -30,6 +30,7 @@ use glib::clone;
 use gtk4;
 use gtk4::prelude::*;
 use gtk4::{Assistant, Builder};
+use i18n_format::i18n_fmt;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 
@@ -286,7 +287,10 @@ impl ImportLibraryDialog {
         let label = self.state.borrow().importer_name_label.clone();
         if let Some(ref mut importer) = self.state.borrow_mut().importer {
             if let Some(label) = label {
-                let importing = format!("{} {}", &i18n("Importing from"), importer.name());
+                let importing = i18n_fmt! {
+                    // Translators: {} is the import source.
+                    i18n_fmt("Importing from {}", importer.name())
+                };
                 label.set_text(&importing);
             }
             let roots = importer.root_folders();

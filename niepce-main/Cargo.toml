@@ -21,6 +21,7 @@ graphene-rs = "0.16"
 gtk4-sys = "*"
 gtk4 = { version = "*", features = [ "v4_6" ] }
 gtk-macros = "0.3.0"
+i18n-format = "0.2.0"
 lazy_static = "^1.4.0"
 libadwaita = "*"
 libc = "0.2.39"
