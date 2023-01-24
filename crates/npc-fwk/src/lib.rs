@@ -134,7 +134,7 @@ pub fn file_list_get_media_files_from_directory(dir: &str) -> Box<FileList> {
 }
 
 pub fn file_list_new() -> Box<FileList> {
-    Box::new(FileList::default())
+    Box::<FileList>::default()
 }
 
 pub fn metadata_widget_new(title: &str) -> Box<MetadataWidget> {

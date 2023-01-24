@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/undo.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -267,7 +267,7 @@ pub fn do_command(label: &str, redo_fn: Box<dyn Fn() -> Storage>, undo_fn: Box<d
 
 // cxx
 pub fn undo_history_new() -> Box<UndoHistory> {
-    Box::new(UndoHistory::default())
+    Box::<UndoHistory>::default()
 }
 
 #[cfg(test)]

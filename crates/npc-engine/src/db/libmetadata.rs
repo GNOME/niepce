@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libmetadata.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -205,7 +205,7 @@ impl LibMetadata {
 
     pub fn to_properties(&self, propset: &PropertySet<Np>) -> Box<NiepcePropertyBag> {
         use super::NiepcePropertyIdx as Npi;
-        let mut property_bag = Box::new(NiepcePropertyBag::default());
+        let mut property_bag = Box::<NiepcePropertyBag>::default();
         let props = &mut property_bag.deref_mut().0;
         for prop_id in propset {
             match *prop_id {

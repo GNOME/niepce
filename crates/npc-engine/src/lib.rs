@@ -88,7 +88,7 @@ impl std::ops::DerefMut for PropertyBag {
 }
 
 pub fn property_set_new() -> Box<PropertySet> {
-    Box::new(PropertySet::default())
+    Box::<PropertySet>::default()
 }
 
 pub type NiepcePropertySet = PropertySet;
