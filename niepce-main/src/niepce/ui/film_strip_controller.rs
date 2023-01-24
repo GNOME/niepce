@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/film_strip_controller.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Ref, RefCell, RefMut};
+use std::cell::RefCell;
 use std::rc::Rc;
 
 use gtk4::prelude::*;
@@ -43,15 +43,7 @@ pub struct FilmStripController {
 }
 
 impl Controller for FilmStripController {
-    fn imp(&self) -> Ref<'_, ControllerImpl> {
-        self.imp_.borrow()
-    }
-
-    fn imp_mut(&self) -> RefMut<'_, ControllerImpl> {
-        self.imp_.borrow_mut()
-    }
-
-    fn on_ready(&self) {}
+    npc_fwk::controller_imp_imp!(imp_);
 }
 
 impl UiController for FilmStripController {

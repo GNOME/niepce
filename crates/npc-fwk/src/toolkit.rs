@@ -20,6 +20,7 @@
 pub mod assistant;
 mod configuration;
 pub mod confirm;
+#[macro_use]
 mod controller;
 pub mod gdk_utils;
 mod gphoto;

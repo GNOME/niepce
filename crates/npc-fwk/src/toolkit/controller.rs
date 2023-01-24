@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/controller.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,26 @@ use std::cell::{Ref, RefMut};
 use std::rc::{Rc, Weak};
 
 use uuid::Uuid;
+
+/// Use this macro inside the impl to implement `imp()` and `imp_mut()`
+///
+/// ```rust,ignore
+/// impl Controller for MyController {
+///     npc_fwk::controller_imp_imp!()
+/// }
+/// ```
+#[macro_export]
+macro_rules! controller_imp_imp {
+    ( $f:ident ) => {
+        fn imp(&self) -> std::cell::Ref<'_, $crate::toolkit::ControllerImpl> {
+            self.$f.borrow()
+        }
+
+        fn imp_mut(&self) -> std::cell::RefMut<'_, $crate::toolkit::ControllerImpl> {
+            self.$f.borrow_mut()
+        }
+    };
+}
 
 pub struct ControllerImpl {
     pub id: Uuid,
@@ -103,11 +123,13 @@ pub trait Controller {
     }
 
     /// What to do when ready.
-    fn on_ready(&self);
+    fn on_ready(&self) {}
 
     /// Return the implementation
+    /// Implemented via controller_imp_imp!()
     fn imp(&self) -> Ref<'_, ControllerImpl>;
     /// Return the mutable implementation
+    /// Implemented via controller_imp_imp!()
     fn imp_mut(&self) -> RefMut<'_, ControllerImpl>;
 }
 

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/map.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Ref, RefCell, RefMut};
+use std::cell::RefCell;
 
 use glib::translate::*;
 
@@ -33,18 +33,7 @@ pub struct MapModuleProxy {
 }
 
 impl Controller for MapModuleProxy {
-    /// What to do when ready.
-    fn on_ready(&self) {}
-
-    /// Return the implementation
-    fn imp(&self) -> Ref<'_, ControllerImpl> {
-        self.imp_.borrow()
-    }
-
-    /// Return the mutable implementation
-    fn imp_mut(&self) -> RefMut<'_, ControllerImpl> {
-        self.imp_.borrow_mut()
-    }
+    npc_fwk::controller_imp_imp!(imp_);
 }
 
 impl UiController for MapModuleProxy {

@@ -21,7 +21,7 @@ mod ws_item_row;
 mod ws_list_item;
 mod ws_list_model;
 
-use std::cell::{Ref, RefCell, RefMut};
+use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::{Arc, Weak};
 
@@ -278,15 +278,7 @@ impl Widgets {
 }
 
 impl Controller for WorkspaceController {
-    fn imp(&self) -> Ref<'_, ControllerImpl> {
-        self.imp_.borrow()
-    }
-
-    fn imp_mut(&self) -> RefMut<'_, ControllerImpl> {
-        self.imp_.borrow_mut()
-    }
-
-    fn on_ready(&self) {}
+    npc_fwk::controller_imp_imp!(imp_);
 }
 
 impl UiController for WorkspaceController {
