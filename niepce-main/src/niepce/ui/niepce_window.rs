@@ -37,7 +37,7 @@ use npc_fwk::{dbg_out, err_out, on_err_out};
 use super::film_strip_controller::FilmStripController;
 use super::module_shell::ModuleShell;
 use super::workspace_controller::WorkspaceController;
-use crate::NotificationCenter;
+use crate::{config, NotificationCenter};
 
 enum Event {
     Delete,
@@ -115,6 +115,10 @@ impl UiController for NiepceWindow {
                 let import_button = gtk4::Button::with_label(&i18n("Import..."));
                 import_button.set_action_name(Some("workspace.Import"));
                 header.pack_start(&import_button);
+
+                if config::PROFILE == "Devel" {
+                    self.window().add_css_class("devel");
+                }
 
                 self.window().set_titlebar(Some(&header));
                 self.window().set_size_request(600, 400);

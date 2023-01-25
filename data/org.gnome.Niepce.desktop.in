@@ -5,7 +5,7 @@ Comment=Manage and edit your photos
 Keywords=photo;
 Exec=niepce %u
 # Translators: Do NOT translate or transliterate this text (this is an icon file name)!
-Icon=org.gnome.Niepce
+Icon=@APP_ID@
 StartupNotify=true
 Terminal=false
 Type=Application

@@ -35,15 +35,15 @@ using fwk::Application;
 namespace ui {
 
 NiepceApplication::NiepceApplication(int & argc, char** & argv)
-    : Application(argc, argv, "org.gnome.Niepce", PACKAGE)
+    : Application(argc, argv, APP_ID, PACKAGE)
 {
     fwk::ModuleManager * modmgr = module_manager();
     DBG_ASSERT(modmgr != NULL, "module manager is NULL.");
     if(modmgr) {
         // FIXME use a function to catenate the path.
         // There is none in fwk::utils.
-        // path for modules is $PREFIX/share/niepce/modules/$VERSION
-        modmgr->add_path(DATADIR "/" PACKAGE "/modules/" VERSION);
+        // path for modules is $PREFIX/share/niepce/modules/$NIEPCE_VERSION
+        modmgr->add_path(DATADIR "/" PACKAGE "/modules/" NIEPCE_VERSION);
     }
 }
 
@@ -74,7 +74,7 @@ void NiepceApplication::on_about()
     Gtk::AboutDialog* dlg = new Gtk::AboutDialog();
     dlg->set_program_name("Niepce Digital");
     dlg->set_version(VERSION);
-    dlg->set_logo_icon_name("org.gnome.Niepce");
+    dlg->set_logo_icon_name(APP_ID);
     dlg->set_license_type(Gtk::License::GPL_3_0);
     dlg->set_comments(Glib::ustring(_("A digital photo application.\n\n"
                                      "Build options: ")) +

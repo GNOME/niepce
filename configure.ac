@@ -147,27 +147,6 @@ fi
 AC_SUBST(CARGO_TARGET_SUBDIR)
 
 
-AC_CONFIG_FILES([
-Makefile
-art/Makefile
-doc/Doxyfile
-doc/Makefile
-doc/doxygen/Makefile
-data/Makefile
-data/org.gnome.Niepce.metainfo.xml.in
-data/themes/Makefile
-third_party/Makefile
-src/Makefile
-src/ext/Makefile
-src/fwk/Makefile
-src/fwk/base/Makefile
-src/fwk/utils/Makefile
-src/fwk/toolkit/Makefile
-src/engine/Makefile
-src/ncr/Makefile
-po/Makefile.in
-])
-
 dnl =============
 dnl niepce
 dnl =============
@@ -175,11 +154,14 @@ AM_CONDITIONAL(NIEPCE_BUILD, test "$NP_APP_NIEPCE" = "yes")
 if test "$NP_APP_NIEPCE" = "yes" ; then
 
 MAJOR_VERSION=0
-MINOR_VERSION=0
-MICRO_VERSION=1
+MINOR_VERSION=1
+MICRO_VERSION=0
 
 NIEPCE_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION"
 AC_SUBST(NIEPCE_VERSION)
+AC_DEFINE_UNQUOTED([NIEPCE_VERSION], ["$NIEPCE_VERSION"], [The Niepce base version])
+
+AC_DEFINE([APP_ID], ["org.gnome.Niepce"], [The application id])
 
 GETTEXT_PACKAGE=niepce
 AC_SUBST(GETTEXT_PACKAGE)
@@ -196,6 +178,24 @@ AC_SUBST(NIEPCE_LOCALEDIR)
 AC_DEFINE_UNQUOTED([NIEPCE_BUILD_CONFIG], ["$NIEPCE_BUILD_CONFIG"], [The string used to hardcode the build config.])
 
 AC_CONFIG_FILES([
+Makefile
+art/Makefile
+doc/Doxyfile
+doc/Makefile
+doc/doxygen/Makefile
+data/Makefile
+data/org.gnome.Niepce.metainfo.xml.in
+data/themes/Makefile
+third_party/Makefile
+po/Makefile.in
+src/Makefile
+src/ext/Makefile
+src/fwk/Makefile
+src/fwk/base/Makefile
+src/fwk/utils/Makefile
+src/fwk/toolkit/Makefile
+src/engine/Makefile
+src/ncr/Makefile
 src/niepce/ui/Makefile
 src/niepce/modules/Makefile
 src/niepce/modules/darkroom/Makefile

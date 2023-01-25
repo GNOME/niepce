@@ -2,6 +2,7 @@
 <gresources>
   <gresource prefix="/org/gnome/Niepce">
     <file alias="/scalable/apps/org.gnome.Niepce.svg">data/icons/org.gnome.Niepce.svg</file>
+    <file alias="/scalable/apps/org.gnome.Niepce.Devel.svg">data/icons/org.gnome.Niepce.Devel.svg</file>
     <file alias="/pixmaps/file-cabinet-symbolic.svg" preprocess="xml-stripblanks">data/icons/file-cabinet-symbolic.svg</file>
     <file alias="/pixmaps/tag-symbolic.svg" preprocess="xml-stripblanks">data/icons/tag-symbolic.svg</file>
     <file alias="/pixmaps/folder-symbolic.svg" preprocess="xml-stripblanks">data/icons/folder-symbolic.svg</file>

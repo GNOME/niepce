@@ -21,6 +21,7 @@
 extern crate gtk_macros;
 extern crate libadwaita as adw;
 
+mod config;
 mod import;
 pub mod modules;
 pub mod niepce;

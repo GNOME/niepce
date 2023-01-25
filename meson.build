@@ -60,10 +60,12 @@ if get_option('profile') == 'development'
     version_suffix = '-@0@'.format(vcs_tag)
   endif
   application_id = '@0@.@1@'.format(base_id, profile)
+  package = '@0@-devel'.format(meson.project_name())
 else
   profile = ''
   version_suffix = ''
   application_id = base_id
+  package = meson.project_name()
 endif
 
 if get_option('buildtype') == 'debug'
@@ -88,13 +90,14 @@ global_conf = configuration_data()
 global_conf.set_quoted('APP_ID', application_id)
 global_conf.set_quoted('PKGDATADIR', pkgdatadir)
 global_conf.set_quoted('PROFILE', profile)
+global_conf.set_quoted('NIEPCE_VERSION', version)
 global_conf.set_quoted('VERSION', version + version_suffix)
 global_conf.set_quoted('GETTEXT_PACKAGE', gettext_package)
 global_conf.set_quoted('LOCALEDIR', localedir)
 global_conf.set_quoted('NIEPCE_LOCALEDIR', localedir)
 global_conf.set_quoted('NIEPCE_BUILD_CONFIG', '')
 global_conf.set_quoted('DATADIR', datadir)
-global_conf.set_quoted('PACKAGE', meson.project_name())
+global_conf.set_quoted('PACKAGE', package)
 
 config_h = configure_file(
   input: 'config.h.meson.in',

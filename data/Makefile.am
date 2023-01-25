@@ -17,7 +17,7 @@ metainfo_DATA  = $(appdata_files)
 icondir = $(datarootdir)/icons/hicolor/scalable/apps
 icon_DATA = icons/org.gnome.Niepce.svg
 
-%.appdata.xml: %.appdata.xml.in
+%.metainfo.xml: %.metainfo.xml.in
 	$(AM_V_GEN)$(MSGFMT) --xml --template $< -d $(top_srcdir)/po -o $@
 
 icon_files = icons/niepce-jpg-fmt.png \

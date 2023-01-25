@@ -1,7 +1,7 @@
 #pragma once
 
 /* The domain to use with gettext */
-#define GETTEXT_PACKAGE @GETTEXT_PACKAGE@ 
+#define GETTEXT_PACKAGE @GETTEXT_PACKAGE@
 
 /* Where to find the locale */
 #define NIEPCE_LOCALEDIR @NIEPCE_LOCALEDIR@
@@ -14,5 +14,14 @@
 /* Name of package */
 #define PACKAGE @PACKAGE@
 
+/* Base version number of package (no suffix) */
+#define NIEPCE_VERSION @NIEPCE_VERSION@
+
 /* Version number of package */
 #define VERSION @VERSION@
+
+/* Application app-id */
+#define APP_ID @APP_ID@
+
+/* build profile */
+#define PROFILE @PROFILE@

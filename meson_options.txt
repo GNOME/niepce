@@ -2,9 +2,9 @@ option(
   'profile',
   type: 'combo',
   choices: [
-    'default',
+    'release',
     'development'
   ],
-  value: 'default',
-  description: 'The build profile for GTK Rust Template. One of "default" or "development".'
+  value: 'development',
+  description: 'The build profile for Niepce. One of "release" or "development" (default value).'
 )
