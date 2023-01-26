@@ -29,7 +29,7 @@ use crate::db::libfile::{FileStatus, LibFile};
 use crate::db::LibraryId;
 use crate::library::notification;
 use crate::library::notification::LibNotification::{FileStatusChanged, ThumbnailLoaded};
-use crate::library::notification::{FileStatusChange, LcChannel, LibNotification};
+use crate::library::notification::{FileStatusChange, LcChannel};
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::{dbg_out, err_out};
@@ -89,7 +89,7 @@ pub struct ThumbnailCache {
 }
 
 impl ThumbnailCache {
-    pub fn new(dir: &Path, sender: async_channel::Sender<LibNotification>) -> Self {
+    pub fn new(dir: &Path, sender: LcChannel) -> Self {
         Self {
             cache_dir: PathBuf::from(dir),
             tasks: sync::Arc::new((sync::Mutex::new(VecDeque::new()), sync::Condvar::new())),
@@ -98,11 +98,7 @@ impl ThumbnailCache {
         }
     }
 
-    fn execute(
-        task: ThumbnailTask,
-        cache_dir: &Path,
-        sender: async_channel::Sender<LibNotification>,
-    ) {
+    fn execute(task: ThumbnailTask, cache_dir: &Path, sender: LcChannel) {
         let w = task.width;
         let h = task.height;
         let libfile = task.file;
@@ -142,12 +138,7 @@ impl ThumbnailCache {
         }
     }
 
-    fn main(
-        running: &Running,
-        tasks: &Tasks,
-        cache_dir: PathBuf,
-        sender: async_channel::Sender<LibNotification>,
-    ) {
+    fn main(running: &Running, tasks: &Tasks, cache_dir: PathBuf, sender: LcChannel) {
         while running.load(atomic::Ordering::Relaxed) {
             let elem: Option<ThumbnailTask>;
             {

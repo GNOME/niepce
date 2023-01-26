@@ -389,7 +389,10 @@ impl NiepceWindow {
             glib::clone!(@strong dialog, @strong tx => move |_, response| {
                 if response == gtk4::ResponseType::Accept {
                     if let Some(catalog_to_create) = dialog.file().and_then(|f| f.path()) {
-                        on_err_out!(tx.send(Event::OpenCatalog(catalog_to_create)));
+                        on_err_out!(tx.send(Event::OpenCatalog(catalog_to_create.clone())));
+                        let app = npc_fwk::ffi::Application_app();
+                        let cfg = &app.config().cfg;
+                        cfg.set_value("last_open_catalog", &catalog_to_create.to_string_lossy());
                     }
                     dialog.destroy();
                 }

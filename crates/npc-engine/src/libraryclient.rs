@@ -37,7 +37,7 @@ use crate::db::filebundle::FileBundle;
 use crate::db::props::NiepceProperties as Np;
 use crate::db::{Library, LibraryId, Managed};
 use crate::library::commands;
-use crate::library::notification::{LcChannel, LibNotification};
+use crate::library::notification::LcChannel;
 use crate::library::op::Op;
 use crate::NiepcePropertyBag;
 use npc_fwk::base::PropertyValue;
@@ -118,7 +118,7 @@ impl Deref for LibraryClient {
 }
 
 impl LibraryClient {
-    pub fn new(dir: PathBuf, sender: async_channel::Sender<LibNotification>) -> LibraryClient {
+    pub fn new(dir: PathBuf, sender: LcChannel) -> LibraryClient {
         let (task_sender, task_receiver) = mpsc::channel::<Op>();
 
         let mut terminate = sync::Arc::new(atomic::AtomicBool::new(false));
