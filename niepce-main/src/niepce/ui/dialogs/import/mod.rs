@@ -41,7 +41,7 @@ use crate::ffi;
 use crate::import::ImportRequest;
 use npc_engine::importer::{ImportBackend, ImportedFile};
 use npc_fwk::toolkit::Thumbnail;
-use npc_fwk::{dbg_out, err_out, on_err_out, Date};
+use npc_fwk::{dbg_out, on_err_out, Date};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
 

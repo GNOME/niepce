@@ -5,7 +5,7 @@
 macro_rules! on_err_out {
     ($e:expr) => {
         if let Err(err) = $e {
-            err_out!(
+            $crate::err_out!(
                 "{}:{} Error '{}': {:?}",
                 file!(),
                 line!(),

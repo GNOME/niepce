@@ -41,7 +41,7 @@ use crate::library::notification::LcChannel;
 use crate::library::op::Op;
 use crate::NiepcePropertyBag;
 use npc_fwk::base::PropertyValue;
-use npc_fwk::{err_out, on_err_out};
+use npc_fwk::on_err_out;
 
 /// Wrap the libclient Arc so that it can be passed around
 /// Used in the ffi for example.

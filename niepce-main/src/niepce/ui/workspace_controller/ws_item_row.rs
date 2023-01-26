@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/ws_item_widget.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ mod imp {
 
     use super::super::{Event, Item, TreeItemType};
     use npc_engine::db;
-    use npc_fwk::{dbg_out, err_out, on_err_out};
+    use npc_fwk::{dbg_out, on_err_out};
 
     #[derive(Default)]
     pub struct WsItemRow {

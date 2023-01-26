@@ -1,7 +1,7 @@
 /*
  * niepce - ui/dialogs/import/directory_importer_ui.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
-use npc_fwk::{err_out, on_err_out};
+use npc_fwk::on_err_out;
 
 use super::{ImporterUI, SourceSelectedCallback};
 

@@ -24,7 +24,7 @@ use super::{FileImporter, ImportBackend, ImportedFile, PreviewReady, SourceConte
 use crate::db::Managed;
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
 use npc_fwk::utils::files::FileList;
-use npc_fwk::{err_out, on_err_out, Date};
+use npc_fwk::{on_err_out, Date};
 
 #[derive(Clone, Default)]
 pub struct CameraImportedFile {
