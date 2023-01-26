@@ -134,29 +134,31 @@ impl ImportBackend for CameraImporter {
         if self.ensure_camera_open(source) {
             if let Some(camera) = self.camera.borrow_mut().take() {
                 let dest_dir = dest_dir.to_path_buf();
-                std::thread::spawn(move || {
-                    let file_list = Self::list_content_for_camera(&camera);
-                    // XXX we likely need to handle this error better
-                    on_err_out!(std::fs::create_dir_all(&dest_dir));
-                    let files = file_list
-                        .iter()
-                        .filter_map(|file| {
-                            let name = file.name();
-                            let mut output_path = dest_dir.clone();
-                            output_path.push(name);
-                            if camera.download_file(
-                                file.folder(),
-                                name,
-                                &output_path.to_string_lossy(),
-                            ) {
-                                return Some(output_path);
-                            }
+                on_err_out!(std::thread::Builder::new()
+                    .name("camera import".to_string())
+                    .spawn(move || {
+                        let file_list = Self::list_content_for_camera(&camera);
+                        // XXX we likely need to handle this error better
+                        on_err_out!(std::fs::create_dir_all(&dest_dir));
+                        let files = file_list
+                            .iter()
+                            .filter_map(|file| {
+                                let name = file.name();
+                                let mut output_path = dest_dir.clone();
+                                output_path.push(name);
+                                if camera.download_file(
+                                    file.folder(),
+                                    name,
+                                    &output_path.to_string_lossy(),
+                                ) {
+                                    return Some(output_path);
+                                }
 
-                            None
-                        })
-                        .collect();
-                    callback(&dest_dir, &FileList(files), Managed::No);
-                });
+                                None
+                            })
+                            .collect();
+                        callback(&dest_dir, &FileList(files), Managed::No);
+                    }));
             }
         }
     }

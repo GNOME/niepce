@@ -23,7 +23,6 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync;
 use std::sync::atomic;
-use std::thread;
 
 use crate::db::libfile::{FileStatus, LibFile};
 use crate::db::LibraryId;
@@ -32,7 +31,7 @@ use crate::library::notification::LibNotification::{FileStatusChanged, Thumbnail
 use crate::library::notification::{FileStatusChange, LcChannel};
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
-use npc_fwk::{dbg_out, err_out};
+use npc_fwk::{dbg_out, err_out, on_err_out};
 
 /// Thumbnail task
 struct ThumbnailTask {
@@ -170,9 +169,11 @@ impl ThumbnailCache {
                 let tasks = self.tasks.clone();
                 let cache_dir = self.cache_dir.clone();
                 let sender = self.sender.clone();
-                thread::spawn(move || {
-                    Self::main(&running, &tasks, cache_dir, sender);
-                });
+                on_err_out!(std::thread::Builder::new()
+                    .name("thumbnail cache".to_string())
+                    .spawn(move || {
+                        Self::main(&running, &tasks, cache_dir, sender);
+                    }));
             }
         }
     }

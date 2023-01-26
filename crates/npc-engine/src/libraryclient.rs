@@ -125,10 +125,12 @@ impl LibraryClient {
         let terminate2 = terminate.clone();
 
         /* let thread = */
-        thread::spawn(move || {
-            let library = Library::new(&dir, None, sender);
-            Self::main(&mut terminate, task_receiver, &library);
-        });
+        on_err_out!(thread::Builder::new()
+            .name("library client".to_string())
+            .spawn(move || {
+                let library = Library::new(&dir, None, sender);
+                Self::main(&mut terminate, task_receiver, &library);
+            }));
 
         LibraryClient {
             terminate: terminate2,

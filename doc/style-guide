@@ -11,8 +11,10 @@ INTRODUCTION
 This is the style guide for the Niepce project.
 
 
-INDENTATION
------------
+C++
+---
+
+### Identation
 
 There is a .clang-format that will do the formatting for you.
 
@@ -28,8 +30,7 @@ Inner block, always indented
 -except namespaces
 
 
-SYMBOLS
--------
+### Symbols
 
 Namespaces:
 -Lower case, short
@@ -47,15 +48,11 @@ Member variables are prefix with m_ to alleviate shadowing
 Constants
 -uppercase
 
-
-HEADERS
--------
+### Headers
 
 Use #pragma once for header guards.
 
-
-C++
----
+### C++ language
 
 The standard is C++11.
 
@@ -70,3 +67,19 @@ If you want an object non-copyable, use the macro
 in ```fwk/base/util.hpp```. This will delete the default copy
 constructor and assignment operator. You may have to reimplement the
 default constructor. You can just use ```= default```.
+
+
+Rust
+----
+
+### threads
+
+Use `std::thread::Builder()` for creating threads and set a name.
+
+```rust
+std::thread::Builder()
+  .name("thread name".to_string())
+  .spawn(...);
+```
+
+The name will appear for panics.

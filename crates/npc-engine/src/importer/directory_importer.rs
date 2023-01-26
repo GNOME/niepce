@@ -20,7 +20,7 @@
 use std::path::Path;
 
 use npc_fwk::utils::files::FileList;
-use npc_fwk::{dbg_out, Date, XmpMeta};
+use npc_fwk::{dbg_out, on_err_out, Date, XmpMeta};
 
 use super::ImportedFile;
 use crate::db::Managed;
@@ -79,29 +79,34 @@ impl ImportBackend for DirectoryImporter {
     /// List the source content
     fn list_source_content(&self, source: &str, callback: SourceContentReady) {
         let source = source.to_string();
-        std::thread::spawn(move || {
-            let files = FileList::get_files_from_directory(source, FileList::file_is_media);
-            dbg_out!("files size: {}", files.0.len());
-            let content = files
-                .0
-                .iter()
-                .map(|path| DirectoryImportedFile::new_dyn(path))
-                .collect();
+        on_err_out!(std::thread::Builder::new()
+            .name("dir import list source".to_string())
+            .spawn(move || {
+                let files = FileList::get_files_from_directory(source, FileList::file_is_media);
+                dbg_out!("files size: {}", files.0.len());
+                let content = files
+                    .0
+                    .iter()
+                    .map(|path| DirectoryImportedFile::new_dyn(path))
+                    .collect();
 
-            callback(content);
-        });
+                callback(content);
+            }));
     }
 
     /// Fetch the previews
     fn get_previews_for(&self, _source: &str, paths: Vec<String>, callback: PreviewReady) {
-        std::thread::spawn(move || {
-            for path in paths {
-                dbg_out!("path {}", path);
-                let thumbnail = npc_fwk::toolkit::Thumbnail::thumbnail_file(&path, 160, 160, 0);
-                let date = XmpMeta::new_from_file(&path, false).and_then(|xmp| xmp.creation_date());
-                callback(path.to_string(), Some(thumbnail), date);
-            }
-        });
+        on_err_out!(std::thread::Builder::new()
+            .name("dir import get previews".to_string())
+            .spawn(move || {
+                for path in paths {
+                    dbg_out!("path {}", path);
+                    let thumbnail = npc_fwk::toolkit::Thumbnail::thumbnail_file(&path, 160, 160, 0);
+                    let date =
+                        XmpMeta::new_from_file(&path, false).and_then(|xmp| xmp.creation_date());
+                    callback(path.to_string(), Some(thumbnail), date);
+                }
+            }));
     }
 
     /// Do the import
