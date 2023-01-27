@@ -1430,7 +1430,7 @@ mod test {
             .expect("Didn't receive LibCreated message");
         match msg {
             LibNotification::LibCreated => {}
-            _ => assert!(false, "Wrong message type, expected LibCreated"),
+            _ => panic!("Wrong message type, expected LibCreated"),
         }
 
         let msg = receiver
@@ -1438,7 +1438,7 @@ mod test {
             .expect("Didn't receive DatabaseReady message");
         match msg {
             LibNotification::DatabaseReady => {}
-            _ => assert!(false, "Wrong message type, expected DatabaseReady"),
+            _ => panic!("Wrong message type, expected DatabaseReady"),
         }
 
         assert!(lib.is_ok());

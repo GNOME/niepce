@@ -56,6 +56,7 @@ clippy = run_target(
     cargo_env,
     cargo, 'clippy',
     cargo_options,
+    '--all-targets'
   ]
 )
 

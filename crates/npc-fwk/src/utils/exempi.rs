@@ -559,7 +559,7 @@ mod tests {
             assert_eq!(keywords[3], "ottawa");
             assert_eq!(keywords[4], "parliament of canada");
         } else {
-            assert!(false);
+            unreachable!();
         }
     }
 
@@ -592,7 +592,7 @@ mod tests {
         let mut source = dir.clone();
         source.push("test.xmp");
 
-        let mut dest = dir.clone();
+        let mut dest = dir;
         dest.push("test2.xmp");
         let _xmp_manager = ExempiManager::new(None);
 
@@ -627,7 +627,7 @@ mod tests {
                 assert!(!dstmeta.xmp.has_property(super::NS_DC, "dc:subject[5]"));
             }
         } else {
-            assert!(false);
+            unreachable!();
         }
     }
 
@@ -657,26 +657,17 @@ mod tests {
         // well-formed 1
         output = gps_coord_from_xmp("45,29.6681666667N");
         assert!(output.is_some());
-        assert_eq!(
-            output.unwrap(),
-            45.494469444445002181964810006320476531982421875
-        );
+        assert_eq!(output.unwrap(), 45.494_469_444_445);
 
         // well-formed 2
         output = gps_coord_from_xmp("73,38.2871666667W");
         assert!(output.is_some());
-        assert_eq!(
-            output.unwrap(),
-            -73.6381194444449960201382054947316646575927734375
-        );
+        assert_eq!(output.unwrap(), -73.638_119_444_445);
 
         // well-formed 3
         output = gps_coord_from_xmp("45,29,30.45N");
         assert!(output.is_some());
-        assert_eq!(
-            output.unwrap(),
-            45.49179166666666418450404307805001735687255859375
-        );
+        assert_eq!(output.unwrap(), 45.491_791_666_666_664);
     }
 
     #[test]
@@ -685,7 +676,7 @@ mod tests {
         assert!(d.is_some());
         let d = d.unwrap();
         assert_eq!(d.year(), 2012);
-        assert_eq!(d.month(), 02);
+        assert_eq!(d.month(), 2);
         assert_eq!(d.day(), 17);
         assert_eq!(d.hour(), 11);
         assert_eq!(d.minute(), 10);

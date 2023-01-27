@@ -377,7 +377,7 @@ mod test {
 
         if let PropertyValue::Date(creation_date) = creation_date.unwrap() {
             let date = chrono::FixedOffset::west_opt(5 * 3600)
-                .and_then(|tz| tz.with_ymd_and_hms(2006, 12, 07, 23, 37, 30).single())
+                .and_then(|tz| tz.with_ymd_and_hms(2006, 12, 7, 23, 37, 30).single())
                 .unwrap();
             assert_eq!(creation_date, &Date(date));
         } else {

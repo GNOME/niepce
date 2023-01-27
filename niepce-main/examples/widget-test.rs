@@ -1,7 +1,7 @@
 /*
  * niepce - examples/widget-test.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,12 +71,12 @@ fn add_icon(store: &gio::ListStore) {
 
 pub fn main() {
     if let Err(err) = gtk4::init() {
-        println!("main: gtk::init failed: {}", err);
+        println!("main: gtk::init failed: {err}");
         panic!();
     }
 
     if let Err(err) = init() {
-        println!("main: init failed: {}", err);
+        println!("main: init failed: {err}");
         panic!();
     }
 
@@ -92,8 +92,8 @@ pub fn main() {
         add_icon(&store);
         add_icon(&store);
         let thumbview = ThumbStripView::new(&model);
-        (&thumbview).set_hexpand(true);
-        let thn = ThumbNav::new(&thumbview.deref(), ThumbNavMode::OneRow, true);
+        thumbview.set_hexpand(true);
+        let thn = ThumbNav::new(thumbview.deref(), ThumbNavMode::OneRow, true);
         thn.set_size_request(-1, 134);
 
         let box_ = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
@@ -108,8 +108,8 @@ pub fn main() {
         shell.append_page(&box_, "main", "Main");
 
         let image_grid = ImageGridView::new(&model, None, None);
-        (&image_grid).set_hexpand(true);
-        (&image_grid).set_vexpand(true);
+        image_grid.set_hexpand(true);
+        image_grid.set_vexpand(true);
         shell.append_page(image_grid.deref(), "grid", "Grid View");
 
         let window = gtk4::Window::new();

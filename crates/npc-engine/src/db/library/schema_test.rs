@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/db/schema_test.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -159,7 +159,7 @@ fn init_schema_v9(conn: &rusqlite::Connection) -> Result<()> {
     )
     .unwrap();
 
-    return Ok(());
+    Ok(())
 }
 
 #[test]

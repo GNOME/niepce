@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/filebundle.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -227,41 +227,32 @@ mod test {
 
     #[test]
     fn test_filebundle() {
-        let mut thelist: Vec<PathBuf> = vec![];
-
-        thelist.push(PathBuf::from("/foo/bar/img_0001.cr2"));
-        thelist.push(PathBuf::from("/foo/bar/img_0001.jpg"));
-        thelist.push(PathBuf::from("/foo/bar/img_0001.xmp"));
-
-        thelist.push(PathBuf::from("/foo/bar/dcs_0001.jpg"));
-        thelist.push(PathBuf::from("/foo/bar/dcs_0001.nef"));
-        thelist.push(PathBuf::from("/foo/bar/dcs_0001.xmp"));
-
-        thelist.push(PathBuf::from("/foo/bar/img_0142.jpg"));
-        thelist.push(PathBuf::from("/foo/bar/img_0142.mov"));
-
-        thelist.push(PathBuf::from("/foo/bar/img_0143.mov"));
-        thelist.push(PathBuf::from("/foo/bar/img_0143.jpg"));
-
-        thelist.push(PathBuf::from("/foo/bar/img_0144.crw"));
-        thelist.push(PathBuf::from("/foo/bar/img_0144.thm"));
-
-        thelist.push(PathBuf::from("/foo/bar/mvi_0145.mov"));
-        thelist.push(PathBuf::from("/foo/bar/mvi_0145.thm"));
-
-        thelist.push(PathBuf::from("/foo/bar/scs_3445.jpg"));
-        thelist.push(PathBuf::from("/foo/bar/scs_3445.raf"));
-        thelist.push(PathBuf::from("/foo/bar/scs_3445.jpg.xmp"));
-
-        thelist.push(PathBuf::from("/foo/bar/scs_3446.jpg"));
-        thelist.push(PathBuf::from("/foo/bar/scs_3446.raf"));
-        thelist.push(PathBuf::from("/foo/bar/scs_3446.raf.pp3"));
-
-        // This file is invalid and should cause the bundle to be rejected.
-        // This would be number 9.
-        // Case occur when the mime type detection returns None.
-        thelist.push(PathBuf::from("/foo/bar/some_file.invalid"));
-
+        let thelist: Vec<PathBuf> = vec![
+            PathBuf::from("/foo/bar/img_0001.cr2"),
+            PathBuf::from("/foo/bar/img_0001.jpg"),
+            PathBuf::from("/foo/bar/img_0001.xmp"),
+            PathBuf::from("/foo/bar/dcs_0001.jpg"),
+            PathBuf::from("/foo/bar/dcs_0001.nef"),
+            PathBuf::from("/foo/bar/dcs_0001.xmp"),
+            PathBuf::from("/foo/bar/img_0142.jpg"),
+            PathBuf::from("/foo/bar/img_0142.mov"),
+            PathBuf::from("/foo/bar/img_0143.mov"),
+            PathBuf::from("/foo/bar/img_0143.jpg"),
+            PathBuf::from("/foo/bar/img_0144.crw"),
+            PathBuf::from("/foo/bar/img_0144.thm"),
+            PathBuf::from("/foo/bar/mvi_0145.mov"),
+            PathBuf::from("/foo/bar/mvi_0145.thm"),
+            PathBuf::from("/foo/bar/scs_3445.jpg"),
+            PathBuf::from("/foo/bar/scs_3445.raf"),
+            PathBuf::from("/foo/bar/scs_3445.jpg.xmp"),
+            PathBuf::from("/foo/bar/scs_3446.jpg"),
+            PathBuf::from("/foo/bar/scs_3446.raf"),
+            PathBuf::from("/foo/bar/scs_3446.raf.pp3"),
+            // This file is invalid and should cause the bundle to be rejected.
+            // This would be number 9.
+            // Case occur when the mime type detection returns None.
+            PathBuf::from("/foo/bar/some_file.invalid"),
+        ];
         let bundles_list = FileBundle::filter_bundles(&thelist);
 
         assert_eq!(bundles_list.len(), 8);
@@ -273,7 +264,7 @@ mod test {
             assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/dcs_0001.jpg"));
             assert_eq!(b.xmp_sidecar(), PathBuf::from("/foo/bar/dcs_0001.xmp"));
         } else {
-            assert!(false);
+            unreachable!();
         }
 
         if let Some(b) = iter.next() {
@@ -282,7 +273,7 @@ mod test {
             assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/img_0001.jpg"));
             assert_eq!(b.xmp_sidecar(), PathBuf::from("/foo/bar/img_0001.xmp"));
         } else {
-            assert!(false);
+            unreachable!();
         }
 
         if let Some(b) = iter.next() {
@@ -296,7 +287,7 @@ mod test {
                 Sidecar::Live(PathBuf::from("/foo/bar/img_0142.mov"))
             );
         } else {
-            assert!(false);
+            unreachable!();
         }
 
         if let Some(b) = iter.next() {
@@ -310,7 +301,7 @@ mod test {
                 Sidecar::Live(PathBuf::from("/foo/bar/img_0143.mov"))
             );
         } else {
-            assert!(false);
+            unreachable!();
         }
 
         if let Some(b) = iter.next() {
@@ -324,7 +315,7 @@ mod test {
                 Sidecar::Thumbnail(PathBuf::from("/foo/bar/img_0144.thm"))
             );
         } else {
-            assert!(false);
+            unreachable!();
         }
 
         if let Some(b) = iter.next() {
@@ -338,7 +329,7 @@ mod test {
                 Sidecar::Thumbnail(PathBuf::from("/foo/bar/mvi_0145.thm"))
             );
         } else {
-            assert!(false);
+            unreachable!();
         }
 
         if let Some(b) = iter.next() {
@@ -354,7 +345,7 @@ mod test {
             assert_eq!(b.xmp_sidecar(), PathBuf::from("/foo/bar/scs_3445.jpg.xmp"));
             assert_eq!(b.sidecars.len(), 0);
         } else {
-            assert!(false);
+            unreachable!();
         }
 
         if let Some(b) = iter.next() {
@@ -370,7 +361,7 @@ mod test {
             assert!(b.xmp_sidecar().as_os_str().is_empty());
             assert_eq!(b.sidecars.len(), 0);
         } else {
-            assert!(false);
+            unreachable!();
         }
     }
 }
