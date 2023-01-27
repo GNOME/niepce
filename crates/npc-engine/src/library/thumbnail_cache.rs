@@ -18,11 +18,8 @@
  */
 
 use std::cmp;
-use std::collections::VecDeque;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync;
-use std::sync::atomic;
 
 use crate::db::libfile::{FileStatus, LibFile};
 use crate::db::LibraryId;
@@ -77,27 +74,25 @@ fn get_thumbnail(f: &LibFile, w: i32, h: i32, cached: &Path) -> Thumbnail {
     thumbnail
 }
 
-type Tasks = sync::Arc<(sync::Mutex<VecDeque<ThumbnailTask>>, sync::Condvar)>;
-type Running = sync::Arc<atomic::AtomicBool>;
-
 pub struct ThumbnailCache {
-    cache_dir: PathBuf,
-    tasks: Tasks,
-    running: Running,
-    sender: LcChannel,
+    /// Queue to send task
+    queue_sender: std::sync::mpsc::Sender<ThumbnailTask>,
 }
 
 impl ThumbnailCache {
     pub fn new(dir: &Path, sender: LcChannel) -> Self {
-        Self {
-            cache_dir: PathBuf::from(dir),
-            tasks: sync::Arc::new((sync::Mutex::new(VecDeque::new()), sync::Condvar::new())),
-            running: sync::Arc::new(atomic::AtomicBool::new(false)),
-            sender,
-        }
+        let (queue_sender, queue) = std::sync::mpsc::channel();
+        let cache_dir = PathBuf::from(dir);
+        on_err_out!(std::thread::Builder::new()
+            .name("thumbnail cache".to_string())
+            .spawn(move || {
+                Self::main(cache_dir, queue, sender);
+            }));
+
+        Self { queue_sender }
     }
 
-    fn execute(task: ThumbnailTask, cache_dir: &Path, sender: LcChannel) {
+    fn execute(task: ThumbnailTask, cache_dir: &Path, sender: &LcChannel) {
         let w = task.width;
         let h = task.height;
         let libfile = task.file;
@@ -137,51 +132,23 @@ impl ThumbnailCache {
         }
     }
 
-    fn main(running: &Running, tasks: &Tasks, cache_dir: PathBuf, sender: LcChannel) {
-        while running.load(atomic::Ordering::Relaxed) {
-            let elem: Option<ThumbnailTask>;
-            {
-                let mut queue = tasks.0.lock().unwrap();
-                if !queue.is_empty() {
-                    elem = queue.pop_front();
-                } else {
-                    elem = None;
-                }
-            }
-
-            if let Some(task) = elem {
-                Self::execute(task, &cache_dir, sender.clone());
-            }
-
-            let queue = tasks.0.lock().unwrap();
-            if queue.is_empty() {
-                running.store(false, atomic::Ordering::Relaxed);
-            }
+    fn main(
+        cache_dir: PathBuf,
+        queue: std::sync::mpsc::Receiver<ThumbnailTask>,
+        sender: LcChannel,
+    ) {
+        while let Ok(task) = queue.recv() {
+            Self::execute(task, &cache_dir, &sender);
         }
-    }
-
-    fn schedule(&self, task: ThumbnailTask) {
-        if let Ok(ref mut q) = self.tasks.0.lock() {
-            q.push_back(task);
-            if !self.running.load(atomic::Ordering::Relaxed) {
-                self.running.store(true, atomic::Ordering::Relaxed);
-                let running = self.running.clone();
-                let tasks = self.tasks.clone();
-                let cache_dir = self.cache_dir.clone();
-                let sender = self.sender.clone();
-                on_err_out!(std::thread::Builder::new()
-                    .name("thumbnail cache".to_string())
-                    .spawn(move || {
-                        Self::main(&running, &tasks, cache_dir, sender);
-                    }));
-            }
-        }
+        dbg_out!("thumbnail cache thread terminating");
     }
 
     /// Request thumbnails.
     pub fn request(&self, fl: &[LibFile]) {
         for f in fl {
-            self.schedule(ThumbnailTask::new(f.clone(), 160, 160));
+            on_err_out!(self
+                .queue_sender
+                .send(ThumbnailTask::new(f.clone(), 160, 160)));
         }
     }
 
