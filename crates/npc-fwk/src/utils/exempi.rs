@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/exempi.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,31 +92,31 @@ impl Flash {
         // XXX use set_struct_field() as soon as it is available
         xmp.set_property(
             ns,
-            &format!("{}/exif:Fired", property),
+            &format!("{property}/exif:Fired"),
             bool_to_propstring(self.fired),
             exempi2::PropFlags::NONE,
         )?;
         xmp.set_property(
             ns,
-            &format!("{}/exif:Return", property),
+            &format!("{property}/exif:Return"),
             &format!("{}", self.rturn),
             exempi2::PropFlags::NONE,
         )?;
         xmp.set_property(
             ns,
-            &format!("{}/exif:Mode", property),
+            &format!("{property}/exif:Mode"),
             &format!("{}", self.mode),
             exempi2::PropFlags::NONE,
         )?;
         xmp.set_property(
             ns,
-            &format!("{}/exif:Function", property),
+            &format!("{property}/exif:Function"),
             bool_to_propstring(self.function),
             exempi2::PropFlags::NONE,
         )?;
         xmp.set_property(
             ns,
-            &format!("{}/exif:RedEyeMode", property),
+            &format!("{property}/exif:RedEyeMode"),
             bool_to_propstring(self.red_eye),
             exempi2::PropFlags::NONE,
         )?;

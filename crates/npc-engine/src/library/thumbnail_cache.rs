@@ -164,7 +164,7 @@ impl ThumbnailCache {
     ) -> Option<PathBuf> {
         // XXX properly report the error
         let base_name = filename.file_name().and_then(|f| f.to_str())?;
-        let thumb_name = format!("{}-{}.png", id, base_name);
+        let thumb_name = format!("{id}-{base_name}.png");
         let mut path = Self::dir_for_thumbnail(size, cache_dir);
         path.push(thumb_name);
         Some(path)

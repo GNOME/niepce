@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/metadata_widget.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -375,7 +375,7 @@ mod imp {
                 dbg_out!("set fraction {}", s);
                 return if let Some(w) = w.downcast_ref::<gtk4::Label>() {
                     if let Some((n, d)) = crate::parse_fraction(s) {
-                        let frac_str = format!("{}/{}", n, d);
+                        let frac_str = format!("{n}/{d}");
                         w.set_text(&frac_str);
                         true
                     } else {

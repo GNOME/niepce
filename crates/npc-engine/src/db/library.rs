@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/library.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ impl From<rusqlite::Error> for Error {
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -268,7 +268,7 @@ impl Library {
     /// It will perform a backup of the database.
     pub fn perform_upgrade(&self, from_version: i32) -> Result<()> {
         dbg_out!("Upgrading...");
-        let suffix = format!("version_{}", from_version);
+        let suffix = format!("version_{from_version}");
         self.backup_database_file(&suffix)?;
         upgrade::library_to(self, from_version, DB_SCHEMA_VERSION)?;
         on_err_out!(self.notify(LibNotification::DatabaseReady));
@@ -1133,7 +1133,7 @@ impl Library {
     fn set_internal_metadata(&self, file_id: LibraryId, column: &str, value: i32) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let c = conn.execute(
-                format!("UPDATE files SET {}=?1 WHERE id=?2;", column).as_ref(),
+                format!("UPDATE files SET {column}=?1 WHERE id=?2;").as_ref(),
                 params![value, file_id],
             )?;
             if c != 1 {
