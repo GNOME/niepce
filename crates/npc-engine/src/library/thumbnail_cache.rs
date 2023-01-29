@@ -76,7 +76,7 @@ fn get_thumbnail(f: &LibFile, w: i32, h: i32, cached: &Path) -> Thumbnail {
 
 pub struct ThumbnailCache {
     /// Queue to send task
-    queue_sender: std::sync::mpsc::Sender<ThumbnailTask>,
+    queue_sender: std::sync::mpsc::Sender<Vec<ThumbnailTask>>,
 }
 
 impl ThumbnailCache {
@@ -92,15 +92,15 @@ impl ThumbnailCache {
         Self { queue_sender }
     }
 
-    fn execute(task: ThumbnailTask, cache_dir: &Path, sender: &LcChannel) {
+    fn execute(task: &ThumbnailTask, cache_dir: &Path, sender: &LcChannel) {
         let w = task.width;
         let h = task.height;
-        let libfile = task.file;
+        let libfile = &task.file;
 
         let path = libfile.path();
         let id = libfile.id();
         if let Some(dest) = Self::path_for_thumbnail(path, id, cmp::max(w, h), cache_dir) {
-            let pix = get_thumbnail(&libfile, w, h, &dest);
+            let pix = get_thumbnail(libfile, w, h, &dest);
             if !path.is_file() {
                 dbg_out!("file doesn't exist");
                 if let Err(err) = toolkit::thread_context().block_on(sender.send(
@@ -134,22 +134,24 @@ impl ThumbnailCache {
 
     fn main(
         cache_dir: PathBuf,
-        queue: std::sync::mpsc::Receiver<ThumbnailTask>,
+        queue: std::sync::mpsc::Receiver<Vec<ThumbnailTask>>,
         sender: LcChannel,
     ) {
-        while let Ok(task) = queue.recv() {
-            Self::execute(task, &cache_dir, &sender);
+        while let Ok(tasks) = queue.recv() {
+            tasks.iter().for_each(|task| {
+                Self::execute(task, &cache_dir, &sender);
+            })
         }
         dbg_out!("thumbnail cache thread terminating");
     }
 
     /// Request thumbnails.
     pub fn request(&self, fl: &[LibFile]) {
-        for f in fl {
-            on_err_out!(self
-                .queue_sender
-                .send(ThumbnailTask::new(f.clone(), 160, 160)));
-        }
+        on_err_out!(self.queue_sender.send(
+            fl.iter()
+                .map(|f| ThumbnailTask::new(f.clone(), 160, 160))
+                .collect()
+        ));
     }
 
     fn is_thumbnail_cached(_file: &Path, thumb: &Path) -> bool {
