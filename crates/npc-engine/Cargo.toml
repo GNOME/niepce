@@ -21,6 +21,7 @@ lazy_static = "^1.2.0"
 libc = "0.2.39"
 maplit = "1.0.2"
 lrcat-extractor = { version = "0.3.0" }
+rayon = "1.6.1"
 # Must be in sync with lrcat-extractor
 rusqlite = { version = "0.28.0", features = ["functions", "backup", "bundled"] }
 

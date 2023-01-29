@@ -21,6 +21,8 @@ use std::cmp;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use rayon::prelude::*;
+
 use crate::db::libfile::{FileStatus, LibFile};
 use crate::db::LibraryId;
 use crate::library::notification;
@@ -148,7 +150,7 @@ impl ThumbnailCache {
     /// Request thumbnails.
     pub fn request(&self, fl: &[LibFile]) {
         on_err_out!(self.queue_sender.send(
-            fl.iter()
+            fl.par_iter()
                 .map(|f| ThumbnailTask::new(f.clone(), 160, 160))
                 .collect()
         ));
