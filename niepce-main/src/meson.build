@@ -62,9 +62,31 @@ clippy = run_target(
 
 niepce_rust_deps = declare_dependency(link_with: niepce_rust[0], sources: [ niepce_rust[1], niepce_rust[2] ])
 
+# Target to build the test prior to running cargo-test
+niepce_test = custom_target(
+  'cargo-test-build',
+  console: true,
+  install: false,
+  output: [
+    'test-build-stamp'
+  ],
+  command: [
+    'env',
+    cargo_env,
+    cargo, 'build',
+    cargo_options,
+    '--tests',
+    '&&',
+    'touch', '@OUTDIR@' / 'test-build-stamp'
+  ]
+)
+
 test(
   'cargo-test',
   cargo,
+  depends: [
+    niepce_test
+  ],
   env: cargo_env,
   args: [
     'test',
