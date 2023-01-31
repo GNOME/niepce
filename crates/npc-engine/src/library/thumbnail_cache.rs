@@ -140,7 +140,8 @@ impl ThumbnailCache {
         sender: LcChannel,
     ) {
         while let Ok(tasks) = queue.recv() {
-            tasks.iter().for_each(|task| {
+            dbg_out!("Parallel thumbnailing of {} files", tasks.len());
+            tasks.par_iter().for_each(|task| {
                 Self::execute(task, &cache_dir, &sender);
             })
         }
@@ -150,7 +151,7 @@ impl ThumbnailCache {
     /// Request thumbnails.
     pub fn request(&self, fl: &[LibFile]) {
         on_err_out!(self.queue_sender.send(
-            fl.par_iter()
+            fl.iter()
                 .map(|f| ThumbnailTask::new(f.clone(), 160, 160))
                 .collect()
         ));
