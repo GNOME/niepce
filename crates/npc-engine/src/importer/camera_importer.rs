@@ -23,7 +23,7 @@ use std::path::Path;
 use super::{FileImporter, ImportBackend, ImportedFile, PreviewReady, SourceContentReady};
 use crate::db::Managed;
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
-use npc_fwk::utils::files::FileList;
+use npc_fwk::utils::FileList;
 use npc_fwk::{on_err_out, Date};
 
 #[derive(Clone, Default)]

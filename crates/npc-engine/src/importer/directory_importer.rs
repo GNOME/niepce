@@ -19,7 +19,7 @@
 
 use std::path::Path;
 
-use npc_fwk::utils::files::FileList;
+use npc_fwk::utils::FileList;
 use npc_fwk::{dbg_out, on_err_out, Date, XmpMeta};
 
 use super::ImportedFile;

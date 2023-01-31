@@ -33,7 +33,7 @@ use std::path::Path;
 
 use crate::db::Managed;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
-use npc_fwk::utils::files::FileList;
+use npc_fwk::utils::FileList;
 use npc_fwk::Date;
 
 pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>> {

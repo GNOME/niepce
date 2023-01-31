@@ -789,9 +789,7 @@ impl WorkspaceController {
                 source,
                 dest_dir,
                 Box::new(
-                    move |path: &std::path::Path,
-                          files: &npc_fwk::utils::files::FileList,
-                          manage| {
+                    move |path: &std::path::Path, files: &npc_fwk::utils::FileList, manage| {
                         client.import_files(
                             path.to_string_lossy().to_string(),
                             files.0.clone(),
