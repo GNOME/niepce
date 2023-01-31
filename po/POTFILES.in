@@ -18,7 +18,6 @@ niepce-main/src/niepce/ui/selection_controller.rs
 niepce-main/src/niepce/ui/workspace_controller/mod.rs
 src/fwk/toolkit/application.cpp
 src/fwk/toolkit/frame.cpp
-src/fwk/toolkit/widgets/addinstreemodel.cpp
 src/niepce/modules/darkroom/toolboxcontroller.cpp
 src/niepce/ui/dialogs/editlabels.cpp
 src/niepce/ui/dialogs/editlabels.ui

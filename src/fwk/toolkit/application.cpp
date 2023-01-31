@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/application.cpp
  *
- * Copyright (C) 2007-2022 Hubert Figuière
+ * Copyright (C) 2007-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@
 #include <gtkmm/settings.h>
 
 #include "fwk/base/debug.hpp"
-#include "fwk/utils/modulemanager.hpp"
 #include "fwk/toolkit/gtkutils.hpp"
 #include "application.hpp"
 #include "uicontroller.hpp"
@@ -40,7 +39,6 @@ Application::Application(int & argc, char** &argv, const char* app_id,
                          const char * name)
     : m_config(Configuration_new(Configuration_make_config_path(name)))
     , m_undo(std::move(UndoHistory_new()))
-    , m_module_manager(new ModuleManager())
     , m_gtkapp(Gtk::Application::create(app_id))
 {
     Glib::set_prgname(app_id);
@@ -48,13 +46,6 @@ Application::Application(int & argc, char** &argv, const char* app_id,
         sigc::mem_fun(*this, &Application::on_startup));
     getIconTheme()->add_resource_path("/org/gnome/Niepce/pixmaps");
 }
-
-
-Application::~Application()
-{
-    delete m_module_manager;
-}
-
 
 Application::Ptr Application::app()
 {

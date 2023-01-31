@@ -28,8 +28,5 @@ libniepceutils_a_SOURCES = \
 	exempi.hpp exempi.cpp \
 	pathutils.hpp pathutils.cpp \
 	databinder.hpp databinder.cpp \
-	dynamicmodule.hpp dynamicmodule.cpp \
-	modulefactory.hpp \
-	modulemanager.hpp modulemanager.cpp \
 	$(NULL)
 

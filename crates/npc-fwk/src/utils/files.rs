@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/files.rs
  *
- * Copyright (C) 2018-2022 Hubert Figuière
+ * Copyright (C) 2018-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,30 +24,7 @@ use crate::toolkit::mimetype::{guess_type_for_file, MType};
 #[derive(Clone, Default)]
 pub struct FileList(pub Vec<PathBuf>);
 
-unsafe impl cxx::ExternType for FileList {
-    type Id = cxx::type_id!("fwk::FileList");
-    type Kind = cxx::kind::Opaque;
-}
-
 impl FileList {
-    // cxx
-    pub fn size(&self) -> usize {
-        self.0.len()
-    }
-
-    // cxx
-    /// Return the path string at index %idx
-    /// The resulting string must be freeed with %rust_cstring_delete
-    pub fn at(&self, idx: usize) -> String {
-        self.0[idx].to_string_lossy().into()
-    }
-
-    // cxx
-    /// Push a file path to the list
-    pub fn push_back(&mut self, value: &str) {
-        self.0.push(PathBuf::from(value));
-    }
-
     /// Get the files matching `filter` from `dir`.
     ///
     /// `filter` is a function that will return `true` for files to keep

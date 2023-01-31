@@ -50,7 +50,6 @@ libniepceframework_a_SOURCES = \
 	configdatabinder.hpp configdatabinder.cpp \
 	gdkutils.hpp gdkutils.cpp \
 	gtkutils.hpp gtkutils.cpp \
-	widgets/addinstreemodel.hpp widgets/addinstreemodel.cpp \
 	widgets/toolboxitemwidget.hpp widgets/toolboxitemwidget.cpp \
 	widgets/editablehscale.hpp widgets/editablehscale.cpp \
 	widgets/dock.cpp widgets/dock.hpp \

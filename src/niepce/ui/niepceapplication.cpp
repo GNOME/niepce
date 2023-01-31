@@ -1,7 +1,7 @@
 /*
  * niepce - ui/niepceapplication.cpp
  *
- * Copyright (C) 2007-2022 Hubert Figuière
+ * Copyright (C) 2007-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 #include <giomm/menu.h>
 #include <gtkmm/aboutdialog.h>
 
-#include "fwk/utils/modulemanager.hpp"
 #include "fwk/toolkit/frame.hpp"
 #include "dialogs/preferencesdialog.hpp"
 #include "niepceapplication.hpp"
@@ -37,14 +36,6 @@ namespace ui {
 NiepceApplication::NiepceApplication(int & argc, char** & argv)
     : Application(argc, argv, APP_ID, PACKAGE)
 {
-    fwk::ModuleManager * modmgr = module_manager();
-    DBG_ASSERT(modmgr != NULL, "module manager is NULL.");
-    if(modmgr) {
-        // FIXME use a function to catenate the path.
-        // There is none in fwk::utils.
-        // path for modules is $PREFIX/share/niepce/modules/$NIEPCE_VERSION
-        modmgr->add_path(DATADIR "/" PACKAGE "/modules/" NIEPCE_VERSION);
-    }
 }
 
 Application::Ptr NiepceApplication::create(int & argc, char** & argv)

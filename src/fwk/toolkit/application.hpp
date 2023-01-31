@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/application.hpp
  *
- * Copyright (C) 2007-2022 Hubert Figuière
+ * Copyright (C) 2007-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,16 +31,12 @@
 
 namespace fwk {
 
-class ModuleManager;
-
 class Application
     : public Controller
 {
 public:
     typedef std::shared_ptr<Application> Ptr;
     typedef std::pair<std::string, std::string> ThemeDesc;
-
-    virtual ~Application();
 
     virtual bool get_use_dark_theme() const;
     virtual void set_use_dark_theme(bool value);
@@ -72,12 +68,6 @@ public:
         { return *m_undo; }
     void begin_undo(rust::Box<UndoTransaction>) const;
 
-    // Module management
-    /** @return the module manager
-     *  It is guaranted to be safe to call from the constructor
-     */
-    ModuleManager * module_manager() const
-        { return m_module_manager; }
 protected:
     Application(int & argc, char** &argv, const char* app_id, const char *name);
     static Application::Ptr m_application;
@@ -97,7 +87,6 @@ protected:
 private:
     ConfigurationPtr m_config;
     rust::Box<UndoHistory> m_undo;
-    ModuleManager               *m_module_manager;
     Glib::RefPtr<Gtk::Application> m_gtkapp;
 };
 

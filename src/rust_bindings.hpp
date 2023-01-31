@@ -37,7 +37,6 @@ template <class T>
 struct DateTime;
 typedef fwk::Date Date;
 typedef rust_str str;
-typedef fwk::FileList FileList;
 typedef fwk::PropertyValue PropertyValue;
 typedef fwk::RgbColour RgbColour;
 typedef fwk::WrappedPropertyBag WrappedPropertyBag;
@@ -53,7 +52,6 @@ typedef eng::LibraryClientWrapper LibraryClientWrapper;
 namespace fwk {
 typedef rust::Box<fwk::Date> DatePtr;
 typedef rust::Box<Thumbnail> ThumbnailPtr;
-typedef rust::Box<FileList> FileListPtr;
 typedef rust::Box<RgbColour> RgbColourPtr;
 typedef rust::Box<PropertyValue> PropertyValuePtr;
 
