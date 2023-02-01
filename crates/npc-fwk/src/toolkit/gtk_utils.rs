@@ -1,7 +1,7 @@
 /*
  * niepce - toolkit/gtk_utils.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,24 @@
  */
 
 use gtk4::prelude::*;
+
+/// Create a sending action with `name` that will send an `event`
+/// through the `sender` and ad it to the `group`.
+///
+/// ```ignore
+/// sending_action!(group, "ActionName", tx, Event::TheAction);
+/// ```
+/// Will create an action with the name `ActionName` to send `TheAction`
+/// onto `tx` (`tx` is `Sender<Event>`), and add it to the `group`.
+#[macro_export]
+macro_rules! sending_action {
+    ( $group:expr, $name:expr, $sender:expr, $event:expr ) => {
+        let tx = $sender.clone();
+        gtk_macros::action!($group, $name, move |_, _| {
+            $crate::on_err_out!(tx.send($event));
+        });
+    };
+}
 
 pub fn add_menu_action<F>(
     group: &gio::ActionMap,

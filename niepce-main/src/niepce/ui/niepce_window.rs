@@ -179,28 +179,10 @@ impl UiController for NiepceWindow {
         action!(group, "Cut", move |_, _| {});
         action!(group, "Copy", move |_, _| {});
         action!(group, "Paste", move |_, _| {});
-        action!(
-            group,
-            "Delete",
-            glib::clone!(@strong tx => move |_, _| {
-                on_err_out!(tx.send(Event::Delete));
-            })
-        );
+        npc_fwk::sending_action!(group, "Delete", tx, Event::Delete);
 
-        action!(
-            group,
-            "ToggleToolsVisible",
-            glib::clone!(@strong tx => move |_, _| {
-                on_err_out!(tx.send(Event::ToggleToolsVisible));
-            })
-        );
-        action!(
-            group,
-            "EditLabels",
-            glib::clone!(@strong tx => move |_, _| {
-                on_err_out!(tx.send(Event::EditLabels));
-            })
-        );
+        npc_fwk::sending_action!(group, "ToggleToolsVisible", tx, Event::ToggleToolsVisible);
+        npc_fwk::sending_action!(group, "EditLabels", tx, Event::EditLabels);
 
         Some(("win", self.window.upcast_ref()))
     }
