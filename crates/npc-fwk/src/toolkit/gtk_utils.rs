@@ -19,8 +19,33 @@
 
 use gtk4::prelude::*;
 
+/// Create an action group and add all these actions
+/// to it. The group is returned from the expression.
+/// ```ignore
+/// sending_action_group!(
+///        tx,
+///        ("ActionName1", Event::TheFirstAction),
+///        ("ActionName2", Event::TheSecondAction)
+/// );
+/// ```
+#[macro_export]
+macro_rules! sending_action_group {
+    ( $sender:expr, $( ( $name: expr, $event:expr ) ),* ) => {
+        {
+            let group = gio::SimpleActionGroup::new();
+            let tx = $sender.clone();
+
+            $(
+                $crate::sending_action!(group, $name, tx, $event);
+            )*
+
+            group
+        }
+    }
+}
+
 /// Create a sending action with `name` that will send an `event`
-/// through the `sender` and ad it to the `group`.
+/// through the `sender` and add it to the `group`.
 ///
 /// ```ignore
 /// sending_action!(group, "ActionName", tx, Event::TheAction);

@@ -448,17 +448,16 @@ impl UiController for WorkspaceController {
         Some((
             "workspace",
             (self.action_group.get_or_init(|| {
-                let group = gio::SimpleActionGroup::new();
-                let tx = self.tx.clone();
-
-                action!(group, "NewProject", move |_, _| {});
-                npc_fwk::sending_action!(group, "NewFolder", tx, Event::NewFolder);
-                npc_fwk::sending_action!(group, "NewAlbum", tx, Event::NewAlbum);
-                npc_fwk::sending_action!(group, "Import", tx, Event::Import);
-                npc_fwk::sending_action!(group, "ImportLibrary", tx, Event::ImportLibrary);
-                npc_fwk::sending_action!(group, "RenameItem", tx, Event::RenameItem);
-                npc_fwk::sending_action!(group, "DeleteItem", tx, Event::DeleteItem);
-
+                let group = npc_fwk::sending_action_group!(
+                    self.tx,
+                    // ("NewProject", move |_, _| {});
+                    ("NewFolder", Event::NewFolder),
+                    ("NewAlbum", Event::NewAlbum),
+                    ("Import", Event::Import),
+                    ("ImportLibrary", Event::ImportLibrary),
+                    ("RenameItem", Event::RenameItem),
+                    ("DeleteItem", Event::DeleteItem)
+                );
                 group.upcast()
             })),
         ))
