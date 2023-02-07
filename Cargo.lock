@@ -705,8 +705,9 @@ dependencies = [
 
 [[package]]
 name = "gphoto2"
-version = "3.0.1"
-source = "git+https://github.com/hfiguiere/gphoto2-rs.git?rev=d21c6ebcde63ca38d5fd4e9d471dd1eb577e7d1c#d21c6ebcde63ca38d5fd4e9d471dd1eb577e7d1c"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6dcbb61e262083da18da1027b2d2a1929f3245a7ca035b5da1c6cf5a1e931463"
 dependencies = [
  "crossbeam-channel",
  "libc",
@@ -1019,7 +1020,8 @@ checksum = "fc7fcc620a3bff7cdd7a365be3376c97191aeaccc2a603e600951e452615bf89"
 [[package]]
 name = "libgphoto2_sys"
 version = "1.2.0"
-source = "git+https://github.com/hfiguiere/gphoto2-rs.git?rev=d21c6ebcde63ca38d5fd4e9d471dd1eb577e7d1c#d21c6ebcde63ca38d5fd4e9d471dd1eb577e7d1c"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5269e2353bd605efb8289bc1d1659ea085a5d775bab52b0952784a34d12a92aa"
 dependencies = [
  "bindgen",
  "pkg-config",
