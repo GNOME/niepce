@@ -89,7 +89,7 @@ impl ThumbStripView {
             let renderer = item.child().and_downcast::<LibraryCellRenderer>().unwrap();
             renderer.set_property("pixbuf", image_item.thumbnail());
             renderer.set_property("libfile", image_item.file());
-            renderer.set_property("status", image_item.status() as i32);
+            renderer.set_property("status", image_item.status());
         });
 
         let tsv = Self {

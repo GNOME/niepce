@@ -18,6 +18,7 @@
  */
 
 use std::cell::{Cell, RefCell};
+use std::convert::TryFrom;
 use std::rc::Rc;
 
 use once_cell::unsync::OnceCell;
@@ -34,37 +35,15 @@ const SCROLL_MOVE: f64 = 20.;
 const SCROLL_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(20);
 
 #[repr(i32)]
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Default, Eq, PartialEq, glib::Enum)]
+#[enum_type(name = "ThumbNavMode")]
 pub enum ThumbNavMode {
-    OneRow,
-    OneColumn,
-    MultipleRows,
-    MultipleColumns,
-    Invalid,
-}
-
-impl From<ThumbNavMode> for i32 {
-    fn from(v: ThumbNavMode) -> i32 {
-        match v {
-            ThumbNavMode::OneRow => 0,
-            ThumbNavMode::OneColumn => 1,
-            ThumbNavMode::MultipleRows => 2,
-            ThumbNavMode::MultipleColumns => 3,
-            ThumbNavMode::Invalid => 4,
-        }
-    }
-}
-
-impl From<i32> for ThumbNavMode {
-    fn from(value: i32) -> Self {
-        match value {
-            0 => ThumbNavMode::OneRow,
-            1 => ThumbNavMode::OneColumn,
-            2 => ThumbNavMode::MultipleRows,
-            3 => ThumbNavMode::MultipleColumns,
-            _ => ThumbNavMode::Invalid,
-        }
-    }
+    #[default]
+    OneRow = 0,
+    OneColumn = 1,
+    MultipleRows = 2,
+    MultipleColumns = 3,
+    Invalid = 4,
 }
 
 glib::wrapper! {
@@ -75,9 +54,8 @@ glib::wrapper! {
 
 impl ThumbNav {
     pub fn new(thumbview: &gtk4::GridView, mode: ThumbNavMode, show_buttons: bool) -> Self {
-        let mode_n: i32 = mode.into();
         glib::Object::builder::<Self>()
-            .property("mode", mode_n)
+            .property("mode", mode)
             .property("show-buttons", show_buttons)
             .property("thumbview", thumbview)
             .property("homogeneous", false)
@@ -92,13 +70,37 @@ struct ThumbNavWidgets {
     sw: gtk4::ScrolledWindow,
 }
 
+#[derive(glib::Properties)]
+#[properties(wrapper_type = ThumbNav)]
 pub struct ThumbNavPriv {
+    #[property(
+        get,
+        set,
+        nick = "Mode",
+        blurb = "Thumb navigator mode",
+        builder(ThumbNavMode::default())
+    )]
     mode: Cell<ThumbNavMode>,
+    #[property(
+        get,
+        set,
+        name = "show-buttons",
+        nick = "Show Buttons",
+        blurb = "Whether to show navigation buttons or not",
+        default_value = true
+    )]
     show_buttons: Cell<bool>,
 
     left_i: Cell<f64>,
     right_i: Cell<f64>,
     widgets: OnceCell<ThumbNavWidgets>,
+    #[property(
+        get,
+        set,
+        nick = "Thubmnail View",
+        blurb = "The internal thumbnail viewer widget",
+        construct_only
+    )]
     thumbview: RefCell<Option<gtk4::GridView>>,
 }
 
@@ -265,7 +267,7 @@ impl ObjectSubclass for ThumbNavPriv {
 
     fn new() -> Self {
         Self {
-            mode: Cell::new(ThumbNavMode::OneRow),
+            mode: Cell::default(),
             show_buttons: Cell::new(true),
             left_i: Cell::new(0.0),
             right_i: Cell::new(0.0),
@@ -333,66 +335,15 @@ impl ObjectImpl for ThumbNavPriv {
     }
 
     fn properties() -> &'static [glib::ParamSpec] {
-        use once_cell::sync::Lazy;
-        static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
-            vec![
-                glib::ParamSpecBoolean::builder("show-buttons")
-                    .nick("Show Buttons")
-                    .blurb("Whether to show navigation buttons or not")
-                    .default_value(true)
-                    .build(),
-                glib::ParamSpecObject::builder::<gtk4::GridView>("thumbview")
-                    .nick("Thumbnail View")
-                    .blurb("The internal thumbnail viewer widget")
-                    .construct_only()
-                    .build(),
-                glib::ParamSpecInt::builder("mode")
-                    .nick("Mode")
-                    .blurb("Thumb navigator mode")
-                    .minimum(ThumbNavMode::OneRow.into())
-                    .maximum(ThumbNavMode::MultipleRows.into())
-                    .default_value(ThumbNavMode::OneRow.into())
-                    .build(),
-            ]
-        });
-        PROPERTIES.as_ref()
+        Self::derived_properties()
     }
 
-    fn set_property(&self, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
-        match pspec.name() {
-            "show-buttons" => {
-                let show_buttons = value
-                    .get()
-                    .expect("type conformity checked by `Object::set_property`");
-                self.set_show_buttons(show_buttons);
-            }
-            "thumbview" => {
-                let thumbview: Option<gtk4::GridView> = value
-                    .get()
-                    .expect("type conformity checked by `Object::set_property`");
-                self.thumbview.replace(thumbview);
-                self.add_thumbview();
-            }
-            "mode" => {
-                let mode: i32 = value
-                    .get()
-                    .expect("type conformity checked by `Object::set_property`");
-                self.set_mode(ThumbNavMode::from(mode));
-            }
-            _ => unimplemented!(),
-        }
+    fn set_property(&self, id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
+        Self::derived_set_property(self, id, value, pspec);
     }
 
-    fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
-        match pspec.name() {
-            "show-buttons" => self.show_buttons.get().into(),
-            "thumbview" => self.thumbview.borrow().to_value(),
-            "mode" => {
-                let n: i32 = self.mode.get().into();
-                n.into()
-            }
-            _ => unimplemented!(),
-        }
+    fn property(&self, id: usize, pspec: &glib::ParamSpec) -> glib::Value {
+        Self::derived_property(self, id, pspec)
     }
 }
 

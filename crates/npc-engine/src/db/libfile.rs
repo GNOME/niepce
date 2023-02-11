@@ -1,7 +1,7 @@
 /*
- * niepce - eng/db/libfile.rs
+ * niepce - engine/db/libfile.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
 
 use std::path::{Path, PathBuf};
 
-use num_derive::FromPrimitive;
-
 use npc_fwk::err_out;
 
 use super::fsfile::FsFile;
@@ -32,7 +30,8 @@ use super::NiepcePropertyIdx as Npi;
 pub use crate::ffi::FileType;
 
 #[repr(i32)]
-#[derive(Debug, Default, FromPrimitive, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, glib::Enum)]
+#[enum_type(name = "FileStatus")]
 /// FileStatus indicate the transient status of the file on the storage.
 pub enum FileStatus {
     /// File is OK

@@ -18,6 +18,7 @@
  */
 
 use std::cell::{Cell, RefCell};
+use std::convert::TryFrom;
 use std::rc::Weak;
 
 use gdk4::prelude::*;
@@ -27,7 +28,6 @@ use glib::subclass::Signal;
 use graphene::Rect;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
-use num_traits::FromPrimitive;
 
 use npc_engine::db;
 use npc_engine::db::libfile::{FileStatus, FileType, LibFile};
@@ -101,10 +101,6 @@ impl LibraryCellRenderer {
         self.imp().hit(x, y)
     }
 
-    pub fn pixbuf(&self) -> Option<gdk4::Paintable> {
-        self.imp().pixbuf.borrow().clone()
-    }
-
     pub fn set_height(&self, h: i32) {
         err_out!("set_height {} isn't implemented", h);
     }
@@ -152,9 +148,20 @@ impl LibraryCellRendererExt for LibraryCellRenderer {
     }
 }
 
+#[derive(glib::Properties)]
+#[properties(wrapper_type = LibraryCellRenderer)]
 pub struct LibraryCellRendererPriv {
+    #[property(get, set)]
     pixbuf: RefCell<Option<gdk4::Paintable>>,
+    #[property(get, set)]
     libfile: RefCell<Option<LibFile>>,
+    #[property(
+        get,
+        set,
+        nick = "File Status",
+        blurb = "Status of the file in the cell",
+        builder(FileStatus::default())
+    )]
     status: Cell<FileStatus>,
     size: Cell<u32>,
     pad: Cell<u32>,
@@ -168,18 +175,6 @@ pub struct LibraryCellRendererPriv {
 }
 
 impl LibraryCellRendererPriv {
-    fn set_status(&self, status: FileStatus) {
-        self.status.set(status);
-    }
-
-    fn set_libfile(&self, libfile: Option<LibFile>) {
-        self.libfile.replace(libfile);
-    }
-
-    fn set_pixbuf(&self, pixbuf: Option<gdk4::Paintable>) {
-        self.pixbuf.replace(pixbuf);
-    }
-
     fn do_draw_thumbnail_frame(
         &self,
         cr: &cairo::Context,
@@ -407,28 +402,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
     }
 
     fn properties() -> &'static [glib::ParamSpec] {
-        use once_cell::sync::Lazy;
-        static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
-            vec![
-                glib::ParamSpecObject::builder::<gdk4::Paintable>("pixbuf")
-                    .nick("Thumbnail")
-                    .blurb("Thumbnail to Display")
-                    .build(),
-                glib::ParamSpecBoxed::builder::<LibFile>("libfile")
-                    .nick("Library File")
-                    .blurb("File from the library in the cell")
-                    .build(),
-                glib::ParamSpecInt::builder("status")
-                    .nick("File Status")
-                    .blurb("Status of the file in the cell")
-                    .minimum(FileStatus::Invalid as i32)
-                    .maximum(FileStatus::Missing as i32)
-                    .default_value(FileStatus::Ok as i32)
-                    .build(),
-            ]
-        });
-
-        PROPERTIES.as_ref()
+        Self::derived_properties()
     }
 
     fn signals() -> &'static [Signal] {
@@ -443,34 +417,14 @@ impl ObjectImpl for LibraryCellRendererPriv {
         SIGNALS.as_ref()
     }
 
-    fn set_property(&self, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
-        match pspec.name() {
-            "pixbuf" => {
-                let pixbuf = value.get::<gdk4::Paintable>().ok();
-                self.set_pixbuf(pixbuf);
-            }
-            "libfile" => {
-                let libfile = value.get::<&LibFile>().map(|f| f.clone()).ok();
-                self.set_libfile(libfile);
-            }
-            "status" => {
-                let status: i32 = value
-                    .get()
-                    .expect("type conformity checked by `Object::set_property`");
-                self.set_status(FileStatus::from_i32(status).unwrap_or_default());
-            }
-            _ => unimplemented!(),
-        }
+    fn set_property(&self, id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
+        Self::derived_set_property(self, id, value, pspec);
+
         self.obj().queue_draw();
     }
 
-    fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
-        match pspec.name() {
-            "pixbuf" => self.pixbuf.borrow().to_value(),
-            "libfile" => self.libfile.borrow().to_value(),
-            "status" => (self.status.get() as i32).into(),
-            _ => unimplemented!(),
-        }
+    fn property(&self, id: usize, pspec: &glib::ParamSpec) -> glib::Value {
+        Self::derived_property(self, id, pspec)
     }
 }
 

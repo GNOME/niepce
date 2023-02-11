@@ -18,6 +18,7 @@
  */
 
 use std::cell::Cell;
+use std::convert::TryFrom;
 
 use gdk4::prelude::*;
 use glib::subclass::prelude::*;
@@ -43,18 +44,17 @@ glib::wrapper! {
         @extends gtk4::Widget;
 }
 
+#[derive(glib::Properties)]
+#[properties(wrapper_type = RatingLabel)]
 pub struct RatingLabelPriv {
     editable: Cell<bool>,
+    #[property(get, set, minimum = 0, maximum = 5, default_value = 0)]
     rating: Cell<i32>,
 }
 
 impl RatingLabelPriv {
     fn set_editable(&self, editable: bool) {
         self.editable.set(editable);
-    }
-
-    fn rating(&self) -> i32 {
-        self.rating.get()
     }
 
     fn set_rating(&self, rating: i32) {
@@ -111,51 +111,17 @@ impl ObjectImpl for RatingLabelPriv {
     }
 
     fn properties() -> &'static [glib::ParamSpec] {
-        use once_cell::sync::Lazy;
-        static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
-            vec![glib::ParamSpecInt::builder("rating")
-                .nick("Rating")
-                .blurb("The rating value")
-                .minimum(0)
-                .maximum(5)
-                .default_value(0)
-                .build()]
-        });
-        PROPERTIES.as_ref()
+        Self::derived_properties()
     }
 
-    fn set_property(&self, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
-        match pspec.name() {
-            "rating" => {
-                let rating = value
-                    .get()
-                    .expect("type conformity checked by `Object::set_property`");
-                self.set_rating(rating);
-            }
-            _ => unimplemented!(),
-        }
+    fn set_property(&self, id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
+        Self::derived_set_property(self, id, value, pspec);
+
+        self.obj().queue_draw();
     }
 
-    fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
-        match pspec.name() {
-            "rating" => self.rating.get().into(),
-            _ => unimplemented!(),
-        }
-    }
-}
-
-pub trait RatingLabelExt {
-    fn set_rating(&self, rating: i32);
-    fn rating(&self) -> i32;
-}
-
-impl RatingLabelExt for RatingLabel {
-    fn set_rating(&self, rating: i32) {
-        self.imp().set_rating(rating);
-    }
-
-    fn rating(&self) -> i32 {
-        self.imp().rating()
+    fn property(&self, id: usize, pspec: &glib::ParamSpec) -> glib::Value {
+        Self::derived_property(self, id, pspec)
     }
 }
 
