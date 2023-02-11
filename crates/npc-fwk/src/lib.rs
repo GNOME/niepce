@@ -47,9 +47,6 @@ pub fn init() {
 
 // C++ bridge
 
-use gdk_pixbuf_sys::GdkPixbuf;
-use glib::translate::*;
-
 use crate::base::rgbcolour::RgbColour;
 use crate::toolkit::cxx::*;
 use crate::toolkit::thumbnail::Thumbnail;
@@ -86,26 +83,6 @@ pub fn gps_coord_from_xmp_(value: &str) -> f64 {
     gps_coord_from_xmp(value).unwrap_or(f64::NAN)
 }
 
-pub fn thumbnail_for_file(path: &str, w: i32, h: i32, orientation: i32) -> Box<Thumbnail> {
-    Box::new(Thumbnail::thumbnail_file(path, w, h, orientation))
-}
-
-/// Create a %Thumbnail from a %GdkPixbuf
-///
-/// The resulting object must be freed by %fwk_toolkit_thumbnail_delete
-///
-/// # Safety
-/// Dereference the pointer
-unsafe fn thumbnail_from_pixbuf(pixbuf: *mut ffi::GdkPixbuf) -> Box<Thumbnail> {
-    let pixbuf: Option<gdk_pixbuf::Pixbuf> = from_glib_none(pixbuf as *mut GdkPixbuf);
-    Box::new(Thumbnail::from(pixbuf))
-}
-
-fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut ffi::GdkPixbuf {
-    let pixbuf: *mut GdkPixbuf = self_.make_pixbuf().to_glib_full();
-    pixbuf as *mut ffi::GdkPixbuf
-}
-
 pub fn metadata_widget_new(title: &str) -> Box<MetadataWidget> {
     Box::new(MetadataWidget::new(title))
 }
@@ -115,7 +92,6 @@ pub mod ffi {
     // Gtk types
     #[namespace = ""]
     extern "C++" {
-        type GdkPixbuf;
         type GtkWidget;
     }
 
@@ -171,17 +147,6 @@ pub mod ffi {
     }
 
     impl Box<Date> {}
-
-    extern "Rust" {
-        type Thumbnail;
-
-        #[cxx_name = "Thumbnail_for_file"]
-        fn thumbnail_for_file(path: &str, w: i32, h: i32, orientation: i32) -> Box<Thumbnail>;
-        #[cxx_name = "Thumbnail_from_pixbuf"]
-        unsafe fn thumbnail_from_pixbuf(pixbuf: *mut GdkPixbuf) -> Box<Thumbnail>;
-        #[cxx_name = "Thumbnail_to_pixbuf"]
-        fn thumbnail_to_pixbuf(self_: &Thumbnail) -> *mut GdkPixbuf;
-    }
 
     extern "Rust" {
         type PropertyValue;

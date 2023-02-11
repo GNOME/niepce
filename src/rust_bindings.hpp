@@ -51,7 +51,6 @@ typedef eng::LibraryClientWrapper LibraryClientWrapper;
 
 namespace fwk {
 typedef rust::Box<fwk::Date> DatePtr;
-typedef rust::Box<Thumbnail> ThumbnailPtr;
 typedef rust::Box<RgbColour> RgbColourPtr;
 typedef rust::Box<PropertyValue> PropertyValuePtr;
 
