@@ -302,7 +302,7 @@ impl UiController for WorkspaceController {
                 }));
                 factory.connect_bind(glib::clone!(@strong self.tx as tx => move |_, list_item| {
                     let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
-                    let ws_item_row = list_item.child().unwrap().downcast_ref::<WsItemRow>().unwrap().clone();
+                    let ws_item_row = list_item.child().and_downcast_ref::<WsItemRow>().unwrap().clone();
                     if let Some(item) = list_item.item() {
                         let tree_list_row = item.downcast_ref::<gtk4::TreeListRow>().expect("to be a TreeListRow");
                         if let Some(item) = tree_list_row.item() {
@@ -331,7 +331,7 @@ impl UiController for WorkspaceController {
                 }));
                 factory.connect_unbind(move |_, list_item| {
                     let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
-                    let ws_item_row = list_item.child().unwrap().downcast_ref::<WsItemRow>().unwrap().clone();
+                    let ws_item_row = list_item.child().and_downcast_ref::<WsItemRow>().unwrap().clone();
                     ws_item_row.unbind();
                 });
                 let librarytree = gtk4::ListView::new(Some(selection_model), Some(factory));
@@ -533,7 +533,7 @@ impl WorkspaceController {
             if widgets
                 .librarytree
                 .model()
-                .and_then(|m| m.downcast::<gtk4::SingleSelection>().ok())
+                .and_downcast::<gtk4::SingleSelection>()
                 .and_then(|m| m.selected_item())
                 .is_some()
             {
@@ -579,8 +579,9 @@ impl WorkspaceController {
             .widgets
             .get()
             .and_then(|widgets| widgets.treemodel.item(pos))
-            .and_then(|item| item.downcast_ref::<gtk4::TreeListRow>()?.item())
-            .and_then(|item| item.downcast::<Item>().ok())
+            .and_downcast_ref::<gtk4::TreeListRow>()
+            .and_then(gtk4::TreeListRow::item)
+            .and_downcast::<Item>()
         {
             let type_ = item.tree_item_type();
             if let Some(key) = match type_ {
@@ -601,7 +602,7 @@ impl WorkspaceController {
             let window = self
                 .widget()
                 .ancestor(gtk4::Window::static_type())
-                .and_then(|w| w.downcast::<gtk4::Window>().ok());
+                .and_downcast::<gtk4::Window>();
             npc_fwk::toolkit::request::request_name(
                 window.as_ref(),
                 &i18n("New folder"),
@@ -620,7 +621,7 @@ impl WorkspaceController {
             let window = self
                 .widget()
                 .ancestor(gtk4::Window::static_type())
-                .and_then(|w| w.downcast::<gtk4::Window>().ok());
+                .and_downcast::<gtk4::Window>();
             npc_fwk::toolkit::request::request_name(
                 window.as_ref(),
                 &i18n("Rename album"),
@@ -663,7 +664,7 @@ impl WorkspaceController {
         let window = self
             .widget()
             .ancestor(gtk4::Window::static_type())
-            .and_then(|w| w.downcast::<gtk4::Window>().ok());
+            .and_downcast::<gtk4::Window>();
         let dialog = npc_fwk::toolkit::confirm::request(
             &i18n("Delete selected folder?"),
             &i18n("The folder will be deleted."),
@@ -690,7 +691,7 @@ impl WorkspaceController {
             let window = self
                 .widget()
                 .ancestor(gtk4::Window::static_type())
-                .and_then(|w| w.downcast::<gtk4::Window>().ok());
+                .and_downcast::<gtk4::Window>();
             npc_fwk::toolkit::request::request_name(
                 window.as_ref(),
                 &i18n("New Album"),
@@ -707,7 +708,7 @@ impl WorkspaceController {
         let window = self
             .widget()
             .ancestor(gtk4::Window::static_type())
-            .and_then(|w| w.downcast::<gtk4::Window>().ok());
+            .and_downcast::<gtk4::Window>();
         let dialog = npc_fwk::toolkit::confirm::request(
             &i18n("Delete selected album?"),
             &i18n("The album will be deleted."),
@@ -766,10 +767,7 @@ impl WorkspaceController {
 
     fn action_import(&self) {
         let import_dialog = super::dialogs::ImportDialog::new();
-        let parent = self
-            .widget()
-            .root()
-            .and_then(|root| root.downcast::<gtk4::Window>().ok());
+        let parent = self.widget().root().and_downcast::<gtk4::Window>();
         import_dialog.run_modal(
             parent.as_ref(),
             glib::clone!(@weak import_dialog, @strong self.tx as tx => move |dialog, response| {
@@ -792,7 +790,8 @@ impl WorkspaceController {
             let parent = self
                 .widget()
                 .root()
-                .and_then(|root| root.downcast_ref::<gtk4::Window>().cloned());
+                .and_downcast_ref::<gtk4::Window>()
+                .cloned();
             let dialog = ImportLibraryDialog::new(client);
             dialog.run(parent.as_ref());
             dbg_out!("dialog out of scope");
@@ -842,14 +841,11 @@ impl WorkspaceController {
             .get()?
             .librarytree
             .model()
-            .and_then(|selection| {
-                selection
-                    .downcast::<gtk4::SingleSelection>()
-                    .ok()?
-                    .selected_item()
-            })
-            .and_then(|item| item.downcast_ref::<gtk4::TreeListRow>()?.item())
-            .and_then(|item| item.downcast::<Item>().ok())
+            .and_downcast::<gtk4::SingleSelection>()?
+            .selected_item()
+            .and_downcast_ref::<gtk4::TreeListRow>()?
+            .item()
+            .and_downcast::<Item>()
     }
 
     /// Get the selected item id and type in the workspace.
@@ -944,7 +940,7 @@ impl WorkspaceController {
         type_: TreeItemType,
     ) -> Option<u32> {
         // XXX probably there is a different way
-        let item = subtree.item()?.downcast::<Item>().expect("not an item");
+        let item = subtree.item().and_downcast::<Item>().expect("not an item");
         item.create_children().and_then(|children| {
             dbg_out!(
                 "children created for item {:?} {}",

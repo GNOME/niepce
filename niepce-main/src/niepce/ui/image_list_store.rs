@@ -229,11 +229,7 @@ impl ImageListStore {
             }
             FileStatusChanged(ref status) => {
                 if let Some(pos) = self.idmap.borrow().get(&status.id) {
-                    if let Some(item) = self
-                        .store
-                        .item(*pos)
-                        .and_then(|obj| obj.downcast::<ImageListItem>().ok())
-                    {
+                    if let Some(item) = self.store.item(*pos).and_downcast::<ImageListItem>() {
                         item.set_status(status.status);
                     }
                 }
@@ -262,11 +258,9 @@ impl ImageListStore {
     pub fn get_file_id_at_pos(&self, pos: u32) -> LibraryId {
         self.store
             .item(pos)
-            .and_then(|item| {
-                item.downcast_ref::<ImageListItem>()
-                    .and_then(|item| item.file())
-                    .map(|file| file.id())
-            })
+            .and_downcast_ref::<ImageListItem>()
+            .and_then(|item| item.file())
+            .map(|file| file.id())
             .unwrap_or(0)
     }
 
@@ -281,10 +275,10 @@ impl ImageListStore {
 
     pub fn file(&self, id: LibraryId) -> Option<LibFile> {
         self.idmap.borrow().get(&id).and_then(|pos| {
-            self.store.item(*pos).and_then(|item| {
-                item.downcast_ref::<ImageListItem>()
-                    .and_then(ImageListItem::file)
-            })
+            self.store
+                .item(*pos)
+                .and_downcast_ref::<ImageListItem>()
+                .and_then(ImageListItem::file)
         })
     }
 
@@ -306,35 +300,31 @@ impl ImageListStore {
                 .map(|pix| gdk4::Texture::for_pixbuf(&pix));
             let thumb = gdk4::Texture::for_pixbuf(thumb);
 
-            self.store.item(*pos).and_then(|obj| {
-                obj.downcast_ref::<ImageListItem>().map(|item| {
-                    item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
-                    item.set_strip_thumbnail(strip_thumb.map(|t| t.upcast::<gdk4::Paintable>()));
-                    self.store.items_changed(*pos, 0, 0);
-                })
-            });
+            if let Some(item) = self.store.item(*pos).and_downcast_ref::<ImageListItem>() {
+                item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
+                item.set_strip_thumbnail(strip_thumb.map(|t| t.upcast::<gdk4::Paintable>()));
+                self.store.items_changed(*pos, 0, 0);
+            }
         }
     }
 
     pub fn set_property(&self, pos: u32, change: &MetadataChange) {
-        self.store.item(pos).and_then(|item| {
-            item.downcast_ref::<ImageListItem>().map(|item| {
-                if let Some(mut file) = item.file() {
-                    assert!(file.id() == change.id);
-                    let meta = change.meta;
-                    if let PropertyValue::Int(value) = change.value {
-                        // XXX can we make this less suboptimal
-                        file.set_property(meta, value);
-                        item.set_file(Some(file));
-                        self.store.items_changed(pos, 1, 1);
-                    } else {
-                        err_out!("Wrong property type");
-                    }
+        if let Some(item) = self.store.item(pos).and_downcast_ref::<ImageListItem>() {
+            if let Some(mut file) = item.file() {
+                assert!(file.id() == change.id);
+                let meta = change.meta;
+                if let PropertyValue::Int(value) = change.value {
+                    // XXX can we make this less suboptimal
+                    file.set_property(meta, value);
+                    item.set_file(Some(file));
+                    self.store.items_changed(pos, 1, 1);
                 } else {
-                    err_out!("No file found");
+                    err_out!("Wrong property type");
                 }
-            })
-        });
+            } else {
+                err_out!("No file found");
+            }
+        }
     }
 
     // cxx

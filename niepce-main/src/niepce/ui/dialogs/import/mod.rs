@@ -181,14 +181,8 @@ impl ImportDialog {
                     item.set_child(Some(&child));
                 });
                 factory.connect_bind(move |_, item| {
-                    if let Some(row) = item
-                        .child()
-                        .and_then(|row| row.downcast::<ThumbItemRow>().ok())
-                    {
-                        let thumb_item = item
-                            .item()
-                            .and_then(|item| item.downcast::<ThumbItem>().ok())
-                            .unwrap();
+                    if let Some(row) = item.child().and_downcast::<ThumbItemRow>() {
+                        let thumb_item = item.item().and_downcast::<ThumbItem>().unwrap();
                         if let Some(ref name) = thumb_item.name() {
                             row.set_label(name);
                         }
@@ -351,7 +345,7 @@ impl ImportDialog {
                 widgets
                     .images_list_model
                     .item(*idx)
-                    .and_then(|item| item.downcast::<ThumbItem>().ok())
+                    .and_downcast::<ThumbItem>()
                     .map(|item| {
                         item.set_pixbuf(thumbnail.and_then(|t| t.make_pixbuf()));
                         item.set_date(date);

@@ -85,12 +85,8 @@ impl ThumbStripView {
 
         factory.connect_bind(move |_, item| {
             let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
-            let image_item = item.item().unwrap().downcast::<ImageListItem>().unwrap();
-            let renderer = item
-                .child()
-                .unwrap()
-                .downcast::<LibraryCellRenderer>()
-                .unwrap();
+            let image_item = item.item().and_downcast::<ImageListItem>().unwrap();
+            let renderer = item.child().and_downcast::<LibraryCellRenderer>().unwrap();
             renderer.set_property("pixbuf", image_item.thumbnail());
             renderer.set_property("libfile", image_item.file());
             renderer.set_property("status", image_item.status() as i32);
