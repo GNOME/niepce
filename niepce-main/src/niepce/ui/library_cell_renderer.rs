@@ -27,6 +27,7 @@ use glib::subclass::Signal;
 use graphene::Rect;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
+use num_traits::FromPrimitive;
 
 use npc_engine::db;
 use npc_engine::db::libfile::{FileStatus, FileType, LibFile};
@@ -456,7 +457,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
                 let status: i32 = value
                     .get()
                     .expect("type conformity checked by `Object::set_property`");
-                self.set_status(FileStatus::from(status));
+                self.set_status(FileStatus::from_i32(status).unwrap_or_default());
             }
             _ => unimplemented!(),
         }

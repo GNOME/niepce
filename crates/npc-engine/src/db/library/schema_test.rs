@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/db/schema_test.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 //! Schema testing fixtures for TEST ONLY
 
 use chrono::Utc;
+use num_traits::ToPrimitive;
 use rusqlite::params;
 
 use super::{sql, upgrade, Result};
@@ -63,7 +64,7 @@ fn init_schema_v9(conn: &rusqlite::Connection) -> Result<()> {
     )
     .unwrap();
     //
-    let trash_type = i32::from(libfolder::FolderVirtualType::Trash);
+    let trash_type = libfolder::FolderVirtualType::Trash.to_i32().unwrap_or(0);
     conn.execute(
         "insert into folders (name, locked, virtual, parent_id, path) \
          values (?1, 1, ?2, 0, '')",

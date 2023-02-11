@@ -1260,6 +1260,8 @@ dependencies = [
  "lrcat-extractor",
  "maplit",
  "npc-fwk",
+ "num-derive",
+ "num-traits",
  "rayon",
  "rusqlite",
  "serde",

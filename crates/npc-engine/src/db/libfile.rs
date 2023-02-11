@@ -19,6 +19,8 @@
 
 use std::path::{Path, PathBuf};
 
+use num_derive::FromPrimitive;
+
 use npc_fwk::err_out;
 
 use super::fsfile::FsFile;
@@ -30,7 +32,7 @@ use super::NiepcePropertyIdx as Npi;
 pub use crate::ffi::FileType;
 
 #[repr(i32)]
-#[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Default, FromPrimitive, Clone, Copy, Eq, PartialEq)]
 /// FileStatus indicate the transient status of the file on the storage.
 pub enum FileStatus {
     /// File is OK
@@ -40,16 +42,6 @@ pub enum FileStatus {
     /// Invalid
     #[default]
     Invalid = -1,
-}
-
-impl From<i32> for FileStatus {
-    fn from(t: i32) -> Self {
-        match t {
-            0 => FileStatus::Ok,
-            1 => FileStatus::Missing,
-            _ => FileStatus::Invalid,
-        }
-    }
 }
 
 impl From<i32> for FileType {
@@ -201,11 +193,6 @@ impl LibFile {
         }
     }
 
-    // cxx
-    pub fn property_int(&self, idx: u32) -> i32 {
-        self.property(Np::from(idx))
-    }
-
     pub fn set_property(&mut self, idx: Np, value: i32) {
         match idx {
             Np::Index(Npi::NpTiffOrientationProp) => self.set_orientation(value),
@@ -214,11 +201,6 @@ impl LibFile {
             Np::Index(Npi::NpNiepceFlagProp) => self.set_flag(value),
             _ => err_out!("invalid property {:?} - noop", idx),
         };
-    }
-
-    // cxx
-    pub fn set_property_int(&mut self, idx: u32, v: i32) {
-        self.set_property(Np::from(idx), v);
     }
 
     /// return an URI of the real path as Glib want this, oftern

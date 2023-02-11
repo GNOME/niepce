@@ -29,6 +29,7 @@ use std::path::{Path, PathBuf};
 use std::result;
 
 use chrono::Utc;
+use num_traits::ToPrimitive;
 use rusqlite::{functions::FunctionFlags, params};
 
 use super::{FromDb, LibraryId};
@@ -337,7 +338,7 @@ impl Library {
             )
             .unwrap();
             //
-            let trash_type = i32::from(libfolder::FolderVirtualType::Trash);
+            let trash_type = libfolder::FolderVirtualType::Trash.to_i32().unwrap_or(0);
             conn.execute(
                 "insert into folders (name, locked, virtual, parent_id, path) \
                  values (?1, 1, ?2, 0, '')",

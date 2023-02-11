@@ -17,32 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::FromPrimitive;
+
 use super::FromDb;
 use super::LibraryId;
 
 #[repr(i32)]
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, FromPrimitive, ToPrimitive, PartialEq, Eq)]
 pub enum FolderVirtualType {
+    #[default]
     None = 0,
     Trash = 1,
-}
-
-impl From<i32> for FolderVirtualType {
-    fn from(t: i32) -> Self {
-        match t {
-            0 => FolderVirtualType::None,
-            1 => FolderVirtualType::Trash,
-            _ => FolderVirtualType::None,
-        }
-    }
-}
-
-// this implementation is based on the cxx bridge implementation
-// of enums
-impl From<FolderVirtualType> for i32 {
-    fn from(t: FolderVirtualType) -> i32 {
-        t as i32
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -136,7 +122,7 @@ impl FromDb for LibFolder {
 
         let mut libfolder = LibFolder::new(id, &name, path);
         libfolder.set_parent(parent);
-        libfolder.set_virtual_type(FolderVirtualType::from(virt_type));
+        libfolder.set_virtual_type(FolderVirtualType::from_i32(virt_type).unwrap_or_default());
         libfolder.set_locked(locked);
         libfolder.set_expanded(expanded);
 
