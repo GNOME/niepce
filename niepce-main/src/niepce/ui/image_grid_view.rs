@@ -36,12 +36,12 @@ pub struct ImageGridView {
 
 impl ImageGridView {
     pub fn new(
-        store: &gtk4::SingleSelection,
+        store: gtk4::SingleSelection,
         context_menu: Option<gtk4::PopoverMenu>,
         ui_provider: Option<Rc<UIDataProvider>>,
     ) -> Self {
         let factory = gtk4::SignalListItemFactory::new();
-        let grid_view = gtk4::GridView::new(Some(store), Some(&factory));
+        let grid_view = gtk4::GridView::new(Some(store), Some(factory.clone()));
         let signal_rating_changed = Rc::new(Signal::default());
         let weak_signal = Rc::downgrade(&signal_rating_changed);
 
@@ -81,7 +81,7 @@ impl ImageGridView {
                 Self::press_event(&grid_view, &context_menu, gesture, x, y);
             }),
         );
-        grid_view.add_controller(&click);
+        grid_view.add_controller(click);
 
         ImageGridView {
             grid_view,
@@ -142,7 +142,7 @@ pub unsafe fn npc_image_grid_view_new(
     libclient_host: &LibraryClientHost,
 ) -> Box<ImageGridView> {
     Box::new(ImageGridView::new(
-        &gtk4::SingleSelection::from_glib_none(store as *mut gtk4_sys::GtkSingleSelection),
+        gtk4::SingleSelection::from_glib_none(store as *mut gtk4_sys::GtkSingleSelection),
         Option::<gtk4::PopoverMenu>::from_glib_none(context_menu as *mut gtk4_sys::GtkPopoverMenu),
         Some(libclient_host.shared_ui_provider()),
     ))

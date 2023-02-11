@@ -31,7 +31,7 @@ glib::wrapper! {
 
 impl WsItemRow {
     pub(super) fn new(tx: glib::Sender<Event>) -> Self {
-        let obj: Self = glib::Object::new(&[]);
+        let obj: Self = glib::Object::new();
         obj.imp().tx.replace(Some(tx));
         obj
     }
@@ -127,7 +127,7 @@ mod imp {
                     false
                 }
             }));
-            self.obj().add_controller(&drop_target);
+            self.obj().add_controller(drop_target);
         }
     }
 

@@ -1,7 +1,7 @@
 /*
  * niepce - toolkit/thumbnail.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +101,12 @@ impl Thumbnail {
         }
     }
 
-    pub fn thumbnail_file<P: AsRef<Path>>(path: P, w: i32, h: i32, orientation: i32) -> Self {
+    pub fn thumbnail_file<P: AsRef<Path>>(
+        path: P,
+        w: i32,
+        h: i32,
+        orientation: i32,
+    ) -> Option<Self> {
         let filename = path.as_ref();
         let mime_type = MimeType::new(filename);
         dbg_out!("MIME type {:?}", mime_type);
@@ -146,32 +151,28 @@ impl Thumbnail {
             }
         }
 
-        Thumbnail::from(pix)
+        pix.map(Thumbnail::from)
     }
 }
 
-impl From<Option<gdk_pixbuf::Pixbuf>> for Thumbnail {
-    fn from(pixbuf: Option<gdk_pixbuf::Pixbuf>) -> Self {
-        if let Some(pixbuf) = pixbuf {
-            if let Some(bytes) = pixbuf.read_pixel_bytes() {
-                let width = pixbuf.width();
-                let height = pixbuf.height();
-                let stride = pixbuf.rowstride();
-                let bits_per_sample = pixbuf.bits_per_sample();
-                let colorspace = pixbuf.colorspace();
-                let has_alpha = pixbuf.has_alpha();
-                return Self {
-                    width,
-                    height,
-                    stride,
-                    bits_per_sample,
-                    colorspace,
-                    has_alpha,
-                    bytes: Vec::from(bytes.as_ref()),
-                };
-            }
-        }
-        Self::default()
+impl From<gdk_pixbuf::Pixbuf> for Thumbnail {
+    fn from(pixbuf: gdk_pixbuf::Pixbuf) -> Self {
+        let bytes = pixbuf.read_pixel_bytes();
+        let width = pixbuf.width();
+        let height = pixbuf.height();
+        let stride = pixbuf.rowstride();
+        let bits_per_sample = pixbuf.bits_per_sample();
+        let colorspace = pixbuf.colorspace();
+        let has_alpha = pixbuf.has_alpha();
+        return Self {
+            width,
+            height,
+            stride,
+            bits_per_sample,
+            colorspace,
+            has_alpha,
+            bytes: Vec::from(bytes.as_ref()),
+        };
     }
 }
 

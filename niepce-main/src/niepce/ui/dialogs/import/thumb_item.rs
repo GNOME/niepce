@@ -30,7 +30,7 @@ glib::wrapper! {
 
 impl ThumbItem {
     pub fn new(imported_file: &dyn ImportedFile) -> Self {
-        let obj: Self = glib::Object::new(&[]);
+        let obj: Self = glib::Object::new();
         obj.imp().data.replace(Some(imp::ItemData {
             name: imported_file.name().to_string(),
             date: None,

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importlibrary/lrimport_root_row.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ glib::wrapper! {
 
 impl Default for LrImportRootRow {
     fn default() -> Self {
-        glib::Object::new(&[])
+        glib::Object::new()
     }
 }
 

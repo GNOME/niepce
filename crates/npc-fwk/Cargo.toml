@@ -13,19 +13,19 @@ chrono = "0.4.0"
 cxx = { version = "1.0", features = [ "c++17" ] }
 exempi2 = { version = "0.1.2" }
 gio-sys = "*"
-gio = "^0.16"
+gio = "^0.17"
 glib-sys = "*"
-glib = "^0.16"
+glib = "^0.17"
 gtk4-sys = "*"
-gdk4 = "^0.5"
+gdk4 = "^0.6"
 gdk-pixbuf-sys = "*"
-gdk-pixbuf = "^0.16"
+gdk-pixbuf = "^0.17"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
 gphoto2 = "3.1.0"
-graphene-rs = "0.16"
-gtk4 = "^0.5"
+graphene-rs = "0.17"
+gtk4 = "^0.6"
 lazy_static = "^1.2.0"
-libadwaita = { version = "0.2.1", features = [ "v1_2" ] }
+libadwaita = { version = "0.3.0", features = [ "v1_2" ] }
 libc = "0.2.39"
 libopenraw = "0.1.2"
 multimap = "0.4.0"

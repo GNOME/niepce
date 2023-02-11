@@ -99,7 +99,7 @@ glib::wrapper! {
 
 impl MetadataWidget {
     pub fn new(title: &str) -> MetadataWidget {
-        let obj: MetadataWidget = glib::Object::new(&[]);
+        let obj: MetadataWidget = glib::Object::new();
         obj.upcast_ref::<ToolboxItem>().set_title(title);
 
         obj
@@ -186,7 +186,7 @@ mod imp {
         fn create_star_rating_widget(&self, readonly: bool, id: u32) -> gtk4::Widget {
             let rating = RatingLabel::new(0, !readonly);
             if !readonly {
-                let obj = self.instance();
+                let obj = self.obj();
                 rating.connect_rating_changed(glib::clone!(@weak obj => move |_, rating| {
                     obj.imp().emit_metadata_changed(id, &PropertyValue::Int(rating));
                 }));
@@ -204,9 +204,7 @@ mod imp {
                 entry.set_editable(true);
                 entry.set_wrap_mode(gtk4::WrapMode::Word);
                 let ctrl = gtk4::EventControllerFocus::new();
-                entry.add_controller(&ctrl);
-
-                let obj = self.instance();
+                let obj = self.obj();
                 ctrl.connect_leave(glib::clone!(@weak entry, @weak obj => move |_| {
                     let buffer = entry.buffer();
                     let start = buffer.start_iter();
@@ -214,6 +212,7 @@ mod imp {
                     obj.imp().emit_metadata_changed(id, &PropertyValue::String(buffer.text(&start, &end, true).to_string()));
                 }));
 
+                entry.add_controller(ctrl);
                 entry.upcast()
             }
         }
@@ -229,13 +228,13 @@ mod imp {
                 let entry = gtk4::Entry::new();
                 entry.set_has_frame(false);
                 let ctrl = gtk4::EventControllerFocus::new();
-                entry.add_controller(&ctrl);
 
-                let obj = self.instance();
+                let obj = self.obj();
                 ctrl.connect_leave(glib::clone!(@weak entry, @weak obj => move |_| {
                     obj.imp().emit_metadata_changed(id, &PropertyValue::String(entry.text().to_string()));
                 }));
 
+                entry.add_controller(ctrl);
                 entry.upcast()
             }
         }
@@ -244,12 +243,12 @@ mod imp {
             let ttv = TokenTextView::new();
             if !readonly {
                 let ctrl = gtk4::EventControllerFocus::new();
-                ttv.add_controller(&ctrl);
 
-                let obj = self.instance();
+                let obj = self.obj();
                 ctrl.connect_leave(glib::clone!(@weak ttv, @weak obj => move |_| {
                     obj.imp().emit_metadata_changed(id, &PropertyValue::StringArray(ttv.tokens()));
                 }));
+                ttv.add_controller(ctrl);
             }
 
             ttv.upcast()
@@ -331,7 +330,7 @@ mod imp {
                 .as_ref()
                 .map(|v| v.is_empty())
                 .unwrap_or(true);
-            self.instance().set_sensitive(!is_empty);
+            self.obj().set_sensitive(!is_empty);
             if is_empty {
                 return;
             }
@@ -488,7 +487,7 @@ mod imp {
             {
                 old_props.set_value(prop, old_val.clone());
             }
-            self.instance()
+            self.obj()
                 .emit_by_name::<()>("metadata-changed", &[&props, &old_props]);
         }
     }
@@ -502,7 +501,7 @@ mod imp {
             self.widget.insert_column(0);
             self.widget.insert_column(0);
             self.widget.set_margin_start(8);
-            self.instance()
+            self.obj()
                 .upcast_ref::<super::ToolboxItem>()
                 .set_child(Some(&self.widget));
         }

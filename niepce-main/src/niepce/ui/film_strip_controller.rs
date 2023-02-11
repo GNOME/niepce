@@ -51,7 +51,7 @@ impl UiController for FilmStripController {
         &self
             .widgets
             .get_or_init(|| {
-                let thumb_strip_view = ThumbStripView::new(self.store.selection_model());
+                let thumb_strip_view = ThumbStripView::new(self.store.selection_model().clone());
                 thumb_strip_view.set_item_height(120);
 
                 let thumb_nav = ThumbNav::new(&thumb_strip_view, ThumbNavMode::OneRow, true);

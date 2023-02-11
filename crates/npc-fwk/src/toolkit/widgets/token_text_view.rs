@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/token_text_view.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,10 +30,10 @@ glib::wrapper! {
 
 impl TokenTextView {
     pub fn new() -> TokenTextView {
-        glib::Object::new(&[
-            ("wrap-mode", &gtk4::WrapMode::Word),
-            ("accepts-tab", &false),
-        ])
+        glib::Object::builder::<Self>()
+            .property("wrap-mode", gtk4::WrapMode::Word)
+            .property("accepts-tab", false)
+            .build()
     }
 
     /// Get the tokens from the text.

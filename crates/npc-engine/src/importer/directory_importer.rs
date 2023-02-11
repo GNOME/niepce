@@ -104,7 +104,7 @@ impl ImportBackend for DirectoryImporter {
                     let thumbnail = npc_fwk::toolkit::Thumbnail::thumbnail_file(&path, 160, 160, 0);
                     let date =
                         XmpMeta::new_from_file(&path, false).and_then(|xmp| xmp.creation_date());
-                    callback(path.to_string(), Some(thumbnail), date);
+                    callback(path.to_string(), thumbnail, date);
                 }
             }));
     }

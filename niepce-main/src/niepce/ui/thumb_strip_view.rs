@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/thumbstripview.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ impl std::ops::Deref for ThumbStripView {
 }
 
 impl ThumbStripView {
-    pub fn new(store: &gtk4::SingleSelection) -> Self {
+    pub fn new(store: gtk4::SingleSelection) -> Self {
         let factory = gtk4::SignalListItemFactory::new();
         factory.connect_setup(move |_, item| {
             let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
@@ -101,8 +101,8 @@ impl ThumbStripView {
             item_count: Rc::new(ItemCount {
                 count: Cell::new(0),
             }),
-            grid_view: gtk4::GridView::new(Some(store), Some(&factory)),
-            store: RefCell::new(Some(store.clone())),
+            grid_view: gtk4::GridView::new(Some(store.clone()), Some(factory)),
+            store: RefCell::new(Some(store)),
             signals: RefCell::new(Signals::default()),
         };
 

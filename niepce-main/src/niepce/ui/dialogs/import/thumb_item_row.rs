@@ -28,10 +28,10 @@ glib::wrapper! {
 
 impl ThumbItemRow {
     pub fn new() -> Self {
-        glib::Object::new(&[
-            ("spacing", &2),
-            ("orientation", &gtk4::Orientation::Vertical),
-        ])
+        glib::Object::builder::<Self>()
+            .property("spacing", 2)
+            .property("orientation", &gtk4::Orientation::Vertical)
+            .build()
     }
 
     pub fn set_label(&self, label: &str) {

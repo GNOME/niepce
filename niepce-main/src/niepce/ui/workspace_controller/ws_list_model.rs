@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/ws_list_model.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ impl Default for WorkspaceList {
 
 impl WorkspaceList {
     pub fn new() -> Self {
-        glib::Object::new(&[])
+        glib::Object::new()
     }
 
     /// Append item. Returns an error if the id is invalid.

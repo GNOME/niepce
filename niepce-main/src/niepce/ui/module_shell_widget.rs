@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/module_shell_widget.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ impl Default for ModuleShellWidget {
 #[gtk4::template_callbacks]
 impl ModuleShellWidget {
     pub fn new() -> ModuleShellWidget {
-        glib::Object::new(&[])
+        glib::Object::new()
     }
 
     #[template_callback]
@@ -159,7 +159,7 @@ mod imp {
     impl ModuleShellWidget {
         pub(super) fn stack_changed(&self) {
             if let Some(ref current_module) = *self.current_module.borrow() {
-                self.instance()
+                self.obj()
                     .emit_by_name::<()>("deactivated", &[current_module]);
             }
             let current_module = self
@@ -168,7 +168,7 @@ mod imp {
                 .map(|s| s.as_str().to_string());
             self.current_module.replace(current_module);
             if let Some(ref current_module) = *self.current_module.borrow() {
-                self.instance()
+                self.obj()
                     .emit_by_name::<()>("activated", &[&current_module]);
             }
         }

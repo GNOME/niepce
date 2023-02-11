@@ -53,11 +53,13 @@ impl ThumbnailTask {
     }
 }
 
-fn get_thumbnail(f: &LibFile, w: i32, h: i32, cached: &Path) -> Thumbnail {
+fn get_thumbnail(f: &LibFile, w: i32, h: i32, cached: &Path) -> Option<Thumbnail> {
     let filename = f.path();
     if ThumbnailCache::is_thumbnail_cached(filename, cached) {
         dbg_out!("thumbnail for {:?} is cached!", filename);
-        return Thumbnail::from(gdk_pixbuf::Pixbuf::from_file(cached).ok());
+        return gdk_pixbuf::Pixbuf::from_file(cached)
+            .ok()
+            .map(Thumbnail::from);
     }
 
     dbg_out!("creating thumbnail for {:?}", filename);
@@ -68,7 +70,7 @@ fn get_thumbnail(f: &LibFile, w: i32, h: i32, cached: &Path) -> Thumbnail {
     }
 
     let thumbnail = Thumbnail::thumbnail_file(filename, w, h, f.orientation());
-    if thumbnail.ok() {
+    if let Some(ref thumbnail) = thumbnail {
         thumbnail.save(cached, "png");
     } else {
         dbg_out!("couldn't get the thumbnail for {:?}", filename);
@@ -115,19 +117,18 @@ impl ThumbnailCache {
                 }
             }
 
-            if !pix.ok() {
-                return;
-            }
-            // notify the thumbnail
-            if let Err(err) = toolkit::thread_context().block_on(sender.send(ThumbnailLoaded(
-                notification::Thumbnail {
-                    id,
-                    width: pix.get_width(),
-                    height: pix.get_height(),
-                    pix,
-                },
-            ))) {
-                err_out!("Sending thumbnail notification failed: {}", err);
+            if let Some(pix) = pix {
+                // notify the thumbnail
+                if let Err(err) = toolkit::thread_context().block_on(sender.send(ThumbnailLoaded(
+                    notification::Thumbnail {
+                        id,
+                        width: pix.get_width(),
+                        height: pix.get_height(),
+                        pix,
+                    },
+                ))) {
+                    err_out!("Sending thumbnail notification failed: {}", err);
+                }
             }
         } else {
             err_out!("Failed to get thumbnail for {:?}", path);

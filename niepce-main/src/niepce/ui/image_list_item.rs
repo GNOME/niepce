@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_list_item.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ impl ImageListItem {
         strip_thumbnail: Option<gdk4::Paintable>,
         file_status: FileStatus,
     ) -> Self {
-        let obj: Self = glib::Object::new(&[]);
+        let obj: Self = glib::Object::new();
 
         // This is suboptimal
         obj.imp().data.replace(ImageListItemData {

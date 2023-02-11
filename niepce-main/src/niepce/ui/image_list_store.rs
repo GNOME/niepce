@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_list_store.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ impl Default for ImageListStore {
 impl ImageListStore {
     pub fn new() -> Self {
         let store = gio::ListStore::new(ImageListItem::static_type());
-        let model = gtk4::SingleSelection::new(Some(&store));
+        let model = gtk4::SingleSelection::new(Some(store.clone()));
 
         Self {
             store,

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/thumb_nav.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ use std::rc::Rc;
 
 use once_cell::unsync::OnceCell;
 
+use glib::prelude::*;
 use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
@@ -75,13 +76,13 @@ glib::wrapper! {
 impl ThumbNav {
     pub fn new(thumbview: &gtk4::GridView, mode: ThumbNavMode, show_buttons: bool) -> Self {
         let mode_n: i32 = mode.into();
-        glib::Object::new(&[
-            ("mode", &mode_n),
-            ("show-buttons", &show_buttons),
-            ("thumbview", thumbview),
-            ("homogeneous", &false),
-            ("spacing", &0),
-        ])
+        glib::Object::builder::<Self>()
+            .property("mode", mode_n)
+            .property("show-buttons", show_buttons)
+            .property("thumbview", thumbview)
+            .property("homogeneous", false)
+            .property("spacing", 0)
+            .build()
     }
 }
 
@@ -278,7 +279,7 @@ impl ObjectImpl for ThumbNavPriv {
     fn constructed(&self) {
         self.parent_constructed();
 
-        let obj = self.instance();
+        let obj = self.obj();
         let button_left = gtk4::Button::from_icon_name("pan-start-symbolic");
         // XXX
         // button_left.set_relief(gtk4::ReliefStyle::None);
@@ -335,29 +336,23 @@ impl ObjectImpl for ThumbNavPriv {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
             vec![
-                glib::ParamSpecBoolean::new(
-                    "show-buttons",
-                    "Show Buttons",
-                    "Whether to show navigation buttons or not",
-                    true, // Default value
-                    glib::ParamFlags::READWRITE,
-                ),
-                glib::ParamSpecObject::new(
-                    "thumbview",
-                    "Thumbnail View",
-                    "The internal thumbnail viewer widget",
-                    gtk4::GridView::static_type(),
-                    glib::ParamFlags::READWRITE | glib::ParamFlags::CONSTRUCT_ONLY,
-                ),
-                glib::ParamSpecInt::new(
-                    "mode",
-                    "Mode",
-                    "Thumb navigator mode",
-                    ThumbNavMode::OneRow.into(),
-                    ThumbNavMode::MultipleRows.into(),
-                    ThumbNavMode::OneRow.into(),
-                    glib::ParamFlags::READWRITE,
-                ),
+                glib::ParamSpecBoolean::builder("show-buttons")
+                    .nick("Show Buttons")
+                    .blurb("Whether to show navigation buttons or not")
+                    .default_value(true)
+                    .build(),
+                glib::ParamSpecObject::builder::<gtk4::GridView>("thumbview")
+                    .nick("Thumbnail View")
+                    .blurb("The internal thumbnail viewer widget")
+                    .construct_only()
+                    .build(),
+                glib::ParamSpecInt::builder("mode")
+                    .nick("Mode")
+                    .blurb("Thumb navigator mode")
+                    .minimum(ThumbNavMode::OneRow.into())
+                    .maximum(ThumbNavMode::MultipleRows.into())
+                    .default_value(ThumbNavMode::OneRow.into())
+                    .build(),
             ]
         });
         PROPERTIES.as_ref()
@@ -390,11 +385,11 @@ impl ObjectImpl for ThumbNavPriv {
 
     fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
         match pspec.name() {
-            "show-buttons" => self.show_buttons.get().to_value(),
+            "show-buttons" => self.show_buttons.get().into(),
             "thumbview" => self.thumbview.borrow().to_value(),
             "mode" => {
                 let n: i32 = self.mode.get().into();
-                n.to_value()
+                n.into()
             }
             _ => unimplemented!(),
         }

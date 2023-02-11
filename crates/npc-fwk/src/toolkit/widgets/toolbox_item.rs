@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/toolbox_item.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,10 +32,10 @@ glib::wrapper! {
 
 impl ToolboxItem {
     pub fn new(label: &str) -> ToolboxItem {
-        let obj: ToolboxItem = glib::Object::new(&[
-            ("spacing", &0),
-            ("orientation", &gtk4::Orientation::Vertical),
-        ]);
+        let obj = glib::Object::builder::<Self>()
+            .property("spacing", 0)
+            .property("orientation", gtk4::Orientation::Vertical)
+            .build();
         obj.imp().expander.set_label(Some(label));
         obj
     }
@@ -73,7 +73,7 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
 
-            self.instance().append(&self.expander);
+            self.obj().append(&self.expander);
             self.expander.set_expanded(true);
             self.expander.set_use_markup(true);
         }

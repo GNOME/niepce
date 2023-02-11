@@ -289,10 +289,10 @@ impl UiController for WorkspaceController {
                 let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
 
                 let rootstore = gio::ListStore::new(Item::static_type());
-                let treemodel = gtk4::TreeListModel::new(&rootstore, false, true, |item| {
+                let treemodel = gtk4::TreeListModel::new(rootstore, false, true, |item| {
                     Some(item.downcast_ref::<Item>()?.create_children()?.upcast_ref::<gio::ListModel>().clone())
                 });
-                let selection_model = gtk4::SingleSelection::new(Some(&treemodel));
+                let selection_model = gtk4::SingleSelection::new(Some(treemodel.clone()));
 
                 let factory = gtk4::SignalListItemFactory::new();
                 factory.connect_setup(glib::clone!(@strong self.tx as tx => move |_, item| {
@@ -334,7 +334,7 @@ impl UiController for WorkspaceController {
                     let ws_item_row = list_item.child().unwrap().downcast_ref::<WsItemRow>().unwrap().clone();
                     ws_item_row.unbind();
                 });
-                let librarytree = gtk4::ListView::new(Some(&selection_model), Some(&factory));
+                let librarytree = gtk4::ListView::new(Some(selection_model), Some(factory));
                 librarytree.set_single_click_activate(false);
 
                 let folders_node = WorkspaceController::add_toplevel_item(
@@ -370,7 +370,7 @@ impl UiController for WorkspaceController {
                 label.set_hexpand(true);
                 header.append(&label);
 
-                let add_btn = gtk4::builders::MenuButtonBuilder::new()
+                let add_btn = gtk4::MenuButton::builder()
                     .direction(gtk4::ArrowType::None)
                     .icon_name("view-more-symbolic")
                     .build();
@@ -398,7 +398,7 @@ impl UiController for WorkspaceController {
 
                 add_btn.set_menu_model(Some(&menu));
 
-                let context_menu = gtk4::builders::PopoverMenuBuilder::new()
+                let context_menu = gtk4::PopoverMenu::builder()
                     .menu_model(&menu)
                     .has_arrow(false)
                     .build();
@@ -424,10 +424,10 @@ impl UiController for WorkspaceController {
                 }
                 let gesture = gtk4::GestureClick::new();
                 gesture.set_button(3);
-                librarytree.add_controller(&gesture);
                 gesture.connect_pressed(glib::clone!(@strong self.tx as tx => move |_, _, x, y| {
                     on_err_out!(tx.send(Event::ButtonPress(x, y)));
                 }));
+                librarytree.add_controller(gesture);
 
                 Widgets {
                     widget_: main_box.upcast(),

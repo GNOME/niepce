@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/library_cell_renderer.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ impl LibraryCellRenderer {
     /// Create a library cell renderer.
     /// callback: an optional callback used to get a colour for labels.
     pub fn new(ui_provider: Option<Weak<UIDataProvider>>) -> Self {
-        let obj: Self = glib::Object::new(&[]);
+        let obj: Self = glib::Object::new();
 
         obj.imp().ui_provider.replace(ui_provider);
 
@@ -304,7 +304,7 @@ impl LibraryCellRendererPriv {
         // hit test with the rating region
         let x = x as f32;
         let y = y as f32;
-        let allocation = self.instance().allocation();
+        let allocation = self.obj().allocation();
         let r = Rect::new(
             allocation.x() as f32,
             allocation.y() as f32,
@@ -346,7 +346,7 @@ impl LibraryCellRendererPriv {
         if let Some(f) = &*file {
             if f.rating() != new_rating {
                 // emit signal if changed
-                self.instance()
+                self.obj()
                     .emit_by_name::<()>("rating-changed", &[&f.id(), &new_rating]);
             }
         }
@@ -391,7 +391,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
                 .expect("couldn't get renderer");
             renderer.hit(x, y);
         });
-        self.obj().add_controller(&gesture);
+        self.obj().add_controller(gesture);
 
         // Drag and drop
         let drag_source = gtk4::DragSource::new();
@@ -399,39 +399,31 @@ impl ObjectImpl for LibraryCellRendererPriv {
             glib::clone!(@weak self as this => @default-return None, move |source, _, _| {
                 source.set_icon(this.pixbuf.borrow().as_ref(), 0, 0);
                 let libfile = this.libfile.borrow().clone();
-                libfile.map(|libfile| gdk4::ContentProvider::for_value(&libfile.to_value()))
+                libfile.map(|libfile| gdk4::ContentProvider::for_value(&libfile.into()))
             }),
         );
-        self.obj().add_controller(&drag_source);
+        self.obj().add_controller(drag_source);
     }
 
     fn properties() -> &'static [glib::ParamSpec] {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
             vec![
-                glib::ParamSpecObject::new(
-                    "pixbuf",
-                    "Thumbnail",
-                    "Thumbnail to Display",
-                    gdk4::Paintable::static_type(),
-                    glib::ParamFlags::READWRITE,
-                ),
-                glib::ParamSpecBoxed::new(
-                    "libfile",
-                    "Library File",
-                    "File from the library in the cell",
-                    LibFile::static_type(),
-                    glib::ParamFlags::READWRITE,
-                ),
-                glib::ParamSpecInt::new(
-                    "status",
-                    "File Status",
-                    "Status of the file in the cell",
-                    FileStatus::Invalid as i32,
-                    FileStatus::Missing as i32,
-                    FileStatus::Ok as i32,
-                    glib::ParamFlags::READWRITE,
-                ),
+                glib::ParamSpecObject::builder::<gdk4::Paintable>("pixbuf")
+                    .nick("Thumbnail")
+                    .blurb("Thumbnail to Display")
+                    .build(),
+                glib::ParamSpecBoxed::builder::<LibFile>("libfile")
+                    .nick("Library File")
+                    .blurb("File from the library in the cell")
+                    .build(),
+                glib::ParamSpecInt::builder("status")
+                    .nick("File Status")
+                    .blurb("Status of the file in the cell")
+                    .minimum(FileStatus::Invalid as i32)
+                    .maximum(FileStatus::Missing as i32)
+                    .default_value(FileStatus::Ok as i32)
+                    .build(),
             ]
         });
 
@@ -468,14 +460,14 @@ impl ObjectImpl for LibraryCellRendererPriv {
             }
             _ => unimplemented!(),
         }
-        self.instance().queue_draw();
+        self.obj().queue_draw();
     }
 
     fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
         match pspec.name() {
             "pixbuf" => self.pixbuf.borrow().to_value(),
             "libfile" => self.libfile.borrow().to_value(),
-            "status" => (self.status.get() as i32).to_value(),
+            "status" => (self.status.get() as i32).into(),
             _ => unimplemented!(),
         }
     }
@@ -492,10 +484,10 @@ impl WidgetImpl for LibraryCellRendererPriv {
     }
 
     fn snapshot(&self, snapshot: &gtk4::Snapshot) {
-        let self_ = self.instance();
+        let self_ = self.obj();
         let xpad = 0.0; // self_.xpad() as f32;
         let ypad = 0.0; // self_.ypad() as f32;
-        let cell_area = self.instance().allocation();
+        let cell_area = self_.allocation();
 
         let mut r = Rect::new(
             cell_area.x() as f32,

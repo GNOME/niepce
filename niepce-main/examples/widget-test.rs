@@ -87,11 +87,11 @@ pub fn main() {
 
     app.connect_activate(|app| {
         let store = gio::ListStore::new(ImageListItem::static_type());
-        let model = gtk4::SingleSelection::new(Some(&store));
         add_icon(&store);
         add_icon(&store);
         add_icon(&store);
-        let thumbview = ThumbStripView::new(&model);
+        let model = gtk4::SingleSelection::new(Some(store));
+        let thumbview = ThumbStripView::new(model.clone());
         thumbview.set_hexpand(true);
         let thn = ThumbNav::new(thumbview.deref(), ThumbNavMode::OneRow, true);
         thn.set_size_request(-1, 134);
@@ -107,7 +107,7 @@ pub fn main() {
         let shell = ModuleShellWidget::new();
         shell.append_page(&box_, "main", "Main");
 
-        let image_grid = ImageGridView::new(&model, None, None);
+        let image_grid = ImageGridView::new(model, None, None);
         image_grid.set_hexpand(true);
         image_grid.set_vexpand(true);
         shell.append_page(image_grid.deref(), "grid", "Grid View");

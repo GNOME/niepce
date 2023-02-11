@@ -17,7 +17,7 @@ gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
 gio-sys = "*"
 gio = "*"
 glib = "*"
-graphene-rs = "0.16"
+graphene-rs = "0.17"
 gtk4-sys = "*"
 gtk4 = { version = "*", features = [ "v4_6" ] }
 gtk-macros = "0.3.0"

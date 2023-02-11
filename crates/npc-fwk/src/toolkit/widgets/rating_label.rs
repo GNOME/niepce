@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/widgets/rating_label.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ impl RatingLabelPriv {
 
     fn set_rating(&self, rating: i32) {
         self.rating.set(rating);
-        let w = self.instance();
+        let w = self.obj();
         w.queue_draw();
     }
 
@@ -67,7 +67,7 @@ impl RatingLabelPriv {
         let new_rating = RatingLabel::rating_value_from_hit_x(x);
         if new_rating != self.rating.get() {
             self.set_rating(new_rating);
-            self.instance()
+            self.obj()
                 .emit_by_name::<()>("rating-changed", &[&new_rating]);
         }
     }
@@ -91,12 +91,12 @@ impl ObjectImpl for RatingLabelPriv {
     fn constructed(&self) {
         self.parent_constructed();
 
-        let obj = self.instance();
+        let obj = self.obj();
         let click = gtk4::GestureClick::new();
         click.connect_pressed(glib::clone!(@weak obj => move |gesture, n, x, y| {
             obj.imp().press_event(gesture, n, x, y);
         }));
-        obj.add_controller(&click);
+        obj.add_controller(click);
     }
 
     fn signals() -> &'static [Signal] {
@@ -113,15 +113,13 @@ impl ObjectImpl for RatingLabelPriv {
     fn properties() -> &'static [glib::ParamSpec] {
         use once_cell::sync::Lazy;
         static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
-            vec![glib::ParamSpecInt::new(
-                "rating",
-                "Rating",
-                "The rating value",
-                0,
-                5,
-                0,
-                glib::ParamFlags::READWRITE,
-            )]
+            vec![glib::ParamSpecInt::builder("rating")
+                .nick("Rating")
+                .blurb("The rating value")
+                .minimum(0)
+                .maximum(5)
+                .default_value(0)
+                .build()]
         });
         PROPERTIES.as_ref()
     }
@@ -140,7 +138,7 @@ impl ObjectImpl for RatingLabelPriv {
 
     fn property(&self, _id: usize, pspec: &glib::ParamSpec) -> glib::Value {
         match pspec.name() {
-            "rating" => self.rating.get().to_value(),
+            "rating" => self.rating.get().into(),
             _ => unimplemented!(),
         }
     }
@@ -226,7 +224,7 @@ impl RatingLabel {
     }
 
     pub fn new(rating: i32, editable: bool) -> Self {
-        let obj: Self = glib::Object::new(&[]);
+        let obj: Self = glib::Object::new();
 
         let priv_ = &obj.imp();
         priv_.set_editable(editable);
@@ -250,7 +248,7 @@ impl WidgetImpl for RatingLabelPriv {
         let star = RatingLabel::star();
         let x = 0_f32;
         let y = star.height() as f32;
-        let widget = self.instance();
+        let widget = self.obj();
         let rating = (widget.downcast_ref::<RatingLabel>().unwrap())
             .imp()
             .rating

@@ -77,7 +77,7 @@ impl Configuration {
 
     /// Save
     fn save(&self) -> Result<(), glib::Error> {
-        glib::file_set_contents(&self.filename, self.keyfile.to_data().as_gstr().to_bytes())
+        glib::file_set_contents(&self.filename, self.keyfile.to_data().as_gstr().as_bytes())
     }
 }
 

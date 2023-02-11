@@ -172,8 +172,8 @@ impl ImportDialog {
 
                 get_widget!(builder, gtk4::ScrolledWindow, images_list_scrolled);
                 let images_list_model = gio::ListStore::new(ThumbItem::static_type());
-                let selection_model = gtk4::SingleSelection::new(Some(&images_list_model));
-                let image_gridview = crate::ImageGridView::new(&selection_model, None, None);
+                let selection_model = gtk4::SingleSelection::new(Some(images_list_model.clone()));
+                let image_gridview = crate::ImageGridView::new(selection_model, None, None);
                 let factory = gtk4::SignalListItemFactory::new();
                 image_gridview.set_factory(Some(&factory));
                 factory.connect_setup(move |_, item| {

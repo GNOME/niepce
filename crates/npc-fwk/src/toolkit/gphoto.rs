@@ -280,7 +280,8 @@ impl GpCamera {
             let loader = gdk_pixbuf::PixbufLoader::new();
             loader.write(&data).ok()?;
             loader.close().ok()?;
-            Some(crate::Thumbnail::from(loader.pixbuf()))
+
+            loader.pixbuf().map(crate::Thumbnail::from)
         } else {
             None
         }
