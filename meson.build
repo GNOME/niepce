@@ -22,7 +22,7 @@ adw_deps = dependency('libadwaita-1', version: '>= 1.2.0')
 dependency('glibmm-2.68')
 gtkmm_deps = dependency('gtkmm-4.0', version: '>= 4.4.0')
 # need at least 2.5.0 because of xmlTextReader
-dependency('libxml-2.0', version: '>= 2.5.0')
+libxml_deps = dependency('libxml-2.0', version: '>= 2.5.0')
 sqlite_deps = dependency('sqlite3')
 exempi_deps = dependency('exempi-2.0', version: '>= 2.4.0')
 libopenraw_deps = dependency('libopenraw-0.3', version: '>= 0.3.0')
@@ -34,7 +34,7 @@ gphoto2_deps = dependency('libgphoto2', version: '>= 2.5')
 shumate_deps = dependency('shumate-1.0', version: '>= 1.0.0')
 
 glib_compile_resources = find_program('glib-compile-resources', required: true)
-glib_compile_schemas = find_program('glib-compile-schemas', required: true)
+# glib_compile_schemas = find_program('glib-compile-schemas', required: true)
 desktop_file_validate = find_program('desktop-file-validate', required: false)
 appstream_util = find_program('appstream-util', required: false)
 cargo = find_program('cargo', required: true)
@@ -118,6 +118,7 @@ subdir('doc')
 
 gnome.post_install(
   gtk_update_icon_cache: true,
-  glib_compile_schemas: true,
+  # We don't have any schemas
+  glib_compile_schemas: false,
   update_desktop_database: true,
 )

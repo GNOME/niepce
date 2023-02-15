@@ -132,7 +132,7 @@ fwk = static_library(
   'utils' / 'ufrawmeta.cpp',
 
   install: false,
-  dependencies: [cxx_headers, exempi_deps, gphoto2_deps, adw_deps, gtkmm_deps, shumate_deps, niepce_rust_deps],
+  dependencies: [cxx_headers, exempi_deps, gphoto2_deps, adw_deps, gtkmm_deps, libxml_deps, shumate_deps, niepce_rust_deps],
   include_directories: [include_directories('..', '..' / '..'), rust_inc]
 )
 
@@ -153,7 +153,7 @@ testconfigdatabinder = executable(
   'testconfigdatabinder',
   'toolkit' / 't' / 'testconfigdatabinder.cpp',
   build_by_default: false,
-  dependencies: [ cxx_headers, gtkmm_deps, exempi_deps, libopenraw_deps, gexiv2_deps ],
+  dependencies: [ cxx_headers, gtkmm_deps, exempi_deps, libopenraw_deps, libxml_deps, gexiv2_deps ],
   include_directories: [ gtest_inc, include_directories('..', 'toolkit') ],
   link_with: [ gtest, fwk ]
 )
