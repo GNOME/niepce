@@ -60,6 +60,24 @@ clippy = run_target(
   ]
 )
 
+widget_test = custom_target(
+  'widget-test',
+  output: [
+    'widget-test',
+  ],
+  console: true,
+  install: false,
+  command: [
+    'env',
+    cargo_env,
+    cargo, 'build',
+    '--example=widget-test',
+    cargo_options,
+    '&&',
+    'cp', cargo_target_dir / rust_target / 'examples' / 'widget-test', '@OUTDIR@'
+  ]
+)
+
 niepce_rust_deps = declare_dependency(link_with: niepce_rust[0], sources: [ niepce_rust[1], niepce_rust[2] ])
 
 # Target to build the test prior to running cargo-test
