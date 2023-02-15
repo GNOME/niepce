@@ -1,9 +1,10 @@
 {
     "app-id" : "org.gnome.Niepce",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "42",
+    "runtime-version" : "43",
     "sdk" : "org.gnome.Sdk",
     "sdk-extensions" : [
+        "org.freedesktop.Sdk.Extension.llvm14",
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
     "command" : "niepce",
@@ -48,11 +49,15 @@
         },
         {
             "name": "libgphoto2",
+            "cleanup": [
+                "/bin",
+                "/share/man"
+            ],
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.sourceforge.net/project/gphoto/libgphoto/2.5.29/libgphoto2-2.5.29.tar.bz2",
-                    "sha256": "dbe3cefad8c634fc134d93467a33e242cb1030f0b9829deb9f1703f368ac027e"
+                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.30/libgphoto2-2.5.30.tar.xz",
+                    "sha256": "4d50e71d771ca78e33f10308e7f15ad00a2268d1b5af4a19cd4c5512a1b62a62"
                 }
             ]
         },
@@ -83,7 +88,9 @@
                         "-DCMAKE_BUILD_TYPE=Release"
                     ],
                     "cleanup": [
-                        "/bin"
+                        "/bin",
+                        "/lib/cmake",
+                        "/share/man"
                     ],
                     "sources": [
                         {
@@ -109,6 +116,9 @@
         {
             "name" : "babl",
             "buildsystem": "meson",
+            "cleanup": [
+                "/bin"
+            ],
             "config-opts": [
                 "-Dwith-docs=false",
                 "-Denable-vapi=false",
@@ -117,8 +127,8 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "url" : "https://download.gimp.org/pub/babl/0.1/babl-0.1.92.tar.xz",
-                    "sha256" : "f667735028944b6375ad18f160a64ceb93f5c7dccaa9d8751de359777488a2c1"
+                    "url" : "https://download.gimp.org/pub/babl/0.1/babl-0.1.98.tar.xz",
+                    "sha256" : "f3b222f84e462735de63fa9c3651942f2b78fd314c73a22e05ff7c73afd23af1"
                 }
             ]
         },
@@ -137,8 +147,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gimp.org/pub/gegl/0.4/gegl-0.4.36.tar.xz",
-                    "sha256": "6fd58a0cdcc7702258adaeffb573a389228ae8f0eff47578efda2309b61b2ca6"
+                    "url": "https://download.gimp.org/pub/gegl/0.4/gegl-0.4.40.tar.xz",
+                    "sha256": "cdde80d15a49dab9a614ef98f804c8ce6e4cfe1339a3c240c34f3fb45436b85d"
                 }
             ]
         },
@@ -157,6 +167,9 @@
         },
         {
             "name": "sigc++",
+            "cleanup": [
+                "/lib/sigc++-*"
+            ],
             "config-opts": [
                 "--disable-documentation"
             ],
@@ -171,6 +184,10 @@
         {
             "name": "glibmm",
             "buildsystem": "meson",
+            "cleanup": [
+                "/lib/giomm-*",
+                "/lib/glibmm-*"
+            ],
             "config-opts": [
                 "-Dbuild-deprecated-api=false",
                 "-Dbuild-examples=false",
@@ -186,6 +203,9 @@
         },
         {
             "name": "cairomm",
+            "cleanup": [
+                "/lib/cairomm-1.16"
+            ],
             "config-opts": [
                 "--disable-documentation"
             ],
@@ -200,6 +220,9 @@
         {
             "name": "pangomm",
             "buildsystem": "meson",
+            "cleanup": [
+                "/lib/pangomm-*"
+            ],
             "config-opts": [
                 "-Dbuild-deprecated-api=false",
                 "-Dbuild-documentation=false"
@@ -215,6 +238,9 @@
         {
             "name": "atkmm",
             "buildsystem": "meson",
+            "cleanup": [
+                "/lib/atkmm-2.36"
+            ],
             "config-opts": [
                 "-Dbuild-deprecated-api=false",
                 "-Dbuild-documentation=false"
@@ -230,6 +256,9 @@
         {
             "name": "gtkmm",
             "buildsystem": "meson",
+            "cleanup": [
+                "/lib/gtkmm-*"
+            ],
             "config-opts": [
                 "-Dbuild-deprecated-api=false",
                 "-Dbuild-demos=false",
@@ -283,37 +312,34 @@
         },
         {
             "name": "exempi",
+            "cleanup": [
+                "/bin",
+                "/share/man"
+            ],
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://libopenraw.freedesktop.org/download/exempi-2.6.1.tar.bz2",
-                    "sha256": "072451ac1e0dc97ed69a2e5bfc235fd94fe093d837f65584d0e3581af5db18cd"
+                    "url": "https://libopenraw.freedesktop.org/download/exempi-2.6.3.tar.xz",
+                    "sha256": "80b3aa0b7f54978c6a49cc5f5f1d3b6e9524b59de74ef92b3bf0abeba4c28fb1"
                 }
             ]
         },
         {
             "name": "libopenraw",
             "config-opts": [
+                "--disable-gnome",
                 "--disable-static"
             ],
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://libopenraw.freedesktop.org/download/libopenraw-0.3.1.tar.xz",
-                    "sha256": "c8acaae1bb43c3461b54d4b106bfc985dff859d43bcd0475bfda35bdf296fc0e"
-                },
-                {
-                    "type": "patch",
-                    "path": "libopenraw-pixbuf-disable.diff"
-                },
-                {
-                    "type": "patch",
-                    "path": "libopenraw-buildfix.patch"
+                    "url": "https://libopenraw.freedesktop.org/download/libopenraw-0.3.4.tar.xz",
+                    "sha256": "c365210796161e017ce87d09bd746237d845ade9ab74faaafcede89382b95640"
                 },
                 {
                     "type": "shell",
                     "commands": [
-                        "autoreconf -si"
+                        "autoreconf -fi"
                     ]
                 }
             ]
@@ -321,6 +347,13 @@
         {
             "name": "niepce",
 	    "buildsystem": "meson",
+            "build-options":{
+                "append-path": "/usr/lib/sdk/llvm14/bin",
+                "prepend-ld-library-path": "/usr/lib/sdk/llvm14/lib"
+            },
+            "config-opts": [
+                "-Dprofile=release"
+            ],
             "sources": [
                 {
                     "type": "dir",
