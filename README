@@ -40,23 +40,14 @@ To build you need the following:
 - babl
 - libgphoto2
 - gexiv2 >= 0.10 (as required by rexiv2)
-- meson >= 0.59 (for the meson buildsystem)
+- meson >= 0.59
 
 Niepce is being developed on Linux. It should build and work on other
 UNIX systems.
 
-There are two build systems.
+### Meson
 
-### Autotools build
-
-The original build system use autotools. It will be deprecated at one point.
-
-To build from git, you will need `autoconf-archive` and `gettext` (development
-files), the latter being for `autopoint`.
-
-### Meson build
-
-The meson build is new and can be used in parallel.
+The build system uses meson. It will wrap cargo for the Rust code.
 
 To build with the address sanitizer, pass `-Db_sanitize=address` to
 meson (it's standard).
