@@ -1,47 +1,31 @@
+extern crate pkg_config;
+
 fn main() {
-    #[cfg(examples)]
-    {
-        use std::fs::remove_file;
-        use std::path::Path;
-        use std::process::Command;
-        use std::str::from_utf8;
-
-        // Remove old versions of the gresource to make sure we're using the latest version
-        if Path::new("examples/gresource.gresource").exists() {
-            remove_file("examples/gresource.gresource").unwrap();
-        }
-
-        // Compile Gresource
-        let mut source_dir = String::from("--sourcedir=");
-        source_dir.push_str(&crate_dir);
-        let mut target_dir = String::from("--target=");
-        let mut target_path = PathBuf::from(crate_dir);
-        target_path.push("examples");
-        target_path.push("gresource.gresource");
-        target_dir.push_str(target_path.to_str().unwrap());
-        let output =
-            Command::new(option_env!("GRESOURCE_BINARY_PATH").unwrap_or("glib-compile-resources"))
-                .args(&[
-                    "--generate",
-                    "gresource.xml",
-                    source_dir.as_str(),
-                    target_dir.as_str(),
-                ])
-                .current_dir("src/niepce")
-                .output()
-                .unwrap();
-
-        if !output.status.success() {
-            println!("Failed to generate GResources!");
-            println!(
-                "glib-compile-resources stdout: {}",
-                from_utf8(&output.stdout).unwrap()
-            );
-            println!(
-                "glib-compile-resources stderr: {}",
-                from_utf8(&output.stderr).unwrap()
-            );
-            panic!("Can't continue build without GResources!");
-        }
+    println!("cargo:rustc-link-lib=niepce_lib");
+    println!("cargo:rustc-link-lib=ncr");
+    println!("cargo:rustc-link-lib=fwk");
+    if let Ok(asan) = std::env::var("ASAN_LIBS") {
+        println!("cargo:rustc-link-lib={asan}");
     }
+
+    // This is expected to be set by the mesonb.build.
+    if let Ok(libpath) = std::env::var("NIEPCE_LIB_PATH") {
+        libpath.split(':').for_each(|s| {
+            println!("cargo:rustc-link-arg=-L{s}");
+        });
+    }
+
+    // Direct dependencies by the C++ code.
+    pkg_config::Config::new()
+        .atleast_version("0.4")
+        .probe("gegl-0.4")
+        .unwrap();
+    pkg_config::Config::new()
+        .atleast_version("4.4.0")
+        .probe("gtkmm-4.0")
+        .unwrap();
+    pkg_config::Config::new()
+        .atleast_version("1.0.0")
+        .probe("shumate-1.0")
+        .unwrap();
 }

@@ -11,7 +11,6 @@ run_command(
   check: true
 )
 
-cargo_target_dir = meson.project_build_root() / 'target'
 cargo_options = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml' ]
 cargo_options += [ '--target-dir', cargo_target_dir ]
 
@@ -24,16 +23,14 @@ else
   message('Building in debug mode')
 endif
 
-cargo_env = [
-  'CARGO_HOME=' + meson.project_build_root() / 'cargo-home',
-  'CARGO_TARGET_DIR=' + cargo_target_dir
-]
+# cargo env is defined in the top-level
 
 niepce_rust = custom_target(
   'cargo-build',
   build_always_stale: true,
   output: [
     'libniepce_core.a',
+    'niepce'
   ],
   console: true,
   install: false,
@@ -43,19 +40,22 @@ niepce_rust = custom_target(
     cargo, 'build',
     cargo_options,
     '&&',
+    'cp', cargo_target_dir / rust_target / 'niepce', '@OUTDIR@',
+    '&&',
     'cp', cargo_target_dir / rust_target / 'libniepce_core.a', '@OUTDIR@'
-  ]
+  ],
+  depends: [niepce_lib, resources_bundle, ncr, fwk]
 )
 
 clippy = run_target(
   'clippy',
+  env: cargo_env,
   command: [
-    'env',
-    cargo_env,
     cargo, 'clippy',
     cargo_options,
     '--all-targets'
-  ]
+  ],
+  depends: [resources_bundle]
 )
 
 widget_test = custom_target(
@@ -63,6 +63,7 @@ widget_test = custom_target(
   output: [
     'widget-test',
   ],
+  build_always_stale: true,
   console: true,
   install: false,
   command: [
@@ -73,7 +74,8 @@ widget_test = custom_target(
     cargo_options,
     '&&',
     'cp', cargo_target_dir / rust_target / 'examples' / 'widget-test', '@OUTDIR@'
-  ]
+  ],
+  depends: [niepce_lib, resources_bundle, ncr, fwk]
 )
 
 niepce_rust_deps = declare_dependency(link_with: niepce_rust[0])
@@ -94,7 +96,8 @@ niepce_test = custom_target(
     '--tests',
     '&&',
     'touch', '@OUTDIR@' / 'test-build-stamp'
-  ]
+  ],
+  depends: [niepce_lib, resources_bundle, ncr, fwk]
 )
 
 test(
@@ -107,5 +110,5 @@ test(
   args: [
     'test',
     cargo_options
-  ]
+  ],
 )

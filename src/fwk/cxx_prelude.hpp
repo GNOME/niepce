@@ -30,6 +30,7 @@ class ModuleShell;
 class GridViewModule;
 class EditLabels;
 class MetaDataPaneController;
+class NiepceApplication;
 }
 
 namespace mapm {

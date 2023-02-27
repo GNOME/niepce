@@ -38,12 +38,12 @@ NiepceApplication::NiepceApplication(int & argc, char** & argv)
 {
 }
 
-Application::Ptr NiepceApplication::create(int & argc, char** & argv)
+std::shared_ptr<NiepceApplication> NiepceApplication::create(int & argc, char** & argv)
 {
     if (!m_application) {
-        m_application = Application::Ptr(new NiepceApplication(argc, argv));
+        m_application = std::make_shared<NiepceApplication>(argc, argv);
     }
-    return m_application;
+    return std::dynamic_pointer_cast<NiepceApplication>(m_application);
 }
 
 

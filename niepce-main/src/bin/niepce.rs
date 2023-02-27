@@ -1,7 +1,7 @@
 /*
- * niepce - fwk/utils/init.hpp
+ * niepce - bin/niepce.rs
  *
- * Copyright (C) 2009 Hubert Figuiere
+ * Copyright (C) 2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,26 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _FWK_INIT_HPP_
-#define _FWK_INIT_HPP_
+use gettextrs::*;
 
-namespace fwk {
-namespace utils {
+use niepce_core::config;
+use npc_fwk::{dbg_out, ExempiManager};
 
-void init();
+fn main() {
+    bindtextdomain(config::GETTEXT_PACKAGE, config::LOCALEDIR).expect("bindtextdomain failed");
+    bind_textdomain_codeset(config::GETTEXT_PACKAGE, "UTF-8")
+        .expect("bind textdomain codeset failed");
+    textdomain(config::GETTEXT_PACKAGE).expect("textdomain failed");
 
+    niepce_core::niepce_init();
+
+    let _ = ExempiManager::new(None);
+
+    dbg_out!("Starting up. DEBUG is on");
+
+    let app = niepce_core::ffi::niepce_application_create();
+    app.main();
 }
-}
-
-/*
-  Local Variables:
-  mode:c++
-  c-file-style:"stroustrup"
-  c-file-offsets:((innamespace . 0))
-  indent-tabs-mode:nil
-  fill-column:80
-  End:
-*/
-
-
-#endif

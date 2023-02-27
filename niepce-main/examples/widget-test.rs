@@ -19,10 +19,9 @@
 
 use std::ops::Deref;
 
-use gio::{resources_register, Resource};
-use glib::{Bytes, Error};
 use gtk4::prelude::*;
 
+use niepce_core::init_resources;
 use niepce_core::niepce::ui::image_grid_view::{ImageGridView, ImageListItem};
 use niepce_core::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
 use niepce_core::niepce::ui::thumb_strip_view::ThumbStripView;
@@ -30,25 +29,6 @@ use niepce_core::niepce::ui::ModuleShellWidget;
 use npc_engine::db::libfile::FileStatus;
 use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
-
-fn init() -> Result<(), Error> {
-    // load the gresource binary at build time and include/link it into the final
-    // binary.
-    // The assumption here is that it's built within the build system.
-    let res_bytes = include_bytes!(concat!(
-        env!("CARGO_TARGET_DIR"),
-        "/../src/niepce/npc-resources.gresource"
-    ));
-
-    // Create Resource it will live as long the value lives.
-    let gbytes = Bytes::from_static(res_bytes.as_ref());
-    let resource = Resource::from_data(&gbytes)?;
-
-    // Register the resource so it won't be dropped and will continue to live in
-    // memory.
-    resources_register(&resource);
-    Ok(())
-}
 
 const ICON_NAMES: [&str; 3] = [
     "/org/gnome/Niepce/pixmaps/niepce-transform-rotate.png",
@@ -75,10 +55,7 @@ pub fn main() {
         panic!();
     }
 
-    if let Err(err) = init() {
-        println!("main: init failed: {err}");
-        panic!();
-    }
+    init_resources().expect("main: init failed: {err}");
 
     let app = gtk4::Application::new(
         Some("org.gnome.Niepce.WidgetTest"),

@@ -59,8 +59,7 @@ public:
         { m_gtkapp->set_menubar(menu); }
 
     static Application::Ptr app();
-    static int main(const Application::Ptr & app,
-                    int argc, char **argv);
+    void main() const;
 
     UndoHistory& undo_history()
         { return *m_undo; }

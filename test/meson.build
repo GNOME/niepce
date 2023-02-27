@@ -1,0 +1,40 @@
+# test
+
+# base
+testgeometry = executable(
+  'testgeometry',
+  '..' / 'src' / 'fwk' / 'base' / 't' / 'testgeometry.cpp',
+  build_by_default: false,
+  install: false,
+  include_directories: [ gtest_inc, include_directories( '..' / 'src', '..' / 'src' / 'fwk' / 'base') ],
+  link_with: [ gtest, fwk ]
+)
+test('Test base/geometry', testgeometry)
+
+# toolkit
+testconfigdatabinder = executable(
+  'testconfigdatabinder',
+  '..' / 'src' / 'fwk' / 'toolkit' / 't' / 'testconfigdatabinder.cpp',
+  fwk_bindings_cpp,
+  eng_bindings_cpp,
+  colour_bindings_cpp,
+  widgets_bindings_cpp,
+  npc_bindings_cpp,
+  build_by_default: false,
+  install: false,
+  dependencies: [ cxx_headers, gtkmm_deps, exempi_deps, libopenraw_deps, libxml_deps, gexiv2_deps, niepce_rust_deps ],
+  include_directories: [ gtest_inc, include_directories('..' / 'src', '..' / 'src' / 'fwk' / 'toolkit') ],
+  link_with: [ gtest, fwk, ncr, niepce_lib ]
+)
+test('Test toolkit/configdatabinder', testconfigdatabinder)
+
+# utils
+testpathutils = executable(
+  'testpathutils',
+  '..' / 'src' / 'fwk' / 'utils' / 't' / 'testpathutils.cpp',
+  build_by_default: false,
+  install: false,
+  include_directories: [ gtest_inc, '..' / 'src' / 'fwk' / 'utils' ],
+  link_with: [ gtest, fwk ]
+)
+test('Test utils/pathutils', testpathutils)

@@ -1221,6 +1221,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "once_cell",
+ "pkg-config",
 ]
 
 [[package]]

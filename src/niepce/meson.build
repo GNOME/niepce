@@ -1,17 +1,6 @@
-
-
 incdir = include_directories('..' / '..', '..')
 
-# Resources
-resources = gnome.compile_resources(
-  'resources',
-  'gresource.xml',
-  c_name: 'npc',
-  source_dir: meson.project_source_root()
-)
-
-# The bundle is needed for the widget-demo
-# run by the test.
+# The bundle is needed for Rust executables.
 resources_bundle = gnome.compile_resources(
   'npc-resources',
   'gresource.xml',
@@ -19,9 +8,8 @@ resources_bundle = gnome.compile_resources(
   source_dir: meson.project_source_root()
 )
 
-executable('niepce',
+niepce_lib = static_library('niepce_lib',
     npc_bindings_cpp,
-    'main.cpp',
     'modules' / 'darkroom' / 'darkroommodule.cpp',
     'modules' / 'darkroom' / 'darkroommodule.hpp',
     'modules' / 'darkroom' / 'dritemwidget.cpp',
@@ -43,11 +31,8 @@ executable('niepce',
     'ui' / 'metadatapanecontroller.hpp',
     'ui' / 'niepceapplication.cpp',
     'ui' / 'niepceapplication.hpp',
-    resources,
     config_h,
-    install: true,
-    install_dir: bindir,
-    link_with: [fwk, ncr],
-    dependencies: [cxx_headers, exempi_deps, gexiv2_deps, gphoto2_deps, gtkmm_deps, sqlite_deps, niepce_rust_deps],
+    install: false,
+    dependencies: [cxx_headers, exempi_deps, gexiv2_deps, gphoto2_deps, gtkmm_deps, sqlite_deps],
     include_directories: [incdir, rust_inc]
 )

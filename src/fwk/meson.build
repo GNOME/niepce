@@ -124,47 +124,12 @@ fwk = static_library(
   'utils' / 'databinder.cpp',
   'utils' / 'exempi.hpp',
   'utils' / 'exempi.cpp',
-  'utils' / 'init.hpp',
-  'utils' / 'init.cpp',
   'utils' / 'pathutils.hpp',
   'utils' / 'pathutils.cpp',
   'utils' / 'ufrawmeta.hpp',
   'utils' / 'ufrawmeta.cpp',
 
   install: false,
-  dependencies: [cxx_headers, exempi_deps, gphoto2_deps, adw_deps, gtkmm_deps, libxml_deps, shumate_deps, niepce_rust_deps],
+  dependencies: [cxx_headers, exempi_deps, gphoto2_deps, adw_deps, gtkmm_deps, libxml_deps, shumate_deps],
   include_directories: [include_directories('..', '..' / '..'), rust_inc]
 )
-
-# test
-
-# base
-testgeometry = executable(
-  'testgeometry',
-  'base' / 't' / 'testgeometry.cpp',
-  build_by_default: false,
-  include_directories: [ gtest_inc, include_directories('..', 'base') ],
-  link_with: [ gtest, fwk ]
-)
-test('Test base/geometry', testgeometry)
-
-# toolkit
-testconfigdatabinder = executable(
-  'testconfigdatabinder',
-  'toolkit' / 't' / 'testconfigdatabinder.cpp',
-  build_by_default: false,
-  dependencies: [ cxx_headers, gtkmm_deps, exempi_deps, libopenraw_deps, libxml_deps, gexiv2_deps ],
-  include_directories: [ gtest_inc, include_directories('..', 'toolkit') ],
-  link_with: [ gtest, fwk ]
-)
-test('Test toolkit/configdatabinder', testconfigdatabinder)
-
-# utils
-testpathutils = executable(
-  'testpathutils',
-  'utils' / 't' / 'testpathutils.cpp',
-  build_by_default: false,
-  include_directories: [ gtest_inc, include_directories('utils') ],
-  link_with: [ gtest, fwk ]
-)
-test('Test utils/pathutils', testpathutils)

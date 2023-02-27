@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
+
 #pragma once
 
 #include "fwk/toolkit/application.hpp"
@@ -27,19 +29,27 @@ class NiepceApplication
     : public fwk::Application
 {
 public:
-    static fwk::Application::Ptr create(int & argc, char** & argv);
+    static std::shared_ptr<NiepceApplication> create(int & argc, char** & argv);
 
     virtual fwk::Frame::Ptr makeMainFrame() override;
-protected:
     NiepceApplication(int & argc, char** & argv);
+protected:
 
     virtual void on_action_file_open() override;
     virtual void on_about() override;
     virtual void on_action_preferences() override;
 };
 
+inline
+std::shared_ptr<NiepceApplication> niepce_application_create()
+{
+    int argc = 0;
+    char** argv = nullptr;
+    return NiepceApplication::create(argc, argv);
 }
 
+}
+#endif
 /*
   Local Variables:
   mode:c++

@@ -107,13 +107,29 @@ config_h = configure_file(
 
 rust_inc = include_directories('.')
 gtest_inc = include_directories('.' / 'third_party' / 'googletest' / 'googletest' / 'include')
+cargo_target_dir = meson.project_build_root() / 'target'
+cargo_env = [
+  'CARGO_HOME=' + meson.project_build_root() / 'cargo-home',
+  'CARGO_TARGET_DIR=' + cargo_target_dir,
+  'NIEPCE_LIB_PATH=' + '' + meson.project_build_root() / 'src' / 'niepce'
+     + ':' + meson.project_build_root() / 'src' / 'fwk'
+     + ':' + meson.project_build_root() / 'src' / 'ncr'
+]
+
+# We need to set the libs to build with the sanitizer.
+# The build.rs of niepce-core will take care of adding this to the linker.
+# Note: I don't think this is portable beyond Linux. Patches welcome.
+asan = get_option('b_sanitize')
+if asan == 'address'
+  cargo_env += 'ASAN_LIBS=asan'
+endif
 
 subdir('data')
 subdir('po')
-subdir('niepce-main/src')
 subdir('third_party')
-# TODO this should be built as a dependency
 subdir('src')
+subdir('niepce-main/src')
+subdir('test')
 subdir('doc')
 
 gnome.post_install(

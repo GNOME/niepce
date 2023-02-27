@@ -78,14 +78,11 @@ void Application::set_use_dark_theme(bool value)
 
 /** Main loop.
  * @param constructor the Application object constructor
- * @param argc
- * @param argv
  * @return main return code
  */
-int Application::main(const Application::Ptr & app,
-                      int argc, char ** argv)
+void Application::main() const
 {
-    bool use_dark = app->get_use_dark_theme();
+    bool use_dark = this->get_use_dark_theme();
     auto settings = adw_style_manager_get_default();
     if (use_dark) {
         adw_style_manager_set_color_scheme(settings, ADW_COLOR_SCHEME_FORCE_DARK);
@@ -93,11 +90,10 @@ int Application::main(const Application::Ptr & app,
         adw_style_manager_set_color_scheme(settings, ADW_COLOR_SCHEME_PREFER_LIGHT);
     }
 
-    app->m_gtkapp->run(argc, argv);
+    this->m_gtkapp->run();
 
     DBG_OUT("end run");
-    return 0;
-}
+ }
 
 void Application::on_startup()
 {

@@ -66,10 +66,6 @@ fn configuration_new(file: &str) -> cxx::SharedPtr<ffi::SharedConfiguration> {
     })
 }
 
-fn exempi_manager_new() -> Box<ExempiManager> {
-    Box::new(ExempiManager::new(None))
-}
-
 fn rgbcolour_new(r: u16, g: u16, b: u16) -> Box<RgbColour> {
     Box::new(RgbColour::new(r, g, b))
 }
@@ -112,13 +108,6 @@ pub mod ffi {
         fn value(&self, key: &str, def: &str) -> String;
         #[cxx_name = "setValue"]
         fn set_value(&self, key: &str, value: &str);
-    }
-
-    extern "Rust" {
-        type ExempiManager;
-
-        #[cxx_name = "ExempiManager_new"]
-        fn exempi_manager_new() -> Box<ExempiManager>;
     }
 
     extern "C++" {
