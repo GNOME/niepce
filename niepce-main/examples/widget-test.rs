@@ -23,10 +23,10 @@ use gio::{resources_register, Resource};
 use glib::{Bytes, Error};
 use gtk4::prelude::*;
 
-use niepce_rust::niepce::ui::image_grid_view::{ImageGridView, ImageListItem};
-use niepce_rust::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
-use niepce_rust::niepce::ui::thumb_strip_view::ThumbStripView;
-use niepce_rust::niepce::ui::ModuleShellWidget;
+use niepce_core::niepce::ui::image_grid_view::{ImageGridView, ImageListItem};
+use niepce_core::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
+use niepce_core::niepce::ui::thumb_strip_view::ThumbStripView;
+use niepce_core::niepce::ui::ModuleShellWidget;
 use npc_engine::db::libfile::FileStatus;
 use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;

@@ -1,5 +1,5 @@
 [package]
-name = "niepce_rust"
+name = "niepce"
 version = "0.1.0"
 authors = ["Hubert Figuière <hub@figuiere.net>"]
 build = "build.rs"
@@ -27,14 +27,13 @@ libadwaita = "*"
 libc = "0.2.39"
 num-derive = "0.3.3"
 num-traits = "0.2.15"
-#gphoto = "0.1.1"
 once_cell = "^1.12.0"
 
 npc-fwk = { path = "../crates/npc-fwk" }
 npc-engine = { path = "../crates/npc-engine" }
 
 [lib]
-name = "niepce_rust"
+name = "niepce_core"
 crate-type = ["staticlib", "lib"]
 
 [[example]]

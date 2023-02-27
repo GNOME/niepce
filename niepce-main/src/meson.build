@@ -33,9 +33,7 @@ niepce_rust = custom_target(
   'cargo-build',
   build_always_stale: true,
   output: [
-    'libniepce_rust.a',
-    'bindings.h',
-    'eng_bindings.h'
+    'libniepce_core.a',
   ],
   console: true,
   install: false,
@@ -45,7 +43,7 @@ niepce_rust = custom_target(
     cargo, 'build',
     cargo_options,
     '&&',
-    'cp', cargo_target_dir / rust_target / 'libniepce_rust.a', '@OUTDIR@'
+    'cp', cargo_target_dir / rust_target / 'libniepce_core.a', '@OUTDIR@'
   ]
 )
 
@@ -78,7 +76,7 @@ widget_test = custom_target(
   ]
 )
 
-niepce_rust_deps = declare_dependency(link_with: niepce_rust[0], sources: [ niepce_rust[1], niepce_rust[2] ])
+niepce_rust_deps = declare_dependency(link_with: niepce_rust[0])
 
 # Target to build the test prior to running cargo-test
 niepce_test = custom_target(
