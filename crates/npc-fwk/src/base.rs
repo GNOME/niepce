@@ -31,6 +31,7 @@ pub mod propertybag;
 pub mod propertyvalue;
 pub mod rgbcolour;
 pub mod signals;
+mod worker;
 
 pub type PropertyIndex = u32;
 pub type PropertySet<T> = BTreeSet<T>;
@@ -40,3 +41,4 @@ pub use indexed_map::IndexedMap;
 pub use moniker::Moniker;
 pub use propertyvalue::PropertyValue;
 pub use signals::Signal;
+pub use worker::{Worker, WorkerImpl};

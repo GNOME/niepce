@@ -70,8 +70,8 @@ impl MetadataChange {
 #[derive(Clone, Debug)]
 pub struct Thumbnail {
     pub id: LibraryId,
-    pub width: i32,
-    pub height: i32,
+    pub width: u32,
+    pub height: u32,
     pub pix: thumbnail::Thumbnail,
 }
 

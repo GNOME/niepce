@@ -23,55 +23,110 @@ use std::path::{Path, PathBuf};
 
 use rayon::prelude::*;
 
+use crate::db;
 use crate::db::libfile::{FileStatus, LibFile};
-use crate::db::LibraryId;
 use crate::library::notification;
 use crate::library::notification::LibNotification::{FileStatusChanged, ThumbnailLoaded};
 use crate::library::notification::{FileStatusChange, LcChannel};
+use crate::library::previewer::{Cache, RenderingParams, RenderingType};
+use npc_fwk::base::Size;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
 /// Thumbnail task
 struct ThumbnailTask {
-    /// Requested width.
-    width: i32,
-    /// Requested height.
-    height: i32,
+    /// Type of rendering task
+    type_: RenderingType,
+    /// Requested dimensions
+    dimensions: Size,
     /// File to generate thumbnail for.
     file: LibFile,
 }
 
 impl ThumbnailTask {
     /// Create a new ThumbnailTask
-    pub fn new(file: LibFile, width: i32, height: i32) -> Self {
+    pub fn new(file: LibFile, w: u32, h: u32) -> Self {
         ThumbnailTask {
+            type_: RenderingType::Thumbnail,
             file,
-            width,
-            height,
+            dimensions: Size { w, h },
         }
     }
 }
 
-fn get_thumbnail(f: &LibFile, w: i32, h: i32, cached: &Path) -> Option<Thumbnail> {
-    let filename = f.path();
-    if ThumbnailCache::is_thumbnail_cached(filename, cached) {
-        dbg_out!("thumbnail for {:?} is cached!", filename);
-        return gdk_pixbuf::Pixbuf::from_file(cached)
+/// Check the file status (ie is it still present?) and report.
+fn check_file_status(id: db::LibraryId, path: &Path, sender: &LcChannel) {
+    if !path.is_file() {
+        dbg_out!("file doesn't exist");
+        if let Err(err) =
+            toolkit::thread_context().block_on(sender.send(FileStatusChanged(FileStatusChange {
+                id,
+                status: FileStatus::Missing,
+            })))
+        {
+            err_out!("Sending file status change notification failed: {}", err);
+        }
+    }
+}
+
+fn get_thumbnail(
+    cache: &Cache,
+    libfile: &LibFile,
+    rendering: &RenderingParams,
+) -> Option<Thumbnail> {
+    let filename = libfile.path().to_string_lossy();
+    let dimensions = rendering.dimensions;
+    let dimension = cmp::max(dimensions.w, dimensions.h);
+    // true if we found a cache entry but no file.
+    let mut is_missing = false;
+
+    let dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), dimension)?;
+    if dest.exists() {
+        cache.hit(&filename, dimension);
+        return gdk_pixbuf::Pixbuf::from_file(dest)
             .ok()
             .map(Thumbnail::from);
     }
 
-    dbg_out!("creating thumbnail for {:?}", filename);
-    if let Some(cached_dir) = cached.parent() {
-        if let Err(err) = fs::create_dir_all(cached_dir) {
-            err_out!("Coudln't create directories for {:?}: {}", cached, err);
+    if let Ok(cache_item) = cache.get(&filename, dimension) {
+        // cache hit
+        dbg_out!("thumbnail for {:?} is cached!", filename);
+        if cache_item.target.exists() {
+            return gdk_pixbuf::Pixbuf::from_file(cache_item.target)
+                .ok()
+                .map(Thumbnail::from);
+        } else {
+            dbg_out!("File is missing");
+            is_missing = true;
         }
     }
 
-    let thumbnail = Thumbnail::thumbnail_file(filename, w, h, f.orientation());
+    dbg_out!("creating thumbnail for {:?}", filename);
+    if let Some(cached_dir) = dest.parent() {
+        if let Err(err) = fs::create_dir_all(cached_dir) {
+            err_out!("Coudln't create directories for {:?}: {}", dest, err);
+        }
+    }
+
+    let thumbnail = Thumbnail::thumbnail_file(
+        libfile.path(),
+        dimensions.w,
+        dimensions.h,
+        libfile.orientation(),
+    );
     if let Some(ref thumbnail) = thumbnail {
-        thumbnail.save(cached, "png");
+        thumbnail.save(&dest, "png");
+        if !is_missing {
+            // We don't need to try to add it back
+            // XXX maybe should we update the create date if it was recreated?
+            cache.put(
+                &filename,
+                dimension,
+                rendering.clone(),
+                &dest.to_string_lossy(),
+            );
+        }
     } else {
         dbg_out!("couldn't get the thumbnail for {:?}", filename);
     }
@@ -96,39 +151,34 @@ impl ThumbnailCache {
         Self { queue_sender }
     }
 
-    fn execute(task: &ThumbnailTask, cache_dir: &Path, sender: &LcChannel) {
-        let w = task.width;
-        let h = task.height;
+    fn execute(task: &ThumbnailTask, cache: &Cache, sender: &LcChannel) {
+        if task.type_ != RenderingType::Thumbnail {
+            err_out!("Generating previews isn't supported yet");
+            return;
+        }
+        let dimensions = task.dimensions;
         let libfile = &task.file;
+        let id = libfile.id();
+        // XXX this should take into account the size.
+        let rendering = RenderingParams::new_thumbnail(id, dimensions);
 
         let path = libfile.path();
-        let id = libfile.id();
-        if let Some(dest) = Self::path_for_thumbnail(path, id, cmp::max(w, h), cache_dir) {
-            let pix = get_thumbnail(libfile, w, h, &dest);
-            if !path.is_file() {
-                dbg_out!("file doesn't exist");
-                if let Err(err) = toolkit::thread_context().block_on(sender.send(
-                    FileStatusChanged(FileStatusChange {
-                        id,
-                        status: FileStatus::Missing,
-                    }),
-                )) {
-                    err_out!("Sending file status change notification failed: {}", err);
-                }
-            }
 
-            if let Some(pix) = pix {
-                // notify the thumbnail
-                if let Err(err) = toolkit::thread_context().block_on(sender.send(ThumbnailLoaded(
-                    notification::Thumbnail {
-                        id,
-                        width: pix.get_width(),
-                        height: pix.get_height(),
-                        pix,
-                    },
-                ))) {
-                    err_out!("Sending thumbnail notification failed: {}", err);
-                }
+        let pix = get_thumbnail(cache, libfile, &rendering);
+        // We shall report if the file is missing.
+        check_file_status(id, path, sender);
+
+        if let Some(pix) = pix {
+            // notify the thumbnail
+            if let Err(err) = toolkit::thread_context().block_on(sender.send(ThumbnailLoaded(
+                notification::Thumbnail {
+                    id,
+                    width: pix.get_width(),
+                    height: pix.get_height(),
+                    pix,
+                },
+            ))) {
+                err_out!("Sending thumbnail notification failed: {}", err);
             }
         } else {
             err_out!("Failed to get thumbnail for {:?}", path);
@@ -140,10 +190,13 @@ impl ThumbnailCache {
         queue: std::sync::mpsc::Receiver<Vec<ThumbnailTask>>,
         sender: LcChannel,
     ) {
+        let cache = Cache::new(cache_dir);
+        cache.initialize();
+        dbg_out!("Cache database ready");
         while let Ok(tasks) = queue.recv() {
             dbg_out!("Parallel thumbnailing of {} files", tasks.len());
             tasks.par_iter().for_each(|task| {
-                Self::execute(task, &cache_dir, &sender);
+                Self::execute(task, &cache, &sender);
             })
         }
         dbg_out!("thumbnail cache thread terminating");
@@ -156,34 +209,5 @@ impl ThumbnailCache {
                 .map(|f| ThumbnailTask::new(f.clone(), 160, 160))
                 .collect()
         ));
-    }
-
-    fn is_thumbnail_cached(_file: &Path, thumb: &Path) -> bool {
-        thumb.is_file()
-    }
-
-    fn path_for_thumbnail(
-        filename: &Path,
-        id: LibraryId,
-        size: i32,
-        cache_dir: &Path,
-    ) -> Option<PathBuf> {
-        // XXX properly report the error
-        let base_name = filename.file_name().and_then(|f| f.to_str())?;
-        let thumb_name = format!("{id}-{base_name}.png");
-        let mut path = Self::dir_for_thumbnail(size, cache_dir);
-        path.push(thumb_name);
-        Some(path)
-    }
-
-    fn dir_for_thumbnail(size: i32, cache_dir: &Path) -> PathBuf {
-        let subdir = if size == 0 {
-            "full".to_string()
-        } else {
-            size.to_string()
-        };
-        let mut dir = PathBuf::from(cache_dir);
-        dir.push(subdir);
-        dir
     }
 }

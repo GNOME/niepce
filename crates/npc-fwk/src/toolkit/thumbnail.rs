@@ -31,8 +31,8 @@ use super::movieutils;
 #[derive(Clone)]
 pub struct Thumbnail {
     bytes: Vec<u8>,
-    width: i32,
-    height: i32,
+    width: u32,
+    height: u32,
     stride: i32,
     bits_per_sample: i32,
     has_alpha: bool,
@@ -75,12 +75,12 @@ impl Thumbnail {
     }
 
     /// Get the width of the pixbuf. 0 if None
-    pub fn get_width(&self) -> i32 {
+    pub fn get_width(&self) -> u32 {
         self.width
     }
 
     /// Get the height of the pixbuf. 0 if None
-    pub fn get_height(&self) -> i32 {
+    pub fn get_height(&self) -> u32 {
         self.height
     }
 
@@ -103,8 +103,8 @@ impl Thumbnail {
 
     pub fn thumbnail_file<P: AsRef<Path>>(
         path: P,
-        w: i32,
-        h: i32,
+        w: u32,
+        h: u32,
         orientation: i32,
     ) -> Option<Self> {
         let filename = path.as_ref();
@@ -121,7 +121,7 @@ impl Thumbnail {
             let mut cached = glib::tmp_dir();
             cached.push("temp-1234");
             if movieutils::thumbnail_movie(filename, w, h, &cached) {
-                pix = gdk_pixbuf::Pixbuf::from_file_at_size(&cached, w, h).ok();
+                pix = gdk_pixbuf::Pixbuf::from_file_at_size(&cached, w as i32, h as i32).ok();
                 if let Err(err) = fs::remove_file(&cached) {
                     err_out!("Remove temporary file {:?} failed: {}", &cached, err);
                 }
@@ -133,7 +133,7 @@ impl Thumbnail {
             dbg_out!("not an image type");
         } else if !mime_type.is_digicam_raw() {
             dbg_out!("not a raw type, trying GdkPixbuf loaders");
-            match gdk_pixbuf::Pixbuf::from_file_at_size(filename, w, h) {
+            match gdk_pixbuf::Pixbuf::from_file_at_size(filename, w as i32, h as i32) {
                 Ok(ref pixbuf) => {
                     pix = gdk_utils::gdkpixbuf_exif_rotate(Some(pixbuf), orientation);
                 }
@@ -141,9 +141,9 @@ impl Thumbnail {
             }
         } else {
             dbg_out!("trying raw loader");
-            pix = gdk_utils::openraw_extract_rotated_thumbnail(filename, cmp::min(w, h) as u32);
+            pix = gdk_utils::openraw_extract_rotated_thumbnail(filename, cmp::min(w, h));
             if let Some(ref pixbuf) = pix {
-                if (w < pixbuf.width()) || (h < pixbuf.height()) {
+                if (w < pixbuf.width() as u32) || (h < pixbuf.height() as u32) {
                     pix = gdk_utils::gdkpixbuf_scale_to_fit(Some(pixbuf), cmp::min(w, h));
                 }
             } else {
@@ -158,8 +158,8 @@ impl Thumbnail {
 impl From<gdk_pixbuf::Pixbuf> for Thumbnail {
     fn from(pixbuf: gdk_pixbuf::Pixbuf) -> Self {
         let bytes = pixbuf.read_pixel_bytes();
-        let width = pixbuf.width();
-        let height = pixbuf.height();
+        let width = pixbuf.width() as u32;
+        let height = pixbuf.height() as u32;
         let stride = pixbuf.rowstride();
         let bits_per_sample = pixbuf.bits_per_sample();
         let colorspace = pixbuf.colorspace();
@@ -183,8 +183,8 @@ impl From<&Thumbnail> for gdk_pixbuf::Pixbuf {
             v.colorspace,
             v.has_alpha,
             v.bits_per_sample,
-            v.width,
-            v.height,
+            v.width as i32,
+            v.height as i32,
             v.stride,
         )
     }

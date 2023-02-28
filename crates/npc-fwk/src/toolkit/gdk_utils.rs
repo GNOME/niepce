@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/gdk_utils.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ use libopenraw::DataType;
 /// Scale the pixbuf to fit in a square of %dim pixels
 pub fn gdkpixbuf_scale_to_fit(
     pix: Option<&gdk_pixbuf::Pixbuf>,
-    dim: i32,
+    dim: u32,
 ) -> Option<gdk_pixbuf::Pixbuf> {
     pix.and_then(|pix| {
         let orig_h = pix.height();

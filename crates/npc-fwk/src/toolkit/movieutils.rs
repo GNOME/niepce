@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/movieutils.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ use std::cmp;
 use std::path::Path;
 use std::process::Command;
 
-pub fn thumbnail_movie<S, D>(source: S, w: i32, h: i32, dest: D) -> bool
+pub fn thumbnail_movie<S, D>(source: S, w: u32, h: u32, dest: D) -> bool
 where
     S: AsRef<Path> + std::fmt::Debug,
     D: AsRef<Path>,
