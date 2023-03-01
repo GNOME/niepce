@@ -41,9 +41,6 @@ namespace dr {
 class DarkroomModule;
 }
 
-typedef struct _GdkPixbuf GdkPixbuf;
-typedef struct _GtkWidget GtkWidget;
-
 namespace npc {
 class LnListener;
 }
