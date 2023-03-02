@@ -18,8 +18,11 @@
  */
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+/// A size
 pub struct Size {
+    /// The width
     pub w: u32,
+    /// The height
     pub h: u32,
 }
 
@@ -38,6 +41,7 @@ impl Size {
         self.scale(scale)
     }
 
+    /// Scale the size by `scale`.
     pub fn scale(&self, scale: f64) -> Size {
         Size {
             w: (self.w as f64 * scale) as u32,
@@ -49,13 +53,18 @@ impl Size {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 /// A rectangle
 pub struct Rect {
+    /// x coordinate
     pub x: u32,
+    /// y coordinate
     pub y: u32,
+    /// The width
     pub w: u32,
+    /// The height
     pub h: u32,
 }
 
 impl Rect {
+    /// New rectangle with `x`, `y`, `w`, `h`.
     pub fn new(x: u32, y: u32, w: u32, h: u32) -> Self {
         Self { x, y, w, h }
     }
@@ -65,6 +74,8 @@ impl Rect {
         self.h = (self.h as f64 * scale) as u32;
     }
 
+    /// Fit `self` in `dest`. The new rectangle will be in
+    /// whole in the destination.
     pub fn fit_into(&self, dest: &Rect) -> Rect {
         let mut result = self.clone();
 
@@ -88,6 +99,8 @@ impl Rect {
         result
     }
 
+    /// Fill `self` in `dest`. That mean dest will crop `self` so that
+    /// there is no space left.
     pub fn fill_into(&self, dest: &Rect) -> Rect {
         // the smallest dimension
         let mut result = self.clone();

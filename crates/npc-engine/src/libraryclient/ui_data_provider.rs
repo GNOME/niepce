@@ -23,7 +23,7 @@ use crate::db::{Label, LibraryId};
 use npc_fwk::base::rgbcolour::RgbColour;
 
 /// UIDataProvider provide data for the library for the UI
-/// Currently handle the `Label`[`eng::Label`]
+/// Currently handle the `Label`
 pub struct UIDataProvider {
     labels: RefCell<Vec<Label>>,
 }

@@ -377,8 +377,8 @@ impl XmpMeta {
         Some(String::from(&xmpstring))
     }
 
-    /// Get the date property and return a Option<DateTime<Utc>> parsed
-    /// from the string value.
+    /// Get the date property and return an `Option<DateTime<Utc>>`
+    /// parsed from the string value.
     pub fn get_date_property(&self, ns: &str, property: &str) -> Option<Date> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
         let property = self.xmp.get_property(ns, property, &mut flags);
