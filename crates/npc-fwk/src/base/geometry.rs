@@ -46,12 +46,79 @@ impl Size {
     }
 }
 
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+/// A rectangle
+pub struct Rect {
+    pub x: u32,
+    pub y: u32,
+    pub w: u32,
+    pub h: u32,
+}
+
+impl Rect {
+    pub fn new(x: u32, y: u32, w: u32, h: u32) -> Self {
+        Self { x, y, w, h }
+    }
+
+    fn scale(&mut self, scale: f64) {
+        self.w = (self.w as f64 * scale) as u32;
+        self.h = (self.h as f64 * scale) as u32;
+    }
+
+    pub fn fit_into(&self, dest: &Rect) -> Rect {
+        let mut result = self.clone();
+
+        let in_w = self.w as f64;
+        let in_h = self.h as f64;
+        let scale_w = dest.w as f64 / in_w;
+        dbg_out!("w {} in_w {}", dest.w, in_w);
+        let scale_h = dest.h as f64 / in_h;
+        dbg_out!("h {} in_h {}", dest.h, in_h);
+        dbg_out!("scale w {} h {}", scale_w, scale_h);
+        let scale = scale_w.min(scale_h);
+
+        result.scale(scale);
+        if scale_w <= scale_h {
+            result.w = dest.w;
+        }
+        if scale_w >= scale_h {
+            result.h = dest.h;
+        }
+
+        result
+    }
+
+    pub fn fill_into(&self, dest: &Rect) -> Rect {
+        // the smallest dimension
+        let mut result = self.clone();
+
+        let in_w = self.w as f64;
+        let in_h = self.h as f64;
+        let scale_w = dest.w as f64 / in_w;
+        dbg_out!("w {} in_w {}", dest.w, in_w);
+        let scale_h = dest.h as f64 / in_h;
+        dbg_out!("h {} in_h {}", dest.h, in_h);
+        dbg_out!("scale w {} h {}", scale_w, scale_h);
+        let scale = scale_w.max(scale_h);
+
+        result.scale(scale);
+        if scale_w >= scale_h {
+            result.w = dest.w;
+        }
+        if scale_w <= scale_h {
+            result.h = dest.h;
+        }
+
+        result
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use super::Size;
+    use super::{Rect, Size};
 
     #[test]
-    fn test_fit_into_square() {
+    fn test_size_fit_into_square() {
         let size = Size { w: 320, h: 120 };
         assert_eq!(size.fit_into_square(160), Size { w: 160, h: 60 });
         let size = Size { w: 120, h: 320 };
@@ -60,5 +127,44 @@ mod test {
         // already small enough
         let size = Size { w: 160, h: 120 };
         assert_eq!(size.fit_into_square(160), Size { w: 160, h: 120 });
+    }
+
+    #[test]
+    fn test_rect_fit_into() {
+        let dest1 = Rect::new(0, 0, 640, 480);
+        let dest2 = Rect::new(0, 0, 480, 640);
+
+        let source1 = Rect::new(0, 0, 2000, 1000);
+        let source2 = Rect::new(0, 0, 1000, 2000);
+
+        // FIT
+        let result = source1.fit_into(&dest1);
+        assert_eq!(result, Rect::new(0, 0, 640, 320));
+        let result = source1.fit_into(&dest2);
+        assert_eq!(result.w, 480);
+
+        let result = source2.fit_into(&dest1);
+        assert_eq!(result.h, 480);
+        let result = source2.fit_into(&dest2);
+        assert_eq!(result, Rect::new(0, 0, 320, 640));
+    }
+
+    #[test]
+    fn test_rect_fill_into() {
+        let dest1 = Rect::new(0, 0, 640, 480);
+        let dest2 = Rect::new(0, 0, 480, 640);
+
+        let source1 = Rect::new(0, 0, 2000, 1000);
+        let source2 = Rect::new(0, 0, 1000, 2000);
+        // FILL
+        let result = source1.fill_into(&dest1);
+        assert_eq!(result.h, 480);
+        let result = source1.fill_into(&dest2);
+        assert_eq!(result, Rect::new(0, 0, 1280, 640));
+
+        let result = source2.fill_into(&dest1);
+        assert_eq!(result, Rect::new(0, 0, 640, 1280));
+        let result = source2.fill_into(&dest2);
+        assert_eq!(result.w, 480);
     }
 }

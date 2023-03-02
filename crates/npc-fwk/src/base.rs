@@ -36,7 +36,7 @@ mod worker;
 pub type PropertyIndex = u32;
 pub type PropertySet<T> = BTreeSet<T>;
 
-pub use geometry::Size;
+pub use geometry::{Rect, Size};
 pub use indexed_map::IndexedMap;
 pub use moniker::Moniker;
 pub use propertyvalue::PropertyValue;
