@@ -19,11 +19,13 @@
  */
 
 #[cxx::bridge(namespace = "ncr")]
-mod ffi {
+pub mod ffi {
     #[namespace = ""]
     unsafe extern "C++" {
+        include!(<gdk-pixbuf/gdk-pixbuf.h>);
         include!(<gdk/gdk.h>);
 
+        type GdkPixbuf;
         type GdkTexture;
     }
 
@@ -38,10 +40,17 @@ mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("ncr/init.hpp");
+        fn init();
+    }
+
+    unsafe extern "C++" {
         include!("ncr/image.hpp");
 
         type Image;
 
+        #[cxx_name = "Image_new"]
+        fn image_new() -> SharedPtr<Image>;
         #[cxx_name = "get_status"]
         fn status(&self) -> ImageStatus;
         #[cxx_name = "get_original_width"]
@@ -59,12 +68,16 @@ mod ffi {
         #[cxx_name = "to_gdk_texture_"]
         fn to_gdk_texture(&self) -> *mut GdkTexture;
 
+        #[cxx_name = "reload_"]
+        fn reload(&self, path: &str, is_raw: bool, orientation: i32);
+        #[cxx_name = "reload_pixbuf_"]
+        /// # Safety
+        /// Derefence pointers.
+        unsafe fn reload_pixbuf(&self, p: *mut GdkPixbuf);
         /// # Safety
         /// Derefence pointers.
         unsafe fn connect_signal_update(&self, callback: unsafe fn(*const u8), userdata: *const u8);
     }
-
-    impl SharedPtr<Image> {}
 }
 
 pub use ffi::{Image, ImageStatus};

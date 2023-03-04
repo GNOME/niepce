@@ -28,7 +28,7 @@ fn linked_box() -> gtk4::Box {
     box_
 }
 
-pub fn image_toolbar_new() -> *mut crate::ffi::GtkBox {
+pub fn image_toolbar_new() -> gtk4::Box {
     let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     // Adwaita class
     toolbar.add_css_class("toolbar");
@@ -61,6 +61,12 @@ pub fn image_toolbar_new() -> *mut crate::ffi::GtkBox {
     tool_item.set_action_name(Some("shell.RotateRight"));
     box_.append(&tool_item);
     toolbar.append(&box_);
+
+    toolbar
+}
+
+pub fn image_toolbar_new_() -> *mut crate::ffi::GtkBox {
+    let toolbar = image_toolbar_new();
 
     let gtkbox: *mut gtk4_sys::GtkBox = toolbar.to_glib_full();
     gtkbox as *mut crate::ffi::GtkBox

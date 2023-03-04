@@ -59,8 +59,15 @@ public:
     int get_output_height() const;
 
     void reload(const std::string & p, bool is_raw,
-        int orientation);
-    void reload(const Glib::RefPtr<Gdk::Pixbuf> & p);
+                int orientation);
+    void reload_(const rust::Str p, bool is_raw,
+                int orientation) const {
+        const_cast<Image*>(this)->reload(std::string(p), is_raw, orientation);
+    }
+    void reload_pixbuf(const Glib::RefPtr<Gdk::Pixbuf> & p);
+    void reload_pixbuf_(GdkPixbuf *p) const {
+        const_cast<Image*>(this)->reload_pixbuf(Glib::wrap(p));
+    }
     /** set the output scale */
     void set_output_scale(double scale);
     // cxx only
@@ -104,6 +111,11 @@ private:
     class Private;
     Private *priv;
 };
+
+inline
+std::shared_ptr<Image> Image_new() {
+    return std::make_shared<Image>();
+}
 
 }
 

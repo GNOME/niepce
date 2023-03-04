@@ -243,7 +243,7 @@ void Image::Private::prepare_reload()
 //    m_graph->set("format", babl_format("RGB u16"));
 }
 
-void Image::reload(const Glib::RefPtr<Gdk::Pixbuf> & p)
+void Image::reload_pixbuf(const Glib::RefPtr<Gdk::Pixbuf> & p)
 {
     priv->prepare_reload();
     priv->m_pixbuf_cache = p;

@@ -28,7 +28,7 @@ use gtk4::prelude::*;
 use super::{
     GridViewModuleProxy, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,
 };
-use crate::modules::{DarkroomModuleProxy, MapModuleProxy};
+use crate::modules::{DarkroomModule, MapModuleProxy};
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::LibraryClientHost;
@@ -50,7 +50,7 @@ pub struct ModuleShell {
     // currently a proxy that will bridge the C++ implementation
     gridview: Rc<GridViewModuleProxy>,
     mapm: Rc<MapModuleProxy>,
-    darkroom: Rc<DarkroomModuleProxy>,
+    darkroom: Rc<DarkroomModule>,
     menu: gio::Menu,
     module_menu: gio::Menu,
     client: Rc<LibraryClientHost>,
@@ -73,7 +73,7 @@ impl ModuleShell {
                 client_host,
             )),
             mapm: Rc::new(MapModuleProxy::default()),
-            darkroom: Rc::new(DarkroomModuleProxy::new(&selection_controller)),
+            darkroom: DarkroomModule::new(&selection_controller),
             selection_controller,
             menu,
             module_menu: gio::Menu::new(),
@@ -450,7 +450,7 @@ impl ModuleShell {
         dbg_out!("Activated callback for {}", id);
         let store = &self.selection_controller.list_store().0;
         if let Some(libfile) = store.file(id) {
-            self.darkroom.set_image(libfile);
+            self.darkroom.set_image(Some(libfile));
             self.widget.activate_page("darkroom");
         }
     }

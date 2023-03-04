@@ -17,12 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod dock;
 mod metadata_widget;
 pub mod rating_label;
 mod token_text_view;
 mod toolbox_item;
 
 // Re-exports
+pub use dock::Dock;
 pub use metadata_widget::{
     MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget, WrappedPropertyBag,
 };

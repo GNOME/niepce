@@ -1,7 +1,7 @@
 /*
  * niepce - modules/darkroom/toolboxcontroller.h
  *
- * Copyright (C) 2008-2014 Hubert Figuiere
+ * Copyright (C) 2008-2023 Hubert Figuiere
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS
 
-#ifndef _DARKROOM_TOOLBOXCONTROLLER_H__
-#define _DARKROOM_TOOLBOXCONTROLLER_H__
+#pragma once
 
 #include "fwk/toolkit/dockable.hpp"
 
@@ -32,10 +32,19 @@ public:
     typedef std::shared_ptr<ToolboxController> Ptr;
     ToolboxController();
     virtual Gtk::Widget * buildWidget() override;
+
+    GtkWidget* buildWidget_() const {
+        return const_cast<ToolboxController*>(this)->buildWidget()->gobj();
+    }
 };
 
+inline
+std::shared_ptr<ToolboxController> ToolboxController_new() {
+    return std::make_shared<ToolboxController>();
 }
 
+
+}
 
 #endif
 /*

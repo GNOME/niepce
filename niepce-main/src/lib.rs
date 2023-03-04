@@ -67,11 +67,9 @@ pub fn niepce_init() {
 pub use notification_center::NotificationCenter;
 
 // cxx bindings
-use modules::cxx::*;
-use modules::ImageCanvas;
 use niepce::ui::cxx::*;
 use niepce::ui::image_list_store::ImageListStoreWrap;
-use niepce::ui::imagetoolbar::image_toolbar_new;
+use niepce::ui::imagetoolbar::image_toolbar_new_;
 use niepce::ui::metadata_pane_controller::get_format;
 use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
 use niepce::ui::ImageGridView;
@@ -177,7 +175,8 @@ pub mod ffi {
 
     #[namespace = "ui"]
     extern "Rust" {
-        fn image_toolbar_new() -> *mut GtkBox;
+        #[cxx_name = "image_toolbar_new"]
+        fn image_toolbar_new_() -> *mut GtkBox;
     }
 
     extern "Rust" {
@@ -242,20 +241,6 @@ pub mod ffi {
         fn set_active(&self, active: bool);
     }
 
-    #[namespace = "dr"]
-    unsafe extern "C++" {
-        include!("niepce/modules/darkroom/darkroommodule.hpp");
-        type DarkroomModule;
-
-        fn darkroom_module_new() -> SharedPtr<DarkroomModule>;
-        // call buildWidget(). But it's mutable.
-        fn build_widget(&self) -> *const GtkWidget;
-        fn set_active(&self, active: bool);
-        /// # Safety
-        /// Dereference a pointer
-        unsafe fn set_image(&self, file: *mut LibFile);
-    }
-
     #[namespace = "ui"]
     unsafe extern "C++" {
         include!("niepce/ui/dialogs/editlabels.hpp");
@@ -289,11 +274,14 @@ pub mod ffi {
     }
 
     #[namespace = "dr"]
-    extern "Rust" {
-        type ImageCanvas;
+    unsafe extern "C++" {
+        include!("niepce/modules/darkroom/toolboxcontroller.hpp");
 
-        fn image_canvas_new() -> Box<ImageCanvas>;
-        fn gobj(&self) -> *mut GtkDrawingArea;
-        fn set_image(&self, image: SharedPtr<Image>);
+        type ToolboxController;
+
+        #[cxx_name = "ToolboxController_new"]
+        fn toolbox_controller_new() -> SharedPtr<ToolboxController>;
+        #[cxx_name = "buildWidget_"]
+        fn build_widget(&self) -> *mut GtkWidget;
     }
 }

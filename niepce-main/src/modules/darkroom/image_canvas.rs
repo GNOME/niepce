@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use glib::translate::*;
-use glib::Cast;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
@@ -56,7 +54,7 @@ fn on_image_reloaded(data: *const u8) {
         return;
     }
 
-    let this = data as *const ImageCanvas;
+    let this = data as *const imp::ImageCanvas;
     unsafe {
         (*this).on_image_reloaded();
     }
@@ -67,12 +65,16 @@ impl ImageCanvas {
         glib::Object::new()
     }
 
-    pub fn set_image(&self, image: cxx::SharedPtr<Image>) {
-        self.imp().request_redisplay();
+    pub fn set_image(&self, image: &cxx::SharedPtr<Image>) {
+        let imp = self.imp();
+        imp.request_redisplay();
         unsafe {
-            image.connect_signal_update(on_image_reloaded, self as *const Self as *const u8);
+            image.connect_signal_update(
+                on_image_reloaded,
+                imp as *const imp::ImageCanvas as *const u8,
+            );
         }
-        self.imp().image.replace(Some(image));
+        imp.image.replace(Some(image.clone()));
         self.queue_draw();
     }
 
@@ -80,18 +82,6 @@ impl ImageCanvas {
         self.imp().request_redisplay();
         self.imp().image.replace(None);
         self.queue_draw();
-    }
-
-    fn on_image_reloaded(&self) {
-        self.imp().request_redisplay();
-        self.queue_draw();
-    }
-
-    // cxx
-    pub fn gobj(&self) -> *mut crate::ffi::GtkDrawingArea {
-        let gobj: *mut gtk4_sys::GtkDrawingArea =
-            self.upcast_ref::<gtk4::DrawingArea>().to_glib_none().0;
-        gobj as *mut crate::ffi::GtkDrawingArea
     }
 }
 
@@ -126,6 +116,11 @@ mod imp {
     impl ImageCanvas {
         pub(super) fn request_redisplay(&self) {
             self.need_redisplay.set(true);
+        }
+
+        pub(super) fn on_image_reloaded(&self) {
+            self.request_redisplay();
+            self.obj().queue_draw();
         }
 
         fn calc_image_scale(&self, img_w: i32, img_h: i32) -> f64 {

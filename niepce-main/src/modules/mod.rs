@@ -21,7 +21,7 @@ mod darkroom;
 mod map;
 
 pub use darkroom::image_canvas::ImageCanvas;
-pub use darkroom::DarkroomModuleProxy;
+pub use darkroom::DarkroomModule;
 pub use map::MapModuleProxy;
 
 pub mod cxx {
