@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/geometry.cpp
  *
- * Copyright (C) 2007-2017 Hubert Figuiere
+ * Copyright (C) 2007-2023 Hubert Figuiere
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,65 +67,6 @@ Rect::Rect(const std::string & s) noexcept(false)
                  }
              }
         );
-}
-
-Rect & Rect::scale(double _s)
-{
-    _r[W] = _r[W] * _s;
-    _r[H] = _r[H] * _s;
-    return *this;
-}
-
-
-Rect Rect::fit_into(const Rect & dest) const
-{
-    Rect result = *this;
-
-    double in_w = w();
-    double in_h = h();
-    double scale_w = dest.w() / in_w;
-    DBG_OUT("w %d in_w %f", dest.w(), in_w);
-    double scale_h = dest.h() / in_h;
-    DBG_OUT("h %d in_h %f", dest.h(), in_h);
-    DBG_OUT("scale w %f h %f", scale_w, scale_h);
-    double _scale = std::min(scale_w, scale_h);
-
-    result.scale(_scale);
-    if(scale_w <= scale_h) {
-        result._r[W] = dest.w();
-    }
-    if(scale_w >= scale_h) {
-        result._r[H] = dest.h();
-    }
-
-    return result;
-}
-
-
-Rect Rect::fill_into(const Rect & dest) const
-{
-    // the smallest dimension
-    Rect result = *this;
-
-    double in_w = w();
-    double in_h = h();
-    double scale_w = dest.w() / in_w;
-    DBG_OUT("w %d in_w %f", dest.w(), in_w);
-    double scale_h = dest.h() / in_h;
-    DBG_OUT("h %d in_h %f", dest.h(), in_h);
-    DBG_OUT("scale w %f h %f", scale_w, scale_h);
-    double _scale = std::max(scale_w, scale_h);
-
-    result.scale(_scale);
-
-    if(scale_w >= scale_h) {
-        result._r[W] = dest.w();
-    }
-    if(scale_w <= scale_h) {
-        result._r[H] = dest.h();
-    }
-
-    return result;
 }
 
 }

@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/geometry.h
  *
- * Copyright (C) 2007-2017 Hubert Figuiere
+ * Copyright (C) 2007-2023 Hubert Figuiere
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,13 +61,6 @@ public:
         { return _r[H]; }
 
     friend std::string std::to_string(const Rect &);
-
-    Rect & scale(double _s);
-
-    /** fit into destination. */
-    Rect fit_into(const Rect & dest) const;
-    /** fill into desitnation */
-    Rect fill_into(const Rect & dest) const;
 
     bool operator==(const Rect & r) const
         { return _r == r._r; }

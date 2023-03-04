@@ -28,6 +28,7 @@
 
 #include "fwk/cxx_fwk_bindings.hpp"
 #include "fwk/cxx_eng_bindings.hpp"
+#include "fwk/cxx_ncr_bindings.hpp"
 #include "fwk/cxx_npc_bindings.hpp"
 
 namespace ffi {

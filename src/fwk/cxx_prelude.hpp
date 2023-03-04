@@ -44,3 +44,7 @@ class DarkroomModule;
 namespace npc {
 class LnListener;
 }
+
+namespace ncr {
+class Image;
+}

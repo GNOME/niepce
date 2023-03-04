@@ -26,13 +26,15 @@
 #include <gtkmm/widget.h>
 #include <gtkmm/paned.h>
 #include <gtkmm/box.h>
+#include <gtkmm/drawingarea.h>
 #include <gtkmm/scrolledwindow.h>
 
 #include "fwk/toolkit/controller.hpp"
 #include "ncr/image.hpp"
 #include "niepce/ui/ilibrarymodule.hpp"
-#include "niepce/modules/darkroom/imagecanvas.hpp"
 #include "niepce/modules/darkroom/toolboxcontroller.hpp"
+
+#include "rust_bindings.hpp"
 
 namespace fwk {
 class Dock;
@@ -64,7 +66,8 @@ private:
     // darkroom split view
     Gtk::Paned                   m_dr_splitview;
     Gtk::Box                     m_vbox;
-    ImageCanvas*                 m_imagecanvas;
+    Gtk::DrawingArea* m_imagecanvas;
+    rust::Box<dr::ImageCanvas> m_rust_canvas;
     Gtk::ScrolledWindow          m_canvas_scroll;
     ToolboxController::Ptr       m_toolbox_ctrl;
     Glib::RefPtr<Gio::ActionGroup> m_actionGroup;

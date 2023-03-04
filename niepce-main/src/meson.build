@@ -103,12 +103,10 @@ niepce_test = custom_target(
 test(
   'cargo-test',
   cargo,
-  depends: [
-    niepce_test
-  ],
   env: cargo_env,
   args: [
     'test',
     cargo_options
   ],
+  depends: [niepce_lib, resources_bundle, ncr, fwk]
 )

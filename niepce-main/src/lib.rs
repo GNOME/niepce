@@ -67,6 +67,8 @@ pub fn niepce_init() {
 pub use notification_center::NotificationCenter;
 
 // cxx bindings
+use modules::cxx::*;
+use modules::ImageCanvas;
 use niepce::ui::cxx::*;
 use niepce::ui::image_list_store::ImageListStoreWrap;
 use niepce::ui::imagetoolbar::image_toolbar_new;
@@ -83,6 +85,7 @@ pub mod ffi {
         type GMenu;
         type GtkApplication;
         type GtkBox;
+        type GtkDrawingArea;
         type GtkGridView;
         type GtkPopoverMenu;
         type GtkSingleSelection;
@@ -112,6 +115,13 @@ pub mod ffi {
         type UIDataProvider = npc_engine::libraryclient::UIDataProvider;
         type LibraryClientWrapper = npc_engine::libraryclient::LibraryClientWrapper;
         type LibraryClientHost = npc_engine::libraryclient::LibraryClientHost;
+    }
+
+    #[namespace = "ncr"]
+    extern "C++" {
+        include!("fwk/cxx_ncr_bindings.hpp");
+
+        type Image = npc_craw::Image;
     }
 
     extern "Rust" {
@@ -276,5 +286,14 @@ pub mod ffi {
 
         fn niepce_application_create() -> SharedPtr<NiepceApplication>;
         fn main(&self);
+    }
+
+    #[namespace = "dr"]
+    extern "Rust" {
+        type ImageCanvas;
+
+        fn image_canvas_new() -> Box<ImageCanvas>;
+        fn gobj(&self) -> *mut GtkDrawingArea;
+        fn set_image(&self, image: SharedPtr<Image>);
     }
 }

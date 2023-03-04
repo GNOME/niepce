@@ -3,5 +3,6 @@
 members = [
      "crates/npc-fwk",
      "crates/npc-engine",
+     "crates/npc-craw",
      "niepce-main",
 ]

@@ -2,7 +2,7 @@
 
 ncr = static_library(
     'ncr',
-
+    ncr_bindings_cpp,
     'image.cpp',
     'image.hpp',
     'init.cpp',
@@ -10,6 +10,6 @@ ncr = static_library(
     'ncr.cpp',
     'ncr.hpp',
 
-    dependencies: [gegl_deps, gtkmm_deps, libopenraw_deps],
+    dependencies: [cxx_headers, gegl_deps, gtkmm_deps, libopenraw_deps],
     include_directories: include_directories('..')
 )

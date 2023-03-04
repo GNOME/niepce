@@ -1,7 +1,7 @@
 /*
  * niepce - ncr/image.cpp
  *
- * Copyright (C) 2008-2018 Hubert Figuiere
+ * Copyright (C) 2008-2023 Hubert Figuiere
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -14,7 +14,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, see 
+ * License along with this program; if not, see
  * <http://www.gnu.org/licenses/>.
  */
 
@@ -37,7 +37,7 @@ namespace ncr {
 struct Image::Private {
     Private(Image& self)
         : m_self(self)
-        , m_status(Image::Status::UNSET)
+        , m_status(Status::UNSET)
         , m_width(0)
         , m_height(0)
         , m_orientation(0), m_vertical(false)
@@ -68,7 +68,7 @@ struct Image::Private {
     void reload_node(GeglNode* node, int orientation);
 
     Image& m_self;
-    Image::Status m_status;
+    Status m_status;
     int m_width, m_height; /**< the native dimension, with orientation */
     int m_orientation;     /**< EXIF orientation in degrees */
     bool m_vertical;
@@ -430,12 +430,12 @@ Cairo::RefPtr<Cairo::ImageSurface> Image::cairo_surface_for_display()
     return surface;
 }
 
-Image::Status Image::get_status() const
+Status Image::get_status() const
 {
     return priv->m_status;
 }
 
-void Image::set_status(Image::Status status)
+void Image::set_status(Status status)
 {
     priv->m_status = status;
 }

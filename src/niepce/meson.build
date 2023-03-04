@@ -9,13 +9,12 @@ resources_bundle = gnome.compile_resources(
 )
 
 niepce_lib = static_library('niepce_lib',
+    ncr_bindings_cpp,
     npc_bindings_cpp,
     'modules' / 'darkroom' / 'darkroommodule.cpp',
     'modules' / 'darkroom' / 'darkroommodule.hpp',
     'modules' / 'darkroom' / 'dritemwidget.cpp',
     'modules' / 'darkroom' / 'dritemwidget.hpp',
-    'modules' / 'darkroom' / 'imagecanvas.cpp',
-    'modules' / 'darkroom' / 'imagecanvas.hpp',
     'modules' / 'darkroom' / 'toolboxcontroller.cpp',
     'modules' / 'darkroom' / 'toolboxcontroller.hpp',
     'modules' / 'map' / 'mapmodule.cpp',

@@ -1,7 +1,7 @@
 /*
  * niepce - ncr/image.h
  *
- * Copyright (C) 2008-2022 Hubert Figuière
+ * Copyright (C) 2008-2023 Hubert Figuière
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _IN_RUST_BINDINGS_
 
 #pragma once
 
@@ -25,27 +26,27 @@
 
 #include <gdkmm/pixbuf.h>
 
+#include "rust_bindings.hpp"
+
 namespace ncr {
+
+enum class Status : ::std::uint8_t;
 
 class Image
 //    : public std::enable_shared_from_this<Image>
 {
 public:
     typedef std::shared_ptr<Image> Ptr;
-    enum class Status {
-        UNSET = 0,
-        LOADING,
-        LOADED,
-        ERROR,
-        NOT_FOUND,
-        _LAST
-    };
 
     Image();
     virtual ~Image();
 
     /* get a cairo surface to display the resulting image */
     Cairo::RefPtr<Cairo::ImageSurface> cairo_surface_for_display();
+    cairo_surface_t* cairo_surface_for_display_() const {
+        auto s = const_cast<Image*>(this)->cairo_surface_for_display();
+        return cairo_surface_reference(s->cobj());
+    }
 
     /** The status of the image. */
     Status get_status() const;
@@ -64,6 +65,10 @@ public:
     void reload(const Glib::RefPtr<Gdk::Pixbuf> & p);
     /** set the output scale */
     void set_output_scale(double scale);
+    // cxx only
+    void set_output_scale_(double scale) const {
+        const_cast<Image*>(this)->set_output_scale(scale);
+    }
 
     /** tile the image in degrees. */
     void set_tilt(double angle);
@@ -85,6 +90,12 @@ public:
     /** this signal is emitted each time the
         image is changed. */
     sigc::signal<void(void)> signal_update;
+
+    void connect_signal_update(::rust::Fn<void(const uint8_t*)> callback, const uint8_t* userdata) const {
+        const_cast<Image*>(this)->signal_update.connect([userdata, callback]() {
+            callback(userdata);
+        });
+    }
 private:
 
     /** rotate by x degrees (orientation)
@@ -97,6 +108,8 @@ private:
 };
 
 }
+
+#endif
 /*
   Local Variables:
   mode:c++

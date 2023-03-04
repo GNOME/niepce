@@ -22,6 +22,7 @@ use std::ops::Deref;
 use gtk4::prelude::*;
 
 use niepce_core::init_resources;
+use niepce_core::modules::ImageCanvas;
 use niepce_core::niepce::ui::image_grid_view::{ImageGridView, ImageListItem};
 use niepce_core::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
 use niepce_core::niepce::ui::thumb_strip_view::ThumbStripView;
@@ -88,6 +89,11 @@ pub fn main() {
         image_grid.set_hexpand(true);
         image_grid.set_vexpand(true);
         shell.append_page(image_grid.deref(), "grid", "Grid View");
+
+        let image_canvas = ImageCanvas::new();
+        image_canvas.set_hexpand(true);
+        image_canvas.set_vexpand(true);
+        shell.append_page(&image_canvas, "dr", "Darkroom");
 
         let window = gtk4::Window::new();
         window.set_child(Some(&shell));

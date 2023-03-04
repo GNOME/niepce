@@ -19,8 +19,6 @@
 
 #include <gdkmm/pixbuf.h>
 
-#include "rust_bindings.hpp"
-
 #include "fwk/base/debug.hpp"
 #include "fwk/toolkit/application.hpp"
 #include "fwk/toolkit/configdatabinder.hpp"
@@ -28,11 +26,14 @@
 #include "ncr/init.hpp"
 #include "darkroommodule.hpp"
 
+#include "rust_bindings.hpp"
+
 namespace dr {
 
 DarkroomModule::DarkroomModule()
     : m_dr_splitview(Gtk::Orientation::HORIZONTAL)
     , m_vbox(Gtk::Orientation::VERTICAL)
+    , m_rust_canvas(dr::image_canvas_new())
     , m_image(new ncr::Image)
     , m_active(false)
     , m_need_reload(true)
@@ -99,14 +100,14 @@ Gtk::Widget * DarkroomModule::buildWidget()
     }
     ncr::init();
     m_widget = &m_dr_splitview;
-    m_imagecanvas = Gtk::manage(new ImageCanvas());
+    m_imagecanvas = Gtk::manage(Glib::wrap((GtkDrawingArea*)m_rust_canvas->gobj()));
     m_imagecanvas->set_hexpand(true);
     m_imagecanvas->set_vexpand(true);
 // TODO set a proper canvas size
 //    m_canvas_scroll.add(*m_imagecanvas);
     m_vbox.append(*m_imagecanvas);
 
-    m_imagecanvas->set_image(m_image);
+    m_rust_canvas->set_image(m_image);
 
     // build the toolbar.
     auto toolbar = ui::image_toolbar_new();

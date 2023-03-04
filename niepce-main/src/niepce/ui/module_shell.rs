@@ -449,9 +449,8 @@ impl ModuleShell {
     fn on_image_activated(&self, id: db::LibraryId) {
         dbg_out!("Activated callback for {}", id);
         let store = &self.selection_controller.list_store().0;
-        if let Some(_libfile) = store.file(id) {
-            // XXX
-            // self.darkroom.set_image(libfile)
+        if let Some(libfile) = store.file(id) {
+            self.darkroom.set_image(libfile);
             self.widget.activate_page("darkroom");
         }
     }

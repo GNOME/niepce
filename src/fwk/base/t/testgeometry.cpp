@@ -1,7 +1,7 @@
 /*
  * niepce - utils/testgeometry.cpp
  *
- * Copyright (C) 2007-2018 Hubert Figuiere
+ * Copyright (C) 2007-2023 Hubert Figuiere
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,42 +53,4 @@ TEST(TestGeometry, TestGeometrySanity)
 		      }
 		);
 
-
-    Rect dest1(0, 0, 640, 480);
-    Rect dest2(0, 0, 480, 640);
-
-    Rect source1(0, 0, 2000, 1000);
-    Rect source2(0, 0, 1000, 2000);
-
-    Rect result;
-
-    // FIT
-    result = source1.fit_into(dest1);
-    std::cout << std::to_string(result) << std::endl;
-    ASSERT_EQ(result, Rect(0, 0, 640, 320));
-    result = source1.fit_into(dest2);
-    std::cout << std::to_string(result) << std::endl;
-    ASSERT_EQ(result.w(), 480);
-
-    result = source2.fit_into(dest1);
-    std::cout << std::to_string(result) << std::endl;
-    ASSERT_EQ(result.h(), 480);
-    result = source2.fit_into(dest2);
-    std::cout << std::to_string(result) << std::endl;
-    ASSERT_EQ(result, Rect(0, 0, 320, 640));
-
-    // FILL
-    result = source1.fill_into(dest1);
-    std::cout << std::to_string(result) << std::endl;
-    ASSERT_EQ(result.h(), 480);
-    result = source1.fill_into(dest2);
-    std::cout << std::to_string(result) << std::endl;
-    ASSERT_EQ(result, Rect(0, 0, 1280, 640));
-
-    result = source2.fill_into(dest1);
-    std::cout << std::to_string(result) << std::endl;
-    ASSERT_EQ(result, Rect(0, 0, 640, 1280));
-    result = source2.fill_into(dest2);
-    std::cout << std::to_string(result) << std::endl;
-    ASSERT_EQ(result.w(), 480);
 }

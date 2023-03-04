@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+pub(super) mod image_canvas;
+
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -25,6 +27,7 @@ use glib::translate::*;
 use crate::ffi::{darkroom_module_new, DarkroomModule};
 use crate::niepce::ui::LibraryModule;
 use crate::SelectionController;
+use npc_engine::db;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 
 /// The proxy handle the interface between the Rust module shell
@@ -80,6 +83,13 @@ impl DarkroomModuleProxy {
             imp_: RefCell::new(ControllerImpl::default()),
             module,
             widget,
+        }
+    }
+
+    pub fn set_image(&self, file: db::LibFile) {
+        let image = Box::new(file);
+        unsafe {
+            self.module.set_image(Box::into_raw(image));
         }
     }
 }
