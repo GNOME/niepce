@@ -73,11 +73,13 @@ impl ImageCanvas {
             image.connect_signal_update(on_image_reloaded, self as *const Self as *const u8);
         }
         self.imp().image.replace(Some(image));
+        self.queue_draw();
     }
 
     pub fn set_image_none(&self) {
         self.imp().request_redisplay();
         self.imp().image.replace(None);
+        self.queue_draw();
     }
 
     fn on_image_reloaded(&self) {
@@ -96,6 +98,7 @@ impl ImageCanvas {
 mod imp {
     use std::cell::{Cell, RefCell};
 
+    use glib::translate::*;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
 
@@ -118,7 +121,6 @@ mod imp {
         resized: Cell<bool>,
         zoom_mode: ZoomMode,
         pub(super) image: RefCell<Option<cxx::SharedPtr<Image>>>,
-        backing_store: RefCell<Option<cairo::Surface>>,
     }
 
     impl ImageCanvas {
@@ -143,20 +145,15 @@ mod imp {
             }
         }
 
-        fn on_draw_(&self, ctx: &cairo::Context, _: i32, _: i32) {
-            if self.image.borrow().is_none() {
-                dbg_out!("No image");
-                return;
-            }
-
+        fn on_draw_(&self, context: &cairo::Context, _: i32, _: i32) {
             if self.need_redisplay.get() || self.resized.get() {
                 self.redisplay();
 
-                let mut img_w = 32_i32;
-                let mut img_h = 32_i32;
+                let mut img_w = ERROR_PLACEHOLDER.width();
+                let mut img_h = ERROR_PLACEHOLDER.height();
                 let mut scale = 1.0_f64;
-                let img_s = {
-                    self.image.borrow().as_ref().and_then(|image| {
+                let texture = {
+                    self.image.borrow().as_ref().map(|image| {
                         if image.status() < npc_craw::ImageStatus::ERROR {
                             img_w = image.original_width();
                             img_h = image.original_height();
@@ -167,14 +164,12 @@ mod imp {
 
                             // query the image.
                             unsafe {
-                                cairo::ImageSurface::from_raw_full(
-                                    image.cairo_surface_for_display()
-                                        as *mut cairo_sys::cairo_surface_t,
+                                gdk4::Texture::from_glib_full(
+                                    image.to_gdk_texture() as *mut gdk4_sys::GdkTexture
                                 )
-                                .ok()
                             }
                         } else {
-                            None
+                            ERROR_PLACEHOLDER.clone()
                         }
                     })
                 };
@@ -184,79 +179,41 @@ mod imp {
                 let canvas_w = obj.width();
                 dbg_out!("canvas w = {canvas_w} ; h = {canvas_h}");
 
-                let backing_store = img_s
-                    .as_ref()
-                    .and_then(|s| {
-                        s.create_similar(cairo::Content::Color, canvas_w, canvas_h)
-                            .ok()
-                    })
-                    .or_else(|| {
-                        cairo::ImageSurface::create(cairo::Format::ARgb32, canvas_w, canvas_h)
-                            .ok()
-                            .as_deref()
-                            .cloned()
-                    });
-                if let Some(ref backing_store) = backing_store {
-                    let context = cairo::Context::new(backing_store)
-                        .expect("Failed to create context from surface");
+                let st_ctx = obj.style_context();
+                st_ctx.save();
+                st_ctx.set_state(gtk4::StateFlags::NORMAL);
+                gtk4::render_background(
+                    &st_ctx,
+                    context,
+                    0.0,
+                    0.0,
+                    canvas_w as f64,
+                    canvas_h as f64,
+                );
+                st_ctx.restore();
 
-                    let st_ctx = self.obj().style_context();
-                    st_ctx.save();
-                    st_ctx.set_state(gtk4::StateFlags::NORMAL);
-                    gtk4::render_background(
-                        &st_ctx,
-                        &context,
-                        0.0,
-                        0.0,
-                        canvas_w as f64,
-                        canvas_h as f64,
-                    );
-                    st_ctx.restore();
+                let out_w = img_w as f64 * scale;
+                let out_h = img_h as f64 * scale;
+                let x = (canvas_w as f64 - out_w) / 2.0;
+                let y = (canvas_h as f64 - out_h) / 2.0;
+                dbg_out!("x = {x} ; y = {y}");
 
-                    let out_w = img_w as f64 * scale;
-                    let out_h = img_h as f64 * scale;
-                    let x = (canvas_w as f64 - out_w) / 2.0;
-                    let y = (canvas_h as f64 - out_h) / 2.0;
-                    dbg_out!("x = {x} ; y = {y}");
+                context.rectangle(x + SHADOW_OFFSET, y + SHADOW_OFFSET + 1.0, out_w, out_h);
+                context.set_source_rgb(0.0, 0.0, 0.0);
+                on_err_out!(context.fill());
 
-                    context.rectangle(x + SHADOW_OFFSET, y + SHADOW_OFFSET + 1.0, out_w, out_h);
-                    context.set_source_rgb(0.0, 0.0, 0.0);
-                    on_err_out!(context.fill());
-
-                    if let Some(ref img_s) = img_s {
-                        on_err_out!(context.set_source_surface(img_s, x, y));
-                        on_err_out!(context.paint());
-                    } else {
-                        dbg_out!("no image loaded");
-                        let icon: gdk4::Paintable =
-                            if self.image.borrow().as_ref().unwrap().status()
-                                == npc_craw::ImageStatus::NOT_FOUND
-                            {
-                                MISSING_PLACEHOLDER.clone().into()
-                            } else {
-                                ERROR_PLACEHOLDER.clone().into()
-                            };
-                        let img_w = icon.intrinsic_width() as f64;
-                        let img_h = icon.intrinsic_height() as f64;
-                        let snapshot = gtk4::Snapshot::new();
-                        icon.snapshot(&snapshot, img_w, img_h);
-                        if let Some(node) = snapshot.to_node() {
-                            node.draw(&context);
-                        }
+                if let Some(ref texture) = texture {
+                    let snapshot = gtk4::Snapshot::new();
+                    snapshot.translate(&graphene::Point::new(x as f32, y as f32));
+                    texture.snapshot(&snapshot, out_w, out_h);
+                    if let Some(node) = snapshot.to_node() {
+                        node.draw(context);
                     }
                 }
-
-                self.backing_store.replace(backing_store);
-                self.need_redisplay.set(false);
-                self.resized.set(false);
             }
 
-            if let Some(ref surface) = *self.backing_store.borrow() {
-                on_err_out!(ctx.set_source_surface(surface, 0., 0.));
-                on_err_out!(ctx.paint());
-            } else {
-                err_out!("Failed to lock onto the surface");
-            }
+            self.need_redisplay.set(false);
+            self.resized.set(false);
         }
 
         /// Recalculate the display frame.

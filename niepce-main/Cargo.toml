@@ -12,6 +12,7 @@ cairo-rs = "*"
 chrono = "0.4.23"
 cxx = { version = "1.0", features = [ "c++17" ] }
 gdk4 = "*"
+gdk4-sys = "*"
 gdk-pixbuf = "*"
 gdk-pixbuf-sys = "*"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }

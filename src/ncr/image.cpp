@@ -25,6 +25,8 @@ extern "C" {
 
 #include <gegl.h>
 
+#include <gdkmm/memorytexture.h>
+
 #include <libopenraw/libopenraw.h>
 
 #include "fwk/base/debug.hpp"
@@ -392,18 +394,16 @@ void Image::rotate_by(int degree)
     signal_update();
 }
 
-
-
-Cairo::RefPtr<Cairo::ImageSurface> Image::cairo_surface_for_display()
+GdkTexture* Image::to_gdk_texture()
 {
-    if(get_status() == Status::ERROR) {
+    if (get_status() == Status::ERROR) {
         // return the error
         DBG_OUT("error");
-        return Cairo::RefPtr<Cairo::ImageSurface>();
+        return nullptr;
     }
-    if(!priv->m_sink) {
+    if (!priv->m_sink) {
         DBG_OUT("nothing loaded");
-        return Cairo::RefPtr<Cairo::ImageSurface>();
+        return nullptr;
     }
     DBG_ASSERT(get_status() == Status::LOADING, "wrong status for image");
     DBG_OUT("processing");
@@ -413,21 +413,22 @@ Cairo::RefPtr<Cairo::ImageSurface> Image::cairo_surface_for_display()
     w = roi.width;
     h = roi.height;
 
-    DBG_OUT("surface w=%d, h=%d", w, h);
+    DBG_OUT("texture w=%d, h=%d", w, h);
 
     const Babl* format = babl_format("B'aG'aR'aA u8");
 
-    Cairo::RefPtr<Cairo::ImageSurface> surface
-        = Cairo::ImageSurface::create(Cairo::Surface::Format::ARGB32, w, h);
-    gegl_node_blit(priv->m_scale, 1.0, &roi, format,
-                   (void*)surface->get_data(), surface->get_stride(),
+    gsize size = w * h * 4;
+    gpointer buffer = g_malloc(size);
+    gegl_node_blit(priv->m_scale, 1.0, &roi, format, buffer, 0,
                    (GeglBlitFlags)(GEGL_BLIT_CACHE | GEGL_BLIT_DIRTY));
 
-    // If you don't do that, it will never paint().
-    // Thanks to mitch for the tip in #gegl
-    surface->mark_dirty();
+    // We can't use gtkmm as there is no g_bytes_new_take() wrapped.
+    GBytes* bytes = g_bytes_new_take(buffer, size);
+    GdkTexture* texture = gdk_memory_texture_new(w, h, GDK_MEMORY_B8G8R8A8, bytes, w * 4);
+    g_bytes_unref(bytes);
+
     set_status(Status::LOADED);
-    return surface;
+    return texture;
 }
 
 Status Image::get_status() const

@@ -41,11 +41,9 @@ public:
     Image();
     virtual ~Image();
 
-    /* get a cairo surface to display the resulting image */
-    Cairo::RefPtr<Cairo::ImageSurface> cairo_surface_for_display();
-    cairo_surface_t* cairo_surface_for_display_() const {
-        auto s = const_cast<Image*>(this)->cairo_surface_for_display();
-        return cairo_surface_reference(s->cobj());
+    GdkTexture* to_gdk_texture();
+    GdkTexture* to_gdk_texture_() const {
+        return const_cast<Image*>(this)->to_gdk_texture();
     }
 
     /** The status of the image. */

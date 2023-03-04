@@ -22,9 +22,9 @@
 mod ffi {
     #[namespace = ""]
     unsafe extern "C++" {
-        include!(<cairo.h>);
-        #[cxx_name = "cairo_surface_t"]
-        type CairoImageSurface;
+        include!(<gdk/gdk.h>);
+
+        type GdkTexture;
     }
 
     #[rust_name = "ImageStatus"]
@@ -56,9 +56,8 @@ mod ffi {
 
         #[cxx_name = "set_output_scale_"]
         fn set_output_scale(&self, scale: f64);
-        #[cxx_name = "cairo_surface_for_display_"]
-        // The surface should be wrapped with full ownership
-        fn cairo_surface_for_display(&self) -> *mut CairoImageSurface;
+        #[cxx_name = "to_gdk_texture_"]
+        fn to_gdk_texture(&self) -> *mut GdkTexture;
 
         /// # Safety
         /// Derefence pointers.
