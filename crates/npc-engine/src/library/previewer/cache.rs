@@ -166,7 +166,7 @@ impl DbWorker {
         if let Some(conn) = &*self.dbconn.borrow() {
             let mut stmt = conn.prepare(
                 "UPDATE cache_items SET last_access = ?1 \
-                                         FROM cache_items WHERE path = ?2 AND dimension = ?3;",
+                                         WHERE path = ?2 AND dimension = ?3;",
             )?;
             let now = chrono::Utc::now().timestamp();
             stmt.execute(rusqlite::params![now, file, size])?;
