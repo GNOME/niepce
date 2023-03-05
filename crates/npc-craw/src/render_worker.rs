@@ -24,7 +24,7 @@ use glib::translate::*;
 use crate::ImageBitmap;
 use npc_engine::db;
 use npc_fwk::base::{Worker, WorkerImpl};
-use npc_fwk::{err_out, on_err_out};
+use npc_fwk::{dbg_out, err_out, on_err_out};
 
 pub type RenderWorker = Worker<RenderImpl>;
 
@@ -58,9 +58,9 @@ impl RenderImpl {
             let path = file.path().to_string_lossy();
 
             pipeline.reload(&path, is_raw, file.orientation());
-        } else if let Ok(p) = gdk_pixbuf::Pixbuf::from_resource(
-            "/org/gnome/Niepce/pixmaps/niepce-image-generic.png",
-            ) {
+        } else if let Ok(p) =
+            gdk_pixbuf::Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-image-generic.png")
+        {
             let p: *mut gdk_pixbuf_sys::GdkPixbuf = p.to_glib_none().0;
             unsafe {
                 pipeline.reload_pixbuf(p as *mut crate::ffi::GdkPixbuf);
@@ -77,6 +77,17 @@ impl WorkerImpl for RenderImpl {
         use RenderMsg::*;
         match msg {
             SetImage(file) => {
+                if file.is_some()
+                    && self
+                        .imagefile
+                        .borrow()
+                        .as_ref()
+                        .map(|v| v.same(file.as_ref().unwrap()))
+                        .unwrap_or(false)
+                {
+                    dbg_out!("Same image file, doing nothing");
+                    return true;
+                }
                 self.imagefile.replace(file);
             }
             Reload => self.reload(&state.pipeline),

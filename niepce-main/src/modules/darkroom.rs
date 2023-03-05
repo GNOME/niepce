@@ -22,6 +22,7 @@ pub(super) mod image_canvas;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
+use gettextrs::gettext as i18n;
 use glib::translate::*;
 use gtk4::prelude::*;
 
@@ -39,8 +40,9 @@ pub struct DarkroomModule {
     widget: gtk4::Widget,
     worker: RenderWorker,
     imagecanvas: ImageCanvas,
+    overlay: adw::ToastOverlay,
     tx: glib::Sender<RenderMsg>,
-    _toolbox_controller: cxx::SharedPtr<crate::ffi::ToolboxController>,
+    toolbox_controller: cxx::SharedPtr<crate::ffi::ToolboxController>,
     need_reload: Cell<bool>,
     active: Cell<bool>,
 }
@@ -77,19 +79,25 @@ impl DarkroomModule {
         let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
         let worker = RenderWorker::new(RenderImpl::new());
         let imagecanvas = ImageCanvas::new();
+        let overlay = adw::ToastOverlay::new();
         let toolbox_controller = crate::ffi::toolbox_controller_new();
-        let widget = Self::build_widget(&imagecanvas, &toolbox_controller);
+        let widget: gtk4::Widget = gtk4::Paned::new(gtk4::Orientation::Horizontal).into();
 
-        let module = Rc::new(Self {
+        let mut module = Self {
             imp_: RefCell::new(ControllerImpl::default()),
             widget,
             imagecanvas,
+            overlay,
             worker,
             tx,
-            _toolbox_controller: toolbox_controller,
+            toolbox_controller,
             need_reload: Cell::new(true),
             active: Cell::new(false),
-        });
+        };
+
+        module.build_widget();
+
+        let module = Rc::new(module);
         selection_controller.handler.signal_selected.connect(
             glib::clone!(@weak selection_controller, @weak module => move |id| {
                 let file = selection_controller.file(id);
@@ -110,30 +118,29 @@ impl DarkroomModule {
         module
     }
 
-    fn build_widget(
-        imagecanvas: &ImageCanvas,
-        toolbox_controller: &cxx::SharedPtr<crate::ffi::ToolboxController>,
-    ) -> gtk4::Widget {
-        let splitview = gtk4::Paned::new(gtk4::Orientation::Horizontal);
+    fn build_widget(&mut self) {
+        let splitview = self
+            .widget
+            .downcast_ref::<gtk4::Paned>()
+            .expect("Failed to downcast to Paned");
         let vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
         splitview.set_start_child(Some(&vbox));
-        imagecanvas.set_hexpand(true);
-        imagecanvas.set_vexpand(true);
-        vbox.append(imagecanvas);
+        self.imagecanvas.set_hexpand(true);
+        self.imagecanvas.set_vexpand(true);
+        self.overlay.set_child(Some(&self.imagecanvas));
+        vbox.append(&self.overlay);
 
         let toolbar = crate::niepce::ui::imagetoolbar::image_toolbar_new();
         vbox.append(&toolbar);
         let dock = Dock::new();
         let toolbox = unsafe {
             gtk4::Widget::from_glib_none(
-                toolbox_controller.build_widget() as *const gtk4_sys::GtkWidget
+                self.toolbox_controller.build_widget() as *const gtk4_sys::GtkWidget
             )
         };
         dock.vbox().append(&toolbox);
         splitview.set_end_child(Some(&dock));
         splitview.set_resize_end_child(false);
-
-        splitview.into()
     }
 
     fn reload_image(&self) {
@@ -141,6 +148,7 @@ impl DarkroomModule {
             return;
         }
 
+        self.overlay.add_toast(adw::Toast::new(&i18n("Loading")));
         on_err_out!(self.worker.send(RenderMsg::Reload));
         on_err_out!(self.worker.send(RenderMsg::GetBitmap(self.tx.clone())));
 

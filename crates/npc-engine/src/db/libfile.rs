@@ -125,6 +125,10 @@ impl LibFile {
         }
     }
 
+    pub fn same(&self, other: &LibFile) -> bool {
+        self.id() == other.id()
+    }
+
     pub fn id(&self) -> LibraryId {
         self.id
     }
