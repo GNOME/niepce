@@ -29,20 +29,26 @@ use gtk4::prelude::*;
 use crate::niepce::ui::LibraryModule;
 use crate::SelectionController;
 use image_canvas::ImageCanvas;
-use npc_craw::{RenderImpl, RenderMsg, RenderWorker};
+use npc_craw::{RenderImpl, RenderWorker};
 use npc_engine::db;
+use npc_engine::library::notification::LibNotification;
+use npc_engine::library::{RenderMsg, RenderingParams};
+use npc_engine::libraryclient::LibraryClientHost;
+use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 use npc_fwk::{dbg_out, on_err_out};
 
 pub struct DarkroomModule {
     imp_: RefCell<ControllerImpl>,
+    client: Rc<LibraryClientHost>,
     widget: gtk4::Widget,
     worker: RenderWorker,
     imagecanvas: ImageCanvas,
     overlay: adw::ToastOverlay,
-    tx: glib::Sender<RenderMsg>,
     toolbox_controller: cxx::SharedPtr<crate::ffi::ToolboxController>,
+    file: RefCell<Option<db::LibFile>>,
+    rendering_params: RefCell<Option<RenderingParams>>,
     need_reload: Cell<bool>,
     active: Cell<bool>,
 }
@@ -65,7 +71,7 @@ impl LibraryModule for DarkroomModule {
     fn set_active(&self, active: bool) {
         self.active.set(active);
         if active {
-            self.reload_image();
+            self.reload_image(self.rendering_params.borrow().clone());
         }
     }
 
@@ -75,8 +81,10 @@ impl LibraryModule for DarkroomModule {
 }
 
 impl DarkroomModule {
-    pub fn new(selection_controller: &Rc<SelectionController>) -> Rc<Self> {
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+    pub fn new(
+        selection_controller: &Rc<SelectionController>,
+        client_host: &Rc<LibraryClientHost>,
+    ) -> Rc<Self> {
         let worker = RenderWorker::new(RenderImpl::new());
         let imagecanvas = ImageCanvas::new();
         let overlay = adw::ToastOverlay::new();
@@ -85,12 +93,14 @@ impl DarkroomModule {
 
         let mut module = Self {
             imp_: RefCell::new(ControllerImpl::default()),
+            client: client_host.clone(),
             widget,
             imagecanvas,
             overlay,
             worker,
-            tx,
             toolbox_controller,
+            file: RefCell::new(None),
+            rendering_params: RefCell::new(None),
             need_reload: Cell::new(true),
             active: Cell::new(false),
         };
@@ -104,18 +114,16 @@ impl DarkroomModule {
                 module.set_image(file);
             }),
         );
-        rx.attach(
-            None,
-            glib::clone!(@strong module => move |e| {
-                if let RenderMsg::Bitmap(b) = e {
-                    dbg_out!("Got bitmap");
-                    module.imagecanvas.set_image(b);
-                }
-                glib::Continue(true)
-            }),
-        );
 
         module
+    }
+
+    pub fn on_lib_notification(&self, ln: &LibNotification) {
+        if let LibNotification::ImageRendered(b) = ln {
+            // XXX this is suboptimal
+            dbg_out!("Got bitmap");
+            self.imagecanvas.set_image(b.clone());
+        }
     }
 
     fn build_widget(&mut self) {
@@ -143,25 +151,33 @@ impl DarkroomModule {
         splitview.set_resize_end_child(false);
     }
 
-    fn reload_image(&self) {
+    fn reload_image(&self, params: Option<RenderingParams>) {
         if !self.need_reload.get() {
             return;
         }
 
         self.overlay.add_toast(adw::Toast::new(&i18n("Loading")));
-        on_err_out!(self.worker.send(RenderMsg::Reload));
-        on_err_out!(self.worker.send(RenderMsg::GetBitmap(self.tx.clone())));
+        on_err_out!(self.worker.send(RenderMsg::Reload(params)));
+        if let Some(ref file) = *self.file.borrow() {
+            let cache = self.client.thumbnail_cache();
+            cache.request_render(file.clone(), Some(self.worker.sender().clone()));
+        }
 
         self.need_reload.set(false);
     }
 
     pub fn set_image(&self, file: Option<db::LibFile>) {
         self.need_reload.set(true);
+        self.file.replace(file.clone());
 
+        let params = file
+            .as_ref()
+            .map(|file| RenderingParams::new_preview(file.id(), Size::default()));
         on_err_out!(self.worker.send(RenderMsg::SetImage(file)));
+        self.rendering_params.replace(params.clone());
 
         if self.need_reload.get() && self.active.get() {
-            self.reload_image();
+            self.reload_image(params);
         }
     }
 }

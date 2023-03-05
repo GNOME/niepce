@@ -21,6 +21,7 @@ use super::queriedcontent::QueriedContent;
 use crate::db::libfile::FileStatus;
 use crate::db::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
 use npc_fwk::toolkit::thumbnail;
+use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::PropertyValue;
 
 /// Library client channel sender, to send `LibNotification`.
@@ -108,6 +109,7 @@ pub enum LibNotification {
     MetadataQueried(LibMetadata),
     XmpNeedsUpdate,
     ThumbnailLoaded(Thumbnail),
+    ImageRendered(ImageBitmap),
 }
 
 unsafe impl ExternType for LibNotification {
@@ -149,6 +151,7 @@ impl LibNotification {
             LibNotification::MetadataQueried(_) => NotificationType::METADATA_QUERIED,
             LibNotification::XmpNeedsUpdate => NotificationType::XMP_NEEDS_UPDATE,
             LibNotification::ThumbnailLoaded(_) => NotificationType::ThumbnailLoaded,
+            LibNotification::ImageRendered(_) => NotificationType::ImageRendered,
         }
     }
 

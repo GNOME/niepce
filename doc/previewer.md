@@ -56,7 +56,7 @@ Note: params always include the dimensions of the output.
 Logic
 -----
 
-# Getting a preview
+# Getting a preview from the cache
 
 ```mermaid
 flowchart LR
@@ -81,3 +81,23 @@ Define an age threshold.
 Query all the cache items that have LRU older than threshold.
 Delete the corresponding files.
 
+Rendering
+---------
+
+Rendering is the action of processing a file to generate full size
+previews. There is a large benefit to cache them because processing
+takes longer than just a pre-rendered.
+
+The `ThumbnailCache` should act as a front to the renderer. The
+darkroom module will request the Thumbnail cache for a render, and the
+thumbnail cache will call the renderer if needed.
+
+```mermaid
+flowchart TD
+    A[Query Render] --> B{In cache?}
+    B -- Yes -->  C[Fetch file]
+    C --> G[Send notification `ImageRendered`]
+    B -- No --> E[Render image]
+    E --> E2{Success?}
+    E2 -- Yes --> G
+```

@@ -22,8 +22,22 @@ mod cache;
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::db;
+use crate::library::notification::LcChannel;
 pub(crate) use cache::Cache;
 use npc_fwk::base::Size;
+
+/// The message for the renderers.
+pub enum RenderMsg {
+    /// The the image for the processors.
+    SetImage(Option<db::LibFile>),
+    /// Reload with processing params
+    Reload(Option<RenderingParams>),
+    /// Get the bitmap and send it to the [`LibNotification`] channel.
+    GetBitmap(LcChannel),
+}
+
+/// The sender type for renderers.
+pub type RenderSender = std::sync::mpsc::Sender<RenderMsg>;
 
 #[derive(Clone, Copy, FromPrimitive, PartialEq, ToPrimitive)]
 /// The type of a requested rendering.
@@ -66,7 +80,7 @@ impl RenderingParams {
         }
     }
 
-    pub fn _new_preview(id: db::LibraryId, dimensions: Size) -> RenderingParams {
+    pub fn new_preview(id: db::LibraryId, dimensions: Size) -> RenderingParams {
         RenderingParams {
             type_: RenderingType::Preview,
             dimensions,

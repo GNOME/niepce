@@ -1,5 +1,5 @@
 /*
- * niepce - ncr/image_bitmap.rs
+ * niepce - crates/npc-fwk/src/tookit/image_bitmap.rs
  *
  * Copyright (C) 2023 Hubert Figuière
  *
@@ -17,38 +17,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use npc_fwk::base::Size;
+use std::sync::Arc;
 
-use crate::ImageStatus;
+use crate::base::Size;
 
-#[derive(Default)]
+#[derive(Clone, Default)]
+/// ImageBitmap represent the bitmap of the image with `size`.
+/// It currently assumes BGRA.
 pub struct ImageBitmap {
+    /// The pixel size.
     size: Size,
-    buffer: Vec<u8>,
+    /// Buffer is shared, so that clone share the buffer.
+    buffer: Arc<Vec<u8>>,
+}
+
+impl std::fmt::Debug for ImageBitmap {
+    // implemented manually to skip dumping all the bytes.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        f.debug_struct("ImageBitmap")
+            .field("buffer.len()", &self.buffer.len())
+            .field("size", &self.size)
+            .finish()
+    }
 }
 
 impl ImageBitmap {
     pub fn new(buffer: Vec<u8>, w: u32, h: u32) -> Self {
         Self {
             size: Size { w, h },
-            buffer,
+            buffer: Arc::new(buffer),
         }
     }
 
-    pub fn status(&self) -> ImageStatus {
-        ImageStatus::LOADED
-    }
-
+    /// The width of the image in pixels
     pub fn original_width(&self) -> u32 {
         self.size.w
     }
 
+    /// The height of the image in pixels.
     pub fn original_height(&self) -> u32 {
         self.size.h
     }
 
+    /// Create a gdk4::Texture from the image for display.
+    /// Caveat: there don't seem to be a way to consume the data, so it's duplicated.
     pub fn to_gdk_texture(&self) -> gdk4::Texture {
-        let bytes = glib::Bytes::from_owned(self.buffer.clone());
+        let bytes = glib::Bytes::from_owned((*self.buffer).clone());
         gdk4::MemoryTexture::new(
             self.size.w as i32,
             self.size.h as i32,

@@ -21,36 +21,46 @@ use std::cmp;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use rayon::prelude::*;
-
 use crate::db;
 use crate::db::libfile::{FileStatus, LibFile};
 use crate::library::notification;
 use crate::library::notification::LibNotification::{FileStatusChanged, ThumbnailLoaded};
 use crate::library::notification::{FileStatusChange, LcChannel};
-use crate::library::previewer::{Cache, RenderingParams, RenderingType};
+use crate::library::previewer::{Cache, RenderMsg, RenderSender, RenderingParams, RenderingType};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
-/// Thumbnail task
-struct ThumbnailTask {
+/// Previewing task
+struct Task {
     /// Type of rendering task
     type_: RenderingType,
     /// Requested dimensions
     dimensions: Size,
     /// File to generate thumbnail for.
     file: LibFile,
+    ///
+    processor: Option<RenderSender>,
 }
 
-impl ThumbnailTask {
-    /// Create a new ThumbnailTask
-    pub fn new(file: LibFile, w: u32, h: u32) -> Self {
-        ThumbnailTask {
+impl Task {
+    /// Create a new thumbnailing Task
+    pub fn new_thumbnail(file: LibFile, w: u32, h: u32) -> Self {
+        Task {
             type_: RenderingType::Thumbnail,
             file,
             dimensions: Size { w, h },
+            processor: None,
+        }
+    }
+
+    pub fn new_rendering(file: LibFile, processor: Option<RenderSender>) -> Self {
+        Task {
+            type_: RenderingType::Preview,
+            file,
+            dimensions: Size::default(),
+            processor,
         }
     }
 }
@@ -135,7 +145,7 @@ fn get_thumbnail(
 
 pub struct ThumbnailCache {
     /// Queue to send task
-    queue_sender: std::sync::mpsc::Sender<Vec<ThumbnailTask>>,
+    queue_sender: std::sync::mpsc::Sender<Vec<Task>>,
 }
 
 impl ThumbnailCache {
@@ -151,22 +161,30 @@ impl ThumbnailCache {
         Self { queue_sender }
     }
 
-    fn execute(task: &ThumbnailTask, cache: &Cache, sender: &LcChannel) {
-        if task.type_ != RenderingType::Thumbnail {
-            err_out!("Generating previews isn't supported yet");
-            return;
-        }
-        let dimensions = task.dimensions;
+    fn execute(task: &Task, cache: &Cache, sender: &LcChannel) {
         let libfile = &task.file;
         let id = libfile.id();
-        // XXX this should take into account the size.
-        let rendering = RenderingParams::new_thumbnail(id, dimensions);
-
         let path = libfile.path();
+        let pix = match task.type_ {
+            RenderingType::Preview => {
+                err_out!("Generating previews isn't supported yet");
 
-        let pix = get_thumbnail(cache, libfile, &rendering);
-        // We shall report if the file is missing.
-        check_file_status(id, path, sender);
+                if let Some(processor) = &task.processor {
+                    on_err_out!(processor.send(RenderMsg::GetBitmap(sender.clone())));
+                }
+                return;
+            }
+            RenderingType::Thumbnail => {
+                let dimensions = task.dimensions;
+                // XXX this should take into account the size.
+                let rendering = RenderingParams::new_thumbnail(id, dimensions);
+                let pix = get_thumbnail(cache, libfile, &rendering);
+                // We shall report if the file is missing.
+                check_file_status(id, path, sender);
+
+                pix
+            }
+        };
 
         if let Some(pix) = pix {
             // notify the thumbnail
@@ -185,28 +203,31 @@ impl ThumbnailCache {
         }
     }
 
-    fn main(
-        cache_dir: PathBuf,
-        queue: std::sync::mpsc::Receiver<Vec<ThumbnailTask>>,
-        sender: LcChannel,
-    ) {
+    fn main(cache_dir: PathBuf, queue: std::sync::mpsc::Receiver<Vec<Task>>, sender: LcChannel) {
         let cache = Cache::new(cache_dir);
         cache.initialize();
         dbg_out!("Cache database ready");
         while let Ok(tasks) = queue.recv() {
             dbg_out!("Parallel thumbnailing of {} files", tasks.len());
-            tasks.par_iter().for_each(|task| {
+            tasks.iter().for_each(|task| {
                 Self::execute(task, &cache, &sender);
             })
         }
         dbg_out!("thumbnail cache thread terminating");
     }
 
+    /// Request a render.
+    pub fn request_render(&self, file: LibFile, processor: Option<RenderSender>) {
+        on_err_out!(self
+            .queue_sender
+            .send(vec![Task::new_rendering(file, processor)]));
+    }
+
     /// Request thumbnails.
     pub fn request(&self, fl: &[LibFile]) {
         on_err_out!(self.queue_sender.send(
             fl.iter()
-                .map(|f| ThumbnailTask::new(f.clone(), 160, 160))
+                .map(|f| Task::new_thumbnail(f.clone(), 160, 160))
                 .collect()
         ));
     }

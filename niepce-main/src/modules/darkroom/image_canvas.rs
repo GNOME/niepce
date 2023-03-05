@@ -20,7 +20,7 @@
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
-use npc_craw::ImageBitmap;
+use npc_fwk::toolkit::ImageBitmap;
 
 #[derive(Clone, Copy, Default, glib::Enum)]
 #[enum_type(name = "NcrZoomMode")]
@@ -72,9 +72,9 @@ mod imp {
     use gtk4::subclass::prelude::*;
 
     use super::ZoomMode;
-    use npc_craw::ImageBitmap;
     use npc_fwk::base::Rect;
-    use npc_fwk::{dbg_out, err_out, on_err_out};
+    use npc_fwk::toolkit::ImageBitmap;
+    use npc_fwk::{dbg_out, on_err_out};
 
     const IMAGE_INSET: f64 = 6.0;
     const SHADOW_OFFSET: f64 = 3.0;
@@ -125,14 +125,10 @@ mod imp {
                         .borrow()
                         .as_ref()
                         .map(|image| {
-                            if image.status() < npc_craw::ImageStatus::ERROR {
-                                img_w = image.original_width();
-                                img_h = image.original_height();
-                                // query the image.
-                                image.to_gdk_texture()
-                            } else {
-                                ERROR_PLACEHOLDER.clone()
-                            }
+                            img_w = image.original_width();
+                            img_h = image.original_height();
+                            // query the image.
+                            image.to_gdk_texture()
                         })
                         .or_else(|| Some(MISSING_PLACEHOLDER.clone()))
                 };
@@ -188,11 +184,6 @@ mod imp {
         /// Recalculate the display frame.
         fn redisplay(&self) -> Option<Rect> {
             if let Some(image) = self.image.borrow().as_ref() {
-                if image.status() != npc_craw::ImageStatus::LOADED {
-                    err_out!("Image is in not loaded - status {:?}", image.status());
-                    return None;
-                }
-
                 let img_w = image.original_width();
                 let img_h = image.original_height();
                 dbg_out!("set image w {img_w} h {img_h}");

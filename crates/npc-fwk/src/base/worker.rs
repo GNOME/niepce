@@ -89,6 +89,10 @@ impl<I: WorkerImpl + 'static> Worker<I> {
         worker
     }
 
+    pub fn sender(&self) -> &mpsc::Sender<I::Message> {
+        &self.sender
+    }
+
     /// Send a message to the worker.
     pub fn send(&self, msg: I::Message) -> Result<(), mpsc::SendError<I::Message>> {
         self.sender.send(msg)

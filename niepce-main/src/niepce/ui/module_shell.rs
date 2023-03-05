@@ -73,7 +73,7 @@ impl ModuleShell {
                 client_host,
             )),
             mapm: Rc::new(MapModuleProxy::default()),
-            darkroom: DarkroomModule::new(&selection_controller),
+            darkroom: DarkroomModule::new(&selection_controller, client_host),
             selection_controller,
             menu,
             module_menu: gio::Menu::new(),
@@ -410,6 +410,7 @@ impl ModuleShell {
 
     pub fn on_lib_notification(&self, ln: &LibNotification) {
         self.gridview.on_lib_notification(ln, self.client.client());
+        self.darkroom.on_lib_notification(ln);
         self.mapm.on_lib_notification(ln);
         self.selection_controller
             .on_lib_notification(ln, self.client.thumbnail_cache());

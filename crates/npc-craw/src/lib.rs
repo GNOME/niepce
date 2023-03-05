@@ -18,13 +18,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-mod image_bitmap;
 mod render_worker;
 
 use std::sync::Once;
 
-pub use image_bitmap::ImageBitmap;
-pub use render_worker::{RenderImpl, RenderMsg, RenderWorker};
+pub use render_worker::{RenderImpl, RenderWorker};
 
 fn ncr_init() {
     static START: Once = Once::new();

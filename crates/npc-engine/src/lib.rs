@@ -245,6 +245,7 @@ pub mod ffi {
         FILE_MOVED,
         FILE_STATUS_CHANGED,
         ThumbnailLoaded,
+        ImageRendered,
     }
 
     extern "Rust" {

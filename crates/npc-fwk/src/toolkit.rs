@@ -25,6 +25,7 @@ mod controller;
 pub mod gdk_utils;
 mod gphoto;
 pub mod gtk_utils;
+mod image_bitmap;
 pub mod mimetype;
 pub mod movieutils;
 pub mod request;
@@ -43,6 +44,7 @@ pub mod cxx {
 
 pub use controller::{new_controller, to_controller, Controller, ControllerImpl};
 pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
+pub use image_bitmap::ImageBitmap;
 pub use thumbnail::Thumbnail;
 pub use uicontroller::UiController;
 pub use undo::do_command as undo_do_command;

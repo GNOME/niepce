@@ -28,6 +28,7 @@ const THUMBCACHE_DIRNAME: &str = "thumbcache";
 
 /// This host of the element of the library client.
 pub struct LibraryClientHost {
+    notif_sender: LcChannel,
     // XXX get rid of the wrapper
     client: LibraryClientWrapper,
     thumbnail_cache: ThumbnailCache,
@@ -46,10 +47,15 @@ impl LibraryClientHost {
         cache_path.push(THUMBCACHE_DIRNAME);
 
         LibraryClientHost {
+            notif_sender: channel.clone(),
             client: LibraryClientWrapper::new(path, channel.clone()),
             thumbnail_cache: ThumbnailCache::new(&cache_path, channel.clone()),
             ui_provider: Rc::new(UIDataProvider::default()),
         }
+    }
+
+    pub fn notif_sender(&self) -> &LcChannel {
+        &self.notif_sender
     }
 
     pub fn client(&self) -> &LibraryClientWrapper {
