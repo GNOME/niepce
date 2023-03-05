@@ -41,9 +41,9 @@ public:
     Image();
     virtual ~Image();
 
-    GdkTexture* to_gdk_texture();
-    GdkTexture* to_gdk_texture_() const {
-        return const_cast<Image*>(this)->to_gdk_texture();
+    bool to_buffer(rust::Slice<uint8_t> buffer);
+    bool to_buffer_(rust::Slice<uint8_t> buffer) const {
+        return const_cast<Image*>(this)->to_buffer(buffer);
     }
 
     /** The status of the image. */

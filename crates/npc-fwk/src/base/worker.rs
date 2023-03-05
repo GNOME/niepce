@@ -23,9 +23,13 @@ use std::sync::mpsc;
 /// and the dispatch method to for each message.
 pub trait WorkerImpl: Send {
     type Message: Send + 'static;
+    type State: Default;
 
+    fn new_state(&self) -> Self::State {
+        Self::State::default()
+    }
     /// Dispatch message, and return true to continue.
-    fn dispatch(&self, msg: Self::Message) -> bool;
+    fn dispatch(&self, msg: Self::Message, state: &mut Self::State) -> bool;
 }
 
 /// Generic worker.
@@ -41,8 +45,9 @@ pub trait WorkerImpl: Send {
 ///
 /// impl WorkerImpl for SomeWorker {
 ///     type Message = SomeMessage;
+///     type State = Option<()>;
 ///
-///     fn dispatch(&self, msg: Self::Message) -> bool {
+///     fn dispatch(&self, msg: Self::Message, state: &mut Self::State) -> bool {
 ///         match msg {
 ///             One => {}
 ///         }
@@ -73,8 +78,9 @@ impl<I: WorkerImpl + 'static> Worker<I> {
         on_err_out!(std::thread::Builder::new()
             .name(format!("worker-{}", stringify!(I)))
             .spawn(move || {
+                let mut state = worker_impl.new_state();
                 while let Ok(msg) = receiver.recv() {
-                    if !worker_impl.dispatch(msg) {
+                    if !worker_impl.dispatch(msg, &mut state) {
                         break;
                     }
                 }

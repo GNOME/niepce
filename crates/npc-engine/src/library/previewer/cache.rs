@@ -223,8 +223,9 @@ impl DbWorker {
 
 impl WorkerImpl for DbWorker {
     type Message = DbMessage;
+    type State = Option<()>;
 
-    fn dispatch(&self, msg: Self::Message) -> bool {
+    fn dispatch(&self, msg: Self::Message, _: &mut Self::State) -> bool {
         match msg {
             DbMessage::Init(p) => {
                 on_err_out!(self.initialize(&p));

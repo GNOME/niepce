@@ -27,16 +27,20 @@ use gtk4::prelude::*;
 
 use crate::niepce::ui::LibraryModule;
 use crate::SelectionController;
+use image_canvas::ImageCanvas;
+use npc_craw::{RenderImpl, RenderMsg, RenderWorker};
 use npc_engine::db;
 use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
+use npc_fwk::{dbg_out, on_err_out};
 
 pub struct DarkroomModule {
     imp_: RefCell<ControllerImpl>,
     widget: gtk4::Widget,
+    worker: RenderWorker,
+    imagecanvas: ImageCanvas,
+    tx: glib::Sender<RenderMsg>,
     _toolbox_controller: cxx::SharedPtr<crate::ffi::ToolboxController>,
-    image: cxx::SharedPtr<npc_craw::Image>,
-    imagefile: RefCell<Option<db::LibFile>>,
     need_reload: Cell<bool>,
     active: Cell<bool>,
 }
@@ -70,17 +74,19 @@ impl LibraryModule for DarkroomModule {
 
 impl DarkroomModule {
     pub fn new(selection_controller: &Rc<SelectionController>) -> Rc<Self> {
-        npc_craw::ffi::init();
-        let image = npc_craw::ffi::image_new();
+        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let worker = RenderWorker::new(RenderImpl::new());
+        let imagecanvas = ImageCanvas::new();
         let toolbox_controller = crate::ffi::toolbox_controller_new();
-        let widget = Self::build_widget(&image, &toolbox_controller);
+        let widget = Self::build_widget(&imagecanvas, &toolbox_controller);
 
         let module = Rc::new(Self {
             imp_: RefCell::new(ControllerImpl::default()),
             widget,
-            image,
+            imagecanvas,
+            worker,
+            tx,
             _toolbox_controller: toolbox_controller,
-            imagefile: RefCell::new(None),
             need_reload: Cell::new(true),
             active: Cell::new(false),
         });
@@ -90,23 +96,30 @@ impl DarkroomModule {
                 module.set_image(file);
             }),
         );
+        rx.attach(
+            None,
+            glib::clone!(@strong module => move |e| {
+                if let RenderMsg::Bitmap(b) = e {
+                    dbg_out!("Got bitmap");
+                    module.imagecanvas.set_image(b);
+                }
+                glib::Continue(true)
+            }),
+        );
 
         module
     }
 
     fn build_widget(
-        image: &cxx::SharedPtr<npc_craw::Image>,
+        imagecanvas: &ImageCanvas,
         toolbox_controller: &cxx::SharedPtr<crate::ffi::ToolboxController>,
     ) -> gtk4::Widget {
         let splitview = gtk4::Paned::new(gtk4::Orientation::Horizontal);
         let vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
         splitview.set_start_child(Some(&vbox));
-        let imagecanvas = image_canvas::ImageCanvas::new();
         imagecanvas.set_hexpand(true);
         imagecanvas.set_vexpand(true);
-        vbox.append(&imagecanvas);
-
-        imagecanvas.set_image(image);
+        vbox.append(imagecanvas);
 
         let toolbar = crate::niepce::ui::imagetoolbar::image_toolbar_new();
         vbox.append(&toolbar);
@@ -128,29 +141,16 @@ impl DarkroomModule {
             return;
         }
 
-        if let Some(file) = self.imagefile.borrow().as_ref() {
-            // currently we treat RAW + JPEG as RAW.
-            // TODO: have a way to actually choose the JPEG.
-            let file_type = file.file_type();
-            let is_raw = (file_type == db::FileType::Raw) || (file_type == db::FileType::RawJpeg);
-            let path = file.path().to_string_lossy();
-
-            self.image.reload(&path, is_raw, file.orientation());
-        } else if let Ok(p) =
-            gdk_pixbuf::Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-image-generic.png")
-        {
-            let p: *mut gdk_pixbuf_sys::GdkPixbuf = p.to_glib_none().0;
-            unsafe {
-                self.image.reload_pixbuf(p as *mut npc_craw::ffi::GdkPixbuf);
-            }
-        }
+        on_err_out!(self.worker.send(RenderMsg::Reload));
+        on_err_out!(self.worker.send(RenderMsg::GetBitmap(self.tx.clone())));
 
         self.need_reload.set(false);
     }
 
     pub fn set_image(&self, file: Option<db::LibFile>) {
-        self.imagefile.replace(file);
         self.need_reload.set(true);
+
+        on_err_out!(self.worker.send(RenderMsg::SetImage(file)));
 
         if self.need_reload.get() && self.active.get() {
             self.reload_image();

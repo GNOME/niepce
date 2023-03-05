@@ -18,8 +18,24 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+mod image_bitmap;
+mod render_worker;
+
+use std::sync::Once;
+
+pub use image_bitmap::ImageBitmap;
+pub use render_worker::{RenderImpl, RenderMsg, RenderWorker};
+
+fn ncr_init() {
+    static START: Once = Once::new();
+
+    START.call_once(|| {
+        crate::ffi::init();
+    });
+}
+
 #[cxx::bridge(namespace = "ncr")]
-pub mod ffi {
+mod ffi {
     #[namespace = ""]
     unsafe extern "C++" {
         include!(<gdk-pixbuf/gdk-pixbuf.h>);
@@ -47,10 +63,11 @@ pub mod ffi {
     unsafe extern "C++" {
         include!("ncr/image.hpp");
 
-        type Image;
+        #[cxx_name = Image]
+        type ImagePipeline;
 
         #[cxx_name = "Image_new"]
-        fn image_new() -> SharedPtr<Image>;
+        fn image_pipeline_new() -> SharedPtr<ImagePipeline>;
         #[cxx_name = "get_status"]
         fn status(&self) -> ImageStatus;
         #[cxx_name = "get_original_width"]
@@ -65,8 +82,8 @@ pub mod ffi {
 
         #[cxx_name = "set_output_scale_"]
         fn set_output_scale(&self, scale: f64);
-        #[cxx_name = "to_gdk_texture_"]
-        fn to_gdk_texture(&self) -> *mut GdkTexture;
+        #[cxx_name = "to_buffer_"]
+        fn to_buffer(&self, buffer: &mut [u8]) -> bool;
 
         #[cxx_name = "reload_"]
         fn reload(&self, path: &str, is_raw: bool, orientation: i32);
@@ -80,4 +97,4 @@ pub mod ffi {
     }
 }
 
-pub use ffi::{Image, ImageStatus};
+pub use ffi::{ImagePipeline, ImageStatus};

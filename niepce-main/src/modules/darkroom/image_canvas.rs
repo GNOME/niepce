@@ -20,7 +20,7 @@
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
-use npc_craw::Image;
+use npc_craw::ImageBitmap;
 
 #[derive(Clone, Copy, Default, glib::Enum)]
 #[enum_type(name = "NcrZoomMode")]
@@ -46,35 +46,15 @@ impl Default for ImageCanvas {
     }
 }
 
-/// # Safety
-/// Pointer dereference. Albeit null is checked.
-// cxx
-fn on_image_reloaded(data: *const u8) {
-    if data.is_null() {
-        return;
-    }
-
-    let this = data as *const imp::ImageCanvas;
-    unsafe {
-        (*this).on_image_reloaded();
-    }
-}
-
 impl ImageCanvas {
     pub fn new() -> ImageCanvas {
         glib::Object::new()
     }
 
-    pub fn set_image(&self, image: &cxx::SharedPtr<Image>) {
+    pub fn set_image(&self, image: ImageBitmap) {
         let imp = self.imp();
         imp.request_redisplay();
-        unsafe {
-            image.connect_signal_update(
-                on_image_reloaded,
-                imp as *const imp::ImageCanvas as *const u8,
-            );
-        }
-        imp.image.replace(Some(image.clone()));
+        imp.image.replace(Some(image));
         self.queue_draw();
     }
 
@@ -88,12 +68,11 @@ impl ImageCanvas {
 mod imp {
     use std::cell::{Cell, RefCell};
 
-    use glib::translate::*;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
 
     use super::ZoomMode;
-    use npc_craw::Image;
+    use npc_craw::ImageBitmap;
     use npc_fwk::base::Rect;
     use npc_fwk::{dbg_out, err_out, on_err_out};
 
@@ -110,7 +89,7 @@ mod imp {
         need_redisplay: Cell<bool>,
         resized: Cell<bool>,
         zoom_mode: ZoomMode,
-        pub(super) image: RefCell<Option<cxx::SharedPtr<Image>>>,
+        pub(super) image: RefCell<Option<ImageBitmap>>,
     }
 
     impl ImageCanvas {
@@ -118,12 +97,7 @@ mod imp {
             self.need_redisplay.set(true);
         }
 
-        pub(super) fn on_image_reloaded(&self) {
-            self.request_redisplay();
-            self.obj().queue_draw();
-        }
-
-        fn calc_image_scale(&self, img_w: i32, img_h: i32) -> f64 {
+        fn calc_image_scale(&self, img_w: u32, img_h: u32) -> f64 {
             let obj = self.obj();
             let b_w = obj.width() as f64 - (IMAGE_INSET * 2.0);
             let b_h = obj.height() as f64 - (IMAGE_INSET * 2.0);
@@ -144,30 +118,26 @@ mod imp {
             if self.need_redisplay.get() || self.resized.get() {
                 self.redisplay();
 
-                let mut img_w = ERROR_PLACEHOLDER.width();
-                let mut img_h = ERROR_PLACEHOLDER.height();
-                let mut scale = 1.0_f64;
+                let mut img_w = ERROR_PLACEHOLDER.width() as u32;
+                let mut img_h = ERROR_PLACEHOLDER.height() as u32;
                 let texture = {
-                    self.image.borrow().as_ref().map(|image| {
-                        if image.status() < npc_craw::ImageStatus::ERROR {
-                            img_w = image.original_width();
-                            img_h = image.original_height();
-                            dbg_out!("image w = {img_w} ; h = {img_h}");
-                            scale = self.calc_image_scale(img_w, img_h);
-                            dbg_out!("scale = {scale}");
-                            image.set_output_scale(scale);
-
-                            // query the image.
-                            unsafe {
-                                gdk4::Texture::from_glib_full(
-                                    image.to_gdk_texture() as *mut gdk4_sys::GdkTexture
-                                )
+                    self.image
+                        .borrow()
+                        .as_ref()
+                        .map(|image| {
+                            if image.status() < npc_craw::ImageStatus::ERROR {
+                                img_w = image.original_width();
+                                img_h = image.original_height();
+                                // query the image.
+                                image.to_gdk_texture()
+                            } else {
+                                ERROR_PLACEHOLDER.clone()
                             }
-                        } else {
-                            ERROR_PLACEHOLDER.clone()
-                        }
-                    })
+                        })
+                        .or_else(|| Some(MISSING_PLACEHOLDER.clone()))
                 };
+
+                dbg_out!("texture? {}", texture.is_some());
 
                 let obj = self.obj();
                 let canvas_h = obj.height();
@@ -186,6 +156,10 @@ mod imp {
                     canvas_h as f64,
                 );
                 st_ctx.restore();
+
+                dbg_out!("image w = {img_w} ; h = {img_h}");
+                let scale = self.calc_image_scale(img_w, img_h);
+                dbg_out!("scale = {scale}");
 
                 let out_w = img_w as f64 * scale;
                 let out_h = img_h as f64 * scale;
@@ -219,8 +193,8 @@ mod imp {
                     return None;
                 }
 
-                let img_w = image.original_width() as u32;
-                let img_h = image.original_height() as u32;
+                let img_w = image.original_width();
+                let img_h = image.original_height();
                 dbg_out!("set image w {img_w} h {img_h}");
 
                 let obj = self.obj();

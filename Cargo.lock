@@ -1252,8 +1252,13 @@ version = "0.1.0"
 dependencies = [
  "cairo-rs",
  "cxx",
+ "gdk-pixbuf",
+ "gdk-pixbuf-sys",
+ "gdk4",
  "glib",
  "gtk4",
+ "npc-engine",
+ "npc-fwk",
  "pkg-config",
 ]
 
@@ -1314,6 +1319,7 @@ dependencies = [
  "multimap",
  "num-traits",
  "once_cell",
+ "pkg-config",
  "rexiv2",
  "tempfile",
  "uuid",

@@ -226,8 +226,10 @@ GeglNode* Image::Private::_load_raw(const std::string &p)
 
 GeglNode* Image::Private::_scale_node()
 {
+    auto scale = 1.0;
     return gegl_node_new_child(m_graph,
-                               "operation", "gegl:scale-ratio", nullptr);
+                               "operation", "gegl:scale-ratio",
+                               "x", scale, "y", scale, nullptr);
 }
 
 
@@ -394,41 +396,34 @@ void Image::rotate_by(int degree)
     signal_update();
 }
 
-GdkTexture* Image::to_gdk_texture()
+bool Image::to_buffer(rust::Slice<uint8_t> buffer)
 {
     if (get_status() == Status::ERROR) {
         // return the error
         DBG_OUT("error");
-        return nullptr;
+        return false;
     }
     if (!priv->m_sink) {
         DBG_OUT("nothing loaded");
-        return nullptr;
+        return false;
     }
     DBG_ASSERT(get_status() == Status::LOADING, "wrong status for image");
     DBG_OUT("processing");
     gegl_node_process(priv->m_scale);
     GeglRectangle roi = gegl_node_get_bounding_box(priv->m_scale);
-    int w, h;
-    w = roi.width;
-    h = roi.height;
+    auto w = roi.width;
+    auto h = roi.height;
 
     DBG_OUT("texture w=%d, h=%d", w, h);
 
     const Babl* format = babl_format("B'aG'aR'aA u8");
-
-    gsize size = w * h * 4;
-    gpointer buffer = g_malloc(size);
-    gegl_node_blit(priv->m_scale, 1.0, &roi, format, buffer, 0,
+    DBG_ASSERT((std::size_t)(w * h * 4) == buffer.size(),
+               "wrong buffer size");
+    gegl_node_blit(priv->m_scale, 1.0, &roi, format, buffer.data(), 0,
                    (GeglBlitFlags)(GEGL_BLIT_CACHE | GEGL_BLIT_DIRTY));
 
-    // We can't use gtkmm as there is no g_bytes_new_take() wrapped.
-    GBytes* bytes = g_bytes_new_take(buffer, size);
-    GdkTexture* texture = gdk_memory_texture_new(w, h, GDK_MEMORY_B8G8R8A8, bytes, w * 4);
-    g_bytes_unref(bytes);
-
     set_status(Status::LOADED);
-    return texture;
+    return true;
 }
 
 Status Image::get_status() const
@@ -455,14 +450,14 @@ int Image::get_original_height() const
 
 int Image::get_output_width() const
 {
-    GeglRectangle roi = gegl_node_get_bounding_box(priv->m_sink);
+    GeglRectangle roi = gegl_node_get_bounding_box(priv->m_scale);
     return roi.width;
 }
 
 
 int Image::get_output_height() const
 {
-    GeglRectangle roi = gegl_node_get_bounding_box(priv->m_sink);
+    GeglRectangle roi = gegl_node_get_bounding_box(priv->m_scale);
     return roi.height;
 }
 

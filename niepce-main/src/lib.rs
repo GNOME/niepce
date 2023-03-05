@@ -115,13 +115,6 @@ pub mod ffi {
         type LibraryClientHost = npc_engine::libraryclient::LibraryClientHost;
     }
 
-    #[namespace = "ncr"]
-    extern "C++" {
-        include!("fwk/cxx_ncr_bindings.hpp");
-
-        type Image = npc_craw::Image;
-    }
-
     extern "Rust" {
         fn get_format() -> &'static [MetadataSectionFormat];
     }
