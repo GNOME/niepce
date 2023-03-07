@@ -58,7 +58,7 @@ pub struct CacheItem {
     pub target: PathBuf,
 }
 
-enum DbMessage {
+pub(crate) enum DbMessage {
     Init(PathBuf),
     Put(String, u32, RenderingParams, String),
     Get(String, u32, SyncSender<db::LibResult<CacheItem>>),
@@ -261,6 +261,10 @@ impl Cache {
         // Ensure that the cache directory exists.
         on_err_out!(std::fs::create_dir_all(&cache_dir));
         Self { cache_dir, worker }
+    }
+
+    pub fn sender(&self) -> std::sync::mpsc::Sender<DbMessage> {
+        self.worker.lock().unwrap().sender().clone()
     }
 
     pub fn initialize(&self) {

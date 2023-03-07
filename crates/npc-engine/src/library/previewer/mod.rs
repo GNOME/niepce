@@ -22,9 +22,9 @@ mod cache;
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::db;
-use crate::library::notification::LcChannel;
-pub(crate) use cache::Cache;
+pub(crate) use cache::{Cache, DbMessage};
 use npc_fwk::base::Size;
+use npc_fwk::toolkit::ImageBitmap;
 
 /// The message for the renderers.
 pub enum RenderMsg {
@@ -32,8 +32,8 @@ pub enum RenderMsg {
     SetImage(Option<db::LibFile>),
     /// Reload with processing params
     Reload(Option<RenderingParams>),
-    /// Get the bitmap and send it to the [`LibNotification`] channel.
-    GetBitmap(LcChannel),
+    /// Get the bitmap and call the lambda with the result.
+    GetBitmap(Box<dyn Fn(ImageBitmap) + Send>),
 }
 
 /// The sender type for renderers.

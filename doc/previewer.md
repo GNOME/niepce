@@ -99,5 +99,11 @@ flowchart TD
     C --> G[Send notification `ImageRendered`]
     B -- No --> E[Render image]
     E --> E2{Success?}
-    E2 -- Yes --> G
+    E2 -- Yes --> D[Save file in cache]
+    D --> G
 ```
+
+To request the rendering, the `ThumbnailCache` will call
+`get_preview`. If it can't find the file, it will request the bitmap
+from the processor using a callback so that it can send it to the
+libnotifications and save it in the cache.

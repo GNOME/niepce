@@ -17,36 +17,105 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::io::{Read, Write};
 use std::sync::Arc;
+
+use image::{ImageDecoder, ImageEncoder};
+use thiserror::Error;
 
 use crate::base::Size;
 
-#[derive(Clone, Default)]
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("Image error: {0}")]
+    Image(#[from] image::ImageError),
+}
+
+type Result<T> = std::result::Result<T, Error>;
+
+enum BitmapType {
+    Rgba(Vec<u8>),
+    Png(Vec<u8>),
+}
+
+impl Default for BitmapType {
+    fn default() -> BitmapType {
+        BitmapType::Rgba(vec![])
+    }
+}
+
+impl std::fmt::Debug for BitmapType {
+    // implemented manually to skip dumping all the bytes.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+        f.debug_struct("BitmapType")
+            .field(
+                "buffer",
+                &match self {
+                    BitmapType::Rgba(ref b) => format!("Rgba({})", b.len()),
+                    BitmapType::Png(ref b) => format!("Png({})", b.len()),
+                },
+            )
+            .finish()
+    }
+}
+
+#[derive(Clone, Debug, Default)]
 /// ImageBitmap represent the bitmap of the image with `size`.
 /// It currently assumes BGRA.
 pub struct ImageBitmap {
     /// The pixel size.
     size: Size,
     /// Buffer is shared, so that clone share the buffer.
-    buffer: Arc<Vec<u8>>,
-}
-
-impl std::fmt::Debug for ImageBitmap {
-    // implemented manually to skip dumping all the bytes.
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        f.debug_struct("ImageBitmap")
-            .field("buffer.len()", &self.buffer.len())
-            .field("size", &self.size)
-            .finish()
-    }
+    buffer: Arc<BitmapType>,
 }
 
 impl ImageBitmap {
+    /// New from buffer.
     pub fn new(buffer: Vec<u8>, w: u32, h: u32) -> Self {
         Self {
             size: Size { w, h },
-            buffer: Arc::new(buffer),
+            buffer: Arc::new(BitmapType::Rgba(buffer)),
         }
+    }
+
+    /// Load from PNG file.
+    pub fn from_file<P>(file: P) -> Result<Self>
+    where
+        P: AsRef<std::path::Path>,
+    {
+        let mut buffer = Vec::new();
+        let mut f = std::fs::File::open(&file)?;
+        f.read_to_end(&mut buffer)?;
+        let decoder = image::codecs::png::PngDecoder::new(std::io::Cursor::new(&buffer))?;
+        let dimensions = decoder.dimensions();
+        Ok(Self {
+            size: Size {
+                w: dimensions.0,
+                h: dimensions.1,
+            },
+            buffer: Arc::new(BitmapType::Png(buffer)),
+        })
+    }
+
+    /// Save as PNG
+    pub fn save_png<P>(&self, file: P) -> Result<()>
+    where
+        P: AsRef<std::path::Path>,
+    {
+        match *self.buffer {
+            BitmapType::Png(ref buffer) => {
+                let mut f = std::fs::File::create(&file)?;
+                f.write_all(buffer)?;
+            }
+            BitmapType::Rgba(ref buffer) => {
+                let f = std::fs::File::create(&file)?;
+                let encoder = image::codecs::png::PngEncoder::new(f);
+                encoder.write_image(buffer, self.size.w, self.size.h, image::ColorType::Rgba8)?;
+            }
+        }
+        Ok(())
     }
 
     /// The width of the image in pixels
@@ -62,14 +131,22 @@ impl ImageBitmap {
     /// Create a gdk4::Texture from the image for display.
     /// Caveat: there don't seem to be a way to consume the data, so it's duplicated.
     pub fn to_gdk_texture(&self) -> gdk4::Texture {
-        let bytes = glib::Bytes::from_owned((*self.buffer).clone());
-        gdk4::MemoryTexture::new(
-            self.size.w as i32,
-            self.size.h as i32,
-            gdk4::MemoryFormat::B8g8r8a8,
-            &bytes,
-            (self.size.w * 4) as usize,
-        )
-        .into()
+        match &*self.buffer {
+            BitmapType::Rgba(b) => {
+                let bytes = glib::Bytes::from_owned(b.clone());
+                gdk4::MemoryTexture::new(
+                    self.size.w as i32,
+                    self.size.h as i32,
+                    gdk4::MemoryFormat::R8g8b8a8,
+                    &bytes,
+                    (self.size.w * 4) as usize,
+                )
+                .into()
+            }
+            BitmapType::Png(b) => {
+                let bytes = glib::Bytes::from_owned(b.clone());
+                gdk4::Texture::from_bytes(&bytes).expect("Couldn't load")
+            }
+        }
     }
 }

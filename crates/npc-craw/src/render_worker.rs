@@ -22,12 +22,10 @@ use std::cell::RefCell;
 use glib::translate::*;
 
 use npc_engine::db;
-use npc_engine::library::notification::LibNotification;
 use npc_engine::library::{RenderMsg, RenderingParams};
 use npc_fwk::base::{Worker, WorkerImpl};
-use npc_fwk::toolkit;
 use npc_fwk::toolkit::ImageBitmap;
-use npc_fwk::{dbg_out, err_out, on_err_out};
+use npc_fwk::{dbg_out, err_out};
 
 pub type RenderWorker = Worker<RenderImpl>;
 
@@ -63,6 +61,19 @@ impl RenderImpl {
             }
         }
     }
+
+    fn render(&self, state: &RendererState) -> Option<ImageBitmap> {
+        let w = state.pipeline.output_width();
+        let h = state.pipeline.output_height();
+        let mut buffer = vec![0; (w * h * 4) as usize];
+        let success = state.pipeline.to_buffer(buffer.as_mut_slice());
+        if success {
+            Some(ImageBitmap::new(buffer, w as u32, h as u32))
+        } else {
+            err_out!("Failed to get buffer");
+            None
+        }
+    }
 }
 
 impl WorkerImpl for RenderImpl {
@@ -90,17 +101,9 @@ impl WorkerImpl for RenderImpl {
                 state.params = params;
                 self.reload(&state.pipeline);
             }
-            GetBitmap(sender) => {
-                let w = state.pipeline.output_width();
-                let h = state.pipeline.output_height();
-                let mut buffer = vec![0; (w * h * 4) as usize];
-                let success = state.pipeline.to_buffer(buffer.as_mut_slice());
-                if success {
-                    let bitmap = ImageBitmap::new(buffer, w as u32, h as u32);
-                    on_err_out!(toolkit::thread_context()
-                        .block_on(sender.send(LibNotification::ImageRendered(bitmap))));
-                } else {
-                    err_out!("Failed to get buffer");
+            GetBitmap(callback) => {
+                if let Some(bitmap) = self.render(state) {
+                    callback(bitmap);
                 }
             }
         };

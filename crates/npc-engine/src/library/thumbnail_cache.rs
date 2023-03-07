@@ -24,12 +24,15 @@ use std::path::{Path, PathBuf};
 use crate::db;
 use crate::db::libfile::{FileStatus, LibFile};
 use crate::library::notification;
-use crate::library::notification::LibNotification::{FileStatusChanged, ThumbnailLoaded};
+use crate::library::notification::LibNotification::{
+    FileStatusChanged, ImageRendered, ThumbnailLoaded,
+};
 use crate::library::notification::{FileStatusChange, LcChannel};
 use crate::library::previewer::{Cache, RenderMsg, RenderSender, RenderingParams, RenderingType};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
+use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
 /// Previewing task
@@ -78,6 +81,68 @@ fn check_file_status(id: db::LibraryId, path: &Path, sender: &LcChannel) {
             err_out!("Sending file status change notification failed: {}", err);
         }
     }
+}
+
+fn get_preview(
+    cache: &Cache,
+    task: &Task,
+    rendering: &RenderingParams,
+    sender: &LcChannel,
+) -> Option<ImageBitmap> {
+    let libfile = &task.file;
+    let filename = libfile.path().to_string_lossy();
+    let dimensions = rendering.dimensions;
+    let dimension = cmp::max(dimensions.w, dimensions.h);
+    // true if we found a cache entry but no file.
+
+    let dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), dimension)?;
+    if dest.exists() {
+        dbg_out!("found {filename} in the cache fs");
+        cache.hit(&filename, dimension);
+        return ImageBitmap::from_file(dest).ok();
+    }
+
+    if let Ok(cache_item) = cache.get(&filename, dimension) {
+        // cache hit
+        dbg_out!("thumbnail for {:?} is cached!", filename);
+        if cache_item.target.exists() {
+            return ImageBitmap::from_file(cache_item.target).ok();
+        } else {
+            dbg_out!("File is missing");
+        }
+    }
+
+    dbg_out!("creating preview for {:?}", filename);
+    if let Some(cached_dir) = dest.parent() {
+        if let Err(err) = fs::create_dir_all(cached_dir) {
+            err_out!("Coudln't create directories for {:?}: {}", dest, err);
+        }
+    }
+
+    // Run the pipeline
+    if let Some(processor) = &task.processor {
+        let sender = sender.clone();
+        let rendering = rendering.clone();
+        let cache_sender = cache.sender();
+        let filename = filename.to_string();
+        on_err_out!(processor.send(RenderMsg::GetBitmap(Box::new(move |pix| {
+            if let Err(err) =
+                toolkit::thread_context().block_on(sender.send(ImageRendered(pix.clone())))
+            {
+                err_out!("Sending image rendered notification failed: {}", err);
+            }
+            on_err_out!(pix.save_png(&dest));
+            on_err_out!(cache_sender.send(super::previewer::DbMessage::Put(
+                filename.clone(),
+                dimension,
+                rendering.clone(),
+                dest.to_string_lossy().to_string(),
+            )));
+        }))));
+    } else {
+        err_out!("no processor");
+    }
+    None
 }
 
 fn get_thumbnail(
@@ -138,7 +203,7 @@ fn get_thumbnail(
             );
         }
     } else {
-        dbg_out!("couldn't get the thumbnail for {:?}", filename);
+        dbg_out!("couldn't get the preview for {:?}", filename);
     }
     thumbnail
 }
@@ -165,41 +230,41 @@ impl ThumbnailCache {
         let libfile = &task.file;
         let id = libfile.id();
         let path = libfile.path();
-        let pix = match task.type_ {
-            RenderingType::Preview => {
-                err_out!("Generating previews isn't supported yet");
+        let dimensions = task.dimensions;
+        // We shall report if the file is missing.
+        check_file_status(id, path, sender);
 
-                if let Some(processor) = &task.processor {
-                    on_err_out!(processor.send(RenderMsg::GetBitmap(sender.clone())));
+        match task.type_ {
+            RenderingType::Preview => {
+                let rendering = RenderingParams::new_preview(id, dimensions);
+                if let Some(pix) = get_preview(cache, task, &rendering, sender) {
+                    dbg_out!("Got the preview from the cache");
+                    if let Err(err) =
+                        toolkit::thread_context().block_on(sender.send(ImageRendered(pix)))
+                    {
+                        err_out!("Sending image rendered notification failed: {}", err);
+                    }
                 }
-                return;
             }
             RenderingType::Thumbnail => {
-                let dimensions = task.dimensions;
                 // XXX this should take into account the size.
                 let rendering = RenderingParams::new_thumbnail(id, dimensions);
-                let pix = get_thumbnail(cache, libfile, &rendering);
-                // We shall report if the file is missing.
-                check_file_status(id, path, sender);
-
-                pix
+                if let Some(pix) = get_thumbnail(cache, libfile, &rendering) {
+                    // notify the thumbnail
+                    if let Err(err) = toolkit::thread_context().block_on(sender.send(
+                        ThumbnailLoaded(notification::Thumbnail {
+                            id,
+                            width: pix.get_width(),
+                            height: pix.get_height(),
+                            pix,
+                        }),
+                    )) {
+                        err_out!("Sending thumbnail notification failed: {}", err);
+                    }
+                } else {
+                    err_out!("Failed to get thumbnail for {:?}", path);
+                }
             }
-        };
-
-        if let Some(pix) = pix {
-            // notify the thumbnail
-            if let Err(err) = toolkit::thread_context().block_on(sender.send(ThumbnailLoaded(
-                notification::Thumbnail {
-                    id,
-                    width: pix.get_width(),
-                    height: pix.get_height(),
-                    pix,
-                },
-            ))) {
-                err_out!("Sending thumbnail notification failed: {}", err);
-            }
-        } else {
-            err_out!("Failed to get thumbnail for {:?}", path);
         }
     }
 

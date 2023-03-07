@@ -416,7 +416,7 @@ bool Image::to_buffer(rust::Slice<uint8_t> buffer)
 
     DBG_OUT("texture w=%d, h=%d", w, h);
 
-    const Babl* format = babl_format("B'aG'aR'aA u8");
+    const Babl* format = babl_format("R'aG'aB'aA u8");
     DBG_ASSERT((std::size_t)(w * h * 4) == buffer.size(),
                "wrong buffer size");
     gegl_node_blit(priv->m_scale, 1.0, &roi, format, buffer.data(), 0,
