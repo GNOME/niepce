@@ -25,6 +25,7 @@ use std::rc::Rc;
 use gettextrs::gettext as i18n;
 use glib::translate::*;
 use gtk4::prelude::*;
+use i18n_format::i18n_fmt;
 
 use crate::niepce::ui::LibraryModule;
 use crate::SelectionController;
@@ -51,6 +52,7 @@ pub struct DarkroomModule {
     rendering_params: RefCell<Option<RenderingParams>>,
     need_reload: Cell<bool>,
     active: Cell<bool>,
+    loading_toast: RefCell<Option<adw::Toast>>,
 }
 
 impl Controller for DarkroomModule {
@@ -103,6 +105,7 @@ impl DarkroomModule {
             rendering_params: RefCell::new(None),
             need_reload: Cell::new(true),
             active: Cell::new(false),
+            loading_toast: RefCell::new(None),
         };
 
         module.build_widget();
@@ -118,11 +121,37 @@ impl DarkroomModule {
         module
     }
 
+    /// Remove the toast indicating loading.
+    fn remove_loading_toast(&self) {
+        if let Some(ref toast) = *self.loading_toast.borrow() {
+            toast.dismiss();
+        }
+        self.loading_toast.replace(None);
+    }
+
+    /// Show the toast indicating loading for `path`
+    fn show_loading_toast(&self, path: &std::path::Path) {
+        let toast = adw::Toast::new(&if let Some(filename) =
+            path.file_name().map(|s| s.to_string_lossy())
+        {
+            // Translators: {} is replaced by the file name.
+            i18n_fmt! {
+                i18n_fmt("Loading \"{}\"...", filename)
+            }
+        } else {
+            i18n("Loading...")
+        });
+        toast.set_timeout(0);
+        self.loading_toast.replace(Some(toast.clone()));
+        self.overlay.add_toast(toast);
+    }
+
     pub fn on_lib_notification(&self, ln: &LibNotification) {
         if let LibNotification::ImageRendered(b) = ln {
             // XXX this is suboptimal
             dbg_out!("Got bitmap");
             self.imagecanvas.set_image(b.clone());
+            self.remove_loading_toast();
         }
     }
 
@@ -133,6 +162,7 @@ impl DarkroomModule {
             .expect("Failed to downcast to Paned");
         let vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
         splitview.set_start_child(Some(&vbox));
+        splitview.set_wide_handle(true);
         self.imagecanvas.set_hexpand(true);
         self.imagecanvas.set_vexpand(true);
         self.overlay.set_child(Some(&self.imagecanvas));
@@ -155,15 +185,14 @@ impl DarkroomModule {
         if !self.need_reload.get() {
             return;
         }
-
-        self.overlay.add_toast(adw::Toast::new(&i18n("Loading")));
-        on_err_out!(self.worker.send(RenderMsg::Reload(params)));
         if let Some(ref file) = *self.file.borrow() {
+            self.show_loading_toast(file.path());
+            on_err_out!(self.worker.send(RenderMsg::Reload(params)));
             let cache = self.client.thumbnail_cache();
             cache.request_render(file.clone(), Some(self.worker.sender().clone()));
-        }
 
-        self.need_reload.set(false);
+            self.need_reload.set(false);
+        }
     }
 
     pub fn set_image(&self, file: Option<db::LibFile>) {
