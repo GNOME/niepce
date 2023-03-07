@@ -1,7 +1,7 @@
 /*
  * niepce - ui/gridviewmodule.cpp
  *
- * Copyright (C) 2009-2022 Hubert Figuière
+ * Copyright (C) 2009-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -143,6 +143,7 @@ Gtk::Widget * GridViewModule::buildWidget()
       sigc::mem_fun(*this, &GridViewModule::on_metadata_changed));
   add(m_metapanecontroller);
   m_lib_splitview.set_end_child(*m_dock);
+  m_lib_splitview.set_resize_end_child(false);
   m_dock->vbox().append(*m_metapanecontroller->buildWidget());
 
   m_databinders.add_binder(new fwk::ConfigDataBinder<int>(
