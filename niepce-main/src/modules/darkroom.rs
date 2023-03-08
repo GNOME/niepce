@@ -131,6 +131,10 @@ impl DarkroomModule {
 
     /// Show the toast indicating loading for `path`
     fn show_loading_toast(&self, path: &std::path::Path) {
+        // Make sure the current one is dismissed.
+        if let Some(ref toast) = *self.loading_toast.borrow() {
+            toast.dismiss();
+        }
         let toast = adw::Toast::new(&if let Some(filename) =
             path.file_name().map(|s| s.to_string_lossy())
         {
