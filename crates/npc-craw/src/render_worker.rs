@@ -65,7 +65,7 @@ impl RenderImpl {
     fn render(&self, state: &RendererState) -> Option<ImageBitmap> {
         let w = state.pipeline.output_width();
         let h = state.pipeline.output_height();
-        let mut buffer = vec![0; (w * h * 4) as usize];
+        let mut buffer = vec![0; (w * h * 3) as usize];
         let success = state.pipeline.to_buffer(buffer.as_mut_slice());
         if success {
             Some(ImageBitmap::new(buffer, w as u32, h as u32))

@@ -36,13 +36,13 @@ pub enum Error {
 type Result<T> = std::result::Result<T, Error>;
 
 enum BitmapType {
-    Rgba(Vec<u8>),
+    Rgb(Vec<u8>),
     Png(Vec<u8>),
 }
 
 impl Default for BitmapType {
     fn default() -> BitmapType {
-        BitmapType::Rgba(vec![])
+        BitmapType::Rgb(vec![])
     }
 }
 
@@ -53,7 +53,7 @@ impl std::fmt::Debug for BitmapType {
             .field(
                 "buffer",
                 &match self {
-                    BitmapType::Rgba(ref b) => format!("Rgba({})", b.len()),
+                    BitmapType::Rgb(ref b) => format!("Rgb({})", b.len()),
                     BitmapType::Png(ref b) => format!("Png({})", b.len()),
                 },
             )
@@ -76,7 +76,7 @@ impl ImageBitmap {
     pub fn new(buffer: Vec<u8>, w: u32, h: u32) -> Self {
         Self {
             size: Size { w, h },
-            buffer: Arc::new(BitmapType::Rgba(buffer)),
+            buffer: Arc::new(BitmapType::Rgb(buffer)),
         }
     }
 
@@ -109,10 +109,10 @@ impl ImageBitmap {
                 let mut f = std::fs::File::create(&file)?;
                 f.write_all(buffer)?;
             }
-            BitmapType::Rgba(ref buffer) => {
+            BitmapType::Rgb(ref buffer) => {
                 let f = std::fs::File::create(&file)?;
                 let encoder = image::codecs::png::PngEncoder::new(f);
-                encoder.write_image(buffer, self.size.w, self.size.h, image::ColorType::Rgba8)?;
+                encoder.write_image(buffer, self.size.w, self.size.h, image::ColorType::Rgb8)?;
             }
         }
         Ok(())
@@ -132,14 +132,14 @@ impl ImageBitmap {
     /// Caveat: there don't seem to be a way to consume the data, so it's duplicated.
     pub fn to_gdk_texture(&self) -> gdk4::Texture {
         match &*self.buffer {
-            BitmapType::Rgba(b) => {
+            BitmapType::Rgb(b) => {
                 let bytes = glib::Bytes::from_owned(b.clone());
                 gdk4::MemoryTexture::new(
                     self.size.w as i32,
                     self.size.h as i32,
-                    gdk4::MemoryFormat::R8g8b8a8,
+                    gdk4::MemoryFormat::R8g8b8,
                     &bytes,
-                    (self.size.w * 4) as usize,
+                    (self.size.w * 3) as usize,
                 )
                 .into()
             }
