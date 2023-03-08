@@ -6,3 +6,12 @@ members = [
      "crates/npc-craw",
      "niepce-main",
 ]
+
+#[profile.dev.package.image]
+#opt-level = 3
+[profile.dev.package.png]
+opt-level = 3
+[profile.dev.package.flate2]
+opt-level = 3
+[profile.dev.package.miniz_oxide]
+opt-level = 3
