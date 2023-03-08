@@ -134,8 +134,8 @@ impl DarkroomModule {
         let toast = adw::Toast::new(&if let Some(filename) =
             path.file_name().map(|s| s.to_string_lossy())
         {
-            // Translators: {} is replaced by the file name.
             i18n_fmt! {
+                // Translators: {} is replaced by the file name.
                 i18n_fmt("Loading \"{}\"...", filename)
             }
         } else {
