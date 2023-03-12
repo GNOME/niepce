@@ -126,29 +126,36 @@ impl RtEngine {
         }
     }
 
+    pub fn width(&self) -> i32 {
+        0
+    }
+
+    pub fn height(&self) -> i32 {
+        0
+    }
+
     /// Set the file process
-    pub fn set_file<P>(&self, path: P)
+    pub fn set_file<P>(&self, path: P, is_raw: bool) -> Result<()>
     where
         P: AsRef<Path>,
     {
         let mut state = EngineState::default();
         state.image_path = path.as_ref().to_path_buf();
-        self.state.replace(Some(state));
+        let mut error = 0_i32;
+        cxx::let_cxx_string!(fname = state.image_path.as_os_str().as_bytes());
+        let image = ffi::initial_image_load(&fname, is_raw, &mut error);
+        if !image.is_null() {
+            state.initial_image = Some(image);
+            self.state.replace(Some(state));
+            Ok(())
+        } else {
+            Err(Error::from(error))
+        }
     }
 
     /// Process the image and return an ImageBitmap
     pub fn process(&self) -> Result<ImageBitmap> {
         if let Some(ref mut state) = *self.state.borrow_mut() {
-            if state.initial_image.is_none() {
-                let mut error = 0_i32;
-                cxx::let_cxx_string!(fname = state.image_path.as_os_str().as_bytes());
-                let image = ffi::initial_image_load(&fname, true, &mut error);
-                if !image.is_null() {
-                    state.initial_image = Some(image);
-                } else {
-                    return Err(Error::from(error));
-                }
-            }
             if let Some(ref mut image) = state.initial_image {
                 let mut proc_params = ffi::proc_params_new();
                 let mut raw_params = unsafe {

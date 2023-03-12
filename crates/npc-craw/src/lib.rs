@@ -18,6 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+mod pipeline;
 mod render_worker;
 
 use std::sync::Once;

@@ -191,10 +191,11 @@ impl DarkroomModule {
         }
         if let Some(ref file) = *self.file.borrow() {
             self.show_loading_toast(file.path());
-            on_err_out!(self.worker.send(RenderMsg::Reload(params)));
-            let cache = self.client.thumbnail_cache();
-            cache.request_render(file.clone(), Some(self.worker.sender().clone()));
-
+            on_err_out!(self.worker.send(RenderMsg::Reload(params.clone())));
+            if let Some(render) = params {
+                let cache = self.client.thumbnail_cache();
+                cache.request_render(file.clone(), render, Some(self.worker.sender().clone()));
+            }
             self.need_reload.set(false);
         }
     }

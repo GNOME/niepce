@@ -13,7 +13,9 @@ fn main() {
     let filename = args.next().expect("Expect an argument");
 
     let engine = RtEngine::new();
-    engine.set_file(filename);
+    if engine.set_file(filename, true /* is_raw */).is_err() {
+        std::process::exit(3);
+    }
 
     match engine.process() {
         Err(error) => {

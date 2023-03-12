@@ -37,10 +37,8 @@ use npc_fwk::{dbg_out, err_out, on_err_out};
 
 /// Previewing task
 struct Task {
-    /// Type of rendering task
-    type_: RenderType,
-    /// Requested dimensions
-    dimensions: Size,
+    /// Params for the rendering task
+    params: RenderParams,
     /// File to generate thumbnail for.
     file: LibFile,
     ///
@@ -49,20 +47,22 @@ struct Task {
 
 impl Task {
     /// Create a new thumbnailing Task
-    pub fn new_thumbnail(file: LibFile, w: u32, h: u32) -> Self {
+    pub fn new_thumbnail(file: LibFile, params: RenderParams) -> Self {
         Task {
-            type_: RenderType::Thumbnail,
+            params,
             file,
-            dimensions: Size { w, h },
             processor: None,
         }
     }
 
-    pub fn new_rendering(file: LibFile, processor: Option<RenderSender>) -> Self {
+    pub fn new_rendering(
+        file: LibFile,
+        params: RenderParams,
+        processor: Option<RenderSender>,
+    ) -> Self {
         Task {
-            type_: RenderType::Preview,
+            params,
             file,
-            dimensions: Size::default(),
             processor,
         }
     }
@@ -83,15 +83,10 @@ fn check_file_status(id: db::LibraryId, path: &Path, sender: &LcChannel) {
     }
 }
 
-fn get_preview(
-    cache: &Cache,
-    task: &Task,
-    rendering: &RenderParams,
-    sender: &LcChannel,
-) -> Option<ImageBitmap> {
+fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBitmap> {
     let libfile = &task.file;
     let filename = libfile.path().to_string_lossy();
-    let dimensions = rendering.dimensions;
+    let dimensions = task.params.dimensions;
     let dimension = cmp::max(dimensions.w, dimensions.h);
     // true if we found a cache entry but no file.
 
@@ -122,7 +117,7 @@ fn get_preview(
     // Run the pipeline
     if let Some(processor) = &task.processor {
         let sender = sender.clone();
-        let rendering = rendering.clone();
+        let rendering = task.params.clone();
         let cache_sender = cache.sender();
         let filename = filename.to_string();
         on_err_out!(processor.send(RenderMsg::GetBitmap(Box::new(move |pix| {
@@ -145,9 +140,9 @@ fn get_preview(
     None
 }
 
-fn get_thumbnail(cache: &Cache, libfile: &LibFile, rendering: &RenderParams) -> Option<Thumbnail> {
+fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbnail> {
     let filename = libfile.path().to_string_lossy();
-    let dimensions = rendering.dimensions;
+    let dimensions = task.params.dimensions;
     let dimension = cmp::max(dimensions.w, dimensions.h);
     // true if we found a cache entry but no file.
     let mut is_missing = false;
@@ -194,7 +189,7 @@ fn get_thumbnail(cache: &Cache, libfile: &LibFile, rendering: &RenderParams) -> 
             cache.put(
                 &filename,
                 dimension,
-                rendering.clone(),
+                task.params.clone(),
                 &dest.to_string_lossy(),
             );
         }
@@ -226,14 +221,12 @@ impl ThumbnailCache {
         let libfile = &task.file;
         let id = libfile.id();
         let path = libfile.path();
-        let dimensions = task.dimensions;
         // We shall report if the file is missing.
         check_file_status(id, path, sender);
 
-        match task.type_ {
+        match task.params.type_ {
             RenderType::Preview => {
-                let rendering = RenderParams::new_preview(id, dimensions);
-                if let Some(pix) = get_preview(cache, task, &rendering, sender) {
+                if let Some(pix) = get_preview(cache, task, sender) {
                     dbg_out!("Got the preview from the cache");
                     if let Err(err) =
                         toolkit::thread_context().block_on(sender.send(ImageRendered(pix)))
@@ -243,9 +236,7 @@ impl ThumbnailCache {
                 }
             }
             RenderType::Thumbnail => {
-                // XXX this should take into account the size.
-                let rendering = RenderParams::new_thumbnail(id, dimensions);
-                if let Some(pix) = get_thumbnail(cache, libfile, &rendering) {
+                if let Some(pix) = get_thumbnail(cache, task, libfile) {
                     // notify the thumbnail
                     if let Err(err) = toolkit::thread_context().block_on(sender.send(
                         ThumbnailLoaded(notification::Thumbnail {
@@ -278,17 +269,25 @@ impl ThumbnailCache {
     }
 
     /// Request a render.
-    pub fn request_render(&self, file: LibFile, processor: Option<RenderSender>) {
+    pub fn request_render(
+        &self,
+        file: LibFile,
+        params: RenderParams,
+        processor: Option<RenderSender>,
+    ) {
         on_err_out!(self
             .queue_sender
-            .send(vec![Task::new_rendering(file, processor)]));
+            .send(vec![Task::new_rendering(file, params, processor)]));
     }
 
     /// Request thumbnails.
     pub fn request(&self, fl: &[LibFile]) {
         on_err_out!(self.queue_sender.send(
             fl.iter()
-                .map(|f| Task::new_thumbnail(f.clone(), 160, 160))
+                .map(|f| Task::new_thumbnail(
+                    f.clone(),
+                    RenderParams::new_thumbnail(f.id(), Size { w: 160, h: 160 })
+                ))
                 .collect()
         ));
     }

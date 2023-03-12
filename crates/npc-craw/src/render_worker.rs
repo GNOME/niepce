@@ -18,14 +18,17 @@
  */
 
 use std::cell::RefCell;
+use std::ops::Deref;
 
 use glib::translate::*;
 
 use npc_engine::db;
 use npc_engine::library::{RenderMsg, RenderParams};
 use npc_fwk::base::{Worker, WorkerImpl};
+use npc_fwk::dbg_out;
 use npc_fwk::toolkit::ImageBitmap;
-use npc_fwk::{dbg_out, err_out};
+
+use crate::pipeline::Pipeline;
 
 pub type RenderWorker = Worker<RenderImpl>;
 
@@ -43,36 +46,27 @@ impl RenderImpl {
         }
     }
 
-    fn reload(&self, pipeline: &cxx::SharedPtr<crate::ImagePipeline>) {
+    fn reload(&self, pipeline: &dyn Pipeline) {
         if let Some(file) = self.imagefile.borrow().as_ref() {
             // currently we treat RAW + JPEG as RAW.
             // TODO: have a way to actually choose the JPEG.
             let file_type = file.file_type();
             let is_raw = (file_type == db::FileType::Raw) || (file_type == db::FileType::RawJpeg);
             let path = file.path().to_string_lossy();
-
+            dbg_out!("pipeline reload for {path}");
             pipeline.reload(&path, is_raw, file.orientation());
         } else if let Ok(p) =
             gdk_pixbuf::Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-image-generic.png")
         {
             let p: *mut gdk_pixbuf_sys::GdkPixbuf = p.to_glib_none().0;
-            unsafe {
-                pipeline.reload_pixbuf(p as *mut crate::ffi::GdkPixbuf);
-            }
+            //unsafe {
+            //    pipeline.reload_pixbuf(p as *mut crate::ffi::GdkPixbuf);
+            //}
         }
     }
 
     fn render(&self, state: &RendererState) -> Option<ImageBitmap> {
-        let w = state.pipeline.output_width();
-        let h = state.pipeline.output_height();
-        let mut buffer = vec![0; (w * h * 3) as usize];
-        let success = state.pipeline.to_buffer(buffer.as_mut_slice());
-        if success {
-            Some(ImageBitmap::new(buffer, w as u32, h as u32))
-        } else {
-            err_out!("Failed to get buffer");
-            None
-        }
+        state.pipeline.as_ref()?.rendered_image()
     }
 }
 
@@ -93,13 +87,23 @@ impl WorkerImpl for RenderImpl {
                         .unwrap_or(false)
                 {
                     dbg_out!("Same image file, doing nothing");
-                    return true;
+                } else {
+                    self.imagefile.replace(file);
                 }
-                self.imagefile.replace(file);
             }
             Reload(params) => {
+                if state.params.as_ref().map_or(true, |p2| {
+                    params.as_ref().map_or(true, |p| p.engine() != p2.engine())
+                }) {
+                    state.pipeline = params.as_ref().and_then(|params| {
+                        dbg_out!("creating pipeline, engine is {:?}", params.engine());
+                        crate::pipeline::create(params.engine())
+                    });
+                }
                 state.params = params;
-                self.reload(&state.pipeline);
+                if let Some(ref pipeline) = state.pipeline {
+                    self.reload(pipeline.deref());
+                }
             }
             GetBitmap(callback) => {
                 if let Some(bitmap) = self.render(state) {
@@ -112,16 +116,8 @@ impl WorkerImpl for RenderImpl {
     }
 }
 
+#[derive(Default)]
 pub struct RendererState {
-    pipeline: cxx::SharedPtr<crate::ImagePipeline>,
+    pipeline: Option<Box<dyn Pipeline>>,
     params: Option<RenderParams>,
-}
-
-impl Default for RendererState {
-    fn default() -> Self {
-        Self {
-            pipeline: crate::ffi::image_pipeline_new(),
-            params: None,
-        }
-    }
 }

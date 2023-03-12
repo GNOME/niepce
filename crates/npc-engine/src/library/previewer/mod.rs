@@ -26,6 +26,28 @@ pub(crate) use cache::{Cache, DbMessage};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::ImageBitmap;
 
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+/// Render Engine.
+pub enum RenderEngine {
+    /// Thumbnail extractor
+    Thumbnailer,
+    #[default]
+    /// Niepce Camera Raw
+    Ncr,
+    /// RT Engine
+    Rt,
+}
+
+impl RenderEngine {
+    pub fn key(&self) -> &'static str {
+        match self {
+            Self::Thumbnailer => "tnail",
+            Self::Ncr => "ncr",
+            Self::Rt => "rt",
+        }
+    }
+}
+
 /// The message for the renderers.
 pub enum RenderMsg {
     /// The the image for the processors.
@@ -63,7 +85,8 @@ impl RenderType {
 /// The rendering parameters.
 #[derive(Clone)]
 pub struct RenderParams {
-    type_: RenderType,
+    pub(super) type_: RenderType,
+    engine: RenderEngine,
     /// Output dimensions
     /// Note for consistency if type is `RenderingType::Thumbnail` then
     /// dimensions should be a square.
@@ -75,6 +98,7 @@ impl RenderParams {
     pub fn new_thumbnail(id: db::LibraryId, dimensions: Size) -> RenderParams {
         RenderParams {
             type_: RenderType::Thumbnail,
+            engine: RenderEngine::Thumbnailer,
             dimensions,
             id,
         }
@@ -83,16 +107,22 @@ impl RenderParams {
     pub fn new_preview(id: db::LibraryId, dimensions: Size) -> RenderParams {
         RenderParams {
             type_: RenderType::Preview,
+            engine: RenderEngine::default(),
             dimensions,
             id,
         }
     }
 
+    pub fn engine(&self) -> RenderEngine {
+        self.engine
+    }
+
     pub fn key(&self) -> String {
         format!(
-            "{}-{}-{}x{}",
+            "{}-{}-{}-{}x{}",
             self.type_.key(),
             self.id,
+            self.engine.key(),
             self.dimensions.w,
             self.dimensions.h
         )

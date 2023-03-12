@@ -5,6 +5,12 @@ cairomm_deps = dependency('cairomm-1.16')
 iptcdata_deps = dependency('libiptcdata')
 lcms2_deps = dependency('lcms2')
 lensfun_deps = dependency('lensfun')
+# The needed for the C++ tests.
+png16_deps = dependency('libpng16')
+tiff_deps = dependency('libtiff-4')
+jpeg_deps = dependency('libjpeg')
+expat_deps = dependency('expat')
+fftw3f = dependency('fftw3f')
 
 rtdatadir = datadir / 'niepce' / 'rawtherapee'
 install_data(

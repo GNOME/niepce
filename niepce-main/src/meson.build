@@ -97,7 +97,7 @@ niepce_test = custom_target(
     '&&',
     'touch', '@OUTDIR@' / 'test-build-stamp'
   ],
-  depends: [niepce_lib, resources_bundle, ncr, fwk]
+  depends: [niepce_lib, resources_bundle, ncr, fwk, rtengine]
 )
 
 test(
@@ -108,5 +108,5 @@ test(
     'test',
     cargo_options
   ],
-  depends: [niepce_lib, resources_bundle, ncr, fwk]
+  depends: [niepce_lib, resources_bundle, ncr, fwk, rtengine]
 )

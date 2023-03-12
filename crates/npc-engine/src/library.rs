@@ -24,4 +24,4 @@ mod previewer;
 pub mod queriedcontent;
 pub mod thumbnail_cache;
 
-pub use previewer::{RenderMsg, RenderParams};
+pub use previewer::{RenderEngine, RenderMsg, RenderParams};
