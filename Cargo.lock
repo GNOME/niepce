@@ -1647,7 +1647,9 @@ version = "0.1.0"
 dependencies = [
  "cxx",
  "cxx-build",
+ "npc-fwk",
  "pkg-config",
+ "thiserror",
 ]
 
 [[package]]

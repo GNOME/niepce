@@ -22,6 +22,7 @@
 #include <memory>
 #include <string>
 #include "rtengine/rtengine.h"
+#include "rtengine/imageio.h"
 #include "rtengine/profilestore.h"
 #include "rtgui/options.h"
 
@@ -44,14 +45,20 @@ namespace rtengine {
   }
 
   inline
-  std::unique_ptr<IImagefloat> process_image (ProcessingJob* job, int& errorCode, bool flush = false) {
-    return std::unique_ptr<IImagefloat>(processImage (job, errorCode, nullptr, flush));
+  std::unique_ptr<ImageIO> process_image (ProcessingJob* job, int& errorCode, bool flush = false) {
+    return std::unique_ptr<ImageIO>(dynamic_cast<ImageIO*>(processImage (job, errorCode, nullptr, flush)));
   }
 
   inline
-  int save_as_jpeg(const std::unique_ptr<IImagefloat>& image, const std::string& file, int compression, int subsampling) {
-    return image->saveAsJPEG(file, compression, subsampling);
+  int image_io_width(const ImageIO& image) {
+    return image.getWidth();
   }
+
+  inline
+  int image_io_height(const ImageIO& image) {
+    return image.getHeight();
+  }
+
 
   inline
   std::unique_ptr<ProcessingJob> ProcessingJob_create (InitialImage& ii, const procparams::ProcParams& pparams, bool fast = false) {

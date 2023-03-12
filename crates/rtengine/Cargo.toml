@@ -7,6 +7,9 @@ edition = "2021"
 
 [dependencies]
 cxx = { version = "1.0", features = [ "c++17" ] }
+thiserror = "*"
+
+npc-fwk = { path = "../npc-fwk" }
 
 [build-dependencies]
 cxx-build = "1.0"
