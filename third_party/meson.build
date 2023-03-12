@@ -21,3 +21,5 @@ cxxbridge = custom_target(
     '@OUTDIR@'
   ]
 )
+
+subdir('rtengine')

@@ -1,3 +1,6 @@
 [submodule "third_party/cxx"]
 	path = third_party/cxx
 	url = https://github.com/dtolnay/cxx.git
+[submodule "third_party/rtengine/RawTherapee"]
+	path = third_party/rtengine/RawTherapee
+	url = https://github.com/hfiguiere/RawTherapee.git

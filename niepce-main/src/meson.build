@@ -44,7 +44,7 @@ niepce_rust = custom_target(
     '&&',
     'cp', cargo_target_dir / rust_target / 'libniepce_core.a', '@OUTDIR@'
   ],
-  depends: [niepce_lib, resources_bundle, ncr, fwk]
+  depends: [niepce_lib, resources_bundle, ncr, fwk, rtengine]
 )
 
 clippy = run_target(

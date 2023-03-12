@@ -1,7 +1,8 @@
 project(
   'niepce',
-  'cpp',
   'rust',
+  'cpp',
+  'c',
   version: '0.1.0',
   meson_version: '>= 0.59',
   license: 'GPL-3.0-or-later',
@@ -114,6 +115,7 @@ cargo_env = [
   'NIEPCE_LIB_PATH=' + '' + meson.project_build_root() / 'src' / 'niepce'
      + ':' + meson.project_build_root() / 'src' / 'fwk'
      + ':' + meson.project_build_root() / 'src' / 'ncr'
+     + ':' + meson.project_build_root() / 'third_party' / 'rtengine'
 ]
 
 # We need to set the libs to build with the sanitizer.

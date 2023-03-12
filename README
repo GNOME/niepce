@@ -13,6 +13,11 @@ Google Test framework (for testing only)
 Under a "3 clause BSD" license.
 see third_party/googletest/googletest/LICENSE
 
+RawTherapee rtengine
+See third_party/rtengine/RawTherapee/AUTHORS.txt for
+the authors.
+Licensed under GPL-3.0
+
 What is this?
 -------------
 
@@ -42,12 +47,23 @@ To build you need the following:
 - gexiv2 >= 0.10 (as required by rexiv2)
 - meson >= 0.59
 
+For the RawTherapee engine:
+
+- expat
+- fftw3f
+- libiptcdata
+- lensfun > 0.3
+- lcms2
+
 Niepce is being developed on Linux. It should build and work on other
 UNIX systems.
 
 ### Meson
 
 The build system uses meson. It will wrap cargo for the Rust code.
+
+Make sure to get the git submodules. `git submodule update --init`
+should do it.
 
 To build with the address sanitizer, pass `-Db_sanitize=address` to
 meson (it's standard).
