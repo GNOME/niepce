@@ -22,7 +22,7 @@ use std::path::{Path, PathBuf};
 use std::sync::mpsc::SyncSender;
 use std::sync::Mutex;
 
-use super::RenderingParams;
+use super::RenderParams;
 use crate::db;
 use npc_fwk::base::{Worker, WorkerImpl};
 use npc_fwk::{dbg_out, err_out, on_err_out};
@@ -60,7 +60,7 @@ pub struct CacheItem {
 
 pub(crate) enum DbMessage {
     Init(PathBuf),
-    Put(String, u32, RenderingParams, String),
+    Put(String, u32, RenderParams, String),
     Get(String, u32, SyncSender<db::LibResult<CacheItem>>),
     Hit(String, u32),
 }
@@ -133,13 +133,7 @@ impl DbWorker {
     }
 
     /// Put a new entry in the cache.
-    fn put(
-        &self,
-        file: &str,
-        size: u32,
-        render: &RenderingParams,
-        dest: &str,
-    ) -> db::LibResult<()> {
+    fn put(&self, file: &str, size: u32, render: &RenderParams, dest: &str) -> db::LibResult<()> {
         let now = chrono::Utc::now().timestamp();
         if let Some(conn) = &*self.dbconn.borrow() {
             let mut stmt = conn.prepare(
@@ -293,7 +287,7 @@ impl Cache {
         receiver.recv().unwrap()
     }
 
-    pub fn put(&self, file: &str, dimension: u32, render: RenderingParams, dest: &str) {
+    pub fn put(&self, file: &str, dimension: u32, render: RenderParams, dest: &str) {
         on_err_out!(self.worker.lock().unwrap().send(DbMessage::Put(
             file.to_string(),
             dimension,
@@ -332,7 +326,7 @@ mod test {
 
     use npc_fwk::base::Size;
 
-    use super::super::RenderingParams;
+    use super::super::RenderParams;
     use super::Cache;
     use crate::db;
 
@@ -350,7 +344,7 @@ mod test {
         let libfile = db::LibFile::new(15, 14, 13, file_path.clone(), file_name);
 
         assert!(cache.get(&file_path.to_string_lossy(), 160).is_err());
-        let rendering = RenderingParams::new_thumbnail(libfile.id(), Size { w: 160, h: 120 });
+        let rendering = RenderParams::new_thumbnail(libfile.id(), Size { w: 160, h: 120 });
         let thumb_path = cache
             .path_for_thumbnail(&file_path, libfile.id(), 160)
             .expect("Couldn't build thumbnail path");

@@ -22,7 +22,7 @@ use std::cell::RefCell;
 use glib::translate::*;
 
 use npc_engine::db;
-use npc_engine::library::{RenderMsg, RenderingParams};
+use npc_engine::library::{RenderMsg, RenderParams};
 use npc_fwk::base::{Worker, WorkerImpl};
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::{dbg_out, err_out};
@@ -114,7 +114,7 @@ impl WorkerImpl for RenderImpl {
 
 pub struct RendererState {
     pipeline: cxx::SharedPtr<crate::ImagePipeline>,
-    params: Option<RenderingParams>,
+    params: Option<RenderParams>,
 }
 
 impl Default for RendererState {

@@ -28,7 +28,7 @@ use crate::library::notification::LibNotification::{
     FileStatusChanged, ImageRendered, ThumbnailLoaded,
 };
 use crate::library::notification::{FileStatusChange, LcChannel};
-use crate::library::previewer::{Cache, RenderMsg, RenderSender, RenderingParams, RenderingType};
+use crate::library::previewer::{Cache, RenderMsg, RenderParams, RenderSender, RenderType};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
@@ -38,7 +38,7 @@ use npc_fwk::{dbg_out, err_out, on_err_out};
 /// Previewing task
 struct Task {
     /// Type of rendering task
-    type_: RenderingType,
+    type_: RenderType,
     /// Requested dimensions
     dimensions: Size,
     /// File to generate thumbnail for.
@@ -51,7 +51,7 @@ impl Task {
     /// Create a new thumbnailing Task
     pub fn new_thumbnail(file: LibFile, w: u32, h: u32) -> Self {
         Task {
-            type_: RenderingType::Thumbnail,
+            type_: RenderType::Thumbnail,
             file,
             dimensions: Size { w, h },
             processor: None,
@@ -60,7 +60,7 @@ impl Task {
 
     pub fn new_rendering(file: LibFile, processor: Option<RenderSender>) -> Self {
         Task {
-            type_: RenderingType::Preview,
+            type_: RenderType::Preview,
             file,
             dimensions: Size::default(),
             processor,
@@ -86,7 +86,7 @@ fn check_file_status(id: db::LibraryId, path: &Path, sender: &LcChannel) {
 fn get_preview(
     cache: &Cache,
     task: &Task,
-    rendering: &RenderingParams,
+    rendering: &RenderParams,
     sender: &LcChannel,
 ) -> Option<ImageBitmap> {
     let libfile = &task.file;
@@ -145,11 +145,7 @@ fn get_preview(
     None
 }
 
-fn get_thumbnail(
-    cache: &Cache,
-    libfile: &LibFile,
-    rendering: &RenderingParams,
-) -> Option<Thumbnail> {
+fn get_thumbnail(cache: &Cache, libfile: &LibFile, rendering: &RenderParams) -> Option<Thumbnail> {
     let filename = libfile.path().to_string_lossy();
     let dimensions = rendering.dimensions;
     let dimension = cmp::max(dimensions.w, dimensions.h);
@@ -235,8 +231,8 @@ impl ThumbnailCache {
         check_file_status(id, path, sender);
 
         match task.type_ {
-            RenderingType::Preview => {
-                let rendering = RenderingParams::new_preview(id, dimensions);
+            RenderType::Preview => {
+                let rendering = RenderParams::new_preview(id, dimensions);
                 if let Some(pix) = get_preview(cache, task, &rendering, sender) {
                     dbg_out!("Got the preview from the cache");
                     if let Err(err) =
@@ -246,9 +242,9 @@ impl ThumbnailCache {
                     }
                 }
             }
-            RenderingType::Thumbnail => {
+            RenderType::Thumbnail => {
                 // XXX this should take into account the size.
-                let rendering = RenderingParams::new_thumbnail(id, dimensions);
+                let rendering = RenderParams::new_thumbnail(id, dimensions);
                 if let Some(pix) = get_thumbnail(cache, libfile, &rendering) {
                     // notify the thumbnail
                     if let Err(err) = toolkit::thread_context().block_on(sender.send(

@@ -33,7 +33,7 @@ use image_canvas::ImageCanvas;
 use npc_craw::{RenderImpl, RenderWorker};
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
-use npc_engine::library::{RenderMsg, RenderingParams};
+use npc_engine::library::{RenderMsg, RenderParams};
 use npc_engine::libraryclient::LibraryClientHost;
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::Dock;
@@ -49,7 +49,7 @@ pub struct DarkroomModule {
     overlay: adw::ToastOverlay,
     toolbox_controller: cxx::SharedPtr<crate::ffi::ToolboxController>,
     file: RefCell<Option<db::LibFile>>,
-    rendering_params: RefCell<Option<RenderingParams>>,
+    render_params: RefCell<Option<RenderParams>>,
     need_reload: Cell<bool>,
     active: Cell<bool>,
     loading_toast: RefCell<Option<adw::Toast>>,
@@ -73,7 +73,7 @@ impl LibraryModule for DarkroomModule {
     fn set_active(&self, active: bool) {
         self.active.set(active);
         if active {
-            self.reload_image(self.rendering_params.borrow().clone());
+            self.reload_image(self.render_params.borrow().clone());
         }
     }
 
@@ -102,7 +102,7 @@ impl DarkroomModule {
             worker,
             toolbox_controller,
             file: RefCell::new(None),
-            rendering_params: RefCell::new(None),
+            render_params: RefCell::new(None),
             need_reload: Cell::new(true),
             active: Cell::new(false),
             loading_toast: RefCell::new(None),
@@ -185,7 +185,7 @@ impl DarkroomModule {
         splitview.set_resize_end_child(false);
     }
 
-    fn reload_image(&self, params: Option<RenderingParams>) {
+    fn reload_image(&self, params: Option<RenderParams>) {
         if !self.need_reload.get() {
             return;
         }
@@ -205,9 +205,9 @@ impl DarkroomModule {
 
         let params = file
             .as_ref()
-            .map(|file| RenderingParams::new_preview(file.id(), Size::default()));
+            .map(|file| RenderParams::new_preview(file.id(), Size::default()));
         on_err_out!(self.worker.send(RenderMsg::SetImage(file)));
-        self.rendering_params.replace(params.clone());
+        self.render_params.replace(params.clone());
 
         if self.need_reload.get() && self.active.get() {
             self.reload_image(params);

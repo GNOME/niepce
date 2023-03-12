@@ -31,7 +31,7 @@ pub enum RenderMsg {
     /// The the image for the processors.
     SetImage(Option<db::LibFile>),
     /// Reload with processing params
-    Reload(Option<RenderingParams>),
+    Reload(Option<RenderParams>),
     /// Get the bitmap and call the lambda with the result.
     GetBitmap(Box<dyn Fn(ImageBitmap) + Send>),
 }
@@ -43,7 +43,7 @@ pub type RenderSender = std::sync::mpsc::Sender<RenderMsg>;
 /// The type of a requested rendering.
 ///
 /// The numeric values are important for the cache backend.
-pub(super) enum RenderingType {
+pub(super) enum RenderType {
     /// Plain thumbnail as extracted from the file. Include Exif and other (RAW).
     Thumbnail = 1,
     /// Preview of the image, renderered from original. This will run the image
@@ -51,7 +51,7 @@ pub(super) enum RenderingType {
     Preview = 2,
 }
 
-impl RenderingType {
+impl RenderType {
     pub fn key(&self) -> &'static str {
         match self {
             Self::Thumbnail => "THUMBNAIL",
@@ -62,8 +62,8 @@ impl RenderingType {
 
 /// The rendering parameters.
 #[derive(Clone)]
-pub struct RenderingParams {
-    type_: RenderingType,
+pub struct RenderParams {
+    type_: RenderType,
     /// Output dimensions
     /// Note for consistency if type is `RenderingType::Thumbnail` then
     /// dimensions should be a square.
@@ -71,18 +71,18 @@ pub struct RenderingParams {
     id: db::LibraryId,
 }
 
-impl RenderingParams {
-    pub fn new_thumbnail(id: db::LibraryId, dimensions: Size) -> RenderingParams {
-        RenderingParams {
-            type_: RenderingType::Thumbnail,
+impl RenderParams {
+    pub fn new_thumbnail(id: db::LibraryId, dimensions: Size) -> RenderParams {
+        RenderParams {
+            type_: RenderType::Thumbnail,
             dimensions,
             id,
         }
     }
 
-    pub fn new_preview(id: db::LibraryId, dimensions: Size) -> RenderingParams {
-        RenderingParams {
-            type_: RenderingType::Preview,
+    pub fn new_preview(id: db::LibraryId, dimensions: Size) -> RenderParams {
+        RenderParams {
+            type_: RenderType::Preview,
             dimensions,
             id,
         }
