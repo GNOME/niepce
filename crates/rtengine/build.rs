@@ -1,5 +1,7 @@
 fn main() {
     println!("cargo:rustc-link-lib=rtengine");
+    // This is for gcc, there is a different one for clang.
+    println!("cargo:rustc-link-lib=gomp");
     if let Ok(asan) = std::env::var("ASAN_LIBS") {
         println!("cargo:rustc-link-lib={asan}");
     }

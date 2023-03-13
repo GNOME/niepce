@@ -1,4 +1,5 @@
 
+openmp_deps = dependency('openmp')
 glibmm_deps = dependency('glibmm-2.68')
 giomm_deps = dependency('giomm-2.68')
 cairomm_deps = dependency('cairomm-1.16')
@@ -440,8 +441,9 @@ rtengine = static_library(
     '-DNPC_NOGUI=1',
     '-DMYFILE_MMAP=1',
     '-DGLIBMM_268=1',
-    '-DUSE_STD_MUTEX=1'
+    '-DUSE_STD_MUTEX=1',
+    '-ftree-vectorize'
   ],
   include_directories: [ 'RawTherapee' / 'rtengine' / 'klt' ],
-  dependencies: [ glibmm_deps, giomm_deps, cairomm_deps, gtkmm_deps, iptcdata_deps, lcms2_deps, lensfun_deps ],
+  dependencies: [ glibmm_deps, giomm_deps, cairomm_deps, gtkmm_deps, iptcdata_deps, lcms2_deps, lensfun_deps, openmp_deps ],
 )
