@@ -31,7 +31,8 @@ namespace rtengine {
 
   inline
   void Options_load() {
-    Options::load(true);
+    // false mean load everything.
+    Options::load(false);
   }
 
   inline
