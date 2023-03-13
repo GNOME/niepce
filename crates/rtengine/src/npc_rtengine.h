@@ -67,6 +67,11 @@ namespace rtengine {
   }
 
   inline
+  void ProcessingJob_destroy(ProcessingJob* job) {
+    ProcessingJob::destroy(job);
+  }
+
+  inline
   std::unique_ptr<procparams::PartialProfile> ProfileStore_load_dynamic_profile (const FramesMetaData* metadata) {
     return std::unique_ptr<procparams::PartialProfile>(ProfileStore::getInstance()->loadDynamicProfile(metadata));
   }

@@ -170,9 +170,13 @@ impl RtEngine {
                     false,
                 );
                 let mut error = 0_i32;
-                let imagefloat = unsafe { ffi::process_image(job.into_raw(), &mut error, false) };
+                // Warning: unless there is an error, process_image will consume it.
+                let job = job.into_raw();
+                let imagefloat = unsafe { ffi::process_image(job, &mut error, false) };
 
                 if imagefloat.is_null() {
+                    // Only in case of error.
+                    unsafe { ffi::processing_job_destroy(job) };
                     return Err(Error::from(error));
                 }
                 return Ok(into_image_bitmap(imagefloat));
@@ -221,6 +225,10 @@ mod ffi {
             procparams: &ProcParams,
             fast: bool,
         ) -> UniquePtr<ProcessingJob>;
+        #[cxx_name = "ProcessingJob_destroy"]
+        /// # Safety
+        /// Dereference a pointer.
+        unsafe fn processing_job_destroy(job: *mut ProcessingJob);
         /// Processs the inage. Takes ownership of `job`.
         /// Returns null in case of error.
         /// # Safety
