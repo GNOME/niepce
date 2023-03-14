@@ -293,6 +293,11 @@ configure_file(
 rtengine_cfg_data = configuration_data()
 rtengine_cfg_data.set_quoted('DATA_SEARCH_PATH', rtdatadir)
 
+# This will use the dependency installed lensfun database.
+# It might be out of date.
+lensfundir = lensfun_deps.get_variable('datadir') / 'lensfun' / 'version_1'
+rtengine_cfg_data.set_quoted('LENSFUN_DB_PATH', lensfundir)
+
 configure_file(
   configuration: rtengine_cfg_data,
   input: 'npc_rtconfig.h.in',

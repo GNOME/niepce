@@ -153,7 +153,8 @@ impl RtEngine {
         }
     }
 
-    /// Process the image and return an ImageBitmap
+    /// Process the image using rtengine and return an ImageBitmap
+    /// Currently it uses the default profiles and enable `LcMode::LensFunAutoMatch`.
     pub fn process(&self) -> Result<ImageBitmap> {
         if let Some(ref mut state) = *self.state.borrow_mut() {
             if let Some(ref mut image) = state.initial_image {
@@ -163,6 +164,7 @@ impl RtEngine {
                 };
                 ffi::partial_profile_apply_to(&raw_params, proc_params.pin_mut(), false);
                 raw_params.pin_mut().delete_instance();
+                ffi::proc_params_set_lcmode(proc_params.pin_mut(), ffi::LcMode::LensFunAutoMatch);
 
                 let job = ffi::processing_job_create(
                     image.pin_mut(),
@@ -188,6 +190,19 @@ impl RtEngine {
 
 #[cxx::bridge(namespace = "rtengine")]
 mod ffi {
+    /// Lens correction mode. Should match procparams::LcMode
+    #[repr(i32)]
+    enum LcMode {
+        /// No correction.
+        None = 0,
+        /// Match automatically from LensFun.
+        LensFunAutoMatch = 1,
+        /// Manual select a LensFun entry.
+        LensFunManual = 2,
+        /// Use LCP file.
+        Lcp = 3,
+    }
+
     unsafe extern "C++" {
         type ProgressListener;
     }
@@ -270,5 +285,8 @@ mod ffi {
 
         #[cxx_name = "ProcParams_new"]
         fn proc_params_new() -> UniquePtr<ProcParams>;
+        #[cxx_name = "ProcParams_set_lcmode"]
+        /// Set the lens correction mode.
+        fn proc_params_set_lcmode(params: Pin<&mut ProcParams>, mode: LcMode);
     }
 }
