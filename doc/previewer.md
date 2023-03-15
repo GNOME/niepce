@@ -48,8 +48,9 @@ P: the resulting preview
 
 R(f, params) -> P
 
-In short the rendering of a file with params always lead to the same
-result.
+The rendering of a file with params always lead to the same result. A
+digest is calculated (currently a MD5) to quickly invalidate the
+cache, and is used as a key (the `render` column).
 
 Note: params always include the dimensions of the output.
 

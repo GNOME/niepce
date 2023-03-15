@@ -19,12 +19,27 @@
 
 mod cache;
 
+use md5::Digest;
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::db;
 pub(crate) use cache::{Cache, DbMessage};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::ImageBitmap;
+
+type RenderDigest = md5::Md5;
+
+/// Trait for digest on the render params.
+trait ParamDigest {
+    fn digest_update(&self, digest: &mut RenderDigest);
+}
+
+impl ParamDigest for Size {
+    fn digest_update(&self, digest: &mut RenderDigest) {
+        digest.update(self.w.to_le_bytes());
+        digest.update(self.h.to_le_bytes());
+    }
+}
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 /// Render Engine.
@@ -45,6 +60,12 @@ impl RenderEngine {
             Self::Ncr => "ncr",
             Self::Rt => "rt",
         }
+    }
+}
+
+impl ParamDigest for RenderEngine {
+    fn digest_update(&self, digest: &mut RenderDigest) {
+        digest.update(self.key().as_bytes());
     }
 }
 
@@ -79,6 +100,12 @@ impl RenderType {
             Self::Thumbnail => "THUMBNAIL",
             Self::Preview => "PREVIEW",
         }
+    }
+}
+
+impl ParamDigest for RenderType {
+    fn digest_update(&self, digest: &mut RenderDigest) {
+        digest.update(self.key().as_bytes());
     }
 }
 
@@ -118,13 +145,17 @@ impl RenderParams {
     }
 
     pub fn key(&self) -> String {
-        format!(
-            "{}-{}-{}-{}x{}",
-            self.type_.key(),
-            self.id,
-            self.engine.key(),
-            self.dimensions.w,
-            self.dimensions.h
-        )
+        self.digest()
+    }
+
+    pub fn digest(&self) -> String {
+        let mut hasher = RenderDigest::new();
+        self.type_.digest_update(&mut hasher);
+        self.engine.digest_update(&mut hasher);
+        self.dimensions.digest_update(&mut hasher);
+        hasher.update(self.id.to_le_bytes());
+
+        let result = hasher.finalize();
+        format!("{result:x}")
     }
 }

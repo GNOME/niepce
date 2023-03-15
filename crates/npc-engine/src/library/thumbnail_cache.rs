@@ -88,9 +88,10 @@ fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBi
     let filename = libfile.path().to_string_lossy();
     let dimensions = task.params.dimensions;
     let dimension = cmp::max(dimensions.w, dimensions.h);
+    let digest = task.params.digest();
     // true if we found a cache entry but no file.
 
-    let dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), dimension)?;
+    let dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), &digest)?;
     if dest.exists() {
         dbg_out!("found {filename} in the cache fs");
         cache.hit(&filename, dimension);
@@ -144,10 +145,11 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
     let filename = libfile.path().to_string_lossy();
     let dimensions = task.params.dimensions;
     let dimension = cmp::max(dimensions.w, dimensions.h);
+    let digest = task.params.digest();
     // true if we found a cache entry but no file.
     let mut is_missing = false;
 
-    let dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), dimension)?;
+    let dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), &digest)?;
     if dest.exists() {
         cache.hit(&filename, dimension);
         return gdk_pixbuf::Pixbuf::from_file(dest)

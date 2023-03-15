@@ -296,27 +296,33 @@ impl Cache {
         )));
     }
 
+    /// For a thumbnail get a file system path.
     pub fn path_for_thumbnail(
         &self,
         filename: &Path,
         id: db::LibraryId,
-        size: u32,
+        digest: &str,
     ) -> Option<PathBuf> {
         // XXX properly report the error
         let base_name = filename.file_name().and_then(|f| f.to_str())?;
-        let thumb_name = format!("{id}-{base_name}.png");
+        let thumb_name = format!("{digest}-{id}-{base_name}.png");
 
-        Some(Self::dir_for_thumbnail(size, &self.cache_dir).join(thumb_name))
+        Some(Self::dir_for_thumbnail(digest, &self.cache_dir).join(thumb_name))
     }
 
-    fn dir_for_thumbnail(size: u32, cache_dir: &Path) -> PathBuf {
-        let subdir = if size == 0 {
-            "full".to_string()
-        } else {
-            size.to_string()
-        };
+    /// Directory for the thumbnail. Note that currently we use the digest hash
+    /// value.
+    fn dir_for_thumbnail(digest: &str, cache_dir: &Path) -> PathBuf {
         let mut dir = PathBuf::from(cache_dir);
-        dir.push(subdir);
+        dir.push("files");
+        if digest.len() < 4 {
+            err_out!("Invalid digest {digest}");
+            dir.push("error");
+        } else {
+            dir.push(&digest[0..2]);
+            dir.push(&digest[2..4]);
+        }
+
         dir
     }
 }
@@ -345,8 +351,9 @@ mod test {
 
         assert!(cache.get(&file_path.to_string_lossy(), 160).is_err());
         let rendering = RenderParams::new_thumbnail(libfile.id(), Size { w: 160, h: 120 });
+        let digest = rendering.digest();
         let thumb_path = cache
-            .path_for_thumbnail(&file_path, libfile.id(), 160)
+            .path_for_thumbnail(&file_path, libfile.id(), &digest)
             .expect("Couldn't build thumbnail path");
         cache.put(
             &file_path.to_string_lossy(),
