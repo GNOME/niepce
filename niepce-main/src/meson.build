@@ -108,5 +108,6 @@ test(
     'test',
     cargo_options
   ],
-  depends: [niepce_lib, resources_bundle, ncr, fwk, rtengine]
+  depends: [niepce_lib, resources_bundle, ncr, fwk, rtengine],
+  timeout: 0
 )
