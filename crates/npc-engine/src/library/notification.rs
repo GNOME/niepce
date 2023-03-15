@@ -77,6 +77,12 @@ pub struct Thumbnail {
 }
 
 #[derive(Clone, Debug)]
+pub struct ImageRendered {
+    pub id: LibraryId,
+    pub image: ImageBitmap,
+}
+
+#[derive(Clone, Debug)]
 pub enum LibNotification {
     AddedFile,
     AddedFiles,
@@ -109,7 +115,7 @@ pub enum LibNotification {
     MetadataQueried(LibMetadata),
     XmpNeedsUpdate,
     ThumbnailLoaded(Thumbnail),
-    ImageRendered(ImageBitmap),
+    ImageRendered(ImageRendered),
 }
 
 unsafe impl ExternType for LibNotification {

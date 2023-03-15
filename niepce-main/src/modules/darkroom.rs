@@ -151,11 +151,22 @@ impl DarkroomModule {
     }
 
     pub fn on_lib_notification(&self, ln: &LibNotification) {
-        if let LibNotification::ImageRendered(b) = ln {
+        if let LibNotification::ImageRendered(rendered) = ln {
             // XXX this is suboptimal
             dbg_out!("Got bitmap");
-            self.imagecanvas.set_image(b.clone());
-            self.remove_loading_toast();
+            if let Some(ref file) = *self.file.borrow() {
+                if file.id() == rendered.id {
+                    let b = rendered.image.clone();
+                    self.imagecanvas.set_image(b);
+                    self.remove_loading_toast();
+                } else {
+                    dbg_out!(
+                        "Received bitmap for {}, expected {}",
+                        rendered.id,
+                        file.id()
+                    );
+                }
+            }
         }
     }
 

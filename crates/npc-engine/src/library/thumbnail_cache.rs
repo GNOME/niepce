@@ -121,10 +121,14 @@ fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBi
         let rendering = task.params.clone();
         let cache_sender = cache.sender();
         let filename = filename.to_string();
+        let id = task.file.id();
         on_err_out!(processor.send(RenderMsg::GetBitmap(Box::new(move |pix| {
-            if let Err(err) =
-                toolkit::thread_context().block_on(sender.send(ImageRendered(pix.clone())))
-            {
+            if let Err(err) = toolkit::thread_context().block_on(sender.send(ImageRendered(
+                notification::ImageRendered {
+                    id,
+                    image: pix.clone(),
+                },
+            ))) {
                 err_out!("Sending image rendered notification failed: {}", err);
             }
             on_err_out!(pix.save_png(&dest));
@@ -230,9 +234,9 @@ impl ThumbnailCache {
             RenderType::Preview => {
                 if let Some(pix) = get_preview(cache, task, sender) {
                     dbg_out!("Got the preview from the cache");
-                    if let Err(err) =
-                        toolkit::thread_context().block_on(sender.send(ImageRendered(pix)))
-                    {
+                    if let Err(err) = toolkit::thread_context().block_on(sender.send(
+                        ImageRendered(notification::ImageRendered { id, image: pix }),
+                    )) {
                         err_out!("Sending image rendered notification failed: {}", err);
                     }
                 }
