@@ -33,14 +33,14 @@
 
 namespace ui {
 
-std::shared_ptr<GridViewModule> grid_view_module_new(const ui::SelectionController& selection_controller,
-                                                     const GMenu* menu_, const eng::LibraryClientHost& client_host)
+std::unique_ptr<GridViewModule> grid_view_module_new(const ui::SelectionController& selection_controller,
+                                                     GMenu* menu_, const eng::LibraryClientHost& client_host)
 {
     Glib::RefPtr<Gio::Menu> menu;
     if (menu_) {
-        menu = Glib::wrap(const_cast<GMenu*>(menu_));
+        menu = Glib::wrap(menu_);
     }
-    return std::make_shared<GridViewModule>(selection_controller, menu, client_host);
+    return std::make_unique<GridViewModule>(selection_controller, menu, client_host);
 }
 
 GridViewModule::GridViewModule(const ui::SelectionController& selection_controller,

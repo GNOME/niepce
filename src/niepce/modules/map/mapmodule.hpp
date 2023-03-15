@@ -60,8 +60,8 @@ private:
 };
 
 inline
-std::shared_ptr<MapModule> map_module_new() {
-    return std::make_shared<MapModule>();
+std::unique_ptr<MapModule> map_module_new() {
+    return std::make_unique<MapModule>();
 }
 
 }

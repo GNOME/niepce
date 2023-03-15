@@ -66,7 +66,7 @@ mod ffi {
         type ImagePipeline;
 
         #[cxx_name = "Image_new"]
-        fn image_pipeline_new() -> SharedPtr<ImagePipeline>;
+        fn image_pipeline_new() -> UniquePtr<ImagePipeline>;
         #[cxx_name = "get_status"]
         fn status(&self) -> ImageStatus;
         #[cxx_name = "get_original_width"]
@@ -79,20 +79,21 @@ mod ffi {
         #[cxx_name = "get_output_height"]
         fn output_height(&self) -> i32;
 
-        #[cxx_name = "set_output_scale_"]
-        fn set_output_scale(&self, scale: f64);
-        #[cxx_name = "to_buffer_"]
-        fn to_buffer(&self, buffer: &mut [u8]) -> bool;
+        fn set_output_scale(self: Pin<&mut ImagePipeline>, scale: f64);
+        fn to_buffer(self: Pin<&mut ImagePipeline>, buffer: &mut [u8]) -> bool;
 
-        #[cxx_name = "reload_"]
-        fn reload(&self, path: &str, is_raw: bool, orientation: i32);
+        fn reload(self: Pin<&mut ImagePipeline>, path: &CxxString, is_raw: bool, orientation: i32);
         #[cxx_name = "reload_pixbuf_"]
         /// # Safety
         /// Derefence pointers.
-        unsafe fn reload_pixbuf(&self, p: *mut GdkPixbuf);
+        unsafe fn reload_pixbuf(self: Pin<&mut ImagePipeline>, p: *mut GdkPixbuf);
         /// # Safety
         /// Derefence pointers.
-        unsafe fn connect_signal_update(&self, callback: unsafe fn(*const u8), userdata: *const u8);
+        unsafe fn connect_signal_update(
+            self: Pin<&mut ImagePipeline>,
+            callback: unsafe fn(*const u8),
+            userdata: *const u8,
+        );
     }
 }
 

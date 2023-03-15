@@ -43,8 +43,8 @@ public:
     Gtk::Widget * widget() const;
 
     /* for `cxx` binding */
-    const GtkWidget* build_widget() const {
-        return GTK_WIDGET(const_cast<UiController*>(this)->buildWidget()->gobj());
+    const GtkWidget* build_widget() {
+        return GTK_WIDGET(buildWidget()->gobj());
     }
 protected:
     Gtk::Widget*                 m_widget;

@@ -42,8 +42,8 @@ public:
     ~MetaDataPaneController();
     virtual Gtk::Widget * buildWidget() override;
 
-    GtkWidget* build_widget() const {
-        return const_cast<MetaDataPaneController*>(this)->buildWidget()->gobj();
+    GtkWidget* build_widget() {
+        return buildWidget()->gobj();
     }
     void display(eng::library_id_t file_id, const eng::LibMetadata* meta);
     eng::library_id_t displayed_file() const
@@ -65,9 +65,9 @@ private:
 };
 
 inline
-std::shared_ptr<MetaDataPaneController> metadata_pane_controller_new()
+std::unique_ptr<MetaDataPaneController> metadata_pane_controller_new()
 {
-    return std::make_shared<MetaDataPaneController>();
+    return std::make_unique<MetaDataPaneController>();
 }
 
 }

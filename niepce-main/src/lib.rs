@@ -124,8 +124,8 @@ pub mod ffi {
         include!("niepce/ui/metadatapanecontroller.hpp");
         type MetaDataPaneController;
 
-        fn metadata_pane_controller_new() -> SharedPtr<MetaDataPaneController>;
-        fn build_widget(&self) -> *mut GtkWidget;
+        fn metadata_pane_controller_new() -> UniquePtr<MetaDataPaneController>;
+        fn build_widget(self: Pin<&mut MetaDataPaneController>) -> *mut GtkWidget;
     }
 
     extern "Rust" {
@@ -211,11 +211,10 @@ pub mod ffi {
         /// Dereference a pointer
         unsafe fn grid_view_module_new(
             selection_controller: &SelectionController,
-            menu: *const GMenu,
+            menu: *mut GMenu,
             libclient_host: &LibraryClientHost,
-        ) -> SharedPtr<GridViewModule>;
-        // call buildWidget(). But it's mutable.
-        fn build_widget(&self) -> *const GtkWidget;
+        ) -> UniquePtr<GridViewModule>;
+        fn build_widget(self: Pin<&mut GridViewModule>) -> *const GtkWidget;
         fn on_lib_notification(&self, ln: &LibNotification, client: &LibraryClientWrapper);
         fn display_none(&self);
         #[cxx_name = "cxx_image_list"]
@@ -227,9 +226,8 @@ pub mod ffi {
         include!("niepce/modules/map/mapmodule.hpp");
         type MapModule;
 
-        fn map_module_new() -> SharedPtr<MapModule>;
-        // call buildWidget(). But it's mutable.
-        fn build_widget(&self) -> *const GtkWidget;
+        fn map_module_new() -> UniquePtr<MapModule>;
+        fn build_widget(self: Pin<&mut MapModule>) -> *const GtkWidget;
         fn on_lib_notification(&self, ln: &LibNotification);
         fn set_active(&self, active: bool);
     }
@@ -273,8 +271,7 @@ pub mod ffi {
         type ToolboxController;
 
         #[cxx_name = "ToolboxController_new"]
-        fn toolbox_controller_new() -> SharedPtr<ToolboxController>;
-        #[cxx_name = "buildWidget_"]
-        fn build_widget(&self) -> *mut GtkWidget;
+        fn toolbox_controller_new() -> UniquePtr<ToolboxController>;
+        fn build_widget(self: Pin<&mut ToolboxController>) -> *mut GtkWidget;
     }
 }

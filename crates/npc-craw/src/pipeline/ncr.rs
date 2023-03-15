@@ -19,32 +19,38 @@
 
 /*! Niepce Camera Raw pipeline */
 
+use std::cell::RefCell;
+
 use npc_fwk::err_out;
 use npc_fwk::toolkit::ImageBitmap;
 
 /// Wrapper for the C++ ncr pipeline
-pub(crate) struct NcrPipeline(cxx::SharedPtr<crate::ImagePipeline>);
+pub(crate) struct NcrPipeline(RefCell<cxx::UniquePtr<crate::ImagePipeline>>);
 
 impl NcrPipeline {
     pub(crate) fn new() -> Self {
-        Self(crate::ffi::image_pipeline_new())
+        Self(RefCell::new(crate::ffi::image_pipeline_new()))
     }
 }
 
 impl super::Pipeline for NcrPipeline {
     fn output_width(&self) -> u32 {
-        self.0.output_width() as u32
+        self.0.borrow().output_width() as u32
     }
 
     fn output_height(&self) -> u32 {
-        self.0.output_height() as u32
+        self.0.borrow().output_height() as u32
     }
 
     fn rendered_image(&self) -> Option<ImageBitmap> {
         let w = self.output_width();
         let h = self.output_height();
         let mut buffer = vec![0; (w * h * 3) as usize];
-        let success = self.0.to_buffer(buffer.as_mut_slice());
+        let success = self
+            .0
+            .borrow_mut()
+            .pin_mut()
+            .to_buffer(buffer.as_mut_slice());
         if success {
             Some(ImageBitmap::new(buffer, w, h))
         } else {
@@ -54,6 +60,10 @@ impl super::Pipeline for NcrPipeline {
     }
 
     fn reload(&self, path: &str, is_raw: bool, orientation: i32) {
-        self.0.reload(path, is_raw, orientation);
+        cxx::let_cxx_string!(p = path);
+        self.0
+            .borrow_mut()
+            .pin_mut()
+            .reload(&p, is_raw, orientation);
     }
 }

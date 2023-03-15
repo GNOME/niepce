@@ -28,7 +28,7 @@ use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 
 pub struct MapModuleProxy {
     imp_: RefCell<ControllerImpl>,
-    module: cxx::SharedPtr<MapModule>,
+    module: cxx::UniquePtr<MapModule>,
     widget: gtk4::Widget,
 }
 
@@ -58,9 +58,9 @@ impl LibraryModule for MapModuleProxy {
 
 impl Default for MapModuleProxy {
     fn default() -> Self {
-        let module = map_module_new();
+        let mut module = map_module_new();
         let widget = unsafe {
-            gtk4::Widget::from_glib_none(module.build_widget() as *mut gtk4_sys::GtkWidget)
+            gtk4::Widget::from_glib_none(module.pin_mut().build_widget() as *mut gtk4_sys::GtkWidget)
         };
         Self {
             imp_: RefCell::new(ControllerImpl::default()),

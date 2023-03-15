@@ -42,9 +42,6 @@ public:
     virtual ~Image();
 
     bool to_buffer(rust::Slice<uint8_t> buffer);
-    bool to_buffer_(rust::Slice<uint8_t> buffer) const {
-        return const_cast<Image*>(this)->to_buffer(buffer);
-    }
 
     /** The status of the image. */
     Status get_status() const;
@@ -60,20 +57,13 @@ public:
 
     void reload(const std::string & p, bool is_raw,
                 int orientation);
-    void reload_(const rust::Str p, bool is_raw,
-                int orientation) const {
-        const_cast<Image*>(this)->reload(std::string(p), is_raw, orientation);
-    }
+
     void reload_pixbuf(const Glib::RefPtr<Gdk::Pixbuf> & p);
-    void reload_pixbuf_(GdkPixbuf *p) const {
-        const_cast<Image*>(this)->reload_pixbuf(Glib::wrap(p));
+    void reload_pixbuf_(GdkPixbuf *p) {
+        this->reload_pixbuf(Glib::wrap(p));
     }
     /** set the output scale */
     void set_output_scale(double scale);
-    // cxx only
-    void set_output_scale_(double scale) const {
-        const_cast<Image*>(this)->set_output_scale(scale);
-    }
 
     /** tile the image in degrees. */
     void set_tilt(double angle);
@@ -96,8 +86,8 @@ public:
         image is changed. */
     sigc::signal<void(void)> signal_update;
 
-    void connect_signal_update(::rust::Fn<void(const uint8_t*)> callback, const uint8_t* userdata) const {
-        const_cast<Image*>(this)->signal_update.connect([userdata, callback]() {
+    void connect_signal_update(::rust::Fn<void(const uint8_t*)> callback, const uint8_t* userdata) {
+        signal_update.connect([userdata, callback]() {
             callback(userdata);
         });
     }
@@ -113,8 +103,8 @@ private:
 };
 
 inline
-std::shared_ptr<Image> Image_new() {
-    return std::make_shared<Image>();
+std::unique_ptr<Image> Image_new() {
+    return std::make_unique<Image>();
 }
 
 }

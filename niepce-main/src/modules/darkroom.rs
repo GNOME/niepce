@@ -47,7 +47,7 @@ pub struct DarkroomModule {
     worker: RenderWorker,
     imagecanvas: ImageCanvas,
     overlay: adw::ToastOverlay,
-    toolbox_controller: cxx::SharedPtr<crate::ffi::ToolboxController>,
+    toolbox_controller: cxx::UniquePtr<crate::ffi::ToolboxController>,
     file: RefCell<Option<db::LibFile>>,
     render_params: RefCell<Option<RenderParams>>,
     need_reload: Cell<bool>,
@@ -177,7 +177,7 @@ impl DarkroomModule {
         let dock = Dock::new();
         let toolbox = unsafe {
             gtk4::Widget::from_glib_none(
-                self.toolbox_controller.build_widget() as *const gtk4_sys::GtkWidget
+                self.toolbox_controller.pin_mut().build_widget() as *const gtk4_sys::GtkWidget
             )
         };
         dock.vbox().append(&toolbox);

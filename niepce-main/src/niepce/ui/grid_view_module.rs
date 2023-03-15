@@ -31,7 +31,7 @@ use crate::niepce::ui::{LibraryModule, SelectionController};
 
 pub struct GridViewModuleProxy {
     imp_: RefCell<ControllerImpl>,
-    module: cxx::SharedPtr<GridViewModule>,
+    module: cxx::UniquePtr<GridViewModule>,
     widget: gtk4::Widget,
     pub grid_view: gtk4::GridView,
 }
@@ -68,19 +68,21 @@ impl GridViewModuleProxy {
         menu: &gio::Menu,
         libclient_host: &LibraryClientHost,
     ) -> Self {
-        let menu: *const gio_sys::GMenu = menu.to_glib_none().0;
-        let module = unsafe {
+        let menu: *mut gio_sys::GMenu = menu.to_glib_none().0;
+        let mut module = unsafe {
             // Silence clippy because we borrow the selection controller for the cxx
             // bindings. It'll go away.
             #[allow(clippy::borrow_deref_ref)]
             grid_view_module_new(
                 &*selection_controller,
-                menu as *const crate::ffi::GMenu,
+                menu as *mut crate::ffi::GMenu,
                 libclient_host,
             )
         };
         let widget = unsafe {
-            gtk4::Widget::from_glib_none(module.build_widget() as *const gtk4_sys::GtkWidget)
+            gtk4::Widget::from_glib_none(
+                module.pin_mut().build_widget() as *const gtk4_sys::GtkWidget
+            )
         };
         let grid_view = unsafe {
             gtk4::GridView::from_glib_none(module.image_list() as *const gtk4_sys::GtkGridView)

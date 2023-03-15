@@ -47,8 +47,6 @@ class GridViewModule
     : public ILibraryModule
 {
 public:
-  typedef std::shared_ptr<GridViewModule> Ptr;
-
   GridViewModule(const ui::SelectionController& selection_controller,
                  Glib::RefPtr<Gio::Menu> menu, const eng::LibraryClientHost& libclient_host);
   virtual ~GridViewModule();
@@ -62,10 +60,10 @@ public:
   virtual Glib::RefPtr<Gio::MenuModel> getMenu() override
     { return Glib::RefPtr<Gio::MenuModel>(); }
 
-  virtual Gtk::GridView * image_list() const;
+  virtual Gtk::GridView* image_list() const;
 
   const GtkGridView* cxx_image_list() const {
-    return const_cast<GridViewModule*>(this)->image_list()->gobj();
+    return image_list()->gobj();
   }
 protected:
   virtual Gtk::Widget * buildWidget() override;
@@ -89,8 +87,8 @@ private:
   Gtk::PopoverMenu* m_context_menu;
 };
 
-std::shared_ptr<GridViewModule> grid_view_module_new(const ui::SelectionController& selection_controller,
-                                                     const GMenu* menu_,
+std::unique_ptr<GridViewModule> grid_view_module_new(const ui::SelectionController& selection_controller,
+                                                     GMenu* menu_,
                                                      const eng::LibraryClientHost& libclient_host);
 
 }

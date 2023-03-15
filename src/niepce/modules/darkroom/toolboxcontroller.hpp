@@ -33,14 +33,14 @@ public:
     ToolboxController();
     virtual Gtk::Widget * buildWidget() override;
 
-    GtkWidget* buildWidget_() const {
-        return const_cast<ToolboxController*>(this)->buildWidget()->gobj();
+    GtkWidget* build_widget() {
+        return buildWidget()->gobj();
     }
 };
 
 inline
-std::shared_ptr<ToolboxController> ToolboxController_new() {
-    return std::make_shared<ToolboxController>();
+std::unique_ptr<ToolboxController> ToolboxController_new() {
+    return std::make_unique<ToolboxController>();
 }
 
 

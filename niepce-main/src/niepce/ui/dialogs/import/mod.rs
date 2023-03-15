@@ -161,10 +161,10 @@ impl ImportDialog {
                 get_widget!(builder, gtk4::ComboBoxText, import_source_combo);
 
                 get_widget!(builder, gtk4::ScrolledWindow, attributes_scrolled);
-                let metadata_pane = ffi::metadata_pane_controller_new();
+                let mut metadata_pane = ffi::metadata_pane_controller_new();
                 let w = unsafe {
                     gtk4::Widget::from_glib_none(
-                        metadata_pane.build_widget() as *mut gtk4_sys::GtkWidget
+                        metadata_pane.pin_mut().build_widget() as *mut gtk4_sys::GtkWidget
                     )
                 };
                 // add
