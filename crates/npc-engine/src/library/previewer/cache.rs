@@ -257,6 +257,10 @@ impl Cache {
         Self { cache_dir, worker }
     }
 
+    pub fn cache_dir(&self) -> &Path {
+        &self.cache_dir
+    }
+
     pub fn sender(&self) -> std::sync::mpsc::Sender<DbMessage> {
         self.worker.lock().unwrap().sender().clone()
     }
@@ -296,7 +300,8 @@ impl Cache {
         )));
     }
 
-    /// For a thumbnail get a file system path.
+    /// For a thumbnail get a file system path, relative to the
+    /// `cache_dir`.
     pub fn path_for_thumbnail(
         &self,
         filename: &Path,
@@ -307,14 +312,13 @@ impl Cache {
         let base_name = filename.file_name().and_then(|f| f.to_str())?;
         let thumb_name = format!("{digest}-{id}-{base_name}.png");
 
-        Some(Self::dir_for_thumbnail(digest, &self.cache_dir).join(thumb_name))
+        Some(Self::dir_for_thumbnail(digest).join(thumb_name))
     }
 
-    /// Directory for the thumbnail. Note that currently we use the digest hash
-    /// value.
-    fn dir_for_thumbnail(digest: &str, cache_dir: &Path) -> PathBuf {
-        let mut dir = PathBuf::from(cache_dir);
-        dir.push("files");
+    /// Relative directory for the thumbnail. Note that currently we
+    /// use the digest hash value.
+    fn dir_for_thumbnail(digest: &str) -> PathBuf {
+        let mut dir = PathBuf::from("files");
         if digest.len() < 4 {
             err_out!("Invalid digest {digest}");
             dir.push("error");

@@ -153,7 +153,8 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
     // true if we found a cache entry but no file.
     let mut is_missing = false;
 
-    let dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), &digest)?;
+    let rel_dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), &digest)?;
+    let dest = cache.cache_dir().to_path_buf().join(&rel_dest);
     if dest.exists() {
         cache.hit(&filename, dimension);
         return gdk_pixbuf::Pixbuf::from_file(dest)
@@ -164,8 +165,13 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
     if let Ok(cache_item) = cache.get(&filename, dimension) {
         // cache hit
         dbg_out!("thumbnail for {:?} is cached!", filename);
-        if cache_item.target.exists() {
-            return gdk_pixbuf::Pixbuf::from_file(cache_item.target)
+        let target = if cache_item.target.is_relative() {
+            cache.cache_dir().to_path_buf().join(cache_item.target)
+        } else {
+            cache_item.target
+        };
+        if target.exists() {
+            return gdk_pixbuf::Pixbuf::from_file(target)
                 .ok()
                 .map(Thumbnail::from);
         } else {
@@ -196,7 +202,7 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
                 &filename,
                 dimension,
                 task.params.clone(),
-                &dest.to_string_lossy(),
+                &rel_dest.to_string_lossy(),
             );
         }
     } else {
