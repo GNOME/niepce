@@ -18,7 +18,6 @@
  */
 
 use std::cell::{Cell, RefCell};
-use std::convert::TryFrom;
 use std::rc::Weak;
 
 use gdk4::prelude::*;

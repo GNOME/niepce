@@ -18,7 +18,6 @@
  */
 
 use std::cell::Cell;
-use std::convert::TryFrom;
 
 use gdk4::prelude::*;
 use glib::subclass::prelude::*;

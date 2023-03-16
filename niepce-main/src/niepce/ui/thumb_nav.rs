@@ -18,7 +18,6 @@
  */
 
 use std::cell::{Cell, RefCell};
-use std::convert::TryFrom;
 use std::rc::Rc;
 
 use once_cell::unsync::OnceCell;
