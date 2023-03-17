@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/db/sql.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,8 +41,8 @@ pub(super) fn pragma_schema_version(conn: &rusqlite::Connection) -> Result<i64> 
 pub(super) fn table_sql(conn: &rusqlite::Connection, table: &str) -> Result<String> {
     let mut stmt = conn.prepare("SELECT sql FROM sqlite_schema WHERE type='table' AND name=?1")?;
     let mut rows = stmt.query(params![table])?;
-    return match rows.next()? {
+    match rows.next()? {
         Some(row) => Ok(row.get(0)?),
         None => Err(Error::NotFound),
-    };
+    }
 }
