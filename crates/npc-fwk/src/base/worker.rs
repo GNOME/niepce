@@ -49,7 +49,7 @@ pub trait WorkerImpl: Send {
 ///
 ///     fn dispatch(&self, msg: Self::Message, state: &mut Self::State) -> bool {
 ///         match msg {
-///             One => {}
+///             SomeMessage::One => {}
 ///         }
 ///
 ///         true
