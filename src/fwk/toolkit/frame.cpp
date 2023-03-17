@@ -167,9 +167,6 @@ Frame::create_redo_action(Gio::ActionMap* g)
 
 bool Frame::_close()
 {
-    if(Controller::Ptr parent = m_parent.lock()) {
-        parent->remove(shared_from_this());
-    }
     return false;
 }
 

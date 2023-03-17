@@ -34,7 +34,6 @@ UiController::~UiController()
 
 Gtk::Widget * UiController::widget() const
 {
-    DBG_ASSERT(!m_parent.expired(), "must be attached");
     return m_widget;
 }
 

@@ -48,9 +48,6 @@ public:
 
     /** add a subcontroller to this one */
     void add(const Ptr & sub);
-    /** clear the parent. Usually called by the parent when unparenting */
-    void clearParent()
-        { m_parent.reset(); }
     void remove(const Ptr & sub);
 
     virtual bool canTerminate();
@@ -67,7 +64,6 @@ protected:
 
     void _ready();
 
-    WeakPtr          m_parent;
     std::list<Ptr> m_subs; /**< sub controllers */
 
     DataBinderPool m_databinders;

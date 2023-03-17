@@ -40,7 +40,6 @@ void
 Controller::add(const Controller::Ptr & sub)
 {
     m_subs.push_back(sub);
-    sub->m_parent = shared_from_this();
     sub->_added();
 }
 
@@ -48,7 +47,6 @@ void Controller::remove(const Ptr & sub)
 {
     auto iter = std::find(m_subs.cbegin(), m_subs.cend(), sub);
     if(iter != m_subs.cend()) {
-        (*iter)->clearParent();
         m_subs.erase(iter);
     }
 }
@@ -65,7 +63,6 @@ void Controller::terminate()
                   [] (const Ptr& ctrl) {
                     ctrl->terminate();
                   });
-    clearParent();
     m_subs.clear();
 }
 
