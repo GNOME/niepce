@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Hubert Figuière <hub@figuiere.net>"]
 build = "build.rs"
 edition = "2018"
+license = "GPL-3.0"
 
 [dependencies]
 async-channel = "1.6.1"
