@@ -28,7 +28,7 @@ fn main() {
     )
     .join("..");
 
-    cxx_build::bridge("src/lib.rs") // returns a cc::Build
+    cxx_build::bridge("src/bridge.rs") // returns a cc::Build
         .file("src/npc_rtengine.cpp")
         .include("../../third_party/rtengine/RawTherapee")
         .include("./src")
@@ -41,7 +41,7 @@ fn main() {
         .flag("-std=c++17")
         .compile("librtbridge");
 
-    println!("cargo:rerun-if-changed=src/lib.rs");
+    println!("cargo:rerun-if-changed=src/bridge.rs");
     println!("cargo:rerun-if-changed=src/npc_rtengine.h");
     println!("cargo:rerun-if-changed=src/npc_rtengine.cpp");
     println!("cargo:rerun-if-changed={build_root:?}/third_party/rtengine/npc_rtconfig.h");
