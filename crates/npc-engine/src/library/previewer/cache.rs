@@ -61,8 +61,8 @@ pub struct CacheItem {
 pub(crate) enum DbMessage {
     Init(PathBuf),
     Put(String, u32, RenderParams, String),
-    Get(String, u32, SyncSender<db::LibResult<CacheItem>>),
-    Hit(String, u32),
+    Get(String, String, SyncSender<db::LibResult<CacheItem>>),
+    Hit(String, String),
 }
 
 #[derive(Default)]
@@ -156,14 +156,14 @@ impl DbWorker {
     }
 
     /// "Hit" the cache, ie update the access date.
-    fn hit(&self, file: &str, size: u32) -> db::LibResult<()> {
+    fn hit(&self, file: &str, digest: &str) -> db::LibResult<()> {
         if let Some(conn) = &*self.dbconn.borrow() {
             let mut stmt = conn.prepare(
                 "UPDATE cache_items SET last_access = ?1 \
-                                         WHERE path = ?2 AND dimension = ?3;",
+                                         WHERE path = ?2 AND render = ?3;",
             )?;
             let now = chrono::Utc::now().timestamp();
-            stmt.execute(rusqlite::params![now, file, size])?;
+            stmt.execute(rusqlite::params![now, file, digest])?;
             return Ok(());
         }
 
@@ -182,13 +182,13 @@ impl DbWorker {
     ///
     /// This will cause `last_access` to be updated to now, however the new value is
     /// not returned.
-    fn get(&self, file: &str, size: u32) -> db::LibResult<CacheItem> {
+    fn get(&self, file: &str, digest: &str) -> db::LibResult<CacheItem> {
         if let Some(conn) = &*self.dbconn.borrow() {
             let mut stmt = conn.prepare(
                 "SELECT id, path, last_access, created, dimension, render, target \
-                                         FROM cache_items WHERE path = ?1 AND dimension = ?2;",
+                                         FROM cache_items WHERE path = ?1 AND render = ?2;",
             )?;
-            let mut results = stmt.query_map(rusqlite::params![file, size], |row| {
+            let mut results = stmt.query_map(rusqlite::params![file, digest], |row| {
                 Ok(CacheItem {
                     id: row.get(0)?,
                     _path: PathBuf::from(row.get::<usize, String>(1)?),
@@ -225,13 +225,13 @@ impl WorkerImpl for DbWorker {
                 on_err_out!(self.initialize(&p));
             }
             DbMessage::Hit(p, d) => {
-                on_err_out!(self.hit(&p, d));
+                on_err_out!(self.hit(&p, &d));
             }
             DbMessage::Put(p, d, r, dest) => {
                 on_err_out!(self.put(&p, d, &r, &dest));
             }
             DbMessage::Get(p, d, r) => {
-                on_err_out!(r.send(self.get(&p, d)));
+                on_err_out!(r.send(self.get(&p, &d)));
             }
         };
 
@@ -273,19 +273,19 @@ impl Cache {
             .send(DbMessage::Init(self.cache_dir.to_path_buf())));
     }
 
-    pub fn hit(&self, file: &str, dimension: u32) {
+    pub fn hit(&self, file: &str, digest: &str) {
         on_err_out!(self
             .worker
             .lock()
             .unwrap()
-            .send(DbMessage::Hit(file.to_string(), dimension)));
+            .send(DbMessage::Hit(file.to_string(), digest.to_string())));
     }
 
-    pub fn get(&self, file: &str, dimension: u32) -> db::LibResult<CacheItem> {
+    pub fn get(&self, file: &str, digest: &str) -> db::LibResult<CacheItem> {
         let (sender, receiver) = std::sync::mpsc::sync_channel::<db::LibResult<CacheItem>>(1);
         on_err_out!(self.worker.lock().unwrap().send(DbMessage::Get(
             file.to_string(),
-            dimension,
+            digest.to_string(),
             sender
         )));
         receiver.recv().unwrap()
@@ -353,9 +353,9 @@ mod test {
         let file_path = tmpdir.path().join("images").join(file_name);
         let libfile = db::LibFile::new(15, 14, 13, file_path.clone(), file_name);
 
-        assert!(cache.get(&file_path.to_string_lossy(), 160).is_err());
         let rendering = RenderParams::new_thumbnail(libfile.id(), Size { w: 160, h: 120 });
         let digest = rendering.digest();
+        assert!(cache.get(&file_path.to_string_lossy(), &digest).is_err());
         let thumb_path = cache
             .path_for_thumbnail(&file_path, libfile.id(), &digest)
             .expect("Couldn't build thumbnail path");
@@ -367,7 +367,7 @@ mod test {
         );
 
         let cache_item = cache
-            .get(&file_path.to_string_lossy(), 160)
+            .get(&file_path.to_string_lossy(), &digest)
             .expect("Cache entry not found");
         assert_eq!(thumb_path, cache_item.target);
         assert_eq!(cache_item._last_access, cache_item._created);
@@ -377,11 +377,11 @@ mod test {
 
         // Get it to update the access date. About two second after the retained one.
         cache
-            .get(&file_path.to_string_lossy(), 160)
+            .get(&file_path.to_string_lossy(), &digest)
             .expect("Cache entry not found");
         // Check the stored date.
         let cache_item = cache
-            .get(&file_path.to_string_lossy(), 160)
+            .get(&file_path.to_string_lossy(), &digest)
             .expect("Cache entry not found");
         assert!(last_used < cache_item._last_access);
     }

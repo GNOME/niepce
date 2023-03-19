@@ -159,3 +159,19 @@ impl RenderParams {
         format!("{result:x}")
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::{RenderEngine, RenderParams};
+    use npc_fwk::base::Size;
+
+    #[test]
+    fn test_digest() {
+        let mut preview1 = RenderParams::new_preview(1, Size { w: 1600, h: 1200 });
+        preview1.engine = RenderEngine::Ncr;
+        let mut preview2 = RenderParams::new_preview(1, Size { w: 1600, h: 1200 });
+        preview2.engine = RenderEngine::Rt;
+
+        assert_ne!(preview1.digest(), preview2.digest());
+    }
+}

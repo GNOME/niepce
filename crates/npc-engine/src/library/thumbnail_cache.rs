@@ -94,11 +94,11 @@ fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBi
     let dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), &digest)?;
     if dest.exists() {
         dbg_out!("found {filename} in the cache fs");
-        cache.hit(&filename, dimension);
+        cache.hit(&filename, &digest);
         return ImageBitmap::from_file(dest).ok();
     }
 
-    if let Ok(cache_item) = cache.get(&filename, dimension) {
+    if let Ok(cache_item) = cache.get(&filename, &digest) {
         // cache hit
         dbg_out!("thumbnail for {:?} is cached!", filename);
         if cache_item.target.exists() {
@@ -156,13 +156,13 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
     let rel_dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), &digest)?;
     let dest = cache.cache_dir().to_path_buf().join(&rel_dest);
     if dest.exists() {
-        cache.hit(&filename, dimension);
+        cache.hit(&filename, &digest);
         return gdk_pixbuf::Pixbuf::from_file(dest)
             .ok()
             .map(Thumbnail::from);
     }
 
-    if let Ok(cache_item) = cache.get(&filename, dimension) {
+    if let Ok(cache_item) = cache.get(&filename, &digest) {
         // cache hit
         dbg_out!("thumbnail for {:?} is cached!", filename);
         let target = if cache_item.target.is_relative() {
