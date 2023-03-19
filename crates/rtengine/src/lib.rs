@@ -18,15 +18,18 @@
  */
 
 mod bridge;
+mod image;
+mod params;
+mod processing;
 
 use std::cell::RefCell;
-use std::os::unix::ffi::OsStrExt;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Once;
 
 use npc_fwk::toolkit::ImageBitmap;
 
 use bridge::ffi;
+pub use ffi::LcMode;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -80,33 +83,13 @@ fn init_engine() {
 
 #[derive(Default)]
 struct EngineState {
-    image_path: PathBuf,
-    initial_image: Option<cxx::UniquePtr<ffi::InitialImage>>,
+    initial_image: Option<image::InitialImage>,
 }
 
-impl Drop for EngineState {
-    /// Properly drop the object.
-    fn drop(&mut self) {
-        if let Some(image) = self.initial_image.take() {
-            // The initial image must be ref uncounted.
-            unsafe { ffi::decrease_ref(image.into_raw()) };
-        }
+impl EngineState {
+    fn new(initial_image: Option<image::InitialImage>) -> EngineState {
+        Self { initial_image }
     }
-}
-
-fn into_image_bitmap(image: cxx::UniquePtr<ffi::ImageIO>) -> ImageBitmap {
-    let w = ffi::image_io_width(&image);
-    let h = ffi::image_io_height(&image);
-
-    let stride = w as usize * 3;
-    let mut buffer = vec![0_u8; stride * h as usize];
-    let b = buffer.as_mut_slice();
-    for idx in 0..h {
-        let ptr = b[idx as usize * stride..].as_mut_ptr();
-        //println!("row = {}, ptr {:?}", idx, ptr);
-        unsafe { image.scanline(idx, ptr, 8, false) };
-    }
-    ImageBitmap::new(buffer, w as u32, h as u32)
 }
 
 /// RawTherapee rendering engine
@@ -143,18 +126,9 @@ impl RtEngine {
     where
         P: AsRef<Path>,
     {
-        let mut state = EngineState::default();
-        state.image_path = path.as_ref().to_path_buf();
-        let mut error = 0_i32;
-        cxx::let_cxx_string!(fname = state.image_path.as_os_str().as_bytes());
-        let image = ffi::initial_image_load(&fname, is_raw, &mut error);
-        if !image.is_null() {
-            state.initial_image = Some(image);
-            self.state.replace(Some(state));
-            Ok(())
-        } else {
-            Err(Error::from(error))
-        }
+        let state = EngineState::new(Some(image::InitialImage::load(path, is_raw)?));
+        self.state.replace(Some(state));
+        Ok(())
     }
 
     /// Process the image using rtengine and return an ImageBitmap
@@ -162,30 +136,15 @@ impl RtEngine {
     pub fn process(&self) -> Result<ImageBitmap> {
         if let Some(ref mut state) = *self.state.borrow_mut() {
             if let Some(ref mut image) = state.initial_image {
-                let mut proc_params = ffi::proc_params_new();
-                let mut raw_params = unsafe {
-                    ffi::profile_store_load_dynamic_profile(image.pin_mut().get_meta_data())
-                };
-                ffi::partial_profile_apply_to(&raw_params, proc_params.pin_mut(), false);
-                raw_params.pin_mut().delete_instance();
-                ffi::proc_params_set_lcmode(proc_params.pin_mut(), ffi::LcMode::LensFunAutoMatch);
+                let mut proc_params = params::ProcParams::new();
+                let raw_params = params::ProfileStore::load_dynamic_profile(&image.meta_data());
+                raw_params.apply_to(&mut proc_params, false);
+                proc_params.set_lcmode(ffi::LcMode::LensFunAutoMatch);
 
-                let job = ffi::processing_job_create(
-                    image.pin_mut(),
-                    proc_params.as_ref().unwrap(),
-                    false,
-                );
-                let mut error = 0_i32;
-                // Warning: unless there is an error, process_image will consume it.
-                let job = job.into_raw();
-                let imagefloat = unsafe { ffi::process_image(job, &mut error, false) };
-
-                if imagefloat.is_null() {
-                    // Only in case of error.
-                    unsafe { ffi::processing_job_destroy(job) };
-                    return Err(Error::from(error));
-                }
-                return Ok(into_image_bitmap(imagefloat));
+                let job = processing::ProcessingJob::new(image, &proc_params, false);
+                return job
+                    .process_image(false)
+                    .map(|image| image.to_image_bitmap());
             }
         }
         Err(Error::NoImage)
