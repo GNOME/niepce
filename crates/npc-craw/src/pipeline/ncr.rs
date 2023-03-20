@@ -21,6 +21,8 @@
 
 use std::cell::RefCell;
 
+use glib::translate::*;
+
 use npc_fwk::err_out;
 use npc_fwk::toolkit::ImageBitmap;
 
@@ -65,5 +67,15 @@ impl super::Pipeline for NcrPipeline {
             .borrow_mut()
             .pin_mut()
             .reload(&p, is_raw, orientation);
+    }
+
+    fn set_placeholder(&self, placeholder: gdk_pixbuf::Pixbuf) {
+        let p: *mut gdk_pixbuf_sys::GdkPixbuf = placeholder.to_glib_none().0;
+        unsafe {
+            self.0
+                .borrow_mut()
+                .pin_mut()
+                .reload_pixbuf(p as *mut crate::ffi::GdkPixbuf);
+        }
     }
 }

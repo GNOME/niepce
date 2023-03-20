@@ -54,4 +54,6 @@ impl super::Pipeline for RtPipeline {
     fn reload(&self, path: &str, is_raw: bool, _: i32) {
         on_err_out!(self.0.set_file(path, is_raw));
     }
+
+    fn set_placeholder(&self, _placeholder: gdk_pixbuf::Pixbuf) {}
 }

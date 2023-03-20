@@ -20,8 +20,6 @@
 use std::cell::RefCell;
 use std::ops::Deref;
 
-use glib::translate::*;
-
 use npc_engine::db;
 use npc_engine::library::{RenderMsg, RenderParams};
 use npc_fwk::base::{Worker, WorkerImpl};
@@ -58,10 +56,7 @@ impl RenderImpl {
         } else if let Ok(p) =
             gdk_pixbuf::Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-image-generic.png")
         {
-            let p: *mut gdk_pixbuf_sys::GdkPixbuf = p.to_glib_none().0;
-            //unsafe {
-            //    pipeline.reload_pixbuf(p as *mut crate::ffi::GdkPixbuf);
-            //}
+            pipeline.set_placeholder(p);
         }
     }
 

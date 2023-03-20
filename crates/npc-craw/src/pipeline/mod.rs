@@ -31,6 +31,8 @@ pub(crate) trait Pipeline {
     fn output_height(&self) -> u32;
     fn rendered_image(&self) -> Option<ImageBitmap>;
     fn reload(&self, path: &str, is_raw: bool, orientation: i32);
+    /// Set a placeholder to display.
+    fn set_placeholder(&self, placeholder: gdk_pixbuf::Pixbuf);
 }
 
 pub(crate) fn create(engine: RenderEngine) -> Option<Box<dyn Pipeline>> {
