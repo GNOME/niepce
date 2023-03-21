@@ -41,8 +41,6 @@ impl From<&str> for PropertyValue {
     }
 }
 
-unsafe impl Send for PropertyValue {}
-
 use cxx::{type_id, ExternType};
 
 unsafe impl ExternType for PropertyValue {
