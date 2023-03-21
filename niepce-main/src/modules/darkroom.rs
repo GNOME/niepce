@@ -33,20 +33,26 @@ use image_canvas::ImageCanvas;
 use npc_craw::{RenderImpl, RenderWorker};
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
-use npc_engine::library::{RenderMsg, RenderParams};
+use npc_engine::library::{RenderEngine, RenderMsg, RenderParams};
 use npc_engine::libraryclient::LibraryClientHost;
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 use npc_fwk::{dbg_out, on_err_out};
 
+enum Msg {
+    SetRenderEngine(String),
+}
+
 pub struct DarkroomModule {
     imp_: RefCell<ControllerImpl>,
+    tx: glib::Sender<Msg>,
     client: Rc<LibraryClientHost>,
     widget: gtk4::Widget,
     worker: RenderWorker,
     imagecanvas: ImageCanvas,
     overlay: adw::ToastOverlay,
+    engine_combo: gtk4::ComboBoxText,
     toolbox_controller: cxx::UniquePtr<crate::ffi::ToolboxController>,
     file: RefCell<Option<db::LibFile>>,
     render_params: RefCell<Option<RenderParams>>,
@@ -92,13 +98,17 @@ impl DarkroomModule {
         let overlay = adw::ToastOverlay::new();
         let toolbox_controller = crate::ffi::toolbox_controller_new();
         let widget: gtk4::Widget = gtk4::Paned::new(gtk4::Orientation::Horizontal).into();
+        let engine_combo = gtk4::ComboBoxText::new();
+        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
 
         let mut module = Self {
             imp_: RefCell::new(ControllerImpl::default()),
+            tx,
             client: client_host.clone(),
             widget,
             imagecanvas,
             overlay,
+            engine_combo,
             worker,
             toolbox_controller,
             file: RefCell::new(None),
@@ -111,6 +121,15 @@ impl DarkroomModule {
         module.build_widget();
 
         let module = Rc::new(module);
+
+        rx.attach(
+            None,
+            glib::clone!(@strong module => move |e| {
+                module.dispatch(e);
+                glib::Continue(true)
+            }),
+        );
+
         selection_controller.handler.signal_selected.connect(
             glib::clone!(@weak selection_controller, @weak module => move |id| {
                 let file = selection_controller.file(id);
@@ -119,6 +138,14 @@ impl DarkroomModule {
         );
 
         module
+    }
+
+    fn dispatch(&self, msg: Msg) {
+        match msg {
+            Msg::SetRenderEngine(ref engine) => {
+                self.set_engine(engine);
+            }
+        }
     }
 
     /// Remove the toast indicating loading.
@@ -186,6 +213,17 @@ impl DarkroomModule {
         let toolbar = crate::niepce::ui::imagetoolbar::image_toolbar_new();
         vbox.append(&toolbar);
         let dock = Dock::new();
+        self.engine_combo
+            .append(Some(RenderEngine::Ncr.key()), "Niepce Camera Raw");
+        self.engine_combo
+            .append(Some(RenderEngine::Rt.key()), "RawTherapee");
+        let tx = self.tx.clone();
+        self.engine_combo.connect_changed(move |combo| {
+            if let Some(id) = combo.active_id().map(|id| id.to_string()) {
+                on_err_out!(tx.send(Msg::SetRenderEngine(id)));
+            }
+        });
+        dock.vbox().append(&self.engine_combo);
         let toolbox = unsafe {
             gtk4::Widget::from_glib_none(
                 self.toolbox_controller.pin_mut().build_widget() as *const gtk4_sys::GtkWidget
@@ -221,8 +259,23 @@ impl DarkroomModule {
         on_err_out!(self.worker.send(RenderMsg::SetImage(file)));
         self.render_params.replace(params.clone());
 
+        if let Some(ref params) = params {
+            let key = params.engine().key();
+            self.engine_combo.set_active_id(Some(key));
+        }
+
         if self.need_reload.get() && self.active.get() {
             self.reload_image(params);
+        }
+    }
+
+    fn set_engine(&self, engine: &str) {
+        if let Some(engine) = RenderEngine::from_key(engine) {
+            if let Some(ref mut params) = *self.render_params.borrow_mut() {
+                params.set_engine(engine);
+                self.need_reload.set(true);
+            }
+            self.reload_image(self.render_params.borrow().clone());
         }
     }
 }

@@ -61,6 +61,15 @@ impl RenderEngine {
             Self::Rt => "rt",
         }
     }
+
+    pub fn from_key(key: &str) -> Option<RenderEngine> {
+        match key {
+            "tnail" => Some(Self::Thumbnailer),
+            "ncr" => Some(Self::Ncr),
+            "rt" => Some(Self::Rt),
+            _ => None,
+        }
+    }
 }
 
 impl ParamDigest for RenderEngine {
@@ -138,6 +147,10 @@ impl RenderParams {
             dimensions,
             id,
         }
+    }
+
+    pub fn set_engine(&mut self, engine: RenderEngine) {
+        self.engine = engine;
     }
 
     pub fn engine(&self) -> RenderEngine {
