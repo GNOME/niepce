@@ -1,24 +1,23 @@
 # Indonesian translation for niepce.
 # Copyright (C) 2020 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
-# Andika Triwidada <atriwidada@gnome.org>, 2020.
+# Andika Triwidada <atriwidada@gnome.org>, 2020, 2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2020-07-16 13:21+0000\n"
-"PO-Revision-Date: 2020-08-31 21:43+0700\n"
+"POT-Creation-Date: 2023-02-02 03:01+0000\n"
+"PO-Revision-Date: 2023-03-22 17:59+0700\n"
+"Last-Translator: Andika Triwidada <andika@gmail.com>\n"
 "Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Last-Translator: Andika Triwidada <andika@gmail.com>\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: camerawire/src/cwwindow.cpp:62
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:36
 msgid "Camera"
 msgstr "Kamera"
 
@@ -26,7 +25,7 @@ msgstr "Kamera"
 msgid "File"
 msgstr "Berkas"
 
-#: camerawire/src/cwwindow.cpp:92 src/niepce/ui/workspacecontroller.cpp:456
+#: camerawire/src/cwwindow.cpp:92
 msgid "_Import..."
 msgstr "_Impor..."
 
@@ -58,587 +57,270 @@ msgstr "Perkakas"
 msgid "Refresh"
 msgstr "Segarkan"
 
-#: camerawire/src/cwwindow.cpp:135 src/niepce/ui/niepcewindow.cpp:245
-#, fuzzy
+#: camerawire/src/cwwindow.cpp:135
 msgid "Hide tools"
-msgstr "Menyembunyikan alat"
+msgstr "Sembunyikan alat"
 
-#. Only include 'name' if you want the software center name to be different to the 'Name' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:8 data/org.gnome.Niepce.desktop.in:3
-#, fuzzy
+#: data/org.gnome.Niepce.metainfo.xml.in.in:6
+#: data/org.gnome.Niepce.desktop.in:3
 msgid "Niepce Digital"
 msgstr "Niepce Digital"
 
-#. Only include 'summary' if you want the software center name to be different to the 'Comment' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:10
-#, fuzzy
+#: data/org.gnome.Niepce.metainfo.xml.in.in:7
 msgid "Advanced Photo Editing"
-msgstr "Pengeditan Foto Tingkat Lanjut"
+msgstr "Penyuntingan Foto Tingkat Lanjut"
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
-#, fuzzy
+#: data/org.gnome.Niepce.metainfo.xml.in.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
-msgstr "Niepce Digital adalah aplikasi yang digunakan untuk mengelola dan mengedit foto."
+msgstr ""
+"Niepce Digital adalah aplikasi yang digunakan untuk mengelola dan menyunting "
+"foto."
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/org.gnome.Niepce.metainfo.xml.in.in:12
 msgid "Features:"
 msgstr "Fitur:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:18
-#, fuzzy
+#: data/org.gnome.Niepce.metainfo.xml.in.in:14
 msgid "Photo library management"
 msgstr "Manajemen pustaka foto"
 
-#: data/org.gnome.Niepce.appdata.xml.in:19
-#, fuzzy
+#: data/org.gnome.Niepce.metainfo.xml.in.in:15
 msgid "Non destructive image editing"
-msgstr "Pengeditan gambar yang tidak merusak"
+msgstr "Penyuntingan gambar yang tidak merusak"
 
-#: data/org.gnome.Niepce.appdata.xml.in:20
-#, fuzzy
+#: data/org.gnome.Niepce.metainfo.xml.in.in:16
 msgid "RAW processing"
 msgstr "Pemrosesan RAW"
 
 #: data/org.gnome.Niepce.desktop.in:4
-#, fuzzy
 msgid "Manage and edit your photos"
 msgstr "Mengelola dan mengedit foto Anda"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 #: data/org.gnome.Niepce.desktop.in:6
-#, fuzzy
 msgid "photo;"
-msgstr "_Foto"
+msgstr "photo;"
 
-#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:40
-msgid "OK"
-msgstr "OK"
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
+msgid "Import Library"
+msgstr "Impor Pustaka"
 
-#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:41
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:72
-#: src/niepce/ui/niepcewindow.cpp:345
-msgid "Cancel"
-msgstr "Batal"
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:65
+msgid "Folder Roots"
+msgstr "Root Folder"
 
-#: niepce-main/src/niepce/ui/dialogs/requestnewfolder.rs:44
-#, fuzzy
-msgid "Folder _name:"
-msgstr "Nama folder"
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:73
+msgid "Start import"
+msgstr "Mulai mengimpor"
 
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
-msgid "Name"
-msgstr "Nama"
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:81
+msgid "Import in progress"
+msgstr "Impor sedang berlangsung"
 
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:65
-msgid "Description"
-msgstr "Deskripsi"
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:89
+msgid "All done"
+msgstr "Semua selesai"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:38
-#, fuzzy
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:40
 msgid "Develop"
-msgstr "Mengembangkan"
+msgstr "Kembangkan"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:56
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:58
 msgid "Crop"
 msgstr "Pangkas"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:60
-#, fuzzy
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
 msgid "Tilt"
 msgstr "Miringkan"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
-#, fuzzy
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:64
 msgid "White balance"
-msgstr "White Balance"
+msgstr "White balance"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:65
-#, fuzzy
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
 msgid "Color temperature"
 msgstr "Suhu warna"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
-#, fuzzy
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:69
 msgid "Tone and colour"
 msgstr "Nada dan warna"
 
 #. s->signal_value_changed().connect();
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:71
-#, fuzzy
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
 msgid "Exposure"
 msgstr "Bukaan"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
-#, fuzzy
-msgid "Recovery"
-msgstr "Program ini membantu dalam pencegahan dan pemulihan Repetitif Strain Injury (RSI)."
-
 #: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
-#, fuzzy
+msgid "Recovery"
+msgstr "Pemulihan"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
 msgid "Fill Light"
 msgstr "Isi Cahaya"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
-#, fuzzy
-msgid "Blacks"
-msgstr "Orang kulit hitam"
-
 #: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
+msgid "Blacks"
+msgstr "Hitam"
+
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
 msgid "Brightness"
 msgstr "Kecerahan"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
 msgid "Contrast"
 msgstr "Kontras"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
 msgid "Saturation"
 msgstr "Saturasi"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
-#, fuzzy
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:87
 msgid "Vibrance"
 msgstr "Vibrance"
 
-#: src/niepce/ui/dialogs/editlabels.cpp:55
-#: src/niepce/ui/dialogs/editlabels.ui:8
-#, fuzzy
+#: src/niepce/ui/dialogs/editlabels.cpp:59
+#: src/niepce/ui/dialogs/editlabels.ui:5
 msgid "Edit Labels"
-msgstr "Mengedit Label"
+msgstr "Sunting Label"
 
-#: src/niepce/ui/dialogs/editlabels.cpp:114
-#, fuzzy
+#: src/niepce/ui/dialogs/editlabels.cpp:101
 msgid "Change Labels"
-msgstr "Mengubah Label"
+msgstr "Ubah Label"
 
-#: src/niepce/ui/dialogs/editlabels.ui:71
-#, fuzzy
+#: src/niepce/ui/dialogs/editlabels.ui:26
 msgid "Label _6"
-msgstr "Label _6 (Label_6)"
+msgstr "Label _6"
 
-#: src/niepce/ui/dialogs/editlabels.ui:85
-#, fuzzy
+#: src/niepce/ui/dialogs/editlabels.ui:38
 msgid "Label _7"
-msgstr "Label _7 (Label_7)"
+msgstr "Label _7"
 
-#: src/niepce/ui/dialogs/editlabels.ui:99
-#, fuzzy
+#: src/niepce/ui/dialogs/editlabels.ui:50
 msgid "Label _8"
-msgstr "Label _8 (Label_8)"
+msgstr "Label _8"
 
-#: src/niepce/ui/dialogs/editlabels.ui:113
-#, fuzzy
+#: src/niepce/ui/dialogs/editlabels.ui:62
 msgid "Label _9"
-msgstr "Label _9 (Label_9)"
+msgstr "Label _9"
 
-#: src/niepce/ui/dialogs/editlabels.ui:172
-#, fuzzy
+#: src/niepce/ui/dialogs/editlabels.ui:115
 msgid "Label _10"
-msgstr "Label _10 (Label_10)"
+msgstr "Label _10"
 
-#: src/niepce/ui/dialogs/editlabels.ui:275
-#, fuzzy
+#: src/niepce/ui/dialogs/editlabels.ui:214
 msgid "<b>Labels</b>"
 msgstr "<b>Label</b>"
 
-#: src/niepce/ui/dialogs/importdialog.ui:14
+#: src/niepce/ui/dialogs/importdialog.ui:11
 msgid "(none)"
 msgstr "(nihil)"
 
-#: src/niepce/ui/dialogs/importdialog.ui:15
+#: src/niepce/ui/dialogs/importdialog.ui:12
 msgid "NONE"
 msgstr "NIHIL"
 
-#: src/niepce/ui/dialogs/importdialog.ui:29
+#: src/niepce/ui/dialogs/importdialog.ui:24
 msgid "local"
 msgstr "lokal"
 
-#: src/niepce/ui/dialogs/importdialog.ui:33
+#: src/niepce/ui/dialogs/importdialog.ui:28
 msgid "utc"
 msgstr "utc"
 
-#: src/niepce/ui/dialogs/importdialog.ui:41
+#: src/niepce/ui/dialogs/importdialog.ui:33
 msgid "Import"
 msgstr "Impor"
 
-#: src/niepce/ui/dialogs/importdialog.ui:76
-msgid "_Import"
-msgstr "_Impor"
-
-#: src/niepce/ui/dialogs/importdialog.ui:142
-#, fuzzy
+#: src/niepce/ui/dialogs/importdialog.ui:73
 msgid "_Images to import"
-msgstr "_Images untuk mengimpor"
+msgstr "Gambar yang akan di_impor"
 
-#: src/niepce/ui/dialogs/importdialog.ui:189
-#, fuzzy
+#: src/niepce/ui/dialogs/importdialog.ui:100
 msgid "Destination _Folder"
-msgstr "_Direktori penyimpanan:"
+msgstr "_Folder Tujuan"
 
-#: src/niepce/ui/dialogs/importdialog.ui:232
-#, fuzzy
+#: src/niepce/ui/dialogs/importdialog.ui:132
 msgid "Import _UFRaw"
 msgstr "Impor _UFRaw"
 
-#: src/niepce/ui/dialogs/importdialog.ui:249
-#, fuzzy
+#: src/niepce/ui/dialogs/importdialog.ui:142
 msgid "Import Raw_Studio"
 msgstr "Impor Raw_Studio"
 
-#: src/niepce/ui/dialogs/importdialog.ui:270
+#: src/niepce/ui/dialogs/importdialog.ui:153
 msgid "_Options"
 msgstr "_Opsi"
 
-#: src/niepce/ui/dialogs/importdialog.ui:326
-#, fuzzy
+#: src/niepce/ui/dialogs/importdialog.ui:191
 msgid "Presets:"
-msgstr "<ahelp hid=\"cui/ui/borderpage/presets\">Pilih gaya pembatas yang telah ditentukan untuk diterapkan</ahelp>"
+msgstr "Pratata:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:385
-#, fuzzy
+#: src/niepce/ui/dialogs/importdialog.ui:226
 msgid "You can still change this after importing the pictures."
 msgstr "Anda masih dapat mengubah ini setelah mengimpor gambar."
 
-#: src/niepce/ui/dialogs/importdialog.ui:406
-#: src/niepce/ui/metadatapanecontroller.cpp:59
+#: src/niepce/ui/dialogs/importdialog.ui:237
 msgid "Date:"
 msgstr "Tanggal:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:450
+#: src/niepce/ui/dialogs/importdialog.ui:265
 msgid "Attributes:"
 msgstr "Atribut:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:469
+#: src/niepce/ui/dialogs/importdialog.ui:277
 msgid "Metadata"
 msgstr "Metadata"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:65
-#, fuzzy
-msgid "No camera found"
-msgstr "Tidak ada kamera yang ditemukan"
+#: src/niepce/ui/dialogs/importdialog.ui:304
+msgid "_Import"
+msgstr "_Impor"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:80
-#, fuzzy
-msgid "Camera import %1%"
-msgstr "Impor kamera% 1%"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:28
-#, fuzzy
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:18
 msgid "Available cameras:"
 msgstr "Kamera yang tersedia:"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:37
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:73
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:27
 msgid "Select"
 msgstr "Pilih"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:34
-msgid "Directory"
-msgstr "Direktori"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:69
-#, fuzzy
-msgid "Import picture folder"
-msgstr "Mengimpor folder gambar"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:16
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:9
 msgid "_Directory:"
 msgstr "_Direktori:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:39
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:20
 msgid "..."
 msgstr "..."
 
-#: src/niepce/ui/dialogs/preferencesdialog.cpp:40
-#: src/niepce/ui/dialogs/preferences.ui:9
+#: src/niepce/ui/dialogs/preferencesdialog.cpp:38
+#: src/niepce/ui/dialogs/preferences.ui:5
 msgid "Preferences"
 msgstr "Preferensi"
 
-#: src/niepce/ui/dialogs/preferences.ui:70
-#, fuzzy
+#: src/niepce/ui/dialogs/preferences.ui:35
 msgid "_Reopen Catalog"
-msgstr "_Reopen Katalog"
+msgstr "Buka _Ulang Katalog"
 
-#: src/niepce/ui/dialogs/preferences.ui:86
-#, fuzzy
+#: src/niepce/ui/dialogs/preferences.ui:48
 msgid "Write XMP automatically (not recommended)"
-msgstr "Menulis XMP secara otomatis (tidak disarankan)"
+msgstr "Tulis XMP secara otomatis (tidak disarankan)"
 
-#: src/niepce/ui/dialogs/preferences.ui:105
+#: src/niepce/ui/dialogs/preferences.ui:62
 msgid "_General"
 msgstr "_Umum"
 
-#: src/niepce/ui/dialogs/preferences.ui:119
-#, fuzzy
+#: src/niepce/ui/dialogs/preferences.ui:81
 msgid "Use dark interface"
-msgstr "Menggunakan antarmuka gelap"
+msgstr "Gunakan antarmuka gelap"
 
-#: src/niepce/ui/dialogs/preferences.ui:141
-#, fuzzy
+#: src/niepce/ui/dialogs/preferences.ui:95
 msgid "_User Interface"
-msgstr "Antar Muka Pengguna."
-
-#: src/niepce/ui/metadatapanecontroller.cpp:36
-#, fuzzy
-msgid "File Name:"
-msgstr "Nama File:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:37
-msgid "Folder:"
-msgstr "Folder:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:38
-#, fuzzy
-msgid "File Type:"
-msgstr "Tipe berkas."
-
-#: src/niepce/ui/metadatapanecontroller.cpp:39
-#, fuzzy
-msgid "File Size:"
-msgstr "Ukuran Berkas:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:40
-#, fuzzy
-msgid "Sidecar Files:"
-msgstr "Berkas Sidecar:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:44
-#, fuzzy
-msgid "Make:"
-msgstr "Make"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:45
-#, fuzzy
-msgid "Model:"
-msgstr "Model:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:46
-#, fuzzy
-msgid "Lens:"
-msgstr "Bukaan lensa. Satuan adalah nilai APEX."
-
-#: src/niepce/ui/metadatapanecontroller.cpp:50
-#, fuzzy
-msgid "Exposure Program:"
-msgstr "Program Pencahayaan"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:51
-#, fuzzy
-msgid "Speed:"
-msgstr "Kecepatan:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:52
-#, fuzzy
-msgid "Aperture:"
-msgstr "Diafragma:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:53
-#, fuzzy
-msgid "ISO:"
-msgstr "Kecepatan ISO dan Latitude ISO dari kamera atau perangkat masukan seperti yang dispesifikasikan dalam ISO 12232."
-
-#: src/niepce/ui/metadatapanecontroller.cpp:54
-#, fuzzy
-msgid "Exposure Bias:"
-msgstr "Bias bukaan:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:55
-#, fuzzy
-msgid "Flash:"
-msgstr "Lampu kilat:"
+msgstr "Antar M_uka Pengguna"
 
 #: src/niepce/ui/metadatapanecontroller.cpp:56
-#, fuzzy
-msgid "Flash compensation:"
-msgstr "Kompensasi lampu kilat:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:57
-#, fuzzy
-msgid "Focal length:"
-msgstr "Panjang fokus:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:58
-#, fuzzy
-msgid "White balance:"
-msgstr "White balance"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:63
-#, fuzzy
-msgid "Headline:"
-msgstr "Headline"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:64
-#, fuzzy
-msgid "Caption:"
-msgstr "Kapsi:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:65
-#, fuzzy
-msgid "Rating:"
-msgstr "Nilai:"
-
-#. FIXME change this type to the right one when there is a widget
-#: src/niepce/ui/metadatapanecontroller.cpp:67
-msgid "Label:"
-msgstr "Label:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:68
-#, fuzzy
-msgid "Keywords:"
-msgstr "Kata kunci:"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:72
-#, fuzzy
-msgid "File Information"
-msgstr "Informasi File"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:75
-#, fuzzy
-msgid "Camera Information"
-msgstr "Informasi Kamera"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:78
-#, fuzzy
-msgid "Shooting Information"
-msgstr "Informasi Pemotretan"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:81
-#, fuzzy
-msgid "IPTC"
-msgstr "Iptc"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:84
-#, fuzzy
-msgid "Rights"
-msgstr "Hak"
-
-#: src/niepce/ui/metadatapanecontroller.cpp:114
-#, fuzzy
 msgid "Image Properties"
 msgstr "Properti Gambar"
 
-#: src/niepce/ui/moduleshell.cpp:60
-#, fuzzy
-msgid "Back"
-msgstr "Mundur"
-
-#: src/niepce/ui/moduleshell.cpp:66
-#, fuzzy
-msgid "Forward"
-msgstr "Teruskan"
-
-#: src/niepce/ui/moduleshell.cpp:76
-#, fuzzy
-msgid "Rotate Left"
-msgstr "Putar Kiri"
-
-#: src/niepce/ui/moduleshell.cpp:83
-#, fuzzy
-msgid "Rotate Right"
-msgstr "Putar Kanan"
-
-#: src/niepce/ui/moduleshell.cpp:89 src/niepce/ui/selectioncontroller.cpp:281
-#, fuzzy
-msgid "Set Label"
-msgstr "Atur Label"
-
-#: src/niepce/ui/moduleshell.cpp:96
-#, fuzzy
-msgid "Label 6"
-msgstr "Label 6 (Label 6)"
-
-#: src/niepce/ui/moduleshell.cpp:102
-#, fuzzy
-msgid "Label 7"
-msgstr "Label 7 (Label 7)"
-
-#: src/niepce/ui/moduleshell.cpp:108
-#, fuzzy
-msgid "Label 8"
-msgstr "Label 8 (Label 8)"
-
-#: src/niepce/ui/moduleshell.cpp:114
-#, fuzzy
-msgid "Label 9"
-msgstr "Label 9 (Label 9)"
-
-#: src/niepce/ui/moduleshell.cpp:117 src/niepce/ui/selectioncontroller.cpp:278
-#, fuzzy
-msgid "Set Rating"
-msgstr "Atur Rating"
-
-#: src/niepce/ui/moduleshell.cpp:124
-#, fuzzy
-msgid "Unrated"
-msgstr "Tanpa Rating"
-
-#: src/niepce/ui/moduleshell.cpp:130
-#, fuzzy
-msgid "Rating 1"
-msgstr "Peringkat dari wisatawan"
-
-#: src/niepce/ui/moduleshell.cpp:136
-#, fuzzy
-msgid "Rating 2"
-msgstr "Peringkat dari wisatawan"
-
-#: src/niepce/ui/moduleshell.cpp:142
-#, fuzzy
-msgid "Rating 3"
-msgstr "Peringkat dari wisatawan"
-
-#: src/niepce/ui/moduleshell.cpp:148
-#, fuzzy
-msgid "Rating 4"
-msgstr "Peringkat dari wisatawan"
-
-#: src/niepce/ui/moduleshell.cpp:154
-#, fuzzy
-msgid "Rating 5"
-msgstr "Peringkat dari wisatawan"
-
-#: src/niepce/ui/moduleshell.cpp:157 src/niepce/ui/selectioncontroller.cpp:275
-#, fuzzy
-msgid "Set Flag"
-msgstr "Set Bendera"
-
-#: src/niepce/ui/moduleshell.cpp:165
-#, fuzzy
-msgid "Flag as Rejected"
-msgstr "Tandai sebagai Rejected"
-
-#: src/niepce/ui/moduleshell.cpp:172
-#, fuzzy
-msgid "Unflagged"
-msgstr "Tidak dilagged"
-
-#: src/niepce/ui/moduleshell.cpp:179
-#, fuzzy
-msgid "Flag as Pick"
-msgstr "Tandai as Pick"
-
-#: src/niepce/ui/moduleshell.cpp:188
-#, fuzzy
-msgid "Write metadata"
-msgstr "Menulis metadata"
-
-#: src/niepce/ui/moduleshell.cpp:198
-#, fuzzy
-msgid "Catalog"
-msgstr "Katalog"
-
-#: src/niepce/ui/moduleshell.cpp:207
-#, fuzzy
-msgid "Darkroom"
-msgstr "Kamar gelap"
-
-#: src/niepce/ui/moduleshell.cpp:210
-#, fuzzy
-msgid "Map"
-msgstr "Peta"
-
-#: src/niepce/ui/niepceapplication.cpp:79
-#, fuzzy
+#: src/niepce/ui/niepceapplication.cpp:70
 msgid ""
 "A digital photo application.\n"
 "\n"
@@ -646,140 +328,4 @@ msgid ""
 msgstr ""
 "Sebuah aplikasi foto digital.\n"
 "\n"
-"Opsi build:"
-
-#: src/niepce/ui/niepcewindow.cpp:78
-#, fuzzy
-msgid "Undo"
-msgstr "Tak Jadi"
-
-#: src/niepce/ui/niepcewindow.cpp:89
-#, fuzzy
-msgid "Import..."
-msgstr "Import..."
-
-#: src/niepce/ui/niepcewindow.cpp:166
-#, fuzzy
-msgid "Ready"
-msgstr "Siap"
-
-#: src/niepce/ui/niepcewindow.cpp:237
-#, fuzzy
-msgid "New Catalog..."
-msgstr "Katalog Baru..."
-
-#: src/niepce/ui/niepcewindow.cpp:238
-#, fuzzy
-msgid "Open Catalog..."
-msgstr "Buka Katalog..."
-
-#: src/niepce/ui/niepcewindow.cpp:249
-#, fuzzy
-msgid "Edit Labels..."
-msgstr "Mengedit Label..."
-
-#: src/niepce/ui/niepcewindow.cpp:250
-#, fuzzy
-msgid "Preferences..."
-msgstr "Preferensi..."
-
-#: src/niepce/ui/niepcewindow.cpp:254
-msgid "Help"
-msgstr "Bantuan"
-
-#: src/niepce/ui/niepcewindow.cpp:255
-msgid "About"
-msgstr "Tentang"
-
-#. TODO make this parametric from resources
-#: src/niepce/ui/niepcewindow.cpp:291
-#, fuzzy
-msgid "Label 1"
-msgstr "Label 1 (Label 1)"
-
-#. 217, 37, 17
-#: src/niepce/ui/niepcewindow.cpp:292
-#, fuzzy
-msgid "Label 2"
-msgstr "Label 2 (Label 2)"
-
-#. 97, 217, 17
-#: src/niepce/ui/niepcewindow.cpp:293
-#, fuzzy
-msgid "Label 3"
-msgstr "Label 3 (Label 3)"
-
-#. 17, 197, 217
-#: src/niepce/ui/niepcewindow.cpp:294
-#, fuzzy
-msgid "Label 4"
-msgstr "Label 4 (Label 4)"
-
-#. 137, 17, 217
-#: src/niepce/ui/niepcewindow.cpp:295
-#, fuzzy
-msgid "Label 5"
-msgstr "Label 5 (Label 5)"
-
-#: src/niepce/ui/niepcewindow.cpp:343
-#, fuzzy
-msgid "Open catalog"
-msgstr "Buka katalog"
-
-#: src/niepce/ui/niepcewindow.cpp:346
-msgid "Open"
-msgstr "Buka"
-
-#: src/niepce/ui/niepcewindow.cpp:403
-#, fuzzy
-msgid "Niepce Digital - "
-msgstr "Niepce Digital -"
-
-#: src/niepce/ui/selectioncontroller.cpp:284
-#, fuzzy
-msgid "Set Property"
-msgstr "Atur Properti"
-
-#: src/niepce/ui/selectioncontroller.cpp:299
-#, fuzzy
-msgid "Set Properties"
-msgstr "Tata properti teks"
-
-#: src/niepce/ui/selectioncontroller.cpp:326
-msgid "Move to Trash"
-msgstr "Pindahkan ke Tong Sampah"
-
-#: src/niepce/ui/workspacecontroller.cpp:102
-#, fuzzy
-msgid "Delete selected folder?"
-msgstr "Menghapus folder yang dipilih?"
-
-#: src/niepce/ui/workspacecontroller.cpp:402
-msgid "Pictures"
-msgstr "Gambar"
-
-#: src/niepce/ui/workspacecontroller.cpp:406
-msgid "Projects"
-msgstr "Proyek"
-
-#: src/niepce/ui/workspacecontroller.cpp:410
-msgid "Keywords"
-msgstr "Kata Kunci"
-
-#. TODO make it a mnemonic
-#: src/niepce/ui/workspacecontroller.cpp:424
-#, fuzzy
-msgid "_Workspace"
-msgstr "area kerja"
-
-#: src/niepce/ui/workspacecontroller.cpp:440
-msgid "New Folder..."
-msgstr "Folder Baru..."
-
-#: src/niepce/ui/workspacecontroller.cpp:442
-msgid "New Project..."
-msgstr "Proyek Baru..."
-
-#: src/niepce/ui/workspacecontroller.cpp:447
-msgid "Delete Folder"
-msgstr "Hapus Folder"
+"Opsi build: "
