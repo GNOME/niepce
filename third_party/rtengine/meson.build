@@ -12,6 +12,7 @@ tiff_deps = dependency('libtiff-4')
 jpeg_deps = dependency('libjpeg')
 expat_deps = dependency('expat')
 fftw3f = dependency('fftw3f')
+zlib_deps = dependency('zlib')
 
 rtdatadir = datadir / 'niepce' / 'rawtherapee'
 install_data(

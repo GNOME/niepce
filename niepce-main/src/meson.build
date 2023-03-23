@@ -33,7 +33,8 @@ niepce_rust = custom_target(
     'niepce'
   ],
   console: true,
-  install: false,
+  install: true,
+  install_dir: [ false, 'bin' ],
   command: [
     'env',
     cargo_env,
