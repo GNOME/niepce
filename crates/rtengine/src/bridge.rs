@@ -19,24 +19,31 @@
 
 #[cxx::bridge(namespace = "rtengine")]
 pub(crate) mod ffi {
-    /// Lens correction mode. Should match procparams::LcMode
+    #[namespace = "rtengine::procparams"]
     #[repr(i32)]
     enum LcMode {
         /// No correction.
-        None = 0,
+        #[cxx_name = "NONE"]
+        None,
         /// Match automatically from LensFun.
-        LensFunAutoMatch = 1,
+        #[cxx_name = "LENSFUNAUTOMATCH"]
+        LensFunAutoMatch,
         /// Manual select a LensFun entry.
-        LensFunManual = 2,
+        #[cxx_name = "LENSFUNMANUAL"]
+        LensFunManual,
         /// Use LCP file.
-        Lcp = 3,
+        #[cxx_name = "LCP"]
+        Lcp,
     }
 
-    unsafe extern "C++" {
+    #[namespace = "rtengine::procparams"]
+    extern "C++" {
+        include!("npc_rtengine.h");
+        type LcMode;
+    }
+
+    extern "C++" {
         type ProgressListener;
-    }
-
-    unsafe extern "C++" {
         type FramesMetaData;
     }
 

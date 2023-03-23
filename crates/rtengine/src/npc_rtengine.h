@@ -27,7 +27,6 @@
 #include "rtgui/options.h"
 
 namespace rtengine {
-  enum class LcMode : int;
 
   void init_();
 
@@ -80,14 +79,16 @@ namespace rtengine {
 
 
   namespace procparams {
+    using LcMode = LensProfParams::LcMode;
+
     inline
     void partial_profile_apply_to(const std::unique_ptr<PartialProfile>& profile, ProcParams& params, bool from_last_saved) {
       profile->applyTo(&params, from_last_saved);
     }
 
     inline
-    void ProcParams_set_lcmode(ProcParams& params, rtengine::LcMode mode) {
-      params.lensProf.lcMode = (LensProfParams::LcMode)mode;
+    void ProcParams_set_lcmode(ProcParams& params, LcMode mode) {
+      params.lensProf.lcMode = mode;
     }
 
     inline
