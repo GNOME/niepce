@@ -59,24 +59,15 @@ clippy = run_target(
   depends: [resources_bundle]
 )
 
-widget_test = custom_target(
-  'widget-test',
-  output: [
-    'widget-test',
-  ],
-  build_always_stale: true,
-  console: true,
-  install: false,
+examples = run_target(
+  'examples',
+  env: cargo_env,
   command: [
-    'env',
-    cargo_env,
     cargo, 'build',
-    '--example=widget-test',
     cargo_options,
-    '&&',
-    'cp', cargo_target_dir / rust_target / 'examples' / 'widget-test', '@OUTDIR@'
+    '--examples'
   ],
-  depends: [niepce_lib, resources_bundle, ncr, fwk]
+  depends: [resources_bundle]
 )
 
 niepce_rust_deps = declare_dependency(link_with: niepce_rust[0])
