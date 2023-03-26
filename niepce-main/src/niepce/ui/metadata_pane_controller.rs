@@ -1,3 +1,22 @@
+/*
+ * niepce - niepce/ui/metadata_pane_controllerd.rs
+ *
+ * Copyright (C) 2022-2023 Hubert Figuière
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 use gettextrs::gettext as i18n;
 
 use npc_engine::db::NiepcePropertyIdx;
@@ -52,6 +71,12 @@ lazy_static::lazy_static! {
         MetadataSectionFormat{
             section: i18n("Rights"),
             formats: vec![]
+        },
+        MetadataSectionFormat{
+            section: i18n("Processing"),
+            formats: vec![
+                MetadataFormat{ label: i18n("Process:"), id: NiepcePropertyIdx::NpNiepceRenderEngineProp.repr, type_: MetaDT::STRING, readonly: true },
+            ]
         },
     ];
 }
