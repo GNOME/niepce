@@ -88,7 +88,7 @@ impl LibMetadata {
         self.xmp_meta.serialize_inline()
     }
 
-    fn get_metadata(&self, meta: Np) -> Option<PropertyValue> {
+    pub fn get_metadata(&self, meta: Np) -> Option<PropertyValue> {
         let index_to_xmp = property_index_to_xmp(meta)?;
 
         let mut prop_flags = exempi2::PropFlags::default();

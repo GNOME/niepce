@@ -46,9 +46,10 @@ impl From<NiepceProperties> for u32 {
 
 impl From<u32> for NiepceProperties {
     fn from(v: u32) -> NiepceProperties {
-        match v {
-            0..=26 => Self::Index(unsafe { std::mem::transmute(v) }),
-            _ => Self::Other(v),
+        if v > 0 && v < NiepcePropertyIdx::_NpPropertyEnd.repr {
+            Self::Index(unsafe { std::mem::transmute(v) })
+        } else {
+            Self::Other(v)
         }
     }
 }
@@ -76,5 +77,6 @@ lazy_static! {
     NiepceProperties::Index(NiepcePropertyIdx::NpIptcDescriptionProp) => (NS_DC, "description"),
     NiepceProperties::Index(NiepcePropertyIdx::NpIptcKeywordsProp) => (NS_DC, "subject"),
     NiepceProperties::Index(NiepcePropertyIdx::NpNiepceFlagProp) => (xmp::NIEPCE_XMP_NAMESPACE, "Flag"),
+    NiepceProperties::Index(NiepcePropertyIdx::NpNiepceRenderEngineProp) => (xmp::NIEPCE_XMP_NAMESPACE, "RenderEngine"),
     };
 }

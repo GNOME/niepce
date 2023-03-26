@@ -140,7 +140,10 @@ pub mod ffi {
         NpIptcDescriptionProp,
         NpIptcKeywordsProp,
         NpNiepceFlagProp,
+        NpNiepceRenderEngineProp,
         NpNiepceXmpPacket,
+        // Always keep this last.
+        _NpPropertyEnd,
     }
 
     #[repr(i32)]

@@ -31,10 +31,12 @@ use crate::niepce::ui::LibraryModule;
 use crate::SelectionController;
 use image_canvas::ImageCanvas;
 use npc_craw::{RenderImpl, RenderWorker};
-use npc_engine::db;
-use npc_engine::library::notification::LibNotification;
+use npc_engine::db::NiepceProperties as Np;
+use npc_engine::db::NiepcePropertyIdx as Npi;
+use npc_engine::db::{self, LibMetadata, LibraryId};
+use npc_engine::library::notification::{ImageRendered, LibNotification, MetadataChange};
 use npc_engine::library::{RenderEngine, RenderMsg, RenderParams};
-use npc_engine::libraryclient::LibraryClientHost;
+use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
@@ -53,6 +55,7 @@ pub struct DarkroomModule {
     imagecanvas: ImageCanvas,
     overlay: adw::ToastOverlay,
     engine_combo: gtk4::ComboBoxText,
+    engine_combo_change: Option<glib::SignalHandlerId>,
     toolbox_controller: cxx::UniquePtr<crate::ffi::ToolboxController>,
     file: RefCell<Option<db::LibFile>>,
     render_params: RefCell<Option<RenderParams>>,
@@ -79,7 +82,17 @@ impl LibraryModule for DarkroomModule {
     fn set_active(&self, active: bool) {
         self.active.set(active);
         if active {
-            self.reload_image(self.render_params.borrow().clone());
+            // The logic here is that the `SelectionController` will request
+            // the metadata. But if inactive, it's possible the module
+            // doesn't have the metadata so we'll have to request it.
+            if let Some(ref file) = *self.file.borrow() {
+                if file.metadata().is_none() {
+                    dbg_out!("Requesting metadata");
+                    self.client.client().request_metadata(file.id());
+                } else {
+                    self.reload_image(self.render_params.borrow().clone());
+                }
+            }
         }
     }
 
@@ -109,6 +122,7 @@ impl DarkroomModule {
             imagecanvas,
             overlay,
             engine_combo,
+            engine_combo_change: None,
             worker,
             toolbox_controller,
             file: RefCell::new(None),
@@ -140,10 +154,30 @@ impl DarkroomModule {
         module
     }
 
+    /// Set the active engine in the UI, but don't emit the signal change
+    /// This is for when we set the UI value.
+    fn set_active_engine(&self, engine: Option<&str>) {
+        if let Some(ref handler) = self.engine_combo_change {
+            glib::signal::signal_handler_block(&self.engine_combo, handler);
+        }
+        self.engine_combo.set_active_id(engine);
+        if let Some(ref handler) = self.engine_combo_change {
+            glib::signal::signal_handler_unblock(&self.engine_combo, handler);
+        }
+    }
+
     fn dispatch(&self, msg: Msg) {
         match msg {
             Msg::SetRenderEngine(ref engine) => {
-                self.set_engine(engine);
+                // XXX make this a command with undo
+                dbg_out!("Render engine changed in UI");
+                if let Some(ref file) = *self.file.borrow() {
+                    self.client.client().set_metadata(
+                        file.id(),
+                        Np::Index(Npi::NpNiepceRenderEngineProp),
+                        &npc_fwk::base::PropertyValue::String(engine.clone()),
+                    );
+                }
             }
         }
     }
@@ -177,23 +211,75 @@ impl DarkroomModule {
         self.overlay.add_toast(toast);
     }
 
-    pub fn on_lib_notification(&self, ln: &LibNotification) {
-        if let LibNotification::ImageRendered(rendered) = ln {
-            // XXX this is suboptimal
-            dbg_out!("Got bitmap");
-            if let Some(ref file) = *self.file.borrow() {
-                if file.id() == rendered.id {
-                    let b = rendered.image.clone();
-                    self.imagecanvas.set_image(b);
-                    self.remove_loading_toast();
-                } else {
-                    dbg_out!(
-                        "Received bitmap for {}, expected {}",
-                        rendered.id,
-                        file.id()
-                    );
-                }
+    /// Check that the current file is `id`.
+    fn is_current_file_id(&self, id: LibraryId) -> bool {
+        self.file
+            .borrow()
+            .as_ref()
+            .map(|file| file.id() == id)
+            .unwrap_or(false)
+    }
+
+    /// We received a rendered image.
+    fn rendered_image_received(&self, rendered: &ImageRendered) {
+        dbg_out!("Got bitmap");
+        if self.is_current_file_id(rendered.id) {
+            let b = rendered.image.clone();
+            self.imagecanvas.set_image(b);
+            self.remove_loading_toast();
+        } else {
+            dbg_out!("Received bitmap for {}, not the current", rendered.id);
+        }
+    }
+
+    /// We received a metadata change.
+    fn metadata_change_received(&self, changed: &MetadataChange) {
+        if self.is_current_file_id(changed.id)
+            && changed.meta == Np::Index(Npi::NpNiepceRenderEngineProp)
+        {
+            if let Some(engine) = changed.value.string() {
+                self.set_engine(engine);
             }
+        }
+    }
+
+    /// We received metadata.
+    fn metadata_received(&self, metadata: &LibMetadata) {
+        if !self.is_current_file_id(metadata.id()) {
+            return;
+        }
+
+        if let Some(ref mut file) = *self.file.borrow_mut() {
+            dbg_out!(
+                "Checking file: current {} received {}",
+                file.id(),
+                metadata.id()
+            );
+            dbg_out!("Got metadata for {}", metadata.id());
+            if file.metadata.is_some() {
+                return;
+            }
+            file.metadata = Some(metadata.clone());
+        }
+        let params = self.file.borrow().as_ref().map(|file| {
+            let params = self.params_for_metadata(file);
+            self.render_params.replace(Some(params.clone()));
+
+            let key = params.engine().key();
+            self.set_active_engine(Some(key));
+
+            self.need_reload.set(true);
+            params
+        });
+        self.reload_image(params);
+    }
+
+    pub fn on_lib_notification(&self, ln: &LibNotification) {
+        match ln {
+            LibNotification::ImageRendered(rendered) => self.rendered_image_received(rendered),
+            LibNotification::MetadataChanged(changed) => self.metadata_change_received(changed),
+            LibNotification::MetadataQueried(metadata) => self.metadata_received(metadata),
+            _ => {}
         }
     }
 
@@ -218,11 +304,11 @@ impl DarkroomModule {
         self.engine_combo
             .append(Some(RenderEngine::Rt.key()), "RawTherapee");
         let tx = self.tx.clone();
-        self.engine_combo.connect_changed(move |combo| {
+        self.engine_combo_change = Some(self.engine_combo.connect_changed(move |combo| {
             if let Some(id) = combo.active_id().map(|id| id.to_string()) {
                 on_err_out!(tx.send(Msg::SetRenderEngine(id)));
             }
-        });
+        }));
         dock.vbox().append(&self.engine_combo);
         let toolbox = unsafe {
             gtk4::Widget::from_glib_none(
@@ -249,31 +335,61 @@ impl DarkroomModule {
         }
     }
 
+    /// Build the `RenderParams` from the metadata.
+    fn params_for_metadata(&self, file: &db::LibFile) -> RenderParams {
+        // If we have metadata, use them.
+        let engine = file.metadata().and_then(|metadata| {
+            metadata
+                .get_metadata(Np::Index(Npi::NpNiepceRenderEngineProp))?
+                .string()
+                .and_then(RenderEngine::from_key)
+        });
+        let engine = match engine {
+            None => {
+                // We shall explicitly save the default engine.
+                let e = RenderEngine::default();
+                self.client.client().set_metadata(
+                    file.id(),
+                    Np::Index(Npi::NpNiepceRenderEngineProp),
+                    &npc_fwk::base::PropertyValue::String(e.key().to_string()),
+                );
+                e
+            }
+            Some(e) => e,
+        };
+
+        RenderParams::new_preview(file, engine, Size::default())
+    }
+
     pub fn set_image(&self, file: Option<db::LibFile>) {
         self.need_reload.set(true);
         self.file.replace(file.clone());
 
-        let params = file
-            .as_ref()
-            .map(|file| RenderParams::new_preview(file.id(), Size::default()));
-        on_err_out!(self.worker.send(RenderMsg::SetImage(file)));
-        self.render_params.replace(params.clone());
+        if let Some(ref file) = file {
+            on_err_out!(self.worker.send(RenderMsg::SetImage(Some(file.clone()))));
+            if file.metadata().is_some() {
+                let params = self.params_for_metadata(file);
+                self.render_params.replace(Some(params.clone()));
 
-        if let Some(ref params) = params {
-            let key = params.engine().key();
-            self.engine_combo.set_active_id(Some(key));
-        }
+                let key = params.engine().key();
+                self.set_active_engine(Some(key));
 
-        if self.need_reload.get() && self.active.get() {
-            self.reload_image(params);
+                if self.need_reload.get() && self.active.get() {
+                    self.reload_image(Some(params));
+                }
+            }
         }
     }
 
     fn set_engine(&self, engine: &str) {
         if let Some(engine) = RenderEngine::from_key(engine) {
             if let Some(ref mut params) = *self.render_params.borrow_mut() {
-                params.set_engine(engine);
-                self.need_reload.set(true);
+                // Don't retrigger render if the engine didn't change.
+                if params.engine() != engine {
+                    params.set_engine(engine);
+                    self.set_active_engine(Some(engine.key()));
+                    self.need_reload.set(true);
+                }
             }
             self.reload_image(self.render_params.borrow().clone());
         }

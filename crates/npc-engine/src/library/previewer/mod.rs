@@ -25,6 +25,7 @@ use num_derive::{FromPrimitive, ToPrimitive};
 use crate::db;
 pub(crate) use cache::{Cache, DbMessage};
 use npc_fwk::base::Size;
+use npc_fwk::err_out;
 use npc_fwk::toolkit::ImageBitmap;
 
 type RenderDigest = md5::Md5;
@@ -54,6 +55,7 @@ pub enum RenderEngine {
 }
 
 impl RenderEngine {
+    /// The key is used for the cache, and for the XMP.
     pub fn key(&self) -> &'static str {
         match self {
             Self::Thumbnailer => "tnail",
@@ -140,10 +142,14 @@ impl RenderParams {
         }
     }
 
-    pub fn new_preview(id: db::LibraryId, dimensions: Size) -> RenderParams {
+    pub fn new_preview(file: &db::LibFile, engine: RenderEngine, dimensions: Size) -> RenderParams {
+        let id = file.id();
+        if file.metadata.is_none() {
+            err_out!("new preview, metadata is none");
+        }
         RenderParams {
             type_: RenderType::Preview,
-            engine: RenderEngine::default(),
+            engine,
             dimensions,
             id,
         }
@@ -176,14 +182,22 @@ impl RenderParams {
 #[cfg(test)]
 mod test {
     use super::{RenderEngine, RenderParams};
+    use crate::db::LibFile;
     use npc_fwk::base::Size;
 
     #[test]
     fn test_digest() {
-        let mut preview1 = RenderParams::new_preview(1, Size { w: 1600, h: 1200 });
-        preview1.engine = RenderEngine::Ncr;
-        let mut preview2 = RenderParams::new_preview(1, Size { w: 1600, h: 1200 });
-        preview2.engine = RenderEngine::Rt;
+        let file = LibFile::new(
+            1,
+            1,
+            1,
+            std::path::PathBuf::from("/tmp/image.jpg"),
+            "image.jpg",
+        );
+        let preview1 =
+            RenderParams::new_preview(&file, RenderEngine::Ncr, Size { w: 1600, h: 1200 });
+        let preview2 =
+            RenderParams::new_preview(&file, RenderEngine::Rt, Size { w: 1600, h: 1200 });
 
         assert_ne!(preview1.digest(), preview2.digest());
     }

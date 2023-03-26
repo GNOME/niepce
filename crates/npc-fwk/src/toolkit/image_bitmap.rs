@@ -80,7 +80,8 @@ impl ImageBitmap {
         }
     }
 
-    /// Load from PNG file.
+    /// Load from PNG file. This will not decompress the PNG
+    /// stream, but will check its dimension
     pub fn from_file<P>(file: P) -> Result<Self>
     where
         P: AsRef<std::path::Path>,

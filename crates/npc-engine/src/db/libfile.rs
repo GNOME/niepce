@@ -23,9 +23,9 @@ use npc_fwk::err_out;
 
 use super::fsfile::FsFile;
 use super::FromDb;
-use super::LibraryId;
 use super::NiepceProperties as Np;
 use super::NiepcePropertyIdx as Npi;
+use super::{LibMetadata, LibraryId};
 
 pub use crate::ffi::FileType;
 
@@ -94,6 +94,7 @@ pub struct LibFile {
     label: i32,
     flag: i32,
     file_type: FileType,
+    pub metadata: Option<LibMetadata>,
 }
 
 use cxx::{type_id, ExternType};
@@ -122,6 +123,7 @@ impl LibFile {
             label: 0,
             flag: 0,
             file_type: FileType::Unknown,
+            metadata: None,
         }
     }
 
@@ -135,6 +137,10 @@ impl LibFile {
 
     pub fn folder_id(&self) -> LibraryId {
         self.folder_id
+    }
+
+    pub fn metadata(&self) -> Option<&LibMetadata> {
+        self.metadata.as_ref()
     }
 
     pub fn name(&self) -> &str {
