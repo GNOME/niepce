@@ -83,17 +83,19 @@ fn check_file_status(id: db::LibraryId, path: &Path, sender: &LcChannel) {
     }
 }
 
+/// Get a rendered preview
 fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBitmap> {
     let libfile = &task.file;
     let filename = libfile.path().to_string_lossy();
     let dimensions = task.params.dimensions;
     let dimension = cmp::max(dimensions.w, dimensions.h);
     let digest = task.params.digest();
-    // true if we found a cache entry but no file.
 
-    let dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), &digest)?;
+    let rel_dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), &digest)?;
+    let dest = cache.cache_dir().to_path_buf().join(rel_dest);
+    dbg_out!("Found preview entry {dest:?}");
     if dest.exists() {
-        dbg_out!("found {filename} in the cache fs");
+        dbg_out!("found {filename} in the cache fs: {dest:?}");
         cache.hit(&filename, &digest);
         return ImageBitmap::from_file(dest).ok();
     }
@@ -101,8 +103,13 @@ fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBi
     if let Ok(cache_item) = cache.get(&filename, &digest) {
         // cache hit
         dbg_out!("thumbnail for {:?} is cached!", filename);
-        if cache_item.target.exists() {
-            return ImageBitmap::from_file(cache_item.target).ok();
+        let target = if cache_item.target.is_relative() {
+            cache.cache_dir().to_path_buf().join(cache_item.target)
+        } else {
+            cache_item.target
+        };
+        if target.exists() {
+            return ImageBitmap::from_file(target).ok();
         } else {
             dbg_out!("File is missing");
         }

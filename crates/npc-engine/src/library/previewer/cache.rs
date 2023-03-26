@@ -292,6 +292,7 @@ impl Cache {
     }
 
     pub fn put(&self, file: &str, dimension: u32, render: RenderParams, dest: &str) {
+        assert_ne!(dest.chars().next(), Some('/'));
         on_err_out!(self.worker.lock().unwrap().send(DbMessage::Put(
             file.to_string(),
             dimension,
