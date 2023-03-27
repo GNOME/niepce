@@ -23,7 +23,6 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use chrono::DateTime;
 use exempi2::Xmp;
 
 use super::exiv2;
@@ -195,6 +194,9 @@ impl XmpMeta {
         }
     }
 
+    /// Create a new XMP meta for file. If `sidecar_only` is true then only
+    /// the XMP sidecar is loaded. Otherwise it use XMP to load, and fallback
+    /// with Exiv2.
     pub fn new_from_file<P>(p: P, sidecar_only: bool) -> Option<XmpMeta>
     where
         P: AsRef<Path> + AsRef<OsStr>,
@@ -355,45 +357,46 @@ impl XmpMeta {
             .ok()
     }
 
+    /// Get the creation date. In order, Exif `DateTimeOriginal`, and
+    /// then XMP `CreateDate`.
     pub fn creation_date(&self) -> Option<Date> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
-        let xmpstring = self
+        let date = self
             .xmp
-            .get_property(NS_EXIF, "DateTimeOriginal", &mut flags)
+            .get_property_date(NS_EXIF, "DateTimeOriginal", &mut flags)
+            .or_else(|_| {
+                let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
+                self.xmp.get_property_date(NS_XAP, "CreateDate", &mut flags)
+            })
             .ok()?;
-        let date = xmpstring
-            .to_str()
-            .and_then(|s| DateTime::parse_from_rfc3339(s).ok())?;
 
-        Some(Date(date))
+        Some(date.into())
     }
 
+    /// Same as `creation_date()` but the original string is returned instead.
     pub fn creation_date_str(&self) -> Option<String> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::empty();
         let xmpstring = self
             .xmp
             .get_property(NS_EXIF, "DateTimeOriginal", &mut flags)
+            .or_else(|_| {
+                let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
+                self.xmp.get_property(NS_XAP, "CreateDate", &mut flags)
+            })
             .ok()?;
         Some(String::from(&xmpstring))
     }
 
-    /// Get the date property and return an `Option<DateTime<Utc>>`
-    /// parsed from the string value.
+    /// Get the date property and return an `Option<DateTime<Utc>>`.
+    /// Uses XMP to parse the date.
     pub fn get_date_property(&self, ns: &str, property: &str) -> Option<Date> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
-        let property = self.xmp.get_property(ns, property, &mut flags);
-        if property.is_err() {
-            err_out!("Error getting date property {:?}", property.err());
+        let property = self.xmp.get_property_date(ns, property, &mut flags);
+        if let Err(err) = property {
+            err_out!("Error getting date property {err:?}");
             return None;
         }
-        let xmpstring = property.as_ref().ok().and_then(|s| s.to_str()).unwrap();
-        match DateTime::parse_from_rfc3339(xmpstring) {
-            Ok(parsed) => Some(Date(parsed)),
-            Err(err) => {
-                err_out!("Error parsing property value '{}': {:?}", xmpstring, err);
-                None
-            }
-        }
+        Some(property.unwrap().into())
     }
 
     pub fn keywords(&mut self) -> &Vec<String> {

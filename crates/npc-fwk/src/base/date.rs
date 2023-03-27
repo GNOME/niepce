@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::{Datelike, Timelike};
+use chrono::{Datelike, TimeZone, Timelike};
 
 pub type Time = i64;
 // XXX a tuple for the cxx bindings
@@ -38,7 +38,45 @@ impl std::ops::Deref for Date {
     }
 }
 
-/// Convert an `exempi2::DateTime` to a `chrono::DateTime<FixedOffset>`
+impl From<exempi2::DateTime> for Date {
+    fn from(d: exempi2::DateTime) -> Date {
+        Self::from(&d)
+    }
+}
+
+impl From<&exempi2::DateTime> for Date {
+    fn from(d: &exempi2::DateTime) -> Date {
+        use exempi2::TzSign;
+
+        let tz = if d.has_tz() {
+            match d.tz_sign() {
+                TzSign::UTC => chrono::FixedOffset::east_opt(0),
+                TzSign::East => {
+                    chrono::FixedOffset::east_opt(d.tz_hours() * 3600 + d.tz_minutes() * 60)
+                }
+                TzSign::West => {
+                    chrono::FixedOffset::west_opt(d.tz_hours() * 3600 + d.tz_minutes() * 60)
+                }
+            }
+        } else {
+            chrono::FixedOffset::east_opt(0)
+        }
+        .expect("date conversion error");
+        let result = tz.with_ymd_and_hms(
+            d.year(),
+            d.month() as u32,
+            d.day() as u32,
+            d.hour() as u32,
+            d.minute() as u32,
+            d.second() as u32,
+        );
+        Date(result.single().expect("date conversion error"))
+    }
+}
+
+/// Convert a `Date` (newtype for `chrono::DateTime<FixedOffset>`)
+/// to an `exempi2::DateTime`
+/// XXX implement `Into` instead
 pub fn xmp_date_from(d: &Date) -> exempi2::DateTime {
     use exempi2::TzSign;
 

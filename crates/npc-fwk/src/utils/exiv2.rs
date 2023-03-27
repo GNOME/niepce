@@ -256,7 +256,7 @@ fn convert(conversion: Conversion, value: &str) -> Converted {
         Conversion::None => Converted::Str(value.to_string()),
         Conversion::ExifDate => Converted::Date(xmp_date_from_exif(value)),
         _ => {
-            err_out!("Conversion error fro str to {:?}", conversion);
+            err_out!("Conversion error for str to {:?}", conversion);
             Converted::Str(value.to_string())
         }
     }
