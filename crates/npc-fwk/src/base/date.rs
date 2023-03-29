@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/date.rs
  *
- * Copyright (C) 2017-2021 Hubert Figuière
+ * Copyright (C) 2017-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::{Datelike, TimeZone, Timelike};
+use chrono::{Datelike, TimeZone, Timelike, Utc};
 
 pub type Time = i64;
-// XXX a tuple for the cxx bindings
+// XXX a new type for the cxx bindings
 #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd)]
 pub struct Date(pub chrono::DateTime<chrono::FixedOffset>);
+
+impl Date {
+    /// Create a `Date` from a `SystemTime`.
+    pub fn from_system_time(t: std::time::SystemTime) -> Self {
+        let dt = chrono::DateTime::<Utc>::from(t);
+        let tz = chrono::FixedOffset::east_opt(0).unwrap();
+        Self(tz.from_utc_datetime(&dt.naive_utc()))
+    }
+}
 
 impl std::string::ToString for Date {
     fn to_string(&self) -> String {

@@ -148,7 +148,7 @@ impl FileBundle {
         bundles
     }
 
-    pub fn add<P: AsRef<Path> + std::fmt::Debug>(&mut self, p: P) -> bool {
+    pub fn add<P: AsRef<Path>>(&mut self, p: P) -> bool {
         let path = p.as_ref();
         dbg_out!("FileBundle::add path {:?}", path);
         let mime_type = MimeType::new(path);
@@ -217,6 +217,30 @@ impl FileBundle {
     pub fn sidecars(&self) -> &Vec<Sidecar> {
         &self.sidecars
     }
+
+    /// Return all the files in the bundle
+    pub fn all_files(&self) -> Vec<PathBuf> {
+        let mut all_files = vec![];
+        all_files.push(self.main.clone());
+        if !self.jpeg.as_os_str().is_empty() {
+            all_files.push(self.jpeg.clone());
+        }
+        if !self.xmp_sidecar.as_os_str().is_empty() {
+            all_files.push(self.xmp_sidecar.clone());
+        }
+        let sidecars = self
+            .sidecars()
+            .iter()
+            .filter_map(|sidecar| match sidecar {
+                Sidecar::Invalid => None,
+                Sidecar::Live(p) | Sidecar::Thumbnail(p) | Sidecar::Xmp(p) | Sidecar::Jpeg(p) => {
+                    Some(p.clone())
+                }
+            })
+            .collect::<Vec<PathBuf>>();
+        all_files.extend_from_slice(&sidecars);
+        all_files
+    }
 }
 
 #[cfg(test)]
@@ -263,6 +287,15 @@ mod test {
             assert_eq!(b.main(), PathBuf::from("/foo/bar/dcs_0001.nef"));
             assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/dcs_0001.jpg"));
             assert_eq!(b.xmp_sidecar(), PathBuf::from("/foo/bar/dcs_0001.xmp"));
+            let all_files = b.all_files();
+            assert_eq!(
+                all_files,
+                vec![
+                    PathBuf::from("/foo/bar/dcs_0001.nef"),
+                    PathBuf::from("/foo/bar/dcs_0001.jpg"),
+                    PathBuf::from("/foo/bar/dcs_0001.xmp")
+                ]
+            );
         } else {
             unreachable!();
         }
@@ -272,6 +305,15 @@ mod test {
             assert_eq!(b.main(), PathBuf::from("/foo/bar/img_0001.cr2"));
             assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/img_0001.jpg"));
             assert_eq!(b.xmp_sidecar(), PathBuf::from("/foo/bar/img_0001.xmp"));
+            let all_files = b.all_files();
+            assert_eq!(
+                all_files,
+                vec![
+                    PathBuf::from("/foo/bar/img_0001.cr2"),
+                    PathBuf::from("/foo/bar/img_0001.jpg"),
+                    PathBuf::from("/foo/bar/img_0001.xmp")
+                ]
+            );
         } else {
             unreachable!();
         }
@@ -285,6 +327,14 @@ mod test {
             assert_eq!(
                 b.sidecars[0],
                 Sidecar::Live(PathBuf::from("/foo/bar/img_0142.mov"))
+            );
+            let all_files = b.all_files();
+            assert_eq!(
+                all_files,
+                vec![
+                    PathBuf::from("/foo/bar/img_0142.jpg"),
+                    PathBuf::from("/foo/bar/img_0142.mov")
+                ]
             );
         } else {
             unreachable!();
@@ -300,6 +350,14 @@ mod test {
                 b.sidecars[0],
                 Sidecar::Live(PathBuf::from("/foo/bar/img_0143.mov"))
             );
+            let all_files = b.all_files();
+            assert_eq!(
+                all_files,
+                vec![
+                    PathBuf::from("/foo/bar/img_0143.jpg"),
+                    PathBuf::from("/foo/bar/img_0143.mov")
+                ]
+            );
         } else {
             unreachable!();
         }
@@ -314,6 +372,14 @@ mod test {
                 b.sidecars[0],
                 Sidecar::Thumbnail(PathBuf::from("/foo/bar/img_0144.thm"))
             );
+            let all_files = b.all_files();
+            assert_eq!(
+                all_files,
+                vec![
+                    PathBuf::from("/foo/bar/img_0144.crw"),
+                    PathBuf::from("/foo/bar/img_0144.thm")
+                ]
+            );
         } else {
             unreachable!();
         }
@@ -327,6 +393,14 @@ mod test {
             assert_eq!(
                 b.sidecars[0],
                 Sidecar::Thumbnail(PathBuf::from("/foo/bar/mvi_0145.thm"))
+            );
+            let all_files = b.all_files();
+            assert_eq!(
+                all_files,
+                vec![
+                    PathBuf::from("/foo/bar/mvi_0145.mov"),
+                    PathBuf::from("/foo/bar/mvi_0145.thm")
+                ]
             );
         } else {
             unreachable!();
@@ -344,6 +418,15 @@ mod test {
             assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/scs_3445.jpg"));
             assert_eq!(b.xmp_sidecar(), PathBuf::from("/foo/bar/scs_3445.jpg.xmp"));
             assert_eq!(b.sidecars.len(), 0);
+            let all_files = b.all_files();
+            assert_eq!(
+                all_files,
+                vec![
+                    PathBuf::from("/foo/bar/scs_3445.raf"),
+                    PathBuf::from("/foo/bar/scs_3445.jpg"),
+                    PathBuf::from("/foo/bar/scs_3445.jpg.xmp")
+                ]
+            );
         } else {
             unreachable!();
         }
@@ -360,6 +443,14 @@ mod test {
             assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/scs_3446.jpg"));
             assert!(b.xmp_sidecar().as_os_str().is_empty());
             assert_eq!(b.sidecars.len(), 0);
+            let all_files = b.all_files();
+            assert_eq!(
+                all_files,
+                vec![
+                    PathBuf::from("/foo/bar/scs_3446.raf"),
+                    PathBuf::from("/foo/bar/scs_3446.jpg")
+                ]
+            );
         } else {
             unreachable!();
         }

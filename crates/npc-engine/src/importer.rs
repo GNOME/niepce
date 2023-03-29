@@ -29,12 +29,15 @@ pub use imported_file::ImportedFile;
 pub use libraryimporter::{LibraryImporter, LibraryImporterProbe};
 pub use lrimporter::LrImporter;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
+use num_derive::{FromPrimitive, ToPrimitive};
+
+use crate::db::filebundle::FileBundle;
 use crate::db::Managed;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::utils::FileList;
-use npc_fwk::Date;
+use npc_fwk::{dbg_out, Date, XmpMeta};
 
 pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>> {
     if LrImporter::can_import_library(path) {
@@ -62,4 +65,152 @@ pub trait ImportBackend {
 
     /// Do the import
     fn do_import(&self, source: &str, dest_dir: &Path, callback: FileImporter);
+}
+
+/// Date path format for import destination
+#[repr(u32)]
+#[derive(Clone, Copy, Default, FromPrimitive, ToPrimitive)]
+pub enum DatePathFormat {
+    #[default]
+    NoPath = 0,
+    /// YYYYMMDD
+    YearMonthDay = 1,
+    /// YYYY/MMDD
+    YearSlashMonthDay = 2,
+    /// YYYY/MM/DD
+    YearSlashMonthSlashDay = 3,
+    /// YYYY/YYYYMMDD
+    YearSlashYearMonthDay = 4,
+}
+
+/// The importer.
+pub struct Importer {}
+
+impl Importer {
+    /// Determine the destination dir based on the date format.
+    pub fn dest_dir_for_date(base: &Path, date: &Date, format: DatePathFormat) -> PathBuf {
+        let mut dest_dir = PathBuf::from(base);
+
+        use DatePathFormat::*;
+
+        if let Some(d) = match format {
+            NoPath => None,
+            YearMonthDay => Some(date.format("%Y%m%d")),
+            YearSlashMonthDay => Some(date.format("%Y/%m%d")),
+            YearSlashMonthSlashDay => Some(date.format("%Y/%m/%d")),
+            YearSlashYearMonthDay => Some(date.format("%Y/%Y%m%d")),
+        } {
+            dest_dir.push(d.to_string());
+        }
+
+        dest_dir
+    }
+
+    /// Get the date from the `source`.
+    fn date_from(source: &Path) -> Option<npc_fwk::Date> {
+        XmpMeta::new_from_file(source, false)
+            .and_then(|xmp| xmp.creation_date())
+            .or_else(|| {
+                std::fs::metadata(source)
+                    .ok()?
+                    .created()
+                    .map(|created| {
+                        dbg_out!("Use the FS date for {source:?}.");
+                        Date::from_system_time(created)
+                    })
+                    .ok()
+            })
+    }
+
+    /// Get the imports from `source`. It will create the bundles.
+    pub fn get_imports(
+        &self,
+        source: &Path,
+        dest: &Path,
+        format: DatePathFormat,
+    ) -> Vec<(PathBuf, PathBuf)> {
+        let entries = source
+            .read_dir()
+            .expect("Failed to read dir")
+            .flatten()
+            .map(|entry| entry.path())
+            .collect::<Vec<PathBuf>>();
+        let bundles = FileBundle::filter_bundles(&entries);
+        bundles
+            .iter()
+            .flat_map(|bundle| {
+                //
+                let date = Self::date_from(bundle.main()).unwrap();
+                let dest_dir = Self::dest_dir_for_date(dest, &date, format);
+                bundle
+                    .all_files()
+                    .iter()
+                    .map(|file| {
+                        let file_dest =
+                            dest_dir.clone().join(file.file_name().expect("Not a file"));
+                        (file.clone(), file_dest)
+                    })
+                    .collect::<Vec<(PathBuf, PathBuf)>>()
+            })
+            .collect()
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use std::path::PathBuf;
+
+    use chrono;
+    use chrono::{Offset, TimeZone};
+
+    use super::{DatePathFormat, Importer};
+    use npc_fwk::Date;
+
+    #[test]
+    fn test_dest_dir_for_date() {
+        use DatePathFormat::*;
+
+        let date = Date(
+            chrono::Utc
+                .fix()
+                .with_ymd_and_hms(2021, 1, 6, 12, 12, 12)
+                .single()
+                .expect("Date no constructed"),
+        );
+        let base_dir = PathBuf::from("/var/home/user/Pictures");
+
+        let expected_dir = base_dir.clone();
+        assert_eq!(
+            Importer::dest_dir_for_date(&base_dir, &date, NoPath),
+            expected_dir
+        );
+
+        let mut expected_dir = base_dir.clone();
+        expected_dir.push("20210106");
+        assert_eq!(
+            Importer::dest_dir_for_date(&base_dir, &date, YearMonthDay),
+            expected_dir
+        );
+
+        let mut expected_dir = base_dir.clone();
+        expected_dir.push("2021/0106");
+        assert_eq!(
+            Importer::dest_dir_for_date(&base_dir, &date, YearSlashMonthDay),
+            expected_dir
+        );
+
+        let mut expected_dir = base_dir.clone();
+        expected_dir.push("2021/01/06");
+        assert_eq!(
+            Importer::dest_dir_for_date(&base_dir, &date, YearSlashMonthSlashDay),
+            expected_dir
+        );
+        let mut expected_dir = base_dir.clone();
+        expected_dir.push("2021/20210106");
+        assert_eq!(
+            Importer::dest_dir_for_date(&base_dir, &date, YearSlashYearMonthDay),
+            expected_dir
+        );
+    }
 }
