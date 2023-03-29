@@ -269,7 +269,7 @@ impl XmpMeta {
             return false;
         }
         if source_date > dest_date {
-            dbg_out!("source meta is more recent than sidecar");
+            dbg_out!("source meta is more recent than sidecar {source_date:?} > {dest_date:?}");
             return false;
         }
 
@@ -389,11 +389,11 @@ impl XmpMeta {
 
     /// Get the date property and return an `Option<DateTime<Utc>>`.
     /// Uses XMP to parse the date.
-    pub fn get_date_property(&self, ns: &str, property: &str) -> Option<Date> {
+    pub fn get_date_property(&self, ns: &str, propname: &str) -> Option<Date> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
-        let property = self.xmp.get_property_date(ns, property, &mut flags);
+        let property = self.xmp.get_property_date(ns, propname, &mut flags);
         if let Err(err) = property {
-            err_out!("Error getting date property {err:?}");
+            err_out!("Error getting date property {propname} {err:?}");
             return None;
         }
         Some(property.unwrap().into())

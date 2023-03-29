@@ -21,4 +21,4 @@ pub mod exempi;
 pub mod exiv2;
 mod files;
 
-pub use files::FileList;
+pub use files::{copy, FileList};

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::{Datelike, TimeZone, Timelike, Utc};
+use chrono::{Datelike, Offset, TimeZone, Timelike, Utc};
 
 pub type Time = i64;
 // XXX a new type for the cxx bindings
@@ -25,11 +25,15 @@ pub type Time = i64;
 pub struct Date(pub chrono::DateTime<chrono::FixedOffset>);
 
 impl Date {
+    pub fn now() -> Self {
+        let dt = chrono::Local::now();
+        Self(dt.with_timezone(dt.offset()))
+    }
+
     /// Create a `Date` from a `SystemTime`.
     pub fn from_system_time(t: std::time::SystemTime) -> Self {
         let dt = chrono::DateTime::<Utc>::from(t);
-        let tz = chrono::FixedOffset::east_opt(0).unwrap();
-        Self(tz.from_utc_datetime(&dt.naive_utc()))
+        Self(dt.with_timezone(&dt.offset().fix()))
     }
 }
 

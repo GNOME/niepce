@@ -19,7 +19,45 @@
 
 use std::path::{Path, PathBuf};
 
+use nix::sys::stat::{stat, utimensat, UtimensatFlags};
+use nix::sys::time::TimeSpec;
+
 use crate::toolkit::mimetype::{guess_type_for_file, MType};
+
+/// Copy file `from` to `to`. Return the number of bytes copied which
+/// is the size of both `from` and `to`. See also [`std::fs::copy`] as
+/// this is called underneath. In addition to calling `copy`, it will
+/// set access and modification time of the destination to those of
+/// the source.
+///
+/// # Portability
+///
+/// This currently use the crate `nix`.
+///
+/// # Error
+///
+/// Will return an error if [`std::fs::copy`] fails with the same
+/// parameters, or any of the call to get and set the times fail.
+pub fn copy<P, Q>(from: P, to: Q) -> std::io::Result<u64>
+where
+    P: AsRef<Path>,
+    Q: AsRef<Path>,
+{
+    let length = std::fs::copy(from.as_ref(), to.as_ref())?;
+
+    //let created = to.metadata().and_then(|m| m.created());
+    // XXX we do nothing with the created date.
+    let file_stat = stat(from.as_ref())?;
+    utimensat(
+        None,
+        to.as_ref(),
+        &TimeSpec::new(file_stat.st_atime, file_stat.st_atime_nsec),
+        &TimeSpec::new(file_stat.st_mtime, file_stat.st_mtime_nsec),
+        UtimensatFlags::NoFollowSymlink,
+    )?;
+
+    Ok(length)
+}
 
 #[derive(Clone, Default)]
 pub struct FileList(pub Vec<PathBuf>);

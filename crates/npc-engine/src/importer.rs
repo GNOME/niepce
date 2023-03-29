@@ -32,6 +32,7 @@ pub use lrimporter::LrImporter;
 use std::path::{Path, PathBuf};
 
 use num_derive::{FromPrimitive, ToPrimitive};
+use walkdir::WalkDir;
 
 use crate::db::filebundle::FileBundle;
 use crate::db::Managed;
@@ -56,8 +57,8 @@ pub trait ImportBackend {
     /// ID of the importer backend.
     fn id(&self) -> &'static str;
 
-    /// List the source content. If possible this should be spawning a thread. `callback`
-    /// well be run on that thread.
+    /// List the source content. If possible this should be spawning a
+    /// thread. `callback` well be run on that thread.
     fn list_source_content(&self, source: &str, callback: SourceContentReady);
     /// Fetch the previews. If possible this should be spawning a thread. `callback`
     /// well be run on that thread.
@@ -84,9 +85,25 @@ pub enum DatePathFormat {
 }
 
 /// The importer.
-pub struct Importer {}
+pub struct Importer {
+    recursive: bool,
+    source: PathBuf,
+}
 
 impl Importer {
+    pub fn from_dir(dir: &Path) -> Self {
+        Importer {
+            source: dir.into(),
+            recursive: false,
+        }
+    }
+
+    /// Builder: set the import in recursive mode.
+    pub fn set_recursive(mut self, recursive: bool) -> Self {
+        self.recursive = recursive;
+        self
+    }
+
     /// Determine the destination dir based on the date format.
     pub fn dest_dir_for_date(base: &Path, date: &Date, format: DatePathFormat) -> PathBuf {
         let mut dest_dir = PathBuf::from(base);
@@ -123,32 +140,39 @@ impl Importer {
     }
 
     /// Get the imports from `source`. It will create the bundles.
-    pub fn get_imports(
-        &self,
-        source: &Path,
-        dest: &Path,
-        format: DatePathFormat,
-    ) -> Vec<(PathBuf, PathBuf)> {
-        let entries = source
-            .read_dir()
-            .expect("Failed to read dir")
+    /// It will list the files to import recursively if the imorter
+    /// is recursive.
+    pub fn get_imports(&self, dest: &Path, format: DatePathFormat) -> Vec<(PathBuf, PathBuf)> {
+        let entries = WalkDir::new(&self.source)
+            .into_iter()
+            .filter_entry(|entry|
+                // ignore everything that starts with a '.'
+                !entry.file_name()
+                    .to_str()
+                    .map(|s| s.starts_with('.'))
+                    .unwrap_or(false))
             .flatten()
-            .map(|entry| entry.path())
+            .filter_map(|entry| {
+                if entry.file_type().is_file() {
+                    Some(entry.path().to_path_buf())
+                } else {
+                    None
+                }
+            })
             .collect::<Vec<PathBuf>>();
         let bundles = FileBundle::filter_bundles(&entries);
         bundles
             .iter()
             .flat_map(|bundle| {
                 //
-                let date = Self::date_from(bundle.main()).unwrap();
+                let date = Self::date_from(bundle.main()).unwrap_or_else(Date::now);
                 let dest_dir = Self::dest_dir_for_date(dest, &date, format);
                 bundle
                     .all_files()
                     .iter()
-                    .map(|file| {
-                        let file_dest =
-                            dest_dir.clone().join(file.file_name().expect("Not a file"));
-                        (file.clone(), file_dest)
+                    .filter_map(|file| {
+                        let file_dest = dest_dir.clone().join(file.file_name()?);
+                        Some((file.clone(), file_dest))
                     })
                     .collect::<Vec<(PathBuf, PathBuf)>>()
             })
