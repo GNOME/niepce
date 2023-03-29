@@ -27,7 +27,7 @@ use crate::NiepcePropertyBag;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
 use npc_fwk::{dbg_out, err_out};
-use npc_fwk::{xmp_date_from, Date, PropertyBag, PropertySet, PropertyValue, XmpMeta};
+use npc_fwk::{Date, PropertyBag, PropertySet, PropertyValue, XmpMeta};
 
 #[derive(Clone, Debug)]
 pub struct LibMetadata {
@@ -187,12 +187,11 @@ impl LibMetadata {
                     }
                     return true;
                 }
-                PropertyValue::Date(ref d) => {
-                    let xmp_date = xmp_date_from(d);
+                PropertyValue::Date(d) => {
                     return self
                         .xmp_meta
                         .xmp
-                        .set_property_date(ix.ns, ix.property, &xmp_date, exempi2::PropFlags::NONE)
+                        .set_property_date(ix.ns, ix.property, &d.into(), exempi2::PropFlags::NONE)
                         .is_ok();
                 }
             }
@@ -276,7 +275,7 @@ impl LibMetadata {
 
     pub fn touch(&mut self) -> bool {
         let local = chrono::Local::now();
-        let xmpdate = xmp_date_from(&Date(chrono::DateTime::from(local)));
+        let xmpdate = Date(chrono::DateTime::from(local)).into();
         self.xmp_meta
             .xmp
             .set_property_date(NS_XAP, "MetadataDate", &xmpdate, exempi2::PropFlags::NONE)

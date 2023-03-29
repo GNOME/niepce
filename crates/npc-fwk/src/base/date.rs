@@ -25,6 +25,7 @@ pub type Time = i64;
 pub struct Date(pub chrono::DateTime<chrono::FixedOffset>);
 
 impl Date {
+    /// Now as a `Date`.
     pub fn now() -> Self {
         let dt = chrono::Local::now();
         Self(dt.with_timezone(dt.offset()))
@@ -87,39 +88,40 @@ impl From<&exempi2::DateTime> for Date {
     }
 }
 
-/// Convert a `Date` (newtype for `chrono::DateTime<FixedOffset>`)
-/// to an `exempi2::DateTime`
-/// XXX implement `Into` instead
-pub fn xmp_date_from(d: &Date) -> exempi2::DateTime {
-    use exempi2::TzSign;
+impl From<Date> for exempi2::DateTime {
+    /// Convert a `Date` (newtype for `chrono::DateTime<FixedOffset>`)
+    /// to an `exempi2::DateTime`
+    fn from(d: Date) -> exempi2::DateTime {
+        use exempi2::TzSign;
 
-    let mut xmp_date = exempi2::DateTime::new();
-    xmp_date.set_date(d.year(), d.month() as i32, d.day() as i32);
-    xmp_date.set_time(d.hour() as i32, d.minute() as i32, d.second() as i32);
-    let offset = d.offset().local_minus_utc();
-    let sign = match offset {
-        0 => TzSign::UTC,
-        1.. => TzSign::East,
-        _ => TzSign::West,
-    };
-    let offset = offset.abs();
-    xmp_date.set_timezone(sign, offset / 3600, offset / 60);
+        let mut xmp_date = exempi2::DateTime::new();
+        xmp_date.set_date(d.year(), d.month() as i32, d.day() as i32);
+        xmp_date.set_time(d.hour() as i32, d.minute() as i32, d.second() as i32);
+        let offset = d.offset().local_minus_utc();
+        let sign = match offset {
+            0 => TzSign::UTC,
+            1.. => TzSign::East,
+            _ => TzSign::West,
+        };
+        let offset = offset.abs();
+        xmp_date.set_timezone(sign, offset / 3600, offset / 60);
 
-    xmp_date
+        xmp_date
+    }
 }
 
 #[cfg(test)]
 mod test {
     use chrono::TimeZone;
 
-    use super::{xmp_date_from, Date};
+    use super::Date;
 
     #[test]
-    fn test_xmp_date_from() {
+    fn test_xmp_date_west_from() {
         let date = chrono::FixedOffset::west_opt(5 * 3600)
             .and_then(|tz| tz.with_ymd_and_hms(2021, 12, 25, 10, 42, 12).single())
             .unwrap();
-        let xmp_date = xmp_date_from(&Date(date));
+        let xmp_date: exempi2::DateTime = Date(date).into();
         assert_eq!(xmp_date.year(), 2021);
         assert_eq!(xmp_date.month(), 12);
         assert_eq!(xmp_date.day(), 25);
@@ -128,5 +130,21 @@ mod test {
 
         assert_eq!(xmp_date.tz_hours(), 5);
         assert_eq!(xmp_date.tz_sign(), exempi2::TzSign::West);
+    }
+
+    #[test]
+    fn test_xmp_date_east_from() {
+        let date = chrono::FixedOffset::east_opt(5 * 3600)
+            .and_then(|tz| tz.with_ymd_and_hms(2021, 12, 25, 10, 42, 12).single())
+            .unwrap();
+        let xmp_date: exempi2::DateTime = Date(date).into();
+        assert_eq!(xmp_date.year(), 2021);
+        assert_eq!(xmp_date.month(), 12);
+        assert_eq!(xmp_date.day(), 25);
+
+        assert_eq!(xmp_date.hour(), 10);
+
+        assert_eq!(xmp_date.tz_hours(), 5);
+        assert_eq!(xmp_date.tz_sign(), exempi2::TzSign::East);
     }
 }
