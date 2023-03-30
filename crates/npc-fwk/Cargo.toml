@@ -30,7 +30,7 @@ lazy_static = "^1.2.0"
 libadwaita = { version = "0.3.0", features = [ "v1_2" ] }
 libc = "0.2.39"
 libopenraw = "0.1.2"
-multimap = "0.4.0"
+multimap = "0.9.0"
 mime_guess = "2.0.4"
 nix = { version = "0.26", features = [ "fs" ] }
 num-traits = "0.2"

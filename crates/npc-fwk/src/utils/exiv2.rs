@@ -54,201 +54,103 @@ enum Converted {
 struct XmpPropDesc(&'static str, &'static str, Conversion);
 
 lazy_static::lazy_static! {
-    static ref EXIV2_TO_XMP: MultiMap<&'static str, XmpPropDesc> = {
-        [
-            (
-                "Exif.Image.DateTime",
+    static ref EXIV2_TO_XMP: MultiMap<&'static str, XmpPropDesc> =
+        multimap::multimap!(
+            "Exif.Image.DateTime" =>
                 XmpPropDesc(NS_XAP, "ModifyDate", Conversion::ExifDate),
-            ),
-            (
-                "Exif.Image.ImageHeight",
+            "Exif.Image.ImageHeight" =>
                 XmpPropDesc(NS_TIFF, "ImageHeight", Conversion::None),
-            ),
-            (
-                "Exif.Image.ImageWidth",
+            "Exif.Image.ImageWidth" =>
                 XmpPropDesc(NS_TIFF, "ImageWidth", Conversion::None),
-            ),
-            (
-                "Exif.Image.Make",
+            "Exif.Image.Make" =>
                 XmpPropDesc(NS_TIFF, "Make", Conversion::None),
-            ),
-            (
-                "Exif.Image.Model",
+            "Exif.Image.Model" =>
                 XmpPropDesc(NS_TIFF, "Model", Conversion::None),
-            ),
-            (
-                "Exif.Image.Orientation",
+            "Exif.Image.Orientation" =>
                 XmpPropDesc(NS_TIFF, "Orientation", Conversion::None),
-            ),
-            (
-                "Exif.Image.Software",
+            "Exif.Image.Software" =>
                 XmpPropDesc(NS_TIFF, "Software", Conversion::None),
-            ),
-            (
-                "Exif.Photo.ApertureValue",
+            "Exif.Photo.ApertureValue" =>
                 XmpPropDesc(NS_EXIF, "ApertureValue", Conversion::None),
-            ),
-            (
-                "Exif.Photo.BodySerialNumber",
+            "Exif.Photo.BodySerialNumber" =>
                 XmpPropDesc(NS_EXIF_EX, "BodySerialNumber", Conversion::None),
-            ),
-            (
-                "Exif.Photo.CameraOwnerName",
+            "Exif.Photo.CameraOwnerName" =>
                 XmpPropDesc(NS_EXIF_EX, "CameraOwnerName", Conversion::None),
-            ),
-            (
-                "Exif.Photo.ColorSpace",
+            "Exif.Photo.ColorSpace" =>
                 XmpPropDesc(NS_EXIF, "ColorSpace", Conversion::None),
-            ),
-            (
-                "Exif.Photo.DateTimeOriginal",
+            "Exif.Photo.DateTimeOriginal" =>
                 XmpPropDesc(NS_EXIF, "DateTimeOriginal", Conversion::ExifDate),
-            ),
-            (
-                "Exif.Photo.DateTimeDigitized",
+            "Exif.Photo.DateTimeDigitized" =>
                 XmpPropDesc(NS_XAP, "CreateDate", Conversion::ExifDate),
-            ),
-            (
-                "Exif.Photo.ExposureBiasValue",
+            "Exif.Photo.ExposureBiasValue" =>
                 XmpPropDesc(NS_EXIF, "ExposureBiasValue", Conversion::None),
-            ),
-            (
-                "Exif.Photo.ExposureMode",
+            "Exif.Photo.ExposureMode" =>
                 XmpPropDesc(NS_EXIF, "ExposureMode", Conversion::None),
-            ),
-            (
-                "Exif.Photo.ExposureProgram",
+            "Exif.Photo.ExposureProgram" =>
                 XmpPropDesc(NS_EXIF, "ExposureProgram", Conversion::None),
-            ),
-            (
-                "Exif.Photo.ExposureTime",
+            "Exif.Photo.ExposureTime" =>
                 XmpPropDesc(NS_EXIF, "ExposureTime", Conversion::None),
-            ),
-            (
-                "Exif.Photo.FNumber",
+            "Exif.Photo.FNumber" =>
                 XmpPropDesc(NS_EXIF, "FNumber", Conversion::None),
-            ),
-            (
-                "Exif.Photo.Flash",
+            "Exif.Photo.Flash" =>
                 XmpPropDesc(NS_EXIF, "Flash", Conversion::Flash),
-            ),
-            (
-                "Exif.Photo.FocalLength",
+            "Exif.Photo.FocalLength" =>
                 XmpPropDesc(NS_EXIF, "FocalLength", Conversion::None),
-            ),
-            (
-                "Exif.Photo.FocalLengthIn35mmFilm",
+            "Exif.Photo.FocalLengthIn35mmFilm" =>
                 XmpPropDesc(NS_EXIF, "FocalLengthIn35mmFilm", Conversion::None),
-            ),
-            (
-                "Exif.Photo.ISOSpeedRatings",
+            "Exif.Photo.ISOSpeedRatings" =>
                 XmpPropDesc(NS_EXIF, "ISOSpeedRatings", Conversion::None),
-            ),
-            (
-                "Exif.Photo.LensMake",
+            "Exif.Photo.LensMake" =>
                 XmpPropDesc(NS_EXIF_EX, "LensMake", Conversion::None),
-            ),
-            (
-                "Exif.Photo.LensModel",
+            "Exif.Photo.LensModel" =>
                 XmpPropDesc(NS_AUX, "Lens", Conversion::None),
-            ),
-            (
-                "Exif.Photo.LensModel",
+            "Exif.Photo.LensModel" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::None),
-            ),
-            (
-                "Exif.Photo.LensSerialNumber",
+            "Exif.Photo.LensSerialNumber" =>
                 XmpPropDesc(NS_EXIF_EX, "LensSerialNumber", Conversion::None),
-            ),
-            (
-                "Exif.Photo.LensSpecification",
+            "Exif.Photo.LensSpecification" =>
                 XmpPropDesc(NS_EXIF_EX, "LensSpecification", Conversion::None),
-            ),
-            (
-                "Exif.Photo.LightSource",
+            "Exif.Photo.LightSource" =>
                 XmpPropDesc(NS_EXIF, "LightSource", Conversion::None),
-            ),
-            (
-                "Exif.Photo.MeteringMode",
+            "Exif.Photo.MeteringMode" =>
                 XmpPropDesc(NS_EXIF, "MeteringMode", Conversion::None),
-            ),
-            (
-                "Exif.Photo.SceneCaptureType",
+            "Exif.Photo.SceneCaptureType" =>
                 XmpPropDesc(NS_EXIF, "SceneCaptureType", Conversion::None),
-            ),
-            (
-                "Exif.Photo.ShutterSpeedValue",
+            "Exif.Photo.ShutterSpeedValue" =>
                 XmpPropDesc(NS_EXIF, "ShutterSpeedValue", Conversion::None),
-            ),
-            (
-                "Exif.Photo.UserComment",
+            "Exif.Photo.UserComment" =>
                 XmpPropDesc(NS_EXIF, "UserComment", Conversion::None),
-            ),
-            (
-                "Exif.Photo.WhiteBalance",
+            "Exif.Photo.WhiteBalance" =>
                 XmpPropDesc(NS_EXIF, "WhiteBalance", Conversion::None),
-            ),
-            (
-                "Exif.Canon.LensModel",
+            "Exif.Canon.LensModel" =>
                 XmpPropDesc(NS_AUX, "Lens", Conversion::None),
-            ),
-            (
-                "Exif.Canon.LensModel",
+            "Exif.Canon.LensModel" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::None),
-            ),
-            (
-                "Exif.Minolta.LensID",
+            "Exif.Minolta.LensID" =>
                 XmpPropDesc(NS_AUX, "Lens", Conversion::Interpreted),
-            ),
-            (
-                "Exif.Minolta.LensID",
+            "Exif.Minolta.LensID" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted),
-            ),
-            (
-                "Exif.Nikon3.Lens",
+            "Exif.Nikon3.Lens" =>
                 XmpPropDesc(NS_AUX, "Lens", Conversion::Interpreted),
-            ),
-            (
-                "Exif.Nikon3.Lens",
+            "Exif.Nikon3.Lens" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted),
-            ),
-            (
-                "Exif.OlympusEq.LensModel",
+            "Exif.OlympusEq.LensModel" =>
                 XmpPropDesc(NS_AUX, "Lens", Conversion::None),
-            ),
-            (
-                "Exif.OlympusEq.LensModel",
+            "Exif.OlympusEq.LensModel" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::None),
-            ),
-            (
-                "Exif.OlympusEq.LensSerialNumber",
+            "Exif.OlympusEq.LensSerialNumber" =>
                 XmpPropDesc(NS_EXIF_EX, "LensSerialNumber", Conversion::None),
-            ),
-            (
-                "Exif.Panasonic.LensType",
+            "Exif.Panasonic.LensType" =>
                 XmpPropDesc(NS_AUX, "Lens", Conversion::None),
-            ),
-            (
-                "Exif.Panasonic.LensType",
+            "Exif.Panasonic.LensType" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::None),
-            ),
-            (
-                "Exif.Panasonic.LensSerialNumber",
+            "Exif.Panasonic.LensSerialNumber" =>
                 XmpPropDesc(NS_EXIF_EX, "LensSerialNumber", Conversion::None),
-            ),
-            (
-                "Exif.Pentax.LensType",
+            "Exif.Pentax.LensType" =>
                 XmpPropDesc(NS_AUX, "Lens", Conversion::Interpreted),
-            ),
-            (
-                "Exif.Pentax.LensType",
-                XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted),
-            ),
-        ]
-        .iter()
-        .cloned()
-        .collect()
-    };
+            "Exif.Pentax.LensType" =>
+                XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted)
+        );
 }
 
 fn convert(conversion: Conversion, value: &str) -> Converted {
