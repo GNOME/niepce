@@ -21,6 +21,7 @@ use std::path::{Path, PathBuf};
 
 use nix::sys::stat::{stat, utimensat, UtimensatFlags};
 use nix::sys::time::TimeSpec;
+use walkdir::WalkDir;
 
 use crate::toolkit::mimetype::{guess_type_for_file, MType};
 
@@ -59,43 +60,65 @@ where
     Ok(length)
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct FileList(pub Vec<PathBuf>);
 
+impl std::ops::Deref for FileList {
+    type Target = Vec<PathBuf>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for FileList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 impl FileList {
-    /// Get the files matching `filter` from `dir`.
+    /// Get the files matching `filter` from `dir`, sorted alphabetically.
     ///
     /// `filter` is a function that will return `true` for files to keep
-    pub fn get_files_from_directory<P, F>(dir: P, filter: F) -> Self
+    /// `recursive` list the content recursively.
+    pub fn files_from_directory<P, F>(dir: P, filter: F, recursive: bool) -> Self
     where
         P: AsRef<Path>,
         F: Fn(&Path) -> bool + 'static,
     {
-        let mut l = FileList::default();
         if !dir.as_ref().is_dir() {
             err_out!("Not a directory: {:?}", dir.as_ref());
-            return l;
-        }
-        if let Ok(read_dir) = std::fs::read_dir(dir) {
-            for entry in read_dir {
-                if entry.is_err() {
-                    err_out!("Enumeration failed: {:?}", entry.err());
-                    continue;
-                }
-                let entry = entry.unwrap();
-                if let Ok(ftype) = entry.file_type() {
-                    if ftype.is_file() || ftype.is_symlink() {
-                        if !filter(&entry.path()) {
-                            dbg_out!("Filtered out {:?}", entry);
-                            continue;
-                        }
-                        l.0.push(entry.path());
-                    }
-                }
-            }
+            return FileList::default();
         }
 
-        l.0.sort();
+        let entries = if recursive {
+            WalkDir::new(&dir)
+        } else {
+            WalkDir::new(&dir).max_depth(1)
+        }
+        .into_iter()
+        // ignore everything that starts with a '.'
+        .filter_entry(|entry| {
+            !entry
+                .file_name()
+                .to_str()
+                .map(|s| s.starts_with('.'))
+                .unwrap_or(false)
+        })
+        .flatten()
+        .filter_map(|entry| {
+            let ftype = entry.file_type();
+            if (ftype.is_file() || ftype.is_symlink()) && filter(entry.path()) {
+                Some(entry.path().to_path_buf())
+            } else {
+                dbg_out!("Filtered out {:?}", entry);
+                None
+            }
+        })
+        .collect::<Vec<PathBuf>>();
+        let mut l = FileList(entries);
+        l.sort();
         l
     }
 
@@ -115,25 +138,22 @@ mod tests {
     #[test]
     pub fn test_files_sanity() {
         let root_p = PathBuf::from("AAtest");
-        let mut p = root_p.clone();
-        p.push("sub");
-        assert!(fs::create_dir_all(&p).is_ok());
-        let mut file1 = root_p.clone();
-        file1.push("1");
-        assert!(fs::write(&file1, "one").is_ok());
-        let mut file2 = root_p.clone();
-        file2.push("2");
+        let p = root_p.join("sub");
+        assert!(fs::create_dir_all(p).is_ok());
+        let file1 = root_p.join("1");
+        assert!(fs::write(file1, "one").is_ok());
+        let file2 = root_p.join("2");
         assert!(fs::write(file2, "two").is_ok());
-        let mut file3 = root_p.clone();
-        file3.push("3");
+        let file3 = root_p.join("3");
         assert!(fs::write(file3, "three").is_ok());
 
-        let files = FileList::get_files_from_directory("foo", |_| true);
+        let files = FileList::files_from_directory("foo", |_| true, false);
 
-        assert_eq!(files.0.len(), 0);
+        assert_eq!(files.len(), 0);
 
-        let files = FileList::get_files_from_directory(&root_p, |_| true);
-        assert_eq!(files.0.len(), 3);
+        let files = FileList::files_from_directory(&root_p, |_| true, false);
+        println!("files {files:?}");
+        assert_eq!(files.len(), 3);
 
         assert!(fs::remove_dir_all(&root_p).is_ok());
     }

@@ -144,8 +144,7 @@ impl ImportBackend for CameraImporter {
                             .iter()
                             .filter_map(|file| {
                                 let name = file.name();
-                                let mut output_path = dest_dir.clone();
-                                output_path.push(name);
+                                let output_path = dest_dir.join(name);
                                 if camera.download_file(
                                     file.folder(),
                                     name,

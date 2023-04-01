@@ -32,7 +32,6 @@ pub use lrimporter::LrImporter;
 use std::path::{Path, PathBuf};
 
 use num_derive::{FromPrimitive, ToPrimitive};
-use walkdir::WalkDir;
 
 use crate::db::filebundle::FileBundle;
 use crate::db::Managed;
@@ -143,23 +142,8 @@ impl Importer {
     /// It will list the files to import recursively if the imorter
     /// is recursive.
     pub fn get_imports(&self, dest: &Path, format: DatePathFormat) -> Vec<(PathBuf, PathBuf)> {
-        let entries = WalkDir::new(&self.source)
-            .into_iter()
-            .filter_entry(|entry|
-                // ignore everything that starts with a '.'
-                !entry.file_name()
-                    .to_str()
-                    .map(|s| s.starts_with('.'))
-                    .unwrap_or(false))
-            .flatten()
-            .filter_map(|entry| {
-                if entry.file_type().is_file() {
-                    Some(entry.path().to_path_buf())
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<PathBuf>>();
+        let entries =
+            FileList::files_from_directory(&self.source, FileList::file_is_media, self.recursive);
         let bundles = FileBundle::filter_bundles(&entries);
         bundles
             .iter()

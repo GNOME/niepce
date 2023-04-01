@@ -26,7 +26,6 @@ num-derive = "0.3.3"
 num-traits = "0.2.15"
 # Must be in sync with lrcat-extractor
 rusqlite = { version = "0.28.0", features = ["functions", "backup", "bundled"] }
-walkdir = "2.3.3"
 
 npc-fwk = { path = "../npc-fwk" }
 

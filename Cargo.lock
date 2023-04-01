@@ -1391,7 +1391,6 @@ dependencies = [
  "serde_derive",
  "tempfile",
  "toml",
- "walkdir",
 ]
 
 [[package]]
@@ -1430,6 +1429,7 @@ dependencies = [
  "tempfile",
  "thiserror",
  "uuid",
+ "walkdir",
 ]
 
 [[package]]

@@ -82,7 +82,7 @@ impl ImportBackend for DirectoryImporter {
         on_err_out!(std::thread::Builder::new()
             .name("dir import list source".to_string())
             .spawn(move || {
-                let files = FileList::get_files_from_directory(source, FileList::file_is_media);
+                let files = FileList::files_from_directory(source, FileList::file_is_media, false);
                 dbg_out!("files size: {}", files.0.len());
                 let content = files
                     .0
@@ -111,7 +111,7 @@ impl ImportBackend for DirectoryImporter {
 
     /// Do the import
     fn do_import(&self, source: &str, _dest_dir: &Path, callback: FileImporter) {
-        let files = FileList::get_files_from_directory(source, |_| true);
+        let files = FileList::files_from_directory(source, |_| true, false);
         callback(&std::path::PathBuf::from(source), &files, Managed::No);
     }
 }
