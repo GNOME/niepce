@@ -43,7 +43,7 @@ struct Widgets {
 pub(super) struct CameraImporterUI {
     tx: glib::Sender<Event>,
     name: String,
-    importer: Rc<dyn ImportBackend>,
+    backend: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
 }
 
@@ -54,7 +54,7 @@ impl CameraImporterUI {
         let widget = Rc::new(CameraImporterUI {
             tx,
             name: i18n("Camera"),
-            importer: Rc::new(CameraImporter::default()),
+            backend: Rc::new(CameraImporter::default()),
             widgets: RefCell::default(),
         });
 
@@ -99,11 +99,11 @@ impl ImporterUI for CameraImporterUI {
     }
 
     fn id(&self) -> String {
-        self.importer.id().to_string()
+        self.backend.id().to_string()
     }
 
-    fn importer(&self) -> Rc<dyn ImportBackend> {
-        self.importer.clone()
+    fn backend(&self) -> Rc<dyn ImportBackend> {
+        self.backend.clone()
     }
 
     fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget {

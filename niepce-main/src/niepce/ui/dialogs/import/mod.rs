@@ -247,7 +247,7 @@ impl ImportDialog {
             .current_importer
             .borrow()
             .as_ref()
-            .map(|importer| ImportRequest::new(self.source(), self.dest_dir(), importer.importer()))
+            .map(|importer| ImportRequest::new(self.source(), self.dest_dir(), importer.backend()))
     }
 
     fn clear_import_list(&self) {
@@ -269,13 +269,14 @@ impl ImportDialog {
         }
     }
 
+    /// Get importer backend from the importer UI.
     fn importer(&self) -> Option<Rc<dyn ImportBackend>> {
         self.widgets
             .get()?
             .current_importer
             .borrow()
             .as_ref()
-            .map(|v| v.importer())
+            .map(|v| v.backend())
     }
 
     fn set_source(&self, source: &str, dest_dir: &str) {
@@ -291,8 +292,7 @@ impl ImportDialog {
             );
         }
 
-        let mut full_dest_dir = self.base_dest_dir.clone();
-        full_dest_dir.push(dest_dir);
+        let full_dest_dir = self.base_dest_dir.join(dest_dir);
         let mut state = self.state.borrow_mut();
         state.source = source.to_string();
         state.dest_dir = full_dest_dir;
@@ -333,6 +333,9 @@ impl ImportDialog {
         }
     }
 
+    /// A preview was received. Update the UI to show it in the grid view.
+    /// And eventually a date (original).
+    /// If either `thumbnail` and `date` are `None` then this is a no-op.
     fn preview_received(&self, path: &str, thumbnail: Option<Thumbnail>, date: Option<Date>) {
         if thumbnail.is_none() && date.is_none() {
             return;

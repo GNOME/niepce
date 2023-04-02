@@ -45,7 +45,7 @@ struct Widgets {
 pub(super) struct DirectoryImporterUI {
     tx: glib::Sender<Event>,
     name: String,
-    importer: Rc<dyn ImportBackend>,
+    backend: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
 }
 
@@ -56,7 +56,7 @@ impl DirectoryImporterUI {
         let widget = Rc::new(DirectoryImporterUI {
             tx,
             name: i18n("Directory"),
-            importer: Rc::new(DirectoryImporter::default()),
+            backend: Rc::new(DirectoryImporter::default()),
             widgets: RefCell::default(),
         });
 
@@ -131,11 +131,11 @@ impl ImporterUI for DirectoryImporterUI {
     }
 
     fn id(&self) -> String {
-        self.importer.id().to_string()
+        self.backend.id().to_string()
     }
 
-    fn importer(&self) -> Rc<dyn ImportBackend> {
-        self.importer.clone()
+    fn backend(&self) -> Rc<dyn ImportBackend> {
+        self.backend.clone()
     }
 
     fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget {

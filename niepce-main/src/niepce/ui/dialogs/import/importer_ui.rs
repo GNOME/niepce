@@ -31,7 +31,7 @@ pub(super) trait ImporterUI {
     fn name(&self) -> &str;
 
     /// The actual importer
-    fn importer(&self) -> Rc<dyn ImportBackend>;
+    fn backend(&self) -> Rc<dyn ImportBackend>;
 
     /// Setup the widget
     fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget;

@@ -104,9 +104,8 @@ impl Importer {
     }
 
     /// Determine the destination dir based on the date format.
+    /// If format is none, return `base`
     pub fn dest_dir_for_date(base: &Path, date: &Date, format: DatePathFormat) -> PathBuf {
-        let mut dest_dir = PathBuf::from(base);
-
         use DatePathFormat::*;
 
         if let Some(d) = match format {
@@ -116,10 +115,10 @@ impl Importer {
             YearSlashMonthSlashDay => Some(date.format("%Y/%m/%d")),
             YearSlashYearMonthDay => Some(date.format("%Y/%Y%m%d")),
         } {
-            dest_dir.push(d.to_string());
+            base.join(d.to_string())
+        } else {
+            base.to_path_buf()
         }
-
-        dest_dir
     }
 
     /// Get the date from the `source`.
