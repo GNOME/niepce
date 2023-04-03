@@ -27,8 +27,6 @@ use super::NiepceProperties as Np;
 use super::NiepcePropertyIdx as Npi;
 use super::{LibMetadata, LibraryId};
 
-pub use crate::ffi::FileType;
-
 #[repr(i32)]
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq, glib::Enum)]
 #[enum_type(name = "FileStatus")]
@@ -41,6 +39,22 @@ pub enum FileStatus {
     /// Invalid
     #[default]
     Invalid = -1,
+}
+
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+/// The `LibFile` type.
+pub enum FileType {
+    /// Don't know
+    Unknown = 0,
+    /// Camera Raw
+    Raw = 1,
+    /// Bundle of RAW + processed. Don't assume JPEG.
+    RawJpeg = 2,
+    /// Processed Image
+    Image = 3,
+    /// Video
+    Video = 4,
 }
 
 impl From<i32> for FileType {
@@ -64,7 +78,6 @@ impl From<FileType> for &'static str {
             FileType::RawJpeg => "RAW + JPEG",
             FileType::Image => "Image",
             FileType::Video => "Video",
-            _ => unreachable!(),
         }
     }
 }
@@ -77,7 +90,6 @@ impl From<FileType> for i32 {
             FileType::RawJpeg => 2,
             FileType::Image => 3,
             FileType::Video => 4,
-            _ => unreachable!(),
         }
     }
 }

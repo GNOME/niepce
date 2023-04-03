@@ -146,21 +146,6 @@ pub mod ffi {
         _NpPropertyEnd,
     }
 
-    #[repr(i32)]
-    #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-    pub enum FileType {
-        /// Don't know
-        Unknown = 0,
-        /// Camera Raw
-        Raw = 1,
-        /// Bundle of RAW + processed. Don't assume JPEG.
-        RawJpeg = 2,
-        /// Processed Image
-        Image = 3,
-        /// Video
-        Video = 4,
-    }
-
     extern "Rust" {
         type Label;
 
@@ -178,8 +163,6 @@ pub mod ffi {
         fn id(&self) -> i64;
         fn folder_id(&self) -> i64;
         fn orientation(&self) -> i32;
-        // The type is `FileType`.
-        fn file_type(&self) -> FileType;
     }
 
     impl Box<LibFile> {}

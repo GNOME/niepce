@@ -513,7 +513,6 @@ impl WidgetImpl for LibraryCellRendererPriv {
                 FileType::Image => EMBLEMS.img.clone(),
                 FileType::Video => EMBLEMS.video.clone(),
                 FileType::Unknown => EMBLEMS.unknown.clone(),
-                _ => unreachable!(),
             };
             let left = Self::do_draw_format_emblem(snapshot, &emblem, &r);
 
