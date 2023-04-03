@@ -109,13 +109,6 @@ pub struct LibFile {
     pub metadata: Option<LibMetadata>,
 }
 
-use cxx::{type_id, ExternType};
-
-unsafe impl ExternType for LibFile {
-    type Id = type_id!("eng::LibFile");
-    type Kind = cxx::kind::Opaque;
-}
-
 impl LibFile {
     pub fn new(
         id: LibraryId,
@@ -161,11 +154,6 @@ impl LibFile {
 
     pub fn path(&self) -> &Path {
         self.main_file.path()
-    }
-
-    // For cxx
-    pub fn path_str(&self) -> String {
-        self.path().to_string_lossy().to_string()
     }
 
     pub fn orientation(&self) -> i32 {

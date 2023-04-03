@@ -94,7 +94,7 @@ pub fn property_set_new() -> Box<PropertySet> {
 pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
-use crate::db::{Label, LibFile, LibMetadata};
+use crate::db::{Label, LibMetadata};
 use crate::library::notification::LibNotification;
 use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper, UIDataProvider};
 
@@ -154,18 +154,6 @@ pub mod ffi {
         fn id(&self) -> i64;
         fn clone_boxed(&self) -> Box<Label>;
     }
-
-    extern "Rust" {
-        type LibFile;
-
-        #[cxx_name = "path"]
-        fn path_str(&self) -> String;
-        fn id(&self) -> i64;
-        fn folder_id(&self) -> i64;
-        fn orientation(&self) -> i32;
-    }
-
-    impl Box<LibFile> {}
 
     extern "Rust" {
         type LibMetadata;

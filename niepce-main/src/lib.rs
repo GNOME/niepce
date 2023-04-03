@@ -108,7 +108,6 @@ pub mod ffi {
     extern "C++" {
         include!("fwk/cxx_prelude.hpp");
         type Label = npc_engine::db::Label;
-        type LibFile = npc_engine::db::LibFile;
         type LibNotification = npc_engine::library::notification::LibNotification;
         type UIDataProvider = npc_engine::libraryclient::UIDataProvider;
         type LibraryClientWrapper = npc_engine::libraryclient::LibraryClientWrapper;
@@ -145,7 +144,6 @@ pub mod ffi {
 
         fn clear_content(&self);
         fn gobj(&self) -> *mut GtkSingleSelection;
-        fn get_file_(&self, id: i64) -> *mut LibFile;
         fn get_file_id_at_pos(&self, pos: u32) -> i64;
         fn get_pos_from_id_(&self, id: i64) -> u32;
     }

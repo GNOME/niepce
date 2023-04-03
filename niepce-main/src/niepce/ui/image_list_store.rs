@@ -19,7 +19,6 @@
 
 use std::cell::{Cell, RefCell};
 use std::collections::BTreeMap;
-use std::ptr;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -262,15 +261,6 @@ impl ImageListStore {
             .and_then(|item| item.file())
             .map(|file| file.id())
             .unwrap_or(0)
-    }
-
-    // cxx
-    pub fn get_file_(&self, id: LibraryId) -> *mut LibFile {
-        if let Some(file) = self.file(id) {
-            Box::into_raw(Box::new(file))
-        } else {
-            ptr::null_mut()
-        }
     }
 
     pub fn file(&self, id: LibraryId) -> Option<LibFile> {

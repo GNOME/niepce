@@ -42,7 +42,6 @@ typedef fwk::PropertyValue PropertyValue;
 typedef fwk::RgbColour RgbColour;
 typedef fwk::WrappedPropertyBag WrappedPropertyBag;
 typedef eng::Label Label;
-typedef eng::LibFile LibFile;
 typedef eng::LibMetadata LibMetadata;
 typedef fwk::PropertyBag NiepcePropertyBag;
 typedef fwk::PropertySet NiepcePropertySet;
@@ -62,7 +61,6 @@ typedef rust::Box<PropertySet> PropertySetPtr;
 namespace eng {
 typedef rust::Box<Label> LabelPtr;
 typedef std::vector<LabelPtr> LabelList;
-typedef rust::Box<LibFile> LibFilePtr;
 typedef int64_t library_id_t;
 typedef rust::Box<LibraryClientHost> LibraryClientPtr;
 typedef rust::Box<UIDataProvider> UIDataProviderPtr;

@@ -21,7 +21,6 @@ class UndoTransaction;
 
 namespace eng {
 class Label;
-class LibFile;
 class LibNotification;
 }
 
