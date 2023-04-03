@@ -25,7 +25,6 @@ class LibNotification;
 }
 
 namespace ui {
-class ModuleShell;
 class GridViewModule;
 class EditLabels;
 class MetaDataPaneController;
@@ -34,14 +33,6 @@ class NiepceApplication;
 
 namespace mapm {
 class MapModule;
-}
-
-namespace dr {
-class DarkroomModule;
-}
-
-namespace npc {
-class LnListener;
 }
 
 namespace ncr {
