@@ -10,6 +10,7 @@ license = "GPL-3.0"
 
 [dependencies]
 async-channel = "1.6.1"
+cachedir = "0.3.0"
 chrono = "0.4.23"
 cxx = { version = "1.0", features = [ "c++17" ] }
 exempi2 = "0.1.3"

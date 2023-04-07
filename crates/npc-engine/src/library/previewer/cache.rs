@@ -106,6 +106,7 @@ impl DbWorker {
     fn initialize(&self, cache_dir: &Path) -> db::LibResult<()> {
         let db_file = cache_dir.join("cache.db");
         dbg_out!("Opening database at {:?}", db_file);
+        on_err_out!(cachedir::ensure_tag(cache_dir));
 
         if let Ok(conn) = rusqlite::Connection::open(&db_file) {
             dbg_out!("db is open");
