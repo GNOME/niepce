@@ -8,6 +8,7 @@
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
     "command" : "niepce",
+    "desktop-file-name-prefix": "(Devel) ",
     "finish-args" : [
         "--allow=devel",
         "--share=ipc",

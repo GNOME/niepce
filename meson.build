@@ -62,11 +62,13 @@ if get_option('profile') == 'development'
   endif
   application_id = '@0@.@1@'.format(base_id, profile)
   package = '@0@-devel'.format(meson.project_name())
+  app_name_suffix = ' (Development)'
 else
   profile = ''
   version_suffix = ''
   application_id = base_id
   package = meson.project_name()
+  app_name_suffix = ''
 endif
 
 if get_option('buildtype') == 'debug'

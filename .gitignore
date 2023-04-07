@@ -3,8 +3,6 @@
 *.bak
 TAGS
 .dirstamp
-/data/org.gnome.Niepce.appdata.xml
-/data/org.gnome.Niepce.desktop
 /src/fwk/base/testmoniker
 /src/fwk/base/testgeometry
 /src/fwk/base/testfractions

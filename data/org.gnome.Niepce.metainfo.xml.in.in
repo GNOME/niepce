@@ -3,7 +3,7 @@
   <id>@app-id@</id>
   <licence>CC0-1.0</licence>
   <project_license>GPL-3.0-or-later</project_license>
-  <name>Niepce Digital</name>
+  <name>Niepce Digital@app-name-suffix@</name>
   <summary>Advanced Photo Editing</summary>
   <description>
     <p>
