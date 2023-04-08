@@ -59,6 +59,15 @@ clippy = run_target(
   depends: [resources_bundle]
 )
 
+rustdoc = run_target(
+  'rustdoc',
+  env: cargo_env,
+  command: [
+    cargo, 'doc',
+    cargo_options,
+  ],
+)
+
 examples = run_target(
   'examples',
   env: cargo_env,
