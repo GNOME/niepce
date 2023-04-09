@@ -134,26 +134,6 @@
                             </child>
                           </object>
                         </child>
-                        <child>
-                          <object class="GtkCheckButton" id="ufraw_import_check">
-                            <property name="focusable">1</property>
-                            <property name="halign">start</property>
-                            <property name="label" translatable="yes">Import _UFRaw</property>
-                            <property name="sensitive">0</property>
-                            <property name="use-underline">1</property>
-                            <property name="valign">center</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="rawstudio_import_check">
-                            <property name="focusable">1</property>
-                            <property name="halign">start</property>
-                            <property name="label" translatable="yes">Import Raw_Studio</property>
-                            <property name="sensitive">0</property>
-                            <property name="use-underline">1</property>
-                            <property name="valign">center</property>
-                          </object>
-                        </child>
                       </object>
                     </child>
                     <child type="label">
@@ -194,6 +174,8 @@
                             <child type="label">
                               <object class="GtkLabel" id="label8">
                                 <property name="label" translatable="yes">Presets:</property>
+                                <property name="margin-start">6</property>
+                                <property name="margin-top">6</property>
                                 <attributes>
                                   <attribute name="weight" value="bold"/>
                                 </attributes>
@@ -213,7 +195,6 @@
                                     <property name="margin-start">6</property>
                                     <property name="margin-top">6</property>
                                     <property name="model">tz_combo_model</property>
-                                    <property name="vexpand">1</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="renderer1"/>
                                     </child>
@@ -221,9 +202,12 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label5">
+                                    <property name="css-classes">dim-label</property>
                                     <property name="label" translatable="yes">You can still change this after importing the pictures.</property>
-                                    <property name="margin-start">6</property>
-                                    <property name="vexpand">1</property>
+                                    <property name="margin-bottom">4</property>
+                                    <property name="margin-end">4</property>
+                                    <property name="margin-start">4</property>
+                                    <property name="margin-top">4</property>
                                     <property name="wrap">1</property>
                                     <attributes>
                                       <attribute name="style" value="italic"/>
@@ -237,6 +221,8 @@
                             <child type="label">
                               <object class="GtkLabel" id="label4">
                                 <property name="label" translatable="yes">Date:</property>
+                                <property name="margin-start">6</property>
+                                <property name="margin-top">6</property>
                                 <attributes>
                                   <attribute name="weight" value="bold"/>
                                 </attributes>
@@ -262,6 +248,8 @@
                             <child type="label">
                               <object class="GtkLabel" id="label9">
                                 <property name="label" translatable="yes">Attributes:</property>
+                                <property name="margin-start">6</property>
+                                <property name="margin-top">6</property>
                                 <attributes>
                                   <attribute name="weight" value="bold"/>
                                 </attributes>
@@ -296,6 +284,7 @@
         </child>
         <child>
           <object class="GtkButton" id="button4">
+            <property name="css-classes">suggested-action</property>
             <property name="focusable">1</property>
             <property name="label" translatable="yes">_Import</property>
             <property name="receives-default">1</property>
