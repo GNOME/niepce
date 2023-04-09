@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2022-11-12 13:20+0000\n"
+"POT-Creation-Date: 2023-04-09 10:10+0000\n"
 "PO-Revision-Date: 2022-11-13 13:15+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
@@ -20,7 +20,6 @@ msgstr ""
 "|| n%100>=20) ? 1 : 2);\n"
 
 #: camerawire/src/cwwindow.cpp:62
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:37
 msgid "Camera"
 msgstr "Aparat"
 
@@ -64,40 +63,44 @@ msgstr "Odśwież"
 msgid "Hide tools"
 msgstr "Ukryj narzędzia"
 
-#: data/org.gnome.Niepce.appdata.xml.in:6 data/org.gnome.Niepce.desktop.in:3
-msgid "Niepce Digital"
-msgstr "Niepce Digital"
+#: data/org.gnome.Niepce.metainfo.xml.in.in:6
+msgid "Niepce Digital@app-name-suffix@"
+msgstr "Niepce Digital@app-name-suffix@"
 
-#: data/org.gnome.Niepce.appdata.xml.in:7
+#: data/org.gnome.Niepce.metainfo.xml.in.in:7
 msgid "Advanced Photo Editing"
 msgstr "Zaawansowana obróbka zdjęć"
 
-#: data/org.gnome.Niepce.appdata.xml.in:9
+#: data/org.gnome.Niepce.metainfo.xml.in.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr "Niepce Digital jest programem do zarządzania i obróbki zdjęć."
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/org.gnome.Niepce.metainfo.xml.in.in:12
 msgid "Features:"
 msgstr "Funkcje:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:14
+#: data/org.gnome.Niepce.metainfo.xml.in.in:14
 msgid "Photo library management"
 msgstr "Zarządzanie kolekcją zdjęć"
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/org.gnome.Niepce.metainfo.xml.in.in:15
 msgid "Non destructive image editing"
 msgstr "Niedestruktywna obróbka zdjęć"
 
-#: data/org.gnome.Niepce.appdata.xml.in:16
+#: data/org.gnome.Niepce.metainfo.xml.in.in:16
 msgid "RAW processing"
 msgstr "Przetwarzanie plików RAW"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/org.gnome.Niepce.desktop.in.in:3
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
+
+#: data/org.gnome.Niepce.desktop.in.in:4
 msgid "Manage and edit your photos"
 msgstr "Zarządzanie i obróbka zdjęć"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/org.gnome.Niepce.desktop.in.in:6
 msgid "photo;"
 msgstr "zdjęcie;zdjęcia;fotografia;fotografie;"
 
@@ -121,92 +124,60 @@ msgstr "Trwa importowanie"
 msgid "All done"
 msgstr "Wszystko gotowe"
 
-#: niepce-main/src/niepce/ui/selection_controller.rs:292
-msgid "Set Flag"
-msgstr "Ustaw oznaczenie"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:293
-msgid "Set Rating"
-msgstr "Ustaw ocenę"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:294
-msgid "Set Label"
-msgstr "Ustaw etykietę"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:295
-msgid "Set Property"
-msgstr "Ustaw właściwość"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:309
-msgid "Set Properties"
-msgstr "Ustaw właściwości"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:329
-msgid "Move to Trash"
-msgstr "Przenieś do kosza"
-
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
-msgid "Name"
-msgstr "Nazwa"
-
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:65
-msgid "Description"
-msgstr "Opis"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:38
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:40
 msgid "Develop"
 msgstr "Wywołaj"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:56
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:58
 msgid "Crop"
 msgstr "Przytnij"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:60
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
 msgid "Tilt"
 msgstr "Przechyl"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:64
 msgid "White balance"
 msgstr "Balans bieli"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:65
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
 msgid "Color temperature"
 msgstr "Temperatura kolorów"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:69
 msgid "Tone and colour"
 msgstr "Ton i kolor"
 
 #. s->signal_value_changed().connect();
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:71
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
 msgid "Exposure"
 msgstr "Naświetlanie"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
 msgid "Recovery"
 msgstr "Przywracanie"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
 msgid "Fill Light"
 msgstr "Wypełnij światło"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
 msgid "Blacks"
 msgstr "Czerń"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
 msgid "Brightness"
 msgstr "Jasność"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
 msgid "Contrast"
 msgstr "Kontrast"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
 msgid "Saturation"
 msgstr "Nasycenie"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:87
 msgid "Vibrance"
 msgstr "Jaskrawość"
 
@@ -271,76 +242,55 @@ msgstr "O_brazy do zaimportowania"
 msgid "Destination _Folder"
 msgstr "_Katalog docelowy"
 
-#: src/niepce/ui/dialogs/importdialog.ui:131
+#: src/niepce/ui/dialogs/importdialog.ui:132
 msgid "Import _UFRaw"
 msgstr "Zaimportuj _UFRaw"
 
-#: src/niepce/ui/dialogs/importdialog.ui:141
+#: src/niepce/ui/dialogs/importdialog.ui:142
 msgid "Import Raw_Studio"
 msgstr "Zaimportuj Raw_Studio"
 
-#: src/niepce/ui/dialogs/importdialog.ui:152
+#: src/niepce/ui/dialogs/importdialog.ui:153
 msgid "_Options"
 msgstr "_Opcje"
 
-#: src/niepce/ui/dialogs/importdialog.ui:190
+#: src/niepce/ui/dialogs/importdialog.ui:191
 msgid "Presets:"
 msgstr "Ustawienia:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:225
+#: src/niepce/ui/dialogs/importdialog.ui:226
 msgid "You can still change this after importing the pictures."
 msgstr "Można to zmienić także po zaimportowaniu obrazów."
 
-#: src/niepce/ui/dialogs/importdialog.ui:236
+#: src/niepce/ui/dialogs/importdialog.ui:237
 msgid "Date:"
 msgstr "Data:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:264
+#: src/niepce/ui/dialogs/importdialog.ui:265
 msgid "Attributes:"
 msgstr "Atrybuty:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:276
+#: src/niepce/ui/dialogs/importdialog.ui:277
 msgid "Metadata"
 msgstr "Metadane"
 
-#: src/niepce/ui/dialogs/importdialog.ui:303
+#: src/niepce/ui/dialogs/importdialog.ui:304
 msgid "_Import"
 msgstr "Za_importuj"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:65
-msgid "No camera found"
-msgstr "Nie odnaleziono żadnego aparatu"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:80
-msgid "Camera import %1%"
-msgstr "Import z aparatu %1%"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:20
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:18
 msgid "Available cameras:"
 msgstr "Dostępne aparaty:"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:29
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:60
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:27
 msgid "Select"
 msgstr "Wybierz"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:33
-msgid "Directory"
-msgstr "Katalog"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:56
-msgid "Import picture folder"
-msgstr "Importuje katalog obrazów"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:59
-msgid "Cancel"
-msgstr "Anuluj"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:12
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:9
 msgid "_Directory:"
 msgstr "_Katalog:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:23
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:20
 msgid "..."
 msgstr "…"
 
@@ -369,11 +319,11 @@ msgstr "Ciemny interfejs"
 msgid "_User Interface"
 msgstr "Interfejs _użytkownika"
 
-#: src/niepce/ui/metadatapanecontroller.cpp:57
+#: src/niepce/ui/metadatapanecontroller.cpp:56
 msgid "Image Properties"
 msgstr "Właściwości obrazu"
 
-#: src/niepce/ui/niepceapplication.cpp:79
+#: src/niepce/ui/niepceapplication.cpp:70
 msgid ""
 "A digital photo application.\n"
 "\n"
