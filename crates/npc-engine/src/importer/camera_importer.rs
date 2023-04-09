@@ -20,12 +20,13 @@
 use std::cell::RefCell;
 
 use super::{
-    FileImporter, ImportBackend, ImportRequest, ImportedFile, PreviewReady, SourceContentReady,
+    DirectoryImporter, FileImporter, ImportBackend, ImportRequest, ImportedFile, PreviewReady,
+    SourceContentReady,
 };
 use crate::db::Managed;
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
 use npc_fwk::utils::FileList;
-use npc_fwk::{on_err_out, Date};
+use npc_fwk::{dbg_out, on_err_out, Date};
 
 #[derive(Clone, Default)]
 pub struct CameraImportedFile {
@@ -64,13 +65,38 @@ impl ImportedFile for CameraImportedFile {
     }
 }
 
+/// The kind of backend
+enum CameraBackend {
+    /// Gphoto2
+    Gphoto2,
+    /// Directory importer
+    File,
+    /// Error
+    Error,
+}
+
 #[derive(Default)]
 pub struct CameraImporter {
     camera: RefCell<Option<GpCamera>>,
+    file_backend: RefCell<Option<DirectoryImporter>>,
 }
 
 impl CameraImporter {
-    fn ensure_camera_open(&self, source: &str) -> bool {
+    /// Ensure the camera is open. If it's a mass storage device
+    /// it will create the file backend instead. It will return the
+    /// type of backend.
+    fn ensure_camera_open(&self, source: &str) -> CameraBackend {
+        if GpCamera::port_is_disk(source) {
+            dbg_out!("Using file backend");
+            if self.file_backend.borrow().is_none() {
+                dbg_out!("Created file backend");
+                let mut backend = DirectoryImporter::default();
+                backend.set_copy(true);
+                backend.set_recursive(true);
+                *self.file_backend.borrow_mut() = Some(backend);
+            }
+            return CameraBackend::File;
+        }
         let need_camera = {
             let camera_lock = self.camera.borrow();
             camera_lock.is_none() || camera_lock.as_ref().unwrap().path() != source
@@ -81,9 +107,9 @@ impl CameraImporter {
         }
         if let Some(camera) = &*self.camera.borrow() {
             camera.open();
-            true
+            CameraBackend::Gphoto2
         } else {
-            false
+            CameraBackend::Error
         }
     }
 
@@ -103,63 +129,89 @@ impl ImportBackend for CameraImporter {
     }
 
     fn list_source_content(&self, source: &str, callback: SourceContentReady) {
-        if self.ensure_camera_open(source) {
-            if let Some(camera) = &*self.camera.borrow() {
-                let file_list = Self::list_content_for_camera(camera);
-                callback(file_list);
+        match self.ensure_camera_open(source) {
+            CameraBackend::Gphoto2 => {
+                if let Some(ref camera) = *self.camera.borrow() {
+                    let file_list = Self::list_content_for_camera(camera);
+                    callback(file_list);
+                }
             }
+            CameraBackend::File => {
+                if let Some(ref backend) = *self.file_backend.borrow() {
+                    backend.list_source_content(&source[5..], callback);
+                }
+            }
+            CameraBackend::Error => {}
         }
     }
 
     fn get_previews_for(&self, source: &str, paths: Vec<String>, callback: PreviewReady) {
-        if self.ensure_camera_open(source) {
-            paths.iter().for_each(|path| {
-                if let Some(last_slash) = path.rfind('/') {
-                    let name = &path[last_slash + 1..];
-                    let folder = &path[..last_slash];
-                    let thumbnail = self
-                        .camera
-                        .borrow()
-                        .as_ref()
-                        .and_then(|camera| camera.get_preview(folder, name));
+        match self.ensure_camera_open(source) {
+            CameraBackend::Gphoto2 => {
+                paths.iter().for_each(|path| {
+                    if let Some(last_slash) = path.rfind('/') {
+                        let name = &path[last_slash + 1..];
+                        let folder = &path[..last_slash];
+                        let thumbnail = self
+                            .camera
+                            .borrow()
+                            .as_ref()
+                            .and_then(|camera| camera.get_preview(folder, name));
 
-                    if thumbnail.is_some() {
-                        callback(path.to_string(), thumbnail, None);
+                        if thumbnail.is_some() {
+                            callback(path.to_string(), thumbnail, None);
+                        }
                     }
+                });
+            }
+            CameraBackend::File => {
+                if let Some(ref backend) = *self.file_backend.borrow() {
+                    backend.get_previews_for(&source[5..], paths, callback)
                 }
-            });
+            }
+            CameraBackend::Error => {}
         }
     }
 
     fn do_import(&self, request: &ImportRequest, callback: FileImporter) {
-        if self.ensure_camera_open(request.source()) {
-            if let Some(camera) = self.camera.borrow_mut().take() {
-                let dest_dir = request.dest_dir().to_path_buf();
-                on_err_out!(std::thread::Builder::new()
-                    .name("camera import".to_string())
-                    .spawn(move || {
-                        let file_list = Self::list_content_for_camera(&camera);
-                        // XXX we likely need to handle this error better
-                        on_err_out!(std::fs::create_dir_all(&dest_dir));
-                        let files = file_list
-                            .iter()
-                            .filter_map(|file| {
-                                let name = file.name();
-                                let output_path = dest_dir.join(name);
-                                if camera.download_file(
-                                    file.folder(),
-                                    name,
-                                    &output_path.to_string_lossy(),
-                                ) {
-                                    return Some(output_path);
-                                }
+        match self.ensure_camera_open(request.source()) {
+            CameraBackend::Gphoto2 => {
+                if let Some(camera) = self.camera.borrow_mut().take() {
+                    let dest_dir = request.dest_dir().to_path_buf();
+                    on_err_out!(std::thread::Builder::new()
+                        .name("camera import".to_string())
+                        .spawn(move || {
+                            let file_list = Self::list_content_for_camera(&camera);
+                            // XXX we likely need to handle this error better
+                            on_err_out!(std::fs::create_dir_all(&dest_dir));
+                            let files = file_list
+                                .iter()
+                                .filter_map(|file| {
+                                    let name = file.name();
+                                    let output_path = dest_dir.join(name);
+                                    if camera.download_file(
+                                        file.folder(),
+                                        name,
+                                        &output_path.to_string_lossy(),
+                                    ) {
+                                        return Some(output_path);
+                                    }
 
-                                None
-                            })
-                            .collect();
-                        callback(&dest_dir, &FileList(files), Managed::No);
-                    }));
+                                    None
+                                })
+                                .collect();
+                            callback(&dest_dir, &FileList(files), Managed::No);
+                        }));
+                }
             }
+            CameraBackend::File => {
+                if let Some(backend) = self.file_backend.borrow_mut().take() {
+                    let source = &request.source()[5..];
+                    let request = request.clone().set_source(source);
+                    backend.do_import(&request, callback);
+                }
+            }
+            CameraBackend::Error => {}
         }
     }
 }

@@ -98,6 +98,11 @@ impl GpCamera {
         }
     }
 
+    /// Return true if it's a `disk:` device.
+    pub fn port_is_disk(port: &str) -> bool {
+        port.starts_with("disk:")
+    }
+
     /// Open the device as per the descriptor.
     pub fn open(&self) -> bool {
         dbg_out!("opening camera {}", self.device.port);
@@ -314,5 +319,15 @@ impl GpCamera {
                     .ok()
             })
             .unwrap_or(false)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::GpCamera;
+
+    #[test]
+    fn test_is_disk() {
+        assert!(GpCamera::port_is_disk("disk:/run/media/hub/CANON_DC"));
     }
 }

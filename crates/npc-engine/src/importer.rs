@@ -49,6 +49,7 @@ pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>>
 }
 
 /// An import request
+#[derive(Clone)]
 pub struct ImportRequest {
     source: String,
     recursive: bool,
@@ -83,6 +84,11 @@ impl ImportRequest {
 
     pub fn sorting(&self) -> DatePathFormat {
         self.sorting
+    }
+
+    pub fn set_source(mut self, source: &str) -> Self {
+        self.source = source.into();
+        self
     }
 
     pub fn source(&self) -> &str {

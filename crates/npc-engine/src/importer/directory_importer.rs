@@ -71,11 +71,16 @@ impl ImportedFile for DirectoryImportedFile {
 #[derive(Default)]
 pub struct DirectoryImporter {
     copy: bool,
+    recursive: bool,
 }
 
 impl DirectoryImporter {
     pub fn set_copy(&mut self, copy: bool) {
         self.copy = copy;
+    }
+
+    pub fn set_recursive(&mut self, recursive: bool) {
+        self.recursive = recursive;
     }
 }
 
@@ -87,10 +92,12 @@ impl ImportBackend for DirectoryImporter {
     /// List the source content
     fn list_source_content(&self, source: &str, callback: SourceContentReady) {
         let source = source.to_string();
+        let recursive = self.recursive;
         on_err_out!(std::thread::Builder::new()
             .name("dir import list source".to_string())
             .spawn(move || {
-                let files = FileList::files_from_directory(source, FileList::file_is_media, false);
+                let files =
+                    FileList::files_from_directory(source, FileList::file_is_media, recursive);
                 dbg_out!("files size: {}", files.0.len());
                 let content = files
                     .0
@@ -119,37 +126,39 @@ impl ImportBackend for DirectoryImporter {
 
     /// Do the import
     fn do_import(&self, request: &ImportRequest, callback: FileImporter) {
-        let files;
-        let source;
         if self.copy {
-            let imports = Importer::get_imports(
-                &std::path::PathBuf::from(request.source()),
-                request.dest_dir(),
-                request.sorting(),
-                false,
-            );
-            files = FileList(
-                imports
-                    .iter()
-                    .filter_map(|import| {
-                        std::fs::create_dir_all(
-                            import.1.parent().expect("No parent, bailing out."),
-                        )
-                        .map_err(|err| {
-                            err_out!("Couldn't create directories");
-                            err
-                        })
-                        .ok()?;
-                        npc_fwk::utils::copy(&import.0, &import.1).expect("Couldn't copy files.");
-                        Some(import.1.clone())
-                    })
-                    .collect(),
-            );
-            source = request.dest_dir().to_path_buf();
+            let dest_dir = request.dest_dir().to_path_buf();
+            let source = std::path::PathBuf::from(request.source());
+            let sorting = request.sorting();
+            let recursive = self.recursive;
+            on_err_out!(std::thread::Builder::new()
+                .name("import copy files".to_string())
+                .spawn(move || {
+                    let imports = Importer::get_imports(&source, &dest_dir, sorting, recursive);
+                    let files = FileList(
+                        imports
+                            .iter()
+                            .filter_map(|import| {
+                                std::fs::create_dir_all(
+                                    import.1.parent().expect("No parent, bailing out."),
+                                )
+                                .map_err(|err| {
+                                    err_out!("Couldn't create directories");
+                                    err
+                                })
+                                .ok()?;
+                                npc_fwk::utils::copy(&import.0, &import.1)
+                                    .expect("Couldn't copy files.");
+                                Some(import.1.clone())
+                            })
+                            .collect(),
+                    );
+                    callback(&dest_dir, &files, Managed::No);
+                }));
         } else {
-            files = FileList::files_from_directory(request.source(), |_| true, false);
-            source = std::path::PathBuf::from(request.source());
+            let files = FileList::files_from_directory(request.source(), |_| true, self.recursive);
+            let source = std::path::PathBuf::from(request.source());
+            callback(&source, &files, Managed::No);
         }
-        callback(&source, &files, Managed::No);
     }
 }
