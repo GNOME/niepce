@@ -2,13 +2,13 @@
 # Copyright (C) 2020 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
 #
-# yurchor <yurchor@ukr.net>, 2020, 2022.
+# yurchor <yurchor@ukr.net>, 2020, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2022-11-12 13:20+0000\n"
-"PO-Revision-Date: 2022-11-14 01:02+0200\n"
+"POT-Creation-Date: 2023-04-09 10:10+0000\n"
+"PO-Revision-Date: 2023-04-09 14:18+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -20,7 +20,6 @@ msgstr ""
 "X-Generator: Lokalize 20.12.0\n"
 
 #: camerawire/src/cwwindow.cpp:62
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:37
 msgid "Camera"
 msgstr "Камера"
 
@@ -64,60 +63,61 @@ msgstr "Оновити"
 msgid "Hide tools"
 msgstr "Сховати інструменти"
 
-#: data/org.gnome.Niepce.appdata.xml.in:6 data/org.gnome.Niepce.desktop.in:3
-msgid "Niepce Digital"
-msgstr "Niepce Digital"
+#: data/org.gnome.Niepce.metainfo.xml.in.in:6
+#| msgid "Niepce Digital - "
+msgid "Niepce Digital@app-name-suffix@"
+msgstr "Niepce Digital@app-name-suffix@"
 
-#: data/org.gnome.Niepce.appdata.xml.in:7
+#: data/org.gnome.Niepce.metainfo.xml.in.in:7
 msgid "Advanced Photo Editing"
 msgstr "Редагування фотографій із додатковими можливостями"
 
-#: data/org.gnome.Niepce.appdata.xml.in:9
+#: data/org.gnome.Niepce.metainfo.xml.in.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr "Niepce Digital — програма для керування і редагування фотографій."
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/org.gnome.Niepce.metainfo.xml.in.in:12
 msgid "Features:"
 msgstr "Можливості:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:14
+#: data/org.gnome.Niepce.metainfo.xml.in.in:14
 msgid "Photo library management"
 msgstr "Керування бібліотекою фотографій"
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/org.gnome.Niepce.metainfo.xml.in.in:15
 msgid "Non destructive image editing"
 msgstr "Недеструктивне редагування зображень"
 
-#: data/org.gnome.Niepce.appdata.xml.in:16
+#: data/org.gnome.Niepce.metainfo.xml.in.in:16
 msgid "RAW processing"
 msgstr "Обробка цифрових негативів"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/org.gnome.Niepce.desktop.in.in:3
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
+
+#: data/org.gnome.Niepce.desktop.in.in:4
 msgid "Manage and edit your photos"
 msgstr "Керування вашими фотографіями і редагування фотографій"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/org.gnome.Niepce.desktop.in.in:6
 msgid "photo;"
 msgstr "photo;фото;фотографія;"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
-#| msgid "Import Library..."
 msgid "Import Library"
 msgstr "Імпортувати бібліотеку"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:65
-#| msgid "Folder:"
 msgid "Folder Roots"
 msgstr "Корені теки"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:73
-#| msgid "_Images to import"
 msgid "Start import"
 msgstr "Почати імпортування"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:81
-#| msgid "Importing from"
 msgid "Import in progress"
 msgstr "Триває імпортування"
 
@@ -125,92 +125,60 @@ msgstr "Триває імпортування"
 msgid "All done"
 msgstr "Усе виконано"
 
-#: niepce-main/src/niepce/ui/selection_controller.rs:292
-msgid "Set Flag"
-msgstr "Встановити прапорець"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:293
-msgid "Set Rating"
-msgstr "Встановити оцінку"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:294
-msgid "Set Label"
-msgstr "Встановити мітку"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:295
-msgid "Set Property"
-msgstr "Встановити властивість"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:309
-msgid "Set Properties"
-msgstr "Встановити властивості"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:329
-msgid "Move to Trash"
-msgstr "Пересунути до смітника"
-
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
-msgid "Name"
-msgstr "Назва"
-
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:65
-msgid "Description"
-msgstr "Опис"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:38
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:40
 msgid "Develop"
 msgstr "Розробка"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:56
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:58
 msgid "Crop"
 msgstr "Обрізати"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:60
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
 msgid "Tilt"
 msgstr "Нахил"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:64
 msgid "White balance"
 msgstr "Баланс білого"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:65
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
 msgid "Color temperature"
 msgstr "Кольорова температура"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:69
 msgid "Tone and colour"
 msgstr "Тон і колір"
 
 #. s->signal_value_changed().connect();
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:71
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
 msgid "Exposure"
 msgstr "Експозиція"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
 msgid "Recovery"
 msgstr "Відновлення"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
 msgid "Fill Light"
 msgstr "Заповнити світлом"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
 msgid "Blacks"
 msgstr "Чорні"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
 msgid "Brightness"
 msgstr "Яскравість"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
 msgid "Contrast"
 msgstr "Контрастність"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
 msgid "Saturation"
 msgstr "Насиченість"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:87
 msgid "Vibrance"
 msgstr "Резонанс"
 
@@ -275,76 +243,55 @@ msgstr "З_ображення для імпортування"
 msgid "Destination _Folder"
 msgstr "_Тека призначення"
 
-#: src/niepce/ui/dialogs/importdialog.ui:131
+#: src/niepce/ui/dialogs/importdialog.ui:132
 msgid "Import _UFRaw"
 msgstr "Імпортувати з _UFRaw"
 
-#: src/niepce/ui/dialogs/importdialog.ui:141
+#: src/niepce/ui/dialogs/importdialog.ui:142
 msgid "Import Raw_Studio"
 msgstr "Імпортувати з Raw_Studio"
 
-#: src/niepce/ui/dialogs/importdialog.ui:152
+#: src/niepce/ui/dialogs/importdialog.ui:153
 msgid "_Options"
 msgstr "П_араметри"
 
-#: src/niepce/ui/dialogs/importdialog.ui:190
+#: src/niepce/ui/dialogs/importdialog.ui:191
 msgid "Presets:"
 msgstr "Шаблони:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:225
+#: src/niepce/ui/dialogs/importdialog.ui:226
 msgid "You can still change this after importing the pictures."
 msgstr "Ви зможете внести додаткові зміни після імпортування зображень."
 
-#: src/niepce/ui/dialogs/importdialog.ui:236
+#: src/niepce/ui/dialogs/importdialog.ui:237
 msgid "Date:"
 msgstr "Дата:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:264
+#: src/niepce/ui/dialogs/importdialog.ui:265
 msgid "Attributes:"
 msgstr "Атрибути:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:276
+#: src/niepce/ui/dialogs/importdialog.ui:277
 msgid "Metadata"
 msgstr "Метадані"
 
-#: src/niepce/ui/dialogs/importdialog.ui:303
+#: src/niepce/ui/dialogs/importdialog.ui:304
 msgid "_Import"
 msgstr "_Імпорт"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:65
-msgid "No camera found"
-msgstr "Не знайдено камери"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:80
-msgid "Camera import %1%"
-msgstr "Імпортування з камери — %1%"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:20
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:18
 msgid "Available cameras:"
 msgstr "Доступні камери:"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:29
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:60
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:27
 msgid "Select"
 msgstr "Вибрати"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:33
-msgid "Directory"
-msgstr "Каталог"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:56
-msgid "Import picture folder"
-msgstr "Імпортувати теку із зображеннями"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:59
-msgid "Cancel"
-msgstr "Скасувати"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:12
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:9
 msgid "_Directory:"
 msgstr "_Каталог:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:23
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:20
 msgid "..."
 msgstr "…"
 
@@ -373,11 +320,11 @@ msgstr "Темний інтерфейс"
 msgid "_User Interface"
 msgstr "Інтерфейс _користувача"
 
-#: src/niepce/ui/metadatapanecontroller.cpp:57
+#: src/niepce/ui/metadatapanecontroller.cpp:56
 msgid "Image Properties"
 msgstr "Властивості зображення"
 
-#: src/niepce/ui/niepceapplication.cpp:79
+#: src/niepce/ui/niepceapplication.cpp:70
 msgid ""
 "A digital photo application.\n"
 "\n"
@@ -386,6 +333,45 @@ msgstr ""
 "Програма для роботи з цифровими фотографіями.\n"
 "\n"
 "Параметри збирання: "
+
+#~ msgid "Set Flag"
+#~ msgstr "Встановити прапорець"
+
+#~ msgid "Set Rating"
+#~ msgstr "Встановити оцінку"
+
+#~ msgid "Set Label"
+#~ msgstr "Встановити мітку"
+
+#~ msgid "Set Property"
+#~ msgstr "Встановити властивість"
+
+#~ msgid "Set Properties"
+#~ msgstr "Встановити властивості"
+
+#~ msgid "Move to Trash"
+#~ msgstr "Пересунути до смітника"
+
+#~ msgid "Name"
+#~ msgstr "Назва"
+
+#~ msgid "Description"
+#~ msgstr "Опис"
+
+#~ msgid "No camera found"
+#~ msgstr "Не знайдено камери"
+
+#~ msgid "Camera import %1%"
+#~ msgstr "Імпортування з камери — %1%"
+
+#~ msgid "Directory"
+#~ msgstr "Каталог"
+
+#~ msgid "Import picture folder"
+#~ msgstr "Імпортувати теку із зображеннями"
+
+#~ msgid "Cancel"
+#~ msgstr "Скасувати"
 
 #~ msgid "Untitled"
 #~ msgstr "Без назви"
@@ -617,9 +603,6 @@ msgstr ""
 
 #~ msgid "Rights"
 #~ msgstr "Права"
-
-#~ msgid "Niepce Digital - "
-#~ msgstr "Niepce Digital – "
 
 #~ msgid "Projects"
 #~ msgstr "Проєкти"
