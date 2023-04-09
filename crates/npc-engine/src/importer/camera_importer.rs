@@ -18,9 +18,10 @@
  */
 
 use std::cell::RefCell;
-use std::path::Path;
 
-use super::{FileImporter, ImportBackend, ImportedFile, PreviewReady, SourceContentReady};
+use super::{
+    FileImporter, ImportBackend, ImportRequest, ImportedFile, PreviewReady, SourceContentReady,
+};
 use crate::db::Managed;
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
 use npc_fwk::utils::FileList;
@@ -130,10 +131,10 @@ impl ImportBackend for CameraImporter {
         }
     }
 
-    fn do_import(&self, source: &str, dest_dir: &Path, callback: FileImporter) {
-        if self.ensure_camera_open(source) {
+    fn do_import(&self, request: &ImportRequest, callback: FileImporter) {
+        if self.ensure_camera_open(request.source()) {
             if let Some(camera) = self.camera.borrow_mut().take() {
-                let dest_dir = dest_dir.to_path_buf();
+                let dest_dir = request.dest_dir().to_path_buf();
                 on_err_out!(std::thread::Builder::new()
                     .name("camera import".to_string())
                     .spawn(move || {

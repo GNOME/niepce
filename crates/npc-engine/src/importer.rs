@@ -30,6 +30,7 @@ pub use libraryimporter::{LibraryImporter, LibraryImporterProbe};
 pub use lrimporter::LrImporter;
 
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 use num_derive::{FromPrimitive, ToPrimitive};
 
@@ -47,6 +48,56 @@ pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>>
     }
 }
 
+/// An import request
+pub struct ImportRequest {
+    source: String,
+    recursive: bool,
+    dest: PathBuf,
+    /// Which way to sort the pictures.
+    sorting: DatePathFormat,
+    importer: Rc<dyn ImportBackend>,
+}
+
+impl ImportRequest {
+    pub fn new<P: AsRef<Path>>(source: String, dest: P, importer: Rc<dyn ImportBackend>) -> Self {
+        Self {
+            source,
+            recursive: false,
+            dest: dest.as_ref().to_path_buf(),
+            sorting: DatePathFormat::default(),
+            importer,
+        }
+    }
+
+    /// Builder: set the import in recursive mode.
+    pub fn set_recursive(mut self, recursive: bool) -> Self {
+        self.recursive = recursive;
+        self
+    }
+
+    /// Builder: set the import sorting.
+    pub fn set_sorting(mut self, sorting: DatePathFormat) -> Self {
+        self.sorting = sorting;
+        self
+    }
+
+    pub fn sorting(&self) -> DatePathFormat {
+        self.sorting
+    }
+
+    pub fn source(&self) -> &str {
+        &self.source
+    }
+
+    pub fn dest_dir(&self) -> &Path {
+        &self.dest
+    }
+
+    pub fn importer(&self) -> &Rc<dyn ImportBackend> {
+        &self.importer
+    }
+}
+
 type SourceContentReady = Box<dyn Fn(Vec<Box<dyn ImportedFile>>) + Send>;
 type PreviewReady = Box<dyn Fn(String, Option<Thumbnail>, Option<Date>) + Send>;
 type FileImporter = Box<dyn Fn(&Path, &FileList, Managed) + Send>;
@@ -60,16 +111,17 @@ pub trait ImportBackend {
     /// thread. `callback` well be run on that thread.
     fn list_source_content(&self, source: &str, callback: SourceContentReady);
     /// Fetch the previews. If possible this should be spawning a thread. `callback`
-    /// well be run on that thread.
+    /// will be run on that thread.
     fn get_previews_for(&self, source: &str, paths: Vec<String>, callback: PreviewReady);
 
-    /// Do the import
-    fn do_import(&self, source: &str, dest_dir: &Path, callback: FileImporter);
+    /// Do the import. This just copy (if needed) the files to the destination
+    /// and call `callback` that should perform the import into the library.
+    fn do_import(&self, request: &ImportRequest, callback: FileImporter);
 }
 
 /// Date path format for import destination
 #[repr(u32)]
-#[derive(Clone, Copy, Default, FromPrimitive, ToPrimitive)]
+#[derive(Clone, Copy, Debug, Default, FromPrimitive, ToPrimitive)]
 pub enum DatePathFormat {
     #[default]
     NoPath = 0,
@@ -84,25 +136,9 @@ pub enum DatePathFormat {
 }
 
 /// The importer.
-pub struct Importer {
-    recursive: bool,
-    source: PathBuf,
-}
+pub struct Importer {}
 
 impl Importer {
-    pub fn from_dir(dir: &Path) -> Self {
-        Importer {
-            source: dir.into(),
-            recursive: false,
-        }
-    }
-
-    /// Builder: set the import in recursive mode.
-    pub fn set_recursive(mut self, recursive: bool) -> Self {
-        self.recursive = recursive;
-        self
-    }
-
     /// Determine the destination dir based on the date format.
     /// If format is none, return `base`
     pub fn dest_dir_for_date(base: &Path, date: &Date, format: DatePathFormat) -> PathBuf {
@@ -137,12 +173,17 @@ impl Importer {
             })
     }
 
-    /// Get the imports from `source`. It will create the bundles.
-    /// It will list the files to import recursively if the imorter
-    /// is recursive.
-    pub fn get_imports(&self, dest: &Path, format: DatePathFormat) -> Vec<(PathBuf, PathBuf)> {
-        let entries =
-            FileList::files_from_directory(&self.source, FileList::file_is_media, self.recursive);
+    /// Get the imports from `source`. It will create the bundles.  It
+    /// will list the files to import recursively if the imorter is
+    /// recursive and the `dest` path. They will be sorted out
+    /// accoting to `format`.
+    pub fn get_imports(
+        source: &Path,
+        dest: &Path,
+        format: DatePathFormat,
+        recursive: bool,
+    ) -> Vec<(PathBuf, PathBuf)> {
+        let entries = FileList::files_from_directory(source, FileList::file_is_media, recursive);
         let bundles = FileBundle::filter_bundles(&entries);
         bundles
             .iter()

@@ -20,11 +20,11 @@
 use std::path::Path;
 
 use npc_fwk::utils::FileList;
-use npc_fwk::{dbg_out, on_err_out, Date, XmpMeta};
+use npc_fwk::{dbg_out, err_out, on_err_out, Date, XmpMeta};
 
-use super::ImportedFile;
+use super::{ImportRequest, ImportedFile};
 use crate::db::Managed;
-use crate::importer::{FileImporter, ImportBackend, PreviewReady, SourceContentReady};
+use crate::importer::{FileImporter, ImportBackend, Importer, PreviewReady, SourceContentReady};
 
 #[derive(Clone)]
 pub struct DirectoryImportedFile {
@@ -69,7 +69,15 @@ impl ImportedFile for DirectoryImportedFile {
 }
 
 #[derive(Default)]
-pub struct DirectoryImporter {}
+pub struct DirectoryImporter {
+    copy: bool,
+}
+
+impl DirectoryImporter {
+    pub fn set_copy(&mut self, copy: bool) {
+        self.copy = copy;
+    }
+}
 
 impl ImportBackend for DirectoryImporter {
     fn id(&self) -> &'static str {
@@ -110,8 +118,38 @@ impl ImportBackend for DirectoryImporter {
     }
 
     /// Do the import
-    fn do_import(&self, source: &str, _dest_dir: &Path, callback: FileImporter) {
-        let files = FileList::files_from_directory(source, |_| true, false);
-        callback(&std::path::PathBuf::from(source), &files, Managed::No);
+    fn do_import(&self, request: &ImportRequest, callback: FileImporter) {
+        let files;
+        let source;
+        if self.copy {
+            let imports = Importer::get_imports(
+                &std::path::PathBuf::from(request.source()),
+                request.dest_dir(),
+                request.sorting(),
+                false,
+            );
+            files = FileList(
+                imports
+                    .iter()
+                    .filter_map(|import| {
+                        std::fs::create_dir_all(
+                            import.1.parent().expect("No parent, bailing out."),
+                        )
+                        .map_err(|err| {
+                            err_out!("Couldn't create directories");
+                            err
+                        })
+                        .ok()?;
+                        npc_fwk::utils::copy(&import.0, &import.1).expect("Couldn't copy files.");
+                        Some(import.1.clone())
+                    })
+                    .collect(),
+            );
+            source = request.dest_dir().to_path_buf();
+        } else {
+            files = FileList::files_from_directory(request.source(), |_| true, false);
+            source = std::path::PathBuf::from(request.source());
+        }
+        callback(&source, &files, Managed::No);
     }
 }

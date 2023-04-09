@@ -32,11 +32,10 @@ fn main() {
     let verbose = args.verbose;
     let format = DatePathFormat::YearSlashYearMonthDay;
 
-    let importer = Importer::from_dir(&source).set_recursive(args.recursive);
     if verbose {
         println!("Collecting files to import...");
     }
-    let imports = importer.get_imports(&dest, format);
+    let imports = Importer::get_imports(&source, &dest, format, args.recursive);
     for import in imports {
         if import.1.exists() {
             println!("{:?} already exists", import.1);

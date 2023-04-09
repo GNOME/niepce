@@ -35,11 +35,11 @@ use std::rc::Rc;
 use glib::translate::*;
 use gtk4::prelude::*;
 use gtk_macros::get_widget;
+use num_traits::FromPrimitive;
 use once_cell::sync::OnceCell;
 
 use crate::ffi;
-use crate::import::ImportRequest;
-use npc_engine::importer::{ImportBackend, ImportedFile};
+use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
 use npc_fwk::toolkit::Thumbnail;
 use npc_fwk::{dbg_out, on_err_out, Date};
 use thumb_item::ThumbItem;
@@ -50,6 +50,8 @@ enum Event {
     SetSource(String, String),
     /// The source changed. `id` in the combo box.
     SourceChanged(String),
+    /// The `DatePathFormat` has been changed.
+    SetDatePathFormat(DatePathFormat),
     PreviewReceived(String, Option<Thumbnail>, Option<Date>),
     AppendFiles(Vec<Box<dyn ImportedFile>>),
 }
@@ -97,6 +99,7 @@ impl Widgets {
 struct State {
     source: String,
     dest_dir: PathBuf,
+    sorting_format: DatePathFormat,
     // map images name to position in list store.
     images_list_map: HashMap<String, u32>,
 }
@@ -142,6 +145,7 @@ impl ImportDialog {
         match e {
             Event::SetSource(source, destdir) => self.set_source(&source, &destdir),
             Event::SourceChanged(source) => self.import_source_changed(&source),
+            Event::SetDatePathFormat(f) => self.set_sorting_format(f),
             Event::PreviewReceived(path, thumbnail, date) => {
                 self.preview_received(&path, thumbnail, date)
             }
@@ -159,6 +163,15 @@ impl ImportDialog {
                 get_widget!(builder, gtk4::Entry, destination_folder);
                 get_widget!(builder, gtk4::Stack, importer_ui_stack);
                 get_widget!(builder, gtk4::ComboBoxText, import_source_combo);
+                get_widget!(builder, gtk4::DropDown, date_sorting_combo);
+                let string_list = gtk4::StringList::new(&[
+                    "No Sorting",
+                    "YYYYMMDD",
+                    "YYYY/MMDD",
+                    "YYYY/MM/DD",
+                    "YYYY/YYYYMMDD",
+                ]);
+                date_sorting_combo.set_model(Some(&string_list));
 
                 get_widget!(builder, gtk4::ScrolledWindow, attributes_scrolled);
                 let mut metadata_pane = ffi::metadata_pane_controller_new();
@@ -218,6 +231,15 @@ impl ImportDialog {
                         }
                     }),
                 );
+                date_sorting_combo.connect_selected_item_notify(
+                    glib::clone!(@strong self.tx as tx => move |dropdown| {
+                        dbg_out!("selected format {}", dropdown.selected());
+                        if let Some(format) = DatePathFormat::from_u32(dropdown.selected()) {
+                            dbg_out!("setting format {format:?}");
+                            on_err_out!(tx.send(Event::SetDatePathFormat(format)));
+                        }
+                    }),
+                );
 
                 let app = npc_fwk::ffi::Application_app();
                 let cfg = &app.config().cfg;
@@ -247,7 +269,10 @@ impl ImportDialog {
             .current_importer
             .borrow()
             .as_ref()
-            .map(|importer| ImportRequest::new(self.source(), self.dest_dir(), importer.backend()))
+            .map(|importer| {
+                ImportRequest::new(self.source(), self.dest_dir(), importer.backend())
+                    .set_sorting(self.sorting_format())
+            })
     }
 
     fn clear_import_list(&self) {
@@ -300,6 +325,17 @@ impl ImportDialog {
         if let Some(widgets) = self.widgets.get() {
             widgets.destination_folder.set_text(dest_dir);
         }
+    }
+
+    fn sorting_format(&self) -> DatePathFormat {
+        self.state.borrow().sorting_format
+    }
+
+    /// Set the date sorting format.
+    fn set_sorting_format(&self, format: DatePathFormat) {
+        let mut state = self.state.borrow_mut();
+        state.sorting_format = format;
+        // XXX handle the UI
     }
 
     fn append_files_to_import(&self, files: &[Box<dyn ImportedFile>]) {

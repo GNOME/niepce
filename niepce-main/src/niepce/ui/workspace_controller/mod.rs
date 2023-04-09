@@ -34,8 +34,8 @@ use num_derive::FromPrimitive;
 use once_cell::unsync::OnceCell;
 
 use super::ContentView;
-use crate::import::ImportRequest;
 use npc_engine::db;
+use npc_engine::importer::ImportRequest;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientWrapper};
 use npc_fwk::base::Signal;
@@ -747,11 +747,9 @@ impl WorkspaceController {
 
         let importer = request.importer();
         if let Some(client) = self.client.upgrade() {
-            let dest_dir = request.dest_dir();
             let client = client.sender().clone();
             importer.do_import(
-                source,
-                dest_dir,
+                request,
                 Box::new(
                     move |path: &std::path::Path, files: &npc_fwk::utils::FileList, manage| {
                         client.import_files(

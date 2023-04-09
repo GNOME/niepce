@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.10.3 -->
 <interface>
+  <!-- interface-name importdialog.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkListStore" id="preset_combo_model">
     <columns>
@@ -8,8 +10,8 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">(none)</col>
-        <col id="1" translatable="yes">NONE</col>
+        <col id="0">(none)</col>
+        <col id="1">NONE</col>
       </row>
     </data>
   </object>
@@ -21,33 +23,30 @@
     <data>
       <row>
         <col id="0">Date is local</col>
-        <col id="1" translatable="yes">local</col>
+        <col id="1">local</col>
       </row>
       <row>
         <col id="0">Date is UTC</col>
-        <col id="1" translatable="yes">utc</col>
+        <col id="1">utc</col>
       </row>
     </data>
   </object>
   <object class="GtkDialog" id="import_dialog">
-    <property name="title" translatable="yes">Import</property>
-    <property name="default-width">900</property>
     <property name="default-height">700</property>
+    <property name="default-width">900</property>
+    <property name="title" translatable="yes">Import</property>
     <child internal-child="content_area">
       <object class="GtkBox" id="dialog-vbox1">
         <property name="orientation">vertical</property>
         <property name="spacing">6</property>
         <child>
-          <placeholder/>
-        </child>
-        <child>
           <object class="GtkBox" id="box1">
-            <property name="vexpand">1</property>
-            <property name="margin-start">12</property>
-            <property name="margin-end">12</property>
-            <property name="margin-top">12</property>
             <property name="margin-bottom">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin-start">12</property>
+            <property name="margin-top">12</property>
             <property name="spacing">6</property>
+            <property name="vexpand">1</property>
             <child>
               <object class="GtkBox" id="source_box">
                 <property name="hexpand">1</property>
@@ -60,28 +59,21 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkStack" id="importer_ui_stack">
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
+                  <object class="GtkStack" id="importer_ui_stack"/>
                 </child>
                 <child>
                   <object class="GtkLabel" id="label1">
-                    <property name="valign">center</property>
                     <property name="halign">start</property>
                     <property name="label" translatable="yes">_Images to import</property>
                     <property name="use-underline">1</property>
+                    <property name="valign">center</property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkScrolledWindow" id="images_list_scrolled">
-                    <property name="vexpand">1</property>
                     <property name="focusable">1</property>
                     <property name="hscrollbar-policy">never</property>
-                    <child>
-                      <placeholder/>
-                    </child>
+                    <property name="vexpand">1</property>
                   </object>
                 </child>
               </object>
@@ -93,22 +85,21 @@
                 <property name="spacing">6</property>
                 <child>
                   <object class="GtkBox" id="hbox2">
+                    <property name="homogeneous">True</property>
                     <property name="spacing">6</property>
                     <child>
                       <object class="GtkLabel" id="label6">
                         <property name="hexpand">1</property>
-                        <property name="label" translatable="yes">Destination _Folder</property>
+                        <property name="label" translatable="yes">Destination _Folder:</property>
+                        <property name="mnemonic-widget">destination_folder</property>
                         <property name="use-underline">1</property>
                         <property name="xalign">0</property>
                       </object>
                     </child>
                     <child>
-                      <placeholder/>
-                    </child>
-                    <child>
                       <object class="GtkEntry" id="destination_folder">
-                        <property name="hexpand">1</property>
                         <property name="focusable">1</property>
+                        <property name="hexpand">1</property>
                         <property name="invisible-char">•</property>
                       </object>
                     </child>
@@ -116,34 +107,51 @@
                 </child>
                 <child>
                   <object class="GtkExpander" id="expander1">
-                    <property name="focusable">1</property>
                     <property name="expanded">1</property>
+                    <property name="focusable">1</property>
                     <child>
                       <object class="GtkBox" id="vbox3">
-                        <property name="margin-start">18</property>
-                        <property name="margin-end">6</property>
-                        <property name="margin-top">6</property>
                         <property name="margin-bottom">6</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-start">18</property>
+                        <property name="margin-top">6</property>
                         <property name="orientation">vertical</property>
                         <property name="spacing">6</property>
                         <child>
+                          <object class="GtkBox">
+                            <property name="homogeneous">True</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">_Date Sorting:</property>
+                                <property name="mnemonic-widget">date_sorting_combo</property>
+                                <property name="use-underline">True</property>
+                                <property name="xalign">0.0</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkDropDown" id="date_sorting_combo"/>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkCheckButton" id="ufraw_import_check">
-                            <property name="valign">center</property>
-                            <property name="label" translatable="yes">Import _UFRaw</property>
-                            <property name="sensitive">0</property>
                             <property name="focusable">1</property>
                             <property name="halign">start</property>
+                            <property name="label" translatable="yes">Import _UFRaw</property>
+                            <property name="sensitive">0</property>
                             <property name="use-underline">1</property>
+                            <property name="valign">center</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="rawstudio_import_check">
-                            <property name="valign">center</property>
-                            <property name="label" translatable="yes">Import Raw_Studio</property>
-                            <property name="sensitive">0</property>
                             <property name="focusable">1</property>
                             <property name="halign">start</property>
+                            <property name="label" translatable="yes">Import Raw_Studio</property>
+                            <property name="sensitive">0</property>
                             <property name="use-underline">1</property>
+                            <property name="valign">center</property>
                           </object>
                         </child>
                       </object>
@@ -158,39 +166,36 @@
                 </child>
                 <child>
                   <object class="GtkExpander" id="expander2">
-                    <property name="focusable">1</property>
                     <property name="expanded">1</property>
+                    <property name="focusable">1</property>
                     <child>
                       <object class="GtkBox" id="box4">
-                        <property name="margin-start">18</property>
-                        <property name="margin-end">6</property>
-                        <property name="margin-top">6</property>
                         <property name="margin-bottom">6</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-start">18</property>
+                        <property name="margin-top">6</property>
                         <property name="orientation">vertical</property>
                         <property name="spacing">6</property>
                         <child>
                           <object class="GtkFrame" id="preset_frame">
-                            <property name="margin-top">6</property>
-                            <property name="margin-bottom">6</property>
                             <property name="child">
                               <object class="GtkComboBox" id="preset_combo">
+                                <property name="active">0</property>
                                 <property name="margin-start">6</property>
                                 <property name="margin-top">6</property>
                                 <property name="model">preset_combo_model</property>
-                                <property name="active">0</property>
                                 <child>
                                   <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                                  <attributes>
-                                    <attribute name="text">0</attribute>
-                                  </attributes>
                                 </child>
                               </object>
                             </property>
+                            <property name="margin-bottom">6</property>
+                            <property name="margin-top">6</property>
                             <child type="label">
                               <object class="GtkLabel" id="label8">
                                 <property name="label" translatable="yes">Presets:</property>
                                 <attributes>
-                                  <attribute name="weight" value="bold"></attribute>
+                                  <attribute name="weight" value="bold"/>
                                 </attributes>
                               </object>
                             </child>
@@ -198,45 +203,42 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="date_frame">
-                            <property name="margin-top">6</property>
-                            <property name="margin-bottom">6</property>
                             <property name="child">
                               <object class="GtkBox" id="vbox1">
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">4</property>
                                 <child>
                                   <object class="GtkComboBox" id="date_tz_combo">
-                                    <property name="vexpand">1</property>
+                                    <property name="active">0</property>
                                     <property name="margin-start">6</property>
                                     <property name="margin-top">6</property>
                                     <property name="model">tz_combo_model</property>
-                                    <property name="active">0</property>
+                                    <property name="vexpand">1</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="renderer1"/>
-                                      <attributes>
-                                        <attribute name="text">0</attribute>
-                                      </attributes>
                                     </child>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label5">
-                                    <property name="vexpand">1</property>
-                                    <property name="margin-start">6</property>
                                     <property name="label" translatable="yes">You can still change this after importing the pictures.</property>
+                                    <property name="margin-start">6</property>
+                                    <property name="vexpand">1</property>
                                     <property name="wrap">1</property>
                                     <attributes>
-                                      <attribute name="style" value="italic"></attribute>
+                                      <attribute name="style" value="italic"/>
                                     </attributes>
                                   </object>
                                 </child>
                               </object>
                             </property>
+                            <property name="margin-bottom">6</property>
+                            <property name="margin-top">6</property>
                             <child type="label">
                               <object class="GtkLabel" id="label4">
                                 <property name="label" translatable="yes">Date:</property>
                                 <attributes>
-                                  <attribute name="weight" value="bold"></attribute>
+                                  <attribute name="weight" value="bold"/>
                                 </attributes>
                               </object>
                             </child>
@@ -244,27 +246,24 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="attributes_frame">
-                            <property name="vexpand">1</property>
-                            <property name="margin-top">6</property>
-                            <property name="margin-bottom">6</property>
                             <property name="child">
                               <object class="GtkScrolledWindow" id="attributes_scrolled">
                                 <property name="focusable">1</property>
+                                <property name="hscrollbar-policy">never</property>
+                                <property name="margin-bottom">6</property>
                                 <property name="margin-start">6</property>
                                 <property name="margin-top">6</property>
-                                <property name="margin-bottom">6</property>
                                 <property name="vexpand">1</property>
-                                <property name="hscrollbar-policy">never</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
                               </object>
                             </property>
+                            <property name="margin-bottom">6</property>
+                            <property name="margin-top">6</property>
+                            <property name="vexpand">1</property>
                             <child type="label">
                               <object class="GtkLabel" id="label9">
                                 <property name="label" translatable="yes">Attributes:</property>
                                 <attributes>
-                                  <attribute name="weight" value="bold"></attribute>
+                                  <attribute name="weight" value="bold"/>
                                 </attributes>
                               </object>
                             </child>
@@ -285,29 +284,29 @@
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="1">button3</action-widget>
-      <action-widget response="0">button4</action-widget>
-    </action-widgets>
     <child internal-child="action_area">
       <object class="GtkBox" id="dialog-action_area2">
-        <property name="visible">True</property>
         <property name="can-focus">False</property>
+        <property name="visible">True</property>
         <child>
           <object class="GtkButton" id="button3">
-            <property name="label">Cancel</property>
             <property name="focusable">1</property>
+            <property name="label">Cancel</property>
           </object>
         </child>
         <child>
           <object class="GtkButton" id="button4">
-            <property name="label" translatable="yes">_Import</property>
             <property name="focusable">1</property>
+            <property name="label" translatable="yes">_Import</property>
             <property name="receives-default">1</property>
             <property name="use-underline">1</property>
           </object>
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="1">button3</action-widget>
+      <action-widget response="0">button4</action-widget>
+    </action-widgets>
   </object>
 </interface>

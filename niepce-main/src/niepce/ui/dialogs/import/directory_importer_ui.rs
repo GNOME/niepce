@@ -30,6 +30,7 @@ use npc_fwk::on_err_out;
 use super::{ImporterUI, SourceSelectedCallback};
 
 enum Event {
+    CopyToggled(bool),
     SelectDirectories,
     SetDirectoryName(Option<PathBuf>),
     SourceSelected(String, String),
@@ -45,7 +46,7 @@ struct Widgets {
 pub(super) struct DirectoryImporterUI {
     tx: glib::Sender<Event>,
     name: String,
-    backend: Rc<dyn ImportBackend>,
+    backend: RefCell<Rc<DirectoryImporter>>,
     widgets: RefCell<Widgets>,
 }
 
@@ -56,7 +57,7 @@ impl DirectoryImporterUI {
         let widget = Rc::new(DirectoryImporterUI {
             tx,
             name: i18n("Directory"),
-            backend: Rc::new(DirectoryImporter::default()),
+            backend: RefCell::new(Rc::new(DirectoryImporter::default())),
             widgets: RefCell::default(),
         });
 
@@ -73,6 +74,7 @@ impl DirectoryImporterUI {
 
     fn dispatch(&self, e: Event) {
         match e {
+            Event::CopyToggled(t) => self.copy_toggled(t),
             Event::SelectDirectories => self.do_select_directories(),
             Event::SetDirectoryName(name) => {
                 if let Some(directory_name) = &self.widgets.borrow().directory_name {
@@ -123,6 +125,12 @@ impl DirectoryImporterUI {
 
         dialog.show();
     }
+
+    fn copy_toggled(&self, toggle: bool) {
+        if let Some(ref mut backend) = Rc::get_mut(&mut self.backend.borrow_mut()) {
+            backend.set_copy(toggle);
+        }
+    }
 }
 
 impl ImporterUI for DirectoryImporterUI {
@@ -131,11 +139,11 @@ impl ImporterUI for DirectoryImporterUI {
     }
 
     fn id(&self) -> String {
-        self.backend.id().to_string()
+        self.backend.borrow().id().to_string()
     }
 
     fn backend(&self) -> Rc<dyn ImportBackend> {
-        self.backend.clone()
+        self.backend.borrow().clone()
     }
 
     fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget {
@@ -146,6 +154,10 @@ impl ImporterUI for DirectoryImporterUI {
             move |_| on_err_out!(tx.send(Event::SelectDirectories));
         ));
         get_widget!(builder, gtk4::Label, directory_name);
+        get_widget!(builder, gtk4::CheckButton, copy_files);
+        copy_files.connect_toggled(glib::clone!(@strong self.tx as tx =>
+            move |check| on_err_out!(tx.send(Event::CopyToggled(check.is_active())));
+        ));
 
         let mut widgets = self.widgets.borrow_mut();
         widgets.parent = Some(parent.clone());
