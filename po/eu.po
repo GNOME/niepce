@@ -1,13 +1,13 @@
 # Basque translation for niepce.
 # Copyright (C) 2019 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
-# Asier Sarasua Garmendia <asiersarasua@ni.eus>, 2019, 2022.
+# Asier Sarasua Garmendia <asiersarasua@ni.eus>, 2019, 2022, 2023.
 #
 msgid ""
 msgstr "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2022-11-25 04:44+0000\n"
-"PO-Revision-Date: 2022-12-07 10:00+0100\n"
+"POT-Creation-Date: 2023-04-09 10:10+0000\n"
+"PO-Revision-Date: 2023-04-07 10:00+0100\n"
 "Last-Translator: Asier Sarasua Garmendia <asiersarasua@ni.eus>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -16,7 +16,6 @@ msgstr "Project-Id-Version: niepce master\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: camerawire/src/cwwindow.cpp:62
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:37
 msgid "Camera"
 msgstr "Kamera"
 
@@ -60,40 +59,44 @@ msgstr "Freskatu"
 msgid "Hide tools"
 msgstr "Ezkutatu tresnak"
 
-#: data/org.gnome.Niepce.appdata.xml.in:6 data/org.gnome.Niepce.desktop.in:3
-msgid "Niepce Digital"
-msgstr "Niepce Digital"
+#: data/org.gnome.Niepce.metainfo.xml.in.in:6
+msgid "Niepce Digital@app-name-suffix@"
+msgstr "Niepce Digital@app-name-suffix@"
 
-#: data/org.gnome.Niepce.appdata.xml.in:7
+#: data/org.gnome.Niepce.metainfo.xml.in.in:7
 msgid "Advanced Photo Editing"
 msgstr "Argazkien edizio aurreratua"
 
-#: data/org.gnome.Niepce.appdata.xml.in:9
+#: data/org.gnome.Niepce.metainfo.xml.in.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr "Niepce Digital argazkiak kudeatu eta editatzeko aplikazio bat da."
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/org.gnome.Niepce.metainfo.xml.in.in:12
 msgid "Features:"
 msgstr "Eginbideak:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:14
+#: data/org.gnome.Niepce.metainfo.xml.in.in:14
 msgid "Photo library management"
 msgstr "Argazki-liburutegien kudeaketa"
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/org.gnome.Niepce.metainfo.xml.in.in:15
 msgid "Non destructive image editing"
 msgstr "Irudien edizio ez suntsikorra"
 
-#: data/org.gnome.Niepce.appdata.xml.in:16
+#: data/org.gnome.Niepce.metainfo.xml.in.in:16
 msgid "RAW processing"
 msgstr "RAW prozesamendua"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/org.gnome.Niepce.desktop.in.in:3
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
+
+#: data/org.gnome.Niepce.desktop.in.in:4
 msgid "Manage and edit your photos"
 msgstr "Kudeatu eta editatu zure argazkiak"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/org.gnome.Niepce.desktop.in.in:6
 msgid "photo;"
 msgstr "argazkia;"
 
@@ -117,68 +120,60 @@ msgstr "Inportazioa abian"
 msgid "All done"
 msgstr "Eginda"
 
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
-msgid "Name"
-msgstr "Izena"
-
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:65
-msgid "Description"
-msgstr "Azalpena"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:38
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:40
 msgid "Develop"
 msgstr "Garatu"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:56
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:58
 msgid "Crop"
 msgstr "Moztu"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:60
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
 msgid "Tilt"
 msgstr "Malda"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:64
 msgid "White balance"
 msgstr "Zuri-balantzea"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:65
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
 msgid "Color temperature"
 msgstr "Kolore-tenperatura"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:69
 msgid "Tone and colour"
 msgstr "Tonua eta kolorea"
 
 #. s->signal_value_changed().connect();
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:71
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
 msgid "Exposure"
 msgstr "Esposizioa"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
 msgid "Recovery"
 msgstr "Berreskurapena"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
 msgid "Fill Light"
 msgstr "Argi betegarria"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
 msgid "Blacks"
 msgstr "Beltzak"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
 msgid "Brightness"
 msgstr "Distira"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
 msgid "Contrast"
 msgstr "Kontrastea"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
 msgid "Saturation"
 msgstr "Saturazioa"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:87
 msgid "Vibrance"
 msgstr "Distira"
 
@@ -243,76 +238,55 @@ msgstr "Inportatuko diren i_rudiak"
 msgid "Destination _Folder"
 msgstr "Helburuko _karpeta"
 
-#: src/niepce/ui/dialogs/importdialog.ui:131
+#: src/niepce/ui/dialogs/importdialog.ui:132
 msgid "Import _UFRaw"
 msgstr "Inportatu _UFRaw"
 
-#: src/niepce/ui/dialogs/importdialog.ui:141
+#: src/niepce/ui/dialogs/importdialog.ui:142
 msgid "Import Raw_Studio"
 msgstr "Inportatu Raw_Studio"
 
-#: src/niepce/ui/dialogs/importdialog.ui:152
+#: src/niepce/ui/dialogs/importdialog.ui:153
 msgid "_Options"
 msgstr "Au_kerak"
 
-#: src/niepce/ui/dialogs/importdialog.ui:190
+#: src/niepce/ui/dialogs/importdialog.ui:191
 msgid "Presets:"
 msgstr "Aurrezarpenak:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:225
+#: src/niepce/ui/dialogs/importdialog.ui:226
 msgid "You can still change this after importing the pictures."
 msgstr "Irudiak inportatu ondoren ere alda dezakezu."
 
-#: src/niepce/ui/dialogs/importdialog.ui:236
+#: src/niepce/ui/dialogs/importdialog.ui:237
 msgid "Date:"
 msgstr "Data:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:264
+#: src/niepce/ui/dialogs/importdialog.ui:265
 msgid "Attributes:"
 msgstr "Atributuak:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:276
+#: src/niepce/ui/dialogs/importdialog.ui:277
 msgid "Metadata"
 msgstr "Metadatuak"
 
-#: src/niepce/ui/dialogs/importdialog.ui:303
+#: src/niepce/ui/dialogs/importdialog.ui:304
 msgid "_Import"
 msgstr "_Inportatu"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:65
-msgid "No camera found"
-msgstr "Ez da kamerarik aurkitu"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:80
-msgid "Camera import %1%"
-msgstr "Kameraren inportazioa: %1%"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:20
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:18
 msgid "Available cameras:"
 msgstr "Kamera erabilgarriak:"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:29
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:60
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:27
 msgid "Select"
 msgstr "Hautatu"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:33
-msgid "Directory"
-msgstr "Direktorioa"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:56
-msgid "Import picture folder"
-msgstr "Inportatu irudien karpeta"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:59
-msgid "Cancel"
-msgstr "Utzi"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:12
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:9
 msgid "_Directory:"
 msgstr "_Direktorioa:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:23
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:20
 msgid "..."
 msgstr "…"
 
@@ -341,11 +315,11 @@ msgstr "Erabili interfaze iluna"
 msgid "_User Interface"
 msgstr "Erabiltzaile-i_nterfazea"
 
-#: src/niepce/ui/metadatapanecontroller.cpp:57
+#: src/niepce/ui/metadatapanecontroller.cpp:56
 msgid "Image Properties"
 msgstr "Irudiaren propietateak"
 
-#: src/niepce/ui/niepceapplication.cpp:79
+#: src/niepce/ui/niepceapplication.cpp:70
 msgid ""
 "A digital photo application.\n"
 "\n"
@@ -353,6 +327,27 @@ msgid ""
 msgstr "Argazki digitalen aplikazioa.\n"
 "\n"
 "Eraikuntza-aukerak: "
+
+#~ msgid "Name"
+#~ msgstr "Izena"
+
+#~ msgid "Description"
+#~ msgstr "Azalpena"
+
+#~ msgid "No camera found"
+#~ msgstr "Ez da kamerarik aurkitu"
+
+#~ msgid "Camera import %1%"
+#~ msgstr "Kameraren inportazioa: %1%"
+
+#~ msgid "Directory"
+#~ msgstr "Direktorioa"
+
+#~ msgid "Import picture folder"
+#~ msgstr "Inportatu irudien karpeta"
+
+#~ msgid "Cancel"
+#~ msgstr "Utzi"
 
 #~ msgid "OK"
 #~ msgstr "Ados"
@@ -557,9 +552,6 @@ msgstr "Argazki digitalen aplikazioa.\n"
 
 #~ msgid "Open"
 #~ msgstr "Ireki"
-
-#~ msgid "Niepce Digital - "
-#~ msgstr "Niepce Digital - "
 
 #~ msgid "Set Property"
 #~ msgstr "Ezarri propietatea"
