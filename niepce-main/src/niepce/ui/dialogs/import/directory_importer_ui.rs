@@ -20,12 +20,13 @@
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::str::FromStr;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
-use npc_fwk::on_err_out;
+use npc_fwk::{on_err_out, toolkit};
 
 use super::{ImporterUI, SourceSelectedCallback};
 
@@ -46,17 +47,19 @@ struct Widgets {
 pub(super) struct DirectoryImporterUI {
     tx: glib::Sender<Event>,
     name: String,
+    cfg: Rc<toolkit::Configuration>,
     backend: RefCell<Rc<DirectoryImporter>>,
     widgets: RefCell<Widgets>,
 }
 
 impl DirectoryImporterUI {
-    pub fn new() -> Rc<DirectoryImporterUI> {
+    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<DirectoryImporterUI> {
         let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
 
         let widget = Rc::new(DirectoryImporterUI {
             tx,
             name: i18n("Directory"),
+            cfg,
             backend: RefCell::new(Rc::new(DirectoryImporter::default())),
             widgets: RefCell::default(),
         });
@@ -90,9 +93,6 @@ impl DirectoryImporterUI {
     }
 
     fn do_select_directories(&self) {
-        let app = npc_fwk::ffi::Application_app();
-        let cfg = &app.config().cfg;
-
         let dialog = gtk4::FileChooserDialog::new(
             Some(&i18n("Import picture folder")),
             self.widgets.borrow().parent.as_ref(),
@@ -104,18 +104,18 @@ impl DirectoryImporterUI {
         );
         dialog.set_select_multiple(false);
 
-        let last_import_location = cfg.value("last_import_location", "");
-        if !last_import_location.is_empty() {
+        if let Some(last_import_location) = self.cfg.value_opt("last_dir_import_location") {
             let file = gio::File::for_path(last_import_location);
             on_err_out!(dialog.set_current_folder(Some(&file)));
         }
-        dialog.connect_response(glib::clone!(@strong self.tx as tx => move |dialog, response| {
+        dialog.connect_response(glib::clone!(@strong self.tx as tx, @weak self.cfg as cfg => move |dialog, response| {
             let mut source = None;
             if response == gtk4::ResponseType::Ok {
                 source = dialog.file().and_then(|f| f.path());
-                let dest_dir = source.as_ref().and_then(|p| p.file_name().and_then(|n| n.to_str()))
+                let dest_dir = source.as_ref().and_then(|p| p.file_name()?.to_str())
                     .unwrap_or("");
                 if let Some(source) = source.as_ref().and_then(|p| p.to_str()).map(|s| s.to_string()) {
+                    cfg.set_value("last_dir_import_location", &source);
                     on_err_out!(tx.send(Event::SourceSelected(source, dest_dir.to_string())));
                 }
             }
@@ -130,6 +130,7 @@ impl DirectoryImporterUI {
         if let Some(ref mut backend) = Rc::get_mut(&mut self.backend.borrow_mut()) {
             backend.set_copy(toggle);
         }
+        self.cfg.set_value("dir_import_copy", &toggle.to_string());
     }
 }
 
@@ -158,6 +159,9 @@ impl ImporterUI for DirectoryImporterUI {
         copy_files.connect_toggled(glib::clone!(@strong self.tx as tx =>
             move |check| on_err_out!(tx.send(Event::CopyToggled(check.is_active())));
         ));
+        copy_files.set_active(
+            bool::from_str(&self.cfg.value("dir_import_copy", "false")).unwrap_or(false),
+        );
 
         let mut widgets = self.widgets.borrow_mut();
         widgets.parent = Some(parent.clone());

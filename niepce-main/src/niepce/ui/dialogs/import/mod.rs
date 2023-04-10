@@ -40,7 +40,7 @@ use once_cell::sync::OnceCell;
 
 use crate::ffi;
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
-use npc_fwk::toolkit::Thumbnail;
+use npc_fwk::toolkit::{self, Thumbnail};
 use npc_fwk::{dbg_out, on_err_out, Date};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
@@ -107,17 +107,16 @@ struct State {
 pub struct ImportDialog {
     tx: glib::Sender<Event>,
     base_dest_dir: PathBuf,
+    cfg: Rc<toolkit::Configuration>,
 
     widgets: OnceCell<Widgets>,
     state: RefCell<State>,
 }
 
 impl ImportDialog {
-    pub fn new() -> Rc<Self> {
+    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<Self> {
         let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
 
-        let app = npc_fwk::ffi::Application_app();
-        let cfg = &app.config().cfg;
         let base_dest_dir = cfg
             .value_opt("base_import_dest_dir")
             .map(PathBuf::from)
@@ -126,6 +125,7 @@ impl ImportDialog {
         let dialog = Rc::new(ImportDialog {
             tx,
             base_dest_dir,
+            cfg,
             widgets: OnceCell::new(),
             state: RefCell::new(State::default()),
         });
@@ -219,7 +219,7 @@ impl ImportDialog {
                     current_importer: RefCell::new(None),
                 };
 
-                let importer = DirectoryImporterUI::new();
+                let importer = DirectoryImporterUI::new(self.cfg.clone());
                 widgets.add_importer_ui(importer, self.tx.clone());
                 let importer = CameraImporterUI::new();
                 widgets.add_importer_ui(importer, self.tx.clone());
@@ -241,9 +241,7 @@ impl ImportDialog {
                     }),
                 );
 
-                let app = npc_fwk::ffi::Application_app();
-                let cfg = &app.config().cfg;
-                let last_importer = cfg.value("last_importer", "DirectoryImporter");
+                let last_importer = self.cfg.value("last_importer", "DirectoryImporter");
                 import_source_combo.set_active_id(Some(&last_importer));
 
                 widgets
@@ -288,9 +286,7 @@ impl ImportDialog {
             widgets.importer_changed(source);
             self.state.borrow_mut().source = "".to_string();
             self.clear_import_list();
-            let app = npc_fwk::ffi::Application_app();
-            let cfg = &app.config().cfg;
-            cfg.set_value("last_importer", source);
+            self.cfg.set_value("last_importer", source);
         }
     }
 

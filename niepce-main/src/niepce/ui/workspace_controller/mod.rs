@@ -731,19 +731,12 @@ impl WorkspaceController {
     }
 
     fn perform_file_import(&self, request: &ImportRequest) {
-        let app = npc_fwk::ffi::Application_app();
-        let cfg = &app.config().cfg; // XXX change to getLibraryConfig()
-                                     // as the last import should be part of the library not the application.
-
         // import
         // XXX change the API to provide more details.
         let source = request.source();
         if source.is_empty() {
             return;
         }
-        // XXX this should be a different config key
-        // specific to the importer.
-        cfg.set_value("last_import_location", source);
 
         let importer = request.importer();
         if let Some(client) = self.client.upgrade() {
@@ -764,7 +757,7 @@ impl WorkspaceController {
     }
 
     fn action_import(&self) {
-        let import_dialog = super::dialogs::ImportDialog::new();
+        let import_dialog = super::dialogs::ImportDialog::new(self.cfg.clone());
         let parent = self.widget().root().and_downcast::<gtk4::Window>();
         import_dialog.run_modal(
             parent.as_ref(),
