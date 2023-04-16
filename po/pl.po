@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2023-04-09 10:10+0000\n"
+"POT-Creation-Date: 2023-04-10 14:54+0000\n"
 "PO-Revision-Date: 2022-11-13 13:15+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
@@ -214,67 +214,43 @@ msgstr "_10. etykieta"
 msgid "<b>Labels</b>"
 msgstr "<b>Etykiety</b>"
 
-#: src/niepce/ui/dialogs/importdialog.ui:11
-msgid "(none)"
-msgstr "(brak)"
-
-#: src/niepce/ui/dialogs/importdialog.ui:12
-msgid "NONE"
-msgstr "BRAK"
-
-#: src/niepce/ui/dialogs/importdialog.ui:24
-msgid "local"
-msgstr "lokalny"
-
-#: src/niepce/ui/dialogs/importdialog.ui:28
-msgid "utc"
-msgstr "UTC"
-
-#: src/niepce/ui/dialogs/importdialog.ui:33
+#: src/niepce/ui/dialogs/importdialog.ui:37
 msgid "Import"
 msgstr "Zaimportuj"
 
-#: src/niepce/ui/dialogs/importdialog.ui:73
+#: src/niepce/ui/dialogs/importdialog.ui:67
 msgid "_Images to import"
 msgstr "O_brazy do zaimportowania"
 
-#: src/niepce/ui/dialogs/importdialog.ui:100
-msgid "Destination _Folder"
-msgstr "_Katalog docelowy"
+#: src/niepce/ui/dialogs/importdialog.ui:93
+msgid "Destination _Folder:"
+msgstr "_Katalog docelowy:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:132
-msgid "Import _UFRaw"
-msgstr "Zaimportuj _UFRaw"
-
-#: src/niepce/ui/dialogs/importdialog.ui:142
-msgid "Import Raw_Studio"
-msgstr "Zaimportuj Raw_Studio"
-
-#: src/niepce/ui/dialogs/importdialog.ui:153
+#: src/niepce/ui/dialogs/importdialog.ui:141
 msgid "_Options"
 msgstr "_Opcje"
 
-#: src/niepce/ui/dialogs/importdialog.ui:191
+#: src/niepce/ui/dialogs/importdialog.ui:176
 msgid "Presets:"
 msgstr "Ustawienia:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:226
+#: src/niepce/ui/dialogs/importdialog.ui:206
 msgid "You can still change this after importing the pictures."
 msgstr "Można to zmienić także po zaimportowaniu obrazów."
 
-#: src/niepce/ui/dialogs/importdialog.ui:237
+#: src/niepce/ui/dialogs/importdialog.ui:223
 msgid "Date:"
 msgstr "Data:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:265
+#: src/niepce/ui/dialogs/importdialog.ui:250
 msgid "Attributes:"
 msgstr "Atrybuty:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:277
+#: src/niepce/ui/dialogs/importdialog.ui:264
 msgid "Metadata"
 msgstr "Metadane"
 
-#: src/niepce/ui/dialogs/importdialog.ui:304
+#: src/niepce/ui/dialogs/importdialog.ui:289
 msgid "_Import"
 msgstr "Za_importuj"
 
@@ -286,11 +262,11 @@ msgstr "Dostępne aparaty:"
 msgid "Select"
 msgstr "Wybierz"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:9
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:15
 msgid "_Directory:"
 msgstr "_Katalog:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:20
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:27
 msgid "..."
 msgstr "…"
 
