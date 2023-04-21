@@ -29,7 +29,7 @@ To build you need the following:
 --------------------------------
 
 - A C++17 compiler
-- A Rust compiler
+- rustc >= 1.64.0
 - cairo 1.1
 - glibmm 2.66
 - gtkmm 4.4
