@@ -30,7 +30,7 @@ impl ThumbItemRow {
     pub fn new() -> Self {
         glib::Object::builder::<Self>()
             .property("spacing", 2)
-            .property("orientation", &gtk4::Orientation::Vertical)
+            .property("orientation", gtk4::Orientation::Vertical)
             .build()
     }
 
