@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Niepce Digital 0.0.1\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2023-02-02 03:01+0000\n"
-"PO-Revision-Date: 2023-04-07 23:15+1000\n"
+"POT-Creation-Date: 2023-04-10 14:54+0000\n"
+"PO-Revision-Date: 2023-04-21 19:25+1000\n"
 "Last-Translator: Ser82-png <asvmail.as@gmail.com>\n"
 "Language-Team: GNOME Russian <gnome-cyr@lists.gnome.org>\n"
 "Language: ru\n"
@@ -64,10 +64,9 @@ msgid "Hide tools"
 msgstr "Скрыть инструменты"
 
 #: data/org.gnome.Niepce.metainfo.xml.in.in:6
-#: data/org.gnome.Niepce.desktop.in:3
-#| msgid "Niepce Digital - "
-msgid "Niepce Digital"
-msgstr "Niepce Digital"
+#| msgid "Niepce Digital"
+msgid "Niepce Digital@app-name-suffix@"
+msgstr "Niepce Digital@app-name-suffix@"
 
 #: data/org.gnome.Niepce.metainfo.xml.in.in:7
 msgid "Advanced Photo Editing"
@@ -94,12 +93,16 @@ msgstr "Недеструктивное редактирование изобра
 msgid "RAW processing"
 msgstr "Обработка изображений формата RAW"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/org.gnome.Niepce.desktop.in.in:3
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
+
+#: data/org.gnome.Niepce.desktop.in.in:4
 msgid "Manage and edit your photos"
 msgstr "Управление и редактирование ваших фотографий"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/org.gnome.Niepce.desktop.in.in:6
 msgid "photo;"
 msgstr "photo;фото;фотография;"
 
@@ -210,71 +213,46 @@ msgid "Label _10"
 msgstr "Метка _10"
 
 #: src/niepce/ui/dialogs/editlabels.ui:214
-#| msgid "<b>Date:</b>"
 msgid "<b>Labels</b>"
 msgstr "<b>Метки</b>"
 
-#: src/niepce/ui/dialogs/importdialog.ui:11
-msgid "(none)"
-msgstr "(ничего)"
-
-#: src/niepce/ui/dialogs/importdialog.ui:12
-msgid "NONE"
-msgstr "НИЧЕГО"
-
-#: src/niepce/ui/dialogs/importdialog.ui:24
-msgid "local"
-msgstr "местное"
-
-#: src/niepce/ui/dialogs/importdialog.ui:28
-msgid "utc"
-msgstr "utc"
-
-#: src/niepce/ui/dialogs/importdialog.ui:33
+#: src/niepce/ui/dialogs/importdialog.ui:37
 msgid "Import"
 msgstr "Импортировать"
 
-#: src/niepce/ui/dialogs/importdialog.ui:73
+#: src/niepce/ui/dialogs/importdialog.ui:67
 msgid "_Images to import"
 msgstr "_Изображения для импорта"
 
-#: src/niepce/ui/dialogs/importdialog.ui:100
-msgid "Destination _Folder"
-msgstr "_Папка назначения"
+#: src/niepce/ui/dialogs/importdialog.ui:93
+msgid "Destination _Folder:"
+msgstr "_Папка назначения:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:132
-msgid "Import _UFRaw"
-msgstr "Импортировать метаданные _UFRaw"
-
-#: src/niepce/ui/dialogs/importdialog.ui:142
-msgid "Import Raw_Studio"
-msgstr "Импортировать метаданные Raw_studio"
-
-#: src/niepce/ui/dialogs/importdialog.ui:153
+#: src/niepce/ui/dialogs/importdialog.ui:141
 msgid "_Options"
 msgstr "П_араметры"
 
-#: src/niepce/ui/dialogs/importdialog.ui:191
+#: src/niepce/ui/dialogs/importdialog.ui:176
 msgid "Presets:"
 msgstr "Пресеты:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:226
+#: src/niepce/ui/dialogs/importdialog.ui:206
 msgid "You can still change this after importing the pictures."
 msgstr "После импорта изображений можно внести дополнительные изменения."
 
-#: src/niepce/ui/dialogs/importdialog.ui:237
+#: src/niepce/ui/dialogs/importdialog.ui:223
 msgid "Date:"
 msgstr "Дата:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:265
+#: src/niepce/ui/dialogs/importdialog.ui:250
 msgid "Attributes:"
 msgstr "Атрибуты:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:277
+#: src/niepce/ui/dialogs/importdialog.ui:264
 msgid "Metadata"
 msgstr "Метаданные"
 
-#: src/niepce/ui/dialogs/importdialog.ui:304
+#: src/niepce/ui/dialogs/importdialog.ui:289
 msgid "_Import"
 msgstr "_Импортировать"
 
@@ -286,11 +264,11 @@ msgstr "Доступные камеры:"
 msgid "Select"
 msgstr "Выбрать"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:9
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:15
 msgid "_Directory:"
 msgstr "_Папка:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:20
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:27
 msgid "..."
 msgstr "..."
 
