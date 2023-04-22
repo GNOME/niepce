@@ -170,10 +170,11 @@ impl Importer {
             .or_else(|| {
                 std::fs::metadata(source)
                     .ok()?
-                    .created()
-                    .map(|created| {
-                        dbg_out!("Use the FS date for {source:?}.");
-                        Date::from_system_time(created)
+                    .modified()
+                    .map(|modified| {
+                        let date = Date::from_system_time(modified);
+                        dbg_out!("Use the FS date {date:?} for {source:?}.");
+                        date
                     })
                     .ok()
             })
