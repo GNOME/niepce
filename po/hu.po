@@ -1,16 +1,16 @@
 # Hungarian translation for niepce.
-# Copyright (C) 2014, 2016, 2017, 2018, 2019, 2022 Free Software Foundation, Inc.
+# Copyright (C) 2014, 2016, 2017, 2018, 2019, 2022, 2023 Free Software Foundation, Inc.
 # This file is distributed under the same license as the niepce package.
 #
-# Balázs Úr <ur.balazs at fsf dot hu>, 2014, 2016, 2017, 2018, 2019, 2022.
+# Balázs Úr <ur.balazs at fsf dot hu>, 2014, 2016, 2017, 2018, 2019, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2022-11-12 13:20+0000\n"
-"PO-Revision-Date: 2022-11-23 00:58+0100\n"
+"POT-Creation-Date: 2023-04-10 14:54+0000\n"
+"PO-Revision-Date: 2023-04-26 23:45+0200\n"
 "Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"
-"Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
+"Language-Team: Hungarian <openscope at fsf dot hu>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,7 +19,6 @@ msgstr ""
 "X-Generator: Lokalize 22.08.2\n"
 
 #: camerawire/src/cwwindow.cpp:62
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:37
 msgid "Camera"
 msgstr "Fényképezőgép"
 
@@ -63,57 +62,59 @@ msgstr "Frissítés"
 msgid "Hide tools"
 msgstr "Eszközök elrejtése"
 
-#: data/org.gnome.Niepce.appdata.xml.in:6 data/org.gnome.Niepce.desktop.in:3
-msgid "Niepce Digital"
-msgstr "Niepce Digital"
+#: data/org.gnome.Niepce.metainfo.xml.in.in:6
+#| msgid "Niepce Digital"
+msgid "Niepce Digital@app-name-suffix@"
+msgstr "Niepce Digital@app-name-suffix@"
 
-#: data/org.gnome.Niepce.appdata.xml.in:7
+#: data/org.gnome.Niepce.metainfo.xml.in.in:7
 msgid "Advanced Photo Editing"
 msgstr "Speciális fényképszerkesztés"
 
-#: data/org.gnome.Niepce.appdata.xml.in:9
+#: data/org.gnome.Niepce.metainfo.xml.in.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr ""
 "A Niepce Digital egy fényképek kezeléséhez és szerkesztéséhez használható "
 "alkalmazás."
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/org.gnome.Niepce.metainfo.xml.in.in:12
 msgid "Features:"
 msgstr "Szolgáltatások:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:14
+#: data/org.gnome.Niepce.metainfo.xml.in.in:14
 msgid "Photo library management"
 msgstr "Fényképgyűjtemény kezelés"
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/org.gnome.Niepce.metainfo.xml.in.in:15
 msgid "Non destructive image editing"
 msgstr "Nem romboló képszerkesztés"
 
-#: data/org.gnome.Niepce.appdata.xml.in:16
+#: data/org.gnome.Niepce.metainfo.xml.in.in:16
 msgid "RAW processing"
 msgstr "RAW feldolgozás"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/org.gnome.Niepce.desktop.in.in:3
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
+
+#: data/org.gnome.Niepce.desktop.in.in:4
 msgid "Manage and edit your photos"
 msgstr "Fényképek kezelése és szerkesztése"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/org.gnome.Niepce.desktop.in.in:6
 msgid "photo;"
 msgstr "fénykép;fotó;"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
-#| msgid "Library"
 msgid "Import Library"
 msgstr "Gyűjtemény importálása"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:65
-#| msgid "Folder:"
 msgid "Folder Roots"
 msgstr "Mappagyökerek"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:73
-#| msgid "_Images to import"
 msgid "Start import"
 msgstr "Importálás indítása"
 
@@ -125,92 +126,60 @@ msgstr "Az importálás folyamatban"
 msgid "All done"
 msgstr "Minden kész"
 
-#: niepce-main/src/niepce/ui/selection_controller.rs:292
-msgid "Set Flag"
-msgstr "Jelző beállítása"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:293
-msgid "Set Rating"
-msgstr "Értékelés beállítása"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:294
-msgid "Set Label"
-msgstr "Címke beállítása"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:295
-msgid "Set Property"
-msgstr "Tulajdonság beállítása"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:309
-msgid "Set Properties"
-msgstr "Tulajdonságok beállítása"
-
-#: niepce-main/src/niepce/ui/selection_controller.rs:329
-msgid "Move to Trash"
-msgstr "Áthelyezés a kukába"
-
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
-msgid "Name"
-msgstr "Név"
-
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:65
-msgid "Description"
-msgstr "Leírás"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:38
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:40
 msgid "Develop"
 msgstr "Fejlesztés"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:56
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:58
 msgid "Crop"
 msgstr "Levágás"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:60
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
 msgid "Tilt"
 msgstr "Döntés"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:64
 msgid "White balance"
 msgstr "Fehéregyensúly"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:65
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
 msgid "Color temperature"
 msgstr "Színhőmérséklet"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:69
 msgid "Tone and colour"
 msgstr "Tónus és szín"
 
 #. s->signal_value_changed().connect();
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:71
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
 msgid "Exposure"
 msgstr "Exponálás"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
 msgid "Recovery"
 msgstr "Helyreállítás"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
 msgid "Fill Light"
 msgstr "Kitöltőfény"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
 msgid "Blacks"
 msgstr "Feketék"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
 msgid "Brightness"
 msgstr "Fényerő"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
 msgid "Contrast"
 msgstr "Kontraszt"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
 msgid "Saturation"
 msgstr "Telítettség"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:87
 msgid "Vibrance"
 msgstr "Színdinamika"
 
@@ -247,104 +216,60 @@ msgstr "_10. címke"
 msgid "<b>Labels</b>"
 msgstr "<b>Címkék</b>"
 
-#: src/niepce/ui/dialogs/importdialog.ui:11
-msgid "(none)"
-msgstr "(nincs)"
-
-#: src/niepce/ui/dialogs/importdialog.ui:12
-msgid "NONE"
-msgstr "NINCS"
-
-#: src/niepce/ui/dialogs/importdialog.ui:24
-msgid "local"
-msgstr "helyi"
-
-#: src/niepce/ui/dialogs/importdialog.ui:28
-msgid "utc"
-msgstr "utc"
-
-#: src/niepce/ui/dialogs/importdialog.ui:33
+#: src/niepce/ui/dialogs/importdialog.ui:37
 msgid "Import"
 msgstr "Importálás"
 
-#: src/niepce/ui/dialogs/importdialog.ui:73
+#: src/niepce/ui/dialogs/importdialog.ui:67
 msgid "_Images to import"
 msgstr "_Importálandó képek"
 
-#: src/niepce/ui/dialogs/importdialog.ui:100
-msgid "Destination _Folder"
-msgstr "_Célmappa"
-
-#: src/niepce/ui/dialogs/importdialog.ui:131
-msgid "Import _UFRaw"
-msgstr "_UFRaw importálása"
+#: src/niepce/ui/dialogs/importdialog.ui:93
+#| msgid "Destination _Folder"
+msgid "Destination _Folder:"
+msgstr "_Célmappa:"
 
 #: src/niepce/ui/dialogs/importdialog.ui:141
-msgid "Import Raw_Studio"
-msgstr "Raw_Studio importálása"
-
-#: src/niepce/ui/dialogs/importdialog.ui:152
 msgid "_Options"
 msgstr "_Beállítások"
 
-#: src/niepce/ui/dialogs/importdialog.ui:190
+#: src/niepce/ui/dialogs/importdialog.ui:176
 msgid "Presets:"
 msgstr "Előbeállítások:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:225
+#: src/niepce/ui/dialogs/importdialog.ui:206
 msgid "You can still change this after importing the pictures."
 msgstr "Ezt még a fényképek importálása után is megváltoztathatja."
 
-#: src/niepce/ui/dialogs/importdialog.ui:236
+#: src/niepce/ui/dialogs/importdialog.ui:223
 msgid "Date:"
 msgstr "Dátum:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:264
+#: src/niepce/ui/dialogs/importdialog.ui:250
 msgid "Attributes:"
 msgstr "Attribútumok:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:276
+#: src/niepce/ui/dialogs/importdialog.ui:264
 msgid "Metadata"
 msgstr "Metaadatok"
 
-#: src/niepce/ui/dialogs/importdialog.ui:303
+#: src/niepce/ui/dialogs/importdialog.ui:289
 msgid "_Import"
 msgstr "_Importálás"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:65
-msgid "No camera found"
-msgstr "Nem található fényképezőgép"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:80
-msgid "Camera import %1%"
-msgstr "Fényképezőgép importálás %1%"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:20
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:18
 msgid "Available cameras:"
 msgstr "Elérhető fényképezőgépek:"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:29
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:60
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:27
 msgid "Select"
 msgstr "Kiválasztás"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:33
-msgid "Directory"
-msgstr "Könyvtár"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:56
-msgid "Import picture folder"
-msgstr "Fényképmappa importálása"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:59
-msgid "Cancel"
-msgstr "Mégse"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:12
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:15
 msgid "_Directory:"
 msgstr "_Könyvtár:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:23
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:27
 msgid "..."
 msgstr "…"
 
@@ -373,11 +298,11 @@ msgstr "Sötét felület használata"
 msgid "_User Interface"
 msgstr "_Felhasználói felület"
 
-#: src/niepce/ui/metadatapanecontroller.cpp:57
+#: src/niepce/ui/metadatapanecontroller.cpp:56
 msgid "Image Properties"
 msgstr "Képtulajdonságok"
 
-#: src/niepce/ui/niepceapplication.cpp:79
+#: src/niepce/ui/niepceapplication.cpp:70
 msgid ""
 "A digital photo application.\n"
 "\n"
