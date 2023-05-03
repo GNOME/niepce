@@ -149,7 +149,9 @@ lazy_static::lazy_static! {
             "Exif.Pentax.LensType" =>
                 XmpPropDesc(NS_AUX, "Lens", Conversion::Interpreted),
             "Exif.Pentax.LensType" =>
-                XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted)
+                XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted),
+            "Xmp.xmp.Rating" =>
+                XmpPropDesc(NS_XAP, "Rating", Conversion::None),
         );
 }
 
