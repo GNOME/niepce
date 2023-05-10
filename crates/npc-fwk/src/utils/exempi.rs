@@ -23,7 +23,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use exempi2::Xmp;
+use exempi2::{FileType, Xmp, XmpFile};
 
 use super::exiv2;
 use crate::Date;
@@ -208,12 +208,17 @@ impl XmpMeta {
         }
         let mut meta: Option<XmpMeta> = None;
         if !sidecar_only {
-            if let Ok(xmpfile) = exempi2::XmpFile::new_from_file(file, exempi2::OpenFlags::READ) {
-                meta = match xmpfile.get_new_xmp() {
+            let file_type = XmpFile::check_file_format(file);
+            meta = if file_type == FileType::Unknown {
+                exiv2::xmp_from_exiv2(file)
+            } else if let Ok(xmpfile) = exempi2::XmpFile::new_from_file(file, exempi2::OpenFlags::READ) {
+                match xmpfile.get_new_xmp() {
                     Ok(xmp) => Some(Self::new_with_xmp(xmp)),
                     _ => exiv2::xmp_from_exiv2(file),
                 }
-            }
+            } else {
+                None
+            };
         }
 
         let mut sidecar_meta: Option<XmpMeta> = None;
