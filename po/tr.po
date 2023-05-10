@@ -68,41 +68,41 @@ msgstr "Tazele"
 msgid "Hide tools"
 msgstr "Araçları gizle"
 
-#: data/org.gnome.Niepce.appdata.xml.in:6 data/org.gnome.Niepce.desktop.in:3
+#: data/net.figuiere.Niepce.appdata.xml.in:6 data/net.figuiere.Niepce.desktop.in:3
 msgid "Niepce Digital"
 msgstr "Niepce Digital"
 
-#: data/org.gnome.Niepce.appdata.xml.in:7
+#: data/net.figuiere.Niepce.appdata.xml.in:7
 msgid "Advanced Photo Editing"
 msgstr "Gelişmiş Fotoğraf Düzenleme"
 
-#: data/org.gnome.Niepce.appdata.xml.in:9
+#: data/net.figuiere.Niepce.appdata.xml.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr ""
 "Niepce Digital, fotoğrafları düzenleyen ve yöneten uygulamadır."
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/net.figuiere.Niepce.appdata.xml.in:12
 msgid "Features:"
 msgstr "Özellikler:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:14
+#: data/net.figuiere.Niepce.appdata.xml.in:14
 msgid "Photo library management"
 msgstr "Fotoğraf kütüphane yönetimi"
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/net.figuiere.Niepce.appdata.xml.in:15
 msgid "Non destructive image editing"
 msgstr "Bozmadan resim düzenleme"
 
-#: data/org.gnome.Niepce.appdata.xml.in:16
+#: data/net.figuiere.Niepce.appdata.xml.in:16
 msgid "RAW processing"
 msgstr "HAM işleme"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/net.figuiere.Niepce.desktop.in:4
 msgid "Manage and edit your photos"
 msgstr "Fotoğraflarınızı düzenleyin ve yönetin"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/net.figuiere.Niepce.desktop.in:6
 msgid "photo;"
 msgstr "fotoğraf;"
 

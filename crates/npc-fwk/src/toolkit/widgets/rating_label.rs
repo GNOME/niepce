@@ -32,8 +32,8 @@ struct Pixbufs {
 
 lazy_static::lazy_static! {
     static ref PIXBUFS: Pixbufs = Pixbufs {
-        star: gdk4::Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-set-star.png"),
-        unstar: gdk4::Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-unset-star.png"),
+        star: gdk4::Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-set-star.png"),
+        unstar: gdk4::Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-unset-star.png"),
     };
 }
 

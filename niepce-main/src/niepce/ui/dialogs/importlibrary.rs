@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importlibrary.rs
  *
- * Copyright (C) 2021-2022 Hubert Figuière
+ * Copyright (C) 2021-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,7 +146,7 @@ impl ImportLibraryDialog {
         assistant.set_forward_page_func(Self::forward_page);
 
         let builder = Builder::new();
-        if let Err(result) = builder.add_from_resource("/org/gnome/Niepce/ui/importlibrary.ui") {
+        if let Err(result) = builder.add_from_resource("/net/figuiere/Niepce/ui/importlibrary.ui") {
             // XXX fix the we should actually report the error
             err_out!("couldn't find ui file: {}", result);
             return dlg;

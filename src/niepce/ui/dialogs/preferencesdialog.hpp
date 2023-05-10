@@ -1,7 +1,7 @@
 /*
  * niepce - ui/dialogs/preferencesdialog.hpp
  *
- * Copyright (C) 2009-2022 Hubert Figuière
+ * Copyright (C) 2009-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class PreferencesDialog
 {
 public:
     PreferencesDialog()
-        : fwk::Dialog("/org/gnome/Niepce/ui/preferences.ui", "preferences", "")
+        : fwk::Dialog("/net/figuiere/Niepce/ui/preferences.ui", "preferences", "")
         {
         }
     virtual void setup_widget() override;

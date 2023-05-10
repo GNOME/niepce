@@ -148,7 +148,8 @@ impl ImporterUI for DirectoryImporterUI {
     }
 
     fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget {
-        let builder = gtk4::Builder::from_resource("/org/gnome/Niepce/ui/directoryimporterui.ui");
+        let builder =
+            gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/directoryimporterui.ui");
         get_widget!(builder, gtk4::Box, main_widget);
         get_widget!(builder, gtk4::Button, select_directories);
         select_directories.connect_clicked(glib::clone!(@strong self.tx as tx =>

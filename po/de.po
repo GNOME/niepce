@@ -64,40 +64,40 @@ msgstr "Aktualisieren"
 msgid "Hide tools"
 msgstr "Werkzeuge verbergen"
 
-#: data/org.gnome.Niepce.appdata.xml.in:6 data/org.gnome.Niepce.desktop.in:3
+#: data/net.figuiere.Niepce.appdata.xml.in:6 data/net.figuiere.Niepce.desktop.in:3
 msgid "Niepce Digital"
 msgstr "Niepce Digital"
 
-#: data/org.gnome.Niepce.appdata.xml.in:7
+#: data/net.figuiere.Niepce.appdata.xml.in:7
 msgid "Advanced Photo Editing"
 msgstr "Fortgeschrittene Fotoverwaltung"
 
-#: data/org.gnome.Niepce.appdata.xml.in:9
+#: data/net.figuiere.Niepce.appdata.xml.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr "Niepce Digital ist eine Anwendung zum Verwalten und Bearbeiten von Fotos."
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/net.figuiere.Niepce.appdata.xml.in:12
 msgid "Features:"
 msgstr "Funktionsmerkmale:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:14
+#: data/net.figuiere.Niepce.appdata.xml.in:14
 msgid "Photo library management"
 msgstr "Verwaltung von Fotosammlungen"
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/net.figuiere.Niepce.appdata.xml.in:15
 msgid "Non destructive image editing"
 msgstr "Nicht-destruktive Bildbearbeitung"
 
-#: data/org.gnome.Niepce.appdata.xml.in:16
+#: data/net.figuiere.Niepce.appdata.xml.in:16
 msgid "RAW processing"
 msgstr "RAW-Verarbeitung"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/net.figuiere.Niepce.desktop.in:4
 msgid "Manage and edit your photos"
 msgstr "Verwalten und Bearbeiten Ihrer Fotos"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/net.figuiere.Niepce.desktop.in:6
 msgid "photo;"
 msgstr "Foto;"
 

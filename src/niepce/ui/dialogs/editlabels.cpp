@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/editlabels.cpp
  *
- * Copyright (C) 2009-2022 Hubert Figuière
+ * Copyright (C) 2009-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ using eng::LibraryClientPtr;
 namespace ui {
 
 EditLabels::EditLabels(const eng::LibraryClientHost& libclient)
-    : fwk::Dialog("/org/gnome/Niepce/ui/editlabels.ui", "editLabels")
+    : fwk::Dialog("/net/figuiere/Niepce/ui/editlabels.ui", "editLabels")
     , m_lib_client(libclient)
 {
     auto& provider = libclient.getDataProvider();

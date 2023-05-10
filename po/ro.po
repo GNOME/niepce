@@ -68,43 +68,43 @@ msgid "Hide tools"
 msgstr "Ascunde uneltele"
 
 #. Only include 'name' if you want the software center name to be different to the 'Name' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:8 data/org.gnome.Niepce.desktop.in:3
+#: data/net.figuiere.Niepce.appdata.xml.in:8 data/net.figuiere.Niepce.desktop.in:3
 msgid "Niepce Digital"
 msgstr "Digital Niepce"
 
 #. Only include 'summary' if you want the software center name to be different to the 'Comment' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:10
+#: data/net.figuiere.Niepce.appdata.xml.in:10
 msgid "Advanced Photo Editing"
 msgstr "Editare de foto avansată"
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/net.figuiere.Niepce.appdata.xml.in:12
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr ""
 "Digital Niepce este o aplicație utilizată pentru a gestiona și a edita "
 "fotografii."
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/net.figuiere.Niepce.appdata.xml.in:15
 msgid "Features:"
 msgstr "Funcționalități:"
 
-#: data/org.gnome.Niepce.appdata.xml.in:18
+#: data/net.figuiere.Niepce.appdata.xml.in:18
 msgid "Photo library management"
 msgstr "Gestionare de bibliotecă de fotografie"
 
-#: data/org.gnome.Niepce.appdata.xml.in:19
+#: data/net.figuiere.Niepce.appdata.xml.in:19
 msgid "Non destructive image editing"
 msgstr "Editare de imagine non-distructivă"
 
-#: data/org.gnome.Niepce.appdata.xml.in:20
+#: data/net.figuiere.Niepce.appdata.xml.in:20
 msgid "RAW processing"
 msgstr "Procesare RAW"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/net.figuiere.Niepce.desktop.in:4
 msgid "Manage and edit your photos"
 msgstr "Gestionează și editează fotografiile"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/net.figuiere.Niepce.desktop.in:6
 msgid "photo;"
 msgstr "photo;fotografie;"
 

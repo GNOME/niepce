@@ -157,7 +157,8 @@ impl ImportDialog {
         &self
             .widgets
             .get_or_init(|| {
-                let builder = gtk4::Builder::from_resource("/org/gnome/Niepce/ui/importdialog.ui");
+                let builder =
+                    gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/importdialog.ui");
                 get_widget!(builder, gtk4::Dialog, import_dialog);
                 // get_widget!(builder, gtk4::ComboBox, date_tz_combo);
                 get_widget!(builder, gtk4::Entry, destination_folder);

@@ -51,14 +51,14 @@ struct Emblems {
 
 lazy_static::lazy_static! {
     static ref EMBLEMS: Emblems = Emblems {
-        raw: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-raw-fmt.png"),
-        raw_jpeg: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-rawjpeg-fmt.png"),
-        img: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-img-fmt.png"),
-        video: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-video-fmt.png"),
-        unknown: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-unknown-fmt.png"),
-        status_missing: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-missing.png"),
-        flag_reject: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-reject.png"),
-        flag_pick: Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-flag-pick.png"),
+        raw: Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-raw-fmt.png"),
+        raw_jpeg: Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-rawjpeg-fmt.png"),
+        img: Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-img-fmt.png"),
+        video: Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-video-fmt.png"),
+        unknown: Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-unknown-fmt.png"),
+        status_missing: Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-missing.png"),
+        flag_reject: Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-flag-reject.png"),
+        flag_pick: Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-flag-pick.png"),
     };
 }
 

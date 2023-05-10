@@ -1,5 +1,5 @@
 {
-    "app-id" : "org.gnome.Niepce.Devel",
+    "app-id": "net.figuiere.Niepce.Devel",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "44",
     "sdk" : "org.gnome.Sdk",

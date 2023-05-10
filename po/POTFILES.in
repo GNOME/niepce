@@ -4,8 +4,8 @@ camerawire/src/cwwindow.cpp
 crates/npc-engine/src/importer/lrimporter.rs
 crates/npc-fwk/src/toolkit/confirm.rs
 crates/npc-fwk/src/toolkit/request.rs
-data/org.gnome.Niepce.metainfo.xml.in.in
-data/org.gnome.Niepce.desktop.in.in
+data/net.figuiere.Niepce.metainfo.xml.in.in
+data/net.figuiere.Niepce.desktop.in.in
 niepce-main/src/modules/darkroom.rs
 niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs
 niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs

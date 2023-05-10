@@ -62,47 +62,47 @@ msgstr "Frissítés"
 msgid "Hide tools"
 msgstr "Eszközök elrejtése"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:6
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:6
 #| msgid "Niepce Digital"
 msgid "Niepce Digital@app-name-suffix@"
 msgstr "Niepce Digital@app-name-suffix@"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:7
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:7
 msgid "Advanced Photo Editing"
 msgstr "Speciális fényképszerkesztés"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:9
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr ""
 "A Niepce Digital egy fényképek kezeléséhez és szerkesztéséhez használható "
 "alkalmazás."
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:12
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:12
 msgid "Features:"
 msgstr "Szolgáltatások:"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:14
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:14
 msgid "Photo library management"
 msgstr "Fényképgyűjtemény kezelés"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:15
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:15
 msgid "Non destructive image editing"
 msgstr "Nem romboló képszerkesztés"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:16
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:16
 msgid "RAW processing"
 msgstr "RAW feldolgozás"
 
-#: data/org.gnome.Niepce.desktop.in.in:3
+#: data/net.figuiere.Niepce.desktop.in.in:3
 msgid "Niepce Digital"
 msgstr "Niepce Digital"
 
-#: data/org.gnome.Niepce.desktop.in.in:4
+#: data/net.figuiere.Niepce.desktop.in.in:4
 msgid "Manage and edit your photos"
 msgstr "Fényképek kezelése és szerkesztése"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in.in:6
+#: data/net.figuiere.Niepce.desktop.in.in:6
 msgid "photo;"
 msgstr "fénykép;fotó;"
 

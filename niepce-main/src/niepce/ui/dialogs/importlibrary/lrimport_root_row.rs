@@ -23,7 +23,7 @@ use gtk4::subclass::prelude::*;
 use gtk4::CompositeTemplate;
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/org/gnome/Niepce/ui/lrimport_root_row.ui")]
+#[template(resource = "/net/figuiere/Niepce/ui/lrimport_root_row.ui")]
 pub struct LrImportRootRowPriv {
     #[template_child]
     pub label: TemplateChild<gtk4::Label>,

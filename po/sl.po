@@ -66,43 +66,43 @@ msgstr "Osveži"
 msgid "Hide tools"
 msgstr "Skrij orodja"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:6
-#: data/org.gnome.Niepce.desktop.in:3
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:6
+#: data/net.figuiere.Niepce.desktop.in:3
 msgid "Niepce Digital"
 msgstr "Niepce Digital"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:7
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:7
 msgid "Advanced Photo Editing"
 msgstr "Napredno urejanje fotografij"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:9
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr ""
 "Niepce Digital je program, ki se uporablja za upravljanje in urejanje "
 "fotografij."
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:12
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:12
 msgid "Features:"
 msgstr "Zmožnosti:"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:14
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:14
 msgid "Photo library management"
 msgstr "Upravljanje knjižnic fotografij"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:15
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:15
 msgid "Non destructive image editing"
 msgstr "Neuničujoče urejanje slik"
 
-#: data/org.gnome.Niepce.metainfo.xml.in.in:16
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:16
 msgid "RAW processing"
 msgstr "Obdelovanje zapisa RAW"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/net.figuiere.Niepce.desktop.in:4
 msgid "Manage and edit your photos"
 msgstr "Upravljajte in urejajte svoje fotografije"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/net.figuiere.Niepce.desktop.in:6
 msgid "photo;"
 msgstr "fotografija;"
 

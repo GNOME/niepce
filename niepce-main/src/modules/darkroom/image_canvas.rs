@@ -80,8 +80,8 @@ mod imp {
     const SHADOW_OFFSET: f64 = 3.0;
 
     lazy_static::lazy_static! {
-        static ref ERROR_PLACEHOLDER: gdk4::Texture = gdk4::Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-image-generic.png");
-        static ref MISSING_PLACEHOLDER: gdk4::Texture = gdk4::Texture::from_resource("/org/gnome/Niepce/pixmaps/niepce-image-missing.png");
+        static ref ERROR_PLACEHOLDER: gdk4::Texture = gdk4::Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-image-generic.png");
+        static ref MISSING_PLACEHOLDER: gdk4::Texture = gdk4::Texture::from_resource("/net/figuiere/Niepce/pixmaps/niepce-image-missing.png");
     }
 
     #[derive(Default)]

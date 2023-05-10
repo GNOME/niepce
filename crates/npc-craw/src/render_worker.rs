@@ -53,9 +53,9 @@ impl RenderImpl {
             let path = file.path().to_string_lossy();
             dbg_out!("pipeline reload for {path}");
             pipeline.reload(&path, is_raw, file.orientation());
-        } else if let Ok(p) =
-            gdk_pixbuf::Pixbuf::from_resource("/org/gnome/Niepce/pixmaps/niepce-image-generic.png")
-        {
+        } else if let Ok(p) = gdk_pixbuf::Pixbuf::from_resource(
+            "/net/figuiere/Niepce/pixmaps/niepce-image-generic.png",
+        ) {
             pipeline.set_placeholder(p);
         }
     }

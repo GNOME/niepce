@@ -107,7 +107,7 @@ impl ImporterUI for CameraImporterUI {
     }
 
     fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget {
-        let builder = gtk4::Builder::from_resource("/org/gnome/Niepce/ui/cameraimporterui.ui");
+        let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/cameraimporterui.ui");
         get_widget!(builder, gtk4::Grid, main_widget);
         get_widget!(builder, gtk4::Button, select_camera_btn);
         select_camera_btn.connect_clicked(glib::clone!(@strong self.tx as tx =>

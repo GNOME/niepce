@@ -68,41 +68,41 @@ msgid "Hide tools"
 msgstr "隐藏工具"
 
 #. Only include 'name' if you want the software center name to be different to the 'Name' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:8 data/org.gnome.Niepce.desktop.in:3
+#: data/net.figuiere.Niepce.appdata.xml.in:8 data/net.figuiere.Niepce.desktop.in:3
 msgid "Niepce Digital"
 msgstr "Niepce 数码"
 
 #. Only include 'summary' if you want the software center name to be different to the 'Comment' in the .desktop file
-#: data/org.gnome.Niepce.appdata.xml.in:10
+#: data/net.figuiere.Niepce.appdata.xml.in:10
 msgid "Advanced Photo Editing"
 msgstr "高级照片编辑"
 
-#: data/org.gnome.Niepce.appdata.xml.in:12
+#: data/net.figuiere.Niepce.appdata.xml.in:12
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr "Niepce 数码是用于管理和编辑照片的应用程序。"
 
-#: data/org.gnome.Niepce.appdata.xml.in:15
+#: data/net.figuiere.Niepce.appdata.xml.in:15
 msgid "Features:"
 msgstr "特点："
 
-#: data/org.gnome.Niepce.appdata.xml.in:18
+#: data/net.figuiere.Niepce.appdata.xml.in:18
 msgid "Photo library management"
 msgstr "照片库管理"
 
-#: data/org.gnome.Niepce.appdata.xml.in:19
+#: data/net.figuiere.Niepce.appdata.xml.in:19
 msgid "Non destructive image editing"
 msgstr "无损图像编辑"
 
-#: data/org.gnome.Niepce.appdata.xml.in:20
+#: data/net.figuiere.Niepce.appdata.xml.in:20
 msgid "RAW processing"
 msgstr "RAW 处理"
 
-#: data/org.gnome.Niepce.desktop.in:4
+#: data/net.figuiere.Niepce.desktop.in:4
 msgid "Manage and edit your photos"
 msgstr "管理和编辑您的照片"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/org.gnome.Niepce.desktop.in:6
+#: data/net.figuiere.Niepce.desktop.in:6
 msgid "photo;"
 msgstr "photo;照片;"
 

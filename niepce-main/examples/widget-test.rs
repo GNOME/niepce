@@ -32,9 +32,9 @@ use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
 
 const ICON_NAMES: [&str; 3] = [
-    "/org/gnome/Niepce/pixmaps/niepce-transform-rotate.png",
-    "/org/gnome/Niepce/pixmaps/niepce-missing.png",
-    "/org/gnome/Niepce/pixmaps/niepce-image-generic.png",
+    "/net/figuiere/Niepce/pixmaps/niepce-transform-rotate.png",
+    "/net/figuiere/Niepce/pixmaps/niepce-missing.png",
+    "/net/figuiere/Niepce/pixmaps/niepce-image-generic.png",
 ];
 
 fn add_icon(store: &gio::ListStore) {
@@ -59,7 +59,7 @@ pub fn main() {
     init_resources().expect("main: init failed: {err}");
 
     let app = gtk4::Application::new(
-        Some("org.gnome.Niepce.WidgetTest"),
+        Some("net.figuiere.Niepce.WidgetTest"),
         gio::ApplicationFlags::FLAGS_NONE,
     );
 
