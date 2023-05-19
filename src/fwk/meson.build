@@ -144,6 +144,6 @@ fwk = static_library(
   'utils' / 'ufrawmeta.cpp',
 
   install: false,
-  dependencies: [cxx_headers, exempi_deps, gphoto2_deps, adw_deps, gtkmm_deps, libxml_deps, shumate_deps],
+  dependencies: [cxx_headers, exempi_deps, gphoto2_deps, adw_deps, gtkmm_deps, shumate_deps],
   include_directories: [include_directories('..', '..' / '..'), rust_inc]
 )

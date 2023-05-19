@@ -22,8 +22,6 @@ dependency('gtk4', version: '>= 4.4.0')
 adw_deps = dependency('libadwaita-1', version: '>= 1.2.0')
 dependency('glibmm-2.68')
 gtkmm_deps = dependency('gtkmm-4.0', version: '>= 4.4.0')
-# need at least 2.5.0 because of xmlTextReader
-libxml_deps = dependency('libxml-2.0', version: '>= 2.5.0')
 sqlite_deps = dependency('sqlite3')
 exempi_deps = dependency('exempi-2.0', version: '>= 2.4.0')
 libopenraw_deps = dependency('libopenraw-0.3', version: '>= 0.3.0')
