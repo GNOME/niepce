@@ -23,7 +23,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use exempi2::{FileType, Xmp, XmpFile};
+use exempi2::Xmp;
 
 use super::exiv2;
 use crate::Date;
@@ -208,10 +208,22 @@ impl XmpMeta {
         }
         let mut meta: Option<XmpMeta> = None;
         if !sidecar_only {
-            let file_type = XmpFile::check_file_format(file);
-            meta = if file_type == FileType::Unknown {
+            let is_raw = file
+                .extension()
+                .map(|ext| {
+                    // Note: the extension should be ASCII. We should be safe here.
+                    // libopenraw extensions are lowercase.
+                    libopenraw::file_extensions()
+                        .iter()
+                        .find(|e| *e == &ext.to_ascii_lowercase())
+                        .is_some()
+                })
+                .unwrap_or(false);
+            meta = if is_raw {
                 exiv2::xmp_from_exiv2(file)
-            } else if let Ok(xmpfile) = exempi2::XmpFile::new_from_file(file, exempi2::OpenFlags::READ) {
+            } else if let Ok(xmpfile) =
+                exempi2::XmpFile::new_from_file(file, exempi2::OpenFlags::READ)
+            {
                 match xmpfile.get_new_xmp() {
                     Ok(xmp) => Some(Self::new_with_xmp(xmp)),
                     _ => exiv2::xmp_from_exiv2(file),
