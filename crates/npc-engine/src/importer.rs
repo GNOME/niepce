@@ -235,10 +235,9 @@ mod test {
         );
         let base_dir = PathBuf::from("/var/home/user/Pictures");
 
-        let expected_dir = base_dir.clone();
         assert_eq!(
             Importer::dest_dir_for_date(&base_dir, &date, NoPath),
-            expected_dir
+            base_dir
         );
 
         let mut expected_dir = base_dir.clone();

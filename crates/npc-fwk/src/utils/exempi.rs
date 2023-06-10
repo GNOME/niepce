@@ -215,8 +215,7 @@ impl XmpMeta {
                     // libopenraw extensions are lowercase.
                     libopenraw::file_extensions()
                         .iter()
-                        .find(|e| *e == &ext.to_ascii_lowercase())
-                        .is_some()
+                        .any(|e| e == &ext.to_ascii_lowercase())
                 })
                 .unwrap_or(false);
             meta = if is_raw {

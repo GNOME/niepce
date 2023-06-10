@@ -306,8 +306,7 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                 for xmp_prop in xmp_props {
                     let tagtype = rexiv2::get_tag_type(&tag);
                     match tagtype {
-                        Ok(rexiv2::TagType::AsciiString) |
-                        Ok(rexiv2::TagType::XmpText) => {
+                        Ok(rexiv2::TagType::AsciiString) | Ok(rexiv2::TagType::XmpText) => {
                             ascii_tag_to_xmp(&meta, &tag, xmp_prop, &mut xmp);
                         }
                         Ok(rexiv2::TagType::UnsignedShort)
@@ -395,7 +394,11 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                                     }
                                 }
                             }
-                            _ => err_out!("Unhandled type {:?} for {} as UnsignedByte", tagtype, &tag),
+                            _ => err_out!(
+                                "Unhandled type {:?} for {} as UnsignedByte",
+                                tagtype,
+                                &tag
+                            ),
                         },
                         _ => {
                             err_out!("Unhandled type {:?} for {}", tagtype, &tag);
