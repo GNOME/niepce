@@ -81,28 +81,30 @@
             ]
         },
         {
-            "name": "gexiv2",
-            "modules": [
-                {
-                    "name": "exiv2",
-                    "buildsystem": "cmake-ninja",
-                    "config-opts": [
-                        "-DCMAKE_BUILD_TYPE=Release"
-                    ],
-                    "cleanup": [
-                        "/bin",
-                        "/lib/cmake",
-                        "/share/man"
-                    ],
-                    "sources": [
-                        {
-                            "type": "archive",
-                            "url": "https://github.com/Exiv2/exiv2/releases/download/v0.27.5/exiv2-0.27.5-Source.tar.gz",
-                            "sha256": "35a58618ab236a901ca4928b0ad8b31007ebdc0386d904409d825024e45ea6e2"
-                        }
-                    ]
-                }
+            "name": "exiv2",
+            "buildsystem": "cmake-ninja",
+            "config-opts": [
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DEXIV2_BUILD_DOC=OFF",
+                "-DEXIV2_BUILD_SAMPLES=OFF",
+                "-DEXIV2_BUILD_EXIV2_COMMAND=OFF",
+                "-DEXIV2_ENABLE_BMFF=ON"
             ],
+            "cleanup": [
+                "/bin",
+                "/lib/cmake",
+                "/share/man"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/Exiv2/exiv2/releases/download/v0.27.7/exiv2-0.27.7-Source.tar.gz",
+                    "sha256": "70629dc27e3d4dd5c3fa91afbea93166d338b1de284e6a4c44bbf9dcfe7bbc6d"
+                }
+            ]
+        },
+        {
+            "name": "gexiv2",
             "buildsystem": "meson",
             "config-opts": [
                 "-Dintrospection=false"
@@ -335,8 +337,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://libopenraw.freedesktop.org/download/libopenraw-0.3.5.tar.xz",
-                    "sha256": "c915d6d46d628f18b203fc33ebb70fe258bf6778b56fdc3746237d33255ffb0c"
+                    "url": "https://libopenraw.freedesktop.org/download/libopenraw-0.3.6.tar.xz",
+                    "sha256": "07c1f92272afdeb5792b62ffd38b171626ba67160febd5620d05b0784f3938ec"
                 }
             ]
         },
@@ -347,16 +349,19 @@
                 "--disable-gtk-doc",
                 "--enable-maintainer-mode"
             ],
-            "sources": [{
-                "type": "archive",
-                "url": "https://github.com/ianw/libiptcdata/archive/release_1_0_5.tar.gz",
-                "sha256": "78a5c49b646cb610c84bc4dfc730caad9a06e9b4e295600908782f4abb25316e"
-            }, {
-                "type": "shell",
-                "commands": [
-                    "cp -p /usr/share/automake-*/config.{sub,guess} ."
-                ]
-            }]
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/ianw/libiptcdata/archive/release_1_0_5.tar.gz",
+                    "sha256": "78a5c49b646cb610c84bc4dfc730caad9a06e9b4e295600908782f4abb25316e"
+                },
+                {
+                    "type": "shell",
+                    "commands": [
+                        "cp -p /usr/share/automake-*/config.{sub,guess} ."
+                    ]
+                }
+            ]
         },
         {
             "name": "lensfun",
@@ -368,11 +373,13 @@
             "cleanup": [
                 "/bin"
             ],
-            "sources": [{
-                "type": "archive",
-                "url": "https://github.com/lensfun/lensfun/archive/refs/tags/v0.3.3.tar.gz",
-                "sha256": "57ba5a0377f24948972339e18be946af12eda22b7c707eb0ddd26586370f6765"
-            }]
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/lensfun/lensfun/archive/refs/tags/v0.3.3.tar.gz",
+                    "sha256": "57ba5a0377f24948972339e18be946af12eda22b7c707eb0ddd26586370f6765"
+                }
+            ]
         },
         "fftw3f.json",
         {
