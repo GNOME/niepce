@@ -1338,7 +1338,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "once_cell",
- "pkg-config",
+ "system-deps",
 ]
 
 [[package]]
@@ -1378,8 +1378,8 @@ dependencies = [
  "gtk4",
  "npc-engine",
  "npc-fwk",
- "pkg-config",
  "rtengine",
+ "system-deps",
 ]
 
 [[package]]
@@ -1442,8 +1442,8 @@ dependencies = [
  "nix",
  "num-traits",
  "once_cell",
- "pkg-config",
  "rexiv2",
+ "system-deps",
  "tempfile",
  "thiserror",
  "uuid",
@@ -1722,7 +1722,7 @@ dependencies = [
  "cxx",
  "cxx-build",
  "npc-fwk",
- "pkg-config",
+ "system-deps",
  "thiserror",
 ]
 

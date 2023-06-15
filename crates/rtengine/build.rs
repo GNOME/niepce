@@ -11,17 +11,8 @@ fn main() {
             println!("cargo:rustc-link-search={s}");
         });
     }
-    pkg_config::Config::new().probe("expat").unwrap();
-    pkg_config::Config::new().probe("fftw3f").unwrap();
-    let glibmm = pkg_config::Config::new().probe("glibmm-2.68").unwrap();
-    pkg_config::Config::new().probe("giomm-2.68").unwrap();
-    pkg_config::Config::new().probe("lcms2").unwrap();
-    pkg_config::Config::new().probe("lensfun").unwrap();
-    pkg_config::Config::new().probe("libiptcdata").unwrap();
-    pkg_config::Config::new().probe("libjpeg").unwrap();
-    pkg_config::Config::new().probe("libpng16").unwrap();
-    pkg_config::Config::new().probe("libtiff-4").unwrap();
-    pkg_config::Config::new().probe("zlib").unwrap();
+    let deps = system_deps::Config::new().probe().unwrap();
+    let glibmm = deps.get_by_name("glibmm-2.68").unwrap();
 
     let build_root = std::path::PathBuf::from(
         std::env::var("CARGO_TARGET_DIR").expect("CARGO_TARGET_DIR not found"),
@@ -33,7 +24,7 @@ fn main() {
         .include("../../third_party/rtengine/RawTherapee")
         .include("./src")
         .include(build_root.join("third_party/rtengine"))
-        .includes(glibmm.include_paths)
+        .includes(&glibmm.include_paths)
         // rtengine header is full of this.
         .flag("-DUSE_STD_MUTEX=1")
         .flag("-DNPC_NOGUI=1")

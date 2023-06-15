@@ -21,4 +21,7 @@ npc-engine = { path = "../npc-engine" }
 rtengine = { path = "../rtengine" }
 
 [build-dependencies]
-pkg-config = "0.3.26"
+system-deps = "6.0"
+
+[package.metadata.system-deps]
+"gegl-0.4" = "0.4"

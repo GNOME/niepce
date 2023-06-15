@@ -12,8 +12,5 @@ fn main() {
     }
 
     // Direct dependencies by the C++ code.
-    pkg_config::Config::new()
-        .atleast_version("4.4.0")
-        .probe("gtkmm-4.0")
-        .unwrap();
+    system_deps::Config::new().probe().unwrap();
 }

@@ -42,4 +42,7 @@ uuid = { version = "1.1.2", features = ["v4"] }
 walkdir = "2.3.3"
 
 [build-dependencies]
-pkg-config = "0.3.26"
+system-deps = "6.0"
+
+[package.metadata.system-deps]
+"gtkmm-4.0" = "4.4.0"

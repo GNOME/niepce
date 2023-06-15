@@ -9,8 +9,6 @@ fn main() {
         });
     }
 
-    pkg_config::Config::new()
-        .atleast_version("0.4")
-        .probe("gegl-0.4")
-        .unwrap();
+    // Direct dependencies by the C++ code.
+    system_deps::Config::new().probe().unwrap();
 }

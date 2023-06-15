@@ -14,4 +14,17 @@ npc-fwk = { path = "../npc-fwk" }
 
 [build-dependencies]
 cxx-build = "1.0"
-pkg-config = "0.3.26"
+system-deps = "6.0"
+
+[package.metadata.system-deps]
+expat = "2.1"
+fftw3f = "*"
+"giomm-2.68" = "2.68"
+"glibmm-2.68" = "2.68"
+lcms2 = "2.6"
+lensfun = "*"
+libiptcdata = "*"
+libjpeg = "*"
+libpng16 = "*"
+libtiff-4 = "4.0.4"
+zlib = "*"

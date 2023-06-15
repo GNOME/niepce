@@ -1,5 +1,3 @@
-extern crate pkg_config;
-
 fn main() {
     println!("cargo:rustc-link-lib=niepce_lib");
     println!("cargo:rustc-link-lib=ncr");
@@ -17,12 +15,5 @@ fn main() {
     }
 
     // Direct dependencies by the C++ code.
-    pkg_config::Config::new()
-        .atleast_version("4.4.0")
-        .probe("gtkmm-4.0")
-        .unwrap();
-    pkg_config::Config::new()
-        .atleast_version("1.0.0")
-        .probe("shumate-1.0")
-        .unwrap();
+    system_deps::Config::new().probe().unwrap();
 }
