@@ -1,7 +1,7 @@
 /*
  * niepce - engine/importer/libraryimporter.rs
  *
- * Copyright (C) 2021-2022 Hubert Figuière
+ * Copyright (C) 2021-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,19 @@
 
 use std::path::Path;
 
+use thiserror::Error;
+
 use crate::libraryclient::LibraryClient;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum Error {
     /// The format is unsupported. This is specific to the implementation.
+    #[error("Unsupported format")]
     UnsupportedFormat,
     /// There is no input available: usually an error opening the
     /// input library that is not `UnsupportedFormat`. The latter
     /// can't happen with this condition.
+    #[error("No input")]
     NoInput,
 }
 

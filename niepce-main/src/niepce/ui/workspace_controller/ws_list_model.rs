@@ -19,16 +19,19 @@
 
 use glib::subclass::prelude::*;
 use gtk4::prelude::*;
+use thiserror::Error;
 
 use super::ws_list_item::Item;
 use npc_engine::db;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 /// Errors from the list model
 pub enum Error {
     /// Trying to append an item with invalid Id.
+    #[error("Invalid ID")]
     InvalidId,
     /// Item wasn't found
+    #[error("Not found")]
     NotFound,
 }
 

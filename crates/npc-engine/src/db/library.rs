@@ -31,6 +31,7 @@ use std::result;
 use chrono::Utc;
 use num_traits::ToPrimitive;
 use rusqlite::{functions::FunctionFlags, params};
+use thiserror::Error;
 
 use super::{FromDb, LibraryId};
 use crate::db::album::Album;
@@ -61,45 +62,32 @@ const DB_SCHEMA_VERSION: i32 = 11;
 const DATABASENAME: &str = "niepcelibrary.db";
 
 /// Error from the library database
-#[derive(Debug, PartialEq)]
+#[derive(Error, Debug)]
 pub enum Error {
     /// Operation is unimplemented
+    #[error("Unimplemented")]
     Unimplemented,
     /// Item was not found
+    #[error("Not found")]
     NotFound,
     /// No SQL database
+    #[error("No SQL database")]
     NoSqlDb,
     /// Database schema version is incorrect
+    #[error("Incorrect DB version")]
     IncorrectDbVersion,
     /// Argument is invalid
+    #[error("Invalid argument")]
     InvalidArg,
     /// Result is invalid
+    #[error("Invalid result")]
     InvalidResult,
     /// Database isn't backed by a file.
+    #[error("No DB file")]
     NoDbFile,
     /// SQL Error
-    SqlError(rusqlite::Error),
-}
-
-impl From<rusqlite::Error> for Error {
-    fn from(err: rusqlite::Error) -> Error {
-        Error::SqlError(err)
-    }
-}
-
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{self:?}")
-    }
-}
-
-impl std::error::Error for Error {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match *self {
-            Self::SqlError(ref err) => Some(err),
-            _ => None,
-        }
-    }
+    #[error("rusqlite error: {0}")]
+    SqlError(#[from] rusqlite::Error),
 }
 
 pub type Result<T> = result::Result<T, Error>;
@@ -1448,7 +1436,10 @@ mod test {
         assert!(version.ok().unwrap() == super::DB_SCHEMA_VERSION);
 
         // Backup should return an error.
-        assert_eq!(lib.backup_database_file("backup"), Err(Error::NoDbFile));
+        assert!(matches!(
+            lib.backup_database_file("backup"),
+            Err(Error::NoDbFile)
+        ));
 
         let folder_added = lib.add_folder("foo", Some(String::from("/bar/foo")));
         assert!(folder_added.is_ok());
