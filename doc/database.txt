@@ -60,6 +60,9 @@ folders         id             Unique ID in the database
 		parent_id      The ID of the parent (= folders.id). 0 = top level
 		expanded       1 if expanded, 0 if not. Default = 0. Unused for now.
 
+[ version = 12 ]
+Folders are unique on (name, parent_id).
+
 Keywords are defined in on table, and linked to files in the other
 
 keywords        id             Unique ID in the database

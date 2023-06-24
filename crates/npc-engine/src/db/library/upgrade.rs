@@ -47,7 +47,6 @@ pub(crate) fn library_to(library: &Library, from: i32, to: i32) -> Result<()> {
         dbg_out!("handling {}", v + 1);
         // XXX remove the allow when there is one more branch.
         // We want that structure.
-        #[allow(clippy::single_match)]
         match v + 1 {
             11 => {
                 // This was tested from version 9. Some feature branch mess make that
@@ -58,9 +57,67 @@ pub(crate) fn library_to(library: &Library, from: i32, to: i32) -> Result<()> {
                     library.set_db_version(11).expect("set_db_version failed");
                 }
             }
+            12 => {
+                if let Some(conn) = &library.dbconn {
+                    let schema_version = sql::pragma_schema_version(conn)?;
+                    perform_upgrade_12(conn, schema_version).expect("Upgrade failed");
+                    library.set_db_version(12).expect("set_db_version failed");
+                }
+            }
             _ => {}
         }
     }
+
+    Ok(())
+}
+
+pub(crate) fn perform_upgrade_12(conn: &rusqlite::Connection, schema_version: i64) -> Result<()> {
+    dbg_out!("schema_version {}", schema_version);
+    dbg_out!("upgrade 12, step 1");
+    conn.execute_batch(
+        "BEGIN;\
+         CREATE TABLE folders_new (id INTEGER PRIMARY KEY AUTOINCREMENT, \
+         path TEXT, name TEXT, \
+         vault_id INTEGER DEFAULT 0, \
+         locked INTEGER DEFAULT 0, \
+         virtual INTEGER DEFAULT 0, \
+         expanded INTEGER DEFAULT 0, \
+         parent_id INTEGER, UNIQUE(name, parent_id)); \
+         CREATE TRIGGER folders_insert AFTER INSERT ON folders_new \
+         BEGIN \
+         UPDATE folders_new SET path = (SELECT f.path FROM folders_new AS f WHERE f.id = folders_new.parent_id) || '/' || name WHERE id = new.id AND parent_id != 0; \
+         END; \
+         CREATE TRIGGER folders_update_parent UPDATE OF parent_id ON folders_new \
+         BEGIN \
+         UPDATE folders_new SET path = (SELECT f.path FROM folders_new AS f WHERE f.id = folders_new.parent_id) || '/' || name WHERE id = NEW.id AND parent_id != 0; \
+         END; \
+         INSERT INTO folders_new SELECT * FROM folders; \
+         DROP TRIGGER folder_delete_trigger; \
+         CREATE TRIGGER folder_delete_trigger AFTER DELETE ON folders_new \
+         BEGIN \
+         DELETE FROM files WHERE parent_id = old.id; \
+         END; \
+         DROP TABLE folders; \
+         ALTER TABLE folders_new RENAME TO folders; \
+         COMMIT;",
+    )?;
+
+    dbg_out!("upgrade 12, step 2");
+    conn.execute_batch(
+        "BEGIN;\
+         CREATE TABLE keywords_new (id INTEGER PRIMARY KEY AUTOINCREMENT, \
+         keyword TEXT, parent_id INTEGER DEFAULT 0, \
+         UNIQUE(keyword, parent_id)); \
+         INSERT INTO keywords_new SELECT * FROM keywords; \
+         DROP TRIGGER keyword_delete_trigger; \
+         CREATE TRIGGER keyword_delete_trigger AFTER DELETE ON keywords \
+         BEGIN \
+         DELETE FROM keywording WHERE keyword_id = old.id; \
+         END; \
+         DROP TABLE keywords; \
+         ALTER TABLE keywords_new RENAME TO keywords; \
+         COMMIT;",
+    )?;
 
     Ok(())
 }
@@ -75,7 +132,7 @@ pub(crate) fn perform_upgrade_11(conn: &rusqlite::Connection, schema_version: i6
          UPDATE sqlite_schema SET sql='CREATE TABLE folders (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, name TEXT, vault_id INTEGER DEFAULT 0, locked INTEGER DEFAULT 0, virtual INTEGER DEFAULT 0, expanded INTEGER DEFAULT 0, parent_id INTEGER)' WHERE type='table' AND name='folders';\
          UPDATE sqlite_schema SET sql='CREATE TRIGGER file_delete_trigger AFTER DELETE ON files BEGIN DELETE FROM sidecars WHERE file_id = old.id; DELETE FROM keywording WHERE file_id = old.id; DELETE FROM albuming WHERE file_id = old.id; END' WHERE type='trigger' AND name='file_delete_trigger';\
          PRAGMA schema_version={schema_version};\
-         PRAGMA writable_schema=OFF;\
+         PRAGMA writable_schema=RESET;\
          PRAGMA integrity_check;\
          CREATE TABLE albums (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, parent_id INTEGER);\
          CREATE TABLE albuming (file_id INTEGER, album_id INTEGER, UNIQUE(file_id, album_id));\

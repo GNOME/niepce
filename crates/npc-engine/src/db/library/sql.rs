@@ -46,3 +46,14 @@ pub(super) fn table_sql(conn: &rusqlite::Connection, table: &str) -> Result<Stri
         None => Err(Error::NotFound),
     }
 }
+
+#[cfg(test)]
+pub(super) fn trigger_sql(conn: &rusqlite::Connection, table: &str) -> Result<String> {
+    let mut stmt =
+        conn.prepare("SELECT sql FROM sqlite_schema WHERE type='trigger' AND name=?1")?;
+    let mut rows = stmt.query(params![table])?;
+    match rows.next()? {
+        Some(row) => Ok(row.get(0)?),
+        None => Err(Error::NotFound),
+    }
+}

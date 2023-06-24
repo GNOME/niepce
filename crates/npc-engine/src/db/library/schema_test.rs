@@ -166,7 +166,7 @@ fn init_schema_v9(conn: &rusqlite::Connection) -> Result<()> {
 #[test]
 /// This test the upgrade SQL command from v9 to v11. (there is no v10)
 /// A lot of the SQL code is hardcoded and expect a specific formatting.
-fn test_upgrade_9_to_11() {
+fn test_upgrade_9_to() {
     if let Ok(conn) = rusqlite::Connection::open_in_memory() {
         init_schema_v9(&conn).expect("Couldn't initialise schema v9");
         let schema_version = sql::pragma_schema_version(&conn).expect("pragma schema version");
@@ -196,29 +196,32 @@ fn test_upgrade_9_to_11() {
 
         upgrade::perform_upgrade_11(&conn, schema_version).expect("Upgrade to 11");
 
-        // XXX move this to `sql`
-        let mut stmt = conn
-            .prepare("PRAGMA integrity_check")
-            .expect("Prepare failed");
-        let mut rows = stmt.query([]).expect("Query failed");
-        let row = rows.next().expect("Couldn't get row");
-        assert!(row.is_some(), "Integrity check returned no result");
+        assert!(sql::pragma_schema_version(&conn).expect("pragma schema version") > schema_version);
 
-        let result: String = row.unwrap().get(0).expect("Failed to get row value");
-        assert_eq!(&result, "ok", "Integrity check not OK");
+        {
+            // XXX move this to `sql`
+            let mut stmt = conn
+                .prepare("PRAGMA integrity_check")
+                .expect("Prepare failed");
+            let mut rows = stmt.query([]).expect("Query failed");
+            let row = rows.next().expect("Couldn't get row");
+            assert!(row.is_some(), "Integrity check returned no result");
 
-        let mut stmt = conn
-            .prepare("SELECT id FROM files WHERE xmp_file = 0")
-            .expect("Prepare failed");
-        let mut rows = stmt.query([]).expect("Query failed");
-        let row = rows.next().expect("Couldn't get row");
-        assert!(row.is_some(), "NULL xmp_file not converted to 0");
+            let result: String = row.unwrap().get(0).expect("Failed to get row value");
+            assert_eq!(&result, "ok", "Integrity check not OK");
 
-        let files_v11 = sql::table_sql(&conn, "files").expect("Files sql failed");
+            let mut stmt = conn
+                .prepare("SELECT id FROM files WHERE xmp_file = 0")
+                .expect("Prepare failed");
+            let mut rows = stmt.query([]).expect("Query failed");
+            let row = rows.next().expect("Couldn't get row");
+            assert!(row.is_some(), "NULL xmp_file not converted to 0");
 
-        assert_eq!(
-            files_v11,
-            "CREATE TABLE files (id INTEGER PRIMARY KEY AUTOINCREMENT, \
+            let files_v11 = sql::table_sql(&conn, "files").expect("Files sql failed");
+
+            assert_eq!(
+                files_v11,
+                "CREATE TABLE files (id INTEGER PRIMARY KEY AUTOINCREMENT, \
                  main_file INTEGER, name TEXT, parent_id INTEGER, \
                  orientation INTEGER, file_type INTEGER, \
                  file_date INTEGER, rating INTEGER DEFAULT 0, \
@@ -226,6 +229,20 @@ fn test_upgrade_9_to_11() {
                  import_date INTEGER, mod_date INTEGER, \
                  xmp TEXT, xmp_date INTEGER, xmp_file INTEGER DEFAULT 0, \
                  jpeg_file INTEGER DEFAULT 0)"
+            );
+        }
+
+        let schema_version = sql::pragma_schema_version(&conn).expect("pragma schema version");
+        upgrade::perform_upgrade_12(&conn, schema_version).expect("Upgrade to 12");
+        assert!(sql::pragma_schema_version(&conn).expect("pragma schema version") > schema_version);
+
+        let trigger = sql::trigger_sql(&conn, "folders_update_parent").expect("Trigger sql failed");
+        assert_eq!(
+            trigger,
+            "CREATE TRIGGER folders_update_parent UPDATE OF parent_id ON \"folders\" \
+             BEGIN \
+             UPDATE \"folders\" SET path = (SELECT f.path FROM \"folders\" AS f WHERE f.id = \"folders\".parent_id) || '/' || name WHERE id = NEW.id AND parent_id != 0; \
+             END"
         );
     }
 }

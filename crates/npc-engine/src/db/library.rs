@@ -58,7 +58,7 @@ pub enum Managed {
     Yes = 1,
 }
 
-const DB_SCHEMA_VERSION: i32 = 11;
+const DB_SCHEMA_VERSION: i32 = 12;
 const DATABASENAME: &str = "niepcelibrary.db";
 
 /// Error from the library database
@@ -305,24 +305,28 @@ impl Library {
                 [],
             )
             .unwrap();
-            conn.execute(
+            // UNIQUE added in version 12.
+            // delete trigger added in version 9
+            conn.execute_batch(
                 "CREATE TABLE folders (id INTEGER PRIMARY KEY AUTOINCREMENT, \
                  path TEXT, name TEXT, \
                  vault_id INTEGER DEFAULT 0, \
                  locked INTEGER DEFAULT 0, \
                  virtual INTEGER DEFAULT 0, \
                  expanded INTEGER DEFAULT 0, \
-                 parent_id INTEGER)",
-                [],
-            )
-            .unwrap();
-            // Version 9
-            conn.execute(
-                "CREATE TRIGGER folder_delete_trigger AFTER DELETE ON folders \
+                 parent_id INTEGER, UNIQUE(name, parent_id)); \
+                 CREATE TRIGGER folder_delete_trigger AFTER DELETE ON folders \
                  BEGIN \
                  DELETE FROM files WHERE parent_id = old.id; \
-                 END",
-                [],
+                 END; \
+                 CREATE TRIGGER folders_insert AFTER INSERT ON folders \
+                 BEGIN \
+                 UPDATE folders SET path = (SELECT f.path FROM folders AS f WHERE f.id = folders.parent_id) || '/' || name WHERE id = new.id AND parent_id != 0; \
+                 END; \
+                 CREATE TRIGGER folders_update_path UPDATE OF parent_id ON folders \
+                 BEGIN \
+                 UPDATE folders SET path = (SELECT f.path FROM folders AS f WHERE f.id = folders.parent_id) || '/' || name WHERE id = NEW.id AND parent_id != 0; \
+                 END;",
             )
             .unwrap();
             //
@@ -396,25 +400,17 @@ impl Library {
                  COMMIT;",
             )
             .unwrap();
-            //
-            conn.execute(
+            // UNIQUE added in version 12.
+            conn.execute_batch(
                 "CREATE TABLE keywords (id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                 keyword TEXT, parent_id INTEGER DEFAULT 0)",
-                [],
-            )
-            .unwrap();
-            conn.execute(
-                "CREATE TABLE keywording (file_id INTEGER, \
-                 keyword_id INTEGER, UNIQUE(file_id, keyword_id))",
-                [],
-            )
-            .unwrap();
-            conn.execute(
-                "CREATE TRIGGER keyword_delete_trigger AFTER DELETE ON keywords \
+                 keyword TEXT, parent_id INTEGER DEFAULT 0, \
+                 UNIQUE(keyword, parent_id)); \
+                 CREATE TABLE keywording (file_id INTEGER, \
+                 keyword_id INTEGER, UNIQUE(file_id, keyword_id)); \
+                 CREATE TRIGGER keyword_delete_trigger AFTER DELETE ON keywords \
                  BEGIN \
                  DELETE FROM keywording WHERE keyword_id = old.id; \
                  END;",
-                [],
             )
             .unwrap();
             conn.execute(
@@ -589,13 +585,24 @@ impl Library {
     ) -> Result<LibFolder> {
         if let Some(ref conn) = self.dbconn {
             let c = conn.execute(
-                "INSERT INTO folders (path,name,vault_id,parent_id) VALUES(?1, ?2, '0', ?3)",
+                "INSERT INTO folders (path,name,vault_id,parent_id) VALUES(?1, ?2, '0', ?3) ON CONFLICT DO NOTHING",
                 params![path, name, into],
             )?;
-            if c != 1 {
-                return Err(Error::InvalidResult);
-            }
-            let id = conn.last_insert_rowid();
+            let id = if c != 1 {
+                if c != 0 {
+                    return Err(Error::InvalidResult);
+                }
+                let mut stmt =
+                    conn.prepare("SELECT id FROM folders WHERE name = ?1 AND parent_id = ?2")?;
+                let mut rows = stmt.query(params![name, into])?;
+                if let Some(row) = rows.next()? {
+                    row.get(0)?
+                } else {
+                    return Err(Error::NotFound);
+                }
+            } else {
+                conn.last_insert_rowid()
+            };
             dbg_out!("last row inserted {}", id);
             let mut lf = LibFolder::new(id, name, path);
             lf.set_parent(into);
@@ -1444,7 +1451,8 @@ mod test {
         let folder_added = lib.add_folder("foo", Some(String::from("/bar/foo")));
         assert!(folder_added.is_ok());
         let folder_added = folder_added.ok().unwrap();
-        assert!(folder_added.id() > 0);
+        let parent_id = folder_added.id();
+        assert!(parent_id > 0);
 
         let f = lib.get_folder("/bar/foo");
         assert!(f.is_ok());
@@ -1454,7 +1462,8 @@ mod test {
         let id = f.id();
         let f = lib.add_folder_into("bar", Some(String::from("/bar/bar")), id);
         assert!(f.is_ok());
-        let f = lib.get_folder("/bar/bar");
+        // The triggers have changed the path to match the parent's.
+        let f = lib.get_folder("/bar/foo/bar");
         assert!(f.is_ok());
         let f = f.ok().unwrap();
         assert_eq!(f.parent(), id);
