@@ -450,6 +450,10 @@ int Image::get_original_height() const
 
 int Image::get_output_width() const
 {
+    if (!priv->m_scale) {
+        ERR_OUT("scale is null");
+        return 0;
+    }
     GeglRectangle roi = gegl_node_get_bounding_box(priv->m_scale);
     return roi.width;
 }
@@ -457,6 +461,10 @@ int Image::get_output_width() const
 
 int Image::get_output_height() const
 {
+    if (!priv->m_scale) {
+        ERR_OUT("scale is null");
+        return 0;
+    }
     GeglRectangle roi = gegl_node_get_bounding_box(priv->m_scale);
     return roi.height;
 }
