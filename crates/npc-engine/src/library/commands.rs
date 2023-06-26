@@ -28,10 +28,10 @@ use crate::db::label::Label;
 use crate::db::libfolder::LibFolder;
 use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
-use crate::db::{LibError, LibResult, Library, Managed};
+use crate::db::{LibError, LibResult, Library};
 use crate::NiepcePropertyBag;
 use npc_fwk::PropertyValue;
-use npc_fwk::{dbg_assert, err_out, err_out_line};
+use npc_fwk::{err_out, err_out_line};
 
 pub fn cmd_list_all_keywords(lib: &Library) -> bool {
     match lib.get_all_keywords() {
@@ -105,19 +105,14 @@ fn get_folder_for_import(lib: &Library, folder: &str) -> LibResult<LibFolder> {
     }
 }
 
-pub fn cmd_import_files(lib: &Library, folder: &str, files: &[PathBuf], manage: Managed) -> bool {
-    dbg_assert!(
-        manage == Managed::No,
-        "managing file is currently unsupported"
-    );
-
+pub fn cmd_import_files(lib: &Library, folder: &str, files: &[PathBuf]) -> bool {
     let bundles = FileBundle::filter_bundles(files);
     match get_folder_for_import(lib, folder) {
         Ok(libfolder) => {
             let folder_id = libfolder.id();
             for bundle in bundles {
                 // XXX properly handle this error. Should be a failure.
-                if let Err(err) = lib.add_bundle(folder_id, &bundle, manage) {
+                if let Err(err) = lib.add_bundle(folder_id, &bundle) {
                     err_out!("Add bundle failed: {:?}", err);
                 }
             }
@@ -134,7 +129,7 @@ pub fn cmd_import_files(lib: &Library, folder: &str, files: &[PathBuf], manage: 
 }
 
 pub fn cmd_add_bundle(lib: &Library, bundle: &FileBundle, folder: LibraryId) -> LibraryId {
-    match lib.add_bundle(folder, bundle, Managed::No) {
+    match lib.add_bundle(folder, bundle) {
         Ok(id) => {
             if lib.notify(LibNotification::AddedFiles).is_err() {
                 err_out!("Failed to notify AddedFiles");

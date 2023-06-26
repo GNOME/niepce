@@ -22,7 +22,6 @@ use std::path::PathBuf;
 use crate::db::filebundle::FileBundle;
 use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
-use crate::db::Managed;
 use crate::NiepcePropertyBag;
 use npc_fwk::base::PropertyValue;
 
@@ -74,11 +73,10 @@ pub trait ClientInterface {
     /// tell to process the Xmp update Queue
     fn process_xmp_update_queue(&self, write_xmp: bool);
 
-    /// Import files from a directory
+    /// Import files in place.
     /// @param dir the directory
     /// @param files the files to import
-    /// @param manage true if imports have to be managed
-    fn import_files(&self, dir: String, files: Vec<PathBuf>, manage: Managed);
+    fn import_files(&self, dir: String, files: Vec<PathBuf>);
 }
 
 /// Sync client interface

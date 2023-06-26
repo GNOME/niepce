@@ -44,7 +44,7 @@ pub use self::label::Label;
 pub use self::libfile::{FileType, LibFile};
 pub use self::libfolder::LibFolder;
 pub use self::libmetadata::LibMetadata;
-pub use self::library::{Error as LibError, Library, Managed, Result as LibResult};
+pub use self::library::{Error as LibError, Library, Result as LibResult};
 pub use self::props::NiepceProperties;
 pub use self::props::NiepcePropertyIdx;
 

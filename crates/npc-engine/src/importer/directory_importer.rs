@@ -23,7 +23,6 @@ use npc_fwk::utils::FileList;
 use npc_fwk::{dbg_out, err_out, on_err_out, Date, XmpMeta};
 
 use super::{ImportRequest, ImportedFile};
-use crate::db::Managed;
 use crate::importer::{FileImporter, ImportBackend, Importer, PreviewReady, SourceContentReady};
 
 #[derive(Clone)]
@@ -153,12 +152,12 @@ impl ImportBackend for DirectoryImporter {
                             })
                             .collect(),
                     );
-                    callback(&dest_dir, &files, Managed::No);
+                    callback(&dest_dir, &files);
                 }));
         } else {
             let files = FileList::files_from_directory(request.source(), |_| true, self.recursive);
             let source = std::path::PathBuf::from(request.source());
-            callback(&source, &files, Managed::No);
+            callback(&source, &files);
         }
     }
 }

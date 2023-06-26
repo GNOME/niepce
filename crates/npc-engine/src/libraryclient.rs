@@ -35,7 +35,7 @@ use std::thread;
 
 use crate::db::filebundle::FileBundle;
 use crate::db::props::NiepceProperties as Np;
-use crate::db::{Library, LibraryId, Managed};
+use crate::db::{Library, LibraryId};
 use crate::library::commands;
 use crate::library::notification::LcChannel;
 use crate::library::op::Op;
@@ -323,11 +323,10 @@ impl ClientInterface for LibraryClientSender {
         self.schedule_op(move |lib| commands::cmd_process_xmp_update_queue(lib, write_xmp));
     }
 
-    /// Import files from a directory
+    /// Import files in place.
     /// @param dir the directory
-    /// @param manage true if imports have to be managed
-    fn import_files(&self, dir: String, files: Vec<PathBuf>, manage: Managed) {
-        self.schedule_op(move |lib| commands::cmd_import_files(lib, &dir, &files, manage));
+    fn import_files(&self, dir: String, files: Vec<PathBuf>) {
+        self.schedule_op(move |lib| commands::cmd_import_files(lib, &dir, &files));
     }
 }
 

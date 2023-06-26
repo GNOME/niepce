@@ -23,7 +23,6 @@ use super::{
     DirectoryImporter, FileImporter, ImportBackend, ImportRequest, ImportedFile, PreviewReady,
     SourceContentReady,
 };
-use crate::db::Managed;
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
 use npc_fwk::utils::FileList;
 use npc_fwk::{dbg_out, on_err_out, Date};
@@ -200,7 +199,7 @@ impl ImportBackend for CameraImporter {
                                     None
                                 })
                                 .collect();
-                            callback(&dest_dir, &FileList(files), Managed::No);
+                            callback(&dest_dir, &FileList(files));
                         }));
                 }
             }

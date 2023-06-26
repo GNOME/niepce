@@ -35,7 +35,6 @@ use std::rc::Rc;
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::db::filebundle::FileBundle;
-use crate::db::Managed;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::utils::FileList;
 use npc_fwk::{dbg_out, Date, XmpMeta};
@@ -106,7 +105,7 @@ impl ImportRequest {
 
 type SourceContentReady = Box<dyn Fn(Vec<Box<dyn ImportedFile>>) + Send>;
 type PreviewReady = Box<dyn Fn(String, Option<Thumbnail>, Option<Date>) + Send>;
-type FileImporter = Box<dyn Fn(&Path, &FileList, Managed) + Send>;
+type FileImporter = Box<dyn Fn(&Path, &FileList) + Send>;
 
 /// Trait for file importers backends.
 pub trait ImportBackend {
