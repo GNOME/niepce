@@ -59,13 +59,19 @@ impl WorkspaceList {
         if item.id() == 0 {
             return Err(Error::InvalidId);
         }
+        let mut removed = 0_u32;
         let pos = {
             let mut items = self.imp().items.borrow_mut();
-            let pos = items.len();
-            items.push((item.id(), item.clone()));
+            let mut pos = items.len();
+            if items.push((item.id(), item.clone())).is_some() {
+                // If the item is not found, then it's a bug.
+                pos = items.index_of(&item.id()).unwrap();
+                removed = 1;
+            }
+
             pos as u32
         };
-        self.items_changed(pos, 0, 1);
+        self.items_changed(pos, removed, 1);
         Ok(())
     }
 
@@ -109,6 +115,7 @@ mod imp {
 
     use npc_engine::db;
     use npc_fwk::base::IndexedMap;
+    use npc_fwk::err_out;
 
     #[derive(Default)]
     pub struct WorkspaceList {
@@ -137,6 +144,11 @@ mod imp {
         fn item(&self, position: u32) -> Option<glib::Object> {
             let position: usize = position as usize;
             if position >= self.items.borrow().len() {
+                err_out!(
+                    "Item out of range {} > {}",
+                    position,
+                    self.items.borrow().len()
+                );
                 return None;
             }
             Some(

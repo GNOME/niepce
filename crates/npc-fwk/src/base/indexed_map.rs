@@ -38,6 +38,7 @@ impl<K, V> IndexedMap<K, V> {
     /// Push a key / value tuple.
     /// If the key already exists, it replace with the new value
     /// but does not reorder. The old value is returned.
+    #[must_use]
     pub fn push(&mut self, kv: (K, V)) -> Option<V>
     where
         K: std::cmp::Eq + std::hash::Hash + Clone,
@@ -139,15 +140,18 @@ mod test {
         assert_eq!(indexed_map.len(), 0);
         assert!(indexed_map.consistent_len());
 
-        indexed_map.push((1, "Foo".to_string()));
+        let old = indexed_map.push((1, "Foo".to_string()));
+        assert!(old.is_none());
         assert!(indexed_map.consistent_len());
         assert_eq!(indexed_map.len(), 1);
 
-        indexed_map.push((2, "Bar".to_string()));
+        let old = indexed_map.push((2, "Bar".to_string()));
+        assert!(old.is_none());
         assert!(indexed_map.consistent_len());
         assert_eq!(indexed_map.len(), 2);
 
-        indexed_map.push((42, "Joke".to_string()));
+        let old = indexed_map.push((42, "Joke".to_string()));
+        assert!(old.is_none());
         assert!(indexed_map.consistent_len());
         assert_eq!(indexed_map.len(), 3);
 
@@ -190,7 +194,8 @@ mod test {
         let mut indexed_map = IndexedMap::default();
 
         assert_eq!(indexed_map.len(), 0);
-        indexed_map.push((1, "Foo".to_string()));
+        let old = indexed_map.push((1, "Foo".to_string()));
+        assert!(old.is_none());
         assert_eq!(indexed_map.len(), 1);
         // There is no index 1, this should panic.
         let _value = &indexed_map[1];
