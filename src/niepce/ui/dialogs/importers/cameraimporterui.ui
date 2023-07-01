@@ -1,37 +1,39 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.12.1 -->
 <interface>
+  <!-- interface-name cameraimporterui.ui -->
   <requires lib="gtk" version="4.0"/>
-      <object class="GtkGrid" id="main_widget">
-        <child>
-          <object class="GtkComboBoxText" id="camera_list_combo">
-            <property name="halign">start</property>
-            <property name="hexpand">1</property>
-            <layout>
-              <property name="column">1</property>
-              <property name="row">0</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="GtkLabel">
-            <property name="halign">start</property>
-            <property name="label" translatable="yes">Available cameras:</property>
-            <layout>
-              <property name="column">0</property>
-              <property name="row">0</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="select_camera_btn">
-            <property name="label" translatable="yes">Select</property>
-            <property name="focusable">1</property>
-            <property name="receives_default">1</property>
-            <layout>
-              <property name="column">2</property>
-              <property name="row">0</property>
-            </layout>
-          </object>
-        </child>
+  <object class="GtkGrid" id="main_widget">
+    <child>
+      <object class="GtkComboBoxText" id="camera_list_combo">
+        <property name="halign">start</property>
+        <property name="hexpand">1</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="row">0</property>
+        </layout>
       </object>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="halign">start</property>
+        <property name="label" translatable="yes">Available cameras:</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">0</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="select_camera_btn">
+        <property name="focusable">1</property>
+        <property name="label" translatable="yes">Select</property>
+        <property name="receives-default">1</property>
+        <layout>
+          <property name="column">2</property>
+          <property name="row">0</property>
+        </layout>
+      </object>
+    </child>
+  </object>
 </interface>
