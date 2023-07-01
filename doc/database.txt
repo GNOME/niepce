@@ -51,13 +51,15 @@ sidecars        file_id        ID of the file.
 Folders for the library "storage"
 
 folders         id             Unique ID in the database
-		path           The absolute path of the folder
-		name 	       The display name
+		path           The path of the root folder, NULL otherwise.
+		               A relative path is relative from the catalog file.
+		               Otherwise it's absolute.
+		name 	       The path component.
 		vault_id       The vault ID (unused) 0 = no vault (= vaults.id)
 		locked         Can't be deleted if non 0. For special folders.
 		virtual        Type of virtual item. 0 = regular.
                                See libfolder.rs
-		parent_id      The ID of the parent (= folders.id). 0 = top level
+		parent_id      The ID of the parent (= folders.id). 0 = root folder
 		expanded       1 if expanded, 0 if not. Default = 0. Unused for now.
 
 [ version = 12 ]

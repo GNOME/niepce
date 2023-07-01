@@ -74,9 +74,8 @@ pub trait ClientInterface {
     fn process_xmp_update_queue(&self, write_xmp: bool);
 
     /// Import files in place.
-    /// @param dir the directory
     /// @param files the files to import
-    fn import_files(&self, dir: String, files: Vec<PathBuf>);
+    fn import_files(&self, files: Vec<PathBuf>);
 }
 
 /// Sync client interface

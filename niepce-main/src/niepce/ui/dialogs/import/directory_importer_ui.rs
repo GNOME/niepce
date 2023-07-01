@@ -32,6 +32,7 @@ use super::{ImporterUI, SourceSelectedCallback};
 
 enum Event {
     CopyToggled(bool),
+    RecursiveToggled(bool),
     SelectDirectories,
     SetDirectoryName(Option<PathBuf>),
     SourceSelected(String, String),
@@ -78,6 +79,7 @@ impl DirectoryImporterUI {
     fn dispatch(&self, e: Event) {
         match e {
             Event::CopyToggled(t) => self.copy_toggled(t),
+            Event::RecursiveToggled(t) => self.recursive_toggled(t),
             Event::SelectDirectories => self.do_select_directories(),
             Event::SetDirectoryName(name) => {
                 if let Some(directory_name) = &self.widgets.borrow().directory_name {
@@ -132,6 +134,14 @@ impl DirectoryImporterUI {
         }
         self.cfg.set_value("dir_import_copy", &toggle.to_string());
     }
+
+    fn recursive_toggled(&self, toggle: bool) {
+        if let Some(ref mut backend) = Rc::get_mut(&mut self.backend.borrow_mut()) {
+            backend.set_recursive(toggle);
+        }
+        self.cfg
+            .set_value("dir_import_recursive", &toggle.to_string());
+    }
 }
 
 impl ImporterUI for DirectoryImporterUI {
@@ -157,11 +167,18 @@ impl ImporterUI for DirectoryImporterUI {
         ));
         get_widget!(builder, gtk4::Label, directory_name);
         get_widget!(builder, gtk4::CheckButton, copy_files);
+        get_widget!(builder, gtk4::CheckButton, recursive);
         copy_files.connect_toggled(glib::clone!(@strong self.tx as tx =>
             move |check| on_err_out!(tx.send(Event::CopyToggled(check.is_active())));
         ));
         copy_files.set_active(
             bool::from_str(&self.cfg.value("dir_import_copy", "false")).unwrap_or(false),
+        );
+        recursive.connect_toggled(glib::clone!(@strong self.tx as tx =>
+            move |check| on_err_out!(tx.send(Event::RecursiveToggled(check.is_active())));
+        ));
+        recursive.set_active(
+            bool::from_str(&self.cfg.value("dir_import_recursive", "false")).unwrap_or(false),
         );
 
         let mut widgets = self.widgets.borrow_mut();

@@ -34,5 +34,10 @@
         <property name="label">Copy files</property>
       </object>
     </child>
+    <child>
+      <object class="GtkCheckButton" id="recursive">
+        <property name="label">Recursive</property>
+      </object>
+    </child>
   </object>
 </interface>

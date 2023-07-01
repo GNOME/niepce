@@ -99,7 +99,8 @@
 	(7,6,"GtkLabel","label2",5,None,None,None,None,None),
 	(7,7,"GtkLabel","directory_name",5,None,None,None,1,None),
 	(7,8,"GtkButton","select_directories",5,None,None,None,2,None),
-	(7,9,"GtkCheckButton","copy_files",1,None,None,None,1,None)
+	(7,9,"GtkCheckButton","copy_files",1,None,None,None,1,None),
+	(7,10,"GtkCheckButton","recursive",1,None,None,None,2,None)
   </object>
   <object_property>
 	(3,1,"GtkWindow","title","Edit Labels","yes",None,None,None,None,None,None,None,None),
@@ -345,7 +346,8 @@
 	(7,7,"GtkWidget","hexpand","1",None,None,None,None,None,None,None,None,None),
 	(7,8,"GtkButton","label","...","yes",None,None,None,None,None,None,None,None),
 	(7,8,"GtkWidget","focusable","1",None,None,None,None,None,None,None,None,None),
-	(7,9,"GtkCheckButton","label","Copy files",None,None,None,None,None,None,None,None,None)
+	(7,9,"GtkCheckButton","label","Copy files",None,None,None,None,None,None,None,None,None),
+	(7,10,"GtkCheckButton","label","Recursive",None,None,None,None,None,None,None,None,None)
   </object_property>
   <object_layout_property>
 	(3,4,5,"GtkGridLayoutChild","column","1",None,None,None,None),

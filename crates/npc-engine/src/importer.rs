@@ -105,7 +105,7 @@ impl ImportRequest {
 
 type SourceContentReady = Box<dyn Fn(Vec<Box<dyn ImportedFile>>) + Send>;
 type PreviewReady = Box<dyn Fn(String, Option<Thumbnail>, Option<Date>) + Send>;
-type FileImporter = Box<dyn Fn(&Path, &FileList) + Send>;
+type FileImporter = Box<dyn Fn(&FileList) + Send>;
 
 /// Trait for file importers backends.
 pub trait ImportBackend {

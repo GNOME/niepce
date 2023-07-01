@@ -47,6 +47,8 @@ pub use self::libmetadata::LibMetadata;
 pub use self::library::{Error as LibError, Library, Result as LibResult};
 pub use self::props::NiepceProperties;
 pub use self::props::NiepcePropertyIdx;
+#[cfg(test)]
+pub(crate) use library::test as library_test;
 
 pub trait FromDb: Sized {
     /// return the columns for reading from the DB.

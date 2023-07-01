@@ -324,9 +324,8 @@ impl ClientInterface for LibraryClientSender {
     }
 
     /// Import files in place.
-    /// @param dir the directory
-    fn import_files(&self, dir: String, files: Vec<PathBuf>) {
-        self.schedule_op(move |lib| commands::cmd_import_files(lib, &dir, &files));
+    fn import_files(&self, files: Vec<PathBuf>) {
+        self.schedule_op(move |lib| commands::cmd_import_files(lib, &files));
     }
 }
 

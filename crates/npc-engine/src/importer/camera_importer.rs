@@ -199,7 +199,7 @@ impl ImportBackend for CameraImporter {
                                     None
                                 })
                                 .collect();
-                            callback(&dest_dir, &FileList(files));
+                            callback(&FileList(files));
                         }));
                 }
             }

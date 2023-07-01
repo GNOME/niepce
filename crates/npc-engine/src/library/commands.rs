@@ -71,33 +71,63 @@ pub fn cmd_list_all_folders(lib: &Library) -> bool {
     }
 }
 
-//
-// Get the folder for import. Create it if needed otherwise return the one that exists
-//
-fn get_folder_for_import(lib: &Library, folder: &str) -> LibResult<LibFolder> {
-    match lib.get_folder(folder) {
-        Ok(lf) => Ok(lf),
-        Err(LibError::NotFound) => {
-            // folder doesn't exist, we'll create it
-            if let Some(name) = Library::leaf_name_for_pathname(folder) {
-                match lib.add_folder(&name, Some(String::from(folder))) {
-                    Ok(lf) => {
-                        let libfolder = lf.clone();
-                        if lib.notify(LibNotification::AddedFolder(lf)).is_err() {
-                            err_out!("Failed to notify AddedFolder");
-                        }
-                        Ok(libfolder)
-                    }
-                    Err(err) => {
-                        err_out_line!("Add folder failed {:?}", err);
-                        Err(err)
-                    }
-                }
-            } else {
-                err_out_line!("Can't get folder name.");
-                Err(LibError::InvalidResult)
+fn add_folder_and_notify(
+    lib: &Library,
+    parent: LibraryId,
+    name: &str,
+    path: Option<String>,
+) -> LibResult<LibFolder> {
+    match lib.add_folder_into(name, path, parent) {
+        Ok(lf) => {
+            let libfolder = lf.clone();
+            if lib.notify(LibNotification::AddedFolder(lf)).is_err() {
+                err_out!("Failed to notify AddedFolder");
             }
+            Ok(libfolder)
         }
+        Err(err) => {
+            err_out_line!("Add folder failed {:?}", err);
+            Err(err)
+        }
+    }
+}
+
+// Get the folder for import. Create it if needed otherwise return the
+// one that exists.
+//
+fn get_folder_for_import(lib: &Library, folder: &std::path::Path) -> LibResult<LibFolder> {
+    err_out!("get folder for import for '{folder:?}'");
+    let folder_str = folder.to_string_lossy().to_string();
+    match lib.get_folder(&folder_str) {
+        Ok(lf) => Ok(lf),
+        Err(LibError::NotFound) => lib
+            .root_folder_for(&folder_str)
+            .or_else(|err| {
+                if !matches!(err, LibError::NotFound) {
+                    return Err(err);
+                }
+                let mut parent_folder = Default::default();
+                if let Some(parent_folder_name) = folder.parent().and_then(|parent| {
+                    parent_folder = parent.to_string_lossy().to_string();
+                    parent
+                        .file_name()
+                        .and_then(std::ffi::OsStr::to_str)
+                        .or(Some(""))
+                }) {
+                    lib.add_folder(parent_folder_name, parent_folder)
+                } else {
+                    err_out_line!("Could't get parent folder name for '{folder:?}'.");
+                    Err(LibError::InvalidResult)
+                }
+            })
+            .and_then(|lf| {
+                if let Some(name) = folder.file_name().and_then(std::ffi::OsStr::to_str) {
+                    add_folder_and_notify(lib, lf.id(), name, None)
+                } else {
+                    err_out_line!("Couldn't get folder name for '{folder:?}'.");
+                    Err(LibError::InvalidResult)
+                }
+            }),
         Err(err) => {
             err_out_line!("get folder failed: {:?}", err);
             Err(err)
@@ -105,27 +135,38 @@ fn get_folder_for_import(lib: &Library, folder: &str) -> LibResult<LibFolder> {
     }
 }
 
-pub fn cmd_import_files(lib: &Library, folder: &str, files: &[PathBuf]) -> bool {
+/// Import a list of files into the library.
+/// It will build the bundles. If you already have the bundles,
+/// call `cmd_import_bundles`
+pub fn cmd_import_files(lib: &Library, files: &[PathBuf]) -> bool {
     let bundles = FileBundle::filter_bundles(files);
-    match get_folder_for_import(lib, folder) {
-        Ok(libfolder) => {
-            let folder_id = libfolder.id();
-            for bundle in bundles {
+
+    cmd_import_bundles(lib, &bundles)
+}
+
+/// Import a list of bundles into the library.
+pub fn cmd_import_bundles(lib: &Library, bundles: &[FileBundle]) -> bool {
+    for bundle in bundles {
+        match bundle
+            .main()
+            .parent()
+            .ok_or(LibError::InvalidResult)
+            .and_then(|folder| get_folder_for_import(lib, folder))
+        {
+            Ok(libfolder) => {
+                let folder_id = libfolder.id();
                 // XXX properly handle this error. Should be a failure.
-                if let Err(err) = lib.add_bundle(folder_id, &bundle) {
+                if let Err(err) = lib.add_bundle(folder_id, bundle) {
                     err_out!("Add bundle failed: {:?}", err);
                 }
+                if lib.notify(LibNotification::AddedFiles).is_err() {
+                    err_out!("Failed to notify AddedFiles");
+                }
             }
-            if lib.notify(LibNotification::AddedFiles).is_err() {
-                err_out!("Failed to notify AddedFiles");
-            }
-            true
-        }
-        Err(err) => {
-            err_out_line!("Get folder for import {:?}", err);
-            false
+            Err(err) => err_out_line!("Get folder for import {err:?}"),
         }
     }
+    true
 }
 
 pub fn cmd_add_bundle(lib: &Library, bundle: &FileBundle, folder: LibraryId) -> LibraryId {
@@ -144,7 +185,8 @@ pub fn cmd_add_bundle(lib: &Library, bundle: &FileBundle, folder: LibraryId) -> 
 }
 
 pub fn cmd_create_folder(lib: &Library, name: &str, path: Option<String>) -> LibraryId {
-    match lib.add_folder(name, path) {
+    // XXX create folder doesn't allow creating folder inside another.
+    match lib.add_folder_into(name, path, 0) {
         Ok(lf) => {
             let id = lf.id();
             if lib.notify(LibNotification::AddedFolder(lf)).is_err() {
@@ -646,5 +688,35 @@ pub fn cmd_upgrade_library_from(lib: &Library, version: i32) -> bool {
             err_out_line!("upgrade library: {:?}", err);
             false
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use crate::db::library_test;
+
+    use super::get_folder_for_import;
+
+    #[test]
+    fn test_folder_for_import() {
+        let lib = library_test::test_library();
+
+        let folder = get_folder_for_import(&lib, std::path::Path::new("Pictures/2023/20230524"))
+            .expect("Folder for import failed");
+        assert_eq!(folder.name(), "20230524");
+        // This should have a parent we created.
+        assert!(folder.parent() != 0);
+        let id = folder.id();
+
+        let lf = lib.root_folder_for("Pictures/2023/20230524");
+        assert!(lf.is_ok());
+        let lf = lf.unwrap();
+        println!("lf = {lf:?}");
+        assert_eq!(lf.name(), "2023");
+
+        let folder = get_folder_for_import(&lib, std::path::Path::new("Pictures/2023/20230524"))
+            .expect("Folder for import failed");
+        assert_eq!(id, folder.id());
     }
 }

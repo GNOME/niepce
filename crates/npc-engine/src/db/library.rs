@@ -100,7 +100,7 @@ pub struct Library {
 impl Library {
     /// New database library in memory (testing only)
     #[cfg(test)]
-    fn new_in_memory(sender: npc_fwk::toolkit::Sender<LibNotification>) -> Library {
+    pub(crate) fn new_in_memory(sender: npc_fwk::toolkit::Sender<LibNotification>) -> Library {
         let mut lib = Library {
             // maindir: dir,
             dbconn: None,
@@ -259,7 +259,7 @@ impl Library {
     }
 
     #[cfg(test)]
-    fn is_ok(&self) -> bool {
+    pub(crate) fn is_ok(&self) -> bool {
         self.inited
     }
 
@@ -530,11 +530,6 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub(crate) fn leaf_name_for_pathname(pathname: &str) -> Option<String> {
-        let name = Path::new(pathname).file_name()?;
-        Some(String::from(name.to_str()?))
-    }
-
     fn get_content(&self, id: LibraryId, sql_where: &str) -> Result<Vec<LibFile>> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
@@ -558,19 +553,19 @@ impl Library {
 
     /// Add a folder at the root.
     ///
-    /// name: the folder name
-    /// path: An optional path that indicate the physical location
+    /// `name`: the folder name.
+    /// `path`: The path that indicate the physical location.
     ///
-    /// Returns a LibFolder or None in case of error.
-    pub(crate) fn add_folder(&self, name: &str, path: Option<String>) -> Result<LibFolder> {
-        self.add_folder_into(name, path, 0)
+    /// Returns a `Result<LibFolder>`.
+    pub(crate) fn add_folder(&self, name: &str, path: String) -> Result<LibFolder> {
+        self.add_folder_into(name, Some(path), 0)
     }
 
     /// Add folder with name and optional path into parent whose id is `into`.
     /// A value of 0 means root.
     ///
-    /// Returns a LibFolder or None in case of error.
-    fn add_folder_into(
+    /// Returns a `Result<LibFolder>`.
+    pub(crate) fn add_folder_into(
         &self,
         name: &str,
         path: Option<String>,
@@ -675,6 +670,28 @@ impl Library {
             };
         }
         Err(Error::NoSqlDb)
+    }
+
+    /// Find the root folder for `folder`
+    pub(crate) fn root_folder_for(&self, folder: &str) -> Result<LibFolder> {
+        let conn = self.dbconn.as_ref().ok_or(Error::NoSqlDb)?;
+        let folder = std::path::PathBuf::from(folder);
+        let sql = format!(
+            "SELECT {} FROM {} WHERE parent_id = 0 AND path = ?1;",
+            LibFolder::read_db_columns(),
+            LibFolder::read_db_tables()
+        );
+        let mut stmt = conn.prepare(&sql)?;
+        for p in folder.ancestors() {
+            if p.as_os_str().is_empty() {
+                break;
+            }
+            let mut rows = stmt.query(params![&p.to_string_lossy()])?;
+            if let Some(row) = rows.next()? {
+                return LibFolder::read_from(row).map_err(|err| err.into());
+            }
+        }
+        Err(Error::NotFound)
     }
 
     pub(crate) fn get_all_keywords(&self) -> Result<Vec<Keyword>> {
@@ -1395,7 +1412,7 @@ impl Library {
 }
 
 #[cfg(test)]
-mod test {
+pub(crate) mod test {
     use crate::db::filebundle::FileBundle;
     use crate::db::NiepcePropertyIdx as Npi;
     use crate::library::notification::LibNotification;
@@ -1404,13 +1421,11 @@ mod test {
 
     use super::{Error, Library};
 
-    #[test]
-    fn library_works() {
+    /// Create a test library. Call this to create an in memory library.
+    pub(crate) fn test_library() -> Library {
         let (sender, receiver) = async_channel::unbounded();
         let lib = Library::new_in_memory(sender);
-
         assert_eq!(lib.dbfile, None);
-
         let msg = receiver
             .try_recv()
             .expect("Didn't receive LibCreated message");
@@ -1428,6 +1443,12 @@ mod test {
         }
 
         assert!(lib.is_ok());
+        lib
+    }
+
+    #[test]
+    fn library_works() {
+        let lib = test_library();
         let version = lib.check_database_version();
         assert!(version.is_ok());
         assert!(version.ok().unwrap() == super::DB_SCHEMA_VERSION);
@@ -1438,7 +1459,7 @@ mod test {
             Err(Error::NoDbFile)
         ));
 
-        let folder_added = lib.add_folder("foo", Some(String::from("/bar/foo")));
+        let folder_added = lib.add_folder("foo", String::from("/bar/foo"));
         assert!(folder_added.is_ok());
         let folder_added = folder_added.ok().unwrap();
         let parent_id = folder_added.id();
@@ -1533,12 +1554,9 @@ mod test {
     fn file_bundle_import() {
         use npc_fwk::utils::exempi::XmpMeta;
 
-        let (sender, _) = async_channel::unbounded();
-        let lib = Library::new_in_memory(sender);
+        let lib = test_library();
 
-        assert!(lib.is_ok());
-
-        let folder_added = lib.add_folder("foo", Some(String::from("/bar/foo")));
+        let folder_added = lib.add_folder("foo", String::from("/bar/foo"));
         assert!(folder_added.is_ok());
         let folder_added = folder_added.unwrap();
 
@@ -1579,5 +1597,43 @@ mod test {
             xmp_packet.as_str(),
             original_xmp_packet.serialize_inline().as_str()
         );
+    }
+
+    #[test]
+    fn root_folders() {
+        let lib = test_library();
+
+        // Check for a root folder for the folder: it doesn't exist.
+        let lf = lib.root_folder_for("/home/USER/Pictures/20230619");
+        assert!(matches!(lf, Err(Error::NotFound)));
+
+        // Add a root folder.
+        let f = lib.add_folder("Pictures", "/home/USER/Pictures".to_owned());
+        assert!(f.is_ok());
+        let root_id = f.unwrap().id();
+
+        // Check for a root folder for the folder: we just created it.
+        let lf = lib.root_folder_for("/home/USER/Pictures/20230619");
+        assert!(matches!(lf, Ok(_)));
+        let lf = lf.unwrap();
+        // Checking its name and its id.
+        assert_eq!(lf.id(), root_id);
+        assert_eq!(lf.name(), "Pictures");
+
+        // Add a folder into
+        let lf = lib.add_folder_into("20230619", None, root_id);
+        assert!(matches!(lf, Ok(_)));
+        let lf = lf.unwrap();
+        assert_eq!(lf.parent(), root_id);
+        assert_eq!(lf.name(), "20230619");
+        let folder_id = lf.id();
+
+        // Add same folder into
+        let lf = lib.add_folder_into("20230619", None, root_id);
+        assert!(matches!(lf, Ok(_)));
+        let lf = lf.unwrap();
+        assert_eq!(lf.parent(), root_id);
+        assert_eq!(lf.name(), "20230619");
+        assert_eq!(lf.id(), folder_id);
     }
 }

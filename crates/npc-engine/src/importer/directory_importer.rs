@@ -152,12 +152,11 @@ impl ImportBackend for DirectoryImporter {
                             })
                             .collect(),
                     );
-                    callback(&dest_dir, &files);
+                    callback(&files);
                 }));
         } else {
             let files = FileList::files_from_directory(request.source(), |_| true, self.recursive);
-            let source = std::path::PathBuf::from(request.source());
-            callback(&source, &files);
+            callback(&files);
         }
     }
 }
