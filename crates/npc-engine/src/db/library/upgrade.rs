@@ -18,6 +18,7 @@
  */
 
 //! The database schema upgrade
+#![doc = include_str!("../../../../../doc/database_upgrade.md")]
 
 use super::{sql, Error, Library, Result};
 use npc_fwk::dbg_out;
@@ -32,7 +33,8 @@ use npc_fwk::dbg_out;
 /// If `from` is not the current version, it will return `Error::IncorrectDbVersion`.
 ///
 /// `ALTER TABLE` is limited in sqlite and some internal trickery is necessary.
-/// See sqlite documentation https://www.sqlite.org/lang_altertable.html, section 7.
+/// See sqlite documentation <https://www.sqlite.org/lang_altertable.html>,
+/// section 7.
 ///
 pub(crate) fn library_to(library: &Library, from: i32, to: i32) -> Result<()> {
     if from > to {

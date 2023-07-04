@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! The database for the catalog
+#![doc = include_str!("../../../../doc/database.md")]
+
 #[cfg(test)]
 mod schema_test;
 mod sql;
