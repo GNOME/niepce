@@ -1,16 +1,16 @@
 # Swedish translation for niepce.
-# Copyright © 2009-2022 Free Software Foundation, Inc.
+# Copyright © 2009-2023 Free Software Foundation, Inc.
 # This file is distributed under the same license as the niepce package.
 # Daniel Nylander <po@danielnylander.se>, 2009.
 # Josef Andersson <josef.andersson@fripost.org>, 2016.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2018, 2019, 2022.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2018, 2019, 2022, 2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2022-11-25 04:44+0000\n"
-"PO-Revision-Date: 2022-11-12 20:53+0100\n"
+"POT-Creation-Date: 2023-04-10 14:54+0000\n"
+"PO-Revision-Date: 2023-04-11 01:33+0200\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -18,10 +18,9 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.2\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: camerawire/src/cwwindow.cpp:62
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:37
 msgid "Camera"
 msgstr "Kamera"
 
@@ -65,40 +64,44 @@ msgstr "Uppdatera"
 msgid "Hide tools"
 msgstr "Dölj verktyg"
 
-#: data/net.figuiere.Niepce.appdata.xml.in:6 data/net.figuiere.Niepce.desktop.in:3
-msgid "Niepce Digital"
-msgstr "Niepce Digital"
+#: data/org.gnome.Niepce.metainfo.xml.in.in:6
+msgid "Niepce Digital@app-name-suffix@"
+msgstr "Niepce Digital@app-name-suffix@"
 
-#: data/net.figuiere.Niepce.appdata.xml.in:7
+#: data/org.gnome.Niepce.metainfo.xml.in.in:7
 msgid "Advanced Photo Editing"
 msgstr "Avancerad fotoredigering"
 
-#: data/net.figuiere.Niepce.appdata.xml.in:9
+#: data/org.gnome.Niepce.metainfo.xml.in.in:9
 msgid "Niepce Digital is an application used to manage and edit photos."
 msgstr "Niepce Digital är ett program för att hantera och redigera foton."
 
-#: data/net.figuiere.Niepce.appdata.xml.in:12
+#: data/org.gnome.Niepce.metainfo.xml.in.in:12
 msgid "Features:"
 msgstr "Egenskaper:"
 
-#: data/net.figuiere.Niepce.appdata.xml.in:14
+#: data/org.gnome.Niepce.metainfo.xml.in.in:14
 msgid "Photo library management"
 msgstr "Hantering av fotobibliotek"
 
-#: data/net.figuiere.Niepce.appdata.xml.in:15
+#: data/org.gnome.Niepce.metainfo.xml.in.in:15
 msgid "Non destructive image editing"
 msgstr "Förlustfri bildredigering"
 
-#: data/net.figuiere.Niepce.appdata.xml.in:16
+#: data/org.gnome.Niepce.metainfo.xml.in.in:16
 msgid "RAW processing"
 msgstr "RAW-bearbetning"
 
-#: data/net.figuiere.Niepce.desktop.in:4
+#: data/org.gnome.Niepce.desktop.in.in:3
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
+
+#: data/org.gnome.Niepce.desktop.in.in:4
 msgid "Manage and edit your photos"
 msgstr "Hantera och redigera dina foton"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/net.figuiere.Niepce.desktop.in:6
+#: data/org.gnome.Niepce.desktop.in.in:6
 msgid "photo;"
 msgstr "foto;"
 
@@ -122,68 +125,60 @@ msgstr "Import pågår"
 msgid "All done"
 msgstr "Allt klart"
 
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:64
-msgid "Name"
-msgstr "Namn"
-
-#: src/fwk/toolkit/widgets/addinstreemodel.cpp:65
-msgid "Description"
-msgstr "Beskrivning"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:38
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:40
 msgid "Develop"
 msgstr "Framkalla"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:56
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:58
 msgid "Crop"
 msgstr "Beskär"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:60
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
 msgid "Tilt"
 msgstr "Vänd"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:64
 msgid "White balance"
 msgstr "Vitbalans"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:65
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
 msgid "Color temperature"
 msgstr "Färgtemperatur"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:69
 msgid "Tone and colour"
 msgstr "Ton och färg"
 
 #. s->signal_value_changed().connect();
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:71
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
 msgid "Exposure"
 msgstr "Exponering"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
 msgid "Recovery"
 msgstr "Återställning"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
 msgid "Fill Light"
 msgstr "Fyllnadsljus"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
 msgid "Blacks"
 msgstr "Svärta"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
 msgid "Brightness"
 msgstr "Ljusstyrka"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
 msgid "Contrast"
 msgstr "Kontrast"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
 msgid "Saturation"
 msgstr "Mättnad"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
+#: src/niepce/modules/darkroom/toolboxcontroller.cpp:87
 msgid "Vibrance"
 msgstr "Lyster"
 
@@ -220,104 +215,59 @@ msgstr "Etikett _10"
 msgid "<b>Labels</b>"
 msgstr "<b>Etiketter</b>"
 
-#: src/niepce/ui/dialogs/importdialog.ui:11
-msgid "(none)"
-msgstr "(ingen)"
-
-#: src/niepce/ui/dialogs/importdialog.ui:12
-msgid "NONE"
-msgstr "INGEN"
-
-#: src/niepce/ui/dialogs/importdialog.ui:24
-msgid "local"
-msgstr "lokal"
-
-#: src/niepce/ui/dialogs/importdialog.ui:28
-msgid "utc"
-msgstr "utc"
-
-#: src/niepce/ui/dialogs/importdialog.ui:33
+#: src/niepce/ui/dialogs/importdialog.ui:37
 msgid "Import"
 msgstr "Importera"
 
-#: src/niepce/ui/dialogs/importdialog.ui:73
+#: src/niepce/ui/dialogs/importdialog.ui:67
 msgid "_Images to import"
 msgstr "_Bilder att importera"
 
-#: src/niepce/ui/dialogs/importdialog.ui:100
-msgid "Destination _Folder"
-msgstr "Mål_mapp"
-
-#: src/niepce/ui/dialogs/importdialog.ui:131
-msgid "Import _UFRaw"
-msgstr "Importera _UFRaw"
+#: src/niepce/ui/dialogs/importdialog.ui:93
+msgid "Destination _Folder:"
+msgstr "Mål_mapp:"
 
 #: src/niepce/ui/dialogs/importdialog.ui:141
-msgid "Import Raw_Studio"
-msgstr "Importera Raw_Studio"
-
-#: src/niepce/ui/dialogs/importdialog.ui:152
 msgid "_Options"
 msgstr "A_lternativ"
 
-#: src/niepce/ui/dialogs/importdialog.ui:190
+#: src/niepce/ui/dialogs/importdialog.ui:176
 msgid "Presets:"
 msgstr "Förval:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:225
+#: src/niepce/ui/dialogs/importdialog.ui:206
 msgid "You can still change this after importing the pictures."
 msgstr "Du kan fortfarande ändra detta efter bilderna importerats."
 
-#: src/niepce/ui/dialogs/importdialog.ui:236
+#: src/niepce/ui/dialogs/importdialog.ui:223
 msgid "Date:"
 msgstr "Datum:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:264
+#: src/niepce/ui/dialogs/importdialog.ui:250
 msgid "Attributes:"
 msgstr "Attribut:"
 
-#: src/niepce/ui/dialogs/importdialog.ui:276
+#: src/niepce/ui/dialogs/importdialog.ui:264
 msgid "Metadata"
 msgstr "Metadata"
 
-#: src/niepce/ui/dialogs/importdialog.ui:303
+#: src/niepce/ui/dialogs/importdialog.ui:289
 msgid "_Import"
 msgstr "_Importera"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:65
-msgid "No camera found"
-msgstr "Ingen kamera hittades"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.cpp:80
-msgid "Camera import %1%"
-msgstr "Kameraimport %1%"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:20
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:18
 msgid "Available cameras:"
 msgstr "Tillgängliga kameror:"
 
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:29
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:60
+#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:27
 msgid "Select"
 msgstr "Välj"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:33
-msgid "Directory"
-msgstr "Mapp"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:56
-msgid "Import picture folder"
-msgstr "Importera bildmapp"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.cpp:59
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:12
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:15
 msgid "_Directory:"
 msgstr "_Mapp:"
 
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:23
+#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:27
 msgid "..."
 msgstr "…"
 
@@ -346,11 +296,11 @@ msgstr "Använd mörkt gränssnitt"
 msgid "_User Interface"
 msgstr "Användar_gränssnitt"
 
-#: src/niepce/ui/metadatapanecontroller.cpp:57
+#: src/niepce/ui/metadatapanecontroller.cpp:56
 msgid "Image Properties"
 msgstr "Bildegenskaper"
 
-#: src/niepce/ui/niepceapplication.cpp:79
+#: src/niepce/ui/niepceapplication.cpp:70
 msgid ""
 "A digital photo application.\n"
 "\n"
@@ -359,6 +309,45 @@ msgstr ""
 "Ett digitalfotoprogram.\n"
 "\n"
 "Byggflaggor: "
+
+#~ msgid "(none)"
+#~ msgstr "(ingen)"
+
+#~ msgid "NONE"
+#~ msgstr "INGEN"
+
+#~ msgid "local"
+#~ msgstr "lokal"
+
+#~ msgid "utc"
+#~ msgstr "utc"
+
+#~ msgid "Import _UFRaw"
+#~ msgstr "Importera _UFRaw"
+
+#~ msgid "Import Raw_Studio"
+#~ msgstr "Importera Raw_Studio"
+
+#~ msgid "Name"
+#~ msgstr "Namn"
+
+#~ msgid "Description"
+#~ msgstr "Beskrivning"
+
+#~ msgid "No camera found"
+#~ msgstr "Ingen kamera hittades"
+
+#~ msgid "Camera import %1%"
+#~ msgstr "Kameraimport %1%"
+
+#~ msgid "Directory"
+#~ msgstr "Mapp"
+
+#~ msgid "Import picture folder"
+#~ msgstr "Importera bildmapp"
+
+#~ msgid "Cancel"
+#~ msgstr "Avbryt"
 
 #~ msgid "Set Flag"
 #~ msgstr "Märk"
@@ -574,9 +563,6 @@ msgstr ""
 #~ msgid "Open"
 #~ msgstr "Öppna"
 
-#~ msgid "Niepce Digital - "
-#~ msgstr "Niepce Digital - "
-
 #~ msgid "Delete selected folder?"
 #~ msgstr "Ta bort vald mapp?"
 
@@ -649,10 +635,6 @@ msgstr ""
 
 #~ msgid "System"
 #~ msgstr "System"
-
-#, fuzzy
-#~ msgid "Niepce Dark"
-#~ msgstr "Niepce Digital - "
 
 #~ msgid "_Image"
 #~ msgstr "_Bild"
