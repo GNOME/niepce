@@ -1,7 +1,7 @@
 {
     "app-id": "net.figuiere.Niepce.Devel",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "44",
+    "runtime-version": "master",
     "sdk" : "org.gnome.Sdk",
     "sdk-extensions" : [
         "org.freedesktop.Sdk.Extension.llvm16",
@@ -21,6 +21,9 @@
     ],
     "build-options" : {
         "build-args": [
+            "--share=network"
+        ],
+        "test-args": [
             "--share=network"
         ],
         "env": {
