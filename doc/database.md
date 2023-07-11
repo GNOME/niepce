@@ -77,16 +77,16 @@ Folders for the catalog "storage". A folder map to a file system directory.
 
 Table name: `folders`
 
-| Column      | Description                                            |
-|-------------|--------------------------------------------------------|
-| `id`        | Unique ID in the database                              |
-| `path`      | The path of the root folder, NULL otherwise.           |
-| `name`      | The path component.                                    |
-| `vault_id`  | The vault ID (unused) 0 = no vault (= `vaults.id`)     |
-| `locked`    | Can't be deleted if non 0. For special folders.        |
-| `virtual`   | Type of virtual item. 0 = regular. See libfolder.rs    |
-| `parent_id` | The ID of the parent (= `folders.id`). 0 = root folder |
-| `expanded`  | 1 if expanded, 0 if not. Default = 0. Unused for now.  |
+| Column      | Description                                                |
+|-------------|------------------------------------------------------------|
+| `id`        | Unique ID in the database                                  |
+| `path`      | The path of the root folder, NULL otherwise.               |
+| `name`      | The path component.                                        |
+| `vault_id`  | The vault ID (unused) 0 = no vault (= `vaults.id`)         |
+| `locked`    | Can't be deleted if non 0. For special folders.            |
+| `virtual`   | Type of virtual item. See [`libfolder::FolderVirtualType`] |
+| `parent_id` | The ID of the parent (= `folders.id`). 0 = root folder     |
+| `expanded`  | 1 if expanded, 0 if not. Default = 0. Unused for now.      |
 
 [ version = 12 ]
 Folders are unique on (`name`, `parent_id`).
