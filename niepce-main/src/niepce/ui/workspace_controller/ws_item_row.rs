@@ -17,9 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use glib::subclass::prelude::*;
+use std::sync::Once;
 
-use super::{Event, Item};
+use glib::subclass::prelude::*;
+use gtk4::prelude::*;
+
+use super::{Event, Item, TreeItemType};
+
+/// The class to mark a row having no children
+const NOCHILDREN_CSS: &str = "nochildren";
+
+static LOAD_CSS: Once = Once::new();
 
 glib::wrapper! {
     /// This is the row item for the workspace.
@@ -27,6 +35,21 @@ glib::wrapper! {
     pub struct WsItemRow(
         ObjectSubclass<imp::WsItemRow>)
     @extends gtk4::Box, gtk4::Widget;
+}
+
+/// Load the CSS for the item row. Will do it once.
+pub(super) fn load_css() {
+    LOAD_CSS.call_once(|| {
+        if let Some(display) = gdk4::Display::default() {
+            let provider = gtk4::CssProvider::new();
+            provider.load_from_data(include_str!("workspace.css"));
+            gtk4::style_context_add_provider_for_display(
+                &display,
+                &provider,
+                gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
+            );
+        }
+    });
 }
 
 impl WsItemRow {
@@ -39,9 +62,28 @@ impl WsItemRow {
     pub fn bind(&self, item: &Item, tree_list_row: &gtk4::TreeListRow) {
         self.imp().update(item);
         self.imp().expander.set_list_row(Some(tree_list_row));
+        match item.tree_item_type() {
+            // The top levels always have the expander
+            TreeItemType::Folders | TreeItemType::Keywords | TreeItemType::Albums => {
+                self.remove_css_class(NOCHILDREN_CSS)
+            }
+            _ => {
+                if item
+                    .children()
+                    .map(|children| children.n_items())
+                    .unwrap_or(0)
+                    == 0
+                {
+                    self.add_css_class(NOCHILDREN_CSS);
+                } else {
+                    self.remove_css_class(NOCHILDREN_CSS);
+                }
+            }
+        }
     }
 
     pub fn unbind(&self) {
+        self.remove_css_class(NOCHILDREN_CSS);
         self.imp().expander.set_list_row(None);
     }
 }

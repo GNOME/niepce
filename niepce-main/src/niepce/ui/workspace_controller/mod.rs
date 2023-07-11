@@ -338,7 +338,9 @@ impl UiController for WorkspaceController {
                     ws_item_row.unbind();
                 });
                 let librarytree = gtk4::ListView::new(Some(selection_model), Some(factory));
+                librarytree.set_widget_name("workspace");
                 librarytree.set_single_click_activate(false);
+                ws_item_row::load_css();
 
                 let folders_node = WorkspaceController::add_toplevel_item(
                     &treemodel,
