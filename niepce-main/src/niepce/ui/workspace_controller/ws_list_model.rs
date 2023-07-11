@@ -21,7 +21,7 @@ use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 use thiserror::Error;
 
-use super::ws_list_item::Item;
+use super::ws_list_item::{CountUpdate, Item};
 use npc_engine::db;
 
 #[derive(Error, Debug)]
@@ -33,6 +33,11 @@ pub enum Error {
     /// Item wasn't found
     #[error("Not found")]
     NotFound,
+}
+
+pub(super) struct ItemPos {
+    pub model: WorkspaceList,
+    pub pos: u32,
 }
 
 glib::wrapper! {
@@ -125,12 +130,45 @@ impl WorkspaceList {
 
     /// Return the position of item with `id`.
     /// Currently tied to `IndexedMap::index_of` which is slow.
-    pub fn pos_by_id(&self, id: db::LibraryId) -> Option<u32> {
-        self.imp()
-            .items
-            .borrow()
+    pub(super) fn pos_by_id(&self, id: db::LibraryId) -> Option<ItemPos> {
+        let items = self.imp().items.borrow();
+        items
             .index_of(&id)
-            .map(|idx| idx as u32)
+            .map(|idx| ItemPos {
+                model: self.clone(),
+                pos: idx as u32,
+            })
+            .or_else(|| {
+                items.iter().find_map(|(_, item)| {
+                    item.children().and_then(|children| children.pos_by_id(id))
+                })
+            })
+    }
+
+    pub(super) fn set_count_by_id(&self, id: db::LibraryId, count: CountUpdate) {
+        if let Some(item_pos) = self.pos_by_id(id) {
+            if let Some(item) = item_pos
+                .model
+                .item(item_pos.pos)
+                .and_then(|item| item.downcast::<Item>().ok())
+            {
+                item.set_count(count);
+                item_pos.model.items_changed(item_pos.pos, 0, 0);
+            }
+        }
+    }
+
+    pub(super) fn rename_by_id(&self, id: db::LibraryId, name: &str) {
+        if let Some(item_pos) = self.pos_by_id(id) {
+            if let Some(item) = item_pos
+                .model
+                .item(item_pos.pos)
+                .and_then(|item| item.downcast::<Item>().ok())
+            {
+                item.set_label(name);
+                item_pos.model.items_changed(item_pos.pos, 0, 0);
+            }
+        }
     }
 }
 

@@ -25,6 +25,14 @@ use npc_fwk::err_out;
 use super::ws_list_model::WorkspaceList;
 use super::TreeItemType;
 
+/// Count update operation
+pub(super) enum CountUpdate {
+    /// Set absolute value.
+    Set(i32),
+    /// Change value but offset.
+    Change(i32),
+}
+
 glib::wrapper! {
     /// Item in the workspace
     pub struct Item(
@@ -88,8 +96,11 @@ impl Item {
         self.imp().data.borrow().count
     }
 
-    pub fn set_count(&self, count: i32) {
-        self.imp().data.borrow_mut().count = count
+    pub(super) fn set_count(&self, count: CountUpdate) {
+        match count {
+            CountUpdate::Set(count) => self.imp().data.borrow_mut().count = count,
+            CountUpdate::Change(count) => self.imp().data.borrow_mut().count += count,
+        }
     }
 
     pub fn icon(&self) -> gio::Icon {

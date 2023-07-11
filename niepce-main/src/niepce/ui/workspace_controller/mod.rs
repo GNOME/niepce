@@ -42,7 +42,7 @@ use npc_fwk::base::Signal;
 use npc_fwk::toolkit::{self, Controller, ControllerImpl, UiController};
 use npc_fwk::{dbg_out, err_out, on_err_out};
 use ws_item_row::WsItemRow;
-use ws_list_item::Item;
+use ws_list_item::{CountUpdate, Item};
 use ws_list_model::WorkspaceList;
 
 #[derive(Clone, Copy, Debug, Default, FromPrimitive, PartialEq)]
@@ -215,61 +215,30 @@ impl Widgets {
         row.set_expanded(expanded == "true");
     }
 
-    fn find_item_index(
-        &self,
-        tree_item_type: TreeItemType,
-        id: db::LibraryId,
-    ) -> Option<(WorkspaceList, u32)> {
+    /// Get the model for the top level tree item type.
+    fn model_for_tree_item_type(&self, tree_item_type: TreeItemType) -> Option<WorkspaceList> {
         match tree_item_type {
             TreeItemType::Folders => self.folders_node.children(),
             TreeItemType::Keywords => self.keywords_node.children(),
             TreeItemType::Albums => self.albums_node.children(),
             _ => {
-                err_out!("find_item_index: Incorrect node type {:?}", tree_item_type);
+                err_out!("model_for_tree_item_type: Incorrect node type {tree_item_type:?}");
                 None
             }
         }
-        .and_then(|children| children.downcast::<WorkspaceList>().ok())
-        .and_then(|store| store.pos_by_id(id).map(|pos| (store, pos)))
+        .and_then(|model| model.downcast::<WorkspaceList>().ok())
     }
 
-    fn increase_count(&self, tree_item_type: TreeItemType, id: db::LibraryId, count: i32) {
-        if let Some(item_index) = self.find_item_index(tree_item_type, id) {
-            let store = item_index.0;
-            if let Some(item) = store
-                .item(item_index.1)
-                .and_then(|item| item.downcast::<Item>().ok())
-            {
-                item.set_count(count + item.count());
-                store.items_changed(item_index.1, 0, 0);
-            }
-        }
-    }
-
-    fn set_count(&self, tree_item_type: TreeItemType, id: db::LibraryId, count: i32) {
-        if let Some(item_index) = self.find_item_index(tree_item_type, id) {
-            let store = item_index.0;
-            if let Some(item) = store
-                .item(item_index.1)
-                .and_then(|item| item.downcast::<Item>().ok())
-            {
-                item.set_count(count);
-                store.items_changed(item_index.1, 0, 0);
-            }
+    fn set_count(&self, tree_item_type: TreeItemType, id: db::LibraryId, count: CountUpdate) {
+        if let Some(model) = self.model_for_tree_item_type(tree_item_type) {
+            model.set_count_by_id(id, count);
         }
     }
 
     /// Change the label of an item in the list
     fn rename_item(&self, tree_item_type: TreeItemType, id: db::LibraryId, name: &str) {
-        if let Some(item_index) = self.find_item_index(tree_item_type, id) {
-            let store = item_index.0;
-            if let Some(item) = store
-                .item(item_index.1)
-                .and_then(|item| item.downcast::<Item>().ok())
-            {
-                item.set_label(name);
-                store.items_changed(item_index.1, 0, 0);
-            }
+        if let Some(model) = self.model_for_tree_item_type(tree_item_type) {
+            model.rename_by_id(id, name);
         }
     }
 
@@ -1008,7 +977,7 @@ impl WorkspaceController {
                     _ => unreachable!(),
                 };
                 if let Some(widgets) = self.widgets.get() {
-                    widgets.set_count(type_, count.id, count.count as i32);
+                    widgets.set_count(type_, count.id, CountUpdate::Set(count.count as i32));
                 } else {
                     err_out!("No widget");
                 }
@@ -1024,7 +993,7 @@ impl WorkspaceController {
                     _ => unreachable!(),
                 };
                 if let Some(widgets) = self.widgets.get() {
-                    widgets.increase_count(type_, count.id, count.count as i32);
+                    widgets.set_count(type_, count.id, CountUpdate::Change(count.count as i32));
                 }
             }
             LibNotification::AlbumRenamed(id, name) => {
