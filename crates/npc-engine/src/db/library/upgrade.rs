@@ -89,7 +89,7 @@ pub(crate) fn perform_upgrade_12(conn: &rusqlite::Connection, schema_version: i6
          BEGIN \
          UPDATE folders_new SET path = (SELECT f.path FROM folders_new AS f WHERE f.id = folders_new.parent_id) || '/' || name WHERE id = new.id AND parent_id != 0; \
          END; \
-         CREATE TRIGGER folders_update_parent UPDATE OF parent_id ON folders_new \
+         CREATE TRIGGER folders_update_parent AFTER UPDATE OF parent_id ON folders_new \
          BEGIN \
          UPDATE folders_new SET path = (SELECT f.path FROM folders_new AS f WHERE f.id = folders_new.parent_id) || '/' || name WHERE id = NEW.id AND parent_id != 0; \
          END; \

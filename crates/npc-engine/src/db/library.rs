@@ -319,7 +319,7 @@ impl Library {
                  BEGIN \
                  UPDATE folders SET path = (SELECT f.path FROM folders AS f WHERE f.id = folders.parent_id) || '/' || name WHERE id = new.id AND parent_id != 0; \
                  END; \
-                 CREATE TRIGGER folders_update_path UPDATE OF parent_id ON folders \
+                 CREATE TRIGGER folders_update_parent AFTER UPDATE OF parent_id ON folders \
                  BEGIN \
                  UPDATE folders SET path = (SELECT f.path FROM folders AS f WHERE f.id = folders.parent_id) || '/' || name WHERE id = NEW.id AND parent_id != 0; \
                  END;",
@@ -640,7 +640,7 @@ impl Library {
     pub(crate) fn get_all_folders(&self) -> Result<Vec<LibFolder>> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
-                "SELECT {} FROM {}",
+                "SELECT {} FROM {} ORDER BY parent_id",
                 LibFolder::read_db_columns(),
                 LibFolder::read_db_tables()
             );

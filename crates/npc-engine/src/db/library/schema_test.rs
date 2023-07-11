@@ -239,7 +239,7 @@ fn test_upgrade_9_to() {
         let trigger = sql::trigger_sql(&conn, "folders_update_parent").expect("Trigger sql failed");
         assert_eq!(
             trigger,
-            "CREATE TRIGGER folders_update_parent UPDATE OF parent_id ON \"folders\" \
+            "CREATE TRIGGER folders_update_parent AFTER UPDATE OF parent_id ON \"folders\" \
              BEGIN \
              UPDATE \"folders\" SET path = (SELECT f.path FROM \"folders\" AS f WHERE f.id = \"folders\".parent_id) || '/' || name WHERE id = NEW.id AND parent_id != 0; \
              END"
