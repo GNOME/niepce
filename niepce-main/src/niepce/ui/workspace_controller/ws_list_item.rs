@@ -20,7 +20,7 @@
 use glib::subclass::prelude::*;
 
 use npc_engine::db;
-use npc_fwk::dbg_out;
+use npc_fwk::err_out;
 
 use super::ws_list_model::WorkspaceList;
 use super::TreeItemType;
@@ -61,6 +61,20 @@ impl Item {
         item
     }
 
+    /// Replace the values. This is mostly for placeholders
+    pub(super) fn replace_values(&self, icon: &gio::Icon, label: &str, type_: TreeItemType) {
+        let id = self.imp().data.borrow().id;
+        let count = self.imp().data.borrow().count;
+        let new_data = imp::ItemData {
+            icon: icon.clone(),
+            label: label.to_string(),
+            id,
+            type_,
+            count,
+        };
+        self.imp().data.replace(new_data);
+    }
+
     pub(super) fn id(&self) -> db::LibraryId {
         self.imp().data.borrow().id
     }
@@ -91,7 +105,6 @@ impl Item {
     }
 
     pub fn children(&self) -> Option<&WorkspaceList> {
-        dbg_out!("children called");
         self.imp().children.get()
     }
 
@@ -101,6 +114,17 @@ impl Item {
             _ => {}
         }
         Some(self.imp().children.get_or_init(WorkspaceList::new))
+    }
+
+    /// Add item to the children.
+    /// Return its position. If it already exist (same id) repace it.
+    pub fn add_item(&self, item: Item) -> Option<u32> {
+        self.create_children().and_then(|children| {
+            children.append(item).ok().or_else(|| {
+                err_out!("Coudln't add item");
+                None
+            })
+        })
     }
 }
 

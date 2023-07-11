@@ -54,7 +54,9 @@ impl WorkspaceList {
     }
 
     /// Append item. Returns an error if the id is invalid.
-    pub fn append(&self, item: &Item) -> Result<(), Error> {
+    /// Replace the item if it exists. (same id).
+    /// Return the index of the item (pos).
+    pub fn append(&self, item: Item) -> Result<u32, Error> {
         // this scopes the borrow_mut() as items_changed() will call n_items()
         if item.id() == 0 {
             return Err(Error::InvalidId);
@@ -63,47 +65,72 @@ impl WorkspaceList {
         let pos = {
             let mut items = self.imp().items.borrow_mut();
             let mut pos = items.len();
-            if items.push((item.id(), item.clone())).is_some() {
+            let id = item.id();
+            if items.push((id, item)).is_some() {
+                // The item already exist. Get its position.
                 // If the item is not found, then it's a bug.
-                pos = items.index_of(&item.id()).unwrap();
+                pos = items.index_of(&id).unwrap();
                 removed = 1;
             }
 
             pos as u32
         };
         self.items_changed(pos, removed, 1);
-        Ok(())
+        Ok(pos)
     }
 
     /// Remove the item at `position`. Return it if found or an error.
     pub fn remove(&self, position: u32) -> Result<Item, Error> {
-        if let Some(item) = self.imp().items.borrow_mut().remove_at(position as usize) {
+        let r = self
+            .imp()
+            .items
+            .borrow_mut()
+            .remove_at(position as usize)
+            .ok_or(Error::NotFound);
+        if r.is_ok() {
             self.items_changed(position, 1, 0);
-            Ok(item)
-        } else {
-            Err(Error::NotFound)
         }
+
+        r
     }
 
     /// Remove the item with `id`. Return it if found or an error.
-    pub fn remove_by_id(&self, id: &db::LibraryId) -> Result<Item, Error> {
+    pub fn remove_by_id(&self, id: db::LibraryId) -> Result<Item, Error> {
         let items = &self.imp().items;
-        let index = items.borrow().index_of(id).ok_or(Error::NotFound)?;
-        let item = items.borrow_mut().remove_at(index).ok_or(Error::NotFound)?;
-
-        self.items_changed(index as u32, 1, 0);
-        Ok(item)
+        if items.borrow().contains_key(&id) {
+            let index = items.borrow().index_of(&id).ok_or(Error::NotFound)?;
+            self.remove(index as u32)
+        } else {
+            items
+                .borrow()
+                .iter()
+                .find_map(|(_, item)| {
+                    item.children()
+                        .and_then(|children| children.remove_by_id(id).ok())
+                })
+                .ok_or(Error::NotFound)
+        }
     }
 
     /// Get item with `id`
-    pub fn item_by_id(&self, id: &db::LibraryId) -> Option<Item> {
-        self.imp().items.borrow().get(id).cloned()
+    /// Will recurse into the tree.
+    pub fn item_by_id(&self, id: db::LibraryId) -> Option<Item> {
+        let items = self.imp().items.borrow();
+        items.get(&id).cloned().or_else(|| {
+            items
+                .iter()
+                .find_map(|(_, item)| item.children().and_then(|children| children.item_by_id(id)))
+        })
     }
 
     /// Return the position of item with `id`.
     /// Currently tied to `IndexedMap::index_of` which is slow.
-    pub fn pos_by_id(&self, id: &db::LibraryId) -> Option<u32> {
-        self.imp().items.borrow().index_of(id).map(|idx| idx as u32)
+    pub fn pos_by_id(&self, id: db::LibraryId) -> Option<u32> {
+        self.imp()
+            .items
+            .borrow()
+            .index_of(&id)
+            .map(|idx| idx as u32)
     }
 }
 
@@ -175,16 +202,77 @@ mod test {
         assert_eq!(wl.n_items(), 0);
 
         // Adding an item with a 0 id is an error.
-        assert!(wl.append(&Item::new()).is_err());
+        assert!(wl.append(Item::new()).is_err());
         assert_eq!(wl.n_items(), 0);
 
-        let r = wl.append(&Item::with_values(
+        let r = wl.append(Item::with_values(
             &gio::ThemedIcon::new("dialog-error-symbolic").upcast(),
-            "",
+            "Top",
             1,
             TreeItemType::Folder,
         ));
         assert!(r.is_ok());
         assert_eq!(wl.n_items(), 1);
+
+        let item = wl.item_by_id(1);
+        assert!(item.is_some());
+
+        let top_item = item.unwrap();
+        let child = Item::with_values(
+            &gio::ThemedIcon::new("dialog-error-symbolic").upcast(),
+            "Child1",
+            2,
+            TreeItemType::Folder,
+        );
+        top_item.add_item(child);
+        let child = Item::with_values(
+            &gio::ThemedIcon::new("dialog-error-symbolic").upcast(),
+            "Child2",
+            3,
+            TreeItemType::Folder,
+        );
+        let idx3 = top_item.add_item(child);
+        assert!(idx3.is_some());
+
+        // We have 2 children
+        assert_eq!(top_item.children().unwrap().n_items(), 2);
+
+        let item = wl.item_by_id(1);
+        assert!(item.is_some());
+        let item = item.unwrap();
+        assert_eq!(item.label(), "Top");
+        let item = wl.item_by_id(2);
+        assert!(item.is_some());
+        let item = item.unwrap();
+        assert_eq!(item.label(), "Child1");
+        let item = wl.item_by_id(3);
+        assert!(item.is_some());
+        let item = item.unwrap();
+        assert_eq!(item.label(), "Child2");
+
+        let child = Item::with_values(
+            &gio::ThemedIcon::new("dialog-error-symbolic").upcast(),
+            "Child3",
+            3,
+            TreeItemType::Folder,
+        );
+        let r = top_item.add_item(child);
+        assert_eq!(r, idx3);
+        // Item 3 is now "Child3"
+        let item = wl.item_by_id(3);
+        assert!(item.is_some());
+        let item = item.unwrap();
+        assert_eq!(item.label(), "Child3");
+
+        // We still have 2 children
+        assert_eq!(top_item.children().unwrap().n_items(), 2);
+
+        let r = wl.remove_by_id(2);
+        assert!(r.is_ok());
+
+        // We have 1 child
+        assert_eq!(top_item.children().unwrap().n_items(), 1);
+        let item = wl.item_by_id(2);
+        assert!(item.is_none());
     }
 }

@@ -131,6 +131,7 @@ impl Widgets {
             icon,
             folder.name(),
             folder.id(),
+            folder.parent(),
             tree_item_type,
         )
         .map(|pos| {
@@ -148,7 +149,7 @@ impl Widgets {
             .children()
             .and_then(|store| store.downcast::<WorkspaceList>().ok())
         {
-            if let Err(err) = store.remove_by_id(&id) {
+            if let Err(err) = store.remove_by_id(id) {
                 err_out!("Couldn't remove folder item {}: {:?}", id, err);
             }
         }
@@ -165,6 +166,7 @@ impl Widgets {
             icon,
             keyword.keyword(),
             keyword.id(),
+            0, // keyword.parent(),
             TreeItemType::Keyword,
         )
         .is_some()
@@ -185,6 +187,7 @@ impl Widgets {
             icon,
             album.name(),
             album.id(),
+            album.parent(),
             TreeItemType::Album,
         )
         .is_some()
@@ -200,7 +203,7 @@ impl Widgets {
             .children()
             .and_then(|children| children.downcast::<WorkspaceList>().ok())
         {
-            if let Err(err) = store.remove_by_id(&id) {
+            if let Err(err) = store.remove_by_id(id) {
                 err_out!("Couldn't remove album item {}: {:?}", id, err);
             }
         }
@@ -227,7 +230,7 @@ impl Widgets {
             }
         }
         .and_then(|children| children.downcast::<WorkspaceList>().ok())
-        .and_then(|store| store.pos_by_id(&id).map(|pos| (store, pos)))
+        .and_then(|store| store.pos_by_id(id).map(|pos| (store, pos)))
     }
 
     fn increase_count(&self, tree_item_type: TreeItemType, id: db::LibraryId, count: i32) {
@@ -916,34 +919,72 @@ impl WorkspaceController {
         treestore.row(idx)
     }
 
-    /// Add an item as a child of subtree.
+    /// Reparent an item in the subtree. It will be removed and then added
+    /// back.
+    fn reparent_item(
+        subtree: &gtk4::TreeListRow,
+        id: db::LibraryId,
+        parent_id: db::LibraryId,
+    ) -> Option<u32> {
+        dbg_out!("reparent_item");
+        let item = subtree.item().and_downcast::<Item>().expect("not an item");
+        if let Some(this_item) = item
+            .children()
+            .and_then(|children| children.remove_by_id(id).ok())
+        {
+            dbg_out!("found item {id}");
+            if let Some(parent_item) = item
+                .children()
+                .and_then(|children| children.item_by_id(parent_id))
+            {
+                dbg_out!("Found destination parent {parent_id}");
+                return parent_item.add_item(this_item);
+            }
+        }
+        None
+    }
+
+    /// Add an item as a child in the subtree.
+    /// `parent_id` will be sought in the subtree.
     fn add_item(
         subtree: &gtk4::TreeListRow,
         icon: &gio::Icon,
         label: &str,
         id: db::LibraryId,
+        parent_id: db::LibraryId,
         type_: TreeItemType,
     ) -> Option<u32> {
         // XXX probably there is a different way
-        let item = subtree.item().and_downcast::<Item>().expect("not an item");
-        item.create_children().and_then(|children| {
-            dbg_out!(
-                "children created for item {:?} {}",
-                item.tree_item_type(),
-                item.label()
-            );
+        let mut item = subtree.item().and_downcast::<Item>().expect("not an item");
+        if let Some(this_item) = item.children().and_then(|children| children.item_by_id(id)) {
+            // it already exists, we just reparent it.
+            dbg_out!("Found item");
+            this_item.replace_values(icon, label, type_);
+            return Self::reparent_item(subtree, id, parent_id);
+        }
+        if parent_id != 0 {
+            // Let's locate the parent item.
+            if let Some(parent_item) = item
+                .children()
+                .and_then(|children| children.item_by_id(parent_id))
+            {
+                item = parent_item;
+            } else {
+                // if the parent doesn't exist then we'll attach a placeholder
+                // parent and later the item will be reparented.
+                let placeholder = Item::with_values(icon, "Unknown", parent_id, TreeItemType::None);
+                if item.add_item(placeholder.clone()).is_some() {
+                    item = placeholder;
+                }
+            }
+        }
 
-            let idx = children.n_items();
-            dbg_out!("store has {} items", idx);
-            children
-                .append(&Item::with_values(icon, label, id, type_))
-                .ok()
-                .map(|_| idx)
-                .or_else(|| {
-                    err_out!("Coudln't add item {}", label);
-                    None
-                })
-        })
+        dbg_out!(
+            "children created for item {:?} {}",
+            item.tree_item_type(),
+            item.label()
+        );
+        item.add_item(Item::with_values(icon, label, id, type_))
     }
 
     pub fn on_lib_notification(&self, ln: &LibNotification) {

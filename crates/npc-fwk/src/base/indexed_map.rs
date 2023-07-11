@@ -59,6 +59,11 @@ impl<K, V> IndexedMap<K, V> {
         self.index.is_empty()
     }
 
+    /// Get the iterator.
+    pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> {
+        self.map.iter()
+    }
+
     /// Return the index of the `key`.
     /// This is currenly SLOW O(n)
     pub fn index_of<Q: ?Sized>(&self, key: &Q) -> Option<usize>
@@ -67,6 +72,15 @@ impl<K, V> IndexedMap<K, V> {
         Q: std::cmp::Eq + std::hash::Hash,
     {
         self.index.iter().position(|item| item == key)
+    }
+
+    /// Contains the `key`.
+    pub fn contains_key<Q>(&self, key: &Q) -> bool
+    where
+        K: Borrow<Q> + std::cmp::Eq + std::hash::Hash,
+        Q: std::hash::Hash + Eq + ?Sized,
+    {
+        self.map.contains_key(key)
     }
 
     /// Get the value at `key`
