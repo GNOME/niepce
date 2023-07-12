@@ -4,7 +4,7 @@
     "runtime-version" : "44",
     "sdk" : "org.gnome.Sdk",
     "sdk-extensions" : [
-        "org.freedesktop.Sdk.Extension.llvm14",
+        "org.freedesktop.Sdk.Extension.llvm16",
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
     "command" : "niepce",
@@ -288,9 +288,9 @@
             "sources": [
                 {
                     "type": "git",
-                    "url": "https://gitlab.gnome.org/GNOME/libshumate/",
-                    "tag": "1.0.1",
-                    "commit": "062c61815d2875beee19a1c704c473be8fabb3a7"
+                    "url": "https://gitlab.gnome.org/GNOME/libshumate.git",
+                    "tag": "1.0.4",
+                    "commit": "eb1afec539cb3aeae1f2d3f35fd377c51d5ead50"
                 }
             ]
         },
@@ -316,6 +316,9 @@
         },
         {
             "name": "exempi",
+            "config-opts": [
+                "--enable-unittest=no"
+            ],
             "cleanup": [
                 "/bin",
                 "/share/man"
@@ -386,8 +389,8 @@
             "name": "niepce",
 	    "buildsystem": "meson",
             "build-options":{
-                "append-path": "/usr/lib/sdk/llvm14/bin",
-                "prepend-ld-library-path": "/usr/lib/sdk/llvm14/lib"
+                "append-path": "/usr/lib/sdk/llvm16/bin",
+                "prepend-ld-library-path": "/usr/lib/sdk/llvm16/lib"
             },
             "config-opts": [
                 "-Dprofile=release"
