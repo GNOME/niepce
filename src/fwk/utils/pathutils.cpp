@@ -20,22 +20,9 @@
 
 #include <giomm/file.h>
 
-#include "fwk/base/debug.hpp"
 #include "pathutils.hpp"
 
 namespace fwk {
-
-/** return the basename of a path. Example:
-    /foo/bar/baz.txt returns baz.txt
- */
-std::string path_basename(const std::string & path)
-{
-    auto slash_idx = path.find_last_of("/");
-    if(slash_idx == std::string::npos) {
-        return path;
-    }
-    return std::string(path.cbegin() + slash_idx + 1, path.cend());
-}
 
 bool path_exists(const std::string & path)
 {

@@ -1,7 +1,7 @@
 /*
  * niepce - modules/map/mapmodule.cpp
  *
- * Copyright (C) 2014-2022 Hubert Figuière
+ * Copyright (C) 2014-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 #include <gtkmm/box.h>
 
 #include "fwk/base/debug.hpp"
-#include "fwk/utils/exempi.hpp"
 #include "fwk/toolkit/application.hpp"
 #include "mapmodule.hpp"
 

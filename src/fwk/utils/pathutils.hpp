@@ -24,11 +24,6 @@
 
 namespace fwk {
 
-/** return the basename of a path. Example:
-    /foo/bar/baz.txt returns baz.txt
- */
-std::string path_basename(const std::string & path);
-
 bool path_exists(const std::string & path);
 
 }

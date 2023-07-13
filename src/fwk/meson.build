@@ -136,8 +136,6 @@ fwk = static_library(
   'toolkit' / 'widgets' / 'toolboxitemwidget.cpp',
   'utils' / 'databinder.hpp',
   'utils' / 'databinder.cpp',
-  'utils' / 'exempi.hpp',
-  'utils' / 'exempi.cpp',
   'utils' / 'pathutils.hpp',
   'utils' / 'pathutils.cpp',
 

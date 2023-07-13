@@ -31,14 +31,3 @@ testconfigdatabinder = executable(
   link_with: [ gtest, fwk, ncr, niepce_lib, rtengine ]
 )
 test('Test toolkit/configdatabinder', testconfigdatabinder)
-
-# utils
-testpathutils = executable(
-  'testpathutils',
-  '..' / 'src' / 'fwk' / 'utils' / 't' / 'testpathutils.cpp',
-  build_by_default: false,
-  install: false,
-  include_directories: [ gtest_inc, '..' / 'src' / 'fwk' / 'utils' ],
-  link_with: [ gtest, fwk ]
-)
-test('Test utils/pathutils', testpathutils)

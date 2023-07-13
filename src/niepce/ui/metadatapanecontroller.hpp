@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/metadatapanecontroller.h
  *
- * Copyright (C) 2008-2022 Hubert Figuière
+ * Copyright (C) 2008-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 #pragma once
 
 #include "fwk/base/propertybag.hpp"
-#include "fwk/utils/exempi.hpp"
 #include "fwk/toolkit/dockable.hpp"
 
 #include "rust_bindings.hpp"
