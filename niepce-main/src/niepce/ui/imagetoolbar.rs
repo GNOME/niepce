@@ -68,6 +68,6 @@ pub fn image_toolbar_new() -> gtk4::Box {
 pub fn image_toolbar_new_() -> *mut crate::ffi::GtkBox {
     let toolbar = image_toolbar_new();
 
-    let gtkbox: *mut gtk4_sys::GtkBox = toolbar.to_glib_full();
+    let gtkbox: *mut gtk4::ffi::GtkBox = toolbar.to_glib_full();
     gtkbox as *mut crate::ffi::GtkBox
 }

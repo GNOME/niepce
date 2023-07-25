@@ -27,9 +27,10 @@ use std::sync::{Arc, Weak};
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
+use gio;
+use glib;
 use glib::Cast;
-use gtk4::gio;
-use gtk4::glib;
+use glib::ControlFlow;
 use num_derive::FromPrimitive;
 use once_cell::unsync::OnceCell;
 
@@ -260,7 +261,7 @@ impl UiController for WorkspaceController {
             .get_or_init(|| {
                 let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
 
-                let rootstore = gio::ListStore::new(Item::static_type());
+                let rootstore = gio::ListStore::with_type(Item::static_type());
                 let treemodel = gtk4::TreeListModel::new(rootstore, false, true, |item| {
                     Some(item.downcast_ref::<Item>()?.create_children()?.upcast_ref::<gio::ListModel>().clone())
                 });
@@ -443,7 +444,7 @@ impl WorkspaceController {
         cfg: Rc<toolkit::Configuration>,
         client: &LibraryClientWrapper,
     ) -> Rc<WorkspaceController> {
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
         let ctrl = Rc::new(WorkspaceController {
             imp_: RefCell::new(ControllerImpl::default()),
             tx,
@@ -465,7 +466,7 @@ impl WorkspaceController {
             None,
             glib::clone!(@strong ctrl => move |e| {
                 ctrl.dispatch(e);
-                glib::Continue(true)
+                ControlFlow::Continue
             }),
         );
 

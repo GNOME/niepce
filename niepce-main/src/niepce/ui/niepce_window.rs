@@ -24,6 +24,7 @@ use adw::prelude::*;
 use gettextrs::gettext as i18n;
 use gtk4::gio;
 use gtk4::glib::translate::*;
+use gtk4::glib::ControlFlow;
 use once_cell::unsync::OnceCell;
 
 use npc_engine::db;
@@ -196,7 +197,7 @@ impl WindowController for NiepceWindow {
 
 impl NiepceWindow {
     pub fn new(app: &gtk4::Application) -> Rc<NiepceWindow> {
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
 
         let ctrl = Rc::new(NiepceWindow {
             imp_: RefCell::new(ControllerImpl::default()),
@@ -213,7 +214,7 @@ impl NiepceWindow {
             None,
             glib::clone!(@strong ctrl => move |e| {
                 ctrl.dispatch(e);
-                glib::Continue(true)
+                ControlFlow::Continue
             }),
         );
 
@@ -482,7 +483,7 @@ impl NiepceWindow {
         dbg_out!("edit labels");
         if let Some(ref libclient) = *self.libraryclient.borrow() {
             let editlabel_dialog = crate::ffi::edit_labels_new(libclient);
-            let parent: *mut gtk4_sys::GtkWindow = self.window().to_glib_none().0;
+            let parent: *mut gtk4::ffi::GtkWindow = self.window().to_glib_none().0;
             unsafe {
                 editlabel_dialog.run_modal(
                     parent as *mut crate::ffi::GtkWindow,
@@ -503,7 +504,7 @@ pub struct NiepceWindowWrapper(Rc<NiepceWindow>);
 /// # Safety
 /// Dereference a pointer.
 pub unsafe fn niepce_window_new(app: *mut crate::ffi::GtkApplication) -> Box<NiepceWindowWrapper> {
-    let app = app as *mut gtk4_sys::GtkApplication;
+    let app = app as *mut gtk4::ffi::GtkApplication;
     Box::new(NiepceWindowWrapper(NiepceWindow::new(&from_glib_none(app))))
 }
 
@@ -518,20 +519,20 @@ impl NiepceWindowWrapper {
 
     // Return a GtkWidget
     pub fn widget(&self) -> *mut crate::ffi::GtkWidget {
-        let w: *mut gtk4_sys::GtkWidget = self.0.widget().to_glib_none().0;
+        let w: *mut gtk4::ffi::GtkWidget = self.0.widget().to_glib_none().0;
         w as *mut crate::ffi::GtkWidget
     }
 
     // Return a GtkWindow
     pub fn window(&self) -> *mut crate::ffi::GtkWindow {
-        let w: *mut gtk4_sys::GtkWindow = self.0.window().to_glib_none().0;
+        let w: *mut gtk4::ffi::GtkWindow = self.0.window().to_glib_none().0;
         w as *mut crate::ffi::GtkWindow
     }
 
     // Return a GMenu
     pub fn menu(&self) -> *mut crate::ffi::GMenu {
         if let Some(widgets) = self.0.widgets.get() {
-            let m: *mut gio_sys::GMenu = widgets.main_menu.to_glib_none().0;
+            let m: *mut gio::ffi::GMenu = widgets.main_menu.to_glib_none().0;
             m as *mut crate::ffi::GMenu
         } else {
             std::ptr::null_mut()

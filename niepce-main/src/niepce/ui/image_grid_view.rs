@@ -120,7 +120,7 @@ impl ImageGridView {
 
     // cxx
     pub fn get_grid_view(&self) -> *mut crate::ffi::GtkGridView {
-        let grid_view: *mut gtk4_sys::GtkGridView = self.grid_view.to_glib_none().0;
+        let grid_view: *mut gtk4::ffi::GtkGridView = self.grid_view.to_glib_none().0;
         grid_view as *mut crate::ffi::GtkGridView
     }
 }
@@ -138,8 +138,8 @@ pub unsafe fn npc_image_grid_view_new(
     libclient_host: &LibraryClientHost,
 ) -> Box<ImageGridView> {
     Box::new(ImageGridView::new(
-        gtk4::SingleSelection::from_glib_none(store as *mut gtk4_sys::GtkSingleSelection),
-        Option::<gtk4::PopoverMenu>::from_glib_none(context_menu as *mut gtk4_sys::GtkPopoverMenu),
+        gtk4::SingleSelection::from_glib_none(store as *mut gtk4::ffi::GtkSingleSelection),
+        Option::<gtk4::PopoverMenu>::from_glib_none(context_menu as *mut gtk4::ffi::GtkPopoverMenu),
         Some(libclient_host.shared_ui_provider()),
     ))
 }

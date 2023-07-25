@@ -24,6 +24,7 @@ use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
 use glib::translate::*;
+use glib::ControlFlow;
 use gtk4::prelude::*;
 use i18n_format::i18n_fmt;
 
@@ -112,7 +113,7 @@ impl DarkroomModule {
         let toolbox_controller = crate::ffi::toolbox_controller_new();
         let widget: gtk4::Widget = gtk4::Paned::new(gtk4::Orientation::Horizontal).into();
         let engine_combo = gtk4::ComboBoxText::new();
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
 
         let mut module = Self {
             imp_: RefCell::new(ControllerImpl::default()),
@@ -140,7 +141,7 @@ impl DarkroomModule {
             None,
             glib::clone!(@strong module => move |e| {
                 module.dispatch(e);
-                glib::Continue(true)
+                ControlFlow::Continue
             }),
         );
 
@@ -312,7 +313,7 @@ impl DarkroomModule {
         dock.vbox().append(&self.engine_combo);
         let toolbox = unsafe {
             gtk4::Widget::from_glib_none(
-                self.toolbox_controller.pin_mut().build_widget() as *const gtk4_sys::GtkWidget
+                self.toolbox_controller.pin_mut().build_widget() as *const gtk4::ffi::GtkWidget
             )
         };
         dock.vbox().append(&toolbox);

@@ -13,20 +13,16 @@ cairo-rs = "*"
 chrono = "0.4.23"
 cxx = { version = "1.0", features = [ "c++17" ] }
 gdk4 = "*"
-gdk4-sys = "*"
 gdk-pixbuf = "*"
-gdk-pixbuf-sys = "*"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
-gio-sys = "*"
 gio = "*"
 glib = "*"
-graphene-rs = "0.17"
-gtk4-sys = "*"
+graphene-rs = "0.18"
 gtk4 = { version = "*", features = [ "v4_6" ] }
 gtk-macros = "0.3.0"
 i18n-format = "0.2.0"
 lazy_static = "^1.4.0"
-libadwaita = "*"
+libadwaita = { version = "*",  features = [ "v1_2" ] }
 libc = "0.2.39"
 num-derive = "0.3.3"
 num-traits = "0.2.15"

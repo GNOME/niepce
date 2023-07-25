@@ -64,7 +64,7 @@ pub fn main() {
     );
 
     app.connect_activate(|app| {
-        let store = gio::ListStore::new(ImageListItem::static_type());
+        let store = gio::ListStore::with_type(ImageListItem::static_type());
         add_icon(&store);
         add_icon(&store);
         add_icon(&store);
@@ -101,7 +101,7 @@ pub fn main() {
             if let Some(app) = win.application() {
                 app.quit();
             }
-            gtk4::Inhibit(false)
+            glib::Propagation::Proceed
         });
 
         app.add_window(&window);

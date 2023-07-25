@@ -33,6 +33,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use glib::translate::*;
+use glib::ControlFlow;
 use gtk4::prelude::*;
 use gtk_macros::get_widget;
 use num_traits::FromPrimitive;
@@ -115,7 +116,7 @@ pub struct ImportDialog {
 
 impl ImportDialog {
     pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<Self> {
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
 
         let base_dest_dir = cfg
             .value_opt("base_import_dest_dir")
@@ -134,7 +135,7 @@ impl ImportDialog {
             None,
             glib::clone!(@strong dialog => move |e| {
                 dialog.dispatch(e);
-                glib::Continue(true)
+                ControlFlow::Continue
             }),
         );
 
@@ -178,14 +179,14 @@ impl ImportDialog {
                 let mut metadata_pane = ffi::metadata_pane_controller_new();
                 let w = unsafe {
                     gtk4::Widget::from_glib_none(
-                        metadata_pane.pin_mut().build_widget() as *mut gtk4_sys::GtkWidget
+                        metadata_pane.pin_mut().build_widget() as *mut gtk4::ffi::GtkWidget
                     )
                 };
                 // add
                 attributes_scrolled.set_child(Some(&w));
 
                 get_widget!(builder, gtk4::ScrolledWindow, images_list_scrolled);
-                let images_list_model = gio::ListStore::new(ThumbItem::static_type());
+                let images_list_model = gio::ListStore::with_type(ThumbItem::static_type());
                 let selection_model = gtk4::SingleSelection::new(Some(images_list_model.clone()));
                 let image_gridview = crate::ImageGridView::new(selection_model, None, None);
                 let factory = gtk4::SignalListItemFactory::new();

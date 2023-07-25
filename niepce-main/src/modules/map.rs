@@ -60,7 +60,9 @@ impl Default for MapModuleProxy {
     fn default() -> Self {
         let mut module = map_module_new();
         let widget = unsafe {
-            gtk4::Widget::from_glib_none(module.pin_mut().build_widget() as *mut gtk4_sys::GtkWidget)
+            gtk4::Widget::from_glib_none(
+                module.pin_mut().build_widget() as *mut gtk4::ffi::GtkWidget
+            )
         };
         Self {
             imp_: RefCell::new(ControllerImpl::default()),

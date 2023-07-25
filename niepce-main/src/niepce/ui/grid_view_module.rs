@@ -68,7 +68,7 @@ impl GridViewModuleProxy {
         menu: &gio::Menu,
         libclient_host: &LibraryClientHost,
     ) -> Self {
-        let menu: *mut gio_sys::GMenu = menu.to_glib_none().0;
+        let menu: *mut gio::ffi::GMenu = menu.to_glib_none().0;
         let mut module = unsafe {
             // Silence clippy because we borrow the selection controller for the cxx
             // bindings. It'll go away.
@@ -81,11 +81,11 @@ impl GridViewModuleProxy {
         };
         let widget = unsafe {
             gtk4::Widget::from_glib_none(
-                module.pin_mut().build_widget() as *const gtk4_sys::GtkWidget
+                module.pin_mut().build_widget() as *const gtk4::ffi::GtkWidget
             )
         };
         let grid_view = unsafe {
-            gtk4::GridView::from_glib_none(module.image_list() as *const gtk4_sys::GtkGridView)
+            gtk4::GridView::from_glib_none(module.image_list() as *const gtk4::ffi::GtkGridView)
         };
         GridViewModuleProxy {
             imp_: RefCell::new(ControllerImpl::default()),

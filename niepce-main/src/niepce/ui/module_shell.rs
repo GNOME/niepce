@@ -22,7 +22,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
-use glib::Cast;
+use glib::{Cast, ControlFlow};
 use gtk4::prelude::*;
 
 use super::{
@@ -59,7 +59,7 @@ pub struct ModuleShell {
 
 impl ModuleShell {
     pub fn new(client_host: &Rc<LibraryClientHost>) -> Rc<ModuleShell> {
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
         let selection_controller = SelectionController::new(client_host);
         let menu = gio::Menu::new();
         let shell = Rc::new(ModuleShell {
@@ -85,7 +85,7 @@ impl ModuleShell {
             None,
             glib::clone!(@strong shell => move |e| {
                 shell.dispatch(e);
-                glib::Continue(true)
+                ControlFlow::Continue
             }),
         );
 

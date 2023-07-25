@@ -24,6 +24,7 @@ use once_cell::unsync::OnceCell;
 
 use glib::prelude::*;
 use glib::subclass::prelude::*;
+use glib::ControlFlow;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
@@ -168,7 +169,7 @@ impl ThumbNavPriv {
         }
     }
 
-    fn scroll_left(ref_i: &Cell<f64>, adj: &gtk4::Adjustment) -> glib::Continue {
+    fn scroll_left(ref_i: &Cell<f64>, adj: &gtk4::Adjustment) -> glib::ControlFlow {
         let value = adj.value();
         let i = ref_i.get();
 
@@ -176,7 +177,7 @@ impl ThumbNavPriv {
             ref_i.set(0.0);
             adj.emit_by_name::<()>("value-changed", &[]);
 
-            return Continue(false);
+            return ControlFlow::Break;
         }
 
         ref_i.set(i + 1.0);
@@ -184,10 +185,10 @@ impl ThumbNavPriv {
         let move_ = f64::min(SCROLL_MOVE, value);
         adj.set_value(value - move_);
 
-        Continue(true)
+        ControlFlow::Continue
     }
 
-    fn scroll_right(ref_i: &Cell<f64>, adj: &gtk4::Adjustment) -> glib::Continue {
+    fn scroll_right(ref_i: &Cell<f64>, adj: &gtk4::Adjustment) -> glib::ControlFlow {
         let upper = adj.upper();
         let page_size = adj.page_size();
         let value = adj.value();
@@ -195,7 +196,7 @@ impl ThumbNavPriv {
 
         if i == SCROLL_MOVE || value + SCROLL_INC > upper - page_size {
             ref_i.set(0.0);
-            return Continue(false);
+            return ControlFlow::Break;
         }
 
         ref_i.set(i + 1.0);
@@ -203,7 +204,7 @@ impl ThumbNavPriv {
         let move_ = f64::min(SCROLL_MOVE, upper - page_size - value);
         adj.set_value(value + move_);
 
-        Continue(true)
+        ControlFlow::Continue
     }
 
     fn set_show_buttons(&self, show_buttons: bool) {

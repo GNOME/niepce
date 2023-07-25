@@ -26,7 +26,7 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 use gettextrs::gettext as i18n;
-use glib::clone;
+use glib::{clone, ControlFlow};
 use gtk4;
 use gtk4::prelude::*;
 use gtk4::{Assistant, Builder};
@@ -204,7 +204,7 @@ impl ImportLibraryDialog {
         dlg
     }
 
-    fn dispatch(&self, command: Command) -> glib::Continue {
+    fn dispatch(&self, command: Command) -> ControlFlow {
         match command {
             Command::SetFile(p) => self.library_file_set(p),
             Command::SelectFile => self.select_file(),
@@ -251,10 +251,10 @@ impl ImportLibraryDialog {
             }
             Command::Close => {
                 self.cancel();
-                return glib::Continue(false);
+                return ControlFlow::Continue;
             }
         }
-        glib::Continue(true)
+        ControlFlow::Continue
     }
 
     pub fn run(&self, parent: Option<&gtk4::Window>) {

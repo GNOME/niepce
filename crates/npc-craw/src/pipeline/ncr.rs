@@ -70,7 +70,7 @@ impl super::Pipeline for NcrPipeline {
     }
 
     fn set_placeholder(&self, placeholder: gdk_pixbuf::Pixbuf) {
-        let p: *mut gdk_pixbuf_sys::GdkPixbuf = placeholder.to_glib_none().0;
+        let p: *mut gdk_pixbuf::ffi::GdkPixbuf = placeholder.to_glib_none().0;
         unsafe {
             self.0
                 .borrow_mut()

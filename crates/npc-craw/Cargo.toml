@@ -11,10 +11,9 @@ license = "GPL-3.0"
 cairo-rs = "*"
 cxx = { version = "1.0", features = [ "c++17" ] }
 gdk-pixbuf = "*"
-gdk-pixbuf-sys = "*"
 gdk4 = "*"
 glib = "*"
-gtk4 = "^0.6"
+gtk4 = "*"
 
 npc-fwk = { path = "../npc-fwk" }
 npc-engine = { path = "../npc-engine" }

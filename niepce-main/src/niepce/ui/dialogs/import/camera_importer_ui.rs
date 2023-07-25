@@ -21,6 +21,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
+use glib::ControlFlow;
 use gtk4::prelude::*;
 
 use super::{ImporterUI, SourceSelectedCallback};
@@ -49,7 +50,7 @@ pub(super) struct CameraImporterUI {
 
 impl CameraImporterUI {
     pub fn new() -> Rc<CameraImporterUI> {
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
 
         let widget = Rc::new(CameraImporterUI {
             tx,
@@ -62,7 +63,7 @@ impl CameraImporterUI {
             None,
             glib::clone!(@strong widget => move |e| {
                 widget.dispatch(e);
-                glib::Continue(true)
+                ControlFlow::Continue
             }),
         );
 

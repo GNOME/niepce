@@ -117,7 +117,7 @@ impl MetadataWidget {
 
     // cxx
     pub fn gobj(&self) -> *mut crate::ffi::GtkWidget {
-        let gobj: *mut gtk4_sys::GtkWidget = self.upcast_ref::<gtk4::Widget>().to_glib_none().0;
+        let gobj: *mut gtk4::ffi::GtkWidget = self.upcast_ref::<gtk4::Widget>().to_glib_none().0;
         gobj as *mut crate::ffi::GtkWidget
     }
 

@@ -23,6 +23,7 @@ use std::rc::Rc;
 use std::str::FromStr;
 
 use gettextrs::gettext as i18n;
+use glib::ControlFlow;
 use gtk4::prelude::*;
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
@@ -55,7 +56,7 @@ pub(super) struct DirectoryImporterUI {
 
 impl DirectoryImporterUI {
     pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<DirectoryImporterUI> {
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
 
         let widget = Rc::new(DirectoryImporterUI {
             tx,
@@ -69,7 +70,7 @@ impl DirectoryImporterUI {
             None,
             glib::clone!(@strong widget => move |e| {
                 widget.dispatch(e);
-                glib::Continue(true)
+                ControlFlow::Continue
             }),
         );
 

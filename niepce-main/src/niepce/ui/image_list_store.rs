@@ -88,7 +88,7 @@ impl Default for ImageListStore {
 
 impl ImageListStore {
     pub fn new() -> Self {
-        let store = gio::ListStore::new(ImageListItem::static_type());
+        let store = gio::ListStore::with_type(ImageListItem::static_type());
         let model = gtk4::SingleSelection::new(Some(store.clone()));
 
         Self {
@@ -320,7 +320,7 @@ impl ImageListStore {
     // cxx
     /// Return the gobj `GtkSelectionModel`. You must ref it to hold it.
     pub fn gobj(&self) -> *mut crate::ffi::GtkSingleSelection {
-        let w: *mut gtk4_sys::GtkSingleSelection = self.model.to_glib_none().0;
+        let w: *mut gtk4::ffi::GtkSingleSelection = self.model.to_glib_none().0;
         w as *mut crate::ffi::GtkSingleSelection
     }
 }
