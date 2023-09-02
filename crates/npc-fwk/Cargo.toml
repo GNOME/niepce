@@ -18,7 +18,7 @@ glib = "^0.18"
 gdk4 = "^0.7.1"
 gdk-pixbuf = "^0.18"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
-gphoto2 = "3.1.0"
+gphoto2 = "3.2.3"
 graphene-rs = "0.18"
 gtk4 = "^0.7.1"
 image = { version = "0.24.5", features = [ "png" ], default-features = false }

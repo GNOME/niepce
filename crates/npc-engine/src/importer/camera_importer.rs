@@ -104,7 +104,7 @@ impl CameraImporter {
             self.camera
                 .replace(GpDeviceList::instance().device(source).map(GpCamera::new));
         }
-        if let Some(camera) = &*self.camera.borrow() {
+        if let Some(camera) = &mut *self.camera.borrow_mut() {
             camera.open();
             CameraBackend::Gphoto2
         } else {

@@ -87,14 +87,14 @@ impl GpDeviceList {
 
 pub struct GpCamera {
     device: GpDevice,
-    camera: RwLock<Option<gphoto2::Camera>>,
+    camera: Option<gphoto2::Camera>,
 }
 
 impl GpCamera {
     pub fn new(device: GpDevice) -> GpCamera {
         GpCamera {
             device,
-            camera: RwLock::new(None),
+            camera: None,
         }
     }
 
@@ -104,9 +104,9 @@ impl GpCamera {
     }
 
     /// Open the device as per the descriptor.
-    pub fn open(&self) -> bool {
+    pub fn open(&mut self) -> bool {
         dbg_out!("opening camera {}", self.device.port);
-        if self.camera.read().unwrap().is_some() {
+        if self.camera.is_some() {
             self.close();
         }
 
@@ -125,7 +125,7 @@ impl GpCamera {
                         self.try_unmount_camera();
                     }
                 }
-                *self.camera.write().unwrap() = Some(c);
+                self.camera = Some(c);
                 dbg_out!("Camera open and initialized");
                 true
             }
@@ -147,7 +147,7 @@ impl GpCamera {
         folders
             .iter()
             .flat_map(|folder| {
-                if let Some(camera) = self.camera.read().unwrap().as_ref() {
+                if let Some(camera) = self.camera.as_ref() {
                     let task = camera.fs().list_files(folder);
                     dbg_out!("processing folder '{}'", folder);
                     task.wait()
@@ -169,8 +169,6 @@ impl GpCamera {
     /// List the content of the camera (DCIM only).
     pub fn list_content(&self) -> Vec<CameraContent> {
         self.camera
-            .read()
-            .unwrap()
             .as_ref()
             .map(|camera| {
                 let storages = camera.storages().wait();
@@ -270,12 +268,12 @@ impl GpCamera {
         false
     }
 
-    pub fn close(&self) {
-        *self.camera.write().unwrap() = None;
+    pub fn close(&mut self) {
+        self.camera = None;
     }
 
     pub fn get_preview(&self, folder: &str, name: &str) -> Option<crate::Thumbnail> {
-        if let Some(camera) = self.camera.write().unwrap().as_ref() {
+        if let Some(camera) = self.camera.as_ref() {
             let task = camera.fs().download_preview(folder, name);
             let file = task.wait().ok()?;
 
@@ -296,8 +294,6 @@ impl GpCamera {
         let destination = std::path::PathBuf::from(dest);
         dbg_out!("Downloading '{}/{}' into {}", folder, name, &dest);
         self.camera
-            .write()
-            .unwrap()
             .as_ref()
             .and_then(|camera| {
                 camera
