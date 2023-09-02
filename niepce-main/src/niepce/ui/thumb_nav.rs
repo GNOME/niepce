@@ -277,6 +277,7 @@ impl ObjectSubclass for ThumbNavPriv {
     }
 }
 
+#[glib::derived_properties]
 impl ObjectImpl for ThumbNavPriv {
     fn constructed(&self) {
         self.parent_constructed();
@@ -332,18 +333,6 @@ impl ObjectImpl for ThumbNavPriv {
         adj.emit_by_name::<()>("value-changed", &[]);
 
         self.add_thumbview();
-    }
-
-    fn properties() -> &'static [glib::ParamSpec] {
-        Self::derived_properties()
-    }
-
-    fn set_property(&self, id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
-        Self::derived_set_property(self, id, value, pspec);
-    }
-
-    fn property(&self, id: usize, pspec: &glib::ParamSpec) -> glib::Value {
-        Self::derived_property(self, id, pspec)
     }
 }
 

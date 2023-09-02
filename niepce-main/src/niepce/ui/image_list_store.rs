@@ -88,7 +88,7 @@ impl Default for ImageListStore {
 
 impl ImageListStore {
     pub fn new() -> Self {
-        let store = gio::ListStore::with_type(ImageListItem::static_type());
+        let store = gio::ListStore::new::<ImageListItem>();
         let model = gtk4::SingleSelection::new(Some(store.clone()));
 
         Self {

@@ -64,7 +64,7 @@ pub fn main() {
     );
 
     app.connect_activate(|app| {
-        let store = gio::ListStore::with_type(ImageListItem::static_type());
+        let store = gio::ListStore::new::<ImageListItem>();
         add_icon(&store);
         add_icon(&store);
         add_icon(&store);

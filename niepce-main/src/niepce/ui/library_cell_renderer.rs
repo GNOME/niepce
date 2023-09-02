@@ -373,6 +373,7 @@ impl ObjectSubclass for LibraryCellRendererPriv {
     }
 }
 
+#[glib::derived_properties]
 impl ObjectImpl for LibraryCellRendererPriv {
     fn constructed(&self) {
         self.parent_constructed();
@@ -400,10 +401,6 @@ impl ObjectImpl for LibraryCellRendererPriv {
         self.obj().add_controller(drag_source);
     }
 
-    fn properties() -> &'static [glib::ParamSpec] {
-        Self::derived_properties()
-    }
-
     fn signals() -> &'static [Signal] {
         use once_cell::sync::Lazy;
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
@@ -416,14 +413,12 @@ impl ObjectImpl for LibraryCellRendererPriv {
         SIGNALS.as_ref()
     }
 
+    // we want to queue_draw() when the property is changed
+    // XXX do we have a better way?
     fn set_property(&self, id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
         Self::derived_set_property(self, id, value, pspec);
 
         self.obj().queue_draw();
-    }
-
-    fn property(&self, id: usize, pspec: &glib::ParamSpec) -> glib::Value {
-        Self::derived_property(self, id, pspec)
     }
 }
 

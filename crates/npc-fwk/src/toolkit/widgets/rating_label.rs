@@ -86,6 +86,7 @@ impl ObjectSubclass for RatingLabelPriv {
     }
 }
 
+#[glib::derived_properties]
 impl ObjectImpl for RatingLabelPriv {
     fn constructed(&self) {
         self.parent_constructed();
@@ -109,18 +110,12 @@ impl ObjectImpl for RatingLabelPriv {
         SIGNALS.as_ref()
     }
 
-    fn properties() -> &'static [glib::ParamSpec] {
-        Self::derived_properties()
-    }
-
+    // we want to queue_draw() when the property is changed
+    // XXX do we have a better way?
     fn set_property(&self, id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
         Self::derived_set_property(self, id, value, pspec);
 
         self.obj().queue_draw();
-    }
-
-    fn property(&self, id: usize, pspec: &glib::ParamSpec) -> glib::Value {
-        Self::derived_property(self, id, pspec)
     }
 }
 

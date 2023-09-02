@@ -186,7 +186,7 @@ impl ImportDialog {
                 attributes_scrolled.set_child(Some(&w));
 
                 get_widget!(builder, gtk4::ScrolledWindow, images_list_scrolled);
-                let images_list_model = gio::ListStore::with_type(ThumbItem::static_type());
+                let images_list_model = gio::ListStore::new::<ThumbItem>();
                 let selection_model = gtk4::SingleSelection::new(Some(images_list_model.clone()));
                 let image_gridview = crate::ImageGridView::new(selection_model, None, None);
                 let factory = gtk4::SignalListItemFactory::new();

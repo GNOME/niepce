@@ -261,7 +261,7 @@ impl UiController for WorkspaceController {
             .get_or_init(|| {
                 let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
 
-                let rootstore = gio::ListStore::with_type(Item::static_type());
+                let rootstore = gio::ListStore::new::<Item>();
                 let treemodel = gtk4::TreeListModel::new(rootstore, false, true, |item| {
                     Some(item.downcast_ref::<Item>()?.create_children()?.upcast_ref::<gio::ListModel>().clone())
                 });
