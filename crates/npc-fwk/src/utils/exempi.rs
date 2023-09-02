@@ -586,7 +586,7 @@ mod tests {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::empty();
         let value = meta.xmp.get_property(ns, property, &mut flags);
         assert!(value.is_ok());
-        assert_eq!(value.unwrap().to_str(), Some(expected_value));
+        assert_eq!(value.unwrap().to_str(), Ok(expected_value));
     }
 
     fn test_property_array_value(
@@ -599,7 +599,7 @@ mod tests {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::empty();
         let value = meta.xmp.get_array_item(ns, property, idx, &mut flags);
         assert!(value.is_ok());
-        assert_eq!(value.unwrap().to_str(), Some(expected_value));
+        assert_eq!(value.unwrap().to_str(), Ok(expected_value));
     }
 
     #[test]
