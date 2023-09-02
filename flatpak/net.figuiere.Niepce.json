@@ -58,8 +58,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.30/libgphoto2-2.5.30.tar.xz",
-                    "sha256": "4d50e71d771ca78e33f10308e7f15ad00a2268d1b5af4a19cd4c5512a1b62a62"
+                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.31/libgphoto2-2.5.31.tar.xz",
+                    "sha256": "8fc7bf40f979459509b87dd4ff1aae9b6c1c2b4724d37db576081eec15406ace"
                 }
             ]
         },
@@ -340,8 +340,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://libopenraw.freedesktop.org/download/libopenraw-0.3.6.tar.xz",
-                    "sha256": "07c1f92272afdeb5792b62ffd38b171626ba67160febd5620d05b0784f3938ec"
+                    "url": "https://libopenraw.freedesktop.org/download/libopenraw-0.3.7.tar.xz",
+                    "sha256": "0ece41951b2cd91e43f6a8a5c6a894bbc8b5923b4e49a82ebb6d8ce62bded68c"
                 }
             ]
         },
