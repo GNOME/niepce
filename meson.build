@@ -26,7 +26,11 @@ sqlite_deps = dependency('sqlite3')
 exempi_deps = dependency('exempi-2.0', version: '>= 2.4.0')
 libopenraw_deps = dependency('libopenraw-0.3', version: '>= 0.3.0')
 dependency('boost', version: '>= 1.60')
-dependency('babl')
+babl = dependency('babl-0.1', required: false)
+if not babl.found()
+  # at 0.1.100, the pkg-config changed.
+  dependency('babl')
+endif
 gegl_deps = dependency('gegl-0.4')
 gexiv2_deps = dependency('gexiv2')
 gphoto2_deps = dependency('libgphoto2', version: '>= 2.5')
