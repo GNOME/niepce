@@ -3,6 +3,7 @@
 *.bak
 TAGS
 .dirstamp
+.flatpak-builder
 /src/fwk/base/testmoniker
 /src/fwk/base/testgeometry
 /src/fwk/base/testdate
