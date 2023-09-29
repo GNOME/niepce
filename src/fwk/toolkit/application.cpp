@@ -45,6 +45,7 @@ Application::Application(int & argc, char** &argv, const char* app_id,
     m_gtkapp->signal_startup().connect(
         sigc::mem_fun(*this, &Application::on_startup));
     getIconTheme()->add_resource_path("/net/figuiere/Niepce/pixmaps");
+    getIconTheme()->add_resource_path("/net/figuiere/Niepce/icons");
 }
 
 Application::Ptr Application::app()

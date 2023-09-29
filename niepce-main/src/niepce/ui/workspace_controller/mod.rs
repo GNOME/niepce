@@ -455,7 +455,7 @@ impl WorkspaceController {
             selection_changed: Signal::default(),
             client: Arc::downgrade(&client.client()),
             icon_folder: gio::ThemedIcon::new("folder-symbolic").upcast(),
-            icon_trash: gio::ThemedIcon::new("user-trash").upcast(),
+            icon_trash: gio::ThemedIcon::new("user-trash-symbolic").upcast(),
             icon_roll: gio::ThemedIcon::new("emblem-photos").upcast(),
             // icon_project: gio::ThemedIcon::new("file-cabinet-symbolic").upcast(),
             icon_keyword: gio::ThemedIcon::new("tag-symbolic").upcast(),

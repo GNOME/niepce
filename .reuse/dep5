@@ -1,0 +1,13 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: niepce
+Upstream-Contact: Hubert Figuière <hub@figuiere.net>
+Source: https://gitlab.gnome.org/GNOME/niepce
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...
+
+Files: data/icons/tag-symbolic.svg data/icons/open-book-symbolic.svg data/icons/file-cabinet-symbolic.svg
+License: CC0-1.0

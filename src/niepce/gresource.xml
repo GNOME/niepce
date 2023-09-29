@@ -3,9 +3,6 @@
   <gresource prefix="/net/figuiere/Niepce">
     <file alias="/scalable/apps/net.figuiere.Niepce.svg">data/icons/net.figuiere.Niepce.svg</file>
     <file alias="/scalable/apps/net.figuiere.Niepce.Devel.svg">data/icons/net.figuiere.Niepce.Devel.svg</file>
-    <file alias="/pixmaps/file-cabinet-symbolic.svg" preprocess="xml-stripblanks">data/icons/file-cabinet-symbolic.svg</file>
-    <file alias="/pixmaps/tag-symbolic.svg" preprocess="xml-stripblanks">data/icons/tag-symbolic.svg</file>
-    <file alias="/pixmaps/folder-symbolic.svg" preprocess="xml-stripblanks">data/icons/folder-symbolic.svg</file>
     <file alias="/pixmaps/niepce-set-star.png">data/icons/niepce-set-star.png</file>
     <file alias="/pixmaps/niepce-unset-star.png">data/icons/niepce-unset-star.png</file>
     <file alias="/pixmaps/niepce-missing.png">data/icons/niepce-missing.png</file>
@@ -22,7 +19,10 @@
     <file alias="/pixmaps/niepce-unknown-fmt.png">data/icons/niepce-unknown-fmt.png</file>
     <file alias="/pixmaps/niepce-image-generic.png">data/icons/niepce-image-generic.png</file>
     <file alias="/pixmaps/niepce-image-missing.png">data/icons/niepce-image-missing.png</file>
-    <file alias="/icons/open-book-symbolic.svg" preprocess="xml-stripblanks">data/icons/open-book-symbolic.svg</file>
+    <file alias="/icons/scalable/actions/file-cabinet-symbolic.svg" preprocess="xml-stripblanks">data/icons/file-cabinet-symbolic.svg</file>
+    <file alias="/icons/scalable/actions/folder-symbolic.svg" preprocess="xml-stripblanks">data/icons/folder-symbolic.svg</file>
+    <file alias="/icons/scalable/actions/open-book-symbolic.svg" preprocess="xml-stripblanks">data/icons/open-book-symbolic.svg</file>
+    <file alias="/icons/scalable/actions/tag-symbolic.svg" preprocess="xml-stripblanks">data/icons/tag-symbolic.svg</file>
     <file alias="/ui/editlabels.ui">src/niepce/ui/dialogs/editlabels.ui</file>
     <file alias="/ui/importdialog.ui">src/niepce/ui/dialogs/importdialog.ui</file>
     <file alias="/ui/importlibrary.ui">niepce-main/src/niepce/ui/dialogs/importlibrary.ui</file>
