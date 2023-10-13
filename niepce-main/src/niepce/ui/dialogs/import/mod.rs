@@ -192,17 +192,21 @@ impl ImportDialog {
                 let factory = gtk4::SignalListItemFactory::new();
                 image_gridview.set_factory(Some(&factory));
                 factory.connect_setup(move |_, item| {
-                    let child = ThumbItemRow::new();
-                    item.set_child(Some(&child));
+                    if let Some(list_item) = item.downcast_ref::<gtk4::ListItem>() {
+                        let child = ThumbItemRow::new();
+                        list_item.set_child(Some(&child));
+                    }
                 });
                 factory.connect_bind(move |_, item| {
-                    if let Some(row) = item.child().and_downcast::<ThumbItemRow>() {
-                        let thumb_item = item.item().and_downcast::<ThumbItem>().unwrap();
-                        if let Some(ref name) = thumb_item.name() {
-                            row.set_label(name);
-                        }
-                        if let Some(pixbuf) = thumb_item.pixbuf() {
-                            row.set_image(&pixbuf);
+                    if let Some(list_item) = item.downcast_ref::<gtk4::ListItem>() {
+                        if let Some(row) = list_item.child().and_downcast::<ThumbItemRow>() {
+                            let thumb_item = list_item.item().and_downcast::<ThumbItem>().unwrap();
+                            if let Some(ref name) = thumb_item.name() {
+                                row.set_label(name);
+                            }
+                            if let Some(pixbuf) = thumb_item.pixbuf() {
+                                row.set_image(&pixbuf);
+                            }
                         }
                     }
                 });

@@ -20,7 +20,7 @@ gdk-pixbuf = "^0.18"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
 gphoto2 = "3.2.3"
 graphene-rs = "0.18"
-gtk4 = "^0.7.1"
+gtk4 = { version = "^0.7.1", features = [ "gnome_43" ] }
 image = { version = "0.24.5", features = [ "png" ], default-features = false }
 lazy_static = "^1.2.0"
 libadwaita = { version = "^0.5.2", features = [ "v1_2" ] }
