@@ -658,7 +658,7 @@ impl WorkspaceController {
                 dialog.destroy();
             }),
         );
-        dialog.show();
+        dialog.present();
     }
 
     fn action_new_album(&self) {
@@ -702,7 +702,7 @@ impl WorkspaceController {
                 dialog.destroy();
             }),
         );
-        dialog.show();
+        dialog.present();
     }
 
     fn perform_file_import(&self, request: &ImportRequest) {

@@ -126,7 +126,7 @@ impl DirectoryImporterUI {
             dialog.close()
         }));
 
-        dialog.show();
+        dialog.present();
     }
 
     fn copy_toggled(&self, toggle: bool) {

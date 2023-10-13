@@ -264,7 +264,7 @@ impl ImportDialog {
         dialog.set_default_response(gtk4::ResponseType::Close);
         dialog.set_modal(true);
         dialog.connect_response(callback);
-        dialog.show();
+        dialog.present();
     }
 
     pub fn import_request(&self) -> Option<ImportRequest> {

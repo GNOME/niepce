@@ -102,7 +102,7 @@ impl UiController for NiepceWindow {
                 header.pack_end(&menu_btn);
 
                 let button_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-                button_box.style_context().add_class("linked");
+                button_box.add_css_class("linked");
                 let undo_button = gtk4::Button::with_label(&i18n("Undo"));
                 undo_button.set_icon_name("edit-undo-symbolic");
                 undo_button.set_action_name(Some("win.Undo"));
@@ -305,7 +305,7 @@ impl NiepceWindow {
                         dialog.destroy();
                     }),
                 );
-                dialog.show();
+                dialog.present();
             }
             AddedLabel(label) => {
                 if let Some(host) = &*self.libraryclient.borrow() {
@@ -381,7 +381,7 @@ impl NiepceWindow {
                 }
             }),
         );
-        dialog.show();
+        dialog.present();
     }
 
     /// Actually open a catalog

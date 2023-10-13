@@ -62,5 +62,5 @@ pub fn request_name<F: Fn(&str) + 'static>(
         }
         dialog.close();
     }));
-    dialog.show();
+    dialog.present();
 }

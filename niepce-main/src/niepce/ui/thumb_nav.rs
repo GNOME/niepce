@@ -211,13 +211,9 @@ impl ThumbNavPriv {
         self.show_buttons.set(show_buttons);
 
         let widgets = &self.widgets.get().unwrap();
-        if show_buttons && self.mode.get() == ThumbNavMode::OneRow {
-            widgets.button_left.show();
-            widgets.button_right.show();
-        } else {
-            widgets.button_left.hide();
-            widgets.button_right.hide();
-        }
+        let visible = show_buttons && self.mode.get() == ThumbNavMode::OneRow;
+        widgets.button_left.set_visible(visible);
+        widgets.button_right.set_visible(visible);
     }
 
     fn set_mode(&self, mode: ThumbNavMode) {
@@ -244,8 +240,8 @@ impl ThumbNavPriv {
                         .sw
                         .set_policy(gtk4::PolicyType::Never, gtk4::PolicyType::Always);
 
-                    widgets.button_left.hide();
-                    widgets.button_right.hide();
+                    widgets.button_left.set_visible(false);
+                    widgets.button_right.set_visible(false);
                 }
             }
             _ => {}
