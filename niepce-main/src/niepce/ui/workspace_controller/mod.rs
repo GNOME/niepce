@@ -730,14 +730,11 @@ impl WorkspaceController {
         let parent = self.widget().root().and_downcast::<gtk4::Window>();
         import_dialog.run_modal(
             parent.as_ref(),
-            glib::clone!(@weak import_dialog, @strong self.tx as tx => move |dialog, response| {
-                dbg_out!("import dialog response: {}", response);
+            glib::clone!(@weak import_dialog, @strong self.tx as tx => move |dialog| {
                 let request = import_dialog.import_request();
                 dialog.close();
                 if let Some(request) = request {
-                    if response == 0 {
-                        on_err_out!(tx.send(Event::PerformImport(request)));
-                    }
+                    on_err_out!(tx.send(Event::PerformImport(request)));
                 }
             }),
         );

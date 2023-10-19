@@ -58,7 +58,7 @@ enum Event {
 }
 
 struct Widgets {
-    dialog: gtk4::Dialog,
+    dialog: adw::Window,
     import_source_combo: gtk4::ComboBoxText,
     importer_ui_stack: gtk4::Stack,
     destination_folder: gtk4::Entry,
@@ -154,14 +154,25 @@ impl ImportDialog {
         }
     }
 
-    fn setup_widget(&self) -> &gtk4::Dialog {
+    fn setup_widget<F>(&self, callback: F) -> &adw::Window
+    where
+        F: Fn(&adw::Window) + 'static,
+    {
         &self
             .widgets
             .get_or_init(|| {
                 let builder =
                     gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/importdialog.ui");
-                get_widget!(builder, gtk4::Dialog, import_dialog);
+                get_widget!(builder, adw::Window, import_dialog);
                 // get_widget!(builder, gtk4::ComboBox, date_tz_combo);
+                get_widget!(builder, gtk4::Button, cancel_button);
+                cancel_button.connect_clicked(
+                    glib::clone!(@strong import_dialog => move |_| import_dialog.close()),
+                );
+                get_widget!(builder, gtk4::Button, import_button);
+                import_button.connect_clicked(
+                    glib::clone!(@strong import_dialog => move |_| callback(&import_dialog)),
+                );
                 get_widget!(builder, gtk4::Entry, destination_folder);
                 get_widget!(builder, gtk4::Stack, importer_ui_stack);
                 get_widget!(builder, gtk4::ComboBoxText, import_source_combo);
@@ -257,13 +268,11 @@ impl ImportDialog {
 
     pub fn run_modal<F>(&self, parent: Option<&gtk4::Window>, callback: F)
     where
-        F: Fn(&gtk4::Dialog, gtk4::ResponseType) + 'static,
+        F: Fn(&adw::Window) + 'static,
     {
-        let dialog = self.setup_widget();
+        let dialog = self.setup_widget(callback);
         dialog.set_transient_for(parent);
-        dialog.set_default_response(gtk4::ResponseType::Close);
         dialog.set_modal(true);
-        dialog.connect_response(callback);
         dialog.present();
     }
 

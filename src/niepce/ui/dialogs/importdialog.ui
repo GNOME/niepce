@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.12.1 -->
+<!-- Created with Cambalache 0.16.0 -->
 <interface>
   <!-- interface-name importdialog.ui -->
-  <requires lib="gtk" version="4.0"/>
+  <requires lib="gtk" version="4.8"/>
+  <requires lib="libadwaita" version="1.2"/>
   <object class="GtkListStore" id="preset_combo_model">
     <columns>
       <column type="gchararray"/>
@@ -31,14 +32,44 @@
       </row>
     </data>
   </object>
-  <object class="GtkDialog" id="import_dialog">
-    <property name="default-height">700</property>
-    <property name="default-width">900</property>
-    <property name="title" translatable="yes">Import</property>
-    <child internal-child="content_area">
-      <object class="GtkBox" id="dialog-vbox1">
+  <object class="AdwWindow" id="import_dialog">
+    <property name="accessible-role">dialog</property>
+    <property name="content">
+      <object class="GtkBox">
         <property name="orientation">vertical</property>
-        <property name="spacing">6</property>
+        <child>
+          <object class="GtkHeaderBar">
+            <property name="show-title-buttons">False</property>
+            <property name="title-widget">
+              <object class="GtkLabel">
+                <property name="label">Import</property>
+              </object>
+            </property>
+            <child type="end">
+              <object class="GtkButton" id="import_button">
+                <property name="css-classes">suggested-action</property>
+                <property name="focusable">1</property>
+                <property name="label" translatable="yes">_Import</property>
+                <property name="margin-bottom">3</property>
+                <property name="margin-end">3</property>
+                <property name="margin-start">3</property>
+                <property name="margin-top">3</property>
+                <property name="receives-default">1</property>
+                <property name="use-underline">1</property>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton" id="cancel_button">
+                <property name="focusable">1</property>
+                <property name="label">Cancel</property>
+                <property name="margin-bottom">3</property>
+                <property name="margin-end">3</property>
+                <property name="margin-start">3</property>
+                <property name="margin-top">3</property>
+              </object>
+            </child>
+          </object>
+        </child>
         <child>
           <object class="GtkBox" id="box1">
             <property name="margin-bottom">12</property>
@@ -176,6 +207,7 @@
                                 <property name="label" translatable="yes">Presets:</property>
                                 <property name="margin-start">6</property>
                                 <property name="margin-top">6</property>
+                                <property name="mnemonic-widget">preset_combo</property>
                                 <attributes>
                                   <attribute name="weight" value="bold"/>
                                 </attributes>
@@ -223,6 +255,7 @@
                                 <property name="label" translatable="yes">Date:</property>
                                 <property name="margin-start">6</property>
                                 <property name="margin-top">6</property>
+                                <property name="mnemonic-widget">date_tz_combo</property>
                                 <attributes>
                                   <attribute name="weight" value="bold"/>
                                 </attributes>
@@ -271,31 +304,6 @@
           </object>
         </child>
       </object>
-    </child>
-    <child internal-child="action_area">
-      <object class="GtkBox" id="dialog-action_area2">
-        <property name="can-focus">False</property>
-        <property name="visible">True</property>
-        <child>
-          <object class="GtkButton" id="button3">
-            <property name="focusable">1</property>
-            <property name="label">Cancel</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="button4">
-            <property name="css-classes">suggested-action</property>
-            <property name="focusable">1</property>
-            <property name="label" translatable="yes">_Import</property>
-            <property name="receives-default">1</property>
-            <property name="use-underline">1</property>
-          </object>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="1">button3</action-widget>
-      <action-widget response="0">button4</action-widget>
-    </action-widgets>
+    </property>
   </object>
 </interface>
