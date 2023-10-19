@@ -67,7 +67,7 @@ struct ShellWidgets {
     _workspace: Rc<WorkspaceController>,
     shell: Rc<ModuleShell>,
     _filmstrip: Rc<FilmStripController>,
-    _statusbar: gtk4::Statusbar,
+    _statusbar: gtk4::Label,
 }
 
 struct NiepceWindow {
@@ -459,14 +459,14 @@ impl NiepceWindow {
         vbox.append(hbox);
         vbox.append(filmstrip.widget());
 
-        let statusbar = gtk4::Statusbar::new();
+        let statusbar = gtk4::Label::new(Some(&i18n("Ready")));
+        statusbar.set_xalign(0.0);
         vbox.append(&statusbar);
 
         filmstrip.grid_view().connect_activate(glib::clone!(
         @weak module_shell.selection_controller.handler as handler => move |_, pos| {
             handler.activated(pos)
         }));
-        statusbar.push(0, &i18n("Ready"));
 
         // `ShellWidget` isn't `Debug` so we can't unwrap.
         let _ = self.shell_widgets.set(ShellWidgets {
