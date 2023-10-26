@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use adw::prelude::*;
 use gettextrs::gettext as i18n;
-use gtk4::prelude::*;
-use gtk4::{Dialog, Entry, Label};
+use gtk4::{Entry, Label};
 
 /// Request a name. On Ok call `action`
 ///
@@ -33,19 +33,18 @@ pub fn request_name<F: Fn(&str) + 'static>(
     value: Option<&str>,
     action: F,
 ) {
-    let dialog = Dialog::with_buttons(
-        Some(title),
-        parent,
-        gtk4::DialogFlags::MODAL,
-        &[
-            (&i18n("OK"), gtk4::ResponseType::Ok),
-            (&i18n("Cancel"), gtk4::ResponseType::Cancel),
-        ],
-    );
+    let dialog = adw::Window::new();
     let label = Label::with_mnemonic(label);
-    let content_area = dialog.content_area();
-    content_area.set_spacing(12);
+    let content_area = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
+    dialog.set_content(Some(&content_area));
+
+    let header_bar = gtk4::HeaderBar::new();
+    let title = Label::with_mnemonic(title);
+    header_bar.set_show_title_buttons(false);
+    header_bar.set_title_widget(Some(&title));
+    content_area.append(&header_bar);
     content_area.append(&label);
+
     let entry = Entry::new();
     if let Some(value) = value {
         entry.set_text(value);
@@ -53,14 +52,25 @@ pub fn request_name<F: Fn(&str) + 'static>(
     entry.add_mnemonic_label(&label);
     content_area.append(&entry);
 
-    dialog.set_modal(true);
-
-    dialog.connect_response(glib::clone!(@strong entry => move |dialog, response| {
-        let name = entry.text();
-        if response == gtk4::ResponseType::Ok {
-            action(&name);
-        }
+    let button_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+    content_area.append(&button_box);
+    let cancel_button = gtk4::Button::with_label(&i18n("Cancel"));
+    button_box.append(&cancel_button);
+    cancel_button.connect_clicked(glib::clone!(@strong dialog => move |_| {
         dialog.close();
     }));
+
+    let ok_button = gtk4::Button::with_label(&i18n("OK"));
+    button_box.append(&ok_button);
+    ok_button.connect_clicked(glib::clone!(@strong entry, @strong dialog => move |_| {
+        let name = entry.text();
+        action(&name);
+
+        dialog.close();
+    }));
+
+    dialog.set_transient_for(parent);
+    dialog.set_modal(true);
+
     dialog.present();
 }
