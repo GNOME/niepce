@@ -2,7 +2,7 @@
 name = "npc-engine"
 version = "0.1.0"
 authors = ["Hubert Figuière <hub@figuiere.net>"]
-edition = "2018"
+edition = "2021"
 description = "The Niepce engine. Internal crate."
 license = "GPL-3.0"
 

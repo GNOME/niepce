@@ -1617,7 +1617,7 @@ pub(crate) mod test {
 
         // Check for a root folder for the folder: we just created it.
         let lf = lib.root_folder_for("/home/USER/Pictures/20230619");
-        assert!(matches!(lf, Ok(_)));
+        assert!(lf.is_ok());
         let lf = lf.unwrap();
         // Checking its name and its id.
         assert_eq!(lf.id(), root_id);
@@ -1625,7 +1625,7 @@ pub(crate) mod test {
 
         // Add a folder into
         let lf = lib.add_folder_into("20230619", None, root_id);
-        assert!(matches!(lf, Ok(_)));
+        assert!(lf.is_ok());
         let lf = lf.unwrap();
         assert_eq!(lf.parent(), root_id);
         assert_eq!(lf.name(), "20230619");
@@ -1633,7 +1633,7 @@ pub(crate) mod test {
 
         // Add same folder into
         let lf = lib.add_folder_into("20230619", None, root_id);
-        assert!(matches!(lf, Ok(_)));
+        assert!(lf.is_ok());
         let lf = lf.unwrap();
         assert_eq!(lf.parent(), root_id);
         assert_eq!(lf.name(), "20230619");
