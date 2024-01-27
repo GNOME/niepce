@@ -1,7 +1,7 @@
 /*
  * niepce - npc-craw/lib.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -82,7 +82,7 @@ mod ffi {
         fn set_output_scale(self: Pin<&mut ImagePipeline>, scale: f64);
         fn to_buffer(self: Pin<&mut ImagePipeline>, buffer: &mut [u8]) -> bool;
 
-        fn reload(self: Pin<&mut ImagePipeline>, path: &CxxString, is_raw: bool, orientation: i32);
+        fn reload(self: Pin<&mut ImagePipeline>, path: &CxxString, is_raw: bool, orientation: u32);
         #[cxx_name = "reload_pixbuf_"]
         /// # Safety
         /// Derefence pointers.

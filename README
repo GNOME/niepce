@@ -39,7 +39,6 @@ To build you need the following:
 - libadwaita >= 1.2.0
 - boost 1.60
 - exempi >= 2.6.0
-- libopenraw >= 0.3.0
 - gegl >= 0.4.0
 - babl
 - libgphoto2

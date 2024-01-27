@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/gdk_utils.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ use std::path::Path;
 
 use gdk_pixbuf::prelude::*;
 use libopenraw as or;
-use libopenraw::DataType;
+use libopenraw::{Bitmap, DataType};
 
 /// Scale the pixbuf to fit in a square of %dim pixels
 pub fn gdkpixbuf_scale_to_fit(
@@ -47,7 +47,7 @@ pub fn gdkpixbuf_scale_to_fit(
 /// Rotate the pixbuf according to the Exif orientation value
 pub fn gdkpixbuf_exif_rotate(
     pix: Option<&gdk_pixbuf::Pixbuf>,
-    orientation: i32,
+    orientation: u32,
 ) -> Option<gdk_pixbuf::Pixbuf> {
     match orientation {
         0 | 1 => pix.cloned(),
@@ -68,13 +68,14 @@ pub fn gdkpixbuf_exif_rotate(
     }
 }
 
-fn thumbnail_to_pixbuf(thumbnail: &or::Thumbnail, orientation: i32) -> Option<gdk_pixbuf::Pixbuf> {
-    let format = thumbnail.get_format();
-    let buf = thumbnail.get_data().ok()?;
+fn thumbnail_to_pixbuf(thumbnail: &or::Thumbnail, orientation: u32) -> Option<gdk_pixbuf::Pixbuf> {
+    let format = thumbnail.data_type();
+    let buf = thumbnail.data8()?;
 
     let pixbuf = match format {
-        DataType::Pixmap8Rgb => {
-            let (x, y) = thumbnail.get_dimensions();
+        DataType::PixmapRgb8 => {
+            let x = thumbnail.width();
+            let y = thumbnail.height();
 
             let bytes = glib::Bytes::from(buf);
             Some(gdk_pixbuf::Pixbuf::from_bytes(
@@ -87,7 +88,7 @@ fn thumbnail_to_pixbuf(thumbnail: &or::Thumbnail, orientation: i32) -> Option<gd
                 x as i32 * 3,
             ))
         }
-        DataType::Jpeg | DataType::Tiff | DataType::Png => {
+        DataType::Jpeg => {
             let loader = gdk_pixbuf::PixbufLoader::new();
 
             if let Err(err) = loader.write(buf) {
@@ -110,11 +111,11 @@ pub fn openraw_extract_rotated_thumbnail<P: AsRef<Path>>(
     path: P,
     dim: u32,
 ) -> Option<gdk_pixbuf::Pixbuf> {
-    let mut orientation: i32 = 0;
-    or::RawFile::from_file(path, or::RawFileType::Unknown)
+    let mut orientation: u32 = 0;
+    or::rawfile_from_file(path, None)
         .and_then(|r| {
-            orientation = r.get_orientation();
-            r.get_thumbnail(dim)
+            orientation = r.orientation();
+            r.thumbnail(dim)
         })
         .map_err(|err| {
             err_out!("or_get_extract_thumbnail() failed with {:?}.", err);

@@ -1,7 +1,7 @@
 /*
  * niepce - npc_craw/pipeline/rt.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ impl super::Pipeline for RtPipeline {
     }
 
     // Rt doesn't care about orientation.
-    fn reload(&self, path: &str, is_raw: bool, _: i32) {
+    fn reload(&self, path: &str, is_raw: bool, _: u32) {
         on_err_out!(self.0.set_file(path, is_raw));
     }
 

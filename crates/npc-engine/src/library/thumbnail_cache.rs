@@ -1,7 +1,7 @@
 /*
  * niepce - library/thumbnail_cache.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

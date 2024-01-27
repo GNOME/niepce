@@ -1,7 +1,7 @@
 /*
  * niepce - npc_craw/pipeline/ncr.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ impl super::Pipeline for NcrPipeline {
         }
     }
 
-    fn reload(&self, path: &str, is_raw: bool, orientation: i32) {
+    fn reload(&self, path: &str, is_raw: bool, orientation: u32) {
         cxx::let_cxx_string!(p = path);
         self.0
             .borrow_mut()

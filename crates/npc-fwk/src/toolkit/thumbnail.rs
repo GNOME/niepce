@@ -105,7 +105,7 @@ impl Thumbnail {
         path: P,
         w: u32,
         h: u32,
-        orientation: i32,
+        orientation: u32,
     ) -> Option<Self> {
         let filename = path.as_ref();
         let mime_type = MimeType::new(filename);

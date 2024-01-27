@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/exempi.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -213,9 +213,9 @@ impl XmpMeta {
                 .map(|ext| {
                     // Note: the extension should be ASCII. We should be safe here.
                     // libopenraw extensions are lowercase.
-                    libopenraw::file_extensions()
+                    libopenraw::extensions()
                         .iter()
-                        .any(|e| e == &ext.to_ascii_lowercase())
+                        .any(|e| OsStr::new(e) == ext.to_ascii_lowercase())
                 })
                 .unwrap_or(false);
             meta = if is_raw {

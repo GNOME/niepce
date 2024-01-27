@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/mimetype.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,8 +56,8 @@ fn guess_type(gmtype: &str) -> MType {
 pub fn guess_type_for_file<P: AsRef<Path>>(p: P) -> MType {
     let path = p.as_ref();
     if let Some(ext) = path.extension().map(|e| e.to_ascii_lowercase()) {
-        let extensions = libopenraw::file_extensions();
-        if extensions.iter().any(|e| e == &ext) {
+        let extensions = libopenraw::extensions();
+        if extensions.iter().any(|e| std::ffi::OsStr::new(e) == ext) {
             return MType::Image(IsRaw::Yes);
         }
         match ext.to_str() {

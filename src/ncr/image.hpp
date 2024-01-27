@@ -1,7 +1,7 @@
 /*
  * niepce - ncr/image.h
  *
- * Copyright (C) 2008-2023 Hubert Figuière
+ * Copyright (C) 2008-2024 Hubert Figuière
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory>
 
 #include <gdkmm/pixbuf.h>
@@ -56,7 +57,7 @@ public:
     int get_output_height() const;
 
     void reload(const std::string & p, bool is_raw,
-                int orientation);
+                uint32_t orientation);
 
     void reload_pixbuf(const Glib::RefPtr<Gdk::Pixbuf> & p);
     void reload_pixbuf_(GdkPixbuf *p) {

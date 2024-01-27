@@ -23,7 +23,7 @@ testconfigdatabinder = executable(
   build_by_default: false,
   install: false,
   dependencies: [
-    cxx_headers, gtkmm_deps, exempi_deps, libopenraw_deps, gexiv2_deps, niepce_rust_deps,
+    cxx_headers, gtkmm_deps, exempi_deps, gexiv2_deps, niepce_rust_deps,
     # For rtengine
     png16_deps, tiff_deps, jpeg_deps, expat_deps, fftw3f, zlib_deps
   ],

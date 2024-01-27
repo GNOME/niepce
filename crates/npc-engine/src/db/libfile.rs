@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/libfile.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ pub struct LibFile {
     folder_id: LibraryId,
     name: String,
     main_file: FsFile,
-    orientation: i32,
+    orientation: u32,
     rating: i32,
     label: i32,
     flag: i32,
@@ -156,10 +156,10 @@ impl LibFile {
         self.main_file.path()
     }
 
-    pub fn orientation(&self) -> i32 {
+    pub fn orientation(&self) -> u32 {
         self.orientation
     }
-    pub fn set_orientation(&mut self, o: i32) {
+    pub fn set_orientation(&mut self, o: u32) {
         self.orientation = o;
     }
 
@@ -194,7 +194,7 @@ impl LibFile {
 
     pub fn property(&self, idx: Np) -> i32 {
         match idx {
-            Np::Index(Npi::NpTiffOrientationProp) => self.orientation(),
+            Np::Index(Npi::NpTiffOrientationProp) => self.orientation() as i32,
             Np::Index(Npi::NpXmpRatingProp) => self.rating(),
             Np::Index(Npi::NpXmpLabelProp) => self.label(),
             Np::Index(Npi::NpNiepceFlagProp) => self.flag(),
@@ -204,7 +204,7 @@ impl LibFile {
 
     pub fn set_property(&mut self, idx: Np, value: i32) {
         match idx {
-            Np::Index(Npi::NpTiffOrientationProp) => self.set_orientation(value),
+            Np::Index(Npi::NpTiffOrientationProp) => self.set_orientation(value as u32),
             Np::Index(Npi::NpXmpRatingProp) => self.set_rating(value),
             Np::Index(Npi::NpXmpLabelProp) => self.set_label(value),
             Np::Index(Npi::NpNiepceFlagProp) => self.set_flag(value),

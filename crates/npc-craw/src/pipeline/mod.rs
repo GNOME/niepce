@@ -1,7 +1,7 @@
 /*
  * niepce - npc_craw/pipeline/mod.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ pub(crate) trait Pipeline {
     fn output_width(&self) -> u32;
     fn output_height(&self) -> u32;
     fn rendered_image(&self) -> Option<ImageBitmap>;
-    fn reload(&self, path: &str, is_raw: bool, orientation: i32);
+    fn reload(&self, path: &str, is_raw: bool, orientation: u32);
     /// Set a placeholder to display.
     fn set_placeholder(&self, placeholder: gdk_pixbuf::Pixbuf);
 }

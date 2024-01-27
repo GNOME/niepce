@@ -1,7 +1,7 @@
 /*
  * niepce - ncr/image.cpp
  *
- * Copyright (C) 2008-2023 Hubert Figuiere
+ * Copyright (C) 2008-2024 Hubert Figuière
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,11 +27,8 @@ extern "C" {
 
 #include <gdkmm/memorytexture.h>
 
-#include <libopenraw/libopenraw.h>
-
 #include "fwk/base/debug.hpp"
 #include "fwk/utils/pathutils.hpp"
-#include "ncr.hpp"
 #include "image.hpp"
 
 namespace ncr {
@@ -67,7 +64,7 @@ struct Image::Private {
      * @param node the node for the loaded image
      * @param orientation the exif orientation.
      */
-    void reload_node(GeglNode* node, int orientation);
+    void reload_node(GeglNode* node, uint32_t orientation);
 
     Image& m_self;
     Status m_status;
@@ -84,10 +81,9 @@ struct Image::Private {
     GeglNode*   m_sink;
     GeglBuffer* m_sink_buffer;
 
-    GeglNode* _rotate_node(int orientation);
+    GeglNode* _rotate_node(uint32_t orientation);
     GeglNode* _scale_node();
     GeglNode* _load_dcraw(const std::string &path);
-    GeglNode* _load_raw(const std::string &path);
 
     Glib::RefPtr<Gdk::Pixbuf> m_pixbuf_cache;
 };
@@ -102,7 +98,7 @@ Image::~Image()
     delete priv;
 }
 
-GeglNode* Image::Private::_rotate_node(int orientation)
+GeglNode* Image::Private::_rotate_node(uint32_t orientation)
 {
 //    GeglNode* rotateNode = gegl_node_new_child(m_graph, nullptr, nullptr);
 
@@ -175,55 +171,6 @@ GeglNode* Image::Private::_load_dcraw(const std::string &p)
                                "path", p.c_str(), nullptr);
 }
 
-/** create the RAW pipeline */
-GeglNode* Image::Private::_load_raw(const std::string &p)
-{
-    GeglNode* rgb = nullptr;
-
-    ORRawDataRef rawdata;
-    or_get_extract_rawdata(p.c_str(), 0, &rawdata);
-    GeglBuffer* buffer = ncr::load_rawdata(rawdata);
-    // @todo can return a nullptr buffer if load failed. Deal with that.
-    GeglNode* load_file = gegl_node_new_child(m_graph,
-                                              "operation", "gegl:buffer-source",
-                                              "buffer", buffer, nullptr);
-    or_cfa_pattern pattern_type = or_rawdata_get_cfa_pattern_type(rawdata);
-    or_rawdata_release(rawdata);
-
-    GeglNode* stretch =
-        gegl_node_new_child(m_graph,
-                            "operation", "gegl:stretch-contrast",
-                            nullptr);
-    GeglNode* demosaic =
-        gegl_node_new_child(m_graph,
-                            "operation", "gegl:demosaic-bimedian",
-                            nullptr);
-    // @todo refactor somewhere.
-    int npattern = 0;
-    switch(pattern_type) {
-    case OR_CFA_PATTERN_GRBG:
-        npattern = 0;
-        break;
-    case OR_CFA_PATTERN_BGGR:
-        npattern = 1;
-        break;
-    case OR_CFA_PATTERN_GBRG:
-        npattern = 2;
-        break;
-    case OR_CFA_PATTERN_RGGB:
-        npattern = 3;
-        break;
-    default:
-        break;
-    }
-    gegl_node_set(demosaic, "pattern", npattern, nullptr);
-
-    gegl_node_link_many(load_file, stretch, demosaic, nullptr);
-
-    rgb = demosaic;
-    return rgb;
-}
-
 GeglNode* Image::Private::_scale_node()
 {
     auto scale = 1.0;
@@ -257,7 +204,7 @@ void Image::reload_pixbuf(const Glib::RefPtr<Gdk::Pixbuf> & p)
 }
 
 void Image::reload(const std::string & p, bool is_raw,
-    int orientation)
+    uint32_t orientation)
 {
     priv->prepare_reload();
 
@@ -277,7 +224,7 @@ void Image::reload(const std::string & p, bool is_raw,
     priv->reload_node(load_file, orientation);
 }
 
-void Image::Private::reload_node(GeglNode* node, int orientation)
+void Image::Private::reload_node(GeglNode* node, uint32_t orientation)
 {
     int width, height;
     width = height = 0;
