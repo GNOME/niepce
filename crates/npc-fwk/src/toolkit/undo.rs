@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/undo.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -215,7 +215,7 @@ impl UndoHistory {
             .borrow()
             .back()
             .map(|t| t.name.to_string())
-            .unwrap_or_else(String::default)
+            .unwrap_or_default()
     }
 
     /// The name of the next undo operation
@@ -224,7 +224,7 @@ impl UndoHistory {
             .borrow()
             .back()
             .map(|t| t.name.to_string())
-            .unwrap_or_else(String::default)
+            .unwrap_or_default()
     }
 
     /// Perform the undo operation
