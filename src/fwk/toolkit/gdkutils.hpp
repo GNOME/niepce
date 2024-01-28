@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/gdkutils.hpp
  *
- * Copyright (C) 2008-2022 Hubert Figuière
+ * Copyright (C) 2008-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,22 +19,11 @@
 
 #pragma once
 
-#include <gdkmm/pixbuf.h>
 #include <gdkmm/rgba.h>
 
 #include "rust_bindings.hpp"
 
 namespace fwk {
-
-	/** scale the pixbuf to fit in the square
-	 * @param dim the dimension of the square
-	 */
-	Glib::RefPtr<Gdk::Pixbuf> gdkpixbuf_scale_to_fit(const Glib::RefPtr<Gdk::Pixbuf> & pix,
-													 int dim);
-	/** Rotate a pixbuf following the Exif rotation (may mirror too) */
-	Glib::RefPtr<Gdk::Pixbuf> gdkpixbuf_exif_rotate(const Glib::RefPtr<Gdk::Pixbuf> & pixbuf,
-													int exif_orientation);
-
   Gdk::RGBA rgbcolour_to_gdkcolor(const fwk::RgbColour& colour);
   fwk::RgbColourPtr gdkcolor_to_rgbcolour(const Gdk::RGBA & colour);
 }
