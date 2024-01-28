@@ -1,7 +1,7 @@
 /*
  * niepce - examples/widget-test.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,9 +42,8 @@ fn add_icon(store: &gio::ListStore) {
     let index = num % ICON_NAMES.len();
     let texture = gdk4::Texture::from_resource(ICON_NAMES[index]);
     let item = ImageListItem::new(
-        Some(texture.clone().upcast::<gdk4::Paintable>()),
-        None,
         Some(texture.upcast::<gdk4::Paintable>()),
+        None,
         FileStatus::Ok,
     );
     store.append(&item);

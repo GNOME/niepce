@@ -29,9 +29,6 @@ struct ImageListItemData {
     pub thumbnail: Option<gdk4::Paintable>,
     /// The corresponding file.
     pub file: Option<LibFile>,
-    /// The film strip thumbnail.
-    // XXX do we need this?
-    pub strip_thumbnail: Option<gdk4::Paintable>,
     /// The file status.
     pub file_status: FileStatus,
 }
@@ -46,7 +43,6 @@ impl ImageListItem {
     pub fn new(
         thumbnail: Option<gdk4::Paintable>,
         file: Option<LibFile>,
-        strip_thumbnail: Option<gdk4::Paintable>,
         file_status: FileStatus,
     ) -> Self {
         let obj: Self = glib::Object::new();
@@ -55,7 +51,6 @@ impl ImageListItem {
         obj.imp().data.replace(ImageListItemData {
             thumbnail,
             file,
-            strip_thumbnail,
             file_status,
         });
         obj
@@ -94,10 +89,6 @@ impl ImageListItem {
 
     pub fn set_status(&self, status: FileStatus) {
         self.imp().data.borrow_mut().file_status = status;
-    }
-
-    pub fn set_strip_thumbnail(&self, strip_thumbnail: Option<gdk4::Paintable>) {
-        self.imp().data.borrow_mut().strip_thumbnail = strip_thumbnail;
     }
 }
 

@@ -34,7 +34,6 @@ use npc_engine::db::LibraryId;
 use npc_engine::library::notification::{LibNotification, MetadataChange};
 use npc_engine::library::thumbnail_cache::ThumbnailCache;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};
-use npc_fwk::toolkit::gdk_utils;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_out, err_out};
 
@@ -157,11 +156,9 @@ impl ImageListStore {
 
     fn add_libfile(&self, f: &LibFile) {
         let icon = self.get_loading_icon().clone();
-        let thumb_icon = icon.clone();
         let iter = self.add_row(
             Some(icon.upcast()),
             f.clone(),
-            Some(thumb_icon.upcast()),
             FileStatus::Ok,
         );
         self.idmap.borrow_mut().insert(f.id(), iter);
@@ -276,18 +273,15 @@ impl ImageListStore {
         &self,
         thumbnail: Option<gdk4::Paintable>,
         file: LibFile,
-        strip_thumbnail: Option<gdk4::Paintable>,
         file_status: FileStatus,
     ) -> u32 {
-        let item = ImageListItem::new(thumbnail, Some(file), strip_thumbnail, file_status);
+        let item = ImageListItem::new(thumbnail, Some(file), file_status);
         self.store.append(&item);
         self.store.n_items() - 1
     }
 
     pub fn set_thumbnail(&self, id: LibraryId, thumb: &gdk_pixbuf::Pixbuf) {
         if let Some(pos) = self.idmap.borrow().get(&id) {
-            let strip_thumb = gdk_utils::gdkpixbuf_scale_to_fit(Some(thumb), 100)
-                .map(|pix| gdk4::Texture::for_pixbuf(&pix));
             let thumb = gdk4::Texture::for_pixbuf(thumb);
 
             if let Some(item) = self.store.item(*pos).and_downcast_ref::<ImageListItem>() {
@@ -299,7 +293,6 @@ impl ImageListStore {
                 // properties.
                 let new_item = item.deep_clone();
                 new_item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
-                new_item.set_strip_thumbnail(strip_thumb.map(|t| t.upcast::<gdk4::Paintable>()));
                 self.store.splice(*pos, 1, &[new_item]);
             }
         }
