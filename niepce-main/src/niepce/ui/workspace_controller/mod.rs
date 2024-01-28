@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/mod.rs
  *
- * Copyright (C) 2021-2023 Hubert Figuière
+ * Copyright (C) 2021-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -456,7 +456,7 @@ impl WorkspaceController {
             client: Arc::downgrade(&client.client()),
             icon_folder: gio::ThemedIcon::new("folder-symbolic").upcast(),
             icon_trash: gio::ThemedIcon::new("user-trash-symbolic").upcast(),
-            icon_roll: gio::ThemedIcon::new("emblem-photos").upcast(),
+            icon_roll: gio::ThemedIcon::new("image-round-symbolic").upcast(),
             // icon_project: gio::ThemedIcon::new("file-cabinet-symbolic").upcast(),
             icon_keyword: gio::ThemedIcon::new("tag-symbolic").upcast(),
             icon_album: gio::ThemedIcon::new("open-book-symbolic").upcast(),

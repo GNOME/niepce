@@ -21,6 +21,11 @@
     <file alias="/pixmaps/niepce-image-missing.png">data/icons/niepce-image-missing.png</file>
     <file alias="/icons/scalable/actions/file-cabinet-symbolic.svg" preprocess="xml-stripblanks">data/icons/file-cabinet-symbolic.svg</file>
     <file alias="/icons/scalable/actions/folder-symbolic.svg" preprocess="xml-stripblanks">data/icons/folder-symbolic.svg</file>
+    <file alias="/icons/scalable/actions/image-round-symbolic.svg" preprocess="xml-stripblanks">data/icons/image-round-symbolic.svg</file>
+    <file alias="/icons/scalable/actions/object-rotate-left-symbolic.svg" preprocess="xml-stripblanks">data/icons/object-rotate-left-symbolic.svg</file>
+    <file alias="/icons/scalable/actions/object-rotate-right-symbolic.svg" preprocess="xml-stripblanks">data/icons/object-rotate-right-symbolic.svg</file>
+    <file alias="/icons/scalable/actions/edit-undo-symbolic.svg" preprocess="xml-stripblanks">data/icons/edit-undo-symbolic.svg</file>
+    <file alias="/icons/scalable/actions/edit-redo-symbolic.svg" preprocess="xml-stripblanks">data/icons/edit-redo-symbolic.svg</file>
     <file alias="/icons/scalable/actions/open-book-symbolic.svg" preprocess="xml-stripblanks">data/icons/open-book-symbolic.svg</file>
     <file alias="/icons/scalable/actions/tag-symbolic.svg" preprocess="xml-stripblanks">data/icons/tag-symbolic.svg</file>
     <file alias="/ui/editlabels.ui">src/niepce/ui/dialogs/editlabels.ui</file>

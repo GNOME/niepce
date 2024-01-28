@@ -9,5 +9,10 @@ Source: https://gitlab.gnome.org/GNOME/niepce
 # Copyright: $YEAR $NAME <$CONTACT>
 # License: ...
 
-Files: data/icons/tag-symbolic.svg data/icons/open-book-symbolic.svg data/icons/file-cabinet-symbolic.svg
+# These come from Icon Library
+Files: data/icons/tag-symbolic.svg data/icons/open-book-symbolic.svg data/icons/file-cabinet-symbolic.svg data/icons/image-round-symbolic.svg
 License: CC0-1.0
+
+# These come from Adwaita icon theme
+Files: data/icons/edit-redo-symbolic.svg data/icons/edit-undo-symbolic.svg data/icons/object-rotate-left-symbolic.svg data/icons/object-rotate-right-symbolic.svg
+License: CC-BY-SA-3.0
