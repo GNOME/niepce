@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_list_store.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -291,9 +291,16 @@ impl ImageListStore {
             let thumb = gdk4::Texture::for_pixbuf(thumb);
 
             if let Some(item) = self.store.item(*pos).and_downcast_ref::<ImageListItem>() {
-                item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
-                item.set_strip_thumbnail(strip_thumb.map(|t| t.upcast::<gdk4::Paintable>()));
-                self.store.items_changed(*pos, 0, 0);
+                // XXX deep_clone() is to create a new GObject
+                // and then have the list model react.
+                // In Gtk4.10 items_changed() was enough
+                // but in 4.12 no longer. A new GObject works.
+                // This is possibly suboptimal. The other solution is implementing
+                // properties.
+                let new_item = item.deep_clone();
+                new_item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
+                new_item.set_strip_thumbnail(strip_thumb.map(|t| t.upcast::<gdk4::Paintable>()));
+                self.store.splice(*pos, 1, &[new_item]);
             }
         }
     }
@@ -304,10 +311,12 @@ impl ImageListStore {
                 assert!(file.id() == change.id);
                 let meta = change.meta;
                 if let PropertyValue::Int(value) = change.value {
+                    // XXX same as in set_thumbnail
+                    let new_item = item.deep_clone();
                     // XXX can we make this less suboptimal
                     file.set_property(meta, value);
-                    item.set_file(Some(file));
-                    self.store.items_changed(pos, 1, 1);
+                    new_item.set_file(Some(file));
+                    self.store.splice(pos, 1, &[new_item]);
                 } else {
                     err_out!("Wrong property type");
                 }

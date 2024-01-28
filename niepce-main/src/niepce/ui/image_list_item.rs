@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_list_item.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ use gdk4::subclass::prelude::*;
 
 use npc_engine::db::libfile::{FileStatus, LibFile};
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct ImageListItemData {
     /// The thumbnail to display.
     pub thumbnail: Option<gdk4::Paintable>,
@@ -58,6 +58,16 @@ impl ImageListItem {
             strip_thumbnail,
             file_status,
         });
+        obj
+    }
+
+    /// Deep clone, as glib::Object::clone() just clone a ref
+    ///
+    /// XXX maybe given the use case this should be a take_new()
+    /// with RefCell::take().
+    pub fn deep_clone(&self) -> Self {
+        let obj: Self = glib::Object::new();
+        obj.imp().data.replace(self.imp().data.borrow().clone());
         obj
     }
 
