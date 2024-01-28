@@ -17,21 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 
 use gdk4::subclass::prelude::*;
+use glib::prelude::*;
+use glib::Properties;
 
 use npc_engine::db::libfile::{FileStatus, LibFile};
-
-#[derive(Default, Clone)]
-struct ImageListItemData {
-    /// The thumbnail to display.
-    pub thumbnail: Option<gdk4::Paintable>,
-    /// The corresponding file.
-    pub file: Option<LibFile>,
-    /// The file status.
-    pub file_status: FileStatus,
-}
 
 glib::wrapper! {
     /// The is the list item as stored in the `gio::ListModel`.
@@ -45,56 +37,26 @@ impl ImageListItem {
         file: Option<LibFile>,
         file_status: FileStatus,
     ) -> Self {
-        let obj: Self = glib::Object::new();
-
-        // This is suboptimal
-        obj.imp().data.replace(ImageListItemData {
-            thumbnail,
-            file,
-            file_status,
-        });
-        obj
-    }
-
-    /// Deep clone, as glib::Object::clone() just clone a ref
-    ///
-    /// XXX maybe given the use case this should be a take_new()
-    /// with RefCell::take().
-    pub fn deep_clone(&self) -> Self {
-        let obj: Self = glib::Object::new();
-        obj.imp().data.replace(self.imp().data.borrow().clone());
-        obj
-    }
-
-    pub fn thumbnail(&self) -> Option<gdk4::Paintable> {
-        self.imp().data.borrow().thumbnail.clone()
-    }
-
-    pub fn set_thumbnail(&self, thumbnail: Option<gdk4::Paintable>) {
-        self.imp().data.borrow_mut().thumbnail = thumbnail;
-    }
-
-    pub fn file(&self) -> Option<LibFile> {
-        // We unwrap here. It's an error to be None.
-        self.imp().data.borrow().file.clone()
-    }
-
-    pub fn set_file(&self, file: Option<LibFile>) {
-        self.imp().data.borrow_mut().file = file;
-    }
-
-    pub fn status(&self) -> FileStatus {
-        self.imp().data.borrow().file_status
-    }
-
-    pub fn set_status(&self, status: FileStatus) {
-        self.imp().data.borrow_mut().file_status = status;
+        glib::Object::builder()
+            .property("thumbnail", thumbnail)
+            .property("file", file)
+            .property("file-status", file_status)
+            .build()
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Properties)]
+#[properties(wrapper_type = ImageListItem)]
 pub struct ImageListItemPriv {
-    data: RefCell<ImageListItemData>,
+    /// The thumbnail to display.
+    #[property(get, set, nullable)]
+    pub thumbnail: RefCell<Option<gdk4::Paintable>>,
+    /// The corresponding file.
+    #[property(get, set, nullable)]
+    pub file: RefCell<Option<LibFile>>,
+    /// The file status.
+    #[property(get, set, name = "file-status", builder(FileStatus::default()))]
+    pub file_status: Cell<FileStatus>,
 }
 
 #[glib::object_subclass]
@@ -104,4 +66,5 @@ impl ObjectSubclass for ImageListItemPriv {
     type ParentType = glib::Object;
 }
 
+#[glib::derived_properties]
 impl ObjectImpl for ImageListItemPriv {}

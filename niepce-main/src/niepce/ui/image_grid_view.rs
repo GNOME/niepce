@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_grid_view.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,9 +64,18 @@ impl ImageGridView {
             let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
             let image_item = item.item().and_downcast::<ImageListItem>().unwrap();
             let renderer = item.child().and_downcast::<LibraryCellRenderer>().unwrap();
-            renderer.set_property("pixbuf", image_item.thumbnail());
-            renderer.set_property("libfile", image_item.file());
-            renderer.set_property("status", image_item.status());
+            image_item
+                .bind_property("thumbnail", &renderer, "pixbuf")
+                .sync_create()
+                .build();
+            image_item
+                .bind_property("file", &renderer, "libfile")
+                .sync_create()
+                .build();
+            image_item
+                .bind_property("file_status", &renderer, "status")
+                .sync_create()
+                .build();
         });
 
         // Context menu

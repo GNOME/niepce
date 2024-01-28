@@ -156,11 +156,7 @@ impl ImageListStore {
 
     fn add_libfile(&self, f: &LibFile) {
         let icon = self.get_loading_icon().clone();
-        let iter = self.add_row(
-            Some(icon.upcast()),
-            f.clone(),
-            FileStatus::Ok,
-        );
+        let iter = self.add_row(Some(icon.upcast()), f.clone(), FileStatus::Ok);
         self.idmap.borrow_mut().insert(f.id(), iter);
     }
 
@@ -226,7 +222,7 @@ impl ImageListStore {
             FileStatusChanged(ref status) => {
                 if let Some(pos) = self.idmap.borrow().get(&status.id) {
                     if let Some(item) = self.store.item(*pos).and_downcast::<ImageListItem>() {
-                        item.set_status(status.status);
+                        item.set_file_status(status.status);
                     }
                 }
                 true
@@ -285,15 +281,7 @@ impl ImageListStore {
             let thumb = gdk4::Texture::for_pixbuf(thumb);
 
             if let Some(item) = self.store.item(*pos).and_downcast_ref::<ImageListItem>() {
-                // XXX deep_clone() is to create a new GObject
-                // and then have the list model react.
-                // In Gtk4.10 items_changed() was enough
-                // but in 4.12 no longer. A new GObject works.
-                // This is possibly suboptimal. The other solution is implementing
-                // properties.
-                let new_item = item.deep_clone();
-                new_item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
-                self.store.splice(*pos, 1, &[new_item]);
+                item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
             }
         }
     }
@@ -304,12 +292,9 @@ impl ImageListStore {
                 assert!(file.id() == change.id);
                 let meta = change.meta;
                 if let PropertyValue::Int(value) = change.value {
-                    // XXX same as in set_thumbnail
-                    let new_item = item.deep_clone();
                     // XXX can we make this less suboptimal
                     file.set_property(meta, value);
-                    new_item.set_file(Some(file));
-                    self.store.splice(pos, 1, &[new_item]);
+                    item.set_file(Some(file));
                 } else {
                     err_out!("Wrong property type");
                 }
