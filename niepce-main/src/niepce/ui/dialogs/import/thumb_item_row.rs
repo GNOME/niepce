@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use glib::subclass::prelude::*;
-
 glib::wrapper! {
     /// Item in the workspace
     pub struct ThumbItemRow(
@@ -33,14 +31,6 @@ impl ThumbItemRow {
             .property("orientation", gtk4::Orientation::Vertical)
             .build()
     }
-
-    pub fn set_label(&self, label: &str) {
-        self.imp().filename.set_label(label);
-    }
-
-    pub fn set_image(&self, image: &gdk_pixbuf::Pixbuf) {
-        self.imp().image.set_from_pixbuf(Some(image));
-    }
 }
 
 impl Default for ThumbItemRow {
@@ -50,12 +40,16 @@ impl Default for ThumbItemRow {
 }
 
 mod imp {
+    use glib::Properties;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
 
-    #[derive(Default)]
+    #[derive(Default, Properties)]
+    #[properties(wrapper_type = super::ThumbItemRow)]
     pub struct ThumbItemRow {
+        #[property(set = |row: &&Self, p| row.image.set_from_pixbuf(p), type = gdk_pixbuf::Pixbuf, nullable)]
         pub(super) image: gtk4::Image,
+        #[property(set = |row: &&Self, n| row.filename.set_label(n), type = String)]
         pub(super) filename: gtk4::Label,
     }
 
@@ -66,6 +60,7 @@ mod imp {
         type ParentType = gtk4::Box;
     }
 
+    #[glib::derived_properties]
     impl ObjectImpl for ThumbItemRow {
         fn constructed(&self) {
             self.parent_constructed();

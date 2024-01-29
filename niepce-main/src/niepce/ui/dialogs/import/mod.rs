@@ -212,12 +212,14 @@ impl ImportDialog {
                     if let Some(list_item) = item.downcast_ref::<gtk4::ListItem>() {
                         if let Some(row) = list_item.child().and_downcast::<ThumbItemRow>() {
                             let thumb_item = list_item.item().and_downcast::<ThumbItem>().unwrap();
-                            if let Some(ref name) = thumb_item.name() {
-                                row.set_label(name);
-                            }
-                            if let Some(pixbuf) = thumb_item.pixbuf() {
-                                row.set_image(&pixbuf);
-                            }
+                            thumb_item
+                                .bind_property("name", &row, "filename")
+                                .sync_create()
+                                .build();
+                            thumb_item
+                                .bind_property("pixbuf", &row, "image")
+                                .sync_create()
+                                .build();
                         }
                     }
                 });
@@ -399,7 +401,6 @@ impl ImportDialog {
                     .map(|item| {
                         item.set_pixbuf(thumbnail.and_then(|t| t.make_pixbuf()));
                         item.set_date(date);
-                        widgets.images_list_model.items_changed(*idx, 0, 0);
 
                         item
                     })

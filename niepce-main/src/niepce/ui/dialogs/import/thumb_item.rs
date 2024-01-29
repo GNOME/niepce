@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/import/thumb_item.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,22 +30,12 @@ glib::wrapper! {
 
 impl ThumbItem {
     pub fn new(imported_file: &dyn ImportedFile) -> Self {
-        let obj: Self = glib::Object::new();
-        obj.imp().data.replace(Some(imp::ItemData {
-            name: imported_file.name().to_string(),
-            date: None,
-            pixbuf: None,
-        }));
+        let obj: Self = glib::Object::builder()
+            .property("name", imported_file.name().to_string())
+            .build();
+        obj.imp().data.replace(Some(imp::ItemData { date: None }));
 
         obj
-    }
-
-    pub fn name(&self) -> Option<String> {
-        self.imp()
-            .data
-            .borrow()
-            .as_ref()
-            .map(|data| data.name.clone())
     }
 
     pub fn set_date(&self, date: Option<Date>) {
@@ -53,37 +43,28 @@ impl ThumbItem {
             data.date = date;
         }
     }
-
-    pub fn set_pixbuf(&self, pixbuf: Option<gdk_pixbuf::Pixbuf>) {
-        if let Some(ref mut data) = *self.imp().data.borrow_mut() {
-            data.pixbuf = pixbuf;
-        }
-    }
-
-    pub fn pixbuf(&self) -> Option<gdk_pixbuf::Pixbuf> {
-        self.imp()
-            .data
-            .borrow()
-            .as_ref()
-            .and_then(|data| data.pixbuf.clone())
-    }
 }
 
 mod imp {
     use std::cell::RefCell;
 
     use gio::subclass::prelude::*;
+    use glib::prelude::*;
+    use glib::Properties;
 
     use npc_fwk::Date;
 
-    #[derive(Default)]
+    #[derive(Default, Properties)]
+    #[properties(wrapper_type = super::ThumbItem)]
     pub struct ThumbItem {
         pub(super) data: RefCell<Option<ItemData>>,
+        #[property(get, set)]
+        pub(super) name: RefCell<String>,
+        #[property(get, set, nullable)]
+        pub(super) pixbuf: RefCell<Option<gdk_pixbuf::Pixbuf>>,
     }
 
     pub(super) struct ItemData {
-        pub(super) name: String,
-        pub(super) pixbuf: Option<gdk_pixbuf::Pixbuf>,
         pub(super) date: Option<Date>,
     }
 
@@ -94,5 +75,6 @@ mod imp {
         type ParentType = glib::Object;
     }
 
+    #[glib::derived_properties]
     impl ObjectImpl for ThumbItem {}
 }
