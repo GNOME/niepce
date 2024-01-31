@@ -87,6 +87,8 @@ impl ImageGridView {
             }),
         );
         grid_view.add_controller(click);
+        grid_view.set_min_columns(1);
+        grid_view.set_max_columns(1000);
 
         ImageGridView {
             grid_view,

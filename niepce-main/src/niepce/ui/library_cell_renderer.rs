@@ -75,6 +75,7 @@ impl LibraryCellRenderer {
     pub fn new(ui_provider: Option<Weak<UIDataProvider>>) -> Self {
         let obj: Self = glib::Object::new();
 
+        obj.set_halign(gtk4::Align::Start);
         obj.imp().ui_provider.replace(ui_provider);
 
         obj
