@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importer/camera_importer_ui.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
-use glib::ControlFlow;
 use gtk4::prelude::*;
 
 use super::{ImporterUI, SourceSelectedCallback};
@@ -42,7 +41,7 @@ struct Widgets {
 }
 
 pub(super) struct CameraImporterUI {
-    tx: glib::Sender<Event>,
+    tx: npc_fwk::toolkit::Sender<Event>,
     name: String,
     backend: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
@@ -50,7 +49,7 @@ pub(super) struct CameraImporterUI {
 
 impl CameraImporterUI {
     pub fn new() -> Rc<CameraImporterUI> {
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = npc_fwk::toolkit::channel();
 
         let widget = Rc::new(CameraImporterUI {
             tx,
@@ -59,11 +58,10 @@ impl CameraImporterUI {
             widgets: RefCell::default(),
         });
 
-        rx.attach(
-            None,
+        npc_fwk::toolkit::channels::receiver_attach(
+            rx,
             glib::clone!(@strong widget => move |e| {
                 widget.dispatch(e);
-                ControlFlow::Continue
             }),
         );
 
@@ -112,7 +110,7 @@ impl ImporterUI for CameraImporterUI {
         get_widget!(builder, gtk4::Grid, main_widget);
         get_widget!(builder, gtk4::Button, select_camera_btn);
         select_camera_btn.connect_clicked(glib::clone!(@strong self.tx as tx =>
-            move |_| on_err_out!(tx.send(Event::CameraSelected));
+            move |_| npc_fwk::send_async_local!(Event::CameraSelected, tx);
         ));
         get_widget!(builder, gtk4::ComboBoxText, camera_list_combo);
 

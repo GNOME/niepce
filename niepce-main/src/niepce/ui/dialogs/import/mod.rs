@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/import/mod.rs
  *
- * Copyright (C) 2008-2023 Hubert Figuière
+ * Copyright (C) 2008-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use glib::translate::*;
-use glib::ControlFlow;
 use gtk4::prelude::*;
 use gtk_macros::get_widget;
 use num_traits::FromPrimitive;
@@ -69,7 +68,11 @@ struct Widgets {
 }
 
 impl Widgets {
-    fn add_importer_ui(&mut self, importer: Rc<dyn ImporterUI>, tx: glib::Sender<Event>) {
+    fn add_importer_ui(
+        &mut self,
+        importer: Rc<dyn ImporterUI>,
+        tx: npc_fwk::toolkit::Sender<Event>,
+    ) {
         self.import_source_combo
             .append(Some(&importer.id()), importer.name());
 
@@ -78,7 +81,9 @@ impl Widgets {
         self.importer_ui_stack
             .add_named(&importer_widget, Some(&importer.id()));
         importer.set_source_selected_callback(Box::new(move |source, dest_dir| {
-            on_err_out!(tx.send(Event::SetSource(source.to_string(), dest_dir.to_string())));
+            let source = source.to_string();
+            let dest_dir = dest_dir.to_string();
+            npc_fwk::send_async_local!(Event::SetSource(source, dest_dir), tx);
         }));
 
         self.importers.insert(importer.id(), importer.clone());
@@ -106,7 +111,7 @@ struct State {
 }
 
 pub struct ImportDialog {
-    tx: glib::Sender<Event>,
+    tx: npc_fwk::toolkit::Sender<Event>,
     base_dest_dir: PathBuf,
     cfg: Rc<toolkit::Configuration>,
 
@@ -116,7 +121,7 @@ pub struct ImportDialog {
 
 impl ImportDialog {
     pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<Self> {
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = npc_fwk::toolkit::channel();
 
         let base_dest_dir = cfg
             .value_opt("base_import_dest_dir")
@@ -131,11 +136,10 @@ impl ImportDialog {
             state: RefCell::new(State::default()),
         });
 
-        rx.attach(
-            None,
+        npc_fwk::toolkit::channels::receiver_attach(
+            rx,
             glib::clone!(@strong dialog => move |e| {
                 dialog.dispatch(e);
-                ControlFlow::Continue
             }),
         );
 
@@ -246,7 +250,7 @@ impl ImportDialog {
                 import_source_combo.connect_changed(
                     glib::clone!(@strong self.tx as tx => move |combo| {
                         if let Some(source) = combo.active_id() {
-                            on_err_out!(tx.send(Event::SourceChanged(source.to_string())));
+                            npc_fwk::send_async_local!(Event::SourceChanged(source.to_string()), tx);
                         }
                     }),
                 );
@@ -255,7 +259,7 @@ impl ImportDialog {
                         dbg_out!("selected format {}", dropdown.selected());
                         if let Some(format) = DatePathFormat::from_u32(dropdown.selected()) {
                             dbg_out!("setting format {format:?}");
-                            on_err_out!(tx.send(Event::SetDatePathFormat(format)));
+                            npc_fwk::send_async_local!(Event::SetDatePathFormat(format), tx);
                         }
                     }),
                 );
@@ -325,7 +329,7 @@ impl ImportDialog {
             importer.list_source_content(
                 source,
                 Box::new(move |files| {
-                    on_err_out!(tx.send(Event::AppendFiles(files)));
+                    npc_fwk::send_async_any!(Event::AppendFiles(files), tx);
                 }),
             );
         }
@@ -376,7 +380,7 @@ impl ImportDialog {
                 &self.state.borrow().source,
                 paths,
                 Box::new(move |path, thumbnail, date| {
-                    on_err_out!(tx.send(Event::PreviewReceived(path, thumbnail, date)));
+                    npc_fwk::send_async_any!(Event::PreviewReceived(path, thumbnail, date), tx);
                 }),
             );
         }

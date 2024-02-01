@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/darkroom.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
 use glib::translate::*;
-use glib::ControlFlow;
 use gtk4::prelude::*;
 use i18n_format::i18n_fmt;
 
@@ -49,7 +48,7 @@ enum Msg {
 
 pub struct DarkroomModule {
     imp_: RefCell<ControllerImpl>,
-    tx: glib::Sender<Msg>,
+    tx: npc_fwk::toolkit::Sender<Msg>,
     client: Rc<LibraryClientHost>,
     widget: gtk4::Widget,
     worker: RenderWorker,
@@ -113,7 +112,7 @@ impl DarkroomModule {
         let toolbox_controller = crate::ffi::toolbox_controller_new();
         let widget: gtk4::Widget = gtk4::Paned::new(gtk4::Orientation::Horizontal).into();
         let engine_combo = gtk4::ComboBoxText::new();
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = npc_fwk::toolkit::channel();
 
         let mut module = Self {
             imp_: RefCell::new(ControllerImpl::default()),
@@ -137,11 +136,10 @@ impl DarkroomModule {
 
         let module = Rc::new(module);
 
-        rx.attach(
-            None,
+        npc_fwk::toolkit::channels::receiver_attach(
+            rx,
             glib::clone!(@strong module => move |e| {
-                module.dispatch(e);
-                ControlFlow::Continue
+                module.dispatch(e)
             }),
         );
 
@@ -307,7 +305,7 @@ impl DarkroomModule {
         let tx = self.tx.clone();
         self.engine_combo_change = Some(self.engine_combo.connect_changed(move |combo| {
             if let Some(id) = combo.active_id().map(|id| id.to_string()) {
-                on_err_out!(tx.send(Msg::SetRenderEngine(id)));
+                npc_fwk::toolkit::send_async_local!(Msg::SetRenderEngine(id), tx);
             }
         }));
         dock.vbox().append(&self.engine_combo);

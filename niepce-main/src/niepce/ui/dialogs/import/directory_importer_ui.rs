@@ -1,7 +1,7 @@
 /*
  * niepce - ui/dialogs/import/directory_importer_ui.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ use std::rc::Rc;
 use std::str::FromStr;
 
 use gettextrs::gettext as i18n;
-use glib::ControlFlow;
 use gtk4::prelude::*;
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
@@ -47,7 +46,7 @@ struct Widgets {
 }
 
 pub(super) struct DirectoryImporterUI {
-    tx: glib::Sender<Event>,
+    tx: npc_fwk::toolkit::Sender<Event>,
     name: String,
     cfg: Rc<toolkit::Configuration>,
     backend: RefCell<Rc<DirectoryImporter>>,
@@ -56,7 +55,7 @@ pub(super) struct DirectoryImporterUI {
 
 impl DirectoryImporterUI {
     pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<DirectoryImporterUI> {
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = npc_fwk::toolkit::channel();
 
         let widget = Rc::new(DirectoryImporterUI {
             tx,
@@ -66,11 +65,10 @@ impl DirectoryImporterUI {
             widgets: RefCell::default(),
         });
 
-        rx.attach(
-            None,
+        npc_fwk::toolkit::channels::receiver_attach(
+            rx,
             glib::clone!(@strong widget => move |e| {
                 widget.dispatch(e);
-                ControlFlow::Continue
             }),
         );
 
@@ -119,10 +117,11 @@ impl DirectoryImporterUI {
                     .unwrap_or("");
                 if let Some(source) = source.as_ref().and_then(|p| p.to_str()).map(|s| s.to_string()) {
                     cfg.set_value("last_dir_import_location", &source);
-                    on_err_out!(tx.send(Event::SourceSelected(source, dest_dir.to_string())));
+                    let dest_dir = dest_dir.to_string();
+                    npc_fwk::send_async_local!(Event::SourceSelected(source, dest_dir), tx);
                 }
             }
-            on_err_out!(tx.send(Event::SetDirectoryName(source)));
+            npc_fwk::send_async_local!(Event::SetDirectoryName(source), tx);
             dialog.close()
         }));
 
@@ -164,19 +163,25 @@ impl ImporterUI for DirectoryImporterUI {
         get_widget!(builder, gtk4::Box, main_widget);
         get_widget!(builder, gtk4::Button, select_directories);
         select_directories.connect_clicked(glib::clone!(@strong self.tx as tx =>
-            move |_| on_err_out!(tx.send(Event::SelectDirectories));
+            move |_| npc_fwk::send_async_local!(Event::SelectDirectories, tx);
         ));
         get_widget!(builder, gtk4::Label, directory_name);
         get_widget!(builder, gtk4::CheckButton, copy_files);
         get_widget!(builder, gtk4::CheckButton, recursive);
         copy_files.connect_toggled(glib::clone!(@strong self.tx as tx =>
-            move |check| on_err_out!(tx.send(Event::CopyToggled(check.is_active())));
+                move |check| {
+                    let is_active = check.is_active();
+                    npc_fwk::send_async_local!(Event::CopyToggled(is_active), tx);
+                }
         ));
         copy_files.set_active(
             bool::from_str(&self.cfg.value("dir_import_copy", "false")).unwrap_or(false),
         );
         recursive.connect_toggled(glib::clone!(@strong self.tx as tx =>
-            move |check| on_err_out!(tx.send(Event::RecursiveToggled(check.is_active())));
+                                               move |check| {
+                                                   let is_active = check.is_active();
+                                                   npc_fwk::send_async_local!(Event::RecursiveToggled(is_active), tx);
+                                               }
         ));
         recursive.set_active(
             bool::from_str(&self.cfg.value("dir_import_recursive", "false")).unwrap_or(false),

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/niepce_window.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ use adw::prelude::*;
 use gettextrs::gettext as i18n;
 use gtk4::gio;
 use gtk4::glib::translate::*;
-use gtk4::glib::ControlFlow;
 use once_cell::unsync::OnceCell;
 
 use npc_engine::db;
@@ -72,7 +71,7 @@ struct ShellWidgets {
 
 struct NiepceWindow {
     imp_: RefCell<ControllerImpl>,
-    tx: glib::Sender<Event>,
+    tx: npc_fwk::toolkit::Sender<Event>,
     window: gtk4::ApplicationWindow,
     libraryclient: RefCell<Option<Rc<LibraryClientHost>>>,
     configuration: RefCell<Option<Rc<toolkit::Configuration>>>,
@@ -197,7 +196,7 @@ impl WindowController for NiepceWindow {
 
 impl NiepceWindow {
     pub fn new(app: &gtk4::Application) -> Rc<NiepceWindow> {
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = npc_fwk::toolkit::channel();
 
         let ctrl = Rc::new(NiepceWindow {
             imp_: RefCell::new(ControllerImpl::default()),
@@ -210,11 +209,10 @@ impl NiepceWindow {
             shell_widgets: OnceCell::new(),
         });
 
-        rx.attach(
-            None,
+        npc_fwk::toolkit::channels::receiver_attach(
+            rx,
             glib::clone!(@strong ctrl => move |e| {
                 ctrl.dispatch(e);
-                ControlFlow::Continue
             }),
         );
 
@@ -249,18 +247,20 @@ impl NiepceWindow {
         }
     }
 
-    fn lib_notification(tx: &glib::Sender<Event>, n: LibNotification) -> bool {
+    fn lib_notification(tx: &npc_fwk::toolkit::Sender<Event>, n: LibNotification) -> bool {
         use LibNotification::*;
 
-        on_err_out!(match n {
-            LibCreated => tx.send(Event::NewLibraryCreated),
-            AddedLabel(label) => tx.send(Event::AddedLabel(label)),
-            LabelChanged(label) => tx.send(Event::LabelChanged(label)),
-            LabelDeleted(label_id) => tx.send(Event::LabelDeleted(label_id)),
-            DatabaseReady => tx.send(Event::DatabaseReady),
-            DatabaseNeedUpgrade(version) => tx.send(Event::DatabaseNeedUpgrade(version)),
-            _ => Ok(()),
-        });
+        match n {
+            LibCreated => npc_fwk::send_async_local!(Event::NewLibraryCreated, tx),
+            AddedLabel(label) => npc_fwk::send_async_local!(Event::AddedLabel(label), tx),
+            LabelChanged(label) => npc_fwk::send_async_local!(Event::LabelChanged(label), tx),
+            LabelDeleted(label_id) => npc_fwk::send_async_local!(Event::LabelDeleted(label_id), tx),
+            DatabaseReady => npc_fwk::send_async_local!(Event::DatabaseReady, tx),
+            DatabaseNeedUpgrade(version) => {
+                npc_fwk::send_async_local!(Event::DatabaseNeedUpgrade(version), tx)
+            }
+            _ => (),
+        }
         true
     }
 
@@ -367,12 +367,12 @@ impl NiepceWindow {
         );
         dialog.set_modal(true);
         dialog.set_create_folders(true);
-        let tx = self.tx.clone();
         dialog.connect_response(
-            glib::clone!(@strong dialog, @strong tx => move |_, response| {
+            glib::clone!(@strong dialog, @strong self.tx as tx => move |_, response| {
                 if response == gtk4::ResponseType::Accept {
                     if let Some(catalog_to_create) = dialog.file().and_then(|f| f.path()) {
-                        on_err_out!(tx.send(Event::OpenCatalog(catalog_to_create.clone())));
+                        let catalog_to_create2 = catalog_to_create.clone();
+                        npc_fwk::send_async_local!(Event::OpenCatalog(catalog_to_create2), tx);
                         let app = npc_fwk::ffi::Application_app();
                         let cfg = &app.config().cfg;
                         cfg.set_value("last_open_catalog", &catalog_to_create.to_string_lossy());

@@ -53,7 +53,7 @@ pub(super) fn load_css() {
 }
 
 impl WsItemRow {
-    pub(super) fn new(tx: glib::Sender<Event>) -> Self {
+    pub(super) fn new(tx: npc_fwk::toolkit::Sender<Event>) -> Self {
         let obj: Self = glib::Object::new();
         obj.imp().tx.replace(Some(tx));
         obj
@@ -100,7 +100,7 @@ mod imp {
 
     #[derive(Default)]
     pub struct WsItemRow {
-        pub(super) tx: RefCell<Option<glib::Sender<Event>>>,
+        pub(super) tx: RefCell<Option<npc_fwk::toolkit::Sender<Event>>>,
         pub(super) expander: gtk4::TreeExpander,
         icon: gtk4::Image,
         label: gtk4::Label,
@@ -161,7 +161,8 @@ mod imp {
                 if let Ok(libfile) = value.get::<npc_engine::db::LibFile>() {
                     dbg_out!("accepted value {}", libfile.id());
                     if let Some(ref tx) = *this.tx.borrow() {
-                        on_err_out!(tx.send(Event::DropLibFile(this.id.get(), this.type_.get(), vec![libfile.id()])));
+                        let event = Event::DropLibFile(this.id.get(), this.type_.get(), vec![libfile.id()]);
+                        npc_fwk::send_async_local!(event, tx);
                     }
                     true
                 } else {

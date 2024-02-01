@@ -51,15 +51,16 @@ macro_rules! sending_action_group {
 /// sending_action!(group, "ActionName", tx, Event::TheAction);
 /// ```
 /// Will create an action with the name `ActionName` to send `TheAction`
-/// onto `tx` (`tx` is `Sender<Event>`), and add it to the `group`.
+/// onto `tx` (`tx` is `npc_fwk::toolkit::Sender<Event>`),
+/// and add it to the `group`.
 #[macro_export]
 macro_rules! sending_action {
-    ( $group:expr, $name:expr, $sender:expr, $event:expr ) => {
+    ( $group:expr, $name:expr, $sender:expr, $event:expr ) => {{
         let tx = $sender.clone();
         gtk_macros::action!($group, $name, move |_, _| {
-            $crate::on_err_out!(tx.send($event));
+            $crate::send_async_local!($event, tx);
         });
-    };
+    }};
 }
 
 pub fn add_menu_action<F>(

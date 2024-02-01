@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/module_shell.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
-use glib::{Cast, ControlFlow};
+use glib::Cast;
 use gtk4::prelude::*;
 
 use super::{
@@ -43,7 +43,7 @@ enum Event {
 
 pub struct ModuleShell {
     imp_: RefCell<ControllerImpl>,
-    tx: glib::Sender<Event>,
+    tx: npc_fwk::toolkit::Sender<Event>,
     widget: ModuleShellWidget,
     action_group: gio::SimpleActionGroup,
     pub selection_controller: Rc<SelectionController>,
@@ -59,7 +59,7 @@ pub struct ModuleShell {
 
 impl ModuleShell {
     pub fn new(client_host: &Rc<LibraryClientHost>) -> Rc<ModuleShell> {
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = npc_fwk::toolkit::channel();
         let selection_controller = SelectionController::new(client_host);
         let menu = gio::Menu::new();
         let shell = Rc::new(ModuleShell {
@@ -81,11 +81,10 @@ impl ModuleShell {
             modules: RefCell::new(HashMap::default()),
         });
 
-        rx.attach(
-            None,
+        npc_fwk::toolkit::channels::receiver_attach(
+            rx,
             glib::clone!(@strong shell => move |e| {
                 shell.dispatch(e);
-                ControlFlow::Continue
             }),
         );
 
@@ -122,8 +121,8 @@ impl ModuleShell {
             "activated",
             true,
             glib::clone!(@strong tx => move |value| {
-                let name = value[1].get::<&str>().expect("Failed to convert callback parameter");
-                on_err_out!(tx.send(Event::ModuleActivated(name.to_string())));
+                let name = value[1].get::<&str>().expect("Failed to convert callback parameter").to_string();
+                npc_fwk::send_async_local!(Event::ModuleActivated(name), tx);
                 None
             }),
         );
@@ -132,8 +131,8 @@ impl ModuleShell {
             "deactivated",
             true,
             glib::clone!(@strong tx => move |value| {
-                let name = value[1].get::<&str>().expect("Failed to convert callback parameter");
-                on_err_out!(tx.send(Event::ModuleDeactivated(name.to_string())));
+                let name = value[1].get::<&str>().expect("Failed to convert callback parameter").to_string();
+                npc_fwk::send_async_local!(Event::ModuleDeactivated(name), tx);
                 None
             }),
         );

@@ -30,7 +30,6 @@ use gettextrs::gettext as i18n;
 use gio;
 use glib;
 use glib::Cast;
-use glib::ControlFlow;
 use num_derive::FromPrimitive;
 use once_cell::unsync::OnceCell;
 
@@ -85,7 +84,7 @@ enum Event {
 
 pub struct WorkspaceController {
     imp_: RefCell<ControllerImpl>,
-    tx: glib::Sender<Event>,
+    tx: npc_fwk::toolkit::Sender<Event>,
     cfg: Rc<toolkit::Configuration>,
     widgets: OnceCell<Widgets>,
     client: Weak<LibraryClient>,
@@ -289,9 +288,9 @@ impl UiController for WorkspaceController {
                                         let expanded = tree_list_row.is_expanded();
                                         let pos = tree_list_row.position();
                                         if expanded {
-                                            on_err_out!(tx.send(Event::RowExpanded(pos)));
+                                            npc_fwk::send_async_local!(Event::RowExpanded(pos), tx);
                                         } else {
-                                            on_err_out!(tx.send(Event::RowCollapsed(pos)));
+                                            npc_fwk::send_async_local!(Event::RowCollapsed(pos), tx);
                                         }
                                     }));
                                 }
@@ -393,14 +392,14 @@ impl UiController for WorkspaceController {
                 if let Some(model) = librarytree.model() {
                     model.connect_selection_changed(
                         glib::clone!(@strong self.tx as tx => move |_, _, _| {
-                            on_err_out!(tx.send(Event::SelectionChanged));
+                            npc_fwk::send_async_local!(Event::SelectionChanged, tx);
                         }),
                     );
                 }
                 let gesture = gtk4::GestureClick::new();
                 gesture.set_button(3);
                 gesture.connect_pressed(glib::clone!(@strong self.tx as tx => move |_, _, x, y| {
-                    on_err_out!(tx.send(Event::ButtonPress(x, y)));
+                    npc_fwk::send_async_local!(Event::ButtonPress(x, y), tx);
                 }));
                 librarytree.add_controller(gesture);
 
@@ -444,7 +443,7 @@ impl WorkspaceController {
         cfg: Rc<toolkit::Configuration>,
         client: &LibraryClientWrapper,
     ) -> Rc<WorkspaceController> {
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = npc_fwk::toolkit::channel();
         let ctrl = Rc::new(WorkspaceController {
             imp_: RefCell::new(ControllerImpl::default()),
             tx,
@@ -462,11 +461,10 @@ impl WorkspaceController {
             icon_album: gio::ThemedIcon::new("open-book-symbolic").upcast(),
         });
 
-        rx.attach(
-            None,
+        npc_fwk::toolkit::channels::receiver_attach(
+            rx,
             glib::clone!(@strong ctrl => move |e| {
                 ctrl.dispatch(e);
-                ControlFlow::Continue
             }),
         );
 
@@ -734,7 +732,7 @@ impl WorkspaceController {
                 let request = import_dialog.import_request();
                 dialog.close();
                 if let Some(request) = request {
-                    on_err_out!(tx.send(Event::PerformImport(request)));
+                    npc_fwk::send_async_local!(Event::PerformImport(request), tx);
                 }
             }),
         );

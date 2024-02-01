@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importlibrary.rs
  *
- * Copyright (C) 2021-2023 Hubert Figuière
+ * Copyright (C) 2021-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 use gettextrs::gettext as i18n;
-use glib::{clone, ControlFlow};
 use gtk4;
 use gtk4::prelude::*;
 use gtk4::{Assistant, Builder};
@@ -119,12 +118,12 @@ pub struct ImportLibraryDialog {
     client: Arc<LibraryClient>,
     state: ImportStateRef,
     roots_list: Option<gtk4::ListBox>,
-    sender: glib::Sender<Command>,
+    sender: npc_fwk::toolkit::Sender<Command>,
 }
 
 impl ImportLibraryDialog {
     pub fn new(client: Arc<LibraryClient>) -> Rc<Self> {
-        let (sender, receiver) = glib::MainContext::channel::<Command>(glib::Priority::default());
+        let (sender, receiver) = npc_fwk::toolkit::channel::<Command>();
         let assistant = Assistant::new();
 
         let mut dlg = Rc::new(Self {
@@ -137,11 +136,11 @@ impl ImportLibraryDialog {
 
         let sender = dlg.sender.clone();
         assistant.connect_cancel(move |_| {
-            on_err_out!(sender.send(Command::Close));
+            npc_fwk::send_async_local!(Command::Close, sender);
         });
         let sender = dlg.sender.clone();
         assistant.connect_close(move |_| {
-            on_err_out!(sender.send(Command::Close));
+            npc_fwk::send_async_local!(Command::Close, sender);
         });
         assistant.set_forward_page_func(Self::forward_page);
 
@@ -160,7 +159,7 @@ impl ImportLibraryDialog {
             if let Some(file_chooser) = builder.object::<gtk4::Button>("file_chooser") {
                 let sender = dlg.sender.clone();
                 file_chooser.connect_clicked(move |_| {
-                    on_err_out!(sender.send(Command::SelectFile));
+                    npc_fwk::send_async_local!(Command::SelectFile, sender);
                 });
                 dlg.state.borrow_mut().import_file_button = Some(file_chooser);
             }
@@ -195,16 +194,16 @@ impl ImportLibraryDialog {
         }
 
         let dlg2 = dlg.clone();
-        receiver.attach(None, move |c| dlg2.dispatch(c));
+        npc_fwk::toolkit::channels::receiver_attach(receiver, move |c| dlg2.dispatch(c));
 
-        assistant.connect_prepare(clone!(@strong dlg => move |_, p| {
+        assistant.connect_prepare(glib::clone!(@strong dlg => move |_, p| {
             dlg.prepare_page(p)
         }));
 
         dlg
     }
 
-    fn dispatch(&self, command: Command) -> ControlFlow {
+    fn dispatch(&self, command: Command) {
         match command {
             Command::SetFile(p) => self.library_file_set(p),
             Command::SelectFile => self.select_file(),
@@ -219,13 +218,15 @@ impl ImportLibraryDialog {
                         let p2 = p.clone();
                         row.connect_changed(move |w| {
                             let v = w.text().to_string();
-                            on_err_out!(sender.send(Command::Remap((p2.clone(), v))));
+                            let p = p2.clone();
+                            npc_fwk::send_async_local!(Command::Remap((p, v)), sender);
                         });
 
                         let sender = self.sender.clone();
                         row.connect_toggled(move |w| {
                             let v = w.is_active();
-                            on_err_out!(sender.send(Command::SetRootEnabled((p.clone(), v))));
+                            let p = p.clone();
+                            npc_fwk::send_async_local!(Command::SetRootEnabled((p, v)), sender);
                         });
                         roots_list.insert(&row, -1);
                     }
@@ -251,10 +252,8 @@ impl ImportLibraryDialog {
             }
             Command::Close => {
                 self.cancel();
-                return ControlFlow::Continue;
             }
         }
-        ControlFlow::Continue
     }
 
     pub fn run(&self, parent: Option<&gtk4::Window>) {
@@ -296,9 +295,9 @@ impl ImportLibraryDialog {
             let roots = importer.root_folders();
             for root in roots {
                 dbg_out!("Found root folder {}", &root);
-                on_err_out!(self.sender.send(Command::FoundRoot(root)));
+                npc_fwk::send_async_local!(Command::FoundRoot(root), self.sender);
             }
-            on_err_out!(self.sender.send(Command::RootsDone));
+            npc_fwk::send_async_local!(Command::RootsDone, self.sender);
         }
     }
 
@@ -369,7 +368,7 @@ impl ImportLibraryDialog {
                 dbg_out!("Accept");
                 if let Some(file) = d.file().as_ref().and_then(gio::prelude::FileExt::path) {
                     dbg_out!("Lr file: {:?}", file);
-                    on_err_out!(sender.send(Command::SetFile(file)));
+                    npc_fwk::send_async_local!(Command::SetFile(file), sender);
                 }
             }
             d.close();

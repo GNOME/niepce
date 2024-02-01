@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  */
 
 pub mod assistant;
+pub mod channels;
 mod configuration;
 pub mod confirm;
 #[macro_use]
@@ -42,6 +43,7 @@ pub mod cxx {
     };
 }
 
+pub use channels::{channel, send_async_any, send_async_local, Sender};
 pub use controller::{new_controller, to_controller, Controller, ControllerImpl};
 pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
 pub use image_bitmap::ImageBitmap;
@@ -52,8 +54,6 @@ pub use undo::{Storage, UndoCommand, UndoHistory, UndoTransaction};
 pub use window_controller::{create_redo_action, create_undo_action, WindowController};
 
 pub use configuration::Configuration;
-
-pub type Sender<T> = async_channel::Sender<T>;
 
 /// Wrapper type for the channel tuple to get passed down to the unsafe C++ code.
 pub struct PortableChannel<T>(pub Sender<T>);
