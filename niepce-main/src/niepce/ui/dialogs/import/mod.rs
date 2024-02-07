@@ -138,7 +138,7 @@ impl ImportDialog {
 
         npc_fwk::toolkit::channels::receiver_attach(
             rx,
-            glib::clone!(@strong dialog => move |e| {
+            glib::clone!(@weak dialog => move |e| {
                 dialog.dispatch(e);
             }),
         );
@@ -171,11 +171,11 @@ impl ImportDialog {
                 // get_widget!(builder, gtk4::ComboBox, date_tz_combo);
                 get_widget!(builder, gtk4::Button, cancel_button);
                 cancel_button.connect_clicked(
-                    glib::clone!(@strong import_dialog => move |_| import_dialog.close()),
+                    glib::clone!(@weak import_dialog => move |_| import_dialog.close()),
                 );
                 get_widget!(builder, gtk4::Button, import_button);
                 import_button.connect_clicked(
-                    glib::clone!(@strong import_dialog => move |_| callback(&import_dialog)),
+                    glib::clone!(@weak import_dialog => move |_| callback(&import_dialog)),
                 );
                 get_widget!(builder, gtk4::Entry, destination_folder);
                 get_widget!(builder, gtk4::Stack, importer_ui_stack);
