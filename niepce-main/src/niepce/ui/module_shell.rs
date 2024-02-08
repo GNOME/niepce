@@ -33,10 +33,10 @@ use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::LibraryClientHost;
 use npc_fwk::toolkit::gtk_utils::add_menu_action;
-use npc_fwk::toolkit::{to_controller, Controller, ControllerImpl, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 use npc_fwk::{dbg_out, on_err_out};
 
-enum Event {
+pub enum Event {
     ModuleActivated(String),
     ModuleDeactivated(String),
 }
@@ -88,7 +88,6 @@ impl ModuleShell {
             }),
         );
 
-        shell.add(&to_controller(shell.selection_controller.clone()));
         shell
             .widget
             .insert_action_group("shell", Some(&shell.action_group));
@@ -395,14 +394,6 @@ impl ModuleShell {
         shell.menu.append_section(None, &shell.module_menu);
     }
 
-    fn dispatch(&self, e: Event) {
-        use Event::*;
-        match e {
-            ModuleActivated(ref name) => self.module_activated(name),
-            ModuleDeactivated(ref name) => self.module_deactivated(name),
-        }
-    }
-
     pub fn image_list_store(&self) -> Rc<ImageListStore> {
         self.selection_controller.list_store().0.clone()
     }
@@ -425,7 +416,6 @@ impl ModuleShell {
         name: &str,
         label: &str,
     ) {
-        self.add(&to_controller(module.clone()));
         let widget = module.widget();
         self.widget.append_page(widget, name, label);
         self.modules
@@ -473,7 +463,17 @@ impl ModuleShell {
 }
 
 impl Controller for ModuleShell {
+    type InMsg = Event;
+
     npc_fwk::controller_imp_imp!(imp_);
+
+    fn dispatch(&self, e: Event) {
+        use Event::*;
+        match e {
+            ModuleActivated(ref name) => self.module_activated(name),
+            ModuleDeactivated(ref name) => self.module_deactivated(name),
+        }
+    }
 }
 
 impl UiController for ModuleShell {

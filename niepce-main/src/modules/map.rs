@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/map.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,16 +33,14 @@ pub struct MapModuleProxy {
 }
 
 impl Controller for MapModuleProxy {
+    type InMsg = ();
+
     npc_fwk::controller_imp_imp!(imp_);
 }
 
 impl UiController for MapModuleProxy {
     fn widget(&self) -> &gtk4::Widget {
         &self.widget
-    }
-
-    fn actions(&self) -> Option<(&str, &gio::ActionGroup)> {
-        None
     }
 }
 
@@ -51,8 +49,8 @@ impl LibraryModule for MapModuleProxy {
         self.module.set_active(active);
     }
 
-    fn menu(&self) -> Option<&gio::Menu> {
-        None
+    fn widget(&self) -> &gtk4::Widget {
+        &self.widget
     }
 }
 

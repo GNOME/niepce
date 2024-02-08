@@ -74,6 +74,8 @@ pub struct SelectionController {
 }
 
 impl Controller for SelectionController {
+    type InMsg = ();
+
     npc_fwk::controller_imp_imp!(imp_);
 }
 

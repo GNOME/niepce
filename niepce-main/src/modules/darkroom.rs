@@ -42,7 +42,7 @@ use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 use npc_fwk::{dbg_out, on_err_out};
 
-enum Msg {
+pub enum Msg {
     SetRenderEngine(String),
 }
 
@@ -65,16 +65,30 @@ pub struct DarkroomModule {
 }
 
 impl Controller for DarkroomModule {
+    type InMsg = Msg;
+
     npc_fwk::controller_imp_imp!(imp_);
+
+    fn dispatch(&self, msg: Msg) {
+        match msg {
+            Msg::SetRenderEngine(ref engine) => {
+                // XXX make this a command with undo
+                dbg_out!("Render engine changed in UI");
+                if let Some(ref file) = *self.file.borrow() {
+                    self.client.client().set_metadata(
+                        file.id(),
+                        Np::Index(Npi::NpNiepceRenderEngineProp),
+                        &npc_fwk::base::PropertyValue::String(engine.clone()),
+                    );
+                }
+            }
+        }
+    }
 }
 
 impl UiController for DarkroomModule {
     fn widget(&self) -> &gtk4::Widget {
         &self.widget
-    }
-
-    fn actions(&self) -> Option<(&str, &gio::ActionGroup)> {
-        None
     }
 }
 
@@ -96,8 +110,8 @@ impl LibraryModule for DarkroomModule {
         }
     }
 
-    fn menu(&self) -> Option<&gio::Menu> {
-        None
+    fn widget(&self) -> &gtk4::Widget {
+        &self.widget
     }
 }
 
@@ -162,22 +176,6 @@ impl DarkroomModule {
         self.engine_combo.set_active_id(engine);
         if let Some(ref handler) = self.engine_combo_change {
             glib::signal::signal_handler_unblock(&self.engine_combo, handler);
-        }
-    }
-
-    fn dispatch(&self, msg: Msg) {
-        match msg {
-            Msg::SetRenderEngine(ref engine) => {
-                // XXX make this a command with undo
-                dbg_out!("Render engine changed in UI");
-                if let Some(ref file) = *self.file.borrow() {
-                    self.client.client().set_metadata(
-                        file.id(),
-                        Np::Index(Npi::NpNiepceRenderEngineProp),
-                        &npc_fwk::base::PropertyValue::String(engine.clone()),
-                    );
-                }
-            }
         }
     }
 

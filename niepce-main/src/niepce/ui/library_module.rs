@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/library_module.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use npc_fwk::toolkit::UiController;
-
 /// Trait for Library modules.
-pub trait LibraryModule: UiController {
+pub trait LibraryModule {
     /// Called when it is activated / deactivated.
-    fn set_active(&self, active: bool);
+    fn set_active(&self, _active: bool) {}
+
     /// Get the menu for the modules.
-    fn menu(&self) -> Option<&gio::Menu>;
+    fn menu(&self) -> Option<&gio::Menu> {
+        None
+    }
+
+    /// Get the widget.
+    fn widget(&self) -> &gtk4::Widget;
 }

@@ -37,6 +37,8 @@ pub struct GridViewModuleProxy {
 }
 
 impl Controller for GridViewModuleProxy {
+    type InMsg = ();
+
     npc_fwk::controller_imp_imp!(imp_);
 }
 
@@ -55,10 +57,8 @@ impl UiController for GridViewModuleProxy {
 }
 
 impl LibraryModule for GridViewModuleProxy {
-    fn set_active(&self, _active: bool) {}
-
-    fn menu(&self) -> Option<&gio::Menu> {
-        None
+    fn widget(&self) -> &gtk4::Widget {
+        UiController::widget(self)
     }
 }
 

@@ -44,7 +44,7 @@ pub mod cxx {
 }
 
 pub use channels::{channel, send_async_any, send_async_local, Sender};
-pub use controller::{new_controller, to_controller, Controller, ControllerImpl};
+pub use controller::{Controller, ControllerImpl};
 pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
 pub use image_bitmap::ImageBitmap;
 pub use thumbnail::Thumbnail;

@@ -47,7 +47,7 @@ use ws_list_model::WorkspaceList;
 
 #[derive(Clone, Copy, Debug, Default, FromPrimitive, PartialEq)]
 #[repr(i32)]
-enum TreeItemType {
+pub enum TreeItemType {
     #[default]
     None,
     Folders,
@@ -61,7 +61,7 @@ enum TreeItemType {
     Album,
 }
 
-enum Event {
+pub enum Event {
     ButtonPress(f64, f64),
     SelectionChanged,
     RowExpanded(u32),
@@ -250,7 +250,28 @@ impl Widgets {
 }
 
 impl Controller for WorkspaceController {
+    type InMsg = Event;
+
     npc_fwk::controller_imp_imp!(imp_);
+
+    fn dispatch(&self, e: Event) {
+        use Event::*;
+
+        match e {
+            ButtonPress(x, y) => self.button_press_event(x, y),
+            SelectionChanged => self.on_libtree_selection(),
+            RowExpanded(pos) => self.row_expanded_collapsed(pos, true),
+            RowCollapsed(pos) => self.row_expanded_collapsed(pos, false),
+            NewFolder => self.action_new_folder(),
+            NewAlbum => self.action_new_album(),
+            RenameItem => self.action_rename_item(),
+            DeleteItem => self.action_delete_item(),
+            Import => self.action_import(),
+            PerformImport(request) => self.perform_file_import(&request),
+            ImportLibrary => self.action_import_library(),
+            DropLibFile(target, type_, source) => self.action_drop_libfile(target, type_, source),
+        }
+    }
 }
 
 impl UiController for WorkspaceController {
@@ -479,25 +500,6 @@ impl WorkspaceController {
             client.get_all_albums();
         } else {
             err_out!("coudln't get client");
-        }
-    }
-
-    fn dispatch(&self, e: Event) {
-        use Event::*;
-
-        match e {
-            ButtonPress(x, y) => self.button_press_event(x, y),
-            SelectionChanged => self.on_libtree_selection(),
-            RowExpanded(pos) => self.row_expanded_collapsed(pos, true),
-            RowCollapsed(pos) => self.row_expanded_collapsed(pos, false),
-            NewFolder => self.action_new_folder(),
-            NewAlbum => self.action_new_album(),
-            RenameItem => self.action_rename_item(),
-            DeleteItem => self.action_delete_item(),
-            Import => self.action_import(),
-            PerformImport(request) => self.perform_file_import(&request),
-            ImportLibrary => self.action_import_library(),
-            DropLibFile(target, type_, source) => self.action_drop_libfile(target, type_, source),
         }
     }
 

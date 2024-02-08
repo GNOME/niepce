@@ -23,6 +23,9 @@ use super::Controller;
 pub trait UiController: Controller {
     /// Get the widget. Will lazy load it.
     fn widget(&self) -> &gtk4::Widget;
+
     /// Get the action group if any. Lazy loaded
-    fn actions(&self) -> Option<(&str, &gio::ActionGroup)>;
+    fn actions(&self) -> Option<(&str, &gio::ActionGroup)> {
+        None
+    }
 }

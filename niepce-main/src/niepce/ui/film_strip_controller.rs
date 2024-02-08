@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/film_strip_controller.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,8 @@ pub struct FilmStripController {
 }
 
 impl Controller for FilmStripController {
+    type InMsg = ();
+
     npc_fwk::controller_imp_imp!(imp_);
 }
 

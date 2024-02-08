@@ -81,7 +81,70 @@ struct NiepceWindow {
 }
 
 impl Controller for NiepceWindow {
+    type InMsg = Event;
+
     npc_fwk::controller_imp_imp!(imp_);
+
+    fn dispatch(&self, e: Event) {
+        use Event::*;
+
+        match e {
+            Delete => {
+                if let Some(widgets) = self.shell_widgets.get() {
+                    widgets.shell.action_edit_delete()
+                }
+            }
+            EditLabels => self.on_action_edit_labels(),
+            ToggleToolsVisible => {
+                // XXX todo
+            }
+            OpenCatalog(catalog) => {
+                self.open_catalog(&catalog);
+            }
+            NewLibraryCreated => self.create_initial_labels(),
+            DatabaseReady => {
+                self.create_module_shell();
+                dbg_out!("Database ready.");
+            }
+            DatabaseNeedUpgrade(v) => {
+                dbg_out!("Database need upgrade {}.", v);
+                let dialog = npc_fwk::toolkit::confirm::request(
+                    &i18n("Catalog needs to be upgraded"),
+                    &i18n("The catalog will be upgraded to the latest version. A copy of the old version will be save. Upgrade?"),
+                    Some(i18n("_Upgrade")),
+                    false,
+                    Some(self.window()),
+                );
+                dialog.connect_response(
+                    None,
+                    glib::clone!(@strong self.libraryclient as client => move |dialog, response| {
+                        if response == "confirm" {
+                            if let Some(client_host) = client.borrow().as_ref() {
+                                client_host.client().upgrade_library_from_sync(v);
+                            }
+                        }
+                        dialog.destroy();
+                    }),
+                );
+                dialog.present();
+            }
+            AddedLabel(label) => {
+                if let Some(host) = &*self.libraryclient.borrow() {
+                    host.ui_provider().add_label(&label);
+                }
+            }
+            LabelChanged(label) => {
+                if let Some(host) = &*self.libraryclient.borrow() {
+                    host.ui_provider().update_label(&label);
+                }
+            }
+            LabelDeleted(id) => {
+                if let Some(host) = &*self.libraryclient.borrow() {
+                    host.ui_provider().delete_label(id);
+                }
+            }
+        }
+    }
 }
 
 impl UiController for NiepceWindow {
@@ -264,67 +327,6 @@ impl NiepceWindow {
         true
     }
 
-    fn dispatch(&self, e: Event) {
-        use Event::*;
-
-        match e {
-            Delete => {
-                if let Some(widgets) = self.shell_widgets.get() {
-                    widgets.shell.action_edit_delete()
-                }
-            }
-            EditLabels => self.on_action_edit_labels(),
-            ToggleToolsVisible => {
-                // XXX todo
-            }
-            OpenCatalog(catalog) => {
-                self.open_catalog(&catalog);
-            }
-            NewLibraryCreated => self.create_initial_labels(),
-            DatabaseReady => {
-                self.create_module_shell();
-                dbg_out!("Database ready.");
-            }
-            DatabaseNeedUpgrade(v) => {
-                dbg_out!("Database need upgrade {}.", v);
-                let dialog = npc_fwk::toolkit::confirm::request(
-                    &i18n("Catalog needs to be upgraded"),
-                    &i18n("The catalog will be upgraded to the latest version. A copy of the old version will be save. Upgrade?"),
-                    Some(i18n("_Upgrade")),
-                    false,
-                    Some(self.window()),
-                );
-                dialog.connect_response(
-                    None,
-                    glib::clone!(@strong self.libraryclient as client => move |dialog, response| {
-                        if response == "confirm" {
-                            if let Some(client_host) = client.borrow().as_ref() {
-                                client_host.client().upgrade_library_from_sync(v);
-                            }
-                        }
-                        dialog.destroy();
-                    }),
-                );
-                dialog.present();
-            }
-            AddedLabel(label) => {
-                if let Some(host) = &*self.libraryclient.borrow() {
-                    host.ui_provider().add_label(&label);
-                }
-            }
-            LabelChanged(label) => {
-                if let Some(host) = &*self.libraryclient.borrow() {
-                    host.ui_provider().update_label(&label);
-                }
-            }
-            LabelDeleted(id) => {
-                if let Some(host) = &*self.libraryclient.borrow() {
-                    host.ui_provider().delete_label(id);
-                }
-            }
-        }
-    }
-
     fn set_title(&self, title: &str) {
         if let Some(widgets) = self.widgets.get() {
             let title = format!("{} - {}", i18n("Niepce Digital"), title);
@@ -419,7 +421,6 @@ impl NiepceWindow {
 
         let module_shell = ModuleShell::new(client.as_ref().unwrap());
         let module_widget = module_shell.widget();
-        self.add(&toolkit::to_controller(module_shell.clone()));
 
         if let Some(notif_center) = self.widgets.get().map(|w| &w.notif_center) {
             let module_shell = module_shell.clone();
@@ -445,7 +446,6 @@ impl NiepceWindow {
                 .signal_notify
                 .connect(move |ln| workspace.on_lib_notification(&ln));
         }
-        self.add(&toolkit::to_controller(workspace.clone()));
 
         let hbox = &self.widgets.get().as_ref().unwrap().hbox;
         hbox.set_wide_handle(true);
@@ -454,7 +454,6 @@ impl NiepceWindow {
         // set the databinder for the `"workspace_splitter"` bound to hbox `position`
 
         let filmstrip = FilmStripController::new(module_shell.image_list_store());
-        self.add(&toolkit::to_controller(filmstrip.clone()));
         let vbox = &self.widgets.get().as_ref().unwrap().vbox;
         vbox.append(hbox);
         vbox.append(filmstrip.widget());
