@@ -31,6 +31,7 @@ if not babl.found()
   dependency('babl')
 endif
 gegl_deps = dependency('gegl-0.4')
+exiv2_deps = dependency('exiv2')
 gexiv2_deps = dependency('gexiv2')
 gphoto2_deps = dependency('libgphoto2', version: '>= 2.5')
 shumate_deps = dependency('shumate-1.0', version: '>= 1.0.0')

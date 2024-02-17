@@ -1,7 +1,7 @@
 /*
  * niepce - npc_rtengine.h
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,8 +73,8 @@ namespace rtengine {
   }
 
   inline
-  std::unique_ptr<procparams::PartialProfile> ProfileStore_load_dynamic_profile (const FramesMetaData* metadata) {
-    return std::unique_ptr<procparams::PartialProfile>(ProfileStore::getInstance()->loadDynamicProfile(metadata));
+  std::unique_ptr<procparams::PartialProfile> ProfileStore_load_dynamic_profile (const FramesMetaData* metadata, const std::string& input_file) {
+    return std::unique_ptr<procparams::PartialProfile>(ProfileStore::getInstance()->loadDynamicProfile(metadata, input_file));
   }
 
 

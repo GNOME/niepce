@@ -25,7 +25,8 @@ testconfigdatabinder = executable(
   dependencies: [
     cxx_headers, gtkmm_deps, exempi_deps, gexiv2_deps, niepce_rust_deps,
     # For rtengine
-    png16_deps, tiff_deps, jpeg_deps, expat_deps, fftw3f, zlib_deps
+    png16_deps, tiff_deps, jpeg_deps, expat_deps, fftw3f, zlib_deps,
+    exiv2_deps
   ],
   include_directories: [ gtest_inc, include_directories('..' / 'src', '..' / 'src' / 'fwk' / 'toolkit') ],
   link_with: [ gtest, fwk, ncr, niepce_lib, rtengine ]

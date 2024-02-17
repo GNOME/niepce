@@ -17,6 +17,7 @@ cxx-build = "1.0"
 system-deps = "6.0"
 
 [package.metadata.system-deps]
+exiv2 = "0.27"
 expat = "2.1"
 fftw3f = "*"
 "giomm-2.68" = "2.68"

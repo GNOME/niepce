@@ -1,7 +1,7 @@
 /*
  * niepce - lib.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ mod params;
 mod processing;
 
 use std::cell::RefCell;
+use std::ffi::OsString;
 use std::path::Path;
 use std::sync::Once;
 
@@ -83,12 +84,16 @@ fn init_engine() {
 
 #[derive(Default)]
 struct EngineState {
+    input_file: OsString,
     initial_image: Option<image::InitialImage>,
 }
 
 impl EngineState {
-    fn new(initial_image: Option<image::InitialImage>) -> EngineState {
-        Self { initial_image }
+    fn new(initial_image: Option<image::InitialImage>, input_file: OsString) -> EngineState {
+        Self {
+            initial_image,
+            input_file,
+        }
     }
 }
 
@@ -126,7 +131,11 @@ impl RtEngine {
     where
         P: AsRef<Path>,
     {
-        let state = EngineState::new(Some(image::InitialImage::load(path, is_raw)?));
+        let input_file = path.as_ref().as_os_str();
+        let state = EngineState::new(
+            Some(image::InitialImage::load(&path, is_raw)?),
+            input_file.to_os_string(),
+        );
         self.state.replace(Some(state));
         Ok(())
     }
@@ -137,7 +146,10 @@ impl RtEngine {
         if let Some(ref mut state) = *self.state.borrow_mut() {
             if let Some(ref mut image) = state.initial_image {
                 let mut proc_params = params::ProcParams::new();
-                let raw_params = params::ProfileStore::load_dynamic_profile(&image.meta_data());
+                let raw_params = params::ProfileStore::load_dynamic_profile(
+                    &image.meta_data(),
+                    &state.input_file,
+                );
                 raw_params.apply_to(&mut proc_params, false);
                 proc_params.set_lcmode(ffi::LcMode::LensFunAutoMatch);
 

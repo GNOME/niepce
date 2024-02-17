@@ -1,7 +1,7 @@
 /*
  * niepce - params.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 use crate::ffi;
 use crate::image;
 use crate::LcMode;
+
+use std::ffi::OsStr;
 
 /// Processing parameters.
 pub(crate) struct ProcParams(pub cxx::UniquePtr<ffi::ProcParams>);
@@ -58,7 +60,11 @@ pub(crate) struct ProfileStore {}
 
 impl ProfileStore {
     /// Load a dynamic profile based on the metadata.
-    pub fn load_dynamic_profile(metadata: &image::FramesMetaData) -> PartialProfile {
-        PartialProfile(unsafe { ffi::profile_store_load_dynamic_profile(metadata.0) })
+    pub fn load_dynamic_profile(
+        metadata: &image::FramesMetaData,
+        filename: &OsStr,
+    ) -> PartialProfile {
+        cxx::let_cxx_string!(input_file = filename.as_encoded_bytes());
+        PartialProfile(unsafe { ffi::profile_store_load_dynamic_profile(metadata.0, &input_file) })
     }
 }

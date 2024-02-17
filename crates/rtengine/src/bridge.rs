@@ -1,7 +1,7 @@
 /*
  * niepce - bridge.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,6 +94,7 @@ pub(crate) mod ffi {
         /// Dereference a pointer.
         unsafe fn profile_store_load_dynamic_profile(
             metadata: *const FramesMetaData,
+            input_file: &CxxString,
         ) -> UniquePtr<PartialProfile>;
         fn image_io_width(image: &ImageIO) -> i32;
         fn image_io_height(image: &ImageIO) -> i32;
