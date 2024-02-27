@@ -13,17 +13,17 @@ cairo-rs = "*"
 chrono = "0.4.0"
 cxx = { version = "1.0", features = [ "c++17" ] }
 exempi2 = { version = "0.2.0" }
-gio = "^0.18"
-glib = "^0.18"
-gdk4 = "^0.7.1"
-gdk-pixbuf = "^0.18"
+gio = "^0.19"
+glib = "^0.19"
+gdk4 = "^0.8"
+gdk-pixbuf = "^0.19"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
 gphoto2 = "3.2.3"
-graphene-rs = "0.18"
-gtk4 = { version = "^0.7.1", features = [ "gnome_43" ] }
+graphene-rs = "0.19"
+gtk4 = { version = "^0.8", features = [ "gnome_43" ] }
 image = { version = "0.24.5", features = [ "png" ], default-features = false }
 lazy_static = "^1.2.0"
-libadwaita = { version = "^0.5.2", features = [ "v1_2" ] }
+libadwaita = { version = "^0.6.0", features = [ "v1_2" ] }
 libc = "0.2.39"
 libopenraw = "0.4.0-alpha.3"
 multimap = "0.9.0"

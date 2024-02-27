@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use glib::prelude::*;
 use glib::translate::*;
-use glib::Cast;
 use gtk4::subclass::prelude::*;
 
 use super::ToolboxItem;
@@ -148,8 +148,6 @@ mod imp {
     use std::collections::HashMap;
 
     use glib::subclass::*;
-    use glib::Cast;
-    use glib::StaticType;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
 

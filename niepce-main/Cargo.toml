@@ -17,7 +17,7 @@ gdk-pixbuf = "*"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
 gio = "*"
 glib = "*"
-graphene-rs = "0.18"
+graphene-rs = "0.19"
 gtk4 = { version = "*", features = [ "v4_6" ] }
 gtk-macros = "0.3.0"
 i18n-format = "0.2.0"

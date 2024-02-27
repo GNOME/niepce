@@ -29,7 +29,6 @@ use adw::prelude::*;
 use gettextrs::gettext as i18n;
 use gio;
 use glib;
-use glib::Cast;
 use num_derive::FromPrimitive;
 use once_cell::unsync::OnceCell;
 

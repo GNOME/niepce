@@ -22,7 +22,6 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
-use glib::Cast;
 use gtk4::prelude::*;
 
 use super::{
