@@ -108,7 +108,6 @@ pub mod ffi {
         include!("fwk/cxx_prelude.hpp");
         type Label = npc_engine::db::Label;
         type LibNotification = npc_engine::library::notification::LibNotification;
-        type UIDataProvider = npc_engine::libraryclient::UIDataProvider;
         type LibraryClientWrapper = npc_engine::libraryclient::LibraryClientWrapper;
         type LibraryClientHost = npc_engine::libraryclient::LibraryClientHost;
     }

@@ -37,10 +37,6 @@ namespace fwk {
 class Dock;
 }
 
-namespace npc {
-class UIDataProvider;
-}
-
 namespace ui {
 
 class GridViewModule

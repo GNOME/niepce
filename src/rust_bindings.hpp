@@ -1,7 +1,7 @@
 /*
  * niepce - rust_bindings.hpp
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,12 +32,10 @@
 #include "fwk/cxx_npc_bindings.hpp"
 
 namespace ffi {
-class rust_str;
 struct Utc;
 template <class T>
 struct DateTime;
 typedef fwk::Date Date;
-typedef rust_str str;
 typedef fwk::PropertyValue PropertyValue;
 typedef fwk::RgbColour RgbColour;
 typedef fwk::WrappedPropertyBag WrappedPropertyBag;
@@ -63,7 +61,6 @@ typedef rust::Box<Label> LabelPtr;
 typedef std::vector<LabelPtr> LabelList;
 typedef int64_t library_id_t;
 typedef rust::Box<LibraryClientHost> LibraryClientPtr;
-typedef rust::Box<UIDataProvider> UIDataProviderPtr;
 }
 
 #undef _IN_RUST_BINDINGS_
