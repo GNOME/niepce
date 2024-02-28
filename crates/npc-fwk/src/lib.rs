@@ -34,8 +34,6 @@ pub use self::base::date::{Date, Time};
 
 pub use self::toolkit::mimetype::MimeType;
 
-use std::f64;
-
 ///
 /// Init funtion because rexiv2 need one.
 ///
@@ -73,10 +71,6 @@ fn rgbcolour_new(r: u16, g: u16, b: u16) -> Box<RgbColour> {
 fn rgbcolour_to_string(r: u16, g: u16, b: u16) -> String {
     let colour = RgbColour::new(r, g, b);
     colour.to_string()
-}
-
-pub fn gps_coord_from_xmp_(value: &str) -> f64 {
-    gps_coord_from_xmp(value).unwrap_or(f64::NAN)
 }
 
 pub fn metadata_widget_new(title: &str) -> Box<MetadataWidget> {
@@ -121,12 +115,6 @@ pub mod ffi {
         fn rgbcolour_new(r: u16, g: u16, b: u16) -> Box<RgbColour>;
 
         fn rgbcolour_to_string(r: u16, g: u16, b: u16) -> String;
-    }
-
-    #[namespace = "fwk"]
-    extern "Rust" {
-        #[cxx_name = "gps_coord_from_xmp"]
-        fn gps_coord_from_xmp_(value: &str) -> f64;
     }
 
     extern "Rust" {

@@ -124,8 +124,6 @@ fwk = static_library(
   'toolkit' / 'gdkutils.cpp',
   'toolkit' / 'gtkutils.hpp',
   'toolkit' / 'gtkutils.cpp',
-  'toolkit' / 'mapcontroller.hpp',
-  'toolkit' / 'mapcontroller.cpp',
   'toolkit' / 'uicontroller.hpp',
   'toolkit' / 'uicontroller.cpp',
   'toolkit' / 'widgets' / 'dock.hpp',

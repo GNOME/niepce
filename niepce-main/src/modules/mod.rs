@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/mod.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ mod map;
 
 pub use darkroom::image_canvas::ImageCanvas;
 pub use darkroom::DarkroomModule;
-pub use map::MapModuleProxy;
+pub use map::MapModule;
 
 pub mod cxx {
     use super::ImageCanvas;

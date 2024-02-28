@@ -16,3 +16,7 @@ opt-level = 3
 opt-level = 3
 [profile.dev.package.md-5]
 opt-level = 3
+
+[patch.crates-io]
+# We need to override until The issue is fixed.
+shumate = { git = "https://gitlab.gnome.org/hub/libshumate-rs.git", rev = "bce4e985780b72b9d4c2d7ee5666b71d9fe32f06", package = "libshumate" }

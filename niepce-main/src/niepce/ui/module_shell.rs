@@ -27,7 +27,7 @@ use gtk4::prelude::*;
 use super::{
     GridViewModuleProxy, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,
 };
-use crate::modules::{DarkroomModule, MapModuleProxy};
+use crate::modules::{DarkroomModule, MapModule};
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::LibraryClientHost;
@@ -47,7 +47,7 @@ pub struct ModuleShell {
     pub selection_controller: Rc<SelectionController>,
     // currently a proxy that will bridge the C++ implementation
     gridview: Rc<GridViewModuleProxy>,
-    mapm: Rc<MapModuleProxy>,
+    mapm: Rc<MapModule>,
     darkroom: Rc<DarkroomModule>,
     menu: gio::Menu,
     module_menu: gio::Menu,
@@ -68,7 +68,7 @@ impl ModuleShell {
                 &menu,
                 client_host,
             )),
-            mapm: Rc::new(MapModuleProxy::default()),
+            mapm: MapModule::new(),
             darkroom: DarkroomModule::new(&selection_controller, client_host),
             selection_controller,
             menu,

@@ -11,8 +11,6 @@ resources_bundle = gnome.compile_resources(
 niepce_lib = static_library('niepce_lib',
     ncr_bindings_cpp,
     npc_bindings_cpp,
-    'modules' / 'map' / 'mapmodule.cpp',
-    'modules' / 'map' / 'mapmodule.hpp',
     'ui' / 'dialogs' / 'editlabels.cpp',
     'ui' / 'dialogs' / 'editlabels.hpp',
     'ui' / 'dialogs' / 'preferencesdialog.cpp',

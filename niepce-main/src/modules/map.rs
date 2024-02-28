@@ -17,61 +17,92 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
 
-use glib::translate::*;
+use gtk4::prelude::*;
 
-use crate::ffi::{map_module_new, MapModule};
 use crate::niepce::ui::LibraryModule;
+use npc_engine::db::NiepceProperties as Np;
+use npc_engine::db::NiepcePropertyIdx as Npi;
 use npc_engine::library::notification::LibNotification;
-use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
+use npc_fwk::dbg_out;
+use npc_fwk::toolkit::{Controller, ControllerImpl, MapController, UiController};
 
-pub struct MapModuleProxy {
-    imp_: RefCell<ControllerImpl<<MapModuleProxy as Controller>::InMsg>>,
-    module: cxx::UniquePtr<MapModule>,
-    widget: gtk4::Widget,
+pub struct MapModule {
+    imp_: RefCell<ControllerImpl<<MapModule as Controller>::InMsg>>,
+    map: MapController,
+    active: Cell<bool>,
+    widget: gtk4::Box,
 }
 
-impl Controller for MapModuleProxy {
+impl Controller for MapModule {
     type InMsg = ();
 
     npc_fwk::controller_imp_imp!(imp_);
 }
 
-impl UiController for MapModuleProxy {
+impl UiController for MapModule {
     fn widget(&self) -> &gtk4::Widget {
-        &self.widget
+        self.widget.upcast_ref::<gtk4::Widget>()
     }
 }
 
-impl LibraryModule for MapModuleProxy {
+impl LibraryModule for MapModule {
     fn set_active(&self, active: bool) {
-        self.module.set_active(active);
+        self.active.set(active);
     }
 
     fn widget(&self) -> &gtk4::Widget {
-        &self.widget
+        UiController::widget(self)
     }
 }
 
-impl Default for MapModuleProxy {
-    fn default() -> Self {
-        let mut module = map_module_new();
-        let widget = unsafe {
-            gtk4::Widget::from_glib_none(
-                module.pin_mut().build_widget() as *mut gtk4::ffi::GtkWidget
-            )
-        };
-        Self {
+impl MapModule {
+    pub fn new() -> Rc<Self> {
+        let widget = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+        let mut module = Self {
             imp_: RefCell::new(ControllerImpl::default()),
-            module,
             widget,
-        }
-    }
-}
+            map: MapController::new(),
+            active: Cell::new(false),
+        };
 
-impl MapModuleProxy {
+        module.build_widget();
+
+        Rc::new(module)
+    }
+
+    fn build_widget(&mut self) {
+        let map_widget = self.map.widget();
+        self.widget.append(map_widget);
+    }
+
     pub fn on_lib_notification(&self, ln: &LibNotification) {
-        self.module.on_lib_notification(ln);
+        if !self.active.get() {
+            return;
+        }
+        if let LibNotification::MetadataQueried(lm) = ln {
+            dbg_out!("received metadata in MapModule");
+
+            let mut propset = npc_fwk::PropertySet::new();
+            propset.insert(Np::Index(Npi::NpExifGpsLongProp));
+            propset.insert(Np::Index(Npi::NpExifGpsLatProp));
+
+            let properties = lm.to_properties(&propset);
+            if let Some(longitude) = properties
+                .get(&Np::Index(Npi::NpExifGpsLongProp))
+                .and_then(|v| v.string())
+                .and_then(npc_fwk::gps_coord_from_xmp)
+            {
+                if let Some(latitude) = properties
+                    .get(&Np::Index(Npi::NpExifGpsLatProp))
+                    .and_then(|v| v.string())
+                    .and_then(npc_fwk::gps_coord_from_xmp)
+                {
+                    self.map.center_on(latitude, longitude);
+                }
+            }
+        }
     }
 }

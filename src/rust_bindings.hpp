@@ -42,7 +42,6 @@ typedef fwk::WrappedPropertyBag WrappedPropertyBag;
 typedef eng::Label Label;
 typedef eng::LibMetadata LibMetadata;
 typedef fwk::PropertyBag NiepcePropertyBag;
-typedef fwk::PropertySet NiepcePropertySet;
 typedef eng::LibNotification LibNotification;
 typedef eng::LibraryClientWrapper LibraryClientWrapper;
 }
@@ -53,7 +52,6 @@ typedef rust::Box<RgbColour> RgbColourPtr;
 typedef rust::Box<PropertyValue> PropertyValuePtr;
 
 typedef rust::Box<PropertyBag> PropertyBagPtr;
-typedef rust::Box<PropertySet> PropertySetPtr;
 }
 
 namespace eng {

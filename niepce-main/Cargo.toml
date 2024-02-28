@@ -38,7 +38,6 @@ system-deps = "6.0"
 
 [package.metadata.system-deps]
 "gtkmm-4.0" = "4.4.0"
-"shumate-1.0" = "1.0.0"
 
 [lib]
 name = "niepce_core"

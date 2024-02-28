@@ -1186,6 +1186,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "libshumate"
+version = "0.5.0"
+source = "git+https://gitlab.gnome.org/hub/libshumate-rs.git?rev=bce4e985780b72b9d4c2d7ee5666b71d9fe32f06#bce4e985780b72b9d4c2d7ee5666b71d9fe32f06"
+dependencies = [
+ "gdk-pixbuf",
+ "gdk4",
+ "gio",
+ "glib",
+ "gtk4",
+ "libc",
+ "libshumate-sys",
+]
+
+[[package]]
+name = "libshumate-sys"
+version = "0.5.0"
+source = "git+https://gitlab.gnome.org/hub/libshumate-rs.git?rev=bce4e985780b72b9d4c2d7ee5666b71d9fe32f06#bce4e985780b72b9d4c2d7ee5666b71d9fe32f06"
+dependencies = [
+ "gdk-pixbuf-sys",
+ "gdk4-sys",
+ "gio-sys",
+ "glib-sys",
+ "gobject-sys",
+ "gtk4-sys",
+ "libc",
+ "system-deps",
+]
+
+[[package]]
 name = "libsqlite3-sys"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1478,6 +1507,7 @@ dependencies = [
  "libadwaita",
  "libc",
  "libopenraw",
+ "libshumate",
  "mime_guess",
  "multimap",
  "nix",

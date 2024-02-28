@@ -1,7 +1,7 @@
 /*
  * niepce - lib.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -215,17 +215,6 @@ pub mod ffi {
         fn display_none(&self);
         #[cxx_name = "cxx_image_list"]
         fn image_list(&self) -> *const GtkGridView;
-    }
-
-    #[namespace = "mapm"]
-    unsafe extern "C++" {
-        include!("niepce/modules/map/mapmodule.hpp");
-        type MapModule;
-
-        fn map_module_new() -> UniquePtr<MapModule>;
-        fn build_widget(self: Pin<&mut MapModule>) -> *const GtkWidget;
-        fn on_lib_notification(&self, ln: &LibNotification);
-        fn set_active(&self, active: bool);
     }
 
     #[namespace = "ui"]
