@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/module_shell.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ use crate::ffi::{grid_view_module_new, GridViewModule};
 use crate::niepce::ui::{LibraryModule, SelectionController};
 
 pub struct GridViewModuleProxy {
-    imp_: RefCell<ControllerImpl>,
+    imp_: RefCell<ControllerImpl<<GridViewModuleProxy as Controller>::InMsg>>,
     module: cxx::UniquePtr<GridViewModule>,
     widget: gtk4::Widget,
     pub grid_view: gtk4::GridView,

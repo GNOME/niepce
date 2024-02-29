@@ -70,8 +70,7 @@ struct ShellWidgets {
 }
 
 struct NiepceWindow {
-    imp_: RefCell<ControllerImpl>,
-    tx: npc_fwk::toolkit::Sender<Event>,
+    imp_: RefCell<ControllerImpl<<NiepceWindow as Controller>::InMsg>>,
     window: gtk4::ApplicationWindow,
     libraryclient: RefCell<Option<Rc<LibraryClientHost>>>,
     configuration: RefCell<Option<Rc<toolkit::Configuration>>>,
@@ -205,7 +204,7 @@ impl UiController for NiepceWindow {
 
                 self.window.set_child(Some(&vbox));
 
-                let tx = self.tx.clone();
+                let tx = self.sender();
                 let notif_center = NotificationCenter::new();
                 notif_center.signal_notify.connect(move |n| {
                     Self::lib_notification(&tx, n);
@@ -226,7 +225,7 @@ impl UiController for NiepceWindow {
     }
 
     fn actions(&self) -> Option<(&str, &gio::ActionGroup)> {
-        let tx = self.tx.clone();
+        let tx = self.sender();
         let group: &gio::ActionMap = self.window.upcast_ref();
         action!(
             group,
@@ -259,11 +258,8 @@ impl WindowController for NiepceWindow {
 
 impl NiepceWindow {
     pub fn new(app: &gtk4::Application) -> Rc<NiepceWindow> {
-        let (tx, rx) = npc_fwk::toolkit::channel();
-
         let ctrl = Rc::new(NiepceWindow {
             imp_: RefCell::new(ControllerImpl::default()),
-            tx,
             window: gtk4::ApplicationWindow::new(app),
             libraryclient: RefCell::new(None),
             configuration: RefCell::new(None),
@@ -272,12 +268,7 @@ impl NiepceWindow {
             shell_widgets: OnceCell::new(),
         });
 
-        npc_fwk::toolkit::channels::receiver_attach(
-            rx,
-            glib::clone!(@strong ctrl => move |e| {
-                ctrl.dispatch(e);
-            }),
-        );
+        <Self as Controller>::start(&ctrl);
 
         ctrl
     }
@@ -369,8 +360,9 @@ impl NiepceWindow {
         );
         dialog.set_modal(true);
         dialog.set_create_folders(true);
+        let tx = self.sender();
         dialog.connect_response(
-            glib::clone!(@strong dialog, @strong self.tx as tx => move |_, response| {
+            glib::clone!(@strong dialog, @strong tx => move |_, response| {
                 if response == gtk4::ResponseType::Accept {
                     if let Some(catalog_to_create) = dialog.file().and_then(|f| f.path()) {
                         let catalog_to_create2 = catalog_to_create.clone();

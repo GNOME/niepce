@@ -41,8 +41,7 @@ pub enum Event {
 }
 
 pub struct ModuleShell {
-    imp_: RefCell<ControllerImpl>,
-    tx: npc_fwk::toolkit::Sender<Event>,
+    imp_: RefCell<ControllerImpl<<ModuleShell as Controller>::InMsg>>,
     widget: ModuleShellWidget,
     action_group: gio::SimpleActionGroup,
     pub selection_controller: Rc<SelectionController>,
@@ -58,12 +57,10 @@ pub struct ModuleShell {
 
 impl ModuleShell {
     pub fn new(client_host: &Rc<LibraryClientHost>) -> Rc<ModuleShell> {
-        let (tx, rx) = npc_fwk::toolkit::channel();
         let selection_controller = SelectionController::new(client_host);
         let menu = gio::Menu::new();
         let shell = Rc::new(ModuleShell {
             imp_: RefCell::new(ControllerImpl::default()),
-            tx: tx.clone(),
             widget: ModuleShellWidget::new(),
             action_group: gio::SimpleActionGroup::new(),
             gridview: Rc::new(GridViewModuleProxy::new(
@@ -80,12 +77,7 @@ impl ModuleShell {
             modules: RefCell::new(HashMap::default()),
         });
 
-        npc_fwk::toolkit::channels::receiver_attach(
-            rx,
-            glib::clone!(@strong shell => move |e| {
-                shell.dispatch(e);
-            }),
-        );
+        <Self as Controller>::start(&shell);
 
         shell
             .widget
@@ -115,6 +107,7 @@ impl ModuleShell {
         shell.add_library_module(&shell.darkroom, "darkroom", &i18n("Darkroom"));
         shell.add_library_module(&shell.mapm, "map", &i18n("Map"));
 
+        let tx = shell.sender();
         shell.widget.connect(
             "activated",
             true,
@@ -124,7 +117,7 @@ impl ModuleShell {
                 None
             }),
         );
-        let tx = shell.tx.clone();
+        let tx = shell.sender();
         shell.widget.connect(
             "deactivated",
             true,

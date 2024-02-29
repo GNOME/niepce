@@ -27,7 +27,7 @@ use npc_engine::library::notification::LibNotification;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 
 pub struct MapModuleProxy {
-    imp_: RefCell<ControllerImpl>,
+    imp_: RefCell<ControllerImpl<<MapModuleProxy as Controller>::InMsg>>,
     module: cxx::UniquePtr<MapModule>,
     widget: gtk4::Widget,
 }

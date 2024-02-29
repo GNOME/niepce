@@ -47,8 +47,7 @@ pub enum Msg {
 }
 
 pub struct DarkroomModule {
-    imp_: RefCell<ControllerImpl>,
-    tx: npc_fwk::toolkit::Sender<Msg>,
+    imp_: RefCell<ControllerImpl<<DarkroomModule as Controller>::InMsg>>,
     client: Rc<LibraryClientHost>,
     widget: gtk4::Widget,
     worker: RenderWorker,
@@ -126,11 +125,9 @@ impl DarkroomModule {
         let toolbox_controller = crate::ffi::toolbox_controller_new();
         let widget: gtk4::Widget = gtk4::Paned::new(gtk4::Orientation::Horizontal).into();
         let engine_combo = gtk4::ComboBoxText::new();
-        let (tx, rx) = npc_fwk::toolkit::channel();
 
         let mut module = Self {
             imp_: RefCell::new(ControllerImpl::default()),
-            tx,
             client: client_host.clone(),
             widget,
             imagecanvas,
@@ -150,12 +147,7 @@ impl DarkroomModule {
 
         let module = Rc::new(module);
 
-        npc_fwk::toolkit::channels::receiver_attach(
-            rx,
-            glib::clone!(@strong module => move |e| {
-                module.dispatch(e)
-            }),
-        );
+        <Self as Controller>::start(&module);
 
         selection_controller.handler.signal_selected.connect(
             glib::clone!(@weak selection_controller, @weak module => move |id| {
@@ -300,7 +292,7 @@ impl DarkroomModule {
             .append(Some(RenderEngine::Ncr.key()), "Niepce Camera Raw");
         self.engine_combo
             .append(Some(RenderEngine::Rt.key()), "RawTherapee");
-        let tx = self.tx.clone();
+        let tx = self.sender();
         self.engine_combo_change = Some(self.engine_combo.connect_changed(move |combo| {
             if let Some(id) = combo.active_id().map(|id| id.to_string()) {
                 npc_fwk::toolkit::send_async_local!(Msg::SetRenderEngine(id), tx);

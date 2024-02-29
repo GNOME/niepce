@@ -43,7 +43,7 @@ pub mod cxx {
     };
 }
 
-pub use channels::{channel, send_async_any, send_async_local, Sender};
+pub use channels::{channel, send_async_any, send_async_local, Receiver, Sender};
 pub use controller::{Controller, ControllerImpl};
 pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
 pub use image_bitmap::ImageBitmap;

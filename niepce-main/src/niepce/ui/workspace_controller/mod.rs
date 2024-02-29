@@ -82,8 +82,7 @@ pub enum Event {
 }
 
 pub struct WorkspaceController {
-    imp_: RefCell<ControllerImpl>,
-    tx: npc_fwk::toolkit::Sender<Event>,
+    imp_: RefCell<ControllerImpl<<WorkspaceController as Controller>::InMsg>>,
     cfg: Rc<toolkit::Configuration>,
     widgets: OnceCell<Widgets>,
     client: Weak<LibraryClient>,
@@ -287,12 +286,14 @@ impl UiController for WorkspaceController {
                 let selection_model = gtk4::SingleSelection::new(Some(treemodel.clone()));
 
                 let factory = gtk4::SignalListItemFactory::new();
-                factory.connect_setup(glib::clone!(@strong self.tx as tx => move |_, item| {
+                let tx = self.sender();
+                factory.connect_setup(glib::clone!(@strong tx => move |_, item| {
                     let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
                     let item_row = WsItemRow::new(tx.clone());
                     item.set_child(Some(&item_row));
                 }));
-                factory.connect_bind(glib::clone!(@strong self.tx as tx => move |_, list_item| {
+                let tx = self.sender();
+                factory.connect_bind(glib::clone!(@strong tx => move |_, list_item| {
                     let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
                     let ws_item_row = list_item.child().and_downcast_ref::<WsItemRow>().unwrap().clone();
                     if let Some(item) = list_item.item() {
@@ -410,15 +411,17 @@ impl UiController for WorkspaceController {
 
                 // connect signals
                 if let Some(model) = librarytree.model() {
+                    let tx = self.sender();
                     model.connect_selection_changed(
-                        glib::clone!(@strong self.tx as tx => move |_, _, _| {
+                        glib::clone!(@strong tx => move |_, _, _| {
                             npc_fwk::send_async_local!(Event::SelectionChanged, tx);
                         }),
                     );
                 }
                 let gesture = gtk4::GestureClick::new();
                 gesture.set_button(3);
-                gesture.connect_pressed(glib::clone!(@strong self.tx as tx => move |_, _, x, y| {
+                let tx = self.sender();
+                gesture.connect_pressed(glib::clone!(@strong tx => move |_, _, x, y| {
                     npc_fwk::send_async_local!(Event::ButtonPress(x, y), tx);
                 }));
                 librarytree.add_controller(gesture);
@@ -443,7 +446,7 @@ impl UiController for WorkspaceController {
             "workspace",
             (self.action_group.get_or_init(|| {
                 let group = npc_fwk::sending_action_group!(
-                    self.tx,
+                    self.sender(),
                     // ("NewProject", move |_, _| {});
                     ("NewFolder", Event::NewFolder),
                     ("NewAlbum", Event::NewAlbum),
@@ -463,10 +466,8 @@ impl WorkspaceController {
         cfg: Rc<toolkit::Configuration>,
         client: &LibraryClientWrapper,
     ) -> Rc<WorkspaceController> {
-        let (tx, rx) = npc_fwk::toolkit::channel();
         let ctrl = Rc::new(WorkspaceController {
             imp_: RefCell::new(ControllerImpl::default()),
-            tx,
 
             cfg,
             widgets: OnceCell::new(),
@@ -481,12 +482,7 @@ impl WorkspaceController {
             icon_album: gio::ThemedIcon::new("open-book-symbolic").upcast(),
         });
 
-        npc_fwk::toolkit::channels::receiver_attach(
-            rx,
-            glib::clone!(@strong ctrl => move |e| {
-                ctrl.dispatch(e);
-            }),
-        );
+        <Self as Controller>::start(&ctrl);
 
         ctrl
     }
@@ -727,9 +723,10 @@ impl WorkspaceController {
     fn action_import(&self) {
         let import_dialog = super::dialogs::ImportDialog::new(self.cfg.clone());
         let parent = self.widget().root().and_downcast::<gtk4::Window>();
+        let tx = self.sender();
         import_dialog.run_modal(
             parent.as_ref(),
-            glib::clone!(@strong import_dialog, @strong self.tx as tx => move |dialog| {
+            glib::clone!(@strong import_dialog, @strong tx => move |dialog| {
                 let request = import_dialog.import_request();
                 dialog.close();
                 if let Some(request) = request {

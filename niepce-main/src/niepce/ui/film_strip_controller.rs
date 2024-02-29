@@ -36,7 +36,7 @@ struct Widgets {
 }
 
 pub struct FilmStripController {
-    imp_: RefCell<ControllerImpl>,
+    imp_: RefCell<ControllerImpl<<FilmStripController as Controller>::InMsg>>,
 
     widgets: OnceCell<Widgets>,
     store: Rc<ImageListStore>,

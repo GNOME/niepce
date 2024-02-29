@@ -68,7 +68,7 @@ impl SelectionHandler {
 }
 
 pub struct SelectionController {
-    imp_: RefCell<ControllerImpl>,
+    imp_: RefCell<ControllerImpl<<SelectionController as Controller>::InMsg>>,
     client: Arc<LibraryClient>,
     pub handler: Rc<SelectionHandler>,
 }
