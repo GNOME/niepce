@@ -41,7 +41,7 @@ use once_cell::sync::OnceCell;
 use crate::ffi;
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
 use npc_fwk::toolkit::{self, Thumbnail};
-use npc_fwk::{dbg_out, on_err_out, Date};
+use npc_fwk::{dbg_out, Date};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
 

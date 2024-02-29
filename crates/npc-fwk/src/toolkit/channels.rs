@@ -50,7 +50,7 @@ macro_rules! send_async_any {
     ($message:expr, $sender:expr) => {{
         let sender = $sender.clone();
         $crate::toolkit::channels::spawn_any(async move {
-            on_err_out!(sender.send($message).await);
+            $crate::on_err_out!(sender.send($message).await);
         })
     }};
 }
@@ -62,7 +62,7 @@ macro_rules! send_async_local {
     ($message:expr, $sender:expr) => {{
         let sender = $sender.clone();
         $crate::toolkit::channels::spawn_local(async move {
-            on_err_out!(sender.send($message).await);
+            $crate::on_err_out!(sender.send($message).await);
         })
     }};
 }

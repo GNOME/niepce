@@ -96,7 +96,7 @@ mod imp {
 
     use super::super::{Event, Item, TreeItemType};
     use npc_engine::db;
-    use npc_fwk::{dbg_out, on_err_out};
+    use npc_fwk::dbg_out;
 
     #[derive(Default)]
     pub struct WsItemRow {

@@ -32,7 +32,7 @@ use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Moniker;
 use npc_fwk::toolkit::{self, Controller, ControllerImpl, UiController, WindowController};
-use npc_fwk::{dbg_out, err_out, on_err_out};
+use npc_fwk::{dbg_out, err_out};
 
 use super::film_strip_controller::FilmStripController;
 use super::module_shell::ModuleShell;

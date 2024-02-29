@@ -31,9 +31,9 @@ use crate::modules::{DarkroomModule, MapModuleProxy};
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::LibraryClientHost;
+use npc_fwk::dbg_out;
 use npc_fwk::toolkit::gtk_utils::add_menu_action;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
-use npc_fwk::{dbg_out, on_err_out};
 
 pub enum Event {
     ModuleActivated(String),

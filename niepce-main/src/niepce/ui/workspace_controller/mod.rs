@@ -39,7 +39,7 @@ use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientWrapper};
 use npc_fwk::base::Signal;
 use npc_fwk::toolkit::{self, Controller, ControllerImpl, UiController};
-use npc_fwk::{dbg_out, err_out, on_err_out};
+use npc_fwk::{dbg_out, err_out};
 use ws_item_row::WsItemRow;
 use ws_list_item::{CountUpdate, Item};
 use ws_list_model::WorkspaceList;

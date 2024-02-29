@@ -25,7 +25,6 @@ use gtk4::prelude::*;
 
 use super::{ImporterUI, SourceSelectedCallback};
 use npc_engine::importer::{CameraImporter, ImportBackend};
-use npc_fwk::on_err_out;
 use npc_fwk::toolkit;
 
 enum Event {
