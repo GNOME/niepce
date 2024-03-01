@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/widgets/mod.rs
  *
- * Copyright (C) 2020-2022 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  */
 
 mod dock;
+mod editable_hscale;
 mod metadata_widget;
 pub mod rating_label;
 mod token_text_view;
@@ -25,6 +26,7 @@ mod toolbox_item;
 
 // Re-exports
 pub use dock::Dock;
+pub use editable_hscale::EditableHScale;
 pub use metadata_widget::{
     MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget, WrappedPropertyBag,
 };

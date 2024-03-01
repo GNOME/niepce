@@ -17,13 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod dr_item;
 pub(super) mod image_canvas;
+mod toolbox_controller;
 
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
-use glib::translate::*;
 use gtk4::prelude::*;
 use i18n_format::i18n_fmt;
 
@@ -41,6 +42,7 @@ use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 use npc_fwk::{dbg_out, on_err_out};
+use toolbox_controller::ToolboxController;
 
 pub enum Msg {
     SetRenderEngine(String),
@@ -55,7 +57,7 @@ pub struct DarkroomModule {
     overlay: adw::ToastOverlay,
     engine_combo: gtk4::ComboBoxText,
     engine_combo_change: Option<glib::SignalHandlerId>,
-    toolbox_controller: cxx::UniquePtr<crate::ffi::ToolboxController>,
+    toolbox_controller: ToolboxController,
     file: RefCell<Option<db::LibFile>>,
     render_params: RefCell<Option<RenderParams>>,
     need_reload: Cell<bool>,
@@ -122,7 +124,7 @@ impl DarkroomModule {
         let worker = RenderWorker::new(RenderImpl::new());
         let imagecanvas = ImageCanvas::new();
         let overlay = adw::ToastOverlay::new();
-        let toolbox_controller = crate::ffi::toolbox_controller_new();
+        let toolbox_controller = ToolboxController::new();
         let widget: gtk4::Widget = gtk4::Paned::new(gtk4::Orientation::Horizontal).into();
         let engine_combo = gtk4::ComboBoxText::new();
 
@@ -299,12 +301,8 @@ impl DarkroomModule {
             }
         }));
         dock.vbox().append(&self.engine_combo);
-        let toolbox = unsafe {
-            gtk4::Widget::from_glib_none(
-                self.toolbox_controller.pin_mut().build_widget() as *const gtk4::ffi::GtkWidget
-            )
-        };
-        dock.vbox().append(&toolbox);
+        let toolbox = self.toolbox_controller.widget();
+        dock.vbox().append(toolbox);
         splitview.set_end_child(Some(&dock));
         splitview.set_resize_end_child(false);
     }

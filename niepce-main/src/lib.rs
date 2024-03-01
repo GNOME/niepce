@@ -259,15 +259,4 @@ pub mod ffi {
         fn niepce_application_create() -> SharedPtr<NiepceApplication>;
         fn main(&self);
     }
-
-    #[namespace = "dr"]
-    unsafe extern "C++" {
-        include!("niepce/modules/darkroom/toolboxcontroller.hpp");
-
-        type ToolboxController;
-
-        #[cxx_name = "ToolboxController_new"]
-        fn toolbox_controller_new() -> UniquePtr<ToolboxController>;
-        fn build_widget(self: Pin<&mut ToolboxController>) -> *mut GtkWidget;
-    }
 }
