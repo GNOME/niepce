@@ -104,8 +104,8 @@ impl<T> ControllerImpl<T> {
 /// let sender = ctrl.sender();
 /// ctrl.start();
 ///
-/// ctrl.emit(MyMsg::Command1);
-/// sender.send(MyMsg::Command2("test".to_string()));
+/// ctrl.send(MyMsg::Command1);
+/// sender.send(MyMsg::Command2("test".to_string())).await;
 /// ```
 pub trait Controller {
     type InMsg;
@@ -130,11 +130,11 @@ pub trait Controller {
         self.imp().tx.clone()
     }
 
-    /// Emit an inbound message.
+    /// Send an inbound message.
     ///
     /// XXX not sure about thread location. This is meant to be on the
     /// local context (main)
-    fn emit(&self, msg: Self::InMsg)
+    fn send(&self, msg: Self::InMsg)
     where
         Self::InMsg: 'static,
     {
