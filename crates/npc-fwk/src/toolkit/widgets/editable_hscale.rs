@@ -116,7 +116,12 @@ mod imp {
             gesture.connect_released(glib::clone!(@weak obj => move |_, _, _, _| {
                 obj.imp().on_button_press();
             }));
-            self.scale.add_controller(gesture.clone());
+            self.scale.add_controller(gesture);
+            let gesture = gtk4::GestureClick::new();
+            gesture.set_button(1);
+            gesture.connect_released(glib::clone!(@weak obj => move |_, _, _, _| {
+                obj.imp().on_button_press();
+            }));
             self.entry.add_controller(gesture);
             self.adj
                 .connect_value_changed(glib::clone!(@weak obj => move |_| {
