@@ -21,13 +21,10 @@ class UndoTransaction;
 
 namespace eng {
 class Label;
-class LibNotification;
 }
 
 namespace ui {
-class GridViewModule;
 class EditLabels;
-class MetaDataPaneController;
 class NiepceApplication;
 }
 

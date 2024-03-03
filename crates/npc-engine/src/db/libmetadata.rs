@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libmetadata.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,9 @@ use super::props;
 use super::NiepceProperties as Np;
 use super::{FromDb, LibraryId};
 use crate::NiepcePropertyBag;
-use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
 use npc_fwk::{dbg_out, err_out};
-use npc_fwk::{Date, PropertyBag, PropertySet, PropertyValue, XmpMeta};
+use npc_fwk::{Date, PropertySet, PropertyValue, XmpMeta};
 
 #[derive(Clone, Debug)]
 pub struct LibMetadata {
@@ -267,12 +266,6 @@ impl LibMetadata {
         property_bag
     }
 
-    // cxx
-    pub fn to_wrapped_properties(&self, propset: &PropertySet<Np>) -> *mut WrappedPropertyBag {
-        let bag = self.to_properties(propset);
-        Box::into_raw(Box::new(WrappedPropertyBag(into_u32(*bag))))
-    }
-
     pub fn touch(&mut self) -> bool {
         let local = chrono::Local::now();
         let xmpdate = Date(chrono::DateTime::from(local)).into();
@@ -308,17 +301,6 @@ impl FromDb for LibMetadata {
         libmeta.name = row.get(3)?;
         libmeta.folder = row.get(4)?;
         Ok(libmeta)
-    }
-}
-
-fn into_u32(from: NiepcePropertyBag) -> PropertyBag<u32> {
-    PropertyBag {
-        bag: from.bag.iter().map(|v| (*v).into()).collect(),
-        map: from
-            .map
-            .iter()
-            .map(|(k, v)| ((*k).into(), v.clone()))
-            .collect(),
     }
 }
 

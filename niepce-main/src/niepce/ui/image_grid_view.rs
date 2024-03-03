@@ -21,12 +21,11 @@ pub use super::image_list_item::ImageListItem;
 
 use std::rc::Rc;
 
-use glib::translate::*;
 use gtk4::prelude::*;
 
 use super::library_cell_renderer::LibraryCellRenderer;
 use npc_engine::db;
-use npc_engine::libraryclient::{LibraryClientHost, UIDataProvider};
+use npc_engine::libraryclient::UIDataProvider;
 use npc_fwk::base::Signal;
 
 pub struct ImageGridView {
@@ -96,10 +95,8 @@ impl ImageGridView {
         }
     }
 
-    pub fn add_rating_listener(&self, listener: cxx::UniquePtr<crate::ffi::RatingClickListener>) {
-        self.signal_rating_changed.connect(move |(id, rating)| {
-            listener.call(id, rating);
-        });
+    pub fn add_rating_listener(&self, listener: Box<dyn Fn((db::LibraryId, i32))>) {
+        self.signal_rating_changed.connect(listener);
     }
 }
 
@@ -128,29 +125,4 @@ impl ImageGridView {
             }
         }
     }
-
-    // cxx
-    pub fn get_grid_view(&self) -> *mut crate::ffi::GtkGridView {
-        let grid_view: *mut gtk4::ffi::GtkGridView = self.grid_view.to_glib_none().0;
-        grid_view as *mut crate::ffi::GtkGridView
-    }
-}
-
-/// Create a new `ImageGridView`
-///
-/// # Safety
-/// Use raw pointers.
-///
-/// The `store` and `context_menu` will get ref.
-/// context_menu can be `nullptr`
-pub unsafe fn npc_image_grid_view_new(
-    store: *mut crate::ffi::GtkSingleSelection,
-    context_menu: *mut crate::ffi::GtkPopoverMenu,
-    libclient_host: &LibraryClientHost,
-) -> Box<ImageGridView> {
-    Box::new(ImageGridView::new(
-        gtk4::SingleSelection::from_glib_none(store as *mut gtk4::ffi::GtkSingleSelection),
-        Option::<gtk4::PopoverMenu>::from_glib_none(context_menu as *mut gtk4::ffi::GtkPopoverMenu),
-        Some(libclient_host.shared_ui_provider()),
-    ))
 }

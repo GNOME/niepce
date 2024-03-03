@@ -1,7 +1,7 @@
 /*
- * niepce - engine/mod.rs
+ * niepce - npc_engine/lib.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ pub use library::thumbnail_cache::ThumbnailCache;
 pub struct PropertySet(npc_fwk::PropertySet<db::NiepceProperties>);
 
 impl PropertySet {
-    fn add(&mut self, v: u32) {
+    pub fn add(&mut self, v: u32) {
         self.0.insert(NiepceProperties::from(v));
     }
 }
@@ -42,11 +42,9 @@ impl std::ops::Deref for PropertySet {
     }
 }
 
-use npc_fwk::PropertyValue;
-
 // must be a tuple for cxx
 #[derive(Clone, Default)]
-pub struct PropertyBag(npc_fwk::PropertyBag<db::NiepceProperties>);
+pub struct PropertyBag(pub npc_fwk::PropertyBag<db::NiepceProperties>);
 
 impl PropertyBag {
     fn is_empty(&self) -> bool {
@@ -64,13 +62,6 @@ impl PropertyBag {
     fn contains_key(&self, key: &u32) -> bool {
         let key = db::NiepceProperties::from(*key);
         self.0.contains_key(&key)
-    }
-
-    fn value_unchecked(&self, key: u32) -> &PropertyValue {
-        self.0
-            .map
-            .get(&db::NiepceProperties::from(key))
-            .expect("no such value")
     }
 }
 
@@ -106,8 +97,6 @@ pub mod ffi {
         include!("fwk/cxx_colour_bindings.hpp");
 
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
-        type PropertyValue = npc_fwk::PropertyValue;
-        type WrappedPropertyBag = npc_fwk::toolkit::widgets::WrappedPropertyBag;
     }
 
     #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -160,7 +149,6 @@ pub mod ffi {
 
         fn id(&self) -> i64;
         fn to_properties(&self, propset: &PropertySet) -> Box<PropertyBag>;
-        fn to_wrapped_properties(&self, propset: &PropertySet) -> *mut WrappedPropertyBag;
     }
 
     #[namespace = "fwk"]
@@ -170,8 +158,6 @@ pub mod ffi {
         fn is_empty(&self) -> bool;
         fn len(&self) -> usize;
         fn contains_key(&self, key: &u32) -> bool;
-        #[cxx_name = "value"]
-        fn value_unchecked(&self, key: u32) -> &PropertyValue;
         fn key_by_index(&self, idx: usize) -> u32;
     }
 

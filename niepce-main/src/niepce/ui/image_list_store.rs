@@ -22,7 +22,6 @@ use std::collections::BTreeMap;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use glib::translate::*;
 use gtk4::prelude::*;
 use once_cell::unsync::OnceCell;
 
@@ -302,12 +301,5 @@ impl ImageListStore {
                 err_out!("No file found");
             }
         }
-    }
-
-    // cxx
-    /// Return the gobj `GtkSelectionModel`. You must ref it to hold it.
-    pub fn gobj(&self) -> *mut crate::ffi::GtkSingleSelection {
-        let w: *mut gtk4::ffi::GtkSingleSelection = self.model.to_glib_none().0;
-        w as *mut crate::ffi::GtkSingleSelection
     }
 }

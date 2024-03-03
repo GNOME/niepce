@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/metadata_widget.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
  */
 
 use glib::prelude::*;
-use glib::translate::*;
 use gtk4::subclass::prelude::*;
 
 use super::ToolboxItem;
@@ -43,53 +42,37 @@ impl std::ops::DerefMut for WrappedPropertyBag {
     }
 }
 
-use cxx::{type_id, ExternType};
-
-unsafe impl ExternType for WrappedPropertyBag {
-    type Id = type_id!("fwk::WrappedPropertyBag");
-    type Kind = cxx::kind::Opaque;
+// This bridge content should be moved when the bridge is removed.
+#[repr(u32)]
+#[derive(Clone, PartialEq)]
+pub enum MetaDT {
+    #[allow(dead_code)]
+    NONE = 0,
+    #[allow(dead_code)]
+    STRING,
+    StringArray,
+    TEXT,
+    DATE,
+    FRAC,
+    FracDec, // Fraction as decimal
+    StarRating,
+    #[allow(dead_code)]
+    SIZE, // Size in bytes
 }
 
-#[cxx::bridge(namespace = "fwk")]
-mod ffi {
-    extern "C++" {
-        include!("fwk/cxx_prelude.hpp");
-    }
-
-    // This bridge content should be moved when the bridge is removed.
-    #[repr(u32)]
-    #[derive(Clone)]
-    enum MetaDT {
-        #[allow(dead_code)]
-        NONE = 0,
-        #[allow(dead_code)]
-        STRING,
-        STRING_ARRAY,
-        TEXT,
-        DATE,
-        FRAC,
-        FRAC_DEC, // Fraction as decimal
-        STAR_RATING,
-        #[allow(dead_code)]
-        SIZE, // Size in bytes
-    }
-
-    #[derive(Clone)]
-    struct MetadataFormat {
-        label: String,
-        id: u32, // NiepcePropertyIdx
-        type_: MetaDT,
-        readonly: bool,
-    }
-
-    #[derive(Clone)]
-    struct MetadataSectionFormat {
-        section: String,
-        formats: Vec<MetadataFormat>,
-    }
+#[derive(Clone)]
+pub struct MetadataFormat {
+    pub label: String,
+    pub id: u32, // NiepcePropertyIdx
+    pub type_: MetaDT,
+    pub readonly: bool,
 }
 
-pub use ffi::{MetaDT, MetadataFormat, MetadataSectionFormat};
+#[derive(Clone)]
+pub struct MetadataSectionFormat {
+    pub section: String,
+    pub formats: Vec<MetadataFormat>,
+}
 
 glib::wrapper! {
     pub struct MetadataWidget(
@@ -105,40 +88,26 @@ impl MetadataWidget {
         obj
     }
 
-    // cxx
-    pub fn set_data_source_wrapped(&self, properties: &WrappedPropertyBag) {
-        self.set_data_source(Some(properties.0.clone()))
+    /// Connect to the signal `metadata-changed`
+    pub fn connect_metadata_changed<F>(&self, f: F) -> glib::SignalHandlerId
+    where
+        F: Fn(&Self, WrappedPropertyBag, WrappedPropertyBag) + 'static,
+    {
+        self.connect_local("metadata-changed", true, move |values| {
+            let w = values[0].get().unwrap();
+            let new: WrappedPropertyBag = values[1].get_owned().unwrap();
+            let old: WrappedPropertyBag = values[2].get_owned().unwrap();
+            f(&w, new, old);
+            None
+        })
     }
 
-    // cxx
-    pub fn set_data_source_none(&self) {
-        self.set_data_source(None)
-    }
-
-    // cxx
-    pub fn gobj(&self) -> *mut crate::ffi::GtkWidget {
-        let gobj: *mut gtk4::ffi::GtkWidget = self.upcast_ref::<gtk4::Widget>().to_glib_none().0;
-        gobj as *mut crate::ffi::GtkWidget
-    }
-
-    // cxx
-    pub fn set_data_format_(&self, fmt: &MetadataSectionFormat) {
-        self.set_data_format(Some(fmt.clone()));
-    }
-}
-
-trait MetadataWidgetExt {
-    fn set_data_source(&self, properties: Option<PropertyBag<u32>>);
-    fn set_data_format(&self, fmt: Option<MetadataSectionFormat>);
-}
-
-impl MetadataWidgetExt for MetadataWidget {
     /// Set the data source of the metadata.
-    fn set_data_source(&self, properties: Option<PropertyBag<u32>>) {
+    pub fn set_data_source(&self, properties: Option<PropertyBag<u32>>) {
         self.imp().set_data_source(properties);
     }
 
-    fn set_data_format(&self, fmt: Option<MetadataSectionFormat>) {
+    pub fn set_data_format(&self, fmt: Option<MetadataSectionFormat>) {
         self.imp().set_data_format(fmt);
     }
 }
@@ -261,14 +230,14 @@ mod imp {
                 let label = gtk4::Label::new(Some(&format!("<b>{}</b>", &f.label)));
                 label.set_use_markup(true);
                 label.set_xalign(0.0);
-                if f.type_ != MetaDT::STRING_ARRAY {
+                if f.type_ != MetaDT::StringArray {
                     label.set_yalign(0.5);
                 } else {
                     label.set_yalign(0.0);
                 }
                 let w = match f.type_ {
-                    MetaDT::STAR_RATING => self.create_star_rating_widget(f.readonly, f.id),
-                    MetaDT::STRING_ARRAY => self.create_string_array_widget(f.readonly, f.id),
+                    MetaDT::StarRating => self.create_star_rating_widget(f.readonly, f.id),
+                    MetaDT::StringArray => self.create_string_array_widget(f.readonly, f.id),
                     MetaDT::TEXT => self.create_text_widget(f.readonly, f.id),
                     MetaDT::DATE => self.create_date_widget(f.readonly, f.id),
                     _ => self.create_string_widget(f.readonly, f.id),
@@ -293,10 +262,10 @@ mod imp {
 
             let w = w.as_ref().unwrap();
             match fmt.type_ {
-                MetaDT::FRAC_DEC => self.set_fraction_dec_data(w, value),
+                MetaDT::FracDec => self.set_fraction_dec_data(w, value),
                 MetaDT::FRAC => self.set_fraction_data(w, value),
-                MetaDT::STAR_RATING => self.set_star_rating_data(w, value),
-                MetaDT::STRING_ARRAY => self.set_string_array_data(w, fmt.readonly, value),
+                MetaDT::StarRating => self.set_star_rating_data(w, value),
+                MetaDT::StringArray => self.set_string_array_data(w, fmt.readonly, value),
                 MetaDT::TEXT => self.set_text_data(w, fmt.readonly, value),
                 MetaDT::DATE => self.set_date_data(w, value),
                 _ => {

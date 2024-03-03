@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/lib.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,8 +48,6 @@ pub fn init() {
 use crate::base::rgbcolour::RgbColour;
 use crate::toolkit::cxx::*;
 use crate::toolkit::thumbnail::Thumbnail;
-use crate::toolkit::widgets::cxx::*;
-use crate::toolkit::widgets::MetadataWidget;
 use crate::toolkit::{Configuration, UndoCommand, UndoHistory, UndoTransaction};
 
 fn make_config_path(file: &str) -> String {
@@ -71,10 +69,6 @@ fn rgbcolour_new(r: u16, g: u16, b: u16) -> Box<RgbColour> {
 fn rgbcolour_to_string(r: u16, g: u16, b: u16) -> String {
     let colour = RgbColour::new(r, g, b);
     colour.to_string()
-}
-
-pub fn metadata_widget_new(title: &str) -> Box<MetadataWidget> {
-    Box::new(MetadataWidget::new(title))
 }
 
 #[cxx::bridge(namespace = "fwk")]
@@ -105,6 +99,7 @@ pub mod ffi {
     }
 
     extern "C++" {
+        include!("fwk/cxx_prelude.hpp");
         include!("fwk/cxx_colour_bindings.hpp");
 
         type RgbColour = crate::base::rgbcolour::RgbColour;
@@ -132,28 +127,6 @@ pub mod ffi {
         fn is_string(&self) -> bool;
         #[cxx_name = "get_string"]
         fn string_unchecked(&self) -> &str;
-    }
-
-    extern "C++" {
-        include!("fwk/cxx_widgets_bindings.hpp");
-
-        type WrappedPropertyBag = crate::toolkit::widgets::WrappedPropertyBag;
-        type MetadataSectionFormat = crate::toolkit::widgets::MetadataSectionFormat;
-    }
-
-    extern "Rust" {
-        type MetadataWidget;
-
-        fn gobj(&self) -> *mut GtkWidget;
-        #[cxx_name = "MetadataWidget_new"]
-        fn metadata_widget_new(title: &str) -> Box<MetadataWidget>;
-        #[cxx_name = "set_data_format"]
-        fn set_data_format_(&self, fmt: &MetadataSectionFormat);
-        #[cxx_name = "set_data_source"]
-        fn set_data_source_wrapped(&self, properties: &WrappedPropertyBag);
-        fn set_data_source_none(&self);
-        fn wrapped_property_bag_clone(bag: &WrappedPropertyBag) -> *mut WrappedPropertyBag;
-        unsafe fn wrapped_property_bag_drop(bag: *mut WrappedPropertyBag);
     }
 
     unsafe extern "C++" {

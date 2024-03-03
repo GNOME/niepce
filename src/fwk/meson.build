@@ -1,7 +1,6 @@
 
 cxx_colour_bridge = files(meson.project_source_root() / 'crates' / 'npc-fwk' / 'src' / 'base' / 'rgbcolour.rs')
 cxx_fwk_bridge = files(meson.project_source_root() / 'crates' / 'npc-fwk' / 'src' / 'lib.rs')
-cxx_widgets_bridge = files(meson.project_source_root() / 'crates' / 'npc-fwk' / 'src' / 'toolkit' / 'widgets' / 'metadata_widget.rs')
 cxx_eng_bridge = files(meson.project_source_root() / 'crates' / 'npc-engine' / 'src' / 'lib.rs')
 cxx_ncr_bridge = files(meson.project_source_root() / 'crates' / 'npc-craw' / 'src' / 'lib.rs')
 cxx_npc_bridge = files(meson.project_source_root() / 'niepce-main' / 'src' / 'lib.rs')
@@ -15,18 +14,6 @@ colour_bindings_cpp = custom_target('colour_bindings_cpp',
 colour_bindings_hpp = custom_target('colour_bindings_hpp',
 		 output: 'cxx_colour_bindings.hpp',
 		 input: cxx_colour_bridge,
-		 capture: true,
-		 command: [cxxbridge, '--header', '@INPUT@'])
-
-widgets_bindings_cpp = custom_target('widgets_bindings_cpp',
-		 output: 'cxx_widgets_bindings.cpp',
-		 input: cxx_widgets_bridge,
-		 capture: true,
-		 command: [cxxbridge, '@INPUT@'])
-
-widgets_bindings_hpp = custom_target('widgets_bindings_hpp',
-		 output: 'cxx_widgets_bindings.hpp',
-		 input: cxx_widgets_bridge,
 		 capture: true,
 		 command: [cxxbridge, '--header', '@INPUT@'])
 
@@ -85,7 +72,6 @@ cxx_headers = declare_dependency(
     npc_bindings_hpp,
     ncr_bindings_hpp,
     colour_bindings_hpp,
-    widgets_bindings_hpp,
   ]
 )
 
@@ -94,7 +80,6 @@ fwk = static_library(
   fwk_bindings_cpp,
   eng_bindings_cpp,
   colour_bindings_cpp,
-  widgets_bindings_cpp,
   'base' / 'autoflag.hpp',
   'base' / 'debug.hpp',
   'base' / 'debug.cpp',
@@ -116,8 +101,6 @@ fwk = static_library(
   'toolkit' / 'controller.cpp',
   'toolkit' / 'dialog.hpp',
   'toolkit' / 'dialog.cpp',
-  'toolkit' / 'dockable.hpp',
-  'toolkit' / 'dockable.cpp',
   'toolkit' / 'frame.hpp',
   'toolkit' / 'frame.cpp',
   'toolkit' / 'gdkutils.hpp',
@@ -126,8 +109,6 @@ fwk = static_library(
   'toolkit' / 'gtkutils.cpp',
   'toolkit' / 'uicontroller.hpp',
   'toolkit' / 'uicontroller.cpp',
-  'toolkit' / 'widgets' / 'dock.hpp',
-  'toolkit' / 'widgets' / 'dock.cpp',
   'utils' / 'databinder.hpp',
   'utils' / 'databinder.cpp',
   'utils' / 'pathutils.hpp',

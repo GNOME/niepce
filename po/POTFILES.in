@@ -27,5 +27,4 @@ src/niepce/ui/dialogs/importers/cameraimporterui.ui
 src/niepce/ui/dialogs/importers/directoryimporterui.ui
 src/niepce/ui/dialogs/preferencesdialog.cpp
 src/niepce/ui/dialogs/preferences.ui
-src/niepce/ui/metadatapanecontroller.cpp
 src/niepce/ui/niepceapplication.cpp

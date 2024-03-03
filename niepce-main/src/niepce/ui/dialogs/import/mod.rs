@@ -32,15 +32,15 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use glib::translate::*;
 use gtk4::prelude::*;
 use gtk_macros::get_widget;
 use num_traits::FromPrimitive;
 use once_cell::sync::OnceCell;
 
-use crate::ffi;
+use crate::niepce::ui::{ImageGridView, MetadataPaneController};
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
 use npc_fwk::toolkit::{self, Thumbnail};
+use npc_fwk::toolkit::{Controller, UiController};
 use npc_fwk::{dbg_out, Date};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
@@ -191,19 +191,16 @@ impl ImportDialog {
                 date_sorting_combo.set_model(Some(&string_list));
 
                 get_widget!(builder, gtk4::ScrolledWindow, attributes_scrolled);
-                let mut metadata_pane = ffi::metadata_pane_controller_new();
-                let w = unsafe {
-                    gtk4::Widget::from_glib_none(
-                        metadata_pane.pin_mut().build_widget() as *mut gtk4::ffi::GtkWidget
-                    )
-                };
+                let metadata_pane = MetadataPaneController::new();
+                let w = metadata_pane.widget();
                 // add
-                attributes_scrolled.set_child(Some(&w));
+                attributes_scrolled.set_child(Some(w));
+                <MetadataPaneController as Controller>::start(&metadata_pane);
 
                 get_widget!(builder, gtk4::ScrolledWindow, images_list_scrolled);
                 let images_list_model = gio::ListStore::new::<ThumbItem>();
                 let selection_model = gtk4::SingleSelection::new(Some(images_list_model.clone()));
-                let image_gridview = crate::ImageGridView::new(selection_model, None, None);
+                let image_gridview = ImageGridView::new(selection_model, None, None);
                 let factory = gtk4::SignalListItemFactory::new();
                 image_gridview.set_factory(Some(&factory));
                 factory.connect_setup(move |_, item| {

@@ -25,7 +25,7 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
 use super::{
-    GridViewModuleProxy, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,
+    GridViewModule, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,
 };
 use crate::modules::{DarkroomModule, MapModule};
 use npc_engine::db;
@@ -47,7 +47,7 @@ pub struct ModuleShell {
     action_group: gio::SimpleActionGroup,
     selection_controller: Rc<SelectionController>,
     // currently a proxy that will bridge the C++ implementation
-    gridview: Rc<GridViewModuleProxy>,
+    gridview: Rc<GridViewModule>,
     mapm: Rc<MapModule>,
     darkroom: Rc<DarkroomModule>,
     menu: gio::Menu,
@@ -64,11 +64,7 @@ impl ModuleShell {
             imp_: RefCell::new(ControllerImpl::default()),
             widget: ModuleShellWidget::new(),
             action_group: gio::SimpleActionGroup::new(),
-            gridview: Rc::new(GridViewModuleProxy::new(
-                &selection_controller,
-                &menu,
-                client_host,
-            )),
+            gridview: GridViewModule::new(&selection_controller, &menu, client_host),
             mapm: MapModule::new(),
             darkroom: DarkroomModule::new(client_host),
             selection_controller,
@@ -90,10 +86,12 @@ impl ModuleShell {
 
         shell.add_library_module(&shell.gridview, "grid", &i18n("Catalog"));
         let sender = shell.selection_controller.sender();
-        shell.gridview.grid_view.connect_activate(glib::clone!(
+        shell.gridview.image_grid_view.connect_activate(glib::clone!(
         @strong sender => move |_, pos| {
             send_async_local!(super::selection_controller::SelectionInMsg::Activated(pos), sender)
         }));
+
+        <GridViewModule as Controller>::start(&shell.gridview);
 
         shell
             .selection_controller

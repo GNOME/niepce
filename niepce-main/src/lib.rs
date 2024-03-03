@@ -66,14 +66,7 @@ pub fn niepce_init() {
 pub use notification_center::NotificationCenter;
 
 // cxx bindings
-use niepce::ui::cxx::*;
-use niepce::ui::image_list_store::ImageListStoreWrap;
-use niepce::ui::imagetoolbar::image_toolbar_new_;
-use niepce::ui::metadata_pane_controller::get_format;
 use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
-use niepce::ui::ImageGridView;
-use niepce::ui::{ImageListStore, SelectionController};
-use npc_fwk::toolkit;
 
 #[cxx::bridge(namespace = "npc")]
 pub mod ffi {
@@ -83,9 +76,7 @@ pub mod ffi {
         type GtkApplication;
         type GtkBox;
         type GtkDrawingArea;
-        type GtkGridView;
         type GtkPopoverMenu;
-        type GtkSingleSelection;
         type GtkWidget;
         type GtkWindow;
     }
@@ -97,10 +88,8 @@ pub mod ffi {
     #[namespace = "fwk"]
     extern "C++" {
         include!("fwk/cxx_colour_bindings.hpp");
-        include!("fwk/cxx_widgets_bindings.hpp");
 
         type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
-        type MetadataSectionFormat = crate::toolkit::widgets::MetadataSectionFormat;
     }
 
     #[namespace = "eng"]
@@ -113,19 +102,6 @@ pub mod ffi {
     }
 
     extern "Rust" {
-        fn get_format() -> &'static [MetadataSectionFormat];
-    }
-
-    #[namespace = "ui"]
-    unsafe extern "C++" {
-        include!("niepce/ui/metadatapanecontroller.hpp");
-        type MetaDataPaneController;
-
-        fn metadata_pane_controller_new() -> UniquePtr<MetaDataPaneController>;
-        fn build_widget(self: Pin<&mut MetaDataPaneController>) -> *mut GtkWidget;
-    }
-
-    extern "Rust" {
         type NiepceWindowWrapper;
 
         unsafe fn niepce_window_new(app: *mut GtkApplication) -> Box<NiepceWindowWrapper>;
@@ -134,87 +110,6 @@ pub mod ffi {
         fn widget(&self) -> *mut GtkWidget;
         fn window(&self) -> *mut GtkWindow;
         fn menu(&self) -> *mut GMenu;
-    }
-
-    #[namespace = "ui"]
-    extern "Rust" {
-        type ImageListStore;
-
-        fn clear_content(&self);
-        fn gobj(&self) -> *mut GtkSingleSelection;
-        fn get_file_id_at_pos(&self, pos: u32) -> i64;
-        fn get_pos_from_id_(&self, id: i64) -> u32;
-    }
-
-    #[namespace = "ui"]
-    extern "Rust" {
-        type ImageListStoreWrap;
-
-        fn unwrap_ref(&self) -> &ImageListStore;
-        #[cxx_name = "clone"]
-        fn clone_(&self) -> Box<ImageListStoreWrap>;
-    }
-
-    #[namespace = "fwk"]
-    extern "C++" {
-        include!("fwk/cxx_widgets_bindings.hpp");
-
-        type WrappedPropertyBag = crate::toolkit::widgets::WrappedPropertyBag;
-    }
-
-    #[namespace = "ui"]
-    extern "Rust" {
-        #[cxx_name = "image_toolbar_new"]
-        fn image_toolbar_new_() -> *mut GtkBox;
-    }
-
-    extern "Rust" {
-        type ImageGridView;
-
-        unsafe fn npc_image_grid_view_new(
-            store: *mut GtkSingleSelection,
-            context_menu: *mut GtkPopoverMenu,
-            libclient_host: &LibraryClientHost,
-        ) -> Box<ImageGridView>;
-        fn get_grid_view(&self) -> *mut GtkGridView;
-        fn add_rating_listener(&self, listener: UniquePtr<RatingClickListener>);
-    }
-
-    #[namespace = "ui"]
-    extern "Rust" {
-        type SelectionController;
-
-        #[cxx_name = "get_list_store"]
-        fn list_store(&self) -> &ImageListStoreWrap;
-
-        fn set_rating_of(&self, id: i64, rating: i32);
-        fn set_properties(&self, props: &WrappedPropertyBag, old: &WrappedPropertyBag);
-    }
-
-    unsafe extern "C++" {
-        include!("niepce/ui/rating_click_listener.hpp");
-        type RatingClickListener;
-
-        fn call(&self, id: i64, rating: i32);
-    }
-
-    #[namespace = "ui"]
-    unsafe extern "C++" {
-        include!("niepce/ui/gridviewmodule.hpp");
-        type GridViewModule;
-
-        /// # Safety
-        /// Dereference a pointer
-        unsafe fn grid_view_module_new(
-            selection_controller: &SelectionController,
-            menu: *mut GMenu,
-            libclient_host: &LibraryClientHost,
-        ) -> UniquePtr<GridViewModule>;
-        fn build_widget(self: Pin<&mut GridViewModule>) -> *const GtkWidget;
-        fn on_lib_notification(&self, ln: &LibNotification, client: &LibraryClientWrapper);
-        fn display_none(&self);
-        #[cxx_name = "cxx_image_list"]
-        fn image_list(&self) -> *const GtkGridView;
     }
 
     #[namespace = "ui"]

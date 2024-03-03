@@ -36,20 +36,17 @@ struct Utc;
 template <class T>
 struct DateTime;
 typedef fwk::Date Date;
-typedef fwk::PropertyValue PropertyValue;
 typedef fwk::RgbColour RgbColour;
 typedef fwk::WrappedPropertyBag WrappedPropertyBag;
 typedef eng::Label Label;
 typedef eng::LibMetadata LibMetadata;
 typedef fwk::PropertyBag NiepcePropertyBag;
-typedef eng::LibNotification LibNotification;
 typedef eng::LibraryClientWrapper LibraryClientWrapper;
 }
 
 namespace fwk {
 typedef rust::Box<fwk::Date> DatePtr;
 typedef rust::Box<RgbColour> RgbColourPtr;
-typedef rust::Box<PropertyValue> PropertyValuePtr;
 
 typedef rust::Box<PropertyBag> PropertyBagPtr;
 }
