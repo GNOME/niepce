@@ -28,7 +28,7 @@ use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
 use super::dr_item::DrItem;
 
 pub struct ToolboxController {
-    imp_: RefCell<ControllerImpl<()>>,
+    imp_: RefCell<ControllerImpl<(), ()>>,
     _name: &'static str,
     _long_name: String,
     _icon_name: &'static str,
@@ -43,6 +43,7 @@ impl UiController for ToolboxController {
 
 impl Controller for ToolboxController {
     type InMsg = ();
+    type OutMsg = ();
 
     npc_fwk::controller_imp_imp!(imp_);
 }

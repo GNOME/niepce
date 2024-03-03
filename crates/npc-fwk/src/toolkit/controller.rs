@@ -30,31 +30,40 @@ use std::rc::Rc;
 #[macro_export]
 macro_rules! controller_imp_imp {
     ( $f:ident ) => {
-        fn imp(&self) -> std::cell::Ref<'_, $crate::toolkit::ControllerImpl<Self::InMsg>> {
+        fn imp(
+            &self,
+        ) -> std::cell::Ref<'_, $crate::toolkit::ControllerImpl<Self::InMsg, Self::OutMsg>> {
             self.$f.borrow()
         }
 
-        fn imp_mut(&self) -> std::cell::RefMut<'_, $crate::toolkit::ControllerImpl<Self::InMsg>> {
+        fn imp_mut(
+            &self,
+        ) -> std::cell::RefMut<'_, $crate::toolkit::ControllerImpl<Self::InMsg, Self::OutMsg>> {
             self.$f.borrow_mut()
         }
     };
 }
 
-pub struct ControllerImpl<T> {
-    tx: super::Sender<T>,
-    rx: super::Receiver<T>,
+pub struct ControllerImpl<I, O> {
+    tx: super::Sender<I>,
+    rx: super::Receiver<I>,
+    forwarder: Option<Box<dyn Fn(O)>>,
 }
 
-impl<T> Default for ControllerImpl<T> {
-    fn default() -> ControllerImpl<T> {
+impl<I, O> Default for ControllerImpl<I, O> {
+    fn default() -> ControllerImpl<I, O> {
         let (tx, rx) = super::channel();
         ControllerImpl::new(tx, rx)
     }
 }
 
-impl<T> ControllerImpl<T> {
-    fn new(tx: super::Sender<T>, rx: super::Receiver<T>) -> Self {
-        ControllerImpl { tx, rx }
+impl<I, O> ControllerImpl<I, O> {
+    fn new(tx: super::Sender<I>, rx: super::Receiver<I>) -> Self {
+        ControllerImpl {
+            tx,
+            rx,
+            forwarder: None,
+        }
     }
 }
 
@@ -83,6 +92,7 @@ impl<T> ControllerImpl<T> {
 ///     npc_fwk::controller_imp_imp!(imp_)
 ///
 ///     type InMsg = MyMsg;
+///     type OutMsg = ();
 ///
 ///     fn dispatch(&self, msg: MyMsg) {
 ///         match msg {
@@ -109,6 +119,7 @@ impl<T> ControllerImpl<T> {
 /// ```
 pub trait Controller {
     type InMsg;
+    type OutMsg;
 
     /// Start the controller event loop. This should be called by the
     /// parent after creating the controller, if needed (i.e. need to
@@ -123,6 +134,11 @@ pub trait Controller {
                 ctrl.dispatch(e)
             }),
         );
+    }
+
+    /// Set the forwarder the will pass [`OutMsg`] to it.
+    fn set_forwarder(&self, forwarder: Option<Box<dyn Fn(Self::OutMsg)>>) {
+        self.imp_mut().forwarder = forwarder;
     }
 
     /// Get the sender for the controller inbound messages.
@@ -141,6 +157,14 @@ pub trait Controller {
         super::send_async_local!(msg, self.imp().tx);
     }
 
+    /// Send an outbound message.
+    ///
+    fn emit(&self, msg: Self::OutMsg) {
+        if let Some(ref forwarder) = self.imp().forwarder {
+            forwarder(msg);
+        }
+    }
+
     /// Notify the controller is ready.
     fn ready(&self) {
         dbg_out!("ready");
@@ -155,8 +179,8 @@ pub trait Controller {
 
     /// Return the implementation
     /// Implemented via controller_imp_imp!()
-    fn imp(&self) -> Ref<'_, ControllerImpl<Self::InMsg>>;
+    fn imp(&self) -> Ref<'_, ControllerImpl<Self::InMsg, Self::OutMsg>>;
     /// Return the mutable implementation
     /// Implemented via controller_imp_imp!()
-    fn imp_mut(&self) -> RefMut<'_, ControllerImpl<Self::InMsg>>;
+    fn imp_mut(&self) -> RefMut<'_, ControllerImpl<Self::InMsg, Self::OutMsg>>;
 }

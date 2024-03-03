@@ -32,8 +32,9 @@ use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::LibraryClientHost;
 use npc_fwk::dbg_out;
+use npc_fwk::send_async_local;
 use npc_fwk::toolkit::gtk_utils::add_menu_action;
-use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImpl, Sender, UiController};
 
 pub enum Event {
     ModuleActivated(String),
@@ -41,10 +42,10 @@ pub enum Event {
 }
 
 pub struct ModuleShell {
-    imp_: RefCell<ControllerImpl<<ModuleShell as Controller>::InMsg>>,
+    imp_: RefCell<ControllerImpl<Event, ()>>,
     widget: ModuleShellWidget,
     action_group: gio::SimpleActionGroup,
-    pub selection_controller: Rc<SelectionController>,
+    selection_controller: Rc<SelectionController>,
     // currently a proxy that will bridge the C++ implementation
     gridview: Rc<GridViewModuleProxy>,
     mapm: Rc<MapModule>,
@@ -69,7 +70,7 @@ impl ModuleShell {
                 client_host,
             )),
             mapm: MapModule::new(),
-            darkroom: DarkroomModule::new(&selection_controller, client_host),
+            darkroom: DarkroomModule::new(client_host),
             selection_controller,
             menu,
             module_menu: gio::Menu::new(),
@@ -78,6 +79,7 @@ impl ModuleShell {
         });
 
         <Self as Controller>::start(&shell);
+        <SelectionController as Controller>::start(&shell.selection_controller);
 
         shell
             .widget
@@ -87,21 +89,22 @@ impl ModuleShell {
         shell.widget.menu_button().set_menu_model(Some(&shell.menu));
 
         shell.add_library_module(&shell.gridview, "grid", &i18n("Catalog"));
+        let sender = shell.selection_controller.sender();
         shell.gridview.grid_view.connect_activate(glib::clone!(
-        @weak shell.selection_controller.handler as handler => move |_, pos| {
-            handler.activated(pos)
+        @strong sender => move |_, pos| {
+            send_async_local!(super::selection_controller::SelectionInMsg::Activated(pos), sender)
         }));
 
-        shell.selection_controller.handler.signal_selected.connect(
-            glib::clone!(@weak shell => move |id| {
-                shell.on_image_selected(id);
-            }),
-        );
-        shell.selection_controller.handler.signal_activated.connect(
-            glib::clone!(@weak shell => move |id| {
-                shell.on_image_activated(id);
-            }),
-        );
+        shell
+            .selection_controller
+            .set_forwarder(Some(Box::new(glib::clone!(
+            @weak shell => move |msg| {
+                use super::selection_controller::SelectionOutMsg;
+                match msg {
+                    SelectionOutMsg::Selected(id) => shell.on_image_selected(id),
+                    SelectionOutMsg::Activated(id) => shell.on_image_activated(id),
+                }
+            }))));
 
         // built-in modules;
         shell.add_library_module(&shell.darkroom, "darkroom", &i18n("Darkroom"));
@@ -386,6 +389,10 @@ impl ModuleShell {
         shell.menu.append_section(None, &shell.module_menu);
     }
 
+    pub fn selection_sender(&self) -> Sender<<SelectionController as Controller>::InMsg> {
+        self.selection_controller.sender()
+    }
+
     pub fn image_list_store(&self) -> Rc<ImageListStore> {
         self.selection_controller.list_store().0.clone()
     }
@@ -426,6 +433,11 @@ impl ModuleShell {
         } else {
             self.gridview.display_none()
         }
+        // Forward to the darkroom module.
+        let store = &self.selection_controller.list_store().0;
+        if let Some(libfile) = store.file(id) {
+            self.darkroom.set_image(Some(libfile));
+        }
     }
 
     fn on_image_activated(&self, id: db::LibraryId) {
@@ -456,6 +468,7 @@ impl ModuleShell {
 
 impl Controller for ModuleShell {
     type InMsg = Event;
+    type OutMsg = ();
 
     npc_fwk::controller_imp_imp!(imp_);
 

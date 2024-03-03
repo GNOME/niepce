@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/selection_controller.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ use npc_engine::db::{LibFile, NiepcePropertyIdx};
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
 use npc_engine::ThumbnailCache;
-use npc_fwk::base::Signal;
+use npc_fwk::send_async_local;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UndoCommand, UndoTransaction};
 use npc_fwk::{dbg_out, err_out, PropertyValue};
@@ -43,80 +43,86 @@ enum Direction {
     Backwards,
 }
 
-#[derive(Default)]
-pub struct SelectionHandler {
-    store: Box<ImageListStoreWrap>,
-    content: Cell<ContentView>,
-    pub signal_selected: Signal<db::LibraryId>,
-    pub signal_activated: Signal<db::LibraryId>,
+pub enum SelectionInMsg {
+    Selected(u32),
+    Activated(u32),
 }
 
-impl SelectionHandler {
-    pub fn activated(&self, pos: u32) {
-        let selection = self.store.get_file_id_at_pos(pos);
-        if selection != 0 {
-            self.signal_activated.emit(selection);
-        }
-    }
-
-    pub fn selected(&self, pos: u32) {
-        let selection = self.store.get_file_id_at_pos(pos);
-        if selection != 0 {
-            self.signal_selected.emit(selection);
-        }
-    }
+pub enum SelectionOutMsg {
+    Selected(db::LibraryId),
+    Activated(db::LibraryId),
 }
 
 pub struct SelectionController {
-    imp_: RefCell<ControllerImpl<<SelectionController as Controller>::InMsg>>,
+    imp_: RefCell<ControllerImpl<SelectionInMsg, SelectionOutMsg>>,
     client: Arc<LibraryClient>,
-    pub handler: Rc<SelectionHandler>,
+    store: Box<ImageListStoreWrap>,
+    content: Cell<ContentView>,
 }
 
 impl Controller for SelectionController {
-    type InMsg = ();
+    type InMsg = SelectionInMsg;
+    type OutMsg = SelectionOutMsg;
 
     npc_fwk::controller_imp_imp!(imp_);
+
+    fn dispatch(&self, msg: SelectionInMsg) {
+        match msg {
+            SelectionInMsg::Activated(pos) => {
+                let id = self.store.get_file_id_at_pos(pos);
+                self.emit(SelectionOutMsg::Activated(id));
+            }
+            SelectionInMsg::Selected(pos) => {
+                let id = self.store.get_file_id_at_pos(pos);
+                self.emit(SelectionOutMsg::Selected(id));
+            }
+        }
+    }
 }
 
 impl SelectionController {
     pub fn new(client_host: &LibraryClientHost) -> Rc<SelectionController> {
-        let handler = Rc::new(SelectionHandler::default());
-        handler.store.selection_model().connect_selection_changed(
-            glib::clone!(@weak handler => move |model, _, _| {
-                let pos = model.selected();
-                handler.selected(pos);
-            }),
-        );
+        let store = Box::<ImageListStoreWrap>::default();
 
-        Rc::new(SelectionController {
+        let controller = Rc::new(SelectionController {
             imp_: RefCell::new(ControllerImpl::default()),
             client: client_host.client().client(),
-            handler,
-        })
+            store,
+            content: Cell::default(),
+        });
+
+        let sender = controller.sender();
+        controller
+            .store
+            .selection_model()
+            .connect_selection_changed(glib::clone!(@strong sender => move |model, _, _| {
+                let pos = model.selected();
+                send_async_local!(SelectionInMsg::Selected(pos), sender);
+            }));
+
+        controller
     }
 
     pub fn on_lib_notification(&self, ln: &LibNotification, thumbnail_cache: &ThumbnailCache) {
-        self.handler
-            .store
+        self.store
             .on_lib_notification(ln, &self.client, thumbnail_cache);
     }
 
     pub fn list_store(&self) -> &ImageListStoreWrap {
-        &self.handler.store
+        &self.store
     }
 
     /// Get the file with `id`.
     pub fn file(&self, id: db::LibraryId) -> Option<LibFile> {
-        self.handler.store.file(id)
+        self.store.file(id)
     }
 
     pub fn selection(&self) -> Option<db::LibraryId> {
-        let pos = self.handler.store.selection_model().selected();
+        let pos = self.store.selection_model().selected();
         if pos == gtk4::INVALID_LIST_POSITION {
             None
         } else {
-            Some(self.handler.store.get_file_id_at_pos(pos))
+            Some(self.store.get_file_id_at_pos(pos))
         }
     }
 
@@ -134,7 +140,7 @@ impl SelectionController {
             return;
         }
 
-        let pos = self.handler.store.pos_from_id(selection.unwrap());
+        let pos = self.store.pos_from_id(selection.unwrap());
         if pos.is_none() {
             return;
         }
@@ -149,11 +155,11 @@ impl SelectionController {
             }
         } else {
             pos += 1;
-            (pos as usize) < self.handler.store.len()
+            (pos as usize) < self.store.len()
         };
 
         if moved {
-            self.handler.store.selection_model().set_selected(pos);
+            self.store.selection_model().set_selected(pos);
         }
     }
 
@@ -242,7 +248,7 @@ impl SelectionController {
     }
 
     fn set_property_of(&self, id: db::LibraryId, idx: db::NiepcePropertyIdx, value: i32) {
-        if let Some(mut file) = self.handler.store.file(id) {
+        if let Some(mut file) = self.store.file(id) {
             dbg_out!("old property is {}", file.property(Np::Index(idx)));
             let old_value = file.property(Np::Index(idx));
             let action = match idx {
@@ -267,8 +273,8 @@ impl SelectionController {
     }
 
     pub fn content_will_change(&self, content: super::ContentView) {
-        self.handler.store.clear_content();
-        self.handler.content.set(content);
+        self.store.clear_content();
+        self.content.set(content);
     }
 
     pub fn write_metadata(&self) {
@@ -282,8 +288,8 @@ impl SelectionController {
     /// From a folder it moves to trash.
     pub fn delete_from_view(&self) {
         if let Some(selection) = self.selection() {
-            if let Some(ref f) = self.handler.store.file(selection) {
-                match self.handler.content.get() {
+            if let Some(ref f) = self.store.file(selection) {
+                match self.content.get() {
                     ContentView::Album(id) => {
                         self.remove_from_album(id, f);
                     }
@@ -332,7 +338,7 @@ impl SelectionController {
     /// Move selection to trash
     pub fn move_to_trash(&self) {
         if let Some(selection) = self.selection() {
-            if let Some(ref f) = self.handler.store.file(selection) {
+            if let Some(ref f) = self.store.file(selection) {
                 self.move_file_to_trash(f);
             }
         }

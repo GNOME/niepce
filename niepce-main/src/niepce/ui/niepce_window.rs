@@ -70,7 +70,7 @@ struct ShellWidgets {
 }
 
 struct NiepceWindow {
-    imp_: RefCell<ControllerImpl<<NiepceWindow as Controller>::InMsg>>,
+    imp_: RefCell<ControllerImpl<Event, ()>>,
     window: gtk4::ApplicationWindow,
     libraryclient: RefCell<Option<Rc<LibraryClientHost>>>,
     configuration: RefCell<Option<Rc<toolkit::Configuration>>>,
@@ -81,6 +81,7 @@ struct NiepceWindow {
 
 impl Controller for NiepceWindow {
     type InMsg = Event;
+    type OutMsg = ();
 
     npc_fwk::controller_imp_imp!(imp_);
 
@@ -454,10 +455,12 @@ impl NiepceWindow {
         statusbar.set_xalign(0.0);
         vbox.append(&statusbar);
 
+        let sender = module_shell.selection_sender();
         filmstrip.grid_view().connect_activate(glib::clone!(
-        @weak module_shell.selection_controller.handler as handler => move |_, pos| {
-            handler.activated(pos)
-        }));
+            @strong sender => move |_, pos| {
+                npc_fwk::send_async_local!(super::selection_controller::SelectionInMsg::Activated(pos), sender)
+            })
+        );
 
         // `ShellWidget` isn't `Debug` so we can't unwrap.
         let _ = self.shell_widgets.set(ShellWidgets {

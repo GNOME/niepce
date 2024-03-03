@@ -29,7 +29,6 @@ use gtk4::prelude::*;
 use i18n_format::i18n_fmt;
 
 use crate::niepce::ui::LibraryModule;
-use crate::SelectionController;
 use image_canvas::ImageCanvas;
 use npc_craw::{RenderImpl, RenderWorker};
 use npc_engine::db::NiepceProperties as Np;
@@ -45,11 +44,12 @@ use npc_fwk::{dbg_out, on_err_out};
 use toolbox_controller::ToolboxController;
 
 pub enum Msg {
+    SelectionChanged(Option<db::LibFile>),
     SetRenderEngine(String),
 }
 
 pub struct DarkroomModule {
-    imp_: RefCell<ControllerImpl<<DarkroomModule as Controller>::InMsg>>,
+    imp_: RefCell<ControllerImpl<Msg, ()>>,
     client: Rc<LibraryClientHost>,
     widget: gtk4::Widget,
     worker: RenderWorker,
@@ -67,6 +67,7 @@ pub struct DarkroomModule {
 
 impl Controller for DarkroomModule {
     type InMsg = Msg;
+    type OutMsg = ();
 
     npc_fwk::controller_imp_imp!(imp_);
 
@@ -83,6 +84,7 @@ impl Controller for DarkroomModule {
                     );
                 }
             }
+            Msg::SelectionChanged(file) => self.set_image(file),
         }
     }
 }
@@ -117,10 +119,7 @@ impl LibraryModule for DarkroomModule {
 }
 
 impl DarkroomModule {
-    pub fn new(
-        selection_controller: &Rc<SelectionController>,
-        client_host: &Rc<LibraryClientHost>,
-    ) -> Rc<Self> {
+    pub fn new(client_host: &Rc<LibraryClientHost>) -> Rc<Self> {
         let worker = RenderWorker::new(RenderImpl::new());
         let imagecanvas = ImageCanvas::new();
         let overlay = adw::ToastOverlay::new();
@@ -150,13 +149,6 @@ impl DarkroomModule {
         let module = Rc::new(module);
 
         <Self as Controller>::start(&module);
-
-        selection_controller.handler.signal_selected.connect(
-            glib::clone!(@weak selection_controller, @weak module => move |id| {
-                let file = selection_controller.file(id);
-                module.set_image(file);
-            }),
-        );
 
         module
     }

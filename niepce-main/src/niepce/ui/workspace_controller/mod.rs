@@ -82,7 +82,7 @@ pub enum Event {
 }
 
 pub struct WorkspaceController {
-    imp_: RefCell<ControllerImpl<<WorkspaceController as Controller>::InMsg>>,
+    imp_: RefCell<ControllerImpl<Event, ()>>,
     cfg: Rc<toolkit::Configuration>,
     widgets: OnceCell<Widgets>,
     client: Weak<LibraryClient>,
@@ -249,6 +249,7 @@ impl Widgets {
 
 impl Controller for WorkspaceController {
     type InMsg = Event;
+    type OutMsg = ();
 
     npc_fwk::controller_imp_imp!(imp_);
 

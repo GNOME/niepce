@@ -30,7 +30,7 @@ use npc_fwk::dbg_out;
 use npc_fwk::toolkit::{Controller, ControllerImpl, MapController, UiController};
 
 pub struct MapModule {
-    imp_: RefCell<ControllerImpl<<MapModule as Controller>::InMsg>>,
+    imp_: RefCell<ControllerImpl<(), ()>>,
     map: MapController,
     active: Cell<bool>,
     widget: gtk4::Box,
@@ -38,6 +38,7 @@ pub struct MapModule {
 
 impl Controller for MapModule {
     type InMsg = ();
+    type OutMsg = ();
 
     npc_fwk::controller_imp_imp!(imp_);
 }

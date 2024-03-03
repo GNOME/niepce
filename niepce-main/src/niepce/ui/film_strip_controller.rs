@@ -36,7 +36,7 @@ struct Widgets {
 }
 
 pub struct FilmStripController {
-    imp_: RefCell<ControllerImpl<<FilmStripController as Controller>::InMsg>>,
+    imp_: RefCell<ControllerImpl<(), ()>>,
 
     widgets: OnceCell<Widgets>,
     store: Rc<ImageListStore>,
@@ -44,6 +44,7 @@ pub struct FilmStripController {
 
 impl Controller for FilmStripController {
     type InMsg = ();
+    type OutMsg = ();
 
     npc_fwk::controller_imp_imp!(imp_);
 }

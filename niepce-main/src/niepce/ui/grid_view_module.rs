@@ -30,7 +30,7 @@ use crate::ffi::{grid_view_module_new, GridViewModule};
 use crate::niepce::ui::{LibraryModule, SelectionController};
 
 pub struct GridViewModuleProxy {
-    imp_: RefCell<ControllerImpl<<GridViewModuleProxy as Controller>::InMsg>>,
+    imp_: RefCell<ControllerImpl<(), ()>>,
     module: cxx::UniquePtr<GridViewModule>,
     widget: gtk4::Widget,
     pub grid_view: gtk4::GridView,
@@ -38,6 +38,7 @@ pub struct GridViewModuleProxy {
 
 impl Controller for GridViewModuleProxy {
     type InMsg = ();
+    type OutMsg = ();
 
     npc_fwk::controller_imp_imp!(imp_);
 }

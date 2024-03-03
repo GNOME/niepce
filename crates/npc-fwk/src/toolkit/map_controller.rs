@@ -24,7 +24,7 @@ use shumate::prelude::*;
 use super::{Controller, ControllerImpl, UiController};
 
 pub struct MapController {
-    imp_: RefCell<ControllerImpl<<MapController as Controller>::InMsg>>,
+    imp_: RefCell<ControllerImpl<(), ()>>,
     _registry: shumate::MapSourceRegistry,
     map: shumate::SimpleMap,
 }
@@ -37,6 +37,7 @@ impl Default for MapController {
 
 impl Controller for MapController {
     type InMsg = ();
+    type OutMsg = ();
 
     controller_imp_imp!(imp_);
 }
