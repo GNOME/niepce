@@ -1,7 +1,7 @@
 /*
- * niepce - crates/npc-fwk/src/toolkit/widgets/rating_label.rs
+ * niepce - npc-fwk/toolkit/widgets/rating_label.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,7 +129,8 @@ impl RatingLabel {
             "rating-changed",
             true,
             glib::clone!(@weak self as w => @default-return None, move |values| {
-                if let Ok(rating) = values[0].get::<i32>() {
+                // values[0] is self.
+                if let Ok(rating) = values[1].get::<i32>() {
                     f(&w, rating);
                 }
                 None
