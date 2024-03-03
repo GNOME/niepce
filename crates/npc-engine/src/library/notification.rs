@@ -27,11 +27,6 @@ use npc_fwk::PropertyValue;
 /// Library client channel sender, to send `LibNotification`.
 pub type LcChannel = async_channel::Sender<LibNotification>;
 
-use cxx::{type_id, ExternType};
-
-// cxx
-pub use crate::ffi::NotificationType;
-
 #[repr(C)]
 #[derive(Clone, Debug)]
 pub struct FileMove {
@@ -116,67 +111,4 @@ pub enum LibNotification {
     XmpNeedsUpdate,
     ThumbnailLoaded(Thumbnail),
     ImageRendered(ImageRendered),
-}
-
-unsafe impl ExternType for LibNotification {
-    type Id = type_id!("eng::LibNotification");
-    type Kind = cxx::kind::Opaque;
-}
-
-impl LibNotification {
-    pub fn type_(&self) -> NotificationType {
-        match *self {
-            LibNotification::AddedFile => NotificationType::AddedFile,
-            LibNotification::AddedFiles => NotificationType::AddedFiles,
-            LibNotification::AddedFolder(_) => NotificationType::AddedFolder,
-            LibNotification::AddedKeyword(_) => NotificationType::AddedKeyword,
-            LibNotification::AddedLabel(_) => NotificationType::AddedLabel,
-            LibNotification::AddedAlbum(_) => NotificationType::AddedAlbum,
-            LibNotification::AddedToAlbum(_, _) => NotificationType::AddedToAlbum,
-            LibNotification::RemovedFromAlbum(_, _) => NotificationType::RemovedFromAlbum,
-            LibNotification::AlbumCounted(_) => NotificationType::AlbumCounted,
-            LibNotification::AlbumCountChanged(_) => NotificationType::AlbumCountChange,
-            LibNotification::AlbumContentQueried(_) => NotificationType::AlbumContentQueried,
-            LibNotification::AlbumDeleted(_) => NotificationType::AlbumDeleted,
-            LibNotification::AlbumRenamed(..) => NotificationType::AlbumRenamed,
-            LibNotification::FileMoved(_) => NotificationType::FileMoved,
-            LibNotification::FileStatusChanged(_) => NotificationType::FileStatusChanged,
-            LibNotification::FolderContentQueried(_) => NotificationType::FolderContentQueried,
-            LibNotification::FolderCounted(_) => NotificationType::FolderCounted,
-            LibNotification::FolderCountChanged(_) => NotificationType::FolderCountChange,
-            LibNotification::FolderDeleted(_) => NotificationType::FolderDeleted,
-            LibNotification::KeywordContentQueried(_) => NotificationType::KeywordContentQueried,
-            LibNotification::KeywordCounted(_) => NotificationType::KeywordCounted,
-            LibNotification::KeywordCountChanged(_) => NotificationType::KeywordCountChange,
-            LibNotification::LabelChanged(_) => NotificationType::LabelChanged,
-            LibNotification::LabelDeleted(_) => NotificationType::LabelDeleted,
-            LibNotification::LibCreated => NotificationType::NewLibraryCreated,
-            LibNotification::DatabaseNeedUpgrade(_) => NotificationType::DatabaseNeedUpgrade,
-            LibNotification::DatabaseReady => NotificationType::DatabaseReady,
-            LibNotification::MetadataChanged(_) => NotificationType::MetadataChanged,
-            LibNotification::MetadataQueried(_) => NotificationType::MetadataQueried,
-            LibNotification::XmpNeedsUpdate => NotificationType::XmpNeedsUpdate,
-            LibNotification::ThumbnailLoaded(_) => NotificationType::ThumbnailLoaded,
-            LibNotification::ImageRendered(_) => NotificationType::ImageRendered,
-        }
-    }
-
-    pub fn id(&self) -> i64 {
-        match *self {
-            LibNotification::MetadataChanged(ref changed) => changed.id,
-            LibNotification::AlbumDeleted(id) => id,
-            LibNotification::FolderDeleted(id) => id,
-            LibNotification::LabelDeleted(id) => id,
-            LibNotification::FileStatusChanged(ref changed) => changed.id,
-            LibNotification::ThumbnailLoaded(ref thumbnail) => thumbnail.id,
-            _ => unreachable!(),
-        }
-    }
-
-    pub fn get_libmetadata(&self) -> &LibMetadata {
-        match *self {
-            LibNotification::MetadataQueried(ref m) => m,
-            _ => unreachable!(),
-        }
-    }
 }

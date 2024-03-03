@@ -86,7 +86,6 @@ pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
 use crate::db::{Label, LibMetadata};
-use crate::library::notification::LibNotification;
 use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper, UIDataProvider};
 
 #[cxx::bridge(namespace = "eng")]
@@ -170,66 +169,11 @@ pub mod ffi {
         fn add(&mut self, v: u32);
     }
 
-    #[repr(i32)]
-    pub enum NotificationType {
-        None,
-        NewLibraryCreated,
-        DatabaseNeedUpgrade,
-        DatabaseReady,
-        AddedFolder,
-        AddedFile,
-        AddedFiles,
-        AddedKeyword,
-        AddedLabel,
-        AddedAlbum,
-        AddedToAlbum,
-        RemovedFromAlbum,
-        AlbumContentQueried,
-        AlbumCounted,
-        AlbumCountChange,
-        AlbumDeleted,
-        AlbumRenamed,
-        FolderContentQueried,
-        FolderDeleted,
-        FolderCounted,
-        FolderCountChange,
-        KeywordContentQueried,
-        KeywordCounted,
-        KeywordCountChange,
-        #[cxx_name = "METADATA_QUERIED"]
-        MetadataQueried,
-        #[cxx_name = "METADATA_CHANGED"]
-        MetadataChanged,
-        LabelChanged,
-        LabelDeleted,
-        XmpNeedsUpdate,
-        FileMoved,
-        FileStatusChanged,
-        ThumbnailLoaded,
-        ImageRendered,
-    }
-
-    extern "Rust" {
-        type LibNotification;
-
-        fn type_(&self) -> NotificationType;
-        fn id(&self) -> i64;
-        fn get_libmetadata(&self) -> &LibMetadata;
-    }
-
     extern "Rust" {
         type UIDataProvider;
 
-        #[cxx_name = "addLabel"]
-        fn add_label(&self, label: &Label);
-        #[cxx_name = "updateLabel"]
-        fn update_label(&self, label: &Label);
-        #[cxx_name = "deleteLabel"]
-        fn delete_label(&self, label: i64);
         fn label_count(&self) -> usize;
         fn label_at(&self, idx: usize) -> *mut Label;
-        #[cxx_name = "colourForLabel"]
-        fn colour_for_label(&self, idx: i64) -> RgbColour;
     }
 
     extern "Rust" {

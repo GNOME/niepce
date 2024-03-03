@@ -41,13 +41,6 @@ impl From<&str> for PropertyValue {
     }
 }
 
-use cxx::{type_id, ExternType};
-
-unsafe impl ExternType for PropertyValue {
-    type Id = type_id!("fwk::PropertyValue");
-    type Kind = cxx::kind::Opaque;
-}
-
 impl PropertyValue {
     pub fn is_empty(&self) -> bool {
         matches!(*self, PropertyValue::Empty)

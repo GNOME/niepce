@@ -11,7 +11,6 @@
 // And that the implementation needs too.
 namespace fwk {
 class Application;
-class PropertyValue;
 class WrappedPropertyBag;
 class SharedConfiguration;
 typedef std::shared_ptr<SharedConfiguration> ConfigurationPtr;
