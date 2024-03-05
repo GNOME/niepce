@@ -75,7 +75,6 @@ impl ModuleShell {
         });
 
         <Self as Controller>::start(&shell);
-        <SelectionController as Controller>::start(&shell.selection_controller);
 
         shell
             .widget
@@ -90,8 +89,6 @@ impl ModuleShell {
         @strong sender => move |_, pos| {
             send_async_local!(super::selection_controller::SelectionInMsg::Activated(pos), sender)
         }));
-
-        <GridViewModule as Controller>::start(&shell.gridview);
 
         shell
             .selection_controller

@@ -115,7 +115,10 @@ impl GridViewModule {
 
         module.build_widget();
 
-        Rc::new(module)
+        let module = Rc::new(module);
+        <Self as Controller>::start(&module);
+
+        module
     }
 
     fn build_widget(&mut self) {
@@ -159,7 +162,6 @@ impl GridViewModule {
                     send_async_local!(GridMsg::MetadataChanged(new, old), sender)
                 }
             })));
-        <MetadataPaneController as Controller>::start(&self.metadatapanecontroller);
 
         self.widget.set_end_child(Some(&dock));
         self.widget.set_resize_end_child(false);

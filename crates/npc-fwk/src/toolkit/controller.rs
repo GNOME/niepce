@@ -102,28 +102,29 @@ impl<I, O> ControllerImpl<I, O> {
 ///     }
 /// }
 /// ```
-/// To send a message, call `Controller::emit()`.
+/// To send a message, call `Controller::send()`.
 ///
 /// To get the sender to pass elsewhere call
 /// `Controller::sender()`. The sender can be cloned.
 ///
 ///
 /// ```rust,ignore
-/// let ctrl = MyController {};
-///
-/// let sender = ctrl.sender();
-/// ctrl.start();
+/// let ctrl = Rc::new(MyController {});
+/// <MyController as Controller>::start(&ctrl);
 ///
 /// ctrl.send(MyMsg::Command1);
+///
+/// let sender = ctrl.sender();
 /// sender.send(MyMsg::Command2("test".to_string())).await;
 /// ```
 pub trait Controller {
     type InMsg;
     type OutMsg;
 
-    /// Start the controller event loop. This should be called by the
-    /// parent after creating the controller, if needed (i.e. need to
-    /// process inbound messages).
+    /// Start the controller event loop. This should be called
+    /// creating the controller, if needed (i.e. need to process
+    /// inbound messages). One pattern is to call it from the
+    /// constructor that returns a `Rc<>`.
     ///
     /// This default implementation ought to be enough.
     fn start<T: Controller + 'static>(this: &Rc<T>) {
@@ -136,7 +137,7 @@ pub trait Controller {
         );
     }
 
-    /// Set the forwarder the will pass [`OutMsg`] to it.
+    /// Set the forwarder the will pass [`Self::OutMsg`] to it.
     fn set_forwarder(&self, forwarder: Option<Box<dyn Fn(Self::OutMsg)>>) {
         self.imp_mut().forwarder = forwarder;
     }

@@ -99,6 +99,7 @@ impl SelectionController {
                 let pos = model.selected();
                 send_async_local!(SelectionInMsg::Selected(pos), sender);
             }));
+        <Self as Controller>::start(&controller);
 
         controller
     }

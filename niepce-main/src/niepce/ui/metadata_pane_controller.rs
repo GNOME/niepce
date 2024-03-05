@@ -141,7 +141,11 @@ impl MetadataPaneController {
 
         ctrl.build_widget();
 
-        Rc::new(ctrl)
+        let ctrl = Rc::new(ctrl);
+
+        <Self as Controller>::start(&ctrl);
+
+        ctrl
     }
 
     fn build_property_set(&mut self) {

@@ -39,8 +39,7 @@ use once_cell::sync::OnceCell;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
-use npc_fwk::toolkit::{self, Thumbnail};
-use npc_fwk::toolkit::{Controller, UiController};
+use npc_fwk::toolkit::{self, Thumbnail, UiController};
 use npc_fwk::{dbg_out, Date};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
@@ -195,7 +194,6 @@ impl ImportDialog {
                 let w = metadata_pane.widget();
                 // add
                 attributes_scrolled.set_child(Some(w));
-                <MetadataPaneController as Controller>::start(&metadata_pane);
 
                 get_widget!(builder, gtk4::ScrolledWindow, images_list_scrolled);
                 let images_list_model = gio::ListStore::new::<ThumbItem>();
