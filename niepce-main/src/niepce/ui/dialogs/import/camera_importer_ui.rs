@@ -25,9 +25,11 @@ use gtk4::prelude::*;
 
 use super::{ImporterUI, SourceSelectedCallback};
 use npc_engine::importer::{CameraImporter, ImportBackend};
+use npc_fwk::controller_imp_imp;
 use npc_fwk::toolkit;
+use npc_fwk::toolkit::{Controller, ControllerImpl};
 
-enum Event {
+pub enum Event {
     CameraSelected,
 }
 
@@ -40,37 +42,37 @@ struct Widgets {
 }
 
 pub(super) struct CameraImporterUI {
-    tx: npc_fwk::toolkit::Sender<Event>,
+    imp_: RefCell<ControllerImpl<Event, ()>>,
     name: String,
     backend: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
 }
 
-impl CameraImporterUI {
-    pub fn new() -> Rc<CameraImporterUI> {
-        let (tx, rx) = npc_fwk::toolkit::channel();
+impl Controller for CameraImporterUI {
+    type InMsg = Event;
+    type OutMsg = ();
 
-        let widget = Rc::new(CameraImporterUI {
-            tx,
-            name: i18n("Camera"),
-            backend: Rc::new(CameraImporter::default()),
-            widgets: RefCell::default(),
-        });
-
-        npc_fwk::toolkit::channels::receiver_attach(
-            rx,
-            glib::clone!(@strong widget => move |e| {
-                widget.dispatch(e);
-            }),
-        );
-
-        widget
-    }
+    controller_imp_imp!(imp_);
 
     fn dispatch(&self, e: Event) {
         match e {
             Event::CameraSelected => self.select_camera(),
         }
+    }
+}
+
+impl CameraImporterUI {
+    pub fn new() -> Rc<CameraImporterUI> {
+        let widget = Rc::new(CameraImporterUI {
+            imp_: RefCell::default(),
+            name: i18n("Camera"),
+            backend: Rc::new(CameraImporter::default()),
+            widgets: RefCell::default(),
+        });
+
+        <Self as Controller>::start(&widget);
+
+        widget
     }
 
     fn select_camera(&self) {
@@ -108,8 +110,9 @@ impl ImporterUI for CameraImporterUI {
         let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/cameraimporterui.ui");
         get_widget!(builder, gtk4::Grid, main_widget);
         get_widget!(builder, gtk4::Button, select_camera_btn);
-        select_camera_btn.connect_clicked(glib::clone!(@strong self.tx as tx =>
-            move |_| npc_fwk::send_async_local!(Event::CameraSelected, tx);
+        let sender = self.sender();
+        select_camera_btn.connect_clicked(glib::clone!(@strong sender =>
+            move |_| npc_fwk::send_async_local!(Event::CameraSelected, sender);
         ));
         get_widget!(builder, gtk4::ComboBoxText, camera_list_combo);
 

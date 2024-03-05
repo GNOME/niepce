@@ -26,11 +26,12 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
-use npc_fwk::{on_err_out, toolkit};
+use npc_fwk::toolkit::{Controller, ControllerImpl};
+use npc_fwk::{controller_imp_imp, on_err_out, toolkit};
 
 use super::{ImporterUI, SourceSelectedCallback};
 
-enum Event {
+pub enum Event {
     CopyToggled(bool),
     RecursiveToggled(bool),
     SelectDirectories,
@@ -46,34 +47,18 @@ struct Widgets {
 }
 
 pub(super) struct DirectoryImporterUI {
-    tx: npc_fwk::toolkit::Sender<Event>,
+    imp_: RefCell<ControllerImpl<Event, ()>>,
     name: String,
     cfg: Rc<toolkit::Configuration>,
     backend: RefCell<Rc<DirectoryImporter>>,
     widgets: RefCell<Widgets>,
 }
 
-impl DirectoryImporterUI {
-    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<DirectoryImporterUI> {
-        let (tx, rx) = npc_fwk::toolkit::channel();
+impl Controller for DirectoryImporterUI {
+    type InMsg = Event;
+    type OutMsg = ();
 
-        let widget = Rc::new(DirectoryImporterUI {
-            tx,
-            name: i18n("Directory"),
-            cfg,
-            backend: RefCell::new(Rc::new(DirectoryImporter::default())),
-            widgets: RefCell::default(),
-        });
-
-        npc_fwk::toolkit::channels::receiver_attach(
-            rx,
-            glib::clone!(@strong widget => move |e| {
-                widget.dispatch(e);
-            }),
-        );
-
-        widget
-    }
+    controller_imp_imp!(imp_);
 
     fn dispatch(&self, e: Event) {
         match e {
@@ -92,6 +77,22 @@ impl DirectoryImporterUI {
             }
         }
     }
+}
+
+impl DirectoryImporterUI {
+    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<DirectoryImporterUI> {
+        let widget = Rc::new(DirectoryImporterUI {
+            imp_: RefCell::default(),
+            name: i18n("Directory"),
+            cfg,
+            backend: RefCell::new(Rc::new(DirectoryImporter::default())),
+            widgets: RefCell::default(),
+        });
+
+        <Self as Controller>::start(&widget);
+
+        widget
+    }
 
     fn do_select_directories(&self) {
         let dialog = gtk4::FileChooserDialog::new(
@@ -109,7 +110,8 @@ impl DirectoryImporterUI {
             let file = gio::File::for_path(last_import_location);
             on_err_out!(dialog.set_current_folder(Some(&file)));
         }
-        dialog.connect_response(glib::clone!(@strong self.tx as tx, @weak self.cfg as cfg => move |dialog, response| {
+        let sender = self.sender();
+        dialog.connect_response(glib::clone!(@strong sender, @weak self.cfg as cfg => move |dialog, response| {
             let mut source = None;
             if response == gtk4::ResponseType::Ok {
                 source = dialog.file().and_then(|f| f.path());
@@ -118,10 +120,10 @@ impl DirectoryImporterUI {
                 if let Some(source) = source.as_ref().and_then(|p| p.to_str()).map(|s| s.to_string()) {
                     cfg.set_value("last_dir_import_location", &source);
                     let dest_dir = dest_dir.to_string();
-                    npc_fwk::send_async_local!(Event::SourceSelected(source, dest_dir), tx);
+                    npc_fwk::send_async_local!(Event::SourceSelected(source, dest_dir), sender);
                 }
             }
-            npc_fwk::send_async_local!(Event::SetDirectoryName(source), tx);
+            npc_fwk::send_async_local!(Event::SetDirectoryName(source), sender);
             dialog.close()
         }));
 
@@ -162,25 +164,28 @@ impl ImporterUI for DirectoryImporterUI {
             gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/directoryimporterui.ui");
         get_widget!(builder, gtk4::Box, main_widget);
         get_widget!(builder, gtk4::Button, select_directories);
-        select_directories.connect_clicked(glib::clone!(@strong self.tx as tx =>
-            move |_| npc_fwk::send_async_local!(Event::SelectDirectories, tx);
+        let sender = self.sender();
+        select_directories.connect_clicked(glib::clone!(@strong sender =>
+            move |_| npc_fwk::send_async_local!(Event::SelectDirectories, sender);
         ));
         get_widget!(builder, gtk4::Label, directory_name);
         get_widget!(builder, gtk4::CheckButton, copy_files);
         get_widget!(builder, gtk4::CheckButton, recursive);
-        copy_files.connect_toggled(glib::clone!(@strong self.tx as tx =>
+        let sender = self.sender();
+        copy_files.connect_toggled(glib::clone!(@strong sender =>
                 move |check| {
                     let is_active = check.is_active();
-                    npc_fwk::send_async_local!(Event::CopyToggled(is_active), tx);
+                    npc_fwk::send_async_local!(Event::CopyToggled(is_active), sender);
                 }
         ));
         copy_files.set_active(
             bool::from_str(&self.cfg.value("dir_import_copy", "false")).unwrap_or(false),
         );
-        recursive.connect_toggled(glib::clone!(@strong self.tx as tx =>
+        let sender = self.sender();
+        recursive.connect_toggled(glib::clone!(@strong sender =>
                                                move |check| {
                                                    let is_active = check.is_active();
-                                                   npc_fwk::send_async_local!(Event::RecursiveToggled(is_active), tx);
+                                                   npc_fwk::send_async_local!(Event::RecursiveToggled(is_active), sender);
                                                }
         ));
         recursive.set_active(

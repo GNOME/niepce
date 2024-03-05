@@ -39,12 +39,12 @@ use once_cell::sync::OnceCell;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
-use npc_fwk::toolkit::{self, Thumbnail, UiController};
-use npc_fwk::{dbg_out, Date};
+use npc_fwk::toolkit::{self, Controller, ControllerImpl, Thumbnail, UiController};
+use npc_fwk::{controller_imp_imp, dbg_out, Date};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
 
-enum Event {
+pub enum Event {
     /// Set Source `source` and `dest_dir`
     SetSource(String, String),
     /// The source changed. `id` in the combo box.
@@ -110,7 +110,7 @@ struct State {
 }
 
 pub struct ImportDialog {
-    tx: npc_fwk::toolkit::Sender<Event>,
+    imp_: RefCell<ControllerImpl<Event, ()>>,
     base_dest_dir: PathBuf,
     cfg: Rc<toolkit::Configuration>,
 
@@ -118,32 +118,11 @@ pub struct ImportDialog {
     state: RefCell<State>,
 }
 
-impl ImportDialog {
-    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<Self> {
-        let (tx, rx) = npc_fwk::toolkit::channel();
+impl Controller for ImportDialog {
+    type InMsg = Event;
+    type OutMsg = ();
 
-        let base_dest_dir = cfg
-            .value_opt("base_import_dest_dir")
-            .map(PathBuf::from)
-            .or_else(|| glib::user_special_dir(glib::UserDirectory::Pictures))
-            .unwrap_or_else(glib::home_dir);
-        let dialog = Rc::new(ImportDialog {
-            tx,
-            base_dest_dir,
-            cfg,
-            widgets: OnceCell::new(),
-            state: RefCell::new(State::default()),
-        });
-
-        npc_fwk::toolkit::channels::receiver_attach(
-            rx,
-            glib::clone!(@weak dialog => move |e| {
-                dialog.dispatch(e);
-            }),
-        );
-
-        dialog
-    }
+    controller_imp_imp!(imp_);
 
     fn dispatch(&self, e: Event) {
         match e {
@@ -155,6 +134,27 @@ impl ImportDialog {
             }
             Event::AppendFiles(files) => self.append_files_to_import(&files),
         }
+    }
+}
+
+impl ImportDialog {
+    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<Self> {
+        let base_dest_dir = cfg
+            .value_opt("base_import_dest_dir")
+            .map(PathBuf::from)
+            .or_else(|| glib::user_special_dir(glib::UserDirectory::Pictures))
+            .unwrap_or_else(glib::home_dir);
+        let dialog = Rc::new(ImportDialog {
+            imp_: RefCell::default(),
+            base_dest_dir,
+            cfg,
+            widgets: OnceCell::new(),
+            state: RefCell::new(State::default()),
+        });
+
+        <Self as Controller>::start(&dialog);
+
+        dialog
     }
 
     fn setup_widget<F>(&self, callback: F) -> &adw::Window
@@ -238,23 +238,25 @@ impl ImportDialog {
                 };
 
                 let importer = DirectoryImporterUI::new(self.cfg.clone());
-                widgets.add_importer_ui(importer, self.tx.clone());
+                widgets.add_importer_ui(importer, self.sender());
                 let importer = CameraImporterUI::new();
-                widgets.add_importer_ui(importer, self.tx.clone());
+                widgets.add_importer_ui(importer, self.sender());
 
+                let sender = self.sender();
                 import_source_combo.connect_changed(
-                    glib::clone!(@strong self.tx as tx => move |combo| {
+                    glib::clone!(@strong sender => move |combo| {
                         if let Some(source) = combo.active_id() {
-                            npc_fwk::send_async_local!(Event::SourceChanged(source.to_string()), tx);
+                            npc_fwk::send_async_local!(Event::SourceChanged(source.to_string()), sender);
                         }
                     }),
                 );
+                let sender = self.sender();
                 date_sorting_combo.connect_selected_item_notify(
-                    glib::clone!(@strong self.tx as tx => move |dropdown| {
+                    glib::clone!(@strong sender => move |dropdown| {
                         dbg_out!("selected format {}", dropdown.selected());
                         if let Some(format) = DatePathFormat::from_u32(dropdown.selected()) {
                             dbg_out!("setting format {format:?}");
-                            npc_fwk::send_async_local!(Event::SetDatePathFormat(format), tx);
+                            npc_fwk::send_async_local!(Event::SetDatePathFormat(format), sender);
                         }
                     }),
                 );
@@ -320,11 +322,11 @@ impl ImportDialog {
         self.clear_import_list();
 
         if let Some(importer) = self.importer() {
-            let tx = self.tx.clone();
+            let sender = self.sender();
             importer.list_source_content(
                 source,
                 Box::new(move |files| {
-                    npc_fwk::send_async_any!(Event::AppendFiles(files), tx);
+                    npc_fwk::send_async_any!(Event::AppendFiles(files), sender);
                 }),
             );
         }
@@ -370,12 +372,12 @@ impl ImportDialog {
             .collect();
 
         if let Some(importer) = self.importer() {
-            let tx = self.tx.clone();
+            let sender = self.sender();
             importer.get_previews_for(
                 &self.state.borrow().source,
                 paths,
                 Box::new(move |path, thumbnail, date| {
-                    npc_fwk::send_async_any!(Event::PreviewReceived(path, thumbnail, date), tx);
+                    npc_fwk::send_async_any!(Event::PreviewReceived(path, thumbnail, date), sender);
                 }),
             );
         }
