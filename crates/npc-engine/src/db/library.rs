@@ -1284,7 +1284,7 @@ impl Library {
     pub(crate) fn update_label(&self, label_id: LibraryId, name: &str, colour: &str) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let c = conn.execute(
-                "UPDATE labels SET name=?2, color=?3 FROM labels WHERE id=?1;",
+                "UPDATE labels SET name=?2, color=?3 WHERE id=?1;",
                 params![label_id, name, colour],
             )?;
             if c != 1 {
