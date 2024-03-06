@@ -85,7 +85,7 @@ pub fn property_set_new() -> Box<PropertySet> {
 pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
-use crate::db::{Label, LibMetadata};
+use crate::db::Label;
 use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper, UIDataProvider};
 
 #[cxx::bridge(namespace = "eng")]
@@ -141,13 +141,6 @@ pub mod ffi {
         fn label(&self) -> &str;
         fn id(&self) -> i64;
         fn clone_boxed(&self) -> Box<Label>;
-    }
-
-    extern "Rust" {
-        type LibMetadata;
-
-        fn id(&self) -> i64;
-        fn to_properties(&self, propset: &PropertySet) -> Box<PropertyBag>;
     }
 
     #[namespace = "fwk"]

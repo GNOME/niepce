@@ -201,10 +201,10 @@ impl LibMetadata {
         false
     }
 
-    pub fn to_properties(&self, propset: &PropertySet<Np>) -> Box<NiepcePropertyBag> {
+    pub fn to_properties(&self, propset: &PropertySet<Np>) -> NiepcePropertyBag {
         use super::NiepcePropertyIdx as Npi;
-        let mut property_bag = Box::<NiepcePropertyBag>::default();
-        let props = &mut property_bag.deref_mut().0;
+        let mut property_bag = NiepcePropertyBag::default();
+        let props = &mut property_bag.deref_mut();
         for prop_id in propset {
             match *prop_id {
                 Np::Index(Npi::NpXmpRatingProp) => {
