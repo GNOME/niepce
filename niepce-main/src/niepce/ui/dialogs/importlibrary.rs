@@ -35,8 +35,8 @@ use num_traits::{FromPrimitive, ToPrimitive};
 
 use npc_engine::importer::LibraryImporter;
 use npc_engine::libraryclient::LibraryClient;
-use npc_fwk::toolkit;
-use npc_fwk::{dbg_out, err_out, on_err_out};
+use npc_fwk::toolkit::{self, Controller, ControllerImpl};
+use npc_fwk::{controller_imp_imp, dbg_out, err_out, on_err_out};
 
 use lrimport_root_row::LrImportRootRow;
 
@@ -96,7 +96,7 @@ impl ImportState {
 type ImportStateRef = Rc<RefCell<ImportState>>;
 
 #[derive(Clone)]
-enum Command {
+pub enum Command {
     /// Request to select a file
     SelectFile,
     /// File selector accept
@@ -114,31 +114,92 @@ enum Command {
 }
 
 pub struct ImportLibraryDialog {
+    imp_: RefCell<ControllerImpl<Command, ()>>,
     assistant: gtk4::Assistant,
     client: Arc<LibraryClient>,
     state: ImportStateRef,
     roots_list: Option<gtk4::ListBox>,
-    sender: npc_fwk::toolkit::Sender<Command>,
+}
+
+impl Controller for ImportLibraryDialog {
+    type InMsg = Command;
+    type OutMsg = ();
+
+    controller_imp_imp!(imp_);
+
+    fn dispatch(&self, command: Command) {
+        match command {
+            Command::SetFile(p) => self.library_file_set(p),
+            Command::SelectFile => self.select_file(),
+            Command::FoundRoot(p) => {
+                if self.assistant.current_page() == Page::Roots.to_i32().unwrap() {
+                    // add the root to the list.
+                    self.state.borrow_mut().remap_root(p.clone(), p.clone());
+                    if let Some(roots_list) = &self.roots_list {
+                        let row = LrImportRootRow::new(p.clone());
+
+                        let sender = self.sender();
+                        let p2 = p.clone();
+                        row.connect_changed(move |w| {
+                            let v = w.text().to_string();
+                            let p = p2.clone();
+                            npc_fwk::send_async_local!(Command::Remap((p, v)), sender);
+                        });
+
+                        let sender = self.sender();
+                        row.connect_toggled(move |w| {
+                            let v = w.is_active();
+                            let p = p.clone();
+                            npc_fwk::send_async_local!(Command::SetRootEnabled((p, v)), sender);
+                        });
+                        roots_list.insert(&row, -1);
+                    }
+                } else {
+                    err_out!("Received FoundRoot({:?}) on wrong page", p);
+                }
+            }
+            Command::RootsDone => {
+                if self.assistant.current_page() == Page::Roots.to_i32().unwrap() {
+                    // we are done with all.
+                    self.set_page_complete(Page::Roots);
+                } else {
+                    err_out!("Received RootsDone on wrong page");
+                }
+            }
+            Command::Remap((p, v)) => {
+                dbg_out!("Remap {} to {}", p, v);
+                self.state.borrow_mut().remap_root(p, v);
+            }
+            Command::SetRootEnabled((p, v)) => {
+                dbg_out!("{} {}", if v { "Enable" } else { "Disable" }, p);
+                self.state.borrow_mut().enable_root(&p, v);
+            }
+            Command::Close => {
+                self.cancel();
+            }
+        }
+    }
 }
 
 impl ImportLibraryDialog {
     pub fn new(client: Arc<LibraryClient>) -> Rc<Self> {
-        let (sender, receiver) = npc_fwk::toolkit::channel::<Command>();
         let assistant = Assistant::new();
 
         let mut dlg = Rc::new(Self {
+            imp_: RefCell::default(),
             assistant: assistant.clone(),
             client,
             state: Rc::new(RefCell::new(ImportState::default())),
             roots_list: None,
-            sender,
         });
 
-        let sender = dlg.sender.clone();
+        <Self as Controller>::start(&dlg);
+
+        let sender = dlg.sender();
         assistant.connect_cancel(move |_| {
             npc_fwk::send_async_local!(Command::Close, sender);
         });
-        let sender = dlg.sender.clone();
+        let sender = dlg.sender();
         assistant.connect_close(move |_| {
             npc_fwk::send_async_local!(Command::Close, sender);
         });
@@ -157,7 +218,7 @@ impl ImportLibraryDialog {
             toolkit::assistant::set_page_index(&page, Page::FileSelection.to_i32().unwrap());
 
             if let Some(file_chooser) = builder.object::<gtk4::Button>("file_chooser") {
-                let sender = dlg.sender.clone();
+                let sender = dlg.sender();
                 file_chooser.connect_clicked(move |_| {
                     npc_fwk::send_async_local!(Command::SelectFile, sender);
                 });
@@ -193,67 +254,13 @@ impl ImportLibraryDialog {
             dlg.roots_list = builder.object::<gtk4::ListBox>("roots-list");
         }
 
-        let dlg2 = dlg.clone();
-        npc_fwk::toolkit::channels::receiver_attach(receiver, move |c| dlg2.dispatch(c));
+        <Self as Controller>::start(&dlg);
 
         assistant.connect_prepare(glib::clone!(@strong dlg => move |_, p| {
             dlg.prepare_page(p)
         }));
 
         dlg
-    }
-
-    fn dispatch(&self, command: Command) {
-        match command {
-            Command::SetFile(p) => self.library_file_set(p),
-            Command::SelectFile => self.select_file(),
-            Command::FoundRoot(p) => {
-                if self.assistant.current_page() == Page::Roots.to_i32().unwrap() {
-                    // add the root to the list.
-                    self.state.borrow_mut().remap_root(p.clone(), p.clone());
-                    if let Some(roots_list) = &self.roots_list {
-                        let row = LrImportRootRow::new(p.clone());
-
-                        let sender = self.sender.clone();
-                        let p2 = p.clone();
-                        row.connect_changed(move |w| {
-                            let v = w.text().to_string();
-                            let p = p2.clone();
-                            npc_fwk::send_async_local!(Command::Remap((p, v)), sender);
-                        });
-
-                        let sender = self.sender.clone();
-                        row.connect_toggled(move |w| {
-                            let v = w.is_active();
-                            let p = p.clone();
-                            npc_fwk::send_async_local!(Command::SetRootEnabled((p, v)), sender);
-                        });
-                        roots_list.insert(&row, -1);
-                    }
-                } else {
-                    err_out!("Received FoundRoot({:?}) on wrong page", p);
-                }
-            }
-            Command::RootsDone => {
-                if self.assistant.current_page() == Page::Roots.to_i32().unwrap() {
-                    // we are done with all.
-                    self.set_page_complete(Page::Roots);
-                } else {
-                    err_out!("Received RootsDone on wrong page");
-                }
-            }
-            Command::Remap((p, v)) => {
-                dbg_out!("Remap {} to {}", p, v);
-                self.state.borrow_mut().remap_root(p, v);
-            }
-            Command::SetRootEnabled((p, v)) => {
-                dbg_out!("{} {}", if v { "Enable" } else { "Disable" }, p);
-                self.state.borrow_mut().enable_root(&p, v);
-            }
-            Command::Close => {
-                self.cancel();
-            }
-        }
     }
 
     pub fn run(&self, parent: Option<&gtk4::Window>) {
@@ -295,9 +302,9 @@ impl ImportLibraryDialog {
             let roots = importer.root_folders();
             for root in roots {
                 dbg_out!("Found root folder {}", &root);
-                npc_fwk::send_async_local!(Command::FoundRoot(root), self.sender);
+                npc_fwk::send_async_local!(Command::FoundRoot(root), self.sender());
             }
-            npc_fwk::send_async_local!(Command::RootsDone, self.sender);
+            npc_fwk::send_async_local!(Command::RootsDone, self.sender());
         }
     }
 
@@ -362,7 +369,7 @@ impl ImportLibraryDialog {
                 (&i18n("Cancel"), gtk4::ResponseType::Cancel),
             ],
         );
-        let sender = self.sender.clone();
+        let sender = self.sender();
         file_dialog.connect_response(move |d, response| {
             if response == gtk4::ResponseType::Accept {
                 dbg_out!("Accept");
