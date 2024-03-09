@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/library.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@ use crate::db::props::NiepceProperties as Np;
 use crate::db::NiepcePropertyIdx as Npi;
 use crate::library::notification::LibNotification;
 use crate::NiepcePropertyBag;
+use npc_fwk::base::RgbColour;
 use npc_fwk::toolkit;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_assert, dbg_out, err_out, on_err_out};
@@ -1265,11 +1266,12 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub(crate) fn add_label(&self, name: &str, colour: &str) -> Result<LibraryId> {
+    pub(crate) fn add_label(&self, name: &str, colour: &RgbColour) -> Result<LibraryId> {
         if let Some(ref conn) = self.dbconn {
+            let colour = colour.to_string();
             let c = conn.execute(
                 "INSERT INTO  labels (name,color) VALUES (?1, ?2);",
-                params![name, colour],
+                params![name, &colour],
             )?;
             if c != 1 {
                 return Err(Error::InvalidResult);
@@ -1281,11 +1283,17 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
-    pub(crate) fn update_label(&self, label_id: LibraryId, name: &str, colour: &str) -> Result<()> {
+    pub(crate) fn update_label(
+        &self,
+        label_id: LibraryId,
+        name: &str,
+        colour: &RgbColour,
+    ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
+            let colour = colour.to_string();
             let c = conn.execute(
                 "UPDATE labels SET name=?2, color=?3 WHERE id=?1;",
-                params![label_id, name, colour],
+                params![label_id, name, &colour],
             )?;
             if c != 1 {
                 return Err(Error::InvalidResult);

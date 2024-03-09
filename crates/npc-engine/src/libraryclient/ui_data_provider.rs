@@ -28,11 +28,6 @@ pub struct UIDataProvider {
     labels: RefCell<Vec<Label>>,
 }
 
-unsafe impl cxx::ExternType for UIDataProvider {
-    type Id = cxx::type_id!("eng::UIDataProvider");
-    type Kind = cxx::kind::Opaque;
-}
-
 impl Default for UIDataProvider {
     fn default() -> UIDataProvider {
         UIDataProvider {
@@ -71,13 +66,11 @@ impl UIDataProvider {
         }
     }
 
-    // cxx
     pub fn label_count(&self) -> usize {
         self.labels.borrow().len()
     }
 
-    // cxx
-    pub fn label_at(&self, idx: usize) -> *mut Label {
-        Box::into_raw(Box::new(self.labels.borrow()[idx].clone()))
+    pub fn label_at(&self, idx: usize) -> Label {
+        self.labels.borrow()[idx].clone()
     }
 }

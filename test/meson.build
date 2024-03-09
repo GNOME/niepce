@@ -17,7 +17,6 @@ testconfigdatabinder = executable(
   '..' / 'src' / 'fwk' / 'toolkit' / 't' / 'testconfigdatabinder.cpp',
   fwk_bindings_cpp,
   eng_bindings_cpp,
-  colour_bindings_cpp,
   npc_bindings_cpp,
   build_by_default: false,
   install: false,

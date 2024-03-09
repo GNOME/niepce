@@ -45,7 +45,6 @@ pub fn init() {
 
 // C++ bridge
 
-use crate::base::rgbcolour::RgbColour;
 use crate::toolkit::cxx::*;
 use crate::toolkit::thumbnail::Thumbnail;
 use crate::toolkit::{Configuration, UndoCommand, UndoHistory, UndoTransaction};
@@ -60,15 +59,6 @@ fn configuration_new(file: &str) -> cxx::SharedPtr<ffi::SharedConfiguration> {
     cxx::SharedPtr::new(ffi::SharedConfiguration {
         cfg: Box::new(Configuration::from_file(file)),
     })
-}
-
-fn rgbcolour_new(r: u16, g: u16, b: u16) -> Box<RgbColour> {
-    Box::new(RgbColour::new(r, g, b))
-}
-
-fn rgbcolour_to_string(r: u16, g: u16, b: u16) -> String {
-    let colour = RgbColour::new(r, g, b);
-    colour.to_string()
 }
 
 #[cxx::bridge(namespace = "fwk")]
@@ -100,16 +90,6 @@ pub mod ffi {
 
     extern "C++" {
         include!("fwk/cxx_prelude.hpp");
-        include!("fwk/cxx_colour_bindings.hpp");
-
-        type RgbColour = crate::base::rgbcolour::RgbColour;
-    }
-
-    extern "Rust" {
-        #[cxx_name = "RgbColour_new"]
-        fn rgbcolour_new(r: u16, g: u16, b: u16) -> Box<RgbColour>;
-
-        fn rgbcolour_to_string(r: u16, g: u16, b: u16) -> String;
     }
 
     extern "Rust" {

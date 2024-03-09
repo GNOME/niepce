@@ -85,17 +85,9 @@ pub mod ffi {
         fn niepce_init();
     }
 
-    #[namespace = "fwk"]
-    extern "C++" {
-        include!("fwk/cxx_colour_bindings.hpp");
-
-        type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
-    }
-
     #[namespace = "eng"]
     extern "C++" {
         include!("fwk/cxx_prelude.hpp");
-        type Label = npc_engine::db::Label;
         type LibraryClientWrapper = npc_engine::libraryclient::LibraryClientWrapper;
         type LibraryClientHost = npc_engine::libraryclient::LibraryClientHost;
     }
@@ -109,22 +101,6 @@ pub mod ffi {
         fn widget(&self) -> *mut GtkWidget;
         fn window(&self) -> *mut GtkWindow;
         fn menu(&self) -> *mut GMenu;
-    }
-
-    #[namespace = "ui"]
-    unsafe extern "C++" {
-        include!("niepce/ui/dialogs/editlabels.hpp");
-        type EditLabels;
-
-        fn edit_labels_new(libclient: &LibraryClientHost) -> SharedPtr<EditLabels>;
-        /// # Safety
-        /// Dereference a pointer
-        unsafe fn run_modal(
-            &self,
-            parent: *mut GtkWindow,
-            on_ok: fn(SharedPtr<EditLabels>, i32),
-            this_: SharedPtr<EditLabels>,
-        );
     }
 
     #[namespace = "Gio"]

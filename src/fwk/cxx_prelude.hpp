@@ -18,12 +18,7 @@ class UndoHistory;
 class UndoTransaction;
 }
 
-namespace eng {
-class Label;
-}
-
 namespace ui {
-class EditLabels;
 class NiepceApplication;
 }
 

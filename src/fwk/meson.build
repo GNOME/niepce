@@ -1,21 +1,8 @@
 
-cxx_colour_bridge = files(meson.project_source_root() / 'crates' / 'npc-fwk' / 'src' / 'base' / 'rgbcolour.rs')
 cxx_fwk_bridge = files(meson.project_source_root() / 'crates' / 'npc-fwk' / 'src' / 'lib.rs')
 cxx_eng_bridge = files(meson.project_source_root() / 'crates' / 'npc-engine' / 'src' / 'lib.rs')
 cxx_ncr_bridge = files(meson.project_source_root() / 'crates' / 'npc-craw' / 'src' / 'lib.rs')
 cxx_npc_bridge = files(meson.project_source_root() / 'niepce-main' / 'src' / 'lib.rs')
-
-colour_bindings_cpp = custom_target('colour_bindings_cpp',
-		 output: 'cxx_colour_bindings.cpp',
-		 input: cxx_colour_bridge,
-		 capture: true,
-		 command: [cxxbridge, '@INPUT@'])
-
-colour_bindings_hpp = custom_target('colour_bindings_hpp',
-		 output: 'cxx_colour_bindings.hpp',
-		 input: cxx_colour_bridge,
-		 capture: true,
-		 command: [cxxbridge, '--header', '@INPUT@'])
 
 fwk_bindings_cpp = custom_target('fwk_bindings_cpp',
 		 output: 'cxx_fwk_bindings.cpp',
@@ -71,7 +58,6 @@ cxx_headers = declare_dependency(
     eng_bindings_hpp,
     npc_bindings_hpp,
     ncr_bindings_hpp,
-    colour_bindings_hpp,
   ]
 )
 
@@ -79,7 +65,6 @@ fwk = static_library(
   'fwk',
   fwk_bindings_cpp,
   eng_bindings_cpp,
-  colour_bindings_cpp,
   'base' / 'debug.hpp',
   'base' / 'debug.cpp',
   'base' / 'geometry.hpp',
@@ -97,8 +82,6 @@ fwk = static_library(
   'toolkit' / 'dialog.cpp',
   'toolkit' / 'frame.hpp',
   'toolkit' / 'frame.cpp',
-  'toolkit' / 'gdkutils.hpp',
-  'toolkit' / 'gdkutils.cpp',
   'toolkit' / 'gtkutils.hpp',
   'toolkit' / 'gtkutils.cpp',
   'toolkit' / 'uicontroller.hpp',

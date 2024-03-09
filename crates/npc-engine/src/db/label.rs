@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/label.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,16 +30,8 @@ pub struct Label {
     colour: RgbColour,
 }
 
-use cxx::{type_id, ExternType};
-
-unsafe impl ExternType for Label {
-    type Id = type_id!("eng::Label");
-    type Kind = cxx::kind::Opaque;
-}
-
 impl Label {
-    pub fn new(id: LibraryId, label: &str, colourstring: &str) -> Label {
-        let colour = RgbColour::from_str(colourstring).unwrap_or_default();
+    pub fn new(id: LibraryId, label: &str, colour: RgbColour) -> Label {
         Label {
             id,
             label: String::from(label),
@@ -66,10 +58,6 @@ impl Label {
     pub fn set_colour(&mut self, c: &RgbColour) {
         self.colour = c.clone();
     }
-
-    pub fn clone_boxed(l: &Label) -> Box<Label> {
-        Box::new(l.clone())
-    }
 }
 
 impl FromDb for Label {
@@ -87,7 +75,8 @@ impl FromDb for Label {
 
     fn read_from(row: &rusqlite::Row) -> rusqlite::Result<Self> {
         let label: String = row.get(1)?;
-        let colour: String = row.get(2)?;
-        Ok(Label::new(row.get(0)?, &label, &colour))
+        let colourstring: String = row.get(2)?;
+        let colour = RgbColour::from_str(&colourstring).unwrap_or_default();
+        Ok(Label::new(row.get(0)?, &label, colour))
     }
 }

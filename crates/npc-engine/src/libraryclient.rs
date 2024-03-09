@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/mod.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ use crate::library::commands;
 use crate::library::notification::LcChannel;
 use crate::library::op::Op;
 use crate::NiepcePropertyBag;
-use npc_fwk::base::PropertyValue;
+use npc_fwk::base::{PropertyValue, RgbColour};
 use npc_fwk::on_err_out;
 
 /// Wrap the libclient Arc so that it can be passed around
@@ -82,11 +82,11 @@ impl LibraryClientWrapper {
         self.client.delete_label(id);
     }
 
-    pub fn update_label(&self, id: i64, new_name: String, new_colour: String) {
+    pub fn update_label(&self, id: i64, new_name: String, new_colour: RgbColour) {
         self.client.update_label(id, new_name, new_colour);
     }
 
-    pub fn create_label_sync(&self, name: String, colour: String) -> i64 {
+    pub fn create_label_sync(&self, name: String, colour: RgbColour) -> i64 {
         self.client.create_label_sync(name, colour)
     }
 
@@ -303,7 +303,7 @@ impl ClientInterface for LibraryClientSender {
         self.schedule_op(commands::cmd_list_all_labels);
     }
 
-    fn create_label(&self, name: String, colour: String) {
+    fn create_label(&self, name: String, colour: RgbColour) {
         self.schedule_op(move |lib| commands::cmd_create_label(lib, &name, &colour) != 0);
     }
 
@@ -312,7 +312,7 @@ impl ClientInterface for LibraryClientSender {
     }
 
     /// update a label
-    fn update_label(&self, label_id: LibraryId, new_name: String, new_colour: String) {
+    fn update_label(&self, label_id: LibraryId, new_name: String, new_colour: RgbColour) {
         self.schedule_op(move |lib| {
             commands::cmd_update_label(lib, label_id, &new_name, &new_colour)
         });
@@ -330,7 +330,7 @@ impl ClientInterface for LibraryClientSender {
 }
 
 impl ClientInterfaceSync for LibraryClientSender {
-    fn create_label_sync(&self, name: String, colour: String) -> LibraryId {
+    fn create_label_sync(&self, name: String, colour: RgbColour) -> LibraryId {
         // can't use futures::sync::oneshot
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 

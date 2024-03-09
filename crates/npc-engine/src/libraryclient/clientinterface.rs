@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/clientinterface.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ use crate::db::filebundle::FileBundle;
 use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
 use crate::NiepcePropertyBag;
-use npc_fwk::base::PropertyValue;
+use npc_fwk::base::{PropertyValue, RgbColour};
 
 /// Client interface.
 pub trait ClientInterface {
@@ -65,10 +65,10 @@ pub trait ClientInterface {
     fn move_file_to_folder(&self, file_id: LibraryId, from: LibraryId, to: LibraryId);
     /// get all the labels
     fn get_all_labels(&self);
-    fn create_label(&self, label: String, colour: String);
+    fn create_label(&self, label: String, colour: RgbColour);
     fn delete_label(&self, id: LibraryId);
     /// update a label
-    fn update_label(&self, id: LibraryId, new_name: String, new_colour: String);
+    fn update_label(&self, id: LibraryId, new_name: String, new_colour: RgbColour);
 
     /// tell to process the Xmp update Queue
     fn process_xmp_update_queue(&self, write_xmp: bool);
@@ -85,7 +85,7 @@ pub trait ClientInterfaceSync {
     fn create_keyword_sync(&self, keyword: String) -> LibraryId;
 
     /// Create a label. Return the id of the newly created label.
-    fn create_label_sync(&self, name: String, colour: String) -> LibraryId;
+    fn create_label_sync(&self, name: String, colour: RgbColour) -> LibraryId;
 
     /// Create a folder. Return the id of the newly created folder.
     fn create_folder_sync(&self, name: String, path: Option<String>) -> LibraryId;

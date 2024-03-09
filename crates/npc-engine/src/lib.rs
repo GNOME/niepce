@@ -85,19 +85,10 @@ pub fn property_set_new() -> Box<PropertySet> {
 pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
-use crate::db::Label;
-use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper, UIDataProvider};
+use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper};
 
 #[cxx::bridge(namespace = "eng")]
 pub mod ffi {
-    #[namespace = "fwk"]
-    extern "C++" {
-        include!("fwk/cxx_prelude.hpp");
-        include!("fwk/cxx_colour_bindings.hpp");
-
-        type RgbColour = npc_fwk::base::rgbcolour::RgbColour;
-    }
-
     #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[repr(u32)]
     pub enum NiepcePropertyIdx {
@@ -134,15 +125,6 @@ pub mod ffi {
         _NpPropertyEnd,
     }
 
-    extern "Rust" {
-        type Label;
-
-        fn colour(&self) -> &RgbColour;
-        fn label(&self) -> &str;
-        fn id(&self) -> i64;
-        fn clone_boxed(&self) -> Box<Label>;
-    }
-
     #[namespace = "fwk"]
     extern "Rust" {
         type PropertyBag;
@@ -163,26 +145,12 @@ pub mod ffi {
     }
 
     extern "Rust" {
-        type UIDataProvider;
-
-        fn label_count(&self) -> usize;
-        fn label_at(&self, idx: usize) -> *mut Label;
-    }
-
-    extern "Rust" {
         type LibraryClientWrapper;
-
-        fn request_metadata(&self, id: i64);
-        fn delete_label(&self, id: i64);
-        fn update_label(&self, id: i64, new_name: String, new_colour: String);
-        fn create_label_sync(&self, name: String, colour: String) -> i64;
     }
 
     extern "Rust" {
         type LibraryClientHost;
 
-        #[cxx_name = "getDataProvider"]
-        fn ui_provider(&self) -> &UIDataProvider;
         fn client(&self) -> &LibraryClientWrapper;
     }
 }

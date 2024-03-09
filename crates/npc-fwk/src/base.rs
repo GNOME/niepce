@@ -40,5 +40,6 @@ pub use geometry::{Rect, Size};
 pub use indexed_map::IndexedMap;
 pub use moniker::Moniker;
 pub use propertyvalue::PropertyValue;
+pub use rgbcolour::RgbColour;
 pub use signals::Signal;
 pub use worker::{Worker, WorkerImpl};

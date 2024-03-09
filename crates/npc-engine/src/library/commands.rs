@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/library/commands.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
 use crate::db::{LibError, LibResult, Library};
 use crate::NiepcePropertyBag;
+use npc_fwk::base::RgbColour;
 use npc_fwk::PropertyValue;
 use npc_fwk::{err_out, err_out_line};
 
@@ -624,10 +625,10 @@ pub fn cmd_list_all_labels(lib: &Library) -> bool {
 
 /// This command will create a label, with `name` and `colour`.
 /// Returns id of the label. Or 0 on error.
-pub fn cmd_create_label(lib: &Library, name: &str, colour: &str) -> LibraryId {
+pub fn cmd_create_label(lib: &Library, name: &str, colour: &RgbColour) -> LibraryId {
     match lib.add_label(name, colour) {
         Ok(id) => {
-            let l = Label::new(id, name, colour);
+            let l = Label::new(id, name, colour.clone());
             if lib.notify(LibNotification::AddedLabel(l)).is_err() {
                 err_out!("Failed to notify AddedLabel");
             }
@@ -655,10 +656,15 @@ pub fn cmd_delete_label(lib: &Library, label_id: LibraryId) -> bool {
     }
 }
 
-pub fn cmd_update_label(lib: &Library, label_id: LibraryId, name: &str, colour: &str) -> bool {
+pub fn cmd_update_label(
+    lib: &Library,
+    label_id: LibraryId,
+    name: &str,
+    colour: &RgbColour,
+) -> bool {
     match lib.update_label(label_id, name, colour) {
         Ok(_) => {
-            let label = Label::new(label_id, name, colour);
+            let label = Label::new(label_id, name, colour.clone());
             if lib.notify(LibNotification::LabelChanged(label)).is_err() {
                 err_out!("Failed to notify LabelChanged");
             }

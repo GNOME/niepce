@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/rgbcolour.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,23 +20,12 @@
 use std::num::ParseIntError;
 use std::str::FromStr;
 
-#[cxx::bridge(namespace = "fwk")]
-mod ffi {
-    #[derive(Clone, Debug, Default)]
-    pub struct RgbColour {
-        pub r: u16,
-        pub g: u16,
-        pub b: u16,
-    }
-
-    extern "Rust" {
-        fn to_string(self: &RgbColour) -> String;
-    }
-
-    impl Box<RgbColour> {}
+#[derive(Clone, Debug, Default)]
+pub struct RgbColour {
+    pub r: u16,
+    pub g: u16,
+    pub b: u16,
 }
-
-pub use ffi::RgbColour;
 
 #[derive(Debug)]
 pub enum ColourParseError {
@@ -78,6 +67,16 @@ impl FromStr for RgbColour {
 impl ToString for RgbColour {
     fn to_string(&self) -> String {
         format!("{} {} {}", self.r, self.g, self.b)
+    }
+}
+
+impl From<gdk4::RGBA> for RgbColour {
+    fn from(v: gdk4::RGBA) -> RgbColour {
+        RgbColour::new(
+            (v.red() * 65535_f32) as u16,
+            (v.green() * 65535_f32) as u16,
+            (v.blue() * 65535_f32) as u16,
+        )
     }
 }
 

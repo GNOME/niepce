@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/mod.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod edit_labels;
 mod import;
 mod importlibrary;
 
 pub use self::import::ImportDialog;
 pub use self::importlibrary::ImportLibraryDialog;
+pub use edit_labels::EditLabels;

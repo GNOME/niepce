@@ -31,9 +31,12 @@ use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Moniker;
-use npc_fwk::toolkit::{self, Controller, ControllerImpl, UiController, WindowController};
+use npc_fwk::toolkit::{
+    self, Controller, ControllerImpl, DialogController, UiController, WindowController,
+};
 use npc_fwk::{dbg_out, err_out};
 
+use super::dialogs::EditLabels;
 use super::film_strip_controller::FilmStripController;
 use super::module_shell::ModuleShell;
 use super::workspace_controller::WorkspaceController;
@@ -279,26 +282,11 @@ impl NiepceWindow {
         let client = self.libraryclient.borrow();
         if let Some(ref libraryclient) = *client {
             let client = libraryclient.client();
-            client.create_label(
-                i18n("Label 1"),
-                RgbColour::new(55769, 9509, 4369).to_string(),
-            );
-            client.create_label(
-                i18n("Label 2"),
-                RgbColour::new(24929, 55769, 4369).to_string(),
-            );
-            client.create_label(
-                i18n("Label 3"),
-                RgbColour::new(4369, 50629, 55769).to_string(),
-            );
-            client.create_label(
-                i18n("Label 4"),
-                RgbColour::new(35209, 4369, 55769).to_string(),
-            );
-            client.create_label(
-                i18n("Label 5"),
-                RgbColour::new(35209, 4369, 55769).to_string(),
-            );
+            client.create_label(i18n("Label 1"), RgbColour::new(55769, 9509, 4369));
+            client.create_label(i18n("Label 2"), RgbColour::new(24929, 55769, 4369));
+            client.create_label(i18n("Label 3"), RgbColour::new(4369, 50629, 55769));
+            client.create_label(i18n("Label 4"), RgbColour::new(35209, 4369, 55769));
+            client.create_label(i18n("Label 5"), RgbColour::new(35209, 4369, 55769));
         }
     }
 
@@ -476,17 +464,8 @@ impl NiepceWindow {
     fn on_action_edit_labels(&self) {
         dbg_out!("edit labels");
         if let Some(ref libclient) = *self.libraryclient.borrow() {
-            let editlabel_dialog = crate::ffi::edit_labels_new(libclient);
-            let parent: *mut gtk4::ffi::GtkWindow = self.window().to_glib_none().0;
-            unsafe {
-                editlabel_dialog.run_modal(
-                    parent as *mut crate::ffi::GtkWindow,
-                    move |p, _| {
-                        drop(p);
-                    },
-                    editlabel_dialog.clone(),
-                );
-            }
+            let editlabel_dialog = EditLabels::new(libclient);
+            editlabel_dialog.run_modal(Some(self.window()), move |_| {});
         }
     }
 }
