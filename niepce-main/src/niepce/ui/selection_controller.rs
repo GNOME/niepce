@@ -242,7 +242,7 @@ impl SelectionController {
     }
 
     fn set_property(&self, idx: db::NiepcePropertyIdx, value: i32) {
-        dbg_out!("property {} = {}", idx.repr, value);
+        dbg_out!("property {:?} = {}", idx, value);
         if let Some(selection) = self.selection() {
             self.set_property_of(selection, idx, value)
         }

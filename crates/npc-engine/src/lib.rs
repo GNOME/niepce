@@ -78,51 +78,11 @@ impl std::ops::DerefMut for PropertyBag {
     }
 }
 
-pub fn property_set_new() -> Box<PropertySet> {
-    Box::<PropertySet>::default()
-}
-
 pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
 #[cxx::bridge(namespace = "eng")]
 pub mod ffi {
-    #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-    #[repr(u32)]
-    pub enum NiepcePropertyIdx {
-        NpFileNameProp,
-        NpFileTypeProp,
-        NpFileSizeProp,
-        NpFolderProp,
-        NpSidecarsProp,
-        NpXmpRatingProp,
-        NpXmpLabelProp,
-        NpTiffOrientationProp,
-        NpTiffMakeProp,
-        NpTiffModelProp,
-        NpExifAuxLensProp,
-        NpExifExposureProgramProp,
-        NpExifExposureTimeProp,
-        NpExifFNumberPropProp,
-        NpExifIsoSpeedRatingsProp,
-        NpExifExposureBiasProp,
-        NpExifFlashFiredProp,
-        NpExifAuxFlashCompensationProp,
-        NpExifWbProp,
-        NpExifDateTimeOriginalProp,
-        NpExifFocalLengthProp,
-        NpExifGpsLongProp,
-        NpExifGpsLatProp,
-        NpIptcHeadlineProp,
-        NpIptcDescriptionProp,
-        NpIptcKeywordsProp,
-        NpNiepceFlagProp,
-        NpNiepceRenderEngineProp,
-        NpNiepceXmpPacket,
-        // Always keep this last.
-        _NpPropertyEnd,
-    }
-
     #[namespace = "fwk"]
     extern "Rust" {
         type PropertyBag;

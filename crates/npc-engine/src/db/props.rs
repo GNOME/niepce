@@ -25,7 +25,41 @@ mod xmp {
     pub use npc_fwk::utils::exempi::NIEPCE_XMP_NAMESPACE;
 }
 
-pub use crate::ffi::NiepcePropertyIdx;
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[repr(u32)]
+pub enum NiepcePropertyIdx {
+    NpFileNameProp,
+    NpFileTypeProp,
+    NpFileSizeProp,
+    NpFolderProp,
+    NpSidecarsProp,
+    NpXmpRatingProp,
+    NpXmpLabelProp,
+    NpTiffOrientationProp,
+    NpTiffMakeProp,
+    NpTiffModelProp,
+    NpExifAuxLensProp,
+    NpExifExposureProgramProp,
+    NpExifExposureTimeProp,
+    NpExifFNumberPropProp,
+    NpExifIsoSpeedRatingsProp,
+    NpExifExposureBiasProp,
+    NpExifFlashFiredProp,
+    NpExifAuxFlashCompensationProp,
+    NpExifWbProp,
+    NpExifDateTimeOriginalProp,
+    NpExifFocalLengthProp,
+    NpExifGpsLongProp,
+    NpExifGpsLatProp,
+    NpIptcHeadlineProp,
+    NpIptcDescriptionProp,
+    NpIptcKeywordsProp,
+    NpNiepceFlagProp,
+    NpNiepceRenderEngineProp,
+    NpNiepceXmpPacket,
+    // Always keep this last.
+    _NpPropertyEnd,
+}
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[allow(unused_parens)]
@@ -38,7 +72,7 @@ pub enum NiepceProperties {
 impl From<NiepceProperties> for u32 {
     fn from(v: NiepceProperties) -> u32 {
         match v {
-            NiepceProperties::Index(i) => i.repr,
+            NiepceProperties::Index(i) => i as u32,
             NiepceProperties::Other(i) => i,
         }
     }
@@ -46,7 +80,7 @@ impl From<NiepceProperties> for u32 {
 
 impl From<u32> for NiepceProperties {
     fn from(v: u32) -> NiepceProperties {
-        if v > 0 && v < NiepcePropertyIdx::_NpPropertyEnd.repr {
+        if v > 0 && v < NiepcePropertyIdx::_NpPropertyEnd as u32 {
             Self::Index(unsafe { std::mem::transmute(v) })
         } else {
             Self::Other(v)
