@@ -31,21 +31,4 @@
 #include "fwk/cxx_ncr_bindings.hpp"
 #include "fwk/cxx_npc_bindings.hpp"
 
-namespace ffi {
-struct Utc;
-template <class T>
-struct DateTime;
-typedef fwk::Date Date;
-typedef eng::LibraryClientWrapper LibraryClientWrapper;
-}
-
-namespace fwk {
-typedef rust::Box<PropertyBag> PropertyBagPtr;
-}
-
-namespace eng {
-typedef int64_t library_id_t;
-typedef rust::Box<LibraryClientHost> LibraryClientPtr;
-}
-
 #undef _IN_RUST_BINDINGS_

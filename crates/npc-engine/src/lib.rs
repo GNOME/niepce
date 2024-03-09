@@ -85,8 +85,6 @@ pub fn property_set_new() -> Box<PropertySet> {
 pub type NiepcePropertySet = PropertySet;
 pub type NiepcePropertyBag = PropertyBag;
 
-use crate::libraryclient::{LibraryClientHost, LibraryClientWrapper};
-
 #[cxx::bridge(namespace = "eng")]
 pub mod ffi {
     #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -133,24 +131,5 @@ pub mod ffi {
         fn len(&self) -> usize;
         fn contains_key(&self, key: &u32) -> bool;
         fn key_by_index(&self, idx: usize) -> u32;
-    }
-
-    #[namespace = "fwk"]
-    extern "Rust" {
-        type PropertySet;
-
-        #[cxx_name = "PropertySet_new"]
-        fn property_set_new() -> Box<PropertySet>;
-        fn add(&mut self, v: u32);
-    }
-
-    extern "Rust" {
-        type LibraryClientWrapper;
-    }
-
-    extern "Rust" {
-        type LibraryClientHost;
-
-        fn client(&self) -> &LibraryClientWrapper;
     }
 }

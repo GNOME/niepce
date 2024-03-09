@@ -88,8 +88,6 @@ pub mod ffi {
     #[namespace = "eng"]
     extern "C++" {
         include!("fwk/cxx_prelude.hpp");
-        type LibraryClientWrapper = npc_engine::libraryclient::LibraryClientWrapper;
-        type LibraryClientHost = npc_engine::libraryclient::LibraryClientHost;
     }
 
     extern "Rust" {
