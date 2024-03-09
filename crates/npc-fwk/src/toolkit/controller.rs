@@ -129,17 +129,34 @@ pub trait Controller {
     /// This default implementation ought to be enough.
     fn start<T: Controller + 'static>(this: &Rc<T>) {
         let rx = this.imp().rx.clone();
+        let ctrl = Rc::downgrade(this);
         super::channels::receiver_attach(
             rx,
-            glib::clone!(@weak this as ctrl => move |e| {
-                ctrl.dispatch(e)
-            }),
+            // We don't use glib::clone!() to be able to control the `Weak<>`
+            // and report an error.
+            move |e| {
+                if let Some(ctrl) = ctrl.upgrade() {
+                    ctrl.dispatch(e);
+                } else {
+                    err_out!("Weak controller is gone");
+                }
+            },
         );
+    }
+
+    /// Stop the dispatcher by closing the receiver.
+    fn stop(&self) {
+        self.imp().rx.close();
     }
 
     /// Set the forwarder the will pass [`Self::OutMsg`] to it.
     fn set_forwarder(&self, forwarder: Option<Box<dyn Fn(Self::OutMsg)>>) {
         self.imp_mut().forwarder = forwarder;
+    }
+
+    /// Get the receiver for the controller inbound messages.
+    fn receiver(&self) -> super::Receiver<Self::InMsg> {
+        self.imp().rx.clone()
     }
 
     /// Get the sender for the controller inbound messages.

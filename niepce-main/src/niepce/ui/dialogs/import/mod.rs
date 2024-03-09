@@ -39,8 +39,10 @@ use once_cell::sync::OnceCell;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
-use npc_fwk::toolkit::{self, Controller, ControllerImpl, Thumbnail, UiController};
-use npc_fwk::{controller_imp_imp, dbg_out, Date};
+use npc_fwk::toolkit::{
+    self, Controller, ControllerImpl, DialogController, Thumbnail, UiController,
+};
+use npc_fwk::{controller_imp_imp, dbg_out, send_async_any, Date};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
 
@@ -53,6 +55,9 @@ pub enum Event {
     SetDatePathFormat(DatePathFormat),
     PreviewReceived(String, Option<Thumbnail>, Option<Date>),
     AppendFiles(Vec<Box<dyn ImportedFile>>),
+    ///
+    Cancel,
+    Import,
 }
 
 struct Widgets {
@@ -110,7 +115,7 @@ struct State {
 }
 
 pub struct ImportDialog {
-    imp_: RefCell<ControllerImpl<Event, ()>>,
+    imp_: RefCell<ControllerImpl<Event, ImportRequest>>,
     base_dest_dir: PathBuf,
     cfg: Rc<toolkit::Configuration>,
 
@@ -120,7 +125,7 @@ pub struct ImportDialog {
 
 impl Controller for ImportDialog {
     type InMsg = Event;
-    type OutMsg = ();
+    type OutMsg = ImportRequest;
 
     controller_imp_imp!(imp_);
 
@@ -133,34 +138,25 @@ impl Controller for ImportDialog {
                 self.preview_received(&path, thumbnail, date)
             }
             Event::AppendFiles(files) => self.append_files_to_import(&files),
+            Event::Cancel => self.close(),
+            Event::Import => {
+                if let Some(request) = self.import_request() {
+                    self.emit(request);
+                }
+                self.close();
+            }
         }
     }
 }
 
-impl ImportDialog {
-    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<Self> {
-        let base_dest_dir = cfg
-            .value_opt("base_import_dest_dir")
-            .map(PathBuf::from)
-            .or_else(|| glib::user_special_dir(glib::UserDirectory::Pictures))
-            .unwrap_or_else(glib::home_dir);
-        let dialog = Rc::new(ImportDialog {
-            imp_: RefCell::default(),
-            base_dest_dir,
-            cfg,
-            widgets: OnceCell::new(),
-            state: RefCell::new(State::default()),
-        });
-
-        <Self as Controller>::start(&dialog);
-
-        dialog
+impl UiController for ImportDialog {
+    fn widget(&self) -> &gtk4::Widget {
+        self.dialog().upcast_ref()
     }
+}
 
-    fn setup_widget<F>(&self, callback: F) -> &adw::Window
-    where
-        F: Fn(&adw::Window) + 'static,
-    {
+impl DialogController for ImportDialog {
+    fn dialog(&self) -> &adw::Window {
         &self
             .widgets
             .get_or_init(|| {
@@ -169,13 +165,15 @@ impl ImportDialog {
                 get_widget!(builder, adw::Window, import_dialog);
                 // get_widget!(builder, gtk4::ComboBox, date_tz_combo);
                 get_widget!(builder, gtk4::Button, cancel_button);
-                cancel_button.connect_clicked(
-                    glib::clone!(@weak import_dialog => move |_| import_dialog.close()),
-                );
+                let sender = self.sender();
+                cancel_button.connect_clicked(move |_| {
+                    send_async_any!(Event::Cancel, sender);
+                });
                 get_widget!(builder, gtk4::Button, import_button);
-                import_button.connect_clicked(
-                    glib::clone!(@weak import_dialog => move |_| callback(&import_dialog)),
-                );
+                let sender = self.sender();
+                import_button.connect_clicked(move |_| {
+                    send_async_any!(Event::Import, sender);
+                });
                 get_widget!(builder, gtk4::Entry, destination_folder);
                 get_widget!(builder, gtk4::Stack, importer_ui_stack);
                 get_widget!(builder, gtk4::ComboBoxText, import_source_combo);
@@ -268,15 +266,26 @@ impl ImportDialog {
             })
             .dialog
     }
+}
 
-    pub fn run_modal<F>(&self, parent: Option<&gtk4::Window>, callback: F)
-    where
-        F: Fn(&adw::Window) + 'static,
-    {
-        let dialog = self.setup_widget(callback);
-        dialog.set_transient_for(parent);
-        dialog.set_modal(true);
-        dialog.present();
+impl ImportDialog {
+    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<Self> {
+        let base_dest_dir = cfg
+            .value_opt("base_import_dest_dir")
+            .map(PathBuf::from)
+            .or_else(|| glib::user_special_dir(glib::UserDirectory::Pictures))
+            .unwrap_or_else(glib::home_dir);
+        let dialog = Rc::new(ImportDialog {
+            imp_: RefCell::default(),
+            base_dest_dir,
+            cfg,
+            widgets: OnceCell::new(),
+            state: RefCell::new(State::default()),
+        });
+
+        <Self as DialogController>::start(&dialog);
+
+        dialog
     }
 
     pub fn import_request(&self) -> Option<ImportRequest> {

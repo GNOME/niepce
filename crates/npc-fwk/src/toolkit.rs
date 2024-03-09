@@ -50,7 +50,7 @@ pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
 pub use image_bitmap::ImageBitmap;
 pub use map_controller::MapController;
 pub use thumbnail::Thumbnail;
-pub use uicontroller::UiController;
+pub use uicontroller::{DialogController, UiController};
 pub use undo::do_command as undo_do_command;
 pub use undo::{Storage, UndoCommand, UndoHistory, UndoTransaction};
 pub use window_controller::{create_redo_action, create_undo_action, WindowController};

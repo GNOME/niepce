@@ -37,9 +37,11 @@ where
     F: Fn(T) + 'static,
 {
     glib::spawn_future_local(glib::clone!(@strong rx => async move {
+        dbg_out!("attaching for {}", std::any::type_name::<T>());
         while let Ok(message) = rx.recv().await {
             rcv(message)
         }
+        dbg_out!("terminating {}", std::any::type_name::<T>());
     }));
 }
 
