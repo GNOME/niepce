@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::ops::DerefMut;
-
 use super::libfile::FileType;
 use super::props;
 use super::NiepceProperties as Np;
@@ -204,7 +202,7 @@ impl LibMetadata {
     pub fn to_properties(&self, propset: &PropertySet<Np>) -> NiepcePropertyBag {
         use super::NiepcePropertyIdx as Npi;
         let mut property_bag = NiepcePropertyBag::default();
-        let props = &mut property_bag.deref_mut();
+        let props = &mut property_bag;
         for prop_id in propset {
             match *prop_id {
                 Np::Index(Npi::NpXmpRatingProp) => {

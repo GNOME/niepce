@@ -1,6 +1,5 @@
 
 cxx_fwk_bridge = files(meson.project_source_root() / 'crates' / 'npc-fwk' / 'src' / 'lib.rs')
-cxx_eng_bridge = files(meson.project_source_root() / 'crates' / 'npc-engine' / 'src' / 'lib.rs')
 cxx_ncr_bridge = files(meson.project_source_root() / 'crates' / 'npc-craw' / 'src' / 'lib.rs')
 cxx_npc_bridge = files(meson.project_source_root() / 'niepce-main' / 'src' / 'lib.rs')
 
@@ -13,18 +12,6 @@ fwk_bindings_cpp = custom_target('fwk_bindings_cpp',
 fwk_bindings_hpp = custom_target('fwk_bindings_hpp',
 		 output: 'cxx_fwk_bindings.hpp',
 		 input: cxx_fwk_bridge,
-		 capture: true,
-		 command: [cxxbridge, '--header', '@INPUT@'])
-
-eng_bindings_cpp = custom_target('eng_bindings_cpp',
-		 output: 'cxx_eng_bindings.cpp',
-		 input: cxx_eng_bridge,
-		 capture: true,
-		 command: [cxxbridge, '@INPUT@'])
-
-eng_bindings_hpp = custom_target('eng_bindings_hpp',
-		 output: 'cxx_eng_bindings.hpp',
-		 input: cxx_eng_bridge,
 		 capture: true,
 		 command: [cxxbridge, '--header', '@INPUT@'])
 
@@ -55,7 +42,6 @@ npc_bindings_hpp = custom_target('npc_bindings_hpp',
 cxx_headers = declare_dependency(
   sources: [
     fwk_bindings_hpp,
-    eng_bindings_hpp,
     npc_bindings_hpp,
     ncr_bindings_hpp,
   ]
@@ -64,7 +50,6 @@ cxx_headers = declare_dependency(
 fwk = static_library(
   'fwk',
   fwk_bindings_cpp,
-  eng_bindings_cpp,
   'base' / 'debug.hpp',
   'base' / 'debug.cpp',
   'base' / 'geometry.hpp',

@@ -26,7 +26,7 @@ use gtk4::prelude::*;
 
 use npc_engine::db;
 use npc_engine::db::NiepcePropertyIdx;
-use npc_engine::PropertySet;
+use npc_engine::NiepcePropertySet;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::toolkit::widgets::{MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget};
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
@@ -107,7 +107,7 @@ pub struct MetadataPaneController {
     imp_: RefCell<ControllerImpl<MetadataInputMsg, MetadataOutputMsg>>,
     vbox: gtk4::Box,
     widgets: Vec<(MetadataWidget, SignalHandlerId)>,
-    propset: PropertySet,
+    propset: NiepcePropertySet,
     fileid: Cell<db::LibraryId>,
 }
 
@@ -135,7 +135,7 @@ impl MetadataPaneController {
             imp_: RefCell::default(),
             vbox: gtk4::Box::new(gtk4::Orientation::Vertical, 0),
             widgets: vec![],
-            propset: PropertySet::default(),
+            propset: NiepcePropertySet::default(),
             fileid: Cell::new(0),
         };
 
@@ -152,7 +152,7 @@ impl MetadataPaneController {
         let formats = get_format();
         for current in formats {
             for format in &current.formats {
-                self.propset.add(format.id);
+                self.propset.insert(format.id.into());
             }
         }
     }
@@ -188,8 +188,8 @@ impl MetadataPaneController {
             //
             // Also can we implement this as `From<>` ?
             let mut into = PropertyBag::<u32>::new();
-            for key in properties.0.bag.iter() {
-                if let Some(elem) = properties.0.map.get(key) {
+            for key in properties.bag.iter() {
+                if let Some(elem) = properties.map.get(key) {
                     into.set_value(u32::from(*key), elem.clone());
                 }
             }

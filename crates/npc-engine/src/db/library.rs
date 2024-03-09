@@ -1425,9 +1425,9 @@ impl Library {
 #[cfg(test)]
 pub(crate) mod test {
     use crate::db::filebundle::FileBundle;
+    use crate::db::NiepceProperties as Np;
     use crate::db::NiepcePropertyIdx as Npi;
     use crate::library::notification::LibNotification;
-    use crate::NiepceProperties as Np;
     use crate::NiepcePropertyBag;
 
     use super::{Error, Library};
