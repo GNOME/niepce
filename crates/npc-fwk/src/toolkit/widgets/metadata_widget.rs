@@ -508,13 +508,3 @@ mod imp {
     impl BoxImpl for MetadataWidget {}
     impl WidgetImpl for MetadataWidget {}
 }
-
-pub fn wrapped_property_bag_clone(bag: &WrappedPropertyBag) -> *mut WrappedPropertyBag {
-    Box::into_raw(Box::new(bag.clone()))
-}
-
-/// # Safety
-/// Dereference the pointer
-pub unsafe fn wrapped_property_bag_drop(bag: *mut WrappedPropertyBag) {
-    let _ = Box::from_raw(bag);
-}

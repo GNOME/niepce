@@ -57,11 +57,6 @@ impl Deref for LibraryClientWrapper {
     }
 }
 
-unsafe impl cxx::ExternType for LibraryClientWrapper {
-    type Id = cxx::type_id!("eng::LibraryClientWrapper");
-    type Kind = cxx::kind::Opaque;
-}
-
 impl LibraryClientWrapper {
     pub fn new(dir: PathBuf, sender: LcChannel) -> LibraryClientWrapper {
         LibraryClientWrapper {

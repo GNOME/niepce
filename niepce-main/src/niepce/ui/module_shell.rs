@@ -389,7 +389,7 @@ impl ModuleShell {
     }
 
     pub fn image_list_store(&self) -> Rc<ImageListStore> {
-        self.selection_controller.list_store().0.clone()
+        self.selection_controller.list_store().clone()
     }
 
     pub fn on_lib_notification(&self, ln: &LibNotification) {
@@ -429,7 +429,7 @@ impl ModuleShell {
             self.gridview.display_none()
         }
         // Forward to the darkroom module.
-        let store = &self.selection_controller.list_store().0;
+        let store = &self.selection_controller.list_store();
         if let Some(libfile) = store.file(id) {
             self.darkroom.set_image(Some(libfile));
         }
@@ -437,7 +437,7 @@ impl ModuleShell {
 
     fn on_image_activated(&self, id: db::LibraryId) {
         dbg_out!("Activated callback for {}", id);
-        let store = &self.selection_controller.list_store().0;
+        let store = &self.selection_controller.list_store();
         if let Some(libfile) = store.file(id) {
             self.darkroom.set_image(Some(libfile));
             self.widget.activate_page("darkroom");

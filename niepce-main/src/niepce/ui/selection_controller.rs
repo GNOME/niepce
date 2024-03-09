@@ -24,7 +24,7 @@ use std::sync::Arc;
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
-use super::image_list_store::ImageListStoreWrap;
+use super::image_list_store::ImageListStore;
 use super::ContentView;
 use npc_engine::db;
 use npc_engine::db::props::NiepceProperties as Np;
@@ -56,7 +56,7 @@ pub enum SelectionOutMsg {
 pub struct SelectionController {
     imp_: RefCell<ControllerImpl<SelectionInMsg, SelectionOutMsg>>,
     client: Arc<LibraryClient>,
-    store: Box<ImageListStoreWrap>,
+    store: Rc<ImageListStore>,
     content: Cell<ContentView>,
 }
 
@@ -82,10 +82,10 @@ impl Controller for SelectionController {
 
 impl SelectionController {
     pub fn new(client_host: &LibraryClientHost) -> Rc<SelectionController> {
-        let store = Box::<ImageListStoreWrap>::default();
+        let store = Rc::<ImageListStore>::default();
 
         let controller = Rc::new(SelectionController {
-            imp_: RefCell::new(ControllerImpl::default()),
+            imp_: RefCell::default(),
             client: client_host.client().client(),
             store,
             content: Cell::default(),
@@ -109,7 +109,7 @@ impl SelectionController {
             .on_lib_notification(ln, &self.client, thumbnail_cache);
     }
 
-    pub fn list_store(&self) -> &ImageListStoreWrap {
+    pub fn list_store(&self) -> &Rc<ImageListStore> {
         &self.store
     }
 

@@ -23,11 +23,3 @@ mod map;
 pub use darkroom::image_canvas::ImageCanvas;
 pub use darkroom::DarkroomModule;
 pub use map::MapModule;
-
-pub mod cxx {
-    use super::ImageCanvas;
-
-    pub fn image_canvas_new() -> Box<ImageCanvas> {
-        Box::new(ImageCanvas::new())
-    }
-}

@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/host.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,11 +33,6 @@ pub struct LibraryClientHost {
     client: LibraryClientWrapper,
     thumbnail_cache: ThumbnailCache,
     ui_provider: std::rc::Rc<UIDataProvider>,
-}
-
-unsafe impl cxx::ExternType for LibraryClientHost {
-    type Id = cxx::type_id!("eng::LibraryClientHost");
-    type Kind = cxx::kind::Opaque;
 }
 
 impl LibraryClientHost {

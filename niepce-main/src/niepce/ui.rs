@@ -45,7 +45,3 @@ pub use library_module::LibraryModule;
 pub use metadata_pane_controller::MetadataPaneController;
 pub use module_shell_widget::ModuleShellWidget;
 pub use selection_controller::SelectionController;
-
-pub mod cxx {
-    pub use super::dialogs::ImportDialog;
-}

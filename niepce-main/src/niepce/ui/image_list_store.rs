@@ -19,7 +19,6 @@
 
 use std::cell::{Cell, RefCell};
 use std::collections::BTreeMap;
-use std::rc::Rc;
 use std::sync::Arc;
 
 use gtk4::prelude::*;
@@ -42,30 +41,6 @@ enum CurrentContainer {
     Folder(LibraryId),
     Keyword(LibraryId),
     Album(LibraryId),
-}
-
-/// Binding raw because it's a Rc.
-#[derive(Default)]
-pub struct ImageListStoreWrap(pub Rc<ImageListStore>);
-
-impl std::ops::Deref for ImageListStoreWrap {
-    type Target = ImageListStore;
-
-    fn deref(&self) -> &Self::Target {
-        self.0.deref()
-    }
-}
-
-impl ImageListStoreWrap {
-    pub fn unwrap_ref(&self) -> &ImageListStore {
-        unsafe { &*Rc::as_ptr(&self.0) }
-    }
-
-    // cxx
-    /// Clone to a new `Box`.
-    pub fn clone_(&self) -> Box<Self> {
-        Box::new(Self(self.0.clone()))
-    }
 }
 
 /// The Image list store.
@@ -131,15 +106,6 @@ impl ImageListStore {
             || (idx == Np::Index(Npi::NpXmpLabelProp))
             || (idx == Np::Index(Npi::NpTiffOrientationProp))
             || (idx == Np::Index(Npi::NpNiepceFlagProp))
-    }
-
-    // cxx
-    pub fn get_pos_from_id_(&self, id: i64) -> u32 {
-        *self
-            .idmap
-            .borrow()
-            .get(&id)
-            .unwrap_or(&gtk4::INVALID_LIST_POSITION)
     }
 
     pub fn pos_from_id(&self, id: LibraryId) -> Option<u32> {

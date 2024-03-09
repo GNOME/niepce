@@ -92,23 +92,6 @@ pub mod ffi {
         include!("fwk/cxx_prelude.hpp");
     }
 
-    extern "Rust" {
-        type Date;
-
-        fn to_string(&self) -> String;
-    }
-
-    impl Box<Date> {}
-
-    extern "Rust" {
-        type PropertyValue;
-
-        fn is_empty(&self) -> bool;
-        fn is_string(&self) -> bool;
-        #[cxx_name = "get_string"]
-        fn string_unchecked(&self) -> &str;
-    }
-
     unsafe extern "C++" {
         include!("fwk/toolkit/undo.hpp");
         type UndoListener;

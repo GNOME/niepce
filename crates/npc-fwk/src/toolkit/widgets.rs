@@ -34,9 +34,6 @@ pub use rating_label::RatingLabel;
 pub use token_text_view::TokenTextView;
 pub use toolbox_item::ToolboxItem;
 
-pub mod cxx {
-    pub use super::metadata_widget::{wrapped_property_bag_clone, wrapped_property_bag_drop};
-}
 pub mod prelude {
     pub use super::toolbox_item::ToolboxItemExt;
     pub use super::toolbox_item::ToolboxItemImpl;
