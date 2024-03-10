@@ -4,10 +4,11 @@ camerawire/src/cwwindow.cpp
 crates/npc-engine/src/importer/lrimporter.rs
 crates/npc-fwk/src/toolkit/confirm.rs
 crates/npc-fwk/src/toolkit/request.rs
-data/net.figuiere.Niepce.metainfo.xml.in.in
 data/net.figuiere.Niepce.desktop.in.in
+data/net.figuiere.Niepce.metainfo.xml.in.in
 niepce-main/src/modules/darkroom.rs
 niepce-main/src/modules/darkroom/toolbox_controller.rs
+niepce-main/src/niepce/ui/dialogs/edit_labels.rs
 niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs
 niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs
 niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
