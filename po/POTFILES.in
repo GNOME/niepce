@@ -20,7 +20,6 @@ niepce-main/src/niepce/ui/selection_controller.rs
 niepce-main/src/niepce/ui/workspace_controller/mod.rs
 src/fwk/toolkit/application.cpp
 src/fwk/toolkit/frame.cpp
-src/niepce/ui/dialogs/editlabels.cpp
 src/niepce/ui/dialogs/editlabels.ui
 src/niepce/ui/dialogs/importdialog.ui
 src/niepce/ui/dialogs/importers/cameraimporterui.ui
