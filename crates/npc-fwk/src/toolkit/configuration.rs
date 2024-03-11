@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/configuration.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use gtk4::glib;
+use gtk4::prelude::*;
 
 /// A configuration, backed by a `glib::Keyfile`
 pub struct Configuration {
@@ -73,6 +73,17 @@ impl Configuration {
     pub fn set_value(&self, key: &str, value: &str) {
         self.keyfile.set_string(&self.root, key, value);
         on_err_out!(self.save());
+    }
+
+    /// Set value to a checkbutton
+    pub fn to_checkbutton<C: IsA<gtk4::CheckButton>>(&self, checkbox: &C, key: &str, def: &str) {
+        let value = self.value(key, def);
+        checkbox.set_active(value == "1");
+    }
+
+    /// Set value from a checkbutton
+    pub fn from_checkbutton<C: IsA<gtk4::CheckButton>>(&self, checkbox: &C, key: &str) {
+        self.set_value(key, if checkbox.is_active() { "1" } else { "0" });
     }
 
     /// Save

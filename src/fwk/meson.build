@@ -63,8 +63,6 @@ fwk = static_library(
   'toolkit' / 'configdatabinder.cpp',
   'toolkit' / 'controller.hpp',
   'toolkit' / 'controller.cpp',
-  'toolkit' / 'dialog.hpp',
-  'toolkit' / 'dialog.cpp',
   'toolkit' / 'frame.hpp',
   'toolkit' / 'frame.cpp',
   'toolkit' / 'gtkutils.hpp',

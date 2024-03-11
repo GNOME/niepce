@@ -1,7 +1,7 @@
 /*
  * niepce - ui/niepceapplication.cpp
  *
- * Copyright (C) 2007-2023 Hubert Figuière
+ * Copyright (C) 2007-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #include <gtkmm/aboutdialog.h>
 
 #include "fwk/toolkit/frame.hpp"
-#include "dialogs/preferencesdialog.hpp"
 #include "niepceapplication.hpp"
 #include "niepcewindow.hpp"
 
@@ -80,13 +79,8 @@ void NiepceApplication::on_action_preferences()
 {
     DBG_OUT("on_preferences");
 
-    auto dlg(new PreferencesDialog());
-    dlg->run_modal(Frame::Ptr(m_main_frame),
-                   [dlg] (int) {
-                       delete dlg;
-                       DBG_OUT("destroyed pref dialog");
-                       return false;
-                   });
+    auto window = m_main_frame.lock()->gtkWindow().gobj();
+    npc::action_preferences(window);
 
     DBG_OUT("end on_preferences");
 }

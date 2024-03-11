@@ -1,7 +1,7 @@
 /*
- * niepce - fwk/toolkit/gtkutils.hpp
+ * niepce - niepce/ui/niepce_application.rs
  *
- * Copyright (C) 2009-2024 Hubert Figuière
+ * Copyright (C) 2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use glib::translate::*;
 
-#pragma once
+use crate::niepce::ui::PreferencesDialog;
 
-#include <giomm/simpleactiongroup.h>
-#include <giomm/menu.h>
+use npc_fwk::toolkit::DialogController;
 
-namespace fwk {
-
-Glib::RefPtr<Gio::SimpleAction>
-add_action(Gio::ActionMap* group,
-           const char* name,
-           const Gio::ActionMap::ActivateSlot& slot,
-           const char* context = nullptr,
-           const char* accel = nullptr);
-
+pub unsafe fn action_preferences(parent: *mut crate::ffi::GtkWindow) {
+    let dialog = PreferencesDialog::new();
+    let parent: gtk4::Window = from_glib_none(parent as *mut gtk4::ffi::GtkWindow);
+    dialog.run_modal(Some(&parent), |_| {});
 }
-/*
-  Local Variables:
-  mode:c++
-  c-file-style:"stroustrup"
-  c-file-offsets:((innamespace . 0))
-  indent-tabs-mode:nil
-  fill-column:99
-  End:
-*/
