@@ -20,6 +20,7 @@
 mod edit_labels;
 mod import;
 mod importlibrary;
+pub mod preferences_dialog;
 
 pub use self::import::ImportDialog;
 pub use self::importlibrary::ImportLibraryDialog;

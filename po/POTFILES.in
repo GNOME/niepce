@@ -9,11 +9,16 @@ data/net.figuiere.Niepce.metainfo.xml.in.in
 niepce-main/src/modules/darkroom.rs
 niepce-main/src/modules/darkroom/toolbox_controller.rs
 niepce-main/src/niepce/ui/dialogs/edit_labels.rs
+niepce-main/src/niepce/ui/dialogs/editlabels.ui
 niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs
+niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui
 niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs
+niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui
+niepce-main/src/niepce/ui/dialogs/importdialog.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary.rs
 niepce-main/src/niepce/ui/dialogs/importlibrary.ui
+niepce-main/src/niepce/ui/dialogs/preferences.ui
 niepce-main/src/niepce/ui/metadata_pane_controller.rs
 niepce-main/src/niepce/ui/module_shell.rs
 niepce-main/src/niepce/ui/niepce_window.rs
@@ -21,9 +26,4 @@ niepce-main/src/niepce/ui/selection_controller.rs
 niepce-main/src/niepce/ui/workspace_controller/mod.rs
 src/fwk/toolkit/application.cpp
 src/fwk/toolkit/frame.cpp
-src/niepce/ui/dialogs/editlabels.ui
-src/niepce/ui/dialogs/importdialog.ui
-src/niepce/ui/dialogs/importers/cameraimporterui.ui
-src/niepce/ui/dialogs/importers/directoryimporterui.ui
-src/niepce/ui/dialogs/preferences.ui
 src/niepce/ui/niepceapplication.cpp
