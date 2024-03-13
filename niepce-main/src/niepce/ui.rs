@@ -38,6 +38,7 @@ pub mod thumb_strip_view;
 mod workspace_controller;
 
 pub use content_view::ContentView;
+pub use dialogs::preferences_dialog::PreferencesDialog;
 pub use film_strip_controller::FilmStripController;
 pub use grid_view_module::GridViewModule;
 pub use image_grid_view::ImageGridView;
@@ -45,5 +46,4 @@ pub use image_list_store::ImageListStore;
 pub use library_module::LibraryModule;
 pub use metadata_pane_controller::MetadataPaneController;
 pub use module_shell_widget::ModuleShellWidget;
-pub use dialogs::preferences_dialog::PreferencesDialog;
 pub use selection_controller::SelectionController;

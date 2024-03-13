@@ -36,7 +36,7 @@ To build you need the following:
 - giomm
 - cairomm
 - shumate 1.0.0
-- libadwaita >= 1.2.0
+- libadwaita >= 1.4.0
 - boost 1.60
 - exempi >= 2.6.0
 - gegl >= 0.4.0

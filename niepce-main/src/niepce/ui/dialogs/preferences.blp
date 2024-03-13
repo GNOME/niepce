@@ -1,0 +1,32 @@
+// Copyright (C) 2024 Hubert Figuière
+
+using Gtk 4.0;
+using Adw 1;
+
+Adw.PreferencesWindow preferences {
+  content: Box {
+    orientation: vertical;
+    spacing: 6;
+
+    Adw.HeaderBar {}
+
+    Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.SwitchRow reopen_checkbutton {
+          title: _('_Reopen Catalog');
+          use-underline: true;
+        }
+        Adw.SwitchRow write_xmp_checkbutton {
+          title: _('Write XMP automatically (not recommended)');
+        }
+        Adw.SwitchRow dark_theme_checkbox {
+          title: _('Use dark interface');
+        }
+      }
+    }
+  };
+
+  default-height: 300;
+  default-width: 400;
+  title: _('Preferences');
+}

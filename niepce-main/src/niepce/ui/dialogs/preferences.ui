@@ -1,101 +1,34 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.16.0 -->
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-name preferences.ui -->
   <requires lib="gtk" version="4.0"/>
-  <requires lib="libadwaita" version="1.0"/>
-  <object class="AdwWindow" id="preferences">
+  <object class="AdwPreferencesWindow" id="preferences">
     <property name="content">
       <object class="GtkBox">
-        <property name="orientation">vertical</property>
+        <property name="orientation">1</property>
         <property name="spacing">6</property>
         <child>
-          <object class="AdwHeaderBar"/>
+          <object class="AdwHeaderBar"></object>
         </child>
         <child>
-          <object class="GtkNotebook" id="notebook1">
-            <property name="focusable">1</property>
-            <property name="margin-bottom">12</property>
-            <property name="margin-end">12</property>
-            <property name="margin-start">12</property>
-            <property name="margin-top">12</property>
-            <property name="vexpand">1</property>
+          <object class="AdwPreferencesPage">
             <child>
-              <object class="GtkNotebookPage">
-                <property name="child">
-                  <object class="GtkGrid" id="table2">
-                    <property name="column-spacing">6</property>
-                    <property name="margin-bottom">12</property>
-                    <property name="margin-end">12</property>
-                    <property name="margin-start">12</property>
-                    <property name="margin-top">12</property>
-                    <property name="row-spacing">6</property>
-                    <child>
-                      <object class="GtkCheckButton" id="reopen_checkbutton">
-                        <property name="focusable">1</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">_Reopen Catalog</property>
-                        <property name="use-underline">1</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="column-span">2</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="write_xmp_checkbutton">
-                        <property name="focusable">1</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Write XMP automatically (not recommended)</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="column-span">2</property>
-                          <property name="row">1</property>
-                        </layout>
-                      </object>
-                    </child>
+              <object class="AdwPreferencesGroup">
+                <child>
+                  <object class="AdwSwitchRow" id="reopen_checkbutton">
+                    <property name="title" translatable="true">_Reopen Catalog</property>
+                    <property name="use-underline">true</property>
                   </object>
-                </property>
-                <property name="tab">
-                  <object class="GtkLabel" id="label1">
-                    <property name="label" translatable="yes">_General</property>
-                    <property name="use-underline">1</property>
+                </child>
+                <child>
+                  <object class="AdwSwitchRow" id="write_xmp_checkbutton">
+                    <property name="title" translatable="true">Write XMP automatically (not recommended)</property>
                   </object>
-                </property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkNotebookPage">
-                <property name="child">
-                  <object class="GtkGrid" id="table1">
-                    <property name="column-spacing">6</property>
-                    <property name="margin-bottom">12</property>
-                    <property name="margin-end">12</property>
-                    <property name="margin-start">12</property>
-                    <property name="margin-top">12</property>
-                    <property name="row-spacing">6</property>
-                    <child>
-                      <object class="GtkCheckButton" id="dark_theme_checkbox">
-                        <property name="focusable">1</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Use dark interface</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="column-span">2</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
+                </child>
+                <child>
+                  <object class="AdwSwitchRow" id="dark_theme_checkbox">
+                    <property name="title" translatable="true">Use dark interface</property>
                   </object>
-                </property>
-                <property name="position">1</property>
-                <property name="tab">
-                  <object class="GtkLabel" id="label2">
-                    <property name="label" translatable="yes">_User Interface</property>
-                    <property name="use-underline">1</property>
-                  </object>
-                </property>
+                </child>
               </object>
             </child>
           </object>
@@ -104,6 +37,6 @@
     </property>
     <property name="default-height">300</property>
     <property name="default-width">400</property>
-    <property name="title" translatable="yes">Preferences</property>
+    <property name="title" translatable="true">Preferences</property>
   </object>
 </interface>

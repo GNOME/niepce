@@ -63,24 +63,24 @@ impl PreferencesDialog {
     pub fn new() -> Rc<PreferencesDialog> {
         let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/preferences.ui");
         get_widget!(builder, adw::Window, preferences);
-        get_widget!(builder, gtk4::CheckButton, reopen_checkbutton);
-        get_widget!(builder, gtk4::CheckButton, write_xmp_checkbutton);
+        get_widget!(builder, adw::SwitchRow, reopen_checkbutton);
+        get_widget!(builder, adw::SwitchRow, write_xmp_checkbutton);
 
         let app = npc_fwk::ffi::Application_app();
         let cfg = &app.config().cfg;
 
-        cfg.to_checkbutton(&reopen_checkbutton, "reopen_last_catalog", "0");
-        reopen_checkbutton.connect_activate(move |w| {
+        cfg.to_switchrow(&reopen_checkbutton, "reopen_last_catalog", "0");
+        reopen_checkbutton.connect_active_notify(move |w| {
             let app = npc_fwk::ffi::Application_app();
             let cfg = &app.config().cfg;
-            cfg.from_checkbutton(w, "reopen_last_catalog");
+            cfg.from_switchrow(w, "reopen_last_catalog");
         });
 
-        cfg.to_checkbutton(&write_xmp_checkbutton, "write_xmp_automatically", "0");
-        write_xmp_checkbutton.connect_activate(move |w| {
+        cfg.to_switchrow(&write_xmp_checkbutton, "write_xmp_automatically", "0");
+        write_xmp_checkbutton.connect_active_notify(move |w| {
             let app = npc_fwk::ffi::Application_app();
             let cfg = &app.config().cfg;
-            cfg.from_checkbutton(w, "write_xmp_automatically");
+            cfg.from_switchrow(w, "write_xmp_automatically");
         });
 
         let ctrl = Rc::new(PreferencesDialog {

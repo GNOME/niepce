@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use gtk4::prelude::*;
-
 /// A configuration, backed by a `glib::Keyfile`
 pub struct Configuration {
     filename: std::path::PathBuf,
@@ -75,14 +73,14 @@ impl Configuration {
         on_err_out!(self.save());
     }
 
-    /// Set value to a checkbutton
-    pub fn to_checkbutton<C: IsA<gtk4::CheckButton>>(&self, checkbox: &C, key: &str, def: &str) {
+    /// Set value to a switchrow
+    pub fn to_switchrow(&self, checkbox: &adw::SwitchRow, key: &str, def: &str) {
         let value = self.value(key, def);
         checkbox.set_active(value == "1");
     }
 
-    /// Set value from a checkbutton
-    pub fn from_checkbutton<C: IsA<gtk4::CheckButton>>(&self, checkbox: &C, key: &str) {
+    /// Set value from a switchrow
+    pub fn from_switchrow(&self, checkbox: &adw::SwitchRow, key: &str) {
         self.set_value(key, if checkbox.is_active() { "1" } else { "0" });
     }
 

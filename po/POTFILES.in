@@ -18,7 +18,7 @@ niepce-main/src/niepce/ui/dialogs/importdialog.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary.rs
 niepce-main/src/niepce/ui/dialogs/importlibrary.ui
-niepce-main/src/niepce/ui/dialogs/preferences.ui
+niepce-main/src/niepce/ui/dialogs/preferences.blp
 niepce-main/src/niepce/ui/metadata_pane_controller.rs
 niepce-main/src/niepce/ui/module_shell.rs
 niepce-main/src/niepce/ui/niepce_window.rs

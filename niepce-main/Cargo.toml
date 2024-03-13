@@ -22,7 +22,7 @@ gtk4 = { version = "*", features = [ "v4_6" ] }
 gtk-macros = "0.3.0"
 i18n-format = "0.2.0"
 lazy_static = "^1.4.0"
-libadwaita = { version = "*",  features = [ "v1_2" ] }
+libadwaita = { version = "*",  features = [ "v1_4" ] }
 libc = "0.2.39"
 num-derive = "0.4.2"
 num-traits = "0.2.18"

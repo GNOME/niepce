@@ -19,7 +19,7 @@ base_id = 'net.figuiere.Niepce'
 dependency('glib-2.0', version: '>= 2.66')
 dependency('gio-2.0', version: '>= 2.66')
 dependency('gtk4', version: '>= 4.4.0')
-adw_deps = dependency('libadwaita-1', version: '>= 1.2.0')
+adw_deps = dependency('libadwaita-1', version: '>= 1.4.0')
 dependency('glibmm-2.68')
 gtkmm_deps = dependency('gtkmm-4.0', version: '>= 4.4.0')
 sqlite_deps = dependency('sqlite3')
