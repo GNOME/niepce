@@ -82,10 +82,6 @@ pub mod ffi {
         type GtkWindow;
     }
 
-    extern "Rust" {
-        fn niepce_init();
-    }
-
     #[namespace = "eng"]
     extern "C++" {
         include!("fwk/cxx_prelude.hpp");

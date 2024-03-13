@@ -21,7 +21,7 @@ use std::cell::RefCell;
 use std::collections::VecDeque;
 
 use crate::base::Signal;
-use crate::ffi::{RedoFnInt, RedoFnVoid, UndoFnInt, UndoFnVoid, UndoListener};
+use crate::ffi::UndoListener;
 
 pub enum Storage {
     Int(i64),
@@ -85,36 +85,6 @@ impl UndoCommand {
     }
 }
 
-pub fn undo_command_new(
-    redo_fn: cxx::UniquePtr<RedoFnVoid>,
-    undo_fn: cxx::UniquePtr<UndoFnVoid>,
-) -> Box<UndoCommand> {
-    Box::new(UndoCommand::new(
-        Box::new(move || {
-            redo_fn.call();
-            Storage::Void
-        }),
-        Box::new(move |_| {
-            undo_fn.call();
-        }),
-    ))
-}
-
-pub fn undo_command_new_int(
-    redo_fn: cxx::UniquePtr<RedoFnInt>,
-    undo_fn: cxx::UniquePtr<UndoFnInt>,
-) -> Box<UndoCommand> {
-    Box::new(UndoCommand::new(
-        Box::new(move || {
-            let v = redo_fn.call();
-            v.into()
-        }),
-        Box::new(move |v| {
-            undo_fn.call(v.into());
-        }),
-    ))
-}
-
 /// And `UndoTransaction` is we is run for an undo or redo
 /// Operations are executed in reverse order for undo.
 pub struct UndoTransaction {
@@ -162,11 +132,6 @@ impl UndoTransaction {
     pub fn execute(&self) {
         self.redo();
     }
-}
-
-// cxx
-pub fn undo_transaction_new(name: &str) -> Box<UndoTransaction> {
-    Box::new(UndoTransaction::new(name))
 }
 
 /// The history of all the transactions.

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/imagetoolbar.rs
  *
- * Copyright (C) 2018-2022 Hubert Figuière
+ * Copyright (C) 2018-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use glib::translate::*;
 use gtk4::prelude::*;
 
 /// Create a box for linked button.
@@ -63,11 +62,4 @@ pub fn image_toolbar_new() -> gtk4::Box {
     toolbar.append(&box_);
 
     toolbar
-}
-
-pub fn image_toolbar_new_() -> *mut crate::ffi::GtkBox {
-    let toolbar = image_toolbar_new();
-
-    let gtkbox: *mut gtk4::ffi::GtkBox = toolbar.to_glib_full();
-    gtkbox as *mut crate::ffi::GtkBox
 }

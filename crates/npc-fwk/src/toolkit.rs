@@ -39,9 +39,7 @@ mod window_controller;
 
 /// Module to re-export cxx only.
 pub mod cxx {
-    pub use super::undo::{
-        undo_command_new, undo_command_new_int, undo_history_new, undo_transaction_new,
-    };
+    pub use super::undo::undo_history_new;
 }
 
 pub use channels::{channel, send_async_any, send_async_local, Receiver, Sender};
@@ -56,9 +54,6 @@ pub use undo::{Storage, UndoCommand, UndoHistory, UndoTransaction};
 pub use window_controller::{create_redo_action, create_undo_action, WindowController};
 
 pub use configuration::Configuration;
-
-/// Wrapper type for the channel tuple to get passed down to the unsafe C++ code.
-pub struct PortableChannel<T>(pub Sender<T>);
 
 pub fn thread_context() -> glib::MainContext {
     glib::MainContext::thread_default().unwrap_or_else(|| {

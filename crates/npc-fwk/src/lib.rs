@@ -99,50 +99,13 @@ pub mod ffi {
         fn call(&self);
     }
 
-    unsafe extern "C++" {
-        type UndoFnInt;
-
-        fn call(&self, v: i64);
-    }
-
-    unsafe extern "C++" {
-        type RedoFnInt;
-
-        fn call(&self) -> i64;
-    }
-
-    unsafe extern "C++" {
-        type UndoFnVoid;
-
-        fn call(&self);
-    }
-
-    unsafe extern "C++" {
-        type RedoFnVoid;
-
-        fn call(&self);
-    }
-
     extern "Rust" {
         type UndoCommand;
-
-        #[cxx_name = "UndoCommand_new"]
-        pub fn undo_command_new(
-            redo_fn: UniquePtr<RedoFnVoid>,
-            undo_fn: UniquePtr<UndoFnVoid>,
-        ) -> Box<UndoCommand>;
-        #[cxx_name = "UndoCommand_new_int"]
-        pub fn undo_command_new_int(
-            redo_fn: UniquePtr<RedoFnInt>,
-            undo_fn: UniquePtr<UndoFnInt>,
-        ) -> Box<UndoCommand>;
     }
 
     extern "Rust" {
         type UndoTransaction;
 
-        #[cxx_name = "UndoTransaction_new"]
-        fn undo_transaction_new(name: &str) -> Box<UndoTransaction>;
         #[cxx_name = "add"]
         fn add_(&mut self, command: Box<UndoCommand>);
         fn is_empty(&self) -> bool;
