@@ -17,11 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use adw::prelude::*;
 use glib::translate::*;
+use gettextrs::gettext as i18n;
 
+use crate::config;
 use crate::niepce::ui::PreferencesDialog;
 
 use npc_fwk::toolkit::DialogController;
+
+pub unsafe fn action_about(parent: *mut crate::ffi::GtkWindow) {
+    let parent: gtk4::Window = from_glib_none(parent as *mut gtk4::ffi::GtkWindow);
+    let dlg = adw::AboutWindow::new();
+    dlg.set_application_name("Niepce Digital");
+    dlg.set_version(config::VERSION);
+    dlg.set_application_icon(config::APP_ID);
+    dlg.set_license_type(gtk4::License::Gpl30);
+    dlg.set_comments(&i18n("A digital photo application."));
+    dlg.set_transient_for(Some(&parent));
+    dlg.present();
+}
 
 pub unsafe fn action_preferences(parent: *mut crate::ffi::GtkWindow) {
     let dialog = PreferencesDialog::new();

@@ -66,7 +66,7 @@ pub fn niepce_init() {
 pub use notification_center::NotificationCenter;
 
 // cxx bindings
-use niepce::ui::niepce_application::action_preferences;
+use niepce::ui::niepce_application::{action_about, action_preferences};
 use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
 
 #[cxx::bridge(namespace = "npc")]
@@ -119,6 +119,7 @@ pub mod ffi {
     }
 
     extern "Rust" {
+        unsafe fn action_about(parent: *mut GtkWindow);
         unsafe fn action_preferences(parent: *mut GtkWindow);
     }
 }
