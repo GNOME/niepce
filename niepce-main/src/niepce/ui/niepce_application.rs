@@ -18,14 +18,16 @@
  */
 
 use adw::prelude::*;
-use glib::translate::*;
 use gettextrs::gettext as i18n;
+use glib::translate::*;
 
 use crate::config;
 use crate::niepce::ui::PreferencesDialog;
 
 use npc_fwk::toolkit::DialogController;
 
+/// # Safety
+/// Dereference pointer
 pub unsafe fn action_about(parent: *mut crate::ffi::GtkWindow) {
     let parent: gtk4::Window = from_glib_none(parent as *mut gtk4::ffi::GtkWindow);
     let dlg = adw::AboutWindow::new();
@@ -38,6 +40,8 @@ pub unsafe fn action_about(parent: *mut crate::ffi::GtkWindow) {
     dlg.present();
 }
 
+/// # Safety
+/// Dereference pointer
 pub unsafe fn action_preferences(parent: *mut crate::ffi::GtkWindow) {
     let dialog = PreferencesDialog::new();
     let parent: gtk4::Window = from_glib_none(parent as *mut gtk4::ffi::GtkWindow);

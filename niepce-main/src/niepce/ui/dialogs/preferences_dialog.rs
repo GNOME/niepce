@@ -65,6 +65,7 @@ impl PreferencesDialog {
         get_widget!(builder, adw::Window, preferences);
         get_widget!(builder, adw::SwitchRow, reopen_checkbutton);
         get_widget!(builder, adw::SwitchRow, write_xmp_checkbutton);
+        get_widget!(builder, adw::SwitchRow, dark_theme_checkbox);
 
         let app = npc_fwk::ffi::Application_app();
         let cfg = &app.config().cfg;
@@ -81,6 +82,13 @@ impl PreferencesDialog {
             let app = npc_fwk::ffi::Application_app();
             let cfg = &app.config().cfg;
             cfg.from_switchrow(w, "write_xmp_automatically");
+        });
+
+        cfg.to_switchrow(&dark_theme_checkbox, "ui_dark_theme", "0");
+        dark_theme_checkbox.connect_active_notify(move |w| {
+            let app = npc_fwk::ffi::Application_app();
+            let cfg = &app.config().cfg;
+            cfg.from_switchrow(w, "ui_dark_theme");
         });
 
         let ctrl = Rc::new(PreferencesDialog {
