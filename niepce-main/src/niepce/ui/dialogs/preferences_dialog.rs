@@ -25,6 +25,8 @@ use adw::prelude::*;
 use npc_fwk::controller_imp_imp;
 use npc_fwk::toolkit::{Controller, ControllerImpl, DialogController, UiController};
 
+use crate::NiepceApplication;
+
 pub enum Event {
     Close,
 }
@@ -67,27 +69,27 @@ impl PreferencesDialog {
         get_widget!(builder, adw::SwitchRow, write_xmp_checkbutton);
         get_widget!(builder, adw::SwitchRow, dark_theme_checkbox);
 
-        let app = npc_fwk::ffi::Application_app();
-        let cfg = &app.config().cfg;
+        let app = NiepceApplication::instance();
+        let cfg = &app.config();
 
         cfg.to_switchrow(&reopen_checkbutton, "reopen_last_catalog", "0");
         reopen_checkbutton.connect_active_notify(move |w| {
-            let app = npc_fwk::ffi::Application_app();
-            let cfg = &app.config().cfg;
+            let app = NiepceApplication::instance();
+            let cfg = &app.config();
             cfg.from_switchrow(w, "reopen_last_catalog");
         });
 
         cfg.to_switchrow(&write_xmp_checkbutton, "write_xmp_automatically", "0");
         write_xmp_checkbutton.connect_active_notify(move |w| {
-            let app = npc_fwk::ffi::Application_app();
-            let cfg = &app.config().cfg;
+            let app = NiepceApplication::instance();
+            let cfg = &app.config();
             cfg.from_switchrow(w, "write_xmp_automatically");
         });
 
         cfg.to_switchrow(&dark_theme_checkbox, "ui_dark_theme", "0");
         dark_theme_checkbox.connect_active_notify(move |w| {
-            let app = npc_fwk::ffi::Application_app();
-            let cfg = &app.config().cfg;
+            let app = NiepceApplication::instance();
+            let cfg = &app.config();
             cfg.from_switchrow(w, "ui_dark_theme");
         });
 

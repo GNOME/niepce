@@ -28,6 +28,8 @@ mod notification_center;
 
 use std::sync::Once;
 
+pub use niepce::ui::niepce_application::NiepceApplication;
+
 // Initialize the resource as we can use the C trick,
 // we inline and load them.
 pub fn init_resources() -> Result<(), glib::Error> {
@@ -65,21 +67,10 @@ pub fn niepce_init() {
 
 pub use notification_center::NotificationCenter;
 
-// cxx bindings
-use niepce::ui::niepce_application::{action_about, action_preferences};
-use niepce::ui::niepce_window::{niepce_window_new, NiepceWindowWrapper};
-
 #[cxx::bridge(namespace = "npc")]
 pub mod ffi {
-    #[namespace = ""]
-    unsafe extern "C++" {
-        type GMenu;
-        type GtkApplication;
-        type GtkBox;
-        type GtkDrawingArea;
-        type GtkPopoverMenu;
-        type GtkWidget;
-        type GtkWindow;
+    extern "Rust" {
+        fn niepce_init();
     }
 
     #[namespace = "eng"]
@@ -87,35 +78,10 @@ pub mod ffi {
         include!("fwk/cxx_prelude.hpp");
     }
 
-    extern "Rust" {
-        type NiepceWindowWrapper;
-
-        unsafe fn niepce_window_new(app: *mut GtkApplication) -> Box<NiepceWindowWrapper>;
-        fn on_ready(&self);
-        fn on_open_catalog(&self);
-        fn widget(&self) -> *mut GtkWidget;
-        fn window(&self) -> *mut GtkWindow;
-        fn menu(&self) -> *mut GMenu;
-    }
-
     #[namespace = "Gio"]
     unsafe extern "C++" {
         include!(<giomm/init.h>);
 
         fn init();
-    }
-
-    #[namespace = "ui"]
-    unsafe extern "C++" {
-        include!("niepce/ui/niepceapplication.hpp");
-        type NiepceApplication;
-
-        fn niepce_application_create() -> SharedPtr<NiepceApplication>;
-        fn main(&self);
-    }
-
-    extern "Rust" {
-        unsafe fn action_about(parent: *mut GtkWindow);
-        unsafe fn action_preferences(parent: *mut GtkWindow);
     }
 }

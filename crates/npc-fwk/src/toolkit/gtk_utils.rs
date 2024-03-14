@@ -63,6 +63,27 @@ macro_rules! sending_action {
     }};
 }
 
+pub fn add_action<F>(
+    group: &gio::ActionMap,
+    name: &str,
+    f: F,
+    context: Option<&str>,
+    accel: Option<&str>,
+) -> gio::SimpleAction
+where
+    F: Fn(&gio::SimpleAction, Option<&glib::Variant>) + 'static,
+{
+    let action = gio::SimpleAction::new(name, None);
+    group.add_action(&action);
+    action.connect_activate(f);
+    if context.is_some() && accel.is_some() {
+        let detail = format!("{}.{}", context.unwrap(), name);
+        gtk4::Application::default().set_accels_for_action(&detail, &[accel.unwrap()]);
+    }
+
+    action
+}
+
 pub fn add_menu_action<F>(
     group: &gio::ActionMap,
     name: &str,

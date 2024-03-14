@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod app_controller;
 pub mod assistant;
 pub mod channels;
 mod configuration;
@@ -37,11 +38,7 @@ mod undo;
 pub mod widgets;
 mod window_controller;
 
-/// Module to re-export cxx only.
-pub mod cxx {
-    pub use super::undo::undo_history_new;
-}
-
+pub use app_controller::{AppController, AppControllerSingleton};
 pub use channels::{channel, send_async_any, send_async_local, Receiver, Sender};
 pub use controller::{Controller, ControllerImpl};
 pub use gphoto::{GpCamera, GpDevice, GpDeviceList};

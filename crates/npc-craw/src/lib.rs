@@ -60,6 +60,7 @@ mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("fwk/cxx_prelude.hpp");
         include!("ncr/image.hpp");
 
         #[cxx_name = Image]

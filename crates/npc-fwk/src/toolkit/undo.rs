@@ -19,9 +19,10 @@
 
 use std::cell::RefCell;
 use std::collections::VecDeque;
+use std::sync::Arc;
 
 use crate::base::Signal;
-use crate::ffi::UndoListener;
+use crate::toolkit::AppController;
 
 pub enum Storage {
     Int(i64),
@@ -113,12 +114,6 @@ impl UndoTransaction {
         self.operations.push(command);
     }
 
-    // cxx
-    #[allow(clippy::boxed_local)]
-    pub fn add_(&mut self, command: Box<UndoCommand>) {
-        self.operations.push(*command);
-    }
-
     /// Perform the undo
     pub fn undo(&self) {
         self.operations.iter().rev().for_each(|op| op.undo());
@@ -148,22 +143,12 @@ pub struct UndoHistory {
 
 impl UndoHistory {
     /// Add the transaction. This clear the redos.
-    pub fn add(&mut self, transaction: UndoTransaction) {
+    pub fn add(&self, transaction: UndoTransaction) {
         {
             self.undos.borrow_mut().push_back(transaction);
             self.redos.borrow_mut().clear();
         }
         self.signal_changed.emit(());
-    }
-
-    // cxx
-    #[allow(clippy::boxed_local)]
-    pub fn add_(&mut self, transaction: Box<UndoTransaction>) {
-        self.add(*transaction);
-    }
-
-    pub fn add_listener(&self, listener: cxx::UniquePtr<UndoListener>) {
-        self.signal_changed.connect(move |_| listener.call())
     }
 
     pub fn has_undo(&self) -> bool {
@@ -222,17 +207,17 @@ impl UndoHistory {
 }
 
 /// An all around wrapper to create and run and undoable command
-pub fn do_command(label: &str, redo_fn: Box<dyn Fn() -> Storage>, undo_fn: Box<dyn Fn(&Storage)>) {
-    let mut transaction = Box::new(UndoTransaction::new(label));
+pub fn do_command(
+    app: &Arc<dyn AppController>,
+    label: &str,
+    redo_fn: Box<dyn Fn() -> Storage>,
+    undo_fn: Box<dyn Fn(&Storage)>,
+) {
+    let mut transaction = UndoTransaction::new(label);
     let command = UndoCommand::new(redo_fn, undo_fn);
     transaction.add(command);
     transaction.execute();
-    crate::ffi::Application_app().begin_undo(transaction);
-}
-
-// cxx
-pub fn undo_history_new() -> Box<UndoHistory> {
-    Box::<UndoHistory>::default()
+    app.begin_undo(transaction);
 }
 
 #[cfg(test)]
@@ -241,7 +226,7 @@ mod test {
 
     #[test]
     fn test_undo_history() {
-        let mut history = UndoHistory::default();
+        let history = UndoHistory::default();
         assert!(!history.has_undo());
         assert!(!history.has_redo());
 

@@ -35,6 +35,8 @@ use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_out, err_out};
 
+use crate::NiepceApplication;
+
 #[derive(Clone, Copy)]
 enum CurrentContainer {
     None,
@@ -143,8 +145,8 @@ impl ImageListStore {
 
         match *notification {
             XmpNeedsUpdate => {
-                let app = npc_fwk::ffi::Application_app();
-                let cfg = &app.config().cfg;
+                let app = NiepceApplication::instance();
+                let cfg = &app.config();
                 let write_xmp = cfg
                     .value("write_xmp_automatically", "0")
                     .parse::<bool>()

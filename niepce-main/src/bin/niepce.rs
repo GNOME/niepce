@@ -19,7 +19,7 @@
 
 use gettextrs::*;
 
-use niepce_core::config;
+use niepce_core::{config, NiepceApplication};
 use npc_fwk::{dbg_out, ExempiManager};
 
 fn main() {
@@ -34,6 +34,6 @@ fn main() {
 
     dbg_out!("Starting up. DEBUG is on");
 
-    let app = niepce_core::ffi::niepce_application_create();
+    let app = NiepceApplication::new();
     app.main();
 }

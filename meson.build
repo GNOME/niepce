@@ -135,7 +135,6 @@ subdir('po')
 subdir('third_party')
 subdir('src')
 subdir('niepce-main/src')
-subdir('test')
 subdir('doc')
 
 gnome.post_install(

@@ -26,6 +26,7 @@ use gtk4::prelude::*;
 
 use super::image_list_store::ImageListStore;
 use super::ContentView;
+use crate::NiepceApplication;
 use npc_engine::db;
 use npc_engine::db::props::NiepceProperties as Np;
 use npc_engine::db::{LibFile, NiepcePropertyIdx};
@@ -181,6 +182,7 @@ impl SelectionController {
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
         npc_fwk::toolkit::undo_do_command(
+            &NiepceApplication::instance(),
             undo_label,
             Box::new(move || {
                 client_redo.set_metadata(file_id, Np::Index(meta), &PropertyValue::Int(new_value));
@@ -200,7 +202,7 @@ impl SelectionController {
         props: &WrappedPropertyBag,
         old: &WrappedPropertyBag,
     ) -> bool {
-        let mut undo = Box::new(UndoTransaction::new(undo_label));
+        let mut undo = UndoTransaction::new(undo_label);
         for key in props.0.keys() {
             let old_value = old.0.get(key).cloned().unwrap_or(PropertyValue::Empty);
             let new_value = props.0.get(key).cloned().unwrap();
@@ -219,7 +221,7 @@ impl SelectionController {
             undo.add(command);
         }
         undo.execute();
-        npc_fwk::ffi::Application_app().begin_undo(undo);
+        NiepceApplication::instance().begin_undo(undo);
         true
     }
 
@@ -310,6 +312,7 @@ impl SelectionController {
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
         npc_fwk::toolkit::undo_do_command(
+            &NiepceApplication::instance(),
             &i18n("Remove from album"),
             Box::new(move || {
                 client_redo.remove_from_album(&[file_id], album);
@@ -327,6 +330,7 @@ impl SelectionController {
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
         npc_fwk::toolkit::undo_do_command(
+            &NiepceApplication::instance(),
             &i18n("Move to Trash"),
             Box::new(move || {
                 client_redo.move_file_to_folder(file_id, from_folder, trash_folder);

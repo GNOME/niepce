@@ -26,7 +26,6 @@
 
 #include <gtk/gtk.h>
 
-#include "fwk/cxx_fwk_bindings.hpp"
 #include "fwk/cxx_ncr_bindings.hpp"
 #include "fwk/cxx_npc_bindings.hpp"
 

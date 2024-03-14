@@ -1,19 +1,6 @@
 
-cxx_fwk_bridge = files(meson.project_source_root() / 'crates' / 'npc-fwk' / 'src' / 'lib.rs')
 cxx_ncr_bridge = files(meson.project_source_root() / 'crates' / 'npc-craw' / 'src' / 'lib.rs')
 cxx_npc_bridge = files(meson.project_source_root() / 'niepce-main' / 'src' / 'lib.rs')
-
-fwk_bindings_cpp = custom_target('fwk_bindings_cpp',
-		 output: 'cxx_fwk_bindings.cpp',
-		 input: cxx_fwk_bridge,
-		 capture: true,
-		 command: [cxxbridge, '@INPUT@'])
-
-fwk_bindings_hpp = custom_target('fwk_bindings_hpp',
-		 output: 'cxx_fwk_bindings.hpp',
-		 input: cxx_fwk_bridge,
-		 capture: true,
-		 command: [cxxbridge, '--header', '@INPUT@'])
 
 ncr_bindings_cpp = custom_target('ncr_bindings_cpp',
 		 output: 'cxx_ncr_bindings.cpp',
@@ -41,7 +28,6 @@ npc_bindings_hpp = custom_target('npc_bindings_hpp',
 
 cxx_headers = declare_dependency(
   sources: [
-    fwk_bindings_hpp,
     npc_bindings_hpp,
     ncr_bindings_hpp,
   ]
@@ -49,28 +35,8 @@ cxx_headers = declare_dependency(
 
 fwk = static_library(
   'fwk',
-  fwk_bindings_cpp,
   'base' / 'debug.hpp',
   'base' / 'debug.cpp',
-  'base' / 'geometry.hpp',
-  'base' / 'geometry.cpp',
-  'base' / 'util.hpp',
-  'toolkit' / 'appframe.hpp',
-  'toolkit' / 'appframe.cpp',
-  'toolkit' / 'application.hpp',
-  'toolkit' / 'application.cpp',
-  'toolkit' / 'configdatabinder.hpp',
-  'toolkit' / 'configdatabinder.cpp',
-  'toolkit' / 'controller.hpp',
-  'toolkit' / 'controller.cpp',
-  'toolkit' / 'frame.hpp',
-  'toolkit' / 'frame.cpp',
-  'toolkit' / 'gtkutils.hpp',
-  'toolkit' / 'gtkutils.cpp',
-  'toolkit' / 'uicontroller.hpp',
-  'toolkit' / 'uicontroller.cpp',
-  'utils' / 'databinder.hpp',
-  'utils' / 'databinder.cpp',
   'utils' / 'pathutils.hpp',
   'utils' / 'pathutils.cpp',
 

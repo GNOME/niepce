@@ -25,6 +25,3 @@ niepce-main/src/niepce/ui/niepce_application.rs
 niepce-main/src/niepce/ui/niepce_window.rs
 niepce-main/src/niepce/ui/selection_controller.rs
 niepce-main/src/niepce/ui/workspace_controller/mod.rs
-src/fwk/toolkit/application.cpp
-src/fwk/toolkit/frame.cpp
-src/niepce/ui/niepceapplication.cpp

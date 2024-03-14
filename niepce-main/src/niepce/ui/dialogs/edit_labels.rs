@@ -35,6 +35,8 @@ use npc_fwk::toolkit::{
 };
 use npc_fwk::{controller_imp_imp, send_async_local};
 
+use crate::NiepceApplication;
+
 const NUM_LABELS: usize = 5;
 
 pub enum InMsg {
@@ -152,7 +154,7 @@ impl EditLabels {
     }
 
     fn update_labels(&self) {
-        let mut undo = Box::new(UndoTransaction::new(&i18n("Change Labels")));
+        let mut undo = UndoTransaction::new(&i18n("Change Labels"));
         let statuses = self.status.borrow();
         for status in statuses.iter().enumerate() {
             if !status.1 {
@@ -198,7 +200,7 @@ impl EditLabels {
         }
         if !undo.is_empty() {
             undo.execute();
-            npc_fwk::ffi::Application_app().begin_undo(undo);
+            NiepceApplication::instance().begin_undo(undo);
         }
     }
 }

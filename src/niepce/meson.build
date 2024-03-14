@@ -11,8 +11,6 @@ resources_bundle = gnome.compile_resources(
 niepce_lib = static_library('niepce_lib',
     ncr_bindings_cpp,
     npc_bindings_cpp,
-    'ui' / 'niepceapplication.cpp',
-    'ui' / 'niepceapplication.hpp',
     config_h,
     install: false,
     dependencies: [cxx_headers, exempi_deps, gexiv2_deps, gphoto2_deps, gtkmm_deps, sqlite_deps],
