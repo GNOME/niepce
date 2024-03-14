@@ -46,7 +46,6 @@ pub fn init() {
 // C++ bridge
 
 use crate::toolkit::cxx::*;
-use crate::toolkit::thumbnail::Thumbnail;
 use crate::toolkit::{Configuration, UndoCommand, UndoHistory, UndoTransaction};
 
 fn make_config_path(file: &str) -> String {

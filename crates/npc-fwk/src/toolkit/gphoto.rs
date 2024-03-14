@@ -21,6 +21,8 @@ use std::sync::{Mutex, RwLock, RwLockReadGuard};
 
 use gdk_pixbuf::prelude::*;
 
+use crate::toolkit::Thumbnail;
+
 /// Describe the camera.
 pub type GpDevice = gphoto2::list::CameraDescriptor;
 
@@ -272,7 +274,7 @@ impl GpCamera {
         self.camera = None;
     }
 
-    pub fn get_preview(&self, folder: &str, name: &str) -> Option<crate::Thumbnail> {
+    pub fn get_preview(&self, folder: &str, name: &str) -> Option<Thumbnail> {
         if let Some(camera) = self.camera.as_ref() {
             let task = camera.fs().download_preview(folder, name);
             let file = task.wait().ok()?;
@@ -284,7 +286,7 @@ impl GpCamera {
             loader.write(&data).ok()?;
             loader.close().ok()?;
 
-            loader.pixbuf().map(crate::Thumbnail::from)
+            loader.pixbuf().map(Thumbnail::from)
         } else {
             None
         }
