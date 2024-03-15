@@ -39,9 +39,14 @@ mod ffi {
     unsafe extern "C++" {
         include!(<gdk-pixbuf/gdk-pixbuf.h>);
         include!(<gdk/gdk.h>);
+        include!(<gegl.h>);
+        include!(<babl/babl.h>);
 
         type GdkPixbuf;
         type GdkTexture;
+        type GObject;
+        type GeglNode;
+        type Babl;
     }
 
     #[rust_name = "ImageStatus"]
@@ -54,48 +59,76 @@ mod ffi {
         NOT_FOUND,
     }
 
+    #[cxx_name = "GeglRectangle_"]
+    struct GeglRectangle {
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    }
+
     unsafe extern "C++" {
         include!("ncr/init.hpp");
         fn init();
     }
 
+    #[namespace = "ncr"]
     unsafe extern "C++" {
-        include!("fwk/cxx_prelude.hpp");
-        include!("ncr/image.hpp");
-
-        #[cxx_name = Image]
-        type ImagePipeline;
-
-        #[cxx_name = "Image_new"]
-        fn image_pipeline_new() -> UniquePtr<ImagePipeline>;
-        #[cxx_name = "get_status"]
-        fn status(&self) -> ImageStatus;
-        #[cxx_name = "get_original_width"]
-        fn original_width(&self) -> i32;
-        #[cxx_name = "get_original_height"]
-        fn original_height(&self) -> i32;
-
-        #[cxx_name = "get_output_width"]
-        fn output_width(&self) -> i32;
-        #[cxx_name = "get_output_height"]
-        fn output_height(&self) -> i32;
-
-        fn set_output_scale(self: Pin<&mut ImagePipeline>, scale: f64);
-        fn to_buffer(self: Pin<&mut ImagePipeline>, buffer: &mut [u8]) -> bool;
-
-        fn reload(self: Pin<&mut ImagePipeline>, path: &CxxString, is_raw: bool, orientation: u32);
-        #[cxx_name = "reload_pixbuf_"]
-        /// # Safety
-        /// Derefence pointers.
-        unsafe fn reload_pixbuf(self: Pin<&mut ImagePipeline>, p: *mut GdkPixbuf);
-        /// # Safety
-        /// Derefence pointers.
-        unsafe fn connect_signal_update(
-            self: Pin<&mut ImagePipeline>,
-            callback: unsafe fn(*const u8),
-            userdata: *const u8,
+        unsafe fn gegl_node_new_child(
+            node: *mut GeglNode,
+            prop1: *const c_char,
+            value1: *const u8,
+            prop2: *const u8,
+            value2: *const u8,
+        ) -> *mut GeglNode;
+        unsafe fn gegl_node_new_child_so(
+            node: *mut GeglNode,
+            prop1: *const c_char,
+            value1: *const u8,
+            prop2: *const u8,
+            value2: *mut GObject,
+        ) -> *mut GeglNode;
+        unsafe fn gegl_node_new_child_sf(
+            node: *mut GeglNode,
+            prop1: *const c_char,
+            value1: *const u8,
+            prop2: *const u8,
+            value2: f64,
+        ) -> *mut GeglNode;
+        unsafe fn gegl_node_new_child_sff(
+            node: *mut GeglNode,
+            prop1: *const c_char,
+            value1: *const u8,
+            prop2: *const u8,
+            value2: f64,
+            prop3: *const u8,
+            value3: f64,
+        ) -> *mut GeglNode;
+        unsafe fn gegl_node_create_child(node: *mut GeglNode, op: *const c_char) -> *mut GeglNode;
+        fn gegl_node_new() -> *mut GeglNode;
+        unsafe fn gegl_node_process(node: *mut GeglNode);
+        unsafe fn gegl_node_link_many(
+            node: *mut GeglNode,
+            node1: *mut GeglNode,
+            node2: *mut GeglNode,
+            node3: *mut GeglNode,
         );
+        unsafe fn gegl_node_get_bounding_box_w(node: *mut GeglNode) -> i32;
+        unsafe fn gegl_node_get_bounding_box_h(node: *mut GeglNode) -> i32;
+        //        unsafe fn gegl_node_set(node: *mut GeglNode, prop1: *const c_char, val1: f64,
+        //                                prop2: *const u8, val2: f64);
+        unsafe fn gegl_node_blit(
+            node: *mut GeglNode,
+            scale: f64,
+            roi: &GeglRectangle,
+            format: *const Babl,
+            destination: *mut u8,
+            stride: i32,
+            flags: i32,
+        );
+
+        unsafe fn babl_format(format: *const c_char) -> *const Babl;
     }
 }
 
-pub use ffi::{ImagePipeline, ImageStatus};
+pub use ffi::ImageStatus;

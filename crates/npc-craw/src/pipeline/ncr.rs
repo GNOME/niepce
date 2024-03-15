@@ -19,40 +19,312 @@
 
 /*! Niepce Camera Raw pipeline */
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
+use std::ffi::{c_char, CString};
 
 use glib::translate::*;
 
-use npc_fwk::err_out;
 use npc_fwk::toolkit::ImageBitmap;
+use npc_fwk::{dbg_out, err_out};
 
-/// Wrapper for the C++ ncr pipeline
-pub(crate) struct NcrPipeline(RefCell<cxx::UniquePtr<crate::ImagePipeline>>);
+use crate::ffi;
+use crate::ffi::GeglNode;
+use crate::ImageStatus;
+
+struct PipelineState {
+    width: u32,
+    height: u32,
+    orientation: u32,
+    vertical: bool,
+    flip: bool,
+    tilt: f64,
+    graph: *mut GeglNode,
+    rotate_n: *mut GeglNode,
+    scale: *mut GeglNode,
+    sink: *mut GeglNode,
+
+    pixbuf_cache: Option<gdk_pixbuf::Pixbuf>,
+}
+
+impl Default for PipelineState {
+    fn default() -> PipelineState {
+        PipelineState {
+            width: 0,
+            height: 0,
+            orientation: 0,
+            vertical: false,
+            flip: false,
+            tilt: 0.0,
+            graph: std::ptr::null_mut(),
+            rotate_n: std::ptr::null_mut(),
+            scale: std::ptr::null_mut(),
+            sink: std::ptr::null_mut(),
+            pixbuf_cache: None,
+        }
+    }
+}
+
+pub(crate) struct NcrPipeline {
+    status: Cell<ImageStatus>,
+    state: RefCell<PipelineState>,
+}
+
+impl Default for NcrPipeline {
+    fn default() -> NcrPipeline {
+        NcrPipeline {
+            status: Cell::new(ImageStatus::UNSET),
+            state: RefCell::default(),
+        }
+    }
+}
 
 impl NcrPipeline {
     pub(crate) fn new() -> Self {
-        Self(RefCell::new(crate::ffi::image_pipeline_new()))
+        Self::default()
     }
+
+    fn set_status(&self, status: ImageStatus) {
+        self.status.set(status);
+    }
+
+    fn status(&self) -> ImageStatus {
+        self.status.get()
+    }
+
+    fn rotate_node(&self, orientation: u32) -> *mut GeglNode {
+        dbg_out!("rotation is {orientation}");
+        {
+            let mut state = self.state.borrow_mut();
+            match orientation {
+                1 => {
+                    state.orientation = 0;
+                    state.vertical = false;
+                    state.flip = false;
+                }
+                2 => {
+                    state.orientation = 0;
+                    state.vertical = false;
+                    state.flip = true;
+                }
+                4 => {
+                    state.orientation = 180;
+                    state.vertical = false;
+                    state.flip = true;
+                }
+                3 => {
+                    state.orientation = 180;
+                    state.vertical = false;
+                    state.flip = false;
+                }
+                5 => {
+                    state.orientation = 270;
+                    state.vertical = true;
+                    state.flip = true;
+                }
+                6 => {
+                    state.orientation = 270;
+                    state.vertical = true;
+                    state.flip = false;
+                }
+                7 => {
+                    state.orientation = 90;
+                    state.vertical = true;
+                    state.flip = true;
+                }
+                8 => {
+                    state.orientation = 90;
+                    state.vertical = true;
+                    state.flip = false;
+                }
+                _ => {
+                    state.orientation = 0;
+                    state.vertical = false;
+                    state.flip = false;
+                }
+            }
+            let rotate = state.orientation as f64 + state.tilt;
+            unsafe {
+                ffi::gegl_node_new_child_sf(
+                    state.graph,
+                    b"operation\0".as_ptr() as *const c_char,
+                    b"gegl:rotate\0".as_ptr(),
+                    b"degrees\0".as_ptr(),
+                    rotate,
+                )
+            }
+        }
+    }
+
+    fn load_dcraw(&self, p: &str) -> *mut GeglNode {
+        let path_cstr = CString::new(p).unwrap();
+        unsafe {
+            ffi::gegl_node_new_child(
+                self.state.borrow().graph,
+                b"operation\0".as_ptr() as *const c_char,
+                b"gegl:raw-load\0".as_ptr(),
+                b"path\0".as_ptr(),
+                path_cstr.as_ptr() as *const u8,
+            )
+        }
+    }
+
+    fn scale_node(&self) -> *mut GeglNode {
+        let scale = 1.0_f64;
+        unsafe {
+            ffi::gegl_node_new_child_sff(
+                self.state.borrow().graph,
+                b"operation\0".as_ptr() as *const c_char,
+                b"gegl:scale-ratio\0".as_ptr(),
+                b"x\0".as_ptr(),
+                scale,
+                b"y\0".as_ptr(),
+                scale,
+            )
+        }
+    }
+
+    fn prepare_reload(&self) {
+        self.set_status(ImageStatus::LOADING);
+        {
+            let mut state = self.state.borrow_mut();
+            state.pixbuf_cache = None;
+
+            if !state.graph.is_null() {
+                unsafe {
+                    glib::gobject_ffi::g_object_unref(
+                        state.graph as *mut glib::gobject_ffi::GObject,
+                    )
+                };
+            }
+            state.graph = ffi::gegl_node_new();
+        }
+    }
+
+    fn reload_pixbuf(&self, pixbuf: gdk_pixbuf::Pixbuf) {
+        self.prepare_reload();
+
+        {
+            let mut state = self.state.borrow_mut();
+            state.pixbuf_cache = Some(pixbuf.clone());
+        }
+
+        let pixbuf: *mut gdk_pixbuf::ffi::GdkPixbuf = pixbuf.to_glib_none().0;
+        let load_file = unsafe {
+            ffi::gegl_node_new_child_so(
+                self.state.borrow().graph,
+                b"operation\0".as_ptr() as *const c_char,
+                b"gegl:pixbuf\0".as_ptr(),
+                b"pixbuf\0".as_ptr(),
+                pixbuf as *mut ffi::GObject,
+            )
+        };
+
+        self.reload_node(load_file, 0);
+    }
+
+    fn reload_node(&self, node: *mut GeglNode, orientation: u32) {
+        if node.is_null() {
+            return;
+        }
+
+        let rotate_n = self.rotate_node(orientation);
+        let scale = self.scale_node();
+        let sink = unsafe {
+            ffi::gegl_node_create_child(
+                self.state.borrow().graph,
+                b"gegl:display\0".as_ptr() as *const c_char,
+            )
+        };
+
+        unsafe { ffi::gegl_node_link_many(node, rotate_n, scale, sink) };
+
+        {
+            let mut state = self.state.borrow_mut();
+            state.rotate_n = rotate_n;
+            state.scale = scale;
+            state.sink = sink
+        }
+
+        let width = (unsafe { ffi::gegl_node_get_bounding_box_w(node) }) as u32;
+        let height = (unsafe { ffi::gegl_node_get_bounding_box_h(node) }) as u32;
+
+        dbg_out!("width {width} height {height} = status {:?}", self.status());
+        if self.status() < ImageStatus::ERROR && (width == 0 || height == 0) {
+            self.set_status(ImageStatus::ERROR);
+        }
+
+        {
+            let mut state = self.state.borrow_mut();
+            if state.vertical {
+                state.width = height;
+                state.height = width;
+            } else {
+                state.width = width;
+                state.height = height;
+            }
+        }
+        self.signal_update();
+    }
+
+    fn to_buffer(&self, buffer: &mut [u8]) -> bool {
+        if self.status() == ImageStatus::ERROR {
+            dbg_out!("status error");
+            return false;
+        }
+        {
+            let state = self.state.borrow();
+            if state.sink.is_null() {
+                dbg_out!("nothing loaded");
+                return false;
+            }
+            dbg_out!("processing");
+            unsafe { ffi::gegl_node_process(state.scale) };
+            let w = unsafe { ffi::gegl_node_get_bounding_box_w(state.scale) };
+            let h = unsafe { ffi::gegl_node_get_bounding_box_h(state.scale) };
+
+            let format = unsafe { ffi::babl_format(b"R'G'B' u8\0".as_ptr() as *const c_char) };
+            let roi = ffi::GeglRectangle {
+                x: 0,
+                y: 0,
+                width: w,
+                height: h,
+            };
+            unsafe {
+                ffi::gegl_node_blit(state.scale, 1.0, &roi, format, buffer.as_mut_ptr(), 0, 1);
+            }
+        }
+
+        self.set_status(ImageStatus::LOADED);
+        true
+    }
+
+    fn signal_update(&self) {}
 }
 
 impl super::Pipeline for NcrPipeline {
     fn output_width(&self) -> u32 {
-        self.0.borrow().output_width() as u32
+        let node = self.state.borrow().scale;
+        if node.is_null() {
+            return 0;
+        }
+        (unsafe { ffi::gegl_node_get_bounding_box_w(node) }) as u32
     }
 
     fn output_height(&self) -> u32 {
-        self.0.borrow().output_height() as u32
+        let node = self.state.borrow().scale;
+        if node.is_null() {
+            return 0;
+        }
+        (unsafe { ffi::gegl_node_get_bounding_box_h(node) }) as u32
     }
 
     fn rendered_image(&self) -> Option<ImageBitmap> {
         let w = self.output_width();
         let h = self.output_height();
+        dbg_out!("rendered image");
         let mut buffer = vec![0; (w * h * 3) as usize];
-        let success = self
-            .0
-            .borrow_mut()
-            .pin_mut()
-            .to_buffer(buffer.as_mut_slice());
+        let success = self.to_buffer(buffer.as_mut_slice());
+        dbg_out!("to buffer {success}");
         if success {
             Some(ImageBitmap::new(buffer, w, h))
         } else {
@@ -62,20 +334,32 @@ impl super::Pipeline for NcrPipeline {
     }
 
     fn reload(&self, path: &str, is_raw: bool, orientation: u32) {
-        cxx::let_cxx_string!(p = path);
-        self.0
-            .borrow_mut()
-            .pin_mut()
-            .reload(&p, is_raw, orientation);
+        self.prepare_reload();
+
+        dbg_out!("loading file {path}");
+        if !std::path::Path::new(path).exists() {
+            self.set_status(ImageStatus::NOT_FOUND);
+            self.signal_update();
+            return;
+        }
+        let load_file = if !is_raw {
+            let path_cstr = CString::new(path).unwrap();
+            unsafe {
+                ffi::gegl_node_new_child(
+                    self.state.borrow().graph,
+                    b"operation\0".as_ptr() as *const c_char,
+                    b"gegl:load\0".as_ptr(),
+                    b"path\0".as_ptr(),
+                    path_cstr.as_ptr() as *const u8,
+                )
+            }
+        } else {
+            self.load_dcraw(path)
+        };
+        self.reload_node(load_file, orientation);
     }
 
     fn set_placeholder(&self, placeholder: gdk_pixbuf::Pixbuf) {
-        let p: *mut gdk_pixbuf::ffi::GdkPixbuf = placeholder.to_glib_none().0;
-        unsafe {
-            self.0
-                .borrow_mut()
-                .pin_mut()
-                .reload_pixbuf(p as *mut crate::ffi::GdkPixbuf);
-        }
+        self.reload_pixbuf(placeholder);
     }
 }

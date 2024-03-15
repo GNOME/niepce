@@ -3,8 +3,6 @@
 ncr = static_library(
     'ncr',
     ncr_bindings_cpp,
-    'image.cpp',
-    'image.hpp',
     'init.cpp',
     'init.hpp',
 
