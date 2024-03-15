@@ -1,5 +1,4 @@
 fn main() {
-    println!("cargo:rustc-link-lib=fwk");
     if let Ok(asan) = std::env::var("ASAN_LIBS") {
         println!("cargo:rustc-link-lib={asan}");
     }

@@ -1,6 +1,5 @@
 fn main() {
     println!("cargo:rustc-link-lib=ncr");
-    println!("cargo:rustc-link-lib=fwk");
 
     // This is expected to be set by the mesonb.build.
     if let Ok(libpath) = std::env::var("NIEPCE_LIB_PATH") {
