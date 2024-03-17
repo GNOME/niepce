@@ -58,16 +58,8 @@ impl Controller for NiepceApplication {
     fn dispatch(&self, msg: Event) {
         match msg {
             Event::FileOpen => (),
-            Event::About => {
-                let win = self.main_window.borrow();
-                let win = win.as_ref().map(|win| win.window());
-                action_about(win);
-            }
-            Event::Preferences => {
-                let win = self.main_window.borrow();
-                let win = win.as_ref().map(|win| win.window());
-                action_preferences(win);
-            }
+            Event::About => self.action_about(),
+            Event::Preferences => self.action_preferences(),
             Event::Quit => (),
         }
     }
@@ -184,20 +176,26 @@ impl NiepceApplication {
             Some("<Primary>q"),
         );
     }
-}
 
-fn action_about(parent: Option<&gtk4::Window>) {
-    let dlg = adw::AboutWindow::new();
-    dlg.set_application_name("Niepce Digital");
-    dlg.set_version(config::VERSION);
-    dlg.set_application_icon(config::APP_ID);
-    dlg.set_license_type(gtk4::License::Gpl30);
-    dlg.set_comments(&i18n("A digital photo application."));
-    dlg.set_transient_for(parent);
-    dlg.present();
-}
+    fn action_about(&self) {
+        let win = self.main_window.borrow();
+        let win = win.as_ref().map(|win| win.window());
 
-fn action_preferences(parent: Option<&gtk4::Window>) {
-    let dialog = PreferencesDialog::new();
-    dialog.run_modal(parent, |_| {});
+        let dlg = adw::AboutWindow::new();
+        dlg.set_application_name("Niepce Digital");
+        dlg.set_version(config::VERSION);
+        dlg.set_application_icon(config::APP_ID);
+        dlg.set_license_type(gtk4::License::Gpl30);
+        dlg.set_comments(&i18n("A digital photo application."));
+        dlg.set_transient_for(win);
+        dlg.present();
+    }
+
+    fn action_preferences(&self) {
+        let win = self.main_window.borrow();
+        let win = win.as_ref().map(|win| win.window());
+
+        let dialog = PreferencesDialog::new();
+        dialog.run_modal(win, |_| {});
+    }
 }
