@@ -13,6 +13,7 @@ fn main() {
     }
     let deps = system_deps::Config::new().probe().unwrap();
     let glibmm = deps.get_by_name("glibmm-2.68").unwrap();
+    let exiv2 = deps.get_by_name("exiv2").unwrap();
 
     let build_root = std::path::PathBuf::from(
         std::env::var("CARGO_TARGET_DIR").expect("CARGO_TARGET_DIR not found"),
@@ -25,6 +26,7 @@ fn main() {
         .include("./src")
         .include(build_root.join("third_party/rtengine"))
         .includes(&glibmm.include_paths)
+        .includes(&exiv2.include_paths)
         // rtengine header is full of this.
         .flag("-DUSE_STD_MUTEX=1")
         .flag("-DNPC_NOGUI=1")
