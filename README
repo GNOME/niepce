@@ -31,18 +31,16 @@ To build you need the following:
 - A C++17 compiler
 - rustc >= 1.64.0
 - cairo 1.1
-- glibmm 2.66
-- gtkmm 4.4
+- glibmm 2.68
 - giomm
 - cairomm
 - shumate 1.0.0
 - libadwaita >= 1.4.0
-- boost 1.60
 - exempi >= 2.6.0
 - gegl >= 0.4.0
 - babl
 - libgphoto2
-- gexiv2 >= 0.10 (as required by rexiv2)
+- gexiv2 >= 0.14 (as required by rexiv2)
 - meson >= 0.59
 
 For the RawTherapee engine:

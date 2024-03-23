@@ -13,6 +13,6 @@ niepce_lib = static_library('niepce_lib',
     npc_bindings_cpp,
     config_h,
     install: false,
-    dependencies: [cxx_headers, exempi_deps, gexiv2_deps, gphoto2_deps, gtkmm_deps, sqlite_deps, gegl_deps],
+    dependencies: [cxx_headers, gtk_deps, gdkpixbuf_deps, giomm_deps, glibmm_deps, gegl_deps],
     include_directories: [incdir, rust_inc]
 )

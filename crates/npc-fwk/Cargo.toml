@@ -36,9 +36,3 @@ rexiv2 = "^0.10.0"
 tempfile = "3.4.0"
 thiserror = "1"
 walkdir = "2.3.3"
-
-[build-dependencies]
-system-deps = "6.0"
-
-[package.metadata.system-deps]
-"gtkmm-4.0" = "4.4.0"

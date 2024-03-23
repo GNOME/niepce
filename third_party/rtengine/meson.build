@@ -1,7 +1,5 @@
 
 openmp_deps = dependency('openmp')
-glibmm_deps = dependency('glibmm-2.68')
-giomm_deps = dependency('giomm-2.68')
 cairomm_deps = dependency('cairomm-1.16')
 iptcdata_deps = dependency('libiptcdata')
 lcms2_deps = dependency('lcms2')
@@ -462,5 +460,5 @@ rtengine = static_library(
     '-Wno-deprecated-declarations'
   ],
   include_directories: [ 'RawTherapee' / 'rtengine' / 'klt' ],
-  dependencies: [ glibmm_deps, giomm_deps, cairomm_deps, gtkmm_deps, iptcdata_deps, lcms2_deps, lensfun_deps, openmp_deps, exiv2_deps ],
+  dependencies: [ glibmm_deps, giomm_deps, cairomm_deps, iptcdata_deps, lcms2_deps, lensfun_deps, openmp_deps, exiv2_deps ],
 )

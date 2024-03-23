@@ -1415,7 +1415,6 @@ dependencies = [
  "num-derive",
  "num-traits",
  "once_cell",
- "system-deps",
  "thiserror",
 ]
 
@@ -1514,7 +1513,6 @@ dependencies = [
  "num-traits",
  "once_cell",
  "rexiv2",
- "system-deps",
  "tempfile",
  "thiserror",
  "walkdir",

@@ -9,7 +9,4 @@ fn main() {
             println!("cargo:rustc-link-search={s}");
         });
     }
-
-    // Direct dependencies by the C++ code.
-    system_deps::Config::new().probe().unwrap();
 }

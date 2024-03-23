@@ -6,6 +6,6 @@ ncr = static_library(
     'init.cpp',
     'init.hpp',
 
-    dependencies: [cxx_headers, gegl_deps, gtkmm_deps],
+    dependencies: [cxx_headers, gtk_deps, gdkpixbuf_deps, gegl_deps],
     include_directories: include_directories('..')
 )
