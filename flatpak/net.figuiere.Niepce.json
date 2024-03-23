@@ -88,7 +88,8 @@
                 "-DEXIV2_BUILD_DOC=OFF",
                 "-DEXIV2_BUILD_SAMPLES=OFF",
                 "-DEXIV2_BUILD_EXIV2_COMMAND=OFF",
-                "-DEXIV2_ENABLE_BMFF=ON"
+                "-DEXIV2_ENABLE_BMFF=ON",
+                "-DEXIV2_ENABLE_INIH=OFF"
             ],
             "cleanup": [
                 "/bin",
@@ -98,8 +99,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://github.com/Exiv2/exiv2/releases/download/v0.27.7/exiv2-0.27.7-Source.tar.gz",
-                    "sha256": "70629dc27e3d4dd5c3fa91afbea93166d338b1de284e6a4c44bbf9dcfe7bbc6d"
+                    "url": "https://github.com/Exiv2/exiv2/archive/refs/tags/v0.28.2.tar.gz",
+                    "sha256": "543bead934135f20f438e0b6d8858c55c5fcb7ff80f5d1d55489965f1aad58b9"
                 }
             ]
         },
@@ -107,13 +108,16 @@
             "name": "gexiv2",
             "buildsystem": "meson",
             "config-opts": [
-                "-Dintrospection=false"
+                "-Dintrospection=false",
+                "-Dpython3=false",
+                "-Dtools=false",
+                "-Dvapi=false"
             ],
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/gexiv2/0.12/gexiv2-0.12.0.tar.xz",
-                    "sha256": "58f539b0386f36300b76f3afea3a508de4914b27e78f58ee4d142486a42f926a"
+                    "url": "https://download.gnome.org/sources/gexiv2/0.14/gexiv2-0.14.2.tar.xz",
+                    "sha256": "2a0c9cf48fbe8b3435008866ffd40b8eddb0667d2212b42396fdf688e93ce0be"
                 }
             ]
         },
@@ -131,8 +135,8 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "url" : "https://download.gimp.org/pub/babl/0.1/babl-0.1.98.tar.xz",
-                    "sha256" : "f3b222f84e462735de63fa9c3651942f2b78fd314c73a22e05ff7c73afd23af1"
+                    "url" : "https://download.gimp.org/pub/babl/0.1/babl-0.1.108.tar.xz",
+                    "sha256" : "26defe9deaab7ac4d0e076cab49c2a0d6ebd0df0c31fd209925a5f07edee1475"
                 }
             ]
         },
@@ -151,8 +155,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gimp.org/pub/gegl/0.4/gegl-0.4.40.tar.xz",
-                    "sha256": "cdde80d15a49dab9a614ef98f804c8ce6e4cfe1339a3c240c34f3fb45436b85d"
+                    "url": "https://download.gimp.org/pub/gegl/0.4/gegl-0.4.48.tar.xz",
+                    "sha256": "418c26d94be8805d7d98f6de0c6825ca26bd74fcacb6c188da47533d9ee28247"
                 }
             ]
         },
