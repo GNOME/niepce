@@ -111,7 +111,6 @@ config_h = configure_file(
 )
 
 rust_inc = include_directories('.')
-gtest_inc = include_directories('.' / 'third_party' / 'googletest' / 'googletest' / 'include')
 cargo_target_dir = meson.project_build_root() / 'target'
 cargo_env = [
   'CARGO_HOME=' + meson.project_build_root() / 'cargo-home',

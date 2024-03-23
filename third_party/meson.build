@@ -1,11 +1,4 @@
 
-gtest = static_library(
-  'gtest',
-  'googletest/googletest/src/gtest_main.cc',
-  'googletest/googletest/src/gtest-all.cc',
-  include_directories: [ gtest_inc, include_directories('googletest' / 'googletest' ) ]
-)
-
 cxxbridge = custom_target(
   'cxxbridge-build',
   output: 'cxxbridge',

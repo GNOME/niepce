@@ -6,9 +6,6 @@ These are the third party modules.
 cxx
 ---
 
-googletest
-----------
-
 rtengine
 --------
 

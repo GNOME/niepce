@@ -8,11 +8,6 @@ Some files may be under GPL version 2 or later.
 (c) 2006-2022 Hubert Figuière
 Some portions are written by other people.
 
-Google Test framework (for testing only)
-(c) 2008 Google Inc.
-Under a "3 clause BSD" license.
-see third_party/googletest/googletest/LICENSE
-
 RawTherapee rtengine
 See third_party/rtengine/RawTherapee/AUTHORS.txt for
 the authors.
