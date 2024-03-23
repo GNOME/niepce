@@ -1,6 +1,5 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
-camerawire/src/cwwindow.cpp
 crates/npc-engine/src/importer/lrimporter.rs
 crates/npc-fwk/src/toolkit/confirm.rs
 crates/npc-fwk/src/toolkit/request.rs
