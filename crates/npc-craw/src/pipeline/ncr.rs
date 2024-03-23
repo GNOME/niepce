@@ -20,15 +20,12 @@
 /*! Niepce Camera Raw pipeline */
 
 use std::cell::{Cell, RefCell};
-use std::ffi::{c_char, CString};
 
-use glib::translate::*;
+use gegl::Node as GeglNode;
 
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::{dbg_out, err_out};
 
-use crate::ffi;
-use crate::ffi::GeglNode;
 use crate::ImageStatus;
 
 struct PipelineState {
@@ -38,10 +35,10 @@ struct PipelineState {
     vertical: bool,
     flip: bool,
     tilt: f64,
-    graph: *mut GeglNode,
-    rotate_n: *mut GeglNode,
-    scale: *mut GeglNode,
-    sink: *mut GeglNode,
+    graph: Option<GeglNode>,
+    rotate_n: Option<GeglNode>,
+    scale: Option<GeglNode>,
+    sink: Option<GeglNode>,
 
     pixbuf_cache: Option<gdk_pixbuf::Pixbuf>,
 }
@@ -55,10 +52,10 @@ impl Default for PipelineState {
             vertical: false,
             flip: false,
             tilt: 0.0,
-            graph: std::ptr::null_mut(),
-            rotate_n: std::ptr::null_mut(),
-            scale: std::ptr::null_mut(),
-            sink: std::ptr::null_mut(),
+            graph: None,
+            rotate_n: None,
+            scale: None,
+            sink: None,
             pixbuf_cache: None,
         }
     }
@@ -91,7 +88,7 @@ impl NcrPipeline {
         self.status.get()
     }
 
-    fn rotate_node(&self, orientation: u32) -> *mut GeglNode {
+    fn rotate_node(&self, orientation: u32) -> Option<GeglNode> {
         dbg_out!("rotation is {orientation}");
         {
             let mut state = self.state.borrow_mut();
@@ -143,44 +140,28 @@ impl NcrPipeline {
                 }
             }
             let rotate = state.orientation as f64 + state.tilt;
-            unsafe {
-                ffi::gegl_node_new_child_sf(
-                    state.graph,
-                    b"operation\0".as_ptr() as *const c_char,
-                    b"gegl:rotate\0".as_ptr(),
-                    b"degrees\0".as_ptr(),
-                    rotate,
-                )
-            }
+            state.graph.as_ref().and_then(|graph| {
+                graph.new_child(Some("gegl:rotate"), &[("degrees", rotate.into())])
+            })
         }
     }
 
-    fn load_dcraw(&self, p: &str) -> *mut GeglNode {
-        let path_cstr = CString::new(p).unwrap();
-        unsafe {
-            ffi::gegl_node_new_child(
-                self.state.borrow().graph,
-                b"operation\0".as_ptr() as *const c_char,
-                b"gegl:raw-load\0".as_ptr(),
-                b"path\0".as_ptr(),
-                path_cstr.as_ptr() as *const u8,
-            )
-        }
+    fn load_dcraw(&self, p: &str) -> Option<GeglNode> {
+        self.state
+            .borrow()
+            .graph
+            .as_ref()
+            .and_then(|graph| graph.new_child(Some("gegl:raw-load"), &[("path", p.into())]))
     }
 
-    fn scale_node(&self) -> *mut GeglNode {
+    fn scale_node(&self) -> Option<GeglNode> {
         let scale = 1.0_f64;
-        unsafe {
-            ffi::gegl_node_new_child_sff(
-                self.state.borrow().graph,
-                b"operation\0".as_ptr() as *const c_char,
-                b"gegl:scale-ratio\0".as_ptr(),
-                b"x\0".as_ptr(),
-                scale,
-                b"y\0".as_ptr(),
-                scale,
+        self.state.borrow().graph.as_ref().and_then(|graph| {
+            graph.new_child(
+                Some("gegl:scale-ratio"),
+                &[("x", scale.into()), ("y", scale.into())],
             )
-        }
+        })
     }
 
     fn prepare_reload(&self) {
@@ -188,15 +169,7 @@ impl NcrPipeline {
         {
             let mut state = self.state.borrow_mut();
             state.pixbuf_cache = None;
-
-            if !state.graph.is_null() {
-                unsafe {
-                    glib::gobject_ffi::g_object_unref(
-                        state.graph as *mut glib::gobject_ffi::GObject,
-                    )
-                };
-            }
-            state.graph = ffi::gegl_node_new();
+            state.graph = Some(GeglNode::new());
         }
     }
 
@@ -208,35 +181,33 @@ impl NcrPipeline {
             state.pixbuf_cache = Some(pixbuf.clone());
         }
 
-        let pixbuf: *mut gdk_pixbuf::ffi::GdkPixbuf = pixbuf.to_glib_none().0;
-        let load_file = unsafe {
-            ffi::gegl_node_new_child_so(
-                self.state.borrow().graph,
-                b"operation\0".as_ptr() as *const c_char,
-                b"gegl:pixbuf\0".as_ptr(),
-                b"pixbuf\0".as_ptr(),
-                pixbuf as *mut ffi::GObject,
-            )
-        };
+        let graph = &self.state.borrow().graph;
+        let graph = graph.as_ref().unwrap();
+        let load_file = graph.new_child(Some("gegl:pixuf"), &[("pixbuf", pixbuf.into())]);
 
         self.reload_node(load_file, 0);
     }
 
-    fn reload_node(&self, node: *mut GeglNode, orientation: u32) {
-        if node.is_null() {
+    fn reload_node(&self, node: Option<GeglNode>, orientation: u32) {
+        if node.is_none() {
             return;
         }
+        let node = node.unwrap();
 
         let rotate_n = self.rotate_node(orientation);
         let scale = self.scale_node();
-        let sink = unsafe {
-            ffi::gegl_node_create_child(
-                self.state.borrow().graph,
-                b"gegl:display\0".as_ptr() as *const c_char,
-            )
-        };
+        let sink = self
+            .state
+            .borrow()
+            .graph
+            .as_ref()
+            .and_then(|graph| graph.create_child("gegl:display"));
 
-        unsafe { ffi::gegl_node_link_many(node, rotate_n, scale, sink) };
+        node.link_many(&[
+            rotate_n.as_ref().unwrap(),
+            scale.as_ref().unwrap(),
+            sink.as_ref().unwrap(),
+        ]);
 
         {
             let mut state = self.state.borrow_mut();
@@ -245,8 +216,9 @@ impl NcrPipeline {
             state.sink = sink
         }
 
-        let width = (unsafe { ffi::gegl_node_get_bounding_box_w(node) }) as u32;
-        let height = (unsafe { ffi::gegl_node_get_bounding_box_h(node) }) as u32;
+        let rect = node.introspectable_get_bounding_box().unwrap();
+        let width = rect.width() as u32;
+        let height = rect.height() as u32;
 
         dbg_out!("width {width} height {height} = status {:?}", self.status());
         if self.status() < ImageStatus::ERROR && (width == 0 || height == 0) {
@@ -273,24 +245,28 @@ impl NcrPipeline {
         }
         {
             let state = self.state.borrow();
-            if state.sink.is_null() {
+            if state.sink.is_none() {
                 dbg_out!("nothing loaded");
                 return false;
             }
             dbg_out!("processing");
-            unsafe { ffi::gegl_node_process(state.scale) };
-            let w = unsafe { ffi::gegl_node_get_bounding_box_w(state.scale) };
-            let h = unsafe { ffi::gegl_node_get_bounding_box_h(state.scale) };
+            if let Some(scale) = &state.scale {
+                scale.process();
+                let roi = scale.introspectable_get_bounding_box().unwrap();
 
-            let format = unsafe { ffi::babl_format(b"R'G'B' u8\0".as_ptr() as *const c_char) };
-            let roi = ffi::GeglRectangle {
-                x: 0,
-                y: 0,
-                width: w,
-                height: h,
-            };
-            unsafe {
-                ffi::gegl_node_blit(state.scale, 1.0, &roi, format, buffer.as_mut_ptr(), 0, 1);
+                let w = roi.width();
+                let h = roi.height();
+                dbg_out!("w = {w}, h = {h}");
+
+                let format = gegl::babl::Format::from_encoding("R'G'B' u8");
+                scale.blit(
+                    1.0,
+                    &roi,
+                    &format,
+                    Some(buffer),
+                    0,
+                    gegl::BlitFlags::CACHE | gegl::BlitFlags::DIRTY,
+                );
             }
         }
 
@@ -303,19 +279,21 @@ impl NcrPipeline {
 
 impl super::Pipeline for NcrPipeline {
     fn output_width(&self) -> u32 {
-        let node = self.state.borrow().scale;
-        if node.is_null() {
-            return 0;
-        }
-        (unsafe { ffi::gegl_node_get_bounding_box_w(node) }) as u32
+        let scale = &self.state.borrow().scale;
+        scale
+            .as_ref()
+            .and_then(|scale| scale.introspectable_get_bounding_box())
+            .map(|bbox| bbox.width())
+            .unwrap_or(0_i32) as u32
     }
 
     fn output_height(&self) -> u32 {
-        let node = self.state.borrow().scale;
-        if node.is_null() {
-            return 0;
-        }
-        (unsafe { ffi::gegl_node_get_bounding_box_h(node) }) as u32
+        let scale = &self.state.borrow().scale;
+        scale
+            .as_ref()
+            .and_then(|scale| scale.introspectable_get_bounding_box())
+            .map(|bbox| bbox.height())
+            .unwrap_or(0_i32) as u32
     }
 
     fn rendered_image(&self) -> Option<ImageBitmap> {
@@ -343,16 +321,10 @@ impl super::Pipeline for NcrPipeline {
             return;
         }
         let load_file = if !is_raw {
-            let path_cstr = CString::new(path).unwrap();
-            unsafe {
-                ffi::gegl_node_new_child(
-                    self.state.borrow().graph,
-                    b"operation\0".as_ptr() as *const c_char,
-                    b"gegl:load\0".as_ptr(),
-                    b"path\0".as_ptr(),
-                    path_cstr.as_ptr() as *const u8,
-                )
-            }
+            // We should panic here. Graph is supposed to exist.
+            let graph = &self.state.borrow().graph;
+            let graph = graph.as_ref().expect("Graph");
+            graph.new_child(Some("gegl:load"), &[("path", path.into())])
         } else {
             self.load_dcraw(path)
         };
