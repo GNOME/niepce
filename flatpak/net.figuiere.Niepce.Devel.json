@@ -266,26 +266,6 @@
             ]
         },
         {
-            "name": "gtkmm",
-            "buildsystem": "meson",
-            "cleanup": [
-                "/lib/gtkmm-*"
-            ],
-            "config-opts": [
-                "-Dbuild-deprecated-api=false",
-                "-Dbuild-demos=false",
-                "-Dbuild-tests=false",
-                "-Dbuild-documentation=false"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://download.gnome.org/sources/gtkmm/4.6/gtkmm-4.6.1.tar.xz",
-                    "sha256": "0d5efeca9ec64fdd530bb8226c6310ac99549b3dd9604d6e367639791af3d1e0"
-                }
-            ]
-        },
-        {
             "name": "libshumate",
             "buildsystem": "meson",
             "config-opts": [
@@ -299,26 +279,6 @@
                     "url": "https://gitlab.gnome.org/GNOME/libshumate.git",
                     "tag": "1.0.4",
                     "commit": "eb1afec539cb3aeae1f2d3f35fd377c51d5ead50"
-                }
-            ]
-        },
-        {
-            "name": "boost",
-            "buildsystem": "simple",
-            "cleanup": [
-                "/include",
-                "/lib/libboost_*.so*",
-                "*.a"
-            ],
-            "build-commands": [
-                "./bootstrap.sh --prefix=/app --with-libraries=test",
-                "./b2 install -j $FLATPAK_BUILDER_N_JOBS"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://downloads.sourceforge.net/project/boost/boost/1.60.0/boost_1_60_0.tar.bz2",
-                    "sha256": "686affff989ac2488f79a97b9479efb9f2abae035b5ed4d8226de6857933fd3b"
                 }
             ]
         },
