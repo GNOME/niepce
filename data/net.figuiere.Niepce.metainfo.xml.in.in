@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
   <id>@app-id@</id>
-  <licence>CC0-1.0</licence>
+  <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <name>Niepce Digital@app-name-suffix@</name>
   <summary>Advanced Photo Editing</summary>
@@ -21,7 +21,7 @@
   </screenshots>
   <url type="homepage">https://wiki.gnome.org/Apps/Niepce</url>
   <updatecontact>hub@figuiere.net</updatecontact>
-
+  <developer_name>Hubert Figuière</developer_name>
   <translation type="gettext">@gettext-package@</translation>
   <launchable type="desktop-id">@app-id@.desktop</launchable>
   <content_rating type="oars-1.1"/>
