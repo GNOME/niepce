@@ -1,4 +1,3 @@
 
 
-subdir('fwk')
 subdir('niepce')

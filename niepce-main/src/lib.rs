@@ -55,8 +55,6 @@ pub fn niepce_init() {
     static START: Once = Once::new();
 
     START.call_once(|| {
-        ffi::init();
-
         gtk4::init().unwrap();
         adw::init().unwrap();
         npc_fwk::init();
@@ -66,22 +64,3 @@ pub fn niepce_init() {
 }
 
 pub use notification_center::NotificationCenter;
-
-#[cxx::bridge(namespace = "npc")]
-pub mod ffi {
-    extern "Rust" {
-        fn niepce_init();
-    }
-
-    #[namespace = "eng"]
-    extern "C++" {
-        include!("fwk/cxx_prelude.hpp");
-    }
-
-    #[namespace = "Gio"]
-    unsafe extern "C++" {
-        include!(<giomm/init.h>);
-
-        fn init();
-    }
-}

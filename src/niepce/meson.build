@@ -9,9 +9,8 @@ resources_bundle = gnome.compile_resources(
 )
 
 niepce_lib = static_library('niepce_lib',
-    npc_bindings_cpp,
     config_h,
     install: false,
-    dependencies: [cxx_headers, gtk_deps, gdkpixbuf_deps, giomm_deps, glibmm_deps, gegl_deps],
+    dependencies: [gtk_deps, gdkpixbuf_deps, giomm_deps, glibmm_deps, gegl_deps],
     include_directories: [incdir, rust_inc]
 )
