@@ -26,7 +26,14 @@ use gegl::Node as GeglNode;
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::{dbg_out, err_out};
 
-use crate::ImageStatus;
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+enum ImageStatus {
+    Unset = 0,
+    Loading,
+    Loaded,
+    Error,
+    NotFound,
+}
 
 struct PipelineState {
     width: u32,
@@ -69,7 +76,7 @@ pub(crate) struct NcrPipeline {
 impl Default for NcrPipeline {
     fn default() -> NcrPipeline {
         NcrPipeline {
-            status: Cell::new(ImageStatus::UNSET),
+            status: Cell::new(ImageStatus::Unset),
             state: RefCell::default(),
         }
     }
@@ -165,7 +172,7 @@ impl NcrPipeline {
     }
 
     fn prepare_reload(&self) {
-        self.set_status(ImageStatus::LOADING);
+        self.set_status(ImageStatus::Loading);
         {
             let mut state = self.state.borrow_mut();
             state.pixbuf_cache = None;
@@ -221,8 +228,8 @@ impl NcrPipeline {
         let height = rect.height() as u32;
 
         dbg_out!("width {width} height {height} = status {:?}", self.status());
-        if self.status() < ImageStatus::ERROR && (width == 0 || height == 0) {
-            self.set_status(ImageStatus::ERROR);
+        if self.status() < ImageStatus::Error && (width == 0 || height == 0) {
+            self.set_status(ImageStatus::Error);
         }
 
         {
@@ -239,7 +246,7 @@ impl NcrPipeline {
     }
 
     fn to_buffer(&self, buffer: &mut [u8]) -> bool {
-        if self.status() == ImageStatus::ERROR {
+        if self.status() == ImageStatus::Error {
             dbg_out!("status error");
             return false;
         }
@@ -270,7 +277,7 @@ impl NcrPipeline {
             }
         }
 
-        self.set_status(ImageStatus::LOADED);
+        self.set_status(ImageStatus::Loaded);
         true
     }
 
@@ -316,7 +323,7 @@ impl super::Pipeline for NcrPipeline {
 
         dbg_out!("loading file {path}");
         if !std::path::Path::new(path).exists() {
-            self.set_status(ImageStatus::NOT_FOUND);
+            self.set_status(ImageStatus::NotFound);
             self.signal_update();
             return;
         }

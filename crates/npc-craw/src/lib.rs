@@ -41,27 +41,3 @@ fn ncr_init() {
         gegl::init();
     });
 }
-
-#[cxx::bridge(namespace = "ncr")]
-mod ffi {
-    #[namespace = ""]
-    unsafe extern "C++" {
-        include!(<gdk-pixbuf/gdk-pixbuf.h>);
-        include!(<gdk/gdk.h>);
-
-        type GdkPixbuf;
-        type GdkTexture;
-    }
-
-    #[rust_name = "ImageStatus"]
-    #[derive(Debug, PartialOrd)]
-    enum Status {
-        UNSET = 0,
-        LOADING,
-        LOADED,
-        ERROR,
-        NOT_FOUND,
-    }
-}
-
-pub use ffi::ImageStatus;
