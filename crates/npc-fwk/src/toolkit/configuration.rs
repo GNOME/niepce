@@ -17,23 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// A configuration, backed by a `glib::Keyfile`
+mod keyfile;
+
+/// Config backend
+pub trait ConfigBackend {
+    /// Return true if it has `key`.
+    fn has(&self, key: &str) -> bool;
+    /// Return the string value for `key` or `None` if not found.
+    fn value_opt(&self, key: &str) -> Option<String>;
+    /// Return string value for `key`, or `def` if not found.
+    fn value(&self, key: &str, def: &str) -> String;
+    /// Set `value` for `key`
+    fn set_value(&self, key: &str, value: &str);
+}
+
+/// Configuration with modular backend.
 pub struct Configuration {
-    filename: std::path::PathBuf,
-    keyfile: glib::KeyFile,
-    root: String,
+    backend: Box<dyn ConfigBackend>,
 }
 
 impl Configuration {
-    /// New configuration from a file.
+    /// New `KeyFile` configuration from a file.
     pub fn from_file<P: AsRef<std::path::Path>>(file: P) -> Configuration {
-        let keyfile = glib::KeyFile::new();
-        on_err_out!(keyfile.load_from_file(&file, glib::KeyFileFlags::NONE));
         Configuration {
-            filename: file.as_ref().to_path_buf(),
-            keyfile,
-            root: "main".to_string(),
+            backend: Box::new(keyfile::KeyFile::new(file, "main".to_string())),
         }
+    }
+
+    /// Build a configuration from a backend.
+    pub fn from_impl<T: ConfigBackend + 'static>(backend: Box<T>) -> Configuration {
+        Configuration { backend }
     }
 
     /// New XDG compliant config path from `app_name`.
@@ -48,29 +61,22 @@ impl Configuration {
 
     /// Return true if it has `key`.
     pub fn has(&self, key: &str) -> bool {
-        self.keyfile.has_group(&self.root) && self.keyfile.has_key(&self.root, key).unwrap_or(false)
+        self.backend.has(key)
     }
 
     /// Return string value for `key`, or `def` if not found.
     pub fn value(&self, key: &str, def: &str) -> String {
-        self.value_opt(key).unwrap_or_else(|| def.to_string())
+        self.backend.value(key, def)
     }
 
     /// Return the string value for `key` or `None` if not found.
     pub fn value_opt(&self, key: &str) -> Option<String> {
-        if !self.has(key) {
-            return None;
-        }
-        self.keyfile
-            .string(&self.root, key)
-            .map(|v| v.as_str().to_string())
-            .ok()
+        self.backend.value_opt(key)
     }
 
     /// Set `value` for `key`
     pub fn set_value(&self, key: &str, value: &str) {
-        self.keyfile.set_string(&self.root, key, value);
-        on_err_out!(self.save());
+        self.backend.set_value(key, value)
     }
 
     /// Set value to a switchrow
@@ -83,11 +89,6 @@ impl Configuration {
     pub fn from_switchrow(&self, checkbox: &adw::SwitchRow, key: &str) {
         self.set_value(key, if checkbox.is_active() { "1" } else { "0" });
     }
-
-    /// Save
-    fn save(&self) -> Result<(), glib::Error> {
-        glib::file_set_contents(&self.filename, self.keyfile.to_data().as_gstr().as_bytes())
-    }
 }
 
 #[cfg(test)]
@@ -96,7 +97,7 @@ mod tests {
     use super::Configuration;
 
     #[test]
-    fn test_configuration() {
+    fn test_configuration_keyfile() {
         let tmpdir = tempfile::tempdir().expect("Tmp directory failed");
 
         let mut test_file = tmpdir.path().to_path_buf();
