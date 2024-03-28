@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/db/schema_test.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -244,5 +244,9 @@ fn test_upgrade_9_to() {
              UPDATE \"folders\" SET path = (SELECT f.path FROM \"folders\" AS f WHERE f.id = \"folders\".parent_id) || '/' || name WHERE id = NEW.id AND parent_id != 0; \
              END"
         );
+
+        let schema_version = sql::pragma_schema_version(&conn).expect("pragma schema version");
+        upgrade::perform_upgrade_13(&conn, schema_version).expect("Upgrade to 13");
+        assert!(sql::pragma_schema_version(&conn).expect("pragma schema version") > schema_version);
     }
 }

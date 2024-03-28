@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/db/upgrade.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,9 +66,31 @@ pub(crate) fn library_to(library: &Library, from: i32, to: i32) -> Result<()> {
                     library.set_db_version(12).expect("set_db_version failed");
                 }
             }
+            13 => {
+                if let Some(conn) = &library.dbconn {
+                    let schema_version = sql::pragma_schema_version(conn)?;
+                    perform_upgrade_13(conn, schema_version).expect("Upgrade failed");
+                    library.set_db_version(13).expect("set_db_version failed");
+                }
+            }
             _ => {}
         }
     }
+
+    Ok(())
+}
+
+pub(crate) fn perform_upgrade_13(conn: &rusqlite::Connection, schema_version: i64) -> Result<()> {
+    dbg_out!("schema_version {}", schema_version);
+    dbg_out!("upgrade 13");
+    conn.execute_batch(
+        "BEGIN;\
+         CREATE TABLE admin_new (key TEXT NOT NULL PRIMARY KEY, value TEXT); \
+         INSERT INTO admin_new SELECT * FROM admin; \
+         DROP TABLE admin; \
+         ALTER TABLE admin_new RENAME TO admin; \
+         COMMIT;",
+    )?;
 
     Ok(())
 }

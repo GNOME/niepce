@@ -6,20 +6,26 @@ Unless mentionned, this is starting in version 6.
 
 ## Administration table.
 
-Contain various parameters.
+Contain various parameters, including options.
 
 Table name: `admin`
 
-| Column  | Description |
-|---------|-------------|
-| `key`   | Key         |
-| `value` | Value       |
+| Column  | Description  |
+|---------|--------------|
+| `key`   | Key (unique) |
+| `value` | Value        |
 
 The known keys are:
 
 | Column    | Description                                |
 |-----------|--------------------------------------------|
-| `version` | The version of the database. Current = 12. |
+| `version` | The version of the database. Current = 13. |
+
+[ version = 13 ]
+`key` is primary key in table.
+
+Preference keys are mostly free form and should have the prefix
+`prefs.`.
 
 ## Files
 

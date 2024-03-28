@@ -55,11 +55,11 @@ use npc_fwk::toolkit;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_assert, dbg_out, err_out, on_err_out};
 
-const DB_SCHEMA_VERSION: i32 = 12;
+const DB_SCHEMA_VERSION: i32 = 13;
 const DATABASENAME: &str = "niepcelibrary.db";
 
 /// Error from the library database
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum Error {
     /// Operation is unimplemented
     #[error("Unimplemented")]
@@ -289,8 +289,11 @@ impl Library {
     /// Initialise the database schema.
     fn init_db(&mut self) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            conn.execute("CREATE TABLE admin (key TEXT NOT NULL, value TEXT)", [])
-                .unwrap();
+            conn.execute(
+                "CREATE TABLE admin (key TEXT NOT NULL PRIMARY KEY, value TEXT)",
+                [],
+            )
+            .unwrap();
             conn.execute(
                 "INSERT INTO admin (key, value) \
                  VALUES ('version', ?1)",
@@ -466,6 +469,43 @@ impl Library {
         notif: LibNotification,
     ) -> std::result::Result<(), async_channel::SendError<LibNotification>> {
         toolkit::thread_context().block_on(self.sender.send(notif))
+    }
+
+    /// Set preference value
+    ///
+    /// It is a programing error to have an empty `key`.
+    pub fn set_pref(&self, key: &str, value: &str) -> Result<()> {
+        if let Some(ref conn) = self.dbconn {
+            let c = conn.execute(
+                "INSERT OR REPLACE INTO admin (key, value) VALUES (?1, ?2);",
+                params![key, value],
+            )?;
+            if c == 1 {
+                return Ok(());
+            }
+            return Err(Error::InvalidResult);
+        }
+        Err(Error::NoSqlDb)
+    }
+
+    /// Get the preference value. As a conveniance, if it doesn't exist,
+    /// then the `default` value is returned, if provided.
+    ///
+    /// Return `Err(Error::NotFound)` if the key doesn't exist AND
+    /// `default` is `None`.
+    pub fn get_pref(&self, key: &str, default: Option<&str>) -> Result<String> {
+        if let Some(ref conn) = self.dbconn {
+            let mut stmt = conn.prepare("SELECT value FROM admin WHERE key = ?1")?;
+            let mut rows = stmt.query(params![key])?;
+            return if let Some(row) = rows.next()? {
+                Ok(row.get::<usize, String>(0)?)
+            } else if let Some(default) = default {
+                Ok(default.into())
+            } else {
+                Err(Error::NotFound)
+            };
+        }
+        Err(Error::NoSqlDb)
     }
 
     fn add_jpeg_file_to_bundle(&self, file_id: LibraryId, fsfile_id: LibraryId) -> Result<()> {
@@ -1430,7 +1470,7 @@ pub(crate) mod test {
     use crate::library::notification::LibNotification;
     use crate::NiepcePropertyBag;
 
-    use super::{Error, Library};
+    use super::{Error, Library, DB_SCHEMA_VERSION};
 
     /// Create a test library. Call this to create an in memory library.
     pub(crate) fn test_library() -> Library {
@@ -1646,5 +1686,34 @@ pub(crate) mod test {
         assert_eq!(lf.parent(), root_id);
         assert_eq!(lf.name(), "20230619");
         assert_eq!(lf.id(), folder_id);
+    }
+
+    #[test]
+    fn preferences() {
+        let lib = test_library();
+
+        // Sanity testing.
+        let dbversion = lib.get_pref("version", None);
+        let verstr = format!("{DB_SCHEMA_VERSION}");
+        assert_eq!(dbversion, Ok(verstr));
+
+        // Test not found and default.
+        let pref1 = lib.get_pref("prefs.pref1", None);
+        assert_eq!(pref1, Err(Error::NotFound));
+        let pref1 = lib.get_pref("prefs.pref1", Some("default"));
+        assert_eq!(pref1, Ok("default".to_string()));
+        // Ensure default didn't set it.
+        let pref1 = lib.get_pref("prefs.pref1", None);
+        assert_eq!(pref1, Err(Error::NotFound));
+
+        // Test setting values
+        let pref1 = lib.set_pref("prefs.pref1", "value1");
+        assert!(pref1.is_ok());
+        let pref1 = lib.get_pref("prefs.pref1", None);
+        assert_eq!(pref1, Ok("value1".to_string()));
+        let pref1 = lib.set_pref("prefs.pref1", "value2");
+        assert!(pref1.is_ok());
+        let pref1 = lib.get_pref("prefs.pref1", None);
+        assert_eq!(pref1, Ok("value2".to_string()));
     }
 }
