@@ -14,7 +14,7 @@ gdk-pixbuf = "*"
 gdk4 = "*"
 glib = "*"
 gtk4 = "*"
-gegl = "0.1.0"
+gegl = "0.1.1"
 
 npc-fwk = { path = "../npc-fwk" }
 npc-engine = { path = "../npc-engine" }

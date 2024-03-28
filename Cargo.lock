@@ -729,9 +729,9 @@ dependencies = [
 
 [[package]]
 name = "gegl"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "591ac99874934e28ea2e1a3eed3214530d7fa5bac06bb5b564dd647b718acf29"
+checksum = "52bea00c42cce4327a2cf7166685cd1dab8d44e6af6301ae0c042e80d620a7c2"
 dependencies = [
  "babl",
  "gegl-sys",

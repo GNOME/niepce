@@ -45,7 +45,6 @@ struct PipelineState {
     graph: Option<GeglNode>,
     rotate_n: Option<GeglNode>,
     scale: Option<GeglNode>,
-    sink: Option<GeglNode>,
 
     pixbuf_cache: Option<gdk_pixbuf::Pixbuf>,
 }
@@ -62,7 +61,6 @@ impl Default for PipelineState {
             graph: None,
             rotate_n: None,
             scale: None,
-            sink: None,
             pixbuf_cache: None,
         }
     }
@@ -203,27 +201,16 @@ impl NcrPipeline {
 
         let rotate_n = self.rotate_node(orientation);
         let scale = self.scale_node();
-        let sink = self
-            .state
-            .borrow()
-            .graph
-            .as_ref()
-            .and_then(|graph| graph.create_child("gegl:display"));
 
-        node.link_many(&[
-            rotate_n.as_ref().unwrap(),
-            scale.as_ref().unwrap(),
-            sink.as_ref().unwrap(),
-        ]);
+        node.link_many(&[rotate_n.as_ref().unwrap(), scale.as_ref().unwrap()]);
 
         {
             let mut state = self.state.borrow_mut();
             state.rotate_n = rotate_n;
             state.scale = scale;
-            state.sink = sink
         }
 
-        let rect = node.introspectable_get_bounding_box().unwrap();
+        let rect = node.bounding_box();
         let width = rect.width() as u32;
         let height = rect.height() as u32;
 
@@ -252,14 +239,14 @@ impl NcrPipeline {
         }
         {
             let state = self.state.borrow();
-            if state.sink.is_none() {
+            if state.scale.is_none() {
                 dbg_out!("nothing loaded");
                 return false;
             }
             dbg_out!("processing");
             if let Some(scale) = &state.scale {
                 scale.process();
-                let roi = scale.introspectable_get_bounding_box().unwrap();
+                let roi = scale.bounding_box();
 
                 let w = roi.width();
                 let h = roi.height();
@@ -289,7 +276,7 @@ impl super::Pipeline for NcrPipeline {
         let scale = &self.state.borrow().scale;
         scale
             .as_ref()
-            .and_then(|scale| scale.introspectable_get_bounding_box())
+            .map(|scale| scale.bounding_box())
             .map(|bbox| bbox.width())
             .unwrap_or(0_i32) as u32
     }
@@ -298,7 +285,7 @@ impl super::Pipeline for NcrPipeline {
         let scale = &self.state.borrow().scale;
         scale
             .as_ref()
-            .and_then(|scale| scale.introspectable_get_bounding_box())
+            .map(|scale| scale.bounding_box())
             .map(|bbox| bbox.height())
             .unwrap_or(0_i32) as u32
     }
