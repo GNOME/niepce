@@ -36,7 +36,7 @@ use super::ContentView;
 use npc_engine::db;
 use npc_engine::importer::ImportRequest;
 use npc_engine::library::notification::LibNotification;
-use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientWrapper};
+use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::base::Signal;
 use npc_fwk::toolkit::{self, Controller, ControllerImpl, DialogController, UiController};
 use npc_fwk::{dbg_out, err_out};
@@ -467,7 +467,7 @@ impl UiController for WorkspaceController {
 impl WorkspaceController {
     pub fn new(
         cfg: Rc<toolkit::Configuration>,
-        client: &LibraryClientWrapper,
+        client: &Arc<LibraryClient>,
     ) -> Rc<WorkspaceController> {
         let ctrl = Rc::new(WorkspaceController {
             imp_: RefCell::new(ControllerImpl::default()),
@@ -476,7 +476,7 @@ impl WorkspaceController {
             widgets: OnceCell::new(),
             action_group: OnceCell::new(),
             selection_changed: Signal::default(),
-            client: Arc::downgrade(&client.client()),
+            client: Arc::downgrade(client),
             icon_folder: gio::ThemedIcon::new("folder-symbolic").upcast(),
             icon_trash: gio::ThemedIcon::new("user-trash-symbolic").upcast(),
             icon_roll: gio::ThemedIcon::new("image-round-symbolic").upcast(),

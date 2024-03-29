@@ -29,8 +29,7 @@ use std::cell::Cell;
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync;
-use std::sync::mpsc;
-use std::sync::{atomic, Arc};
+use std::sync::{atomic, mpsc};
 use std::thread;
 
 use crate::db::filebundle::FileBundle;
@@ -42,53 +41,6 @@ use crate::library::op::Op;
 use crate::NiepcePropertyBag;
 use npc_fwk::base::{PropertyValue, RgbColour};
 use npc_fwk::on_err_out;
-
-/// Wrap the libclient Arc so that it can be passed around
-/// Used in the ffi for example.
-/// Implement `Deref` to `LibraryClient`
-pub struct LibraryClientWrapper {
-    client: sync::Arc<LibraryClient>,
-}
-
-impl Deref for LibraryClientWrapper {
-    type Target = LibraryClient;
-    fn deref(&self) -> &Self::Target {
-        self.client.deref()
-    }
-}
-
-impl LibraryClientWrapper {
-    pub fn new(dir: PathBuf, sender: LcChannel) -> LibraryClientWrapper {
-        LibraryClientWrapper {
-            client: sync::Arc::new(LibraryClient::new(dir, sender)),
-        }
-    }
-
-    #[inline]
-    pub fn client(&self) -> Arc<LibraryClient> {
-        self.client.clone()
-    }
-
-    pub fn request_metadata(&self, id: LibraryId) {
-        self.client.request_metadata(id);
-    }
-
-    pub fn delete_label(&self, id: LibraryId) {
-        self.client.delete_label(id);
-    }
-
-    pub fn update_label(&self, id: i64, new_name: String, new_colour: RgbColour) {
-        self.client.update_label(id, new_name, new_colour);
-    }
-
-    pub fn create_label_sync(&self, name: String, colour: RgbColour) -> i64 {
-        self.client.create_label_sync(name, colour)
-    }
-
-    pub fn upgrade_library_from_sync(&self, version: i32) -> bool {
-        self.client.upgrade_library_from_sync(version)
-    }
-}
 
 /// LibraryClient is in charge of creating both side of the worker:
 /// the sender and the actual library on a separate thread.

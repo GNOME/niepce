@@ -19,12 +19,13 @@
 
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use gtk4::prelude::*;
 
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
-use npc_engine::libraryclient::{LibraryClientHost, LibraryClientWrapper};
+use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
 use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
@@ -184,7 +185,7 @@ impl GridViewModule {
         }
     }
 
-    pub fn on_lib_notification(&self, ln: &LibNotification, client: &LibraryClientWrapper) {
+    pub fn on_lib_notification(&self, ln: &LibNotification, client: &Arc<LibraryClient>) {
         match ln {
             LibNotification::MetadataQueried(lm) => {
                 self.metadatapanecontroller.display(lm.id(), Some(lm));

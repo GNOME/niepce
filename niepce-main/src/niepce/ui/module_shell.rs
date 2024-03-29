@@ -30,7 +30,7 @@ use super::{
 use crate::modules::{DarkroomModule, MapModule};
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
-use npc_engine::libraryclient::LibraryClientHost;
+use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_fwk::dbg_out;
 use npc_fwk::send_async_local;
 use npc_fwk::toolkit::gtk_utils::add_menu_action;

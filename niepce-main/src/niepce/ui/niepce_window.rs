@@ -27,7 +27,7 @@ use once_cell::unsync::OnceCell;
 
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
-use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
+use npc_engine::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryClientHost};
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Moniker;
 use npc_fwk::toolkit::{

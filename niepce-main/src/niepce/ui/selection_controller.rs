@@ -87,7 +87,7 @@ impl SelectionController {
 
         let controller = Rc::new(SelectionController {
             imp_: RefCell::default(),
-            client: client_host.client().client(),
+            client: client_host.client().clone(),
             store,
             content: Cell::default(),
         });

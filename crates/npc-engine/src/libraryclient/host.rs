@@ -18,19 +18,19 @@
  */
 
 use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::ThumbnailCache;
 use npc_fwk::base::Moniker;
 
-use super::{LcChannel, LibraryClientWrapper, UIDataProvider};
+use super::{LcChannel, LibraryClient, UIDataProvider};
 
 const THUMBCACHE_DIRNAME: &str = "thumbcache";
 
 /// This host of the element of the library client.
 pub struct LibraryClientHost {
     notif_sender: LcChannel,
-    // XXX get rid of the wrapper
-    client: LibraryClientWrapper,
+    client: Arc<LibraryClient>,
     thumbnail_cache: ThumbnailCache,
     ui_provider: std::rc::Rc<UIDataProvider>,
 }
@@ -43,7 +43,7 @@ impl LibraryClientHost {
 
         LibraryClientHost {
             notif_sender: channel.clone(),
-            client: LibraryClientWrapper::new(path, channel.clone()),
+            client: Arc::new(LibraryClient::new(path, channel.clone())),
             thumbnail_cache: ThumbnailCache::new(&cache_path, channel.clone()),
             ui_provider: Rc::new(UIDataProvider::default()),
         }
@@ -53,7 +53,7 @@ impl LibraryClientHost {
         &self.notif_sender
     }
 
-    pub fn client(&self) -> &LibraryClientWrapper {
+    pub fn client(&self) -> &Arc<LibraryClient> {
         &self.client
     }
 

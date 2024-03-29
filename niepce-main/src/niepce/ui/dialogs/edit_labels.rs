@@ -99,7 +99,7 @@ impl EditLabels {
 
         let mut ctrl = EditLabels {
             imp_: RefCell::new(ControllerImpl::default()),
-            client: client.client().client(),
+            client: client.client().clone(),
             labels,
             entries: vec![],
             colours: vec![],
