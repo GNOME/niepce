@@ -19,7 +19,7 @@ macro_rules! on_err_out {
 /// Print a debug message.
 #[macro_export]
 macro_rules! dbg_out {
-    ( $( $x:expr ),* ) => {
+    ( $( $x:expr ),* $(,)?) => {
         {
             print!("DEBUG: ");
             println!( $($x),* );
@@ -30,7 +30,7 @@ macro_rules! dbg_out {
 /// Print an error message on the console.
 #[macro_export]
 macro_rules! err_out {
-    ( $( $x:expr ),* ) => {
+    ( $( $x:expr ),* $(,)?) => {
         {
             print!("ERROR: ");
             println!( $($x),* );
@@ -41,7 +41,7 @@ macro_rules! err_out {
 /// Like err_out!() but print the file and line number
 #[macro_export]
 macro_rules! err_out_line {
-    ( $( $x:expr ),* ) => {
+    ( $( $x:expr ),* $(,)?) => {
         {
             print!("ERROR: {}:{}:", file!(), line!());
             println!( $($x),* );
