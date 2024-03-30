@@ -25,7 +25,6 @@ pub use clientinterface::{ClientInterface, ClientInterfaceSync};
 pub use host::LibraryClientHost;
 pub use ui_data_provider::UIDataProvider;
 
-use std::cell::Cell;
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync;
@@ -46,7 +45,7 @@ use npc_fwk::on_err_out;
 /// the sender and the actual library on a separate thread.
 pub struct LibraryClient {
     terminate: sync::Arc<atomic::AtomicBool>,
-    trash_id: Cell<LibraryId>,
+    trash_id: atomic::AtomicI64,
     /// This is what will implement the interface.
     sender: LibraryClientSender,
 }
@@ -82,16 +81,16 @@ impl LibraryClient {
         LibraryClient {
             terminate: terminate2,
             sender: LibraryClientSender(task_sender),
-            trash_id: Cell::new(0),
+            trash_id: atomic::AtomicI64::new(0),
         }
     }
 
     pub fn get_trash_id(&self) -> LibraryId {
-        self.trash_id.get()
+        self.trash_id.load(atomic::Ordering::Relaxed)
     }
 
     pub fn set_trash_id(&self, id: LibraryId) {
-        self.trash_id.set(id);
+        self.trash_id.store(id, atomic::Ordering::Relaxed);
     }
 
     fn stop(&mut self) {
