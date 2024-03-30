@@ -258,12 +258,7 @@ impl ThumbnailCache {
                 if let Some(pix) = get_thumbnail(cache, task, libfile) {
                     // notify the thumbnail
                     if let Err(err) = toolkit::thread_context().block_on(sender.send(
-                        ThumbnailLoaded(notification::Thumbnail {
-                            id,
-                            width: pix.get_width(),
-                            height: pix.get_height(),
-                            pix,
-                        }),
+                        ThumbnailLoaded(Box::new(notification::Thumbnail { id, pix })),
                     )) {
                         err_out!("Sending thumbnail notification failed: {}", err);
                     }

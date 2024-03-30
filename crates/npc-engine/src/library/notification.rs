@@ -66,8 +66,6 @@ impl MetadataChange {
 #[derive(Clone, Debug)]
 pub struct Thumbnail {
     pub id: LibraryId,
-    pub width: u32,
-    pub height: u32,
     pub pix: thumbnail::Thumbnail,
 }
 
@@ -107,8 +105,8 @@ pub enum LibNotification {
     DatabaseNeedUpgrade(i32),
     DatabaseReady,
     MetadataChanged(MetadataChange),
-    MetadataQueried(LibMetadata),
+    MetadataQueried(Box<LibMetadata>),
     XmpNeedsUpdate,
-    ThumbnailLoaded(Thumbnail),
+    ThumbnailLoaded(Box<Thumbnail>),
     ImageRendered(ImageRendered),
 }

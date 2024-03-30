@@ -1115,7 +1115,7 @@ impl Library {
         )
     }
 
-    pub(crate) fn get_metadata(&self, file_id: LibraryId) -> Result<LibMetadata> {
+    pub(crate) fn get_metadata(&self, file_id: LibraryId) -> Result<Box<LibMetadata>> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
                 "SELECT {} FROM {} WHERE {}=?1",
@@ -1129,7 +1129,7 @@ impl Library {
                 Err(err) => Err(Error::from(err)),
                 Ok(None) => Err(Error::NotFound),
                 Ok(Some(row)) => {
-                    let mut metadata = LibMetadata::read_from(row)?;
+                    let mut metadata = Box::new(LibMetadata::read_from(row)?);
 
                     let sql = "SELECT ext FROM sidecars WHERE file_id=?1";
                     let mut stmt = conn.prepare(sql)?;
@@ -1503,6 +1503,23 @@ pub(crate) mod test {
         let version = lib.check_database_version();
         assert!(version.is_ok());
         assert!(version.ok().unwrap() == super::DB_SCHEMA_VERSION);
+
+        assert!(std::mem::size_of::<LibNotification>() <= 80);
+
+        println!(
+            "sizeof libnotification {} thumbnail {} imagerendered {} metadatachange {} label {} album {} libfolder {} keyword {} label {} libfile {} libmetadata {}",
+            std::mem::size_of::<LibNotification>(),
+            std::mem::size_of::<crate::library::notification::Thumbnail>(),
+            std::mem::size_of::<crate::library::notification::ImageRendered>(),
+            std::mem::size_of::<crate::library::notification::MetadataChange>(),
+            std::mem::size_of::<crate::db::Label>(),
+            std::mem::size_of::<crate::db::Album>(),
+            std::mem::size_of::<crate::db::LibFolder>(),
+            std::mem::size_of::<crate::db::Keyword>(),
+            std::mem::size_of::<crate::db::Label>(),
+            std::mem::size_of::<crate::db::LibFile>(),
+            std::mem::size_of::<crate::db::LibMetadata>(),
+        );
 
         // Backup should return an error.
         assert!(matches!(
