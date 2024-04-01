@@ -17,18 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
-
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
 use npc_fwk::toolkit::widgets::EditableHScale;
-use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
 
 use super::dr_item::DrItem;
 
 pub struct ToolboxController {
-    imp_: RefCell<ControllerImpl<(), ()>>,
+    imp_: ControllerImplCell<(), ()>,
     _name: &'static str,
     _long_name: String,
     _icon_name: &'static str,
@@ -83,7 +81,7 @@ impl ToolboxController {
         item.add_widget(&i18n("Vibrance"), &s);
 
         ToolboxController {
-            imp_: RefCell::default(),
+            imp_: ControllerImplCell::default(),
             _name: "tools",
             _long_name: i18n("Develop"),
             _icon_name: "apply",

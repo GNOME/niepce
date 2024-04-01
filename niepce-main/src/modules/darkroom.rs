@@ -39,7 +39,7 @@ use npc_engine::library::{RenderEngine, RenderMsg, RenderParams};
 use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::Dock;
-use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
 use npc_fwk::{dbg_out, on_err_out};
 use toolbox_controller::ToolboxController;
 
@@ -49,7 +49,7 @@ pub enum Msg {
 }
 
 pub struct DarkroomModule {
-    imp_: RefCell<ControllerImpl<Msg, ()>>,
+    imp_: ControllerImplCell<Msg, ()>,
     client: Rc<LibraryClientHost>,
     widget: gtk4::Widget,
     worker: RenderWorker,
@@ -128,7 +128,7 @@ impl DarkroomModule {
         let engine_combo = gtk4::ComboBoxText::new();
 
         let mut module = Self {
-            imp_: RefCell::new(ControllerImpl::default()),
+            imp_: ControllerImplCell::default(),
             client: client_host.clone(),
             widget,
             imagecanvas,

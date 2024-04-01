@@ -17,13 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
 use std::rc::Rc;
 
 use adw::prelude::*;
 
 use npc_fwk::controller_imp_imp;
-use npc_fwk::toolkit::{Controller, ControllerImpl, DialogController, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, DialogController, UiController};
 
 use crate::NiepceApplication;
 
@@ -32,7 +31,7 @@ pub enum Event {
 }
 
 pub struct PreferencesDialog {
-    imp_: RefCell<ControllerImpl<Event, ()>>,
+    imp_: ControllerImplCell<Event, ()>,
     dialog: adw::Window,
 }
 
@@ -94,7 +93,7 @@ impl PreferencesDialog {
         });
 
         let ctrl = Rc::new(PreferencesDialog {
-            imp_: RefCell::default(),
+            imp_: ControllerImplCell::default(),
             dialog: preferences,
         });
 

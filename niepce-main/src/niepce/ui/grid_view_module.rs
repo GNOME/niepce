@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -28,7 +27,7 @@ use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
 use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
-use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
 use npc_fwk::{dbg_out, send_async_local};
 
 use crate::niepce::ui::metadata_pane_controller::MetadataOutputMsg;
@@ -43,7 +42,7 @@ pub enum GridMsg {
 }
 
 pub struct GridViewModule {
-    imp_: RefCell<ControllerImpl<GridMsg, ()>>,
+    imp_: ControllerImplCell<GridMsg, ()>,
     selection_controller: Rc<SelectionController>,
     pub image_grid_view: ImageGridView,
     metadatapanecontroller: Rc<MetadataPaneController>,
@@ -106,7 +105,7 @@ impl GridViewModule {
         );
         let metadatapanecontroller = MetadataPaneController::new();
         let mut module = GridViewModule {
-            imp_: RefCell::new(ControllerImpl::default()),
+            imp_: ControllerImplCell::default(),
             selection_controller: selection_controller.clone(),
             context_menu,
             image_grid_view,

@@ -17,13 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
 use std::rc::Rc;
 
 use gtk4::prelude::*;
 use once_cell::unsync::OnceCell;
 
-use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
 
 use super::image_list_store::ImageListStore;
 use super::thumb_nav::{ThumbNav, ThumbNavMode};
@@ -36,7 +35,7 @@ struct Widgets {
 }
 
 pub struct FilmStripController {
-    imp_: RefCell<ControllerImpl<(), ()>>,
+    imp_: ControllerImplCell<(), ()>,
 
     widgets: OnceCell<Widgets>,
     store: Rc<ImageListStore>,
@@ -79,7 +78,7 @@ impl UiController for FilmStripController {
 impl FilmStripController {
     pub fn new(store: Rc<ImageListStore>) -> Rc<FilmStripController> {
         Rc::new(FilmStripController {
-            imp_: RefCell::new(ControllerImpl::default()),
+            imp_: ControllerImplCell::default(),
             widgets: OnceCell::new(),
             store,
         })

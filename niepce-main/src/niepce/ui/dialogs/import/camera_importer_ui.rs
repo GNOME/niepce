@@ -27,7 +27,7 @@ use super::{ImporterUI, SourceSelectedCallback};
 use npc_engine::importer::{CameraImporter, ImportBackend};
 use npc_fwk::controller_imp_imp;
 use npc_fwk::toolkit;
-use npc_fwk::toolkit::{Controller, ControllerImpl};
+use npc_fwk::toolkit::{Controller, ControllerImplCell};
 
 pub enum Event {
     CameraSelected,
@@ -42,7 +42,7 @@ struct Widgets {
 }
 
 pub(super) struct CameraImporterUI {
-    imp_: RefCell<ControllerImpl<Event, ()>>,
+    imp_: ControllerImplCell<Event, ()>,
     name: String,
     backend: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
@@ -64,7 +64,7 @@ impl Controller for CameraImporterUI {
 impl CameraImporterUI {
     pub fn new() -> Rc<CameraImporterUI> {
         let widget = Rc::new(CameraImporterUI {
-            imp_: RefCell::default(),
+            imp_: ControllerImplCell::default(),
             name: i18n("Camera"),
             backend: Rc::new(CameraImporter::default()),
             widgets: RefCell::default(),

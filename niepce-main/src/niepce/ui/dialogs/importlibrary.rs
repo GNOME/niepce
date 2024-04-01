@@ -35,7 +35,7 @@ use num_traits::{FromPrimitive, ToPrimitive};
 
 use npc_engine::importer::LibraryImporter;
 use npc_engine::libraryclient::LibraryClient;
-use npc_fwk::toolkit::{self, Controller, ControllerImpl};
+use npc_fwk::toolkit::{self, Controller, ControllerImplCell};
 use npc_fwk::{controller_imp_imp, dbg_out, err_out, on_err_out};
 
 use lrimport_root_row::LrImportRootRow;
@@ -114,7 +114,7 @@ pub enum Command {
 }
 
 pub struct ImportLibraryDialog {
-    imp_: RefCell<ControllerImpl<Command, ()>>,
+    imp_: ControllerImplCell<Command, ()>,
     assistant: gtk4::Assistant,
     client: Arc<LibraryClient>,
     state: ImportStateRef,
@@ -186,7 +186,7 @@ impl ImportLibraryDialog {
         let assistant = Assistant::new();
 
         let mut dlg = Rc::new(Self {
-            imp_: RefCell::default(),
+            imp_: ControllerImplCell::default(),
             assistant: assistant.clone(),
             client,
             state: Rc::new(RefCell::new(ImportState::default())),

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Cell, RefCell};
+use std::cell::Cell;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
@@ -29,7 +29,7 @@ use npc_engine::db::NiepcePropertyIdx;
 use npc_engine::NiepcePropertySet;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::toolkit::widgets::{MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget};
-use npc_fwk::toolkit::{Controller, ControllerImpl, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
 use npc_fwk::{dbg_out, send_async_local, PropertyBag};
 
 lazy_static::lazy_static! {
@@ -104,7 +104,7 @@ pub enum MetadataOutputMsg {
 }
 
 pub struct MetadataPaneController {
-    imp_: RefCell<ControllerImpl<MetadataInputMsg, MetadataOutputMsg>>,
+    imp_: ControllerImplCell<MetadataInputMsg, MetadataOutputMsg>,
     vbox: gtk4::Box,
     widgets: Vec<(MetadataWidget, SignalHandlerId)>,
     propset: NiepcePropertySet,
@@ -132,7 +132,7 @@ impl UiController for MetadataPaneController {
 impl MetadataPaneController {
     pub fn new() -> Rc<MetadataPaneController> {
         let mut ctrl = MetadataPaneController {
-            imp_: RefCell::default(),
+            imp_: ControllerImplCell::default(),
             vbox: gtk4::Box::new(gtk4::Orientation::Vertical, 0),
             widgets: vec![],
             propset: NiepcePropertySet::default(),

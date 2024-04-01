@@ -40,7 +40,7 @@ mod window_controller;
 
 pub use app_controller::{AppController, AppControllerSingleton};
 pub use channels::{channel, send_async_any, send_async_local, Receiver, Sender};
-pub use controller::{Controller, ControllerImpl};
+pub use controller::{Controller, ControllerImpl, ControllerImplCell};
 pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
 pub use image_bitmap::ImageBitmap;
 pub use map_controller::MapController;

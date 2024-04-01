@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Cell, RefCell};
+use std::cell::Cell;
 use std::rc::Rc;
 
 use gtk4::prelude::*;
@@ -27,10 +27,10 @@ use npc_engine::db::NiepceProperties as Np;
 use npc_engine::db::NiepcePropertyIdx as Npi;
 use npc_engine::library::notification::LibNotification;
 use npc_fwk::dbg_out;
-use npc_fwk::toolkit::{Controller, ControllerImpl, MapController, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, MapController, UiController};
 
 pub struct MapModule {
-    imp_: RefCell<ControllerImpl<(), ()>>,
+    imp_: ControllerImplCell<(), ()>,
     map: MapController,
     active: Cell<bool>,
     widget: gtk4::Box,
@@ -63,7 +63,7 @@ impl MapModule {
     pub fn new() -> Rc<Self> {
         let widget = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
         let mut module = Self {
-            imp_: RefCell::new(ControllerImpl::default()),
+            imp_: ControllerImplCell::default(),
             widget,
             map: MapController::new(),
             active: Cell::new(false),

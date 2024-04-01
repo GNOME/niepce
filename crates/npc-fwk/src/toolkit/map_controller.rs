@@ -17,14 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
-
 use shumate::prelude::*;
 
-use super::{Controller, ControllerImpl, UiController};
+use super::{Controller, ControllerImplCell, UiController};
 
 pub struct MapController {
-    imp_: RefCell<ControllerImpl<(), ()>>,
+    imp_: ControllerImplCell<(), ()>,
     _registry: shumate::MapSourceRegistry,
     map: shumate::SimpleMap,
 }
@@ -56,7 +54,7 @@ impl MapController {
         map.set_map_source(registry.item(0).and_downcast_ref::<shumate::MapSource>());
 
         let ctrl = MapController {
-            imp_: RefCell::new(ControllerImpl::default()),
+            imp_: ControllerImplCell::default(),
             _registry: registry,
             map,
         };

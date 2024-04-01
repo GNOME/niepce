@@ -29,8 +29,9 @@ use crate::niepce::ui::niepce_window::NiepceWindow;
 use crate::niepce::ui::PreferencesDialog;
 
 use npc_fwk::toolkit::{
-    gtk_utils, AppController, AppControllerSingleton, Configuration, Controller, ControllerImpl,
-    DialogController, UiController, UndoHistory, UndoTransaction, WindowController,
+    gtk_utils, AppController, AppControllerSingleton, Configuration, Controller,
+    ControllerImplCell, DialogController, UiController, UndoHistory, UndoTransaction,
+    WindowController,
 };
 use npc_fwk::{controller_imp_imp, send_async_any};
 
@@ -42,7 +43,7 @@ pub enum Event {
 }
 
 pub struct NiepceApplication {
-    imp_: RefCell<ControllerImpl<Event, ()>>,
+    imp_: ControllerImplCell<Event, ()>,
     config: Configuration,
     undo_history: UndoHistory,
     app: adw::Application,
@@ -92,7 +93,7 @@ impl NiepceApplication {
         let config = Configuration::from_file(config_path);
         let gtkapp = adw::Application::new(Some(config::APP_ID), gio::ApplicationFlags::FLAGS_NONE);
         let app = Arc::new(NiepceApplication {
-            imp_: RefCell::default(),
+            imp_: ControllerImplCell::default(),
             config,
             undo_history,
             app: gtkapp,

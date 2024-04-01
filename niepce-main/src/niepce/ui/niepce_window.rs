@@ -31,7 +31,7 @@ use npc_engine::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryCli
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Moniker;
 use npc_fwk::toolkit::{
-    self, Controller, ControllerImpl, DialogController, UiController, WindowController,
+    self, Controller, ControllerImplCell, DialogController, UiController, WindowController,
 };
 use npc_fwk::{dbg_out, err_out};
 
@@ -73,7 +73,7 @@ struct ShellWidgets {
 }
 
 pub struct NiepceWindow {
-    imp_: RefCell<ControllerImpl<Event, ()>>,
+    imp_: ControllerImplCell<Event, ()>,
     window: gtk4::ApplicationWindow,
     libraryclient: RefCell<Option<Rc<LibraryClientHost>>>,
     configuration: RefCell<Option<Rc<toolkit::Configuration>>>,
@@ -264,7 +264,7 @@ impl WindowController for NiepceWindow {
 impl NiepceWindow {
     pub fn new(app: &gtk4::Application) -> Rc<NiepceWindow> {
         let ctrl = Rc::new(NiepceWindow {
-            imp_: RefCell::new(ControllerImpl::default()),
+            imp_: ControllerImplCell::default(),
             window: gtk4::ApplicationWindow::new(app),
             libraryclient: RefCell::new(None),
             configuration: RefCell::new(None),

@@ -30,7 +30,7 @@ use npc_engine::libraryclient::{
 };
 use npc_fwk::base::RgbColour;
 use npc_fwk::toolkit::{
-    Controller, ControllerImpl, DialogController, Storage, UiController, UndoCommand,
+    Controller, ControllerImplCell, DialogController, Storage, UiController, UndoCommand,
     UndoTransaction,
 };
 use npc_fwk::{controller_imp_imp, send_async_local};
@@ -46,7 +46,7 @@ pub enum InMsg {
 }
 
 pub struct EditLabels {
-    imp_: RefCell<ControllerImpl<InMsg, ()>>,
+    imp_: ControllerImplCell<InMsg, ()>,
     client: Arc<LibraryClient>,
     labels: Vec<db::Label>,
     colours: Vec<gtk4::ColorButton>,
@@ -98,7 +98,7 @@ impl EditLabels {
         get_widget!(builder, adw::Window, edit_labels);
 
         let mut ctrl = EditLabels {
-            imp_: RefCell::new(ControllerImpl::default()),
+            imp_: ControllerImplCell::default(),
             client: client.client().clone(),
             labels,
             entries: vec![],

@@ -34,7 +34,7 @@ use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_fwk::dbg_out;
 use npc_fwk::send_async_local;
 use npc_fwk::toolkit::gtk_utils::add_menu_action;
-use npc_fwk::toolkit::{Controller, ControllerImpl, Sender, UiController};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender, UiController};
 
 pub enum Event {
     ModuleActivated(String),
@@ -42,7 +42,7 @@ pub enum Event {
 }
 
 pub struct ModuleShell {
-    imp_: RefCell<ControllerImpl<Event, ()>>,
+    imp_: ControllerImplCell<Event, ()>,
     widget: ModuleShellWidget,
     action_group: gio::SimpleActionGroup,
     selection_controller: Rc<SelectionController>,
@@ -61,7 +61,7 @@ impl ModuleShell {
         let selection_controller = SelectionController::new(client_host);
         let menu = gio::Menu::new();
         let shell = Rc::new(ModuleShell {
-            imp_: RefCell::new(ControllerImpl::default()),
+            imp_: ControllerImplCell::default(),
             widget: ModuleShellWidget::new(),
             action_group: gio::SimpleActionGroup::new(),
             gridview: GridViewModule::new(&selection_controller, &menu, client_host),

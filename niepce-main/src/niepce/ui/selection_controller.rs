@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Cell, RefCell};
+use std::cell::Cell;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -35,7 +35,7 @@ use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHos
 use npc_engine::ThumbnailCache;
 use npc_fwk::send_async_local;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
-use npc_fwk::toolkit::{Controller, ControllerImpl, UndoCommand, UndoTransaction};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, UndoCommand, UndoTransaction};
 use npc_fwk::{dbg_out, err_out, PropertyValue};
 
 #[derive(PartialEq)]
@@ -55,7 +55,7 @@ pub enum SelectionOutMsg {
 }
 
 pub struct SelectionController {
-    imp_: RefCell<ControllerImpl<SelectionInMsg, SelectionOutMsg>>,
+    imp_: ControllerImplCell<SelectionInMsg, SelectionOutMsg>,
     client: Arc<LibraryClient>,
     store: Rc<ImageListStore>,
     content: Cell<ContentView>,
@@ -86,7 +86,7 @@ impl SelectionController {
         let store = Rc::<ImageListStore>::default();
 
         let controller = Rc::new(SelectionController {
-            imp_: RefCell::default(),
+            imp_: ControllerImplCell::default(),
             client: client_host.client().clone(),
             store,
             content: Cell::default(),

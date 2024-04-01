@@ -26,7 +26,7 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
-use npc_fwk::toolkit::{Controller, ControllerImpl};
+use npc_fwk::toolkit::{Controller, ControllerImplCell};
 use npc_fwk::{controller_imp_imp, on_err_out, toolkit};
 
 use super::{ImporterUI, SourceSelectedCallback};
@@ -47,7 +47,7 @@ struct Widgets {
 }
 
 pub(super) struct DirectoryImporterUI {
-    imp_: RefCell<ControllerImpl<Event, ()>>,
+    imp_: ControllerImplCell<Event, ()>,
     name: String,
     cfg: Rc<toolkit::Configuration>,
     backend: RefCell<Rc<DirectoryImporter>>,
@@ -82,7 +82,7 @@ impl Controller for DirectoryImporterUI {
 impl DirectoryImporterUI {
     pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<DirectoryImporterUI> {
         let widget = Rc::new(DirectoryImporterUI {
-            imp_: RefCell::default(),
+            imp_: ControllerImplCell::default(),
             name: i18n("Directory"),
             cfg,
             backend: RefCell::new(Rc::new(DirectoryImporter::default())),

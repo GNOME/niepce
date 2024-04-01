@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Ref, RefMut};
 use std::rc::Rc;
 
 /// Use this macro inside the impl to implement `imp()` and `imp_mut()`
@@ -43,6 +42,9 @@ macro_rules! controller_imp_imp {
         }
     };
 }
+
+// Type alias.
+pub type ControllerImplCell<I, O> = std::cell::RefCell<ControllerImpl<I, O>>;
 
 pub struct ControllerImpl<I, O> {
     tx: super::Sender<I>,
@@ -84,8 +86,9 @@ impl<I, O> ControllerImpl<I, O> {
 ///     Command2(String),
 /// }
 ///
+/// #[derive(Default)]
 /// struct MyController {
-///     imp_: ControllerImpl<Self::InMsg>,
+///     imp_: ControllerImplCell<Self::InMsg>,
 /// }
 ///
 /// impl Controller for MyController {
@@ -109,7 +112,7 @@ impl<I, O> ControllerImpl<I, O> {
 ///
 ///
 /// ```rust,ignore
-/// let ctrl = Rc::new(MyController {});
+/// let ctrl = Rc::new(MyController::default());
 /// <MyController as Controller>::start(&ctrl);
 ///
 /// ctrl.send(MyMsg::Command1);
@@ -197,8 +200,8 @@ pub trait Controller {
 
     /// Return the implementation
     /// Implemented via controller_imp_imp!()
-    fn imp(&self) -> Ref<'_, ControllerImpl<Self::InMsg, Self::OutMsg>>;
+    fn imp(&self) -> std::cell::Ref<'_, ControllerImpl<Self::InMsg, Self::OutMsg>>;
     /// Return the mutable implementation
     /// Implemented via controller_imp_imp!()
-    fn imp_mut(&self) -> RefMut<'_, ControllerImpl<Self::InMsg, Self::OutMsg>>;
+    fn imp_mut(&self) -> std::cell::RefMut<'_, ControllerImpl<Self::InMsg, Self::OutMsg>>;
 }
