@@ -36,6 +36,7 @@ pub struct LibFolder {
     id: LibraryId,
     /// Name of the folder
     name: String,
+    #[allow(dead_code)]
     /// Path of the folder.
     path: Option<String>,
     locked: bool,

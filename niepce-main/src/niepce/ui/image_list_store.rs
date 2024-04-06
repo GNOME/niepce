@@ -41,7 +41,9 @@ use crate::NiepceApplication;
 enum CurrentContainer {
     None,
     Folder(LibraryId),
+    #[allow(dead_code)]
     Keyword(LibraryId),
+    #[allow(dead_code)]
     Album(LibraryId),
 }
 

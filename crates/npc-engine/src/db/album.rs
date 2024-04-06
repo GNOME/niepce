@@ -32,6 +32,7 @@ pub struct Album {
     parent: LibraryId,
     /// Sorting
     order: SortOrder,
+    #[allow(dead_code)]
     /// Key
     order_by: String,
 }

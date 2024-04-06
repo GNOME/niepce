@@ -42,6 +42,7 @@ enum Conversion {
 enum Converted {
     /// A String
     Str(String),
+    #[allow(dead_code)]
     /// An int 32
     Int(i32),
     /// an Xmp DateTime value
