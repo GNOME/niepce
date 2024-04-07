@@ -140,6 +140,7 @@
                 }
             ]
         },
+        "heif.json",
         {
             "name": "gegl",
             "buildsystem": "meson",

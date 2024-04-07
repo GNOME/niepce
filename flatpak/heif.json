@@ -1,0 +1,115 @@
+{
+    "name": "libheif",
+    "buildsystem": "cmake-ninja",
+    "builddir": true,
+    "config-opts": [
+        "-DWITH_GDK_PIXBUF=OFF"
+    ],
+    "cleanup": [
+        "/bin",
+        "/share/thumbnailers"
+    ],
+    "modules": [
+        {
+            "name": "libde265",
+            "config-opts": [
+		"--disable-dec265",
+                "--disable-encoder",
+                "--disable-sherlock265"
+            ],
+            "cleanup": [
+                "/bin"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/strukturag/libde265/releases/download/v1.0.12/libde265-1.0.12.tar.gz",
+                     "sha256": "62185ea2182e68cf68bba20cc6eb4c287407b509cf0a827d7ddb75614db77b5c"
+                }
+            ]
+        },
+        {
+            "name": "libx265",
+            "buildsystem": "cmake-ninja",
+            "subdir": "source",
+            "config-opts": [
+                "-DEXTRA_LIB='libx265-10.a;libx265-12.a'",
+                "-DEXTRA_LINK_FLAGS=-L.",
+                "-DLINKED_10BIT=ON",
+                "-DLINKED_12BIT=ON"
+            ],
+            "cleanup": [
+                "/bin"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.5.tar.gz",
+                    "sha256": "e70a3335cacacbba0b3a20ec6fecd6783932288ebc8163ad74bcc9606477cae8"
+                },
+                {
+                    "type": "shell",
+                    "commands": [
+                        "ln -s ${FLATPAK_DEST}/lib/libx265-10.a",
+                        "ln -s ${FLATPAK_DEST}/lib/libx265-12.a",
+                        "rm -fr ${FLATPAK_DEST}/lib/libx265.so*"
+                    ]
+                }
+            ],
+            "modules": [
+                {
+                    "name": "libx265-10bpc",
+                    "buildsystem": "cmake-ninja",
+                    "subdir": "source",
+                    "config-opts": [
+                        "-DHIGH_BIT_DEPTH=ON",
+                        "-DEXPORT_C_API=OFF",
+                        "-DENABLE_SHARED=OFF",
+                        "-DENABLE_CLI=OFF",
+                        "-DENABLE_ASSEMBLY=OFF"
+                    ],
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.5.tar.gz",
+                            "sha256": "e70a3335cacacbba0b3a20ec6fecd6783932288ebc8163ad74bcc9606477cae8"
+                        }
+                    ],
+                    "post-install": [
+			"mv ${FLATPAK_DEST}/lib/libx265.a ${FLATPAK_DEST}/lib/libx265-10.a"
+                    ]
+                },
+                {
+                    "name": "libx265-12bpc",
+                    "buildsystem": "cmake-ninja",
+                    "subdir": "source",
+                    "config-opts": [
+                        "-DHIGH_BIT_DEPTH=ON",
+                        "-DEXPORT_C_API=OFF",
+                        "-DENABLE_SHARED=OFF",
+                        "-DENABLE_CLI=OFF",
+                        "-DENABLE_ASSEMBLY=OFF",
+                        "-DMAIN12=ON"
+                    ],
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.5.tar.gz",
+                            "sha256": "e70a3335cacacbba0b3a20ec6fecd6783932288ebc8163ad74bcc9606477cae8"
+                        }
+                    ],
+                    "post-install": [
+                        "mv ${FLATPAK_DEST}/lib/libx265.a ${FLATPAK_DEST}/lib/libx265-12.a"
+                    ]
+                }
+            ]
+        }
+    ],
+    "sources": [
+        {
+            "type": "archive",
+            "url": "https://github.com/strukturag/libheif/releases/download/v1.17.3/libheif-1.17.3.tar.gz",
+            "sha256": "8d5b6292e7931324f81f871f250ecbb9f874aa3c66b4f6f35ceb0bf3163b53ea"
+        }
+    ]
+}
