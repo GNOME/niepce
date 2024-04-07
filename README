@@ -36,6 +36,8 @@ To build you need the following:
 - babl
 - libgphoto2
 - gexiv2 >= 0.14 (as required by rexiv2)
+- libheif
+  - HEVC codec should be installed at runtime for HEIC.
 - meson >= 0.59
 
 For the RawTherapee engine:

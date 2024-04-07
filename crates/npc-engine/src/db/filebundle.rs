@@ -21,7 +21,7 @@ use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 use crate::db::libfile::FileType;
-use npc_fwk::toolkit::mimetype::{IsRaw, MType};
+use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
 use npc_fwk::MimeType;
 use npc_fwk::{dbg_out, err_out};
 
@@ -155,8 +155,8 @@ impl FileBundle {
         let mut added = true;
 
         match mime_type.mime_type() {
-            MType::Image(is_raw) => match is_raw {
-                IsRaw::Yes => {
+            MType::Image(format) => match format {
+                ImgFormat::Raw => {
                     if !self.main.as_os_str().is_empty() && self.jpeg.as_os_str().is_empty() {
                         self.jpeg = self.main.clone();
                         self.bundle_type = FileType::RawJpeg;
@@ -165,7 +165,7 @@ impl FileBundle {
                     }
                     self.main = path.to_path_buf();
                 }
-                IsRaw::No => {
+                _ => {
                     if !self.main.as_os_str().is_empty() {
                         self.jpeg = path.to_path_buf();
                         self.bundle_type = FileType::RawJpeg;

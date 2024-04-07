@@ -34,6 +34,7 @@ gegl_deps = dependency('gegl-0.4')
 exiv2_deps = dependency('exiv2')
 dependency('gexiv2', version: '>= 0.14')
 dependency('libgphoto2', version: '>= 2.5')
+libheif_deps = dependency('libheif', version: '>= 1.14.2')
 dependency('shumate-1.0', version: '>= 1.0.0')
 
 glib_compile_resources = find_program('glib-compile-resources', required: true)

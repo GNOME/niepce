@@ -23,7 +23,9 @@ use std::cell::{Cell, RefCell};
 
 use gegl::Node as GeglNode;
 
+use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
 use npc_fwk::toolkit::ImageBitmap;
+use npc_fwk::MimeType;
 use npc_fwk::{dbg_out, err_out};
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -188,7 +190,7 @@ impl NcrPipeline {
 
         let graph = &self.state.borrow().graph;
         let graph = graph.as_ref().unwrap();
-        let load_file = graph.new_child(Some("gegl:pixuf"), &[("pixbuf", pixbuf.into())]);
+        let load_file = graph.new_child(Some("gegl:pixbuf"), &[("pixbuf", pixbuf.into())]);
 
         self.reload_node(load_file, 0);
     }
@@ -318,7 +320,15 @@ impl super::Pipeline for NcrPipeline {
             // We should panic here. Graph is supposed to exist.
             let graph = &self.state.borrow().graph;
             let graph = graph.as_ref().expect("Graph");
-            graph.new_child(Some("gegl:load"), &[("path", path.into())])
+
+            // XXX maybe suboptimal
+            let mime_type = MimeType::new(std::path::Path::new(path));
+            if matches!(mime_type.mime_type(), MType::Image(ImgFormat::Heif)) {
+                let pixbuf = npc_fwk::toolkit::heif::gdkpixbuf_from_heif(path).ok();
+                graph.new_child(Some("gegl:pixbuf"), &[("pixbuf", pixbuf.into())])
+            } else {
+                graph.new_child(Some("gegl:load"), &[("path", path.into())])
+            }
         } else {
             self.load_dcraw(path)
         };

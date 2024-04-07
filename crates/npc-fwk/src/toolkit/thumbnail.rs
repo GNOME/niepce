@@ -25,7 +25,8 @@ use std::path::Path;
 use gdk_pixbuf::Colorspace;
 
 use super::gdk_utils;
-use super::mimetype::MimeType;
+use super::heif;
+use super::mimetype::{ImgFormat, MType, MimeType};
 use super::movieutils;
 
 #[derive(Clone)]
@@ -109,7 +110,6 @@ impl Thumbnail {
     ) -> Option<Self> {
         let filename = path.as_ref();
         let mime_type = MimeType::new(filename);
-        dbg_out!("MIME type {:?}", mime_type);
 
         let mut pix: Option<gdk_pixbuf::Pixbuf> = None;
 
@@ -132,23 +132,40 @@ impl Thumbnail {
         } else if !mime_type.is_image() {
             dbg_out!("not an image type");
         } else if !mime_type.is_digicam_raw() {
-            dbg_out!("not a raw type, trying GdkPixbuf loaders");
-            match gdk_pixbuf::Pixbuf::from_file_at_size(filename, w as i32, h as i32) {
-                Ok(ref pixbuf) => {
-                    pix = gdk_utils::gdkpixbuf_exif_rotate(Some(pixbuf), orientation);
+            match mime_type.mime_type() {
+                MType::Image(ImgFormat::Heif) => {
+                    dbg_out!("Heif image");
+                    pix = heif::extract_rotated_thumbnail(filename, cmp::min(w, h), orientation)
+                        .map_err(|err| {
+                            err_out!("Error {:?}", err);
+                            err
+                        })
+                        .ok();
                 }
-                Err(err) => err_out!("exception thumbnailing image: {}", err),
+                _ => {
+                    dbg_out!("not a raw type, trying GdkPixbuf loaders");
+                    match gdk_pixbuf::Pixbuf::from_file_at_size(filename, w as i32, h as i32) {
+                        Ok(ref pixbuf) => {
+                            pix = gdk_utils::gdkpixbuf_exif_rotate(Some(pixbuf), orientation);
+                        }
+                        Err(err) => err_out!("exception thumbnailing image: {}", err),
+                    }
+                }
             }
         } else {
             dbg_out!("trying raw loader");
-            pix = gdk_utils::openraw_extract_rotated_thumbnail(filename, cmp::min(w, h));
-            if let Some(ref pixbuf) = pix {
-                if (w < pixbuf.width() as u32) || (h < pixbuf.height() as u32) {
-                    pix = gdk_utils::gdkpixbuf_scale_to_fit(Some(pixbuf), cmp::min(w, h));
-                }
-            } else {
-                err_out!("raw loader failed");
-            }
+            pix = gdk_utils::openraw_extract_rotated_thumbnail(filename, cmp::min(w, h) as u32)
+                .and_then(|pixbuf| {
+                    if (w < pixbuf.width() as u32) || (h < pixbuf.height() as u32) {
+                        gdk_utils::gdkpixbuf_scale_to_fit(Some(&pixbuf), cmp::min(w, h))
+                    } else {
+                        Some(pixbuf)
+                    }
+                })
+                .or_else(|| {
+                    err_out!("raw loader failed");
+                    None
+                });
         }
 
         pix.map(Thumbnail::from)

@@ -27,6 +27,7 @@ mod controller;
 pub mod gdk_utils;
 mod gphoto;
 pub mod gtk_utils;
+pub mod heif;
 mod image_bitmap;
 mod map_controller;
 pub mod mimetype;
