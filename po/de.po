@@ -2,14 +2,14 @@
 # Copyright (C) 2009 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
 # Mario Blättermann <mario.blaettermann@gmail.com>, 2009-2011, 2016-2018.
-# Jürgen Benvenuti <gastornis@posteo.org>, 2022, 2023.
+# Jürgen Benvenuti <gastornis@posteo.org>, 2022-2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2023-05-10 09:30+0000\n"
-"PO-Revision-Date: 2023-09-13 18:40+0200\n"
+"POT-Creation-Date: 2024-04-04 00:50+0000\n"
+"PO-Revision-Date: 2024-04-08 20:17+0200\n"
 "Last-Translator: Jürgen Benvenuti <gastornis@posteo.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -17,51 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.3.1\n"
+"X-Generator: Poedit 3.4.2\n"
 
-#: camerawire/src/cwwindow.cpp:62
-msgid "Camera"
-msgstr "Kamera"
+#: data/net.figuiere.Niepce.desktop.in.in:3
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
 
-#: camerawire/src/cwwindow.cpp:87
-msgid "File"
-msgstr "Datei"
+#: data/net.figuiere.Niepce.desktop.in.in:4
+msgid "Manage and edit your photos"
+msgstr "Verwalten und Bearbeiten Ihrer Fotos"
 
-#: camerawire/src/cwwindow.cpp:92
-msgid "_Import..."
-msgstr "_Importieren …"
-
-#: camerawire/src/cwwindow.cpp:96
-msgid "Close"
-msgstr "Schließen"
-
-#: camerawire/src/cwwindow.cpp:99
-msgid "Edit"
-msgstr "Bearbeiten"
-
-#: camerawire/src/cwwindow.cpp:113
-msgid "Cut"
-msgstr "Ausschneiden"
-
-#: camerawire/src/cwwindow.cpp:117
-msgid "Copy"
-msgstr "Kopieren"
-
-#: camerawire/src/cwwindow.cpp:121
-msgid "Paste"
-msgstr "Einfügen"
-
-#: camerawire/src/cwwindow.cpp:124
-msgid "Tools"
-msgstr "Werkzeuge"
-
-#: camerawire/src/cwwindow.cpp:129
-msgid "Refresh"
-msgstr "Aktualisieren"
-
-#: camerawire/src/cwwindow.cpp:135
-msgid "Hide tools"
-msgstr "Werkzeuge verbergen"
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/net.figuiere.Niepce.desktop.in.in:6
+msgid "photo;"
+msgstr "photo;Foto;"
 
 #: data/net.figuiere.Niepce.metainfo.xml.in.in:6
 msgid "Niepce Digital@app-name-suffix@"
@@ -91,18 +60,89 @@ msgstr "Nicht-destruktive Bildbearbeitung"
 msgid "RAW processing"
 msgstr "RAW-Verarbeitung"
 
-#: data/net.figuiere.Niepce.desktop.in.in:3
-msgid "Niepce Digital"
-msgstr "Niepce Digital"
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:24
+msgid "Hubert Figuière"
+msgstr "Hubert Figuière"
 
-#: data/net.figuiere.Niepce.desktop.in.in:4
-msgid "Manage and edit your photos"
-msgstr "Verwalten und Bearbeiten Ihrer Fotos"
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
+msgid "Label _6"
+msgstr "Bezeichnung _6"
 
-#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/net.figuiere.Niepce.desktop.in.in:6
-msgid "photo;"
-msgstr "photo;Foto;"
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:39
+msgid "Label _7"
+msgstr "Bezeichnung _7"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:51
+msgid "Label _8"
+msgstr "Bezeichnung _8"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:63
+msgid "Label _9"
+msgstr "Bezeichnung _9"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:116
+msgid "Label _10"
+msgstr "Bezeichnung _10"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:196
+msgid "<b>Labels</b>"
+msgstr "<b>Bezeichnungen</b>"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:208
+msgid "Edit Labels"
+msgstr "Bezeichnungen bearbeiten"
+
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui:20
+msgid "Available cameras:"
+msgstr "Verfügbare Kameras:"
+
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui:30
+msgid "Select"
+msgstr "Auswahl"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui:15
+msgid "_Directory:"
+msgstr "Or_dner:"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui:27
+msgid "..."
+msgstr "..."
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:52
+msgid "_Import"
+msgstr "_Importieren"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:98
+msgid "_Images to import"
+msgstr "Zu importierende B_ilder"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:124
+msgid "Destination _Folder:"
+msgstr "Zielor_dner:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:172
+msgid "_Options"
+msgstr "_Optionen"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:207
+msgid "Presets:"
+msgstr "Voreinstellungen:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:238
+msgid "You can still change this after importing the pictures."
+msgstr "Sie können dies nach dem Importieren der Bilder noch ändern."
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:255
+msgid "Date:"
+msgstr "Datum:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:283
+msgid "Attributes:"
+msgstr "Attribute:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:297
+msgid "Metadata"
+msgstr "Metadaten"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
 msgid "Import Library"
@@ -124,190 +164,120 @@ msgstr "Importieren läuft"
 msgid "All done"
 msgstr "Alles erledigt"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:40
-msgid "Develop"
-msgstr "Entwickeln"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:58
-msgid "Crop"
-msgstr "Zuschneiden"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
-msgid "Tilt"
-msgstr "Neigung"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:64
-msgid "White balance"
-msgstr "Weißabgleich"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
-msgid "Color temperature"
-msgstr "Farbtemperatur"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:69
-msgid "Tone and colour"
-msgstr "Farbe und Farbton"
-
-#. s->signal_value_changed().connect();
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
-msgid "Exposure"
-msgstr "Belichtung"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
-msgid "Recovery"
-msgstr "Wiederherstellung"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
-msgid "Fill Light"
-msgstr "Fülllicht"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
-msgid "Blacks"
-msgstr "Schwarzwerte"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
-msgid "Brightness"
-msgstr "Helligkeit"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
-msgid "Contrast"
-msgstr "Kontrast"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
-msgid "Saturation"
-msgstr "Sättigung"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:87
-msgid "Vibrance"
-msgstr "Lebendigkeit"
-
-#: src/niepce/ui/dialogs/editlabels.cpp:59
-#: src/niepce/ui/dialogs/editlabels.ui:5
-msgid "Edit Labels"
-msgstr "Bezeichnungen bearbeiten"
-
-#: src/niepce/ui/dialogs/editlabels.cpp:101
-msgid "Change Labels"
-msgstr "Bezeichnungen ändern"
-
-#: src/niepce/ui/dialogs/editlabels.ui:26
-msgid "Label _6"
-msgstr "Bezeichnung _6"
-
-#: src/niepce/ui/dialogs/editlabels.ui:38
-msgid "Label _7"
-msgstr "Bezeichnung _7"
-
-#: src/niepce/ui/dialogs/editlabels.ui:50
-msgid "Label _8"
-msgstr "Bezeichnung _8"
-
-#: src/niepce/ui/dialogs/editlabels.ui:62
-msgid "Label _9"
-msgstr "Bezeichnung _9"
-
-#: src/niepce/ui/dialogs/editlabels.ui:115
-msgid "Label _10"
-msgstr "Bezeichnung _10"
-
-#: src/niepce/ui/dialogs/editlabels.ui:214
-msgid "<b>Labels</b>"
-msgstr "<b>Bezeichnungen</b>"
-
-#: src/niepce/ui/dialogs/importdialog.ui:37
-msgid "Import"
-msgstr "Importieren"
-
-#: src/niepce/ui/dialogs/importdialog.ui:67
-msgid "_Images to import"
-msgstr "Zu importierende B_ilder"
-
-#: src/niepce/ui/dialogs/importdialog.ui:93
-msgid "Destination _Folder:"
-msgstr "Zielor_dner:"
-
-#: src/niepce/ui/dialogs/importdialog.ui:141
-msgid "_Options"
-msgstr "_Optionen"
-
-#: src/niepce/ui/dialogs/importdialog.ui:176
-msgid "Presets:"
-msgstr "Voreinstellungen:"
-
-#: src/niepce/ui/dialogs/importdialog.ui:206
-msgid "You can still change this after importing the pictures."
-msgstr "Sie können dies nach dem Importieren der Bilder noch ändern."
-
-#: src/niepce/ui/dialogs/importdialog.ui:223
-msgid "Date:"
-msgstr "Datum:"
-
-#: src/niepce/ui/dialogs/importdialog.ui:250
-msgid "Attributes:"
-msgstr "Attribute:"
-
-#: src/niepce/ui/dialogs/importdialog.ui:264
-msgid "Metadata"
-msgstr "Metadaten"
-
-#: src/niepce/ui/dialogs/importdialog.ui:289
-msgid "_Import"
-msgstr "_Importieren"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:18
-msgid "Available cameras:"
-msgstr "Verfügbare Kameras:"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:27
-msgid "Select"
-msgstr "Auswahl"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:15
-msgid "_Directory:"
-msgstr "Or_dner:"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:27
-msgid "..."
-msgstr "..."
-
-#: src/niepce/ui/dialogs/preferencesdialog.cpp:38
-#: src/niepce/ui/dialogs/preferences.ui:5
-msgid "Preferences"
-msgstr "Einstellungen"
-
-#: src/niepce/ui/dialogs/preferences.ui:35
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:16
 msgid "_Reopen Catalog"
 msgstr "Katalog e_rneut öffnen"
 
-#: src/niepce/ui/dialogs/preferences.ui:48
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:20
 msgid "Write XMP automatically (not recommended)"
 msgstr "XMP automatisch schreiben (nicht empfohlen)"
 
-#: src/niepce/ui/dialogs/preferences.ui:62
-msgid "_General"
-msgstr "_Allgemein"
-
-#: src/niepce/ui/dialogs/preferences.ui:81
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:23
 msgid "Use dark interface"
 msgstr "Dunkle Benutzeroberfläche verwenden"
 
-#: src/niepce/ui/dialogs/preferences.ui:95
-msgid "_User Interface"
-msgstr "Ben_utzeroberfläche"
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
+msgid "Preferences"
+msgstr "Einstellungen"
 
-#: src/niepce/ui/metadatapanecontroller.cpp:56
-msgid "Image Properties"
-msgstr "Bildeigenschaften"
+#~ msgid "Camera"
+#~ msgstr "Kamera"
 
-#: src/niepce/ui/niepceapplication.cpp:70
-msgid ""
-"A digital photo application.\n"
-"\n"
-"Build options: "
-msgstr ""
-"Eine digitale Foto-Anwendung.\n"
-"\n"
-"Erstellungsoptionen: "
+#~ msgid "File"
+#~ msgstr "Datei"
+
+#~ msgid "_Import..."
+#~ msgstr "_Importieren …"
+
+#~ msgid "Close"
+#~ msgstr "Schließen"
+
+#~ msgid "Edit"
+#~ msgstr "Bearbeiten"
+
+#~ msgid "Cut"
+#~ msgstr "Ausschneiden"
+
+#~ msgid "Copy"
+#~ msgstr "Kopieren"
+
+#~ msgid "Paste"
+#~ msgstr "Einfügen"
+
+#~ msgid "Tools"
+#~ msgstr "Werkzeuge"
+
+#~ msgid "Refresh"
+#~ msgstr "Aktualisieren"
+
+#~ msgid "Hide tools"
+#~ msgstr "Werkzeuge verbergen"
+
+#~ msgid "Develop"
+#~ msgstr "Entwickeln"
+
+#~ msgid "Crop"
+#~ msgstr "Zuschneiden"
+
+#~ msgid "Tilt"
+#~ msgstr "Neigung"
+
+#~ msgid "White balance"
+#~ msgstr "Weißabgleich"
+
+#~ msgid "Color temperature"
+#~ msgstr "Farbtemperatur"
+
+#~ msgid "Tone and colour"
+#~ msgstr "Farbe und Farbton"
+
+#~ msgid "Exposure"
+#~ msgstr "Belichtung"
+
+#~ msgid "Recovery"
+#~ msgstr "Wiederherstellung"
+
+#~ msgid "Fill Light"
+#~ msgstr "Fülllicht"
+
+#~ msgid "Blacks"
+#~ msgstr "Schwarzwerte"
+
+#~ msgid "Brightness"
+#~ msgstr "Helligkeit"
+
+#~ msgid "Contrast"
+#~ msgstr "Kontrast"
+
+#~ msgid "Saturation"
+#~ msgstr "Sättigung"
+
+#~ msgid "Vibrance"
+#~ msgstr "Lebendigkeit"
+
+#~ msgid "Change Labels"
+#~ msgstr "Bezeichnungen ändern"
+
+#~ msgid "Import"
+#~ msgstr "Importieren"
+
+#~ msgid "_General"
+#~ msgstr "_Allgemein"
+
+#~ msgid "_User Interface"
+#~ msgstr "Ben_utzeroberfläche"
+
+#~ msgid "Image Properties"
+#~ msgstr "Bildeigenschaften"
+
+#~ msgid ""
+#~ "A digital photo application.\n"
+#~ "\n"
+#~ "Build options: "
+#~ msgstr ""
+#~ "Eine digitale Foto-Anwendung.\n"
+#~ "\n"
+#~ "Erstellungsoptionen: "
 
 #~ msgid "Set Flag"
 #~ msgstr "Markierung festlegen"
