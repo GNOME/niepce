@@ -26,6 +26,7 @@ use std::path::Path;
 use exempi2::Xmp;
 
 use super::exiv2;
+use crate::toolkit::heif;
 use crate::Date;
 
 pub const NIEPCE_XMP_NAMESPACE: &str = "http://xmlns.figuiere.net/ns/niepce/1.0";
@@ -197,6 +198,8 @@ impl XmpMeta {
     /// Create a new XMP meta for file. If `sidecar_only` is true then only
     /// the XMP sidecar is loaded. Otherwise it use XMP to load, and fallback
     /// with Exiv2.
+    ///
+    // XXX change this to return a `Result`.
     pub fn new_from_file<P>(p: P, sidecar_only: bool) -> Option<XmpMeta>
     where
         P: AsRef<Path> + AsRef<OsStr>,
@@ -220,22 +223,36 @@ impl XmpMeta {
                 .unwrap_or(false);
             meta = if is_raw {
                 exiv2::xmp_from_exiv2(file)
-            } else if let Ok(xmpfile) =
+            } else if heif::is_heif(file) {
+                // HEIF is a special case mostly because on Fedora Exiv2 is built
+                // without support for it. Since we have `libheif` we can extract
+                // the Exif blob and deal with it directly.
+                dbg_out!("HEIF exiv2");
+                // XXX also get the XMP packet if any.
+                heif::get_exif(&file.to_string_lossy())
+                    .ok()
+                    .as_deref()
+                    .and_then(exiv2::xmp_from_exif)
+            } else if let Ok(xmpfile) = {
+                dbg_out!("Opening XMP for {file:?}");
                 exempi2::XmpFile::new_from_file(file, exempi2::OpenFlags::READ)
-            {
+            } {
                 match xmpfile.get_new_xmp() {
                     Ok(xmp) => Some(Self::new_with_xmp(xmp)),
-                    _ => exiv2::xmp_from_exiv2(file),
+                    Err(err) => {
+                        err_out!("Failed to get XMP from {file:?}: {err:?}");
+                        exiv2::xmp_from_exiv2(file)
+                    }
                 }
             } else {
+                dbg_out!("No XMP found");
                 None
             };
         }
 
         let mut sidecar_meta: Option<XmpMeta> = None;
         let sidecar = file.with_extension("xmp");
-        let sidecaropen = File::open(sidecar);
-        if let Ok(mut sidecarfile) = sidecaropen {
+        if let Ok(mut sidecarfile) = File::open(sidecar) {
             let mut sidecarcontent = String::new();
             if sidecarfile.read_to_string(&mut sidecarcontent).is_ok() {
                 let mut xmp = exempi2::Xmp::new();

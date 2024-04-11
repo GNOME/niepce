@@ -21,7 +21,7 @@ use std::cmp;
 use std::path::Path;
 
 use anyhow::{anyhow, Context, Result};
-use libheif_rs::{Channel, ColorSpace, HeifContext, ImageHandle, LibHeif, RgbChroma};
+use libheif_rs::{Channel, ColorSpace, HeifContext, ImageHandle, ItemId, LibHeif, RgbChroma};
 
 use super::gdk_utils::{gdkpixbuf_exif_rotate, gdkpixbuf_scale_to_fit};
 
@@ -79,7 +79,7 @@ pub fn gdkpixbuf_from_heif<P: AsRef<Path>>(filename: P) -> Result<gdk_pixbuf::Pi
     gdkpixbuf_from_heif_handle(&handle)
 }
 
-/// Return if a HEVC decode is found at runtime
+/// Return if a HEVC decoder is found at runtime
 ///
 pub fn has_hevc_decoder() -> bool {
     let lib_heif = LibHeif::new();
@@ -95,6 +95,30 @@ pub fn has_hevc_decoder() -> bool {
     }
 
     false
+}
+
+/// Is the file HEIF ? Currently only check the extension.
+pub fn is_heif<P: AsRef<Path>>(file: P) -> bool {
+    file.as_ref()
+        .extension()
+        .map(|ext| ext.to_ascii_lowercase() == "heic")
+        .unwrap_or(false)
+}
+
+/// Get the Exif blob from the HEIF file.
+pub fn get_exif(file: &str) -> Result<Vec<u8>> {
+    let ctx = HeifContext::read_from_file(file)?;
+    let handle = ctx.primary_image_handle()?;
+
+    let mut meta_ids: Vec<ItemId> = vec![0; 1];
+    let count = handle.metadata_block_ids(&mut meta_ids, b"Exif");
+    if count == 1 {
+        handle
+            .metadata(meta_ids[0])
+            .context("Failed to read metadata for Exif")
+    } else {
+        Err(anyhow!("HEIF Exif metadata not found"))
+    }
 }
 
 /// Return the GdkPibuf from the handle

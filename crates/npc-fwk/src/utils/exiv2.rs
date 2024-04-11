@@ -289,41 +289,50 @@ fn int_tag_to_xmp(
     }
 }
 
+/// Build the XMP packet from a file with Exiv2.
 pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
-    if let Ok(meta) = rexiv2::Metadata::new_from_path(file) {
-        let mut xmp = exempi2::Xmp::new();
-        let mut all_tags: Vec<String> = vec![];
-        if let Ok(mut tags) = meta.get_exif_tags() {
-            all_tags.append(&mut tags);
-        }
-        if let Ok(mut tags) = meta.get_iptc_tags() {
-            all_tags.append(&mut tags);
-        }
-        if let Ok(mut tags) = meta.get_xmp_tags() {
-            all_tags.append(&mut tags);
-        }
-        for tag in all_tags {
-            if let Some(xmp_props) = EXIV2_TO_XMP.get_vec(tag.as_str()) {
-                for xmp_prop in xmp_props {
-                    let tagtype = rexiv2::get_tag_type(&tag);
-                    match tagtype {
-                        Ok(rexiv2::TagType::AsciiString) | Ok(rexiv2::TagType::XmpText) => {
-                            ascii_tag_to_xmp(&meta, &tag, xmp_prop, &mut xmp);
-                        }
-                        Ok(rexiv2::TagType::UnsignedShort)
-                        | Ok(rexiv2::TagType::UnsignedLong)
-                        | Ok(rexiv2::TagType::SignedShort)
-                        | Ok(rexiv2::TagType::SignedLong) => {
-                            int_tag_to_xmp(
-                                &meta,
-                                &tag,
-                                *tagtype.as_ref().unwrap(),
-                                xmp_prop,
-                                &mut xmp,
-                            );
-                        }
-                        Ok(rexiv2::TagType::UnsignedRational)
-                        | Ok(rexiv2::TagType::SignedRational) => match xmp_prop.2 {
+    rexiv2::Metadata::new_from_path(file)
+        .ok()
+        .and_then(xmp_from_exiv2meta)
+}
+
+/// Build the XMP packet from the Exif blob. Same as `xmp_from_exiv2` otherwise.
+pub fn xmp_from_exif(buffer: &[u8]) -> Option<XmpMeta> {
+    rexiv2::Metadata::new_from_app1_segment(buffer)
+        .ok()
+        .and_then(xmp_from_exiv2meta)
+}
+
+/// Build the XMP packet from the `rexiv2::Metadata`.
+fn xmp_from_exiv2meta(meta: rexiv2::Metadata) -> Option<XmpMeta> {
+    dbg_out!("xmp_from_exiv2meta");
+    let mut xmp = exempi2::Xmp::new();
+    let mut all_tags: Vec<String> = vec![];
+    if let Ok(mut tags) = meta.get_exif_tags() {
+        all_tags.append(&mut tags);
+    }
+    if let Ok(mut tags) = meta.get_iptc_tags() {
+        all_tags.append(&mut tags);
+    }
+    if let Ok(mut tags) = meta.get_xmp_tags() {
+        all_tags.append(&mut tags);
+    }
+    for tag in all_tags {
+        if let Some(xmp_props) = EXIV2_TO_XMP.get_vec(tag.as_str()) {
+            for xmp_prop in xmp_props {
+                let tagtype = rexiv2::get_tag_type(&tag);
+                match tagtype {
+                    Ok(rexiv2::TagType::AsciiString) | Ok(rexiv2::TagType::XmpText) => {
+                        ascii_tag_to_xmp(&meta, &tag, xmp_prop, &mut xmp);
+                    }
+                    Ok(rexiv2::TagType::UnsignedShort)
+                    | Ok(rexiv2::TagType::UnsignedLong)
+                    | Ok(rexiv2::TagType::SignedShort)
+                    | Ok(rexiv2::TagType::SignedLong) => {
+                        int_tag_to_xmp(&meta, &tag, *tagtype.as_ref().unwrap(), xmp_prop, &mut xmp);
+                    }
+                    Ok(rexiv2::TagType::UnsignedRational) | Ok(rexiv2::TagType::SignedRational) => {
+                        match xmp_prop.2 {
                             Conversion::Interpreted => {
                                 if let Ok(value) = meta.get_tag_interpreted_string(&tag) {
                                     if let Err(err) = xmp.set_property(
@@ -359,9 +368,28 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                                     }
                                 }
                             }
-                        },
-                        Ok(rexiv2::TagType::Comment) => {
-                            if let Ok(value) = meta.get_tag_string(&tag) {
+                        }
+                    }
+                    Ok(rexiv2::TagType::Comment) => {
+                        if let Ok(value) = meta.get_tag_string(&tag) {
+                            if let Err(err) = xmp.set_property(
+                                xmp_prop.0,
+                                xmp_prop.1,
+                                &value,
+                                exempi2::PropFlags::NONE,
+                            ) {
+                                err_out!(
+                                    "Error setting property {} {}: {:?}",
+                                    &xmp_prop.0,
+                                    &xmp_prop.1,
+                                    &err
+                                );
+                            }
+                        }
+                    }
+                    Ok(rexiv2::TagType::UnsignedByte) => match xmp_prop.2 {
+                        Conversion::Interpreted => {
+                            if let Ok(value) = meta.get_tag_interpreted_string(&tag) {
                                 if let Err(err) = xmp.set_property(
                                     xmp_prop.0,
                                     xmp_prop.1,
@@ -377,53 +405,28 @@ pub fn xmp_from_exiv2<S: AsRef<OsStr>>(file: S) -> Option<XmpMeta> {
                                 }
                             }
                         }
-                        Ok(rexiv2::TagType::UnsignedByte) => match xmp_prop.2 {
-                            Conversion::Interpreted => {
-                                if let Ok(value) = meta.get_tag_interpreted_string(&tag) {
-                                    if let Err(err) = xmp.set_property(
-                                        xmp_prop.0,
-                                        xmp_prop.1,
-                                        &value,
-                                        exempi2::PropFlags::NONE,
-                                    ) {
-                                        err_out!(
-                                            "Error setting property {} {}: {:?}",
-                                            &xmp_prop.0,
-                                            &xmp_prop.1,
-                                            &err
-                                        );
-                                    }
-                                }
-                            }
-                            _ => err_out!(
-                                "Unhandled type {:?} for {} as UnsignedByte",
-                                tagtype,
-                                &tag
-                            ),
-                        },
-                        _ => {
-                            err_out!("Unhandled type {:?} for {}", tagtype, &tag);
-                        }
+                        _ => err_out!("Unhandled type {:?} for {} as UnsignedByte", tagtype, &tag),
+                    },
+                    _ => {
+                        err_out!("Unhandled type {:?} for {}", tagtype, &tag);
                     }
                 }
-            } else {
-                //                err_out!("Unknown property {}", &tag);
-            }
-        }
-        meta.get_gps_info();
-
-        let mut options = exempi2::PropFlags::default();
-        if let Ok(date) = xmp.get_property_date(NS_XAP, "ModifyDate", &mut options) {
-            if let Err(err) =
-                xmp.set_property_date(NS_XAP, "MetadataDate", &date, exempi2::PropFlags::NONE)
-            {
-                err_out!("Error setting MetadataDate: {:?}", &err);
             }
         } else {
-            err_out!("Couldn't get the ModifyDate");
+            //                err_out!("Unknown property {}", &tag);
         }
-        Some(XmpMeta::new_with_xmp(xmp))
-    } else {
-        None
     }
+    meta.get_gps_info();
+
+    let mut options = exempi2::PropFlags::default();
+    if let Ok(date) = xmp.get_property_date(NS_XAP, "ModifyDate", &mut options) {
+        if let Err(err) =
+            xmp.set_property_date(NS_XAP, "MetadataDate", &date, exempi2::PropFlags::NONE)
+        {
+            err_out!("Error setting MetadataDate: {:?}", &err);
+        }
+    } else {
+        err_out!("Couldn't get the ModifyDate");
+    }
+    Some(XmpMeta::new_with_xmp(xmp))
 }
