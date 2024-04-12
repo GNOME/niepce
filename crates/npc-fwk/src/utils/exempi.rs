@@ -228,11 +228,21 @@ impl XmpMeta {
                 // without support for it. Since we have `libheif` we can extract
                 // the Exif blob and deal with it directly.
                 dbg_out!("HEIF exiv2");
-                // XXX also get the XMP packet if any.
-                heif::get_exif(&file.to_string_lossy())
+                let exif = heif::get_exif(&file.to_string_lossy())
                     .ok()
                     .as_deref()
-                    .and_then(exiv2::xmp_from_exif)
+                    .and_then(exiv2::xmp_from_exif);
+                let xmp = heif::get_xmp(&file.to_string_lossy())
+                    .ok()
+                    .and_then(|buf| exempi2::Xmp::from_buffer(buf).ok())
+                    .map(XmpMeta::new_with_xmp);
+                exif.map(|mut exif| {
+                    if let Some(xmp) = &xmp {
+                        xmp.merge_missing_into_xmp(&mut exif);
+                    }
+                    exif
+                })
+                .or(xmp)
             } else if let Ok(xmpfile) = {
                 dbg_out!("Opening XMP for {file:?}");
                 exempi2::XmpFile::new_from_file(file, exempi2::OpenFlags::READ)

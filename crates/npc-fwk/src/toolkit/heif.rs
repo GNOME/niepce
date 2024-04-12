@@ -105,6 +105,22 @@ pub fn is_heif<P: AsRef<Path>>(file: P) -> bool {
         .unwrap_or(false)
 }
 
+/// Get the XMP from the HEIF file.
+pub fn get_xmp(file: &str) -> Result<Vec<u8>> {
+    let ctx = HeifContext::read_from_file(file)?;
+    let handle = ctx.primary_image_handle()?;
+
+    let mut meta_ids: Vec<ItemId> = vec![0; 1];
+    let count = handle.metadata_block_ids(&mut meta_ids, b"mime");
+    if count == 1 {
+        handle
+            .metadata(meta_ids[0])
+            .context("Failed to read metadata for XMP")
+    } else {
+        Err(anyhow!("HEIF XMP metadata not found"))
+    }
+}
+
 /// Get the Exif blob from the HEIF file.
 pub fn get_exif(file: &str) -> Result<Vec<u8>> {
     let ctx = HeifContext::read_from_file(file)?;
