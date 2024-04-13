@@ -23,6 +23,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
+use anyhow::Context;
 use exempi2::Xmp;
 
 use super::exiv2;
@@ -243,6 +244,10 @@ impl XmpMeta {
                     exif
                 })
                 .or(xmp)
+                .map(|mut xmp| {
+                    let _ = xmp.set_orientation(1);
+                    xmp
+                })
             } else if let Ok(xmpfile) = {
                 dbg_out!("Opening XMP for {file:?}");
                 exempi2::XmpFile::new_from_file(file, exempi2::OpenFlags::READ)
@@ -373,6 +378,17 @@ impl XmpMeta {
 
     pub fn unserialize(&mut self, buf: &str) -> bool {
         self.xmp.parse(buf.as_bytes()).is_ok() // XXX actually report the error.
+    }
+
+    pub fn set_orientation(&mut self, orientation: i32) -> anyhow::Result<()> {
+        self.xmp
+            .set_property_i32(
+                NS_TIFF,
+                "Orientation",
+                orientation,
+                exempi2::PropFlags::default(),
+            )
+            .context("Failed to set Orientation property")
     }
 
     pub fn orientation(&self) -> Option<i32> {

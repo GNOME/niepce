@@ -135,7 +135,7 @@ impl Thumbnail {
             match mime_type.mime_type() {
                 MType::Image(ImgFormat::Heif) => {
                     dbg_out!("Heif image");
-                    pix = heif::extract_rotated_thumbnail(filename, cmp::min(w, h), orientation)
+                    pix = heif::extract_rotated_thumbnail(filename, cmp::min(w, h))
                         .map_err(|err| {
                             err_out!("Error {:?}", err);
                             err
