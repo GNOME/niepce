@@ -179,18 +179,20 @@ impl Default for XmpMeta {
     }
 }
 
-impl XmpMeta {
-    pub fn new() -> XmpMeta {
+impl From<exempi2::Xmp> for XmpMeta {
+    fn from(xmp: exempi2::Xmp) -> XmpMeta {
         XmpMeta {
-            xmp: exempi2::Xmp::new(),
+            xmp,
             keywords: Vec::new(),
             keywords_fetched: false,
         }
     }
+}
 
-    pub fn new_with_xmp(xmp: exempi2::Xmp) -> XmpMeta {
+impl XmpMeta {
+    pub fn new() -> XmpMeta {
         XmpMeta {
-            xmp,
+            xmp: exempi2::Xmp::new(),
             keywords: Vec::new(),
             keywords_fetched: false,
         }
@@ -236,7 +238,7 @@ impl XmpMeta {
                 let xmp = heif::get_xmp(&file.to_string_lossy())
                     .ok()
                     .and_then(|buf| exempi2::Xmp::from_buffer(buf).ok())
-                    .map(XmpMeta::new_with_xmp);
+                    .map(XmpMeta::from);
                 exif.map(|mut exif| {
                     if let Some(xmp) = &xmp {
                         xmp.merge_missing_into_xmp(&mut exif);
@@ -253,7 +255,7 @@ impl XmpMeta {
                 exempi2::XmpFile::new_from_file(file, exempi2::OpenFlags::READ)
             } {
                 match xmpfile.get_new_xmp() {
-                    Ok(xmp) => Some(Self::new_with_xmp(xmp)),
+                    Ok(xmp) => Some(Self::from(xmp)),
                     Err(err) => {
                         err_out!("Failed to get XMP from {file:?}: {err:?}");
                         exiv2::xmp_from_exiv2(file)
@@ -272,7 +274,7 @@ impl XmpMeta {
             if sidecarfile.read_to_string(&mut sidecarcontent).is_ok() {
                 let mut xmp = exempi2::Xmp::new();
                 if xmp.parse(sidecarcontent.into_bytes().as_slice()).is_ok() {
-                    sidecar_meta = Some(Self::new_with_xmp(xmp));
+                    sidecar_meta = Some(Self::from(xmp));
                 }
             }
         }

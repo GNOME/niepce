@@ -318,7 +318,7 @@ mod test {
         assert!(xmp.is_ok());
 
         let xmp = xmp.unwrap();
-        let xmp_meta = XmpMeta::new_with_xmp(xmp);
+        let xmp_meta = XmpMeta::from(xmp);
         let libmetadata = LibMetadata::new_with_xmp(1, xmp_meta);
         let mut propset = PropertySet::new();
         propset.insert(Np::Index(Npi::NpIptcKeywordsProp));

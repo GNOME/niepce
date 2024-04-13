@@ -1654,7 +1654,7 @@ pub(crate) mod test {
         // byte by byte
         let original_xmp_packet =
             exempi2::Xmp::from_buffer(XMP_PACKET.as_bytes()).expect("XMP packet created");
-        let original_xmp_packet = XmpMeta::new_with_xmp(original_xmp_packet);
+        let original_xmp_packet = XmpMeta::from(original_xmp_packet);
         let result = lib.set_image_properties(bundle_id, &props);
         result.expect("Setting the XMP works");
 

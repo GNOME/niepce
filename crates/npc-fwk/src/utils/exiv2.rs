@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/exiv2.rs
  *
- * Copyright (C) 2018-2023 Hubert Figuière
+ * Copyright (C) 2018-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -428,5 +428,5 @@ fn xmp_from_exiv2meta(meta: rexiv2::Metadata) -> Option<XmpMeta> {
     } else {
         err_out!("Couldn't get the ModifyDate");
     }
-    Some(XmpMeta::new_with_xmp(xmp))
+    Some(XmpMeta::from(xmp))
 }
