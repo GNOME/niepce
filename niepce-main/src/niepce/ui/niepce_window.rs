@@ -395,13 +395,12 @@ impl NiepceWindow {
     fn create_module_shell(&self) {
         dbg_out!("creating module shell");
 
-        let client = self.libraryclient.borrow();
+        let client_host = self.libraryclient.borrow();
+        let client_host = client_host.as_ref().unwrap();
 
-        if let Some(c) = self.libraryclient.borrow().as_ref() {
-            c.client().get_all_labels();
-        }
+        client_host.client().get_all_labels();
 
-        let module_shell = ModuleShell::new(client.as_ref().unwrap());
+        let module_shell = ModuleShell::new(client_host);
         let module_widget = module_shell.widget();
 
         if let Some(notif_center) = self.widgets.get().map(|w| &w.notif_center) {
@@ -414,7 +413,7 @@ impl NiepceWindow {
         // We really expect cfg to be available
         let configuration = self.configuration.borrow();
         let cfg = configuration.as_ref().unwrap();
-        let client = client.as_ref().unwrap().client();
+        let client = client_host.client();
         let workspace = WorkspaceController::new(cfg.clone(), client);
         if let Some(actions) = workspace.actions() {
             self.window.insert_action_group(actions.0, Some(actions.1));
