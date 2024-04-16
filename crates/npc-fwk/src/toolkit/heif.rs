@@ -21,20 +21,27 @@ use std::cmp;
 use std::path::Path;
 
 use anyhow::{anyhow, Context, Result};
-use libheif_rs::{Channel, ColorSpace, HeifContext, ImageHandle, ItemId, LibHeif, RgbChroma};
+use libheif_rs::{
+    Channel, ColorSpace, DecodingOptions, HeifContext, ImageHandle, ItemId, LibHeif, RgbChroma,
+};
 
-use super::gdk_utils::gdkpixbuf_scale_to_fit;
+use super::gdk_utils::{gdkpixbuf_exif_rotate, gdkpixbuf_scale_to_fit};
 
 /// Return a rotated thumbnail from an HEIF file.
 pub fn extract_rotated_thumbnail<P: AsRef<Path>>(
     filename: P,
     size: u32,
+    orientation: u32,
 ) -> Result<gdk_pixbuf::Pixbuf> {
     dbg_out!("HEIF thumbnail size = {}", size);
     // This always returns a rotated thumbnail
-    gdkpixbuf_from_heif_thumbnail(filename, size).and_then(|pixbuf| {
-        gdkpixbuf_scale_to_fit(Some(&pixbuf), size).ok_or(anyhow!("scale to fit failed"))
-    })
+    gdkpixbuf_from_heif_thumbnail(filename, size)
+        .and_then(|pixbuf| {
+            gdkpixbuf_scale_to_fit(Some(&pixbuf), size).ok_or(anyhow!("scale to fit failed"))
+        })
+        .and_then(|pixbuf| {
+            gdkpixbuf_exif_rotate(Some(&pixbuf), orientation).ok_or(anyhow!("exif rotate"))
+        })
 }
 
 /// Return the thumnail image from an HEIF as Pixbuf.
@@ -137,18 +144,13 @@ pub fn get_exif(file: &str) -> Result<Vec<u8>> {
 fn gdkpixbuf_from_heif_handle(handle: &ImageHandle) -> Result<gdk_pixbuf::Pixbuf> {
     let lib_heif = LibHeif::new();
 
-    // Decoding options don't work.
-    // See https://github.com/Cykooz/libheif-rs/pull/21
-    // Until then, we'll let the transformations happen.
-    //
-    // let decoding_options = DecodingOptions::new()
-    //     .map(|mut options| {
-    //         options.set_ignore_transformations(true);
-    //         options
-    //     });
+    let decoding_options = DecodingOptions::new().map(|mut options| {
+        options.set_ignore_transformations(true);
+        options
+    });
     dbg_out!("Image decoded without transformations");
     let image = lib_heif
-        .decode(handle, ColorSpace::Rgb(RgbChroma::Rgb), None)
+        .decode(handle, ColorSpace::Rgb(RgbChroma::Rgb), decoding_options)
         .context("failed decoding")?;
 
     if image.has_channel(Channel::Interleaved) {

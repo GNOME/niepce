@@ -246,10 +246,6 @@ impl XmpMeta {
                     exif
                 })
                 .or(xmp)
-                .map(|mut xmp| {
-                    let _ = xmp.set_orientation(1);
-                    xmp
-                })
             } else if let Ok(xmpfile) = {
                 dbg_out!("Opening XMP for {file:?}");
                 exempi2::XmpFile::new_from_file(file, exempi2::OpenFlags::READ)
