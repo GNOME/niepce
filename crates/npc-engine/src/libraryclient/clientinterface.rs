@@ -27,6 +27,10 @@ use npc_fwk::base::{PropertyValue, RgbColour};
 
 /// Client interface.
 pub trait ClientInterface {
+    /// Preferences
+    fn get_all_preferences(&self);
+    fn set_preference(&self, key: String, value: String);
+
     /// get all the keywords
     fn get_all_keywords(&self);
     fn query_keyword_content(&self, id: LibraryId);

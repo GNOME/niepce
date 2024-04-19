@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/db.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ pub mod label;
 pub mod libfile;
 pub mod libfolder;
 pub mod libmetadata;
-mod library;
+pub(crate) mod library;
 pub mod props;
 
 pub type LibraryId = i64;

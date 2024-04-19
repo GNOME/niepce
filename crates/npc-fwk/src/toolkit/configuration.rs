@@ -21,6 +21,9 @@ mod keyfile;
 
 /// Config backend
 pub trait ConfigBackend {
+    /// Start the backend
+    fn start(&self) {}
+    fn initialise(&self, _prefs: &[(String, String)]) {}
     /// Return true if it has `key`.
     fn has(&self, key: &str) -> bool;
     /// Return the string value for `key` or `None` if not found.
@@ -47,6 +50,10 @@ impl Configuration {
     /// Build a configuration from a backend.
     pub fn from_impl<T: ConfigBackend + 'static>(backend: Box<T>) -> Configuration {
         Configuration { backend }
+    }
+
+    pub fn imp(&self) -> &dyn ConfigBackend {
+        &*self.backend
     }
 
     /// New XDG compliant config path from `app_name`.

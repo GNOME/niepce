@@ -27,6 +27,7 @@ use once_cell::unsync::OnceCell;
 
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
+use npc_engine::library::CatalogPreferences;
 use npc_engine::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryClientHost};
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Moniker;
@@ -53,6 +54,7 @@ pub enum Event {
     LabelDeleted(db::LibraryId),
     DatabaseReady,
     DatabaseNeedUpgrade(i32),
+    InitialisePrefs(Vec<(String, String)>),
 }
 
 struct Widgets {
@@ -145,6 +147,14 @@ impl Controller for NiepceWindow {
                 if let Some(host) = &*self.libraryclient.borrow() {
                     host.ui_provider().delete_label(id);
                 }
+            }
+            InitialisePrefs(prefs) => {
+                self.configuration
+                    .borrow()
+                    .as_ref()
+                    .unwrap()
+                    .imp()
+                    .initialise(&prefs);
             }
         }
     }
@@ -303,6 +313,13 @@ impl NiepceWindow {
             DatabaseNeedUpgrade(version) => {
                 npc_fwk::send_async_local!(Event::DatabaseNeedUpgrade(version), tx)
             }
+            Prefs(prefs) => {
+                npc_fwk::send_async_any!(Event::InitialisePrefs(prefs), tx)
+            }
+            PrefChanged(key, value) => {
+                // Treat this like an initialisation
+                npc_fwk::send_async_any!(Event::InitialisePrefs(vec![(key, value)]), tx)
+            }
             _ => (),
         }
         true
@@ -378,17 +395,16 @@ impl NiepceWindow {
             .map(|w| w.notif_center.channel())
             .unwrap();
         let moniker = Moniker::from(&*catalog.to_string_lossy());
-        self.libraryclient
-            .replace(Some(Rc::new(LibraryClientHost::new(&moniker, channel))));
+        let client = Rc::new(LibraryClientHost::new(&moniker, channel));
+        self.libraryclient.replace(Some(client.clone()));
         self.set_title(&moniker.to_string());
 
-        let mut config_path = catalog.to_path_buf();
-        config_path.push("config.ini");
         self.configuration
-            .replace(Some(Rc::new(toolkit::Configuration::from_file(
-                config_path,
-            ))));
+            .replace(Some(Rc::new(toolkit::Configuration::from_impl(Box::new(
+                CatalogPreferences::new(client.client().clone()),
+            )))));
 
+        self.configuration.borrow().as_ref().unwrap().imp().start();
         true
     }
 

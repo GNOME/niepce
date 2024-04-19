@@ -17,9 +17,17 @@ Table name: `admin`
 
 The known keys are:
 
-| Column    | Description                                |
-|-----------|--------------------------------------------|
-| `version` | The version of the database. Current = 13. |
+| Key                              | Description                                |
+|----------------------------------|--------------------------------------------|
+| `version`                        | The version of the database. Current = 13. |
+| `prefs.last_dir_import_location` | The last directory imported                |
+| `prefs.dir_import_copy`          | Copy when importing directory              |
+| `prefs.dir_import_recursive`     | Recursive directory import                 |
+| `prefs.last_importer`            | Last importer selected (dir or camera)     |
+| `prefs.base_import_dest_dir`     | Base directory for import destination      |
+
+The key values aren't part of the version of the database schema,
+except `version`.
 
 [ version = 13 ]
 `key` is primary key in table.

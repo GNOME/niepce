@@ -34,6 +34,41 @@ use npc_fwk::base::RgbColour;
 use npc_fwk::PropertyValue;
 use npc_fwk::{err_out, err_out_line};
 
+pub fn cmd_list_all_preferences(lib: &Library) -> bool {
+    match lib.get_all_preferences() {
+        Ok(prefs) => {
+            if let Err(err) = lib.notify(LibNotification::Prefs(prefs)) {
+                err_out!("Failed to notify Prefs {:?}", err);
+                return false;
+            }
+            true
+        }
+        Err(err) => {
+            err_out_line!("get all preferences failed: {:?}", err);
+            false
+        }
+    }
+}
+
+pub fn cmd_set_preference(lib: &Library, key: &str, value: &str) -> bool {
+    match lib.set_pref(key, value) {
+        Ok(_) => {
+            if let Err(err) = lib.notify(LibNotification::PrefChanged(
+                key.to_string(),
+                value.to_string(),
+            )) {
+                err_out!("Failed to notify PrefChanged {:?}", err);
+                return false;
+            }
+            true
+        }
+        Err(err) => {
+            err_out_line!("set preference failed: {:?}", err);
+            false
+        }
+    }
+}
+
 pub fn cmd_list_all_keywords(lib: &Library) -> bool {
     match lib.get_all_keywords() {
         Ok(list) => {

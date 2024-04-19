@@ -1,7 +1,7 @@
 /*
  * niepce - engine/library/notification.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,4 +109,6 @@ pub enum LibNotification {
     XmpNeedsUpdate,
     ThumbnailLoaded(Box<Thumbnail>),
     ImageRendered(ImageRendered),
+    Prefs(Vec<(String, String)>),
+    PrefChanged(String, String),
 }

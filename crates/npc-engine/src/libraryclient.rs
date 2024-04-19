@@ -133,6 +133,15 @@ impl LibraryClientSender {
 }
 
 impl ClientInterface for LibraryClientSender {
+    /// get all the preferences
+    fn get_all_preferences(&self) {
+        self.schedule_op(commands::cmd_list_all_preferences);
+    }
+
+    fn set_preference(&self, key: String, value: String) {
+        self.schedule_op(move |lib| commands::cmd_set_preference(lib, &key, &value))
+    }
+
     /// get all the keywords
     fn get_all_keywords(&self) {
         self.schedule_op(commands::cmd_list_all_keywords);

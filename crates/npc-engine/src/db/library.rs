@@ -508,6 +508,19 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
+    pub fn get_all_preferences(&self) -> Result<Vec<(String, String)>> {
+        if let Some(ref conn) = self.dbconn {
+            let mut stmt = conn.prepare("SELECT key, value FROM admin")?;
+            let mut rows = stmt.query(params![])?;
+            let mut prefs = vec![];
+            while let Ok(Some(row)) = rows.next() {
+                prefs.push((row.get::<usize, String>(0)?, row.get::<usize, String>(1)?))
+            }
+            return Ok(prefs);
+        }
+        Err(Error::NoSqlDb)
+    }
+
     fn add_jpeg_file_to_bundle(&self, file_id: LibraryId, fsfile_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let filetype: i32 = libfile::FileType::RawJpeg.into();
@@ -1732,5 +1745,10 @@ pub(crate) mod test {
         assert!(pref1.is_ok());
         let pref1 = lib.get_pref("prefs.pref1", None);
         assert_eq!(pref1, Ok("value2".to_string()));
+
+        let prefs = lib.get_all_preferences();
+        assert!(prefs.is_ok());
+        let prefs = prefs.unwrap();
+        assert_eq!(prefs.len(), 2);
     }
 }

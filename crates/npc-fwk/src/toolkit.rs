@@ -51,7 +51,7 @@ pub use undo::do_command as undo_do_command;
 pub use undo::{Storage, UndoCommand, UndoHistory, UndoTransaction};
 pub use window_controller::{create_redo_action, create_undo_action, WindowController};
 
-pub use configuration::Configuration;
+pub use configuration::{ConfigBackend, Configuration};
 
 pub fn thread_context() -> glib::MainContext {
     glib::MainContext::thread_default().unwrap_or_else(|| {

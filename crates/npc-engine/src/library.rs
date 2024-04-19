@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/library.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,10 @@
 pub mod commands;
 pub mod notification;
 pub mod op;
+mod preferences;
 mod previewer;
 pub mod queriedcontent;
 pub mod thumbnail_cache;
 
+pub use preferences::CatalogPreferences;
 pub use previewer::{RenderEngine, RenderMsg, RenderParams};
