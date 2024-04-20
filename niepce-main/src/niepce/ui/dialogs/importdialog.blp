@@ -1,0 +1,232 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.Window import_dialog {
+  accessible-role: dialog;
+
+  content: Box {
+    orientation: vertical;
+
+    HeaderBar {
+      show-title-buttons: false;
+
+      title-widget: Label {
+        label: 'Import';
+      };
+
+      [end]
+      Button import_button {
+        focusable: true;
+        label: _('_Import');
+        margin-bottom: 3;
+        margin-end: 3;
+        margin-start: 3;
+        margin-top: 3;
+        receives-default: true;
+        styles [
+          "suggested-action"
+        ]
+        use-underline: true;
+      }
+
+      [end]
+      Button cancel_button {
+        focusable: true;
+        label: 'Cancel';
+        margin-bottom: 3;
+        margin-end: 3;
+        margin-start: 3;
+        margin-top: 3;
+      }
+    }
+
+    Box box1 {
+      margin-bottom: 12;
+      margin-end: 12;
+      margin-start: 12;
+      margin-top: 12;
+      spacing: 6;
+      vexpand: true;
+
+      Box source_box {
+        hexpand: true;
+        margin-end: 12;
+        orientation: vertical;
+        spacing: 6;
+
+        DropDown import_source_combo {}
+
+        Stack importer_ui_stack {}
+
+        Label label1 {
+          halign: start;
+          label: _('_Images to import');
+          use-underline: true;
+          valign: center;
+        }
+
+        ScrolledWindow images_list_scrolled {
+          focusable: true;
+          hscrollbar-policy: never;
+          vexpand: true;
+        }
+      }
+
+      Box box3 {
+        margin-start: 12;
+        orientation: vertical;
+        spacing: 6;
+
+        Box hbox2 {
+          homogeneous: true;
+          spacing: 6;
+
+          Label label6 {
+            hexpand: true;
+            label: _('Destination _Folder:');
+            mnemonic-widget: destination_folder;
+            use-underline: true;
+            xalign: 0;
+          }
+
+          Entry destination_folder {
+            focusable: true;
+            hexpand: true;
+            invisible-char: 8226;
+          }
+        }
+
+        Expander expander1 {
+          expanded: true;
+          focusable: true;
+
+          Box vbox3 {
+            margin-bottom: 6;
+            margin-end: 6;
+            margin-start: 18;
+            margin-top: 6;
+            orientation: vertical;
+            spacing: 6;
+
+            Box {
+              homogeneous: true;
+              spacing: 6;
+
+              Label {
+                label: _('_Date Sorting:');
+                mnemonic-widget: date_sorting_combo;
+                use-underline: true;
+                xalign: 0.0;
+              }
+
+              DropDown date_sorting_combo {}
+            }
+          }
+
+          [label]
+          Label label3 {
+            label: _('_Options');
+            use-underline: true;
+          }
+        }
+
+        Expander expander2 {
+          expanded: true;
+          focusable: true;
+
+          Box box4 {
+            margin-bottom: 6;
+            margin-end: 6;
+            margin-start: 18;
+            margin-top: 6;
+            orientation: vertical;
+            spacing: 6;
+
+            Frame preset_frame {
+              child: DropDown preset_combo {
+                margin-start: 6;
+                margin-end: 6;
+                margin-top: 6;
+                margin-bottom: 6;
+              };
+
+              margin-bottom: 6;
+              margin-top: 6;
+
+              [label]
+              Label label8 {
+                label: _('Presets:');
+                margin-start: 6;
+                margin-top: 6;
+                mnemonic-widget: preset_combo;
+              }
+            }
+
+            Frame date_frame {
+              child: Box vbox1 {
+                orientation: vertical;
+                spacing: 4;
+
+                DropDown date_tz_combo {
+                  margin-start: 6;
+                  margin-end: 6;
+                  margin-top: 6;
+                }
+
+                Label label5 {
+                  label: _('You can still change this after importing the pictures.');
+                  margin-bottom: 4;
+                  margin-end: 4;
+                  margin-start: 4;
+                  margin-top: 4;
+                  styles [
+                    "dim-label"
+                  ]
+                  wrap: true;
+                }
+              };
+
+              margin-bottom: 6;
+              margin-top: 6;
+
+              [label]
+              Label label4 {
+                label: _('Date:');
+                margin-start: 6;
+                margin-top: 6;
+                mnemonic-widget: date_tz_combo;
+              }
+            }
+
+            Frame attributes_frame {
+              child: ScrolledWindow attributes_scrolled {
+                focusable: true;
+                hscrollbar-policy: never;
+                margin-bottom: 6;
+                margin-start: 6;
+                margin-top: 6;
+                vexpand: true;
+              };
+
+              margin-bottom: 6;
+              margin-top: 6;
+              vexpand: true;
+
+              [label]
+              Label label9 {
+                label: _('Attributes:');
+                margin-start: 6;
+                margin-top: 6;
+              }
+            }
+          }
+
+          [label]
+          Label label7 {
+            label: _('Metadata');
+          }
+        }
+      }
+    }
+  };
+}
