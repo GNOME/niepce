@@ -14,6 +14,9 @@
                 <property name="label">Import</property>
               </object>
             </property>
+            <child type="start">
+              <object class="GtkDropDown" id="import_source_combo"></object>
+            </child>
             <child type="end">
               <object class="GtkButton" id="import_button">
                 <property name="focusable">true</property>
@@ -55,9 +58,6 @@
                 <property name="margin-end">12</property>
                 <property name="orientation">1</property>
                 <property name="spacing">6</property>
-                <child>
-                  <object class="GtkDropDown" id="import_source_combo"></object>
-                </child>
                 <child>
                   <object class="GtkStack" id="importer_ui_stack"></object>
                 </child>
