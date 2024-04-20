@@ -11,7 +11,7 @@
             <property name="show-title-buttons">false</property>
             <property name="title-widget">
               <object class="GtkLabel">
-                <property name="label">Import</property>
+                <property name="label" translatable="true">Import images</property>
               </object>
             </property>
             <child type="start">
@@ -35,7 +35,7 @@
             <child type="end">
               <object class="GtkButton" id="cancel_button">
                 <property name="focusable">true</property>
-                <property name="label">Cancel</property>
+                <property name="label" translatable="true">Cancel</property>
                 <property name="margin-bottom">3</property>
                 <property name="margin-end">3</property>
                 <property name="margin-start">3</property>
