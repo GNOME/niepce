@@ -65,7 +65,7 @@ niepce_rust = custom_target(
     '&&',
     'cp', cargo_target_dir / rust_target / 'niepce', '@OUTDIR@' / '..'
   ],
-  depends: [niepce_lib, resources_bundle, rtengine]
+  depends: [resources_bundle, rtengine]
 )
 
 clippy = run_target(
@@ -118,7 +118,7 @@ niepce_test = custom_target(
     '&&',
     'touch', '@OUTDIR@' / 'test-build-stamp'
   ],
-  depends: [niepce_lib, resources_bundle, rtengine]
+  depends: [resources_bundle, rtengine]
 )
 
 test(
@@ -129,6 +129,6 @@ test(
     'test',
     cargo_options
   ],
-  depends: [niepce_lib, resources_bundle, rtengine],
+  depends: [resources_bundle, rtengine],
   timeout: 0
 )

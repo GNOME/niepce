@@ -133,7 +133,6 @@ endif
 subdir('data')
 subdir('po')
 subdir('third_party')
-subdir('src')
 subdir('niepce-main/src')
 subdir('doc')
 
