@@ -13,6 +13,7 @@ niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs
 niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui
 niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs
 niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui
+niepce-main/src/niepce/ui/dialogs/import/mod.rs
 niepce-main/src/niepce/ui/dialogs/importdialog.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary.rs

@@ -32,9 +32,9 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use gtk_macros::get_widget;
-use num_traits::FromPrimitive;
 use once_cell::sync::OnceCell;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
@@ -178,14 +178,19 @@ impl DialogController for ImportDialog {
                 get_widget!(builder, gtk4::Stack, importer_ui_stack);
                 get_widget!(builder, gtk4::ComboBoxText, import_source_combo);
                 get_widget!(builder, gtk4::DropDown, date_sorting_combo);
-                let string_list = gtk4::StringList::new(&[
-                    "No Sorting",
-                    "YYYYMMDD",
-                    "YYYY/MMDD",
-                    "YYYY/MM/DD",
-                    "YYYY/YYYYMMDD",
+                let string_list = toolkit::ComboModel::with_map(&[
+                    (&i18n("No Sorting"), DatePathFormat::NoPath),
+                    ("YYYYMMDD", DatePathFormat::YearMonthDay),
+                    ("YYYY/MMDD", DatePathFormat::YearSlashMonthDay),
+                    ("YYYY/MM/DD", DatePathFormat::YearSlashMonthSlashDay),
+                    ("YYYY/YYYYMMDD", DatePathFormat::YearSlashYearMonthDay),
                 ]);
-                date_sorting_combo.set_model(Some(&string_list));
+                let sender = self.sender();
+                string_list.bind(&date_sorting_combo, move |value| {
+                    let format = *value;
+                    dbg_out!("setting format {format:?}");
+                    send_async_any!(Event::SetDatePathFormat(format), sender);
+                });
 
                 get_widget!(builder, gtk4::ScrolledWindow, attributes_scrolled);
                 let metadata_pane = MetadataPaneController::new();
@@ -245,16 +250,6 @@ impl DialogController for ImportDialog {
                     glib::clone!(@strong sender => move |combo| {
                         if let Some(source) = combo.active_id() {
                             npc_fwk::send_async_local!(Event::SourceChanged(source.to_string()), sender);
-                        }
-                    }),
-                );
-                let sender = self.sender();
-                date_sorting_combo.connect_selected_item_notify(
-                    glib::clone!(@strong sender => move |dropdown| {
-                        dbg_out!("selected format {}", dropdown.selected());
-                        if let Some(format) = DatePathFormat::from_u32(dropdown.selected()) {
-                            dbg_out!("setting format {format:?}");
-                            npc_fwk::send_async_local!(Event::SetDatePathFormat(format), sender);
                         }
                     }),
                 );

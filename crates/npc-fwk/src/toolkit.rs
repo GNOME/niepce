@@ -20,6 +20,7 @@
 mod app_controller;
 pub mod assistant;
 pub mod channels;
+mod combo_model;
 mod configuration;
 pub mod confirm;
 #[macro_use]
@@ -41,6 +42,7 @@ mod window_controller;
 
 pub use app_controller::{AppController, AppControllerSingleton};
 pub use channels::{channel, send_async_any, send_async_local, Receiver, Sender};
+pub use combo_model::ComboModel;
 pub use controller::{Controller, ControllerImpl, ControllerImplCell};
 pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
 pub use image_bitmap::ImageBitmap;
