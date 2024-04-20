@@ -1,0 +1,34 @@
+using Gtk 4.0;
+
+Grid main_widget {
+  ComboBoxText camera_list_combo {
+    halign: start;
+    hexpand: true;
+
+    layout {
+      column: '1';
+      row: '0';
+    }
+  }
+
+  Label {
+    halign: start;
+    label: _('Available cameras:');
+
+    layout {
+      column: '0';
+      row: '0';
+    }
+  }
+
+  Button select_camera_btn {
+    focusable: true;
+    label: _('Select');
+    receives-default: true;
+
+    layout {
+      column: '2';
+      row: '0';
+    }
+  }
+}

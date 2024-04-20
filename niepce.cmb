@@ -2,14 +2,10 @@
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
 <cambalache-project version="0.17.3" target_tk="gtk-4.0">
   <ui>
-	(3,None,"editlabels.ui","src/niepce/ui/dialogs/editlabels.ui",None,None,None,None,None,None,None),
-	(6,None,"cameraimporterui.ui","src/niepce/ui/dialogs/importers/cameraimporterui.ui",None,None,None,None,None,None,None),
-	(7,None,"directoryimporterui.ui","src/niepce/ui/dialogs/importers/directoryimporterui.ui",None,None,None,None,None,None,None)
+	(3,None,"editlabels.ui","src/niepce/ui/dialogs/editlabels.ui",None,None,None,None,None,None,None)
   </ui>
   <ui_library>
-	(3,"gtk","4.0",None),
-	(6,"gtk","4.0",None),
-	(7,"gtk","4.0",None)
+	(3,"gtk","4.0",None)
   </ui_library>
   <object>
 	(3,1,"AdwWindow","edit_labels",None,None,None,None,None,None,None),
@@ -32,18 +28,7 @@
 	(3,39,"GtkColorButton","colorbutton4",25,None,None,None,13,None,None),
 	(3,40,"GtkColorButton","colorbutton5",25,None,None,None,14,None,None),
 	(3,41,"GtkLabel","dialog_title",24,None,"label",None,None,None,None),
-	(3,42,"AdwHeaderBar","header_bar",23,None,None,None,None,None,None),
-	(6,1,"GtkGrid","main_widget",None,None,None,None,None,None,None),
-	(6,2,"GtkComboBoxText","camera_list_combo",1,None,None,None,None,None,None),
-	(6,3,"GtkLabel",None,1,None,None,None,1,None,None),
-	(6,4,"GtkButton","select_camera_btn",1,None,None,None,2,None,None),
-	(7,1,"GtkBox","main_widget",None,None,None,None,None,None,None),
-	(7,5,"GtkBox",None,1,None,None,None,None,None,None),
-	(7,6,"GtkLabel","label2",5,None,None,None,None,None,None),
-	(7,7,"GtkLabel","directory_name",5,None,None,None,1,None,None),
-	(7,8,"GtkButton","select_directories",5,None,None,None,2,None,None),
-	(7,9,"GtkCheckButton","copy_files",1,None,None,None,1,None,None),
-	(7,10,"GtkCheckButton","recursive",1,None,None,None,2,None,None)
+	(3,42,"AdwHeaderBar","header_bar",23,None,None,None,None,None,None)
   </object>
   <object_property>
 	(3,1,"AdwWindow","content",None,None,None,None,None,23,None,None,None,None),
@@ -109,25 +94,7 @@
 	(3,41,"GtkWidget","margin-bottom","12",None,None,None,None,None,None,None,None,None),
 	(3,41,"GtkWidget","margin-end","12",None,None,None,None,None,None,None,None,None),
 	(3,41,"GtkWidget","margin-start","12",None,None,None,None,None,None,None,None,None),
-	(3,41,"GtkWidget","margin-top","6",None,None,None,None,None,None,None,None,None),
-	(6,2,"GtkWidget","halign","start",None,None,None,None,None,None,None,None,None),
-	(6,2,"GtkWidget","hexpand","1",None,None,None,None,None,None,None,None,None),
-	(6,3,"GtkLabel","label","Available cameras:",1,None,None,None,None,None,None,None,None),
-	(6,3,"GtkWidget","halign","start",None,None,None,None,None,None,None,None,None),
-	(6,4,"GtkButton","label","Select",1,None,None,None,None,None,None,None,None),
-	(6,4,"GtkWidget","focusable","1",None,None,None,None,None,None,None,None,None),
-	(6,4,"GtkWidget","receives-default","1",None,None,None,None,None,None,None,None,None),
-	(7,1,"GtkBox","spacing","8",None,None,None,None,None,None,None,None,None),
-	(7,1,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
-	(7,5,"GtkBox","spacing","8",None,None,None,None,None,None,None,None,None),
-	(7,6,"GtkLabel","label","_Directory:",1,None,None,None,None,None,None,None,None),
-	(7,6,"GtkLabel","use-underline","1",None,None,None,None,None,None,None,None,None),
-	(7,6,"GtkWidget","halign","center",None,None,None,None,None,None,None,None,None),
-	(7,7,"GtkWidget","hexpand","1",None,None,None,None,None,None,None,None,None),
-	(7,8,"GtkButton","label","...",1,None,None,None,None,None,None,None,None),
-	(7,8,"GtkWidget","focusable","1",None,None,None,None,None,None,None,None,None),
-	(7,9,"GtkCheckButton","label","Copy files",None,None,None,None,None,None,None,None,None),
-	(7,10,"GtkCheckButton","label","Recursive",None,None,None,None,None,None,None,None,None)
+	(3,41,"GtkWidget","margin-top","6",None,None,None,None,None,None,None,None,None)
   </object_property>
   <object_layout_property>
 	(3,25,26,"GtkGridLayoutChild","column","1",None,None,None,None),
@@ -159,13 +126,7 @@
 	(3,25,39,"GtkGridLayoutChild","column","3",None,None,None,None),
 	(3,25,39,"GtkGridLayoutChild","row","3",None,None,None,None),
 	(3,25,40,"GtkGridLayoutChild","column","3",None,None,None,None),
-	(3,25,40,"GtkGridLayoutChild","row","4",None,None,None,None),
-	(6,1,2,"GtkGridLayoutChild","column","1",None,None,None,None),
-	(6,1,2,"GtkGridLayoutChild","row","0",None,None,None,None),
-	(6,1,3,"GtkGridLayoutChild","column","0",None,None,None,None),
-	(6,1,3,"GtkGridLayoutChild","row","0",None,None,None,None),
-	(6,1,4,"GtkGridLayoutChild","column","2",None,None,None,None),
-	(6,1,4,"GtkGridLayoutChild","row","0",None,None,None,None)
+	(3,25,40,"GtkGridLayoutChild","row","4",None,None,None,None)
   </object_layout_property>
   <object_data>
 	(3,1,"GtkDialog",1,1,None,None,None,None,None,None),

@@ -1,0 +1,33 @@
+using Gtk 4.0;
+
+Box main_widget {
+  orientation: vertical;
+  spacing: 8;
+
+  Box {
+    spacing: 8;
+
+    Label label2 {
+      halign: center;
+      label: _('_Directory:');
+      use-underline: true;
+    }
+
+    Label directory_name {
+      hexpand: true;
+    }
+
+    Button select_directories {
+      focusable: true;
+      label: _('...');
+    }
+  }
+
+  CheckButton copy_files {
+    label: 'Copy files';
+  }
+
+  CheckButton recursive {
+    label: 'Recursive';
+  }
+}

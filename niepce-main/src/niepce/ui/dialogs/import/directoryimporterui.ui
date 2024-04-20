@@ -1,30 +1,28 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.12.1 -->
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-name directoryimporterui.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkBox" id="main_widget">
-    <property name="orientation">vertical</property>
+    <property name="orientation">1</property>
     <property name="spacing">8</property>
     <child>
       <object class="GtkBox">
         <property name="spacing">8</property>
         <child>
           <object class="GtkLabel" id="label2">
-            <property name="halign">center</property>
-            <property name="label" translatable="yes">_Directory:</property>
-            <property name="use-underline">1</property>
+            <property name="halign">3</property>
+            <property name="label" translatable="true">_Directory:</property>
+            <property name="use-underline">true</property>
           </object>
         </child>
         <child>
           <object class="GtkLabel" id="directory_name">
-            <property name="hexpand">1</property>
+            <property name="hexpand">true</property>
           </object>
         </child>
         <child>
           <object class="GtkButton" id="select_directories">
-            <property name="focusable">1</property>
-            <property name="label" translatable="yes">...</property>
+            <property name="focusable">true</property>
+            <property name="label" translatable="true">...</property>
           </object>
         </child>
       </object>
