@@ -4,34 +4,6 @@
   <!-- interface-name importdialog.ui -->
   <requires lib="gtk" version="4.8"/>
   <requires lib="libadwaita" version="1.2"/>
-  <object class="GtkListStore" id="preset_combo_model">
-    <columns>
-      <column type="gchararray"/>
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0">(none)</col>
-        <col id="1">NONE</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="tz_combo_model">
-    <columns>
-      <column type="gchararray"/>
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0">Date is local</col>
-        <col id="1">local</col>
-      </row>
-      <row>
-        <col id="0">Date is UTC</col>
-        <col id="1">utc</col>
-      </row>
-    </data>
-  </object>
   <object class="AdwWindow" id="import_dialog">
     <property name="accessible-role">dialog</property>
     <property name="content">
@@ -85,9 +57,7 @@
                 <property name="orientation">vertical</property>
                 <property name="spacing">6</property>
                 <child>
-                  <object class="GtkComboBoxText" id="import_source_combo">
-                    <property name="active">0</property>
-                  </object>
+                  <object class="GtkDropDown" id="import_source_combo" />
                 </child>
                 <child>
                   <object class="GtkStack" id="importer_ui_stack"/>
@@ -190,14 +160,11 @@
                         <child>
                           <object class="GtkFrame" id="preset_frame">
                             <property name="child">
-                              <object class="GtkComboBox" id="preset_combo">
-                                <property name="active">0</property>
+                              <object class="GtkDropDown" id="preset_combo">
                                 <property name="margin-start">6</property>
+                                <property name="margin-end">6</property>
                                 <property name="margin-top">6</property>
-                                <property name="model">preset_combo_model</property>
-                                <child>
-                                  <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                                </child>
+                                <property name="margin-bottom">6</property>
                               </object>
                             </property>
                             <property name="margin-bottom">6</property>
@@ -222,14 +189,10 @@
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">4</property>
                                 <child>
-                                  <object class="GtkComboBox" id="date_tz_combo">
-                                    <property name="active">0</property>
+                                  <object class="GtkDropDown" id="date_tz_combo">
                                     <property name="margin-start">6</property>
+                                    <property name="margin-end">6</property>
                                     <property name="margin-top">6</property>
-                                    <property name="model">tz_combo_model</property>
-                                    <child>
-                                      <object class="GtkCellRendererText" id="renderer1"/>
-                                    </child>
                                   </object>
                                 </child>
                                 <child>

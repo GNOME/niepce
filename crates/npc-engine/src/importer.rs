@@ -126,7 +126,7 @@ pub trait ImportBackend {
 
 /// Date path format for import destination
 #[repr(u32)]
-#[derive(Clone, Copy, Debug, Default, FromPrimitive, ToPrimitive)]
+#[derive(Clone, Copy, Debug, Default, FromPrimitive, ToPrimitive, PartialEq)]
 pub enum DatePathFormat {
     #[default]
     NoPath = 0,

@@ -62,7 +62,7 @@ pub enum Event {
 
 struct Widgets {
     dialog: adw::Window,
-    import_source_combo: gtk4::ComboBoxText,
+    import_source_combo_model: Rc<toolkit::ComboModel<String>>,
     importer_ui_stack: gtk4::Stack,
     destination_folder: gtk4::Entry,
     images_list_model: gio::ListStore,
@@ -77,8 +77,8 @@ impl Widgets {
         importer: Rc<dyn ImporterUI>,
         tx: npc_fwk::toolkit::Sender<Event>,
     ) {
-        self.import_source_combo
-            .append(Some(&importer.id()), importer.name());
+        self.import_source_combo_model
+            .push(importer.name(), importer.id());
 
         dbg_out!("setting up importer widget for {}", &importer.id());
         let importer_widget = importer.setup_widget(self.dialog.upcast_ref::<gtk4::Window>());
@@ -163,7 +163,10 @@ impl DialogController for ImportDialog {
                 let builder =
                     gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/importdialog.ui");
                 get_widget!(builder, adw::Window, import_dialog);
-                // get_widget!(builder, gtk4::ComboBox, date_tz_combo);
+                get_widget!(builder, gtk4::DropDown, date_tz_combo);
+                let string_list =
+                    toolkit::ComboModel::with_map(&[("Date is local", 0), ("Date is UTC", 1)]);
+                string_list.bind(&date_tz_combo, |_| {});
                 get_widget!(builder, gtk4::Button, cancel_button);
                 let sender = self.sender();
                 cancel_button.connect_clicked(move |_| {
@@ -176,7 +179,15 @@ impl DialogController for ImportDialog {
                 });
                 get_widget!(builder, gtk4::Entry, destination_folder);
                 get_widget!(builder, gtk4::Stack, importer_ui_stack);
-                get_widget!(builder, gtk4::ComboBoxText, import_source_combo);
+
+                get_widget!(builder, gtk4::DropDown, import_source_combo);
+                let import_source_combo_model = toolkit::ComboModel::<String>::new();
+                let sender = self.sender();
+                import_source_combo_model.bind(&import_source_combo, move |value| {
+                    let source = value.to_string();
+                    send_async_any!(Event::SourceChanged(source), sender);
+                });
+
                 get_widget!(builder, gtk4::DropDown, date_sorting_combo);
                 let string_list = toolkit::ComboModel::with_map(&[
                     (&i18n("No Sorting"), DatePathFormat::NoPath),
@@ -191,6 +202,10 @@ impl DialogController for ImportDialog {
                     dbg_out!("setting format {format:?}");
                     send_async_any!(Event::SetDatePathFormat(format), sender);
                 });
+
+                get_widget!(builder, gtk4::DropDown, preset_combo);
+                let string_list = toolkit::ComboModel::with_map(&[(&i18n("No preset"), "NONE")]);
+                string_list.bind(&preset_combo, |_| {});
 
                 get_widget!(builder, gtk4::ScrolledWindow, attributes_scrolled);
                 let metadata_pane = MetadataPaneController::new();
@@ -232,7 +247,7 @@ impl DialogController for ImportDialog {
 
                 let mut widgets = Widgets {
                     dialog: import_dialog,
-                    import_source_combo: import_source_combo.clone(),
+                    import_source_combo_model,
                     importer_ui_stack,
                     destination_folder,
                     images_list_model,
@@ -245,17 +260,10 @@ impl DialogController for ImportDialog {
                 let importer = CameraImporterUI::new();
                 widgets.add_importer_ui(importer, self.sender());
 
-                let sender = self.sender();
-                import_source_combo.connect_changed(
-                    glib::clone!(@strong sender => move |combo| {
-                        if let Some(source) = combo.active_id() {
-                            npc_fwk::send_async_local!(Event::SourceChanged(source.to_string()), sender);
-                        }
-                    }),
-                );
-
                 let last_importer = self.cfg.value("last_importer", "DirectoryImporter");
-                import_source_combo.set_active_id(Some(&last_importer));
+                if let Some(selected) = widgets.import_source_combo_model.index_of(&last_importer) {
+                    import_source_combo.set_selected(selected as u32);
+                }
 
                 widgets
             })
