@@ -22,6 +22,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::libraryclient::{ClientInterface, LibraryClient};
+use npc_fwk::dbg_out;
 use npc_fwk::toolkit::ConfigBackend;
 
 /// A backend to handle catalog preferences.
@@ -59,6 +60,7 @@ impl ConfigBackend for CatalogPreferences {
         for pref in prefs {
             store.insert(pref.0.clone(), pref.1.clone());
         }
+        dbg_out!("Catalog Preferences initialised");
     }
 
     /// Return true if it has `key`.

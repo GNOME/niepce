@@ -25,6 +25,7 @@ The known keys are:
 | `prefs.dir_import_recursive`     | Recursive directory import                 |
 | `prefs.last_importer`            | Last importer selected (dir or camera)     |
 | `prefs.base_import_dest_dir`     | Base directory for import destination      |
+| `prefs.catalog-window`           | State of the Catalog window (NiepceWindow) |
 
 The key values aren't part of the version of the database schema,
 except `version`.

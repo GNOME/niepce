@@ -17,14 +17,78 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::rc::Rc;
 use std::sync::Arc;
 
 use gtk4::prelude::*;
+use serde::{Deserialize, Serialize};
 
 use super::AppController;
+use super::Configuration;
+
+#[derive(Serialize, Deserialize)]
+struct State {
+    x: i32,
+    y: i32,
+    max: bool,
+}
 
 pub trait WindowController {
     fn window(&self) -> &gtk4::Window;
+
+    /// The config key for the state.
+    fn state_key(&self) -> Option<&str> {
+        None
+    }
+
+    /// The configuration
+    fn configuration(&self) -> Option<Rc<Configuration>> {
+        None
+    }
+
+    /// Initialize the state saving if needed
+    fn init_state<T: WindowController + 'static>(this: &Rc<T>) {
+        this.window().connect_close_request(glib::clone!(@weak this as ctrl => @default-return glib::Propagation::Proceed, move |_| {
+            if let Some(cfg) = ctrl.configuration() {
+                ctrl.save_state(&cfg);
+                dbg_out!("State saved");
+            }
+            glib::Propagation::Proceed
+        }));
+    }
+
+    fn save_state(&self, cfg: &Configuration) {
+        if let Some(key) = self.state_key() {
+            let window = self.window();
+            let size = window.default_size();
+            let state = State {
+                x: size.0,
+                y: size.1,
+                max: window.is_maximized(),
+            };
+
+            if let Ok(j) = serde_json::to_string(&state) {
+                cfg.set_value(key, &j);
+            }
+        }
+    }
+
+    fn load_state(&self, cfg: &Configuration) {
+        if let Some(key) = self.state_key() {
+            if let Some(state) = cfg.value_opt(key) {
+                if let Ok(state) = serde_json::from_str::<State>(&state) {
+                    let window = self.window();
+                    window.set_default_size(state.x, state.y);
+                    window.set_maximized(state.max);
+                    dbg_out!("loaded state");
+                } else {
+                    err_out!("Couldn't deserialise window state");
+                }
+            } else {
+                err_out!("Couldn't load state");
+            }
+        }
+    }
 }
 
 /// Create an undo action, with accel, and automatic state handling.

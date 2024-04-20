@@ -55,6 +55,7 @@ pub enum Event {
     DatabaseReady,
     DatabaseNeedUpgrade(i32),
     InitialisePrefs(Vec<(String, String)>),
+    UpdatePrefs(String, String),
 }
 
 struct Widgets {
@@ -155,6 +156,15 @@ impl Controller for NiepceWindow {
                     .unwrap()
                     .imp()
                     .initialise(&prefs);
+                self.load_state(self.configuration.borrow().as_ref().unwrap());
+            }
+            UpdatePrefs(key, value) => {
+                self.configuration
+                    .borrow()
+                    .as_ref()
+                    .unwrap()
+                    .imp()
+                    .initialise(&[(key, value)]);
             }
         }
     }
@@ -269,6 +279,14 @@ impl WindowController for NiepceWindow {
     fn window(&self) -> &gtk4::Window {
         self.window.upcast_ref()
     }
+
+    fn state_key(&self) -> Option<&str> {
+        Some("catalog-window")
+    }
+
+    fn configuration(&self) -> Option<Rc<toolkit::Configuration>> {
+        self.configuration.borrow().clone()
+    }
 }
 
 impl NiepceWindow {
@@ -284,6 +302,7 @@ impl NiepceWindow {
         });
 
         <Self as Controller>::start(&ctrl);
+        <Self as WindowController>::init_state(&ctrl);
 
         ctrl
     }
@@ -318,7 +337,7 @@ impl NiepceWindow {
             }
             PrefChanged(key, value) => {
                 // Treat this like an initialisation
-                npc_fwk::send_async_any!(Event::InitialisePrefs(vec![(key, value)]), tx)
+                npc_fwk::send_async_any!(Event::UpdatePrefs(key, value), tx)
             }
             _ => (),
         }
