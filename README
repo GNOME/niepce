@@ -39,6 +39,7 @@ To build you need the following:
 - libheif
   - HEVC codec should be installed at runtime for HEIC.
 - meson >= 0.59
+- blueprint
 
 For the RawTherapee engine:
 

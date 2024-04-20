@@ -38,7 +38,7 @@ pub fn init_resources() -> Result<(), glib::Error> {
     // The assumption here is that it's built within the build system.
     let res_bytes = include_bytes!(concat!(
         env!("CARGO_TARGET_DIR"),
-        "/../src/niepce/npc-resources.gresource"
+        "/../niepce-main/src/npc-resources.gresource"
     ));
 
     // Create Resource it will live as long the value lives.

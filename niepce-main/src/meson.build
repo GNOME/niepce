@@ -11,6 +11,29 @@ run_command(
   check: true
 )
 
+blueprints = custom_target('blueprints',
+  input: files(
+    'niepce/ui/dialogs/import/cameraimporterui.blp',
+    'niepce/ui/dialogs/import/directoryimporterui.blp',
+    'niepce/ui/dialogs/importdialog.blp',
+    'niepce/ui/dialogs/preferences.blp',
+  ),
+  output: '.',
+  command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
+)
+
+# The bundle is needed for Rust executables.
+resources_bundle = gnome.compile_resources(
+  'npc-resources',
+  'niepce/gresource.xml',
+  gresource_bundle: true,
+  source_dir: [
+    meson.project_source_root(),
+    meson.project_build_root(),
+  ],
+  dependencies: blueprints,
+)
+
 cargo_options = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml' ]
 cargo_options += [ '--target-dir', cargo_target_dir ]
 
@@ -40,7 +63,7 @@ niepce_rust = custom_target(
     cargo, 'build',
     cargo_options,
     '&&',
-    'cp', cargo_target_dir / rust_target / 'niepce', '@OUTDIR@'
+    'cp', cargo_target_dir / rust_target / 'niepce', '@OUTDIR@' / '..'
   ],
   depends: [niepce_lib, resources_bundle, rtengine]
 )
