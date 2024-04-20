@@ -341,6 +341,18 @@
         },
         "fftw3f.json",
         {
+            "name": "blueprint-compiler",
+            "buildsystem": "meson",
+            "cleanup": ["*"],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
+                    "tag": "v0.12.0"
+                }
+            ]
+        },
+        {
             "name": "niepce",
 	    "buildsystem": "meson",
             "build-options": {
