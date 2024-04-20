@@ -35,7 +35,6 @@ npc-craw = { path = "../crates/npc-craw" }
 
 [lib]
 name = "niepce_core"
-crate-type = ["staticlib", "lib"]
 
 [[example]]
 name = "widget-test"

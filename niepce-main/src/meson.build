@@ -29,21 +29,18 @@ niepce_rust = custom_target(
   'cargo-build',
   build_always_stale: true,
   output: [
-    'libniepce_core.a',
     'niepce'
   ],
   console: true,
   install: true,
-  install_dir: [ false, 'bin' ],
+  install_dir: 'bin',
   command: [
     'env',
     cargo_env,
     cargo, 'build',
     cargo_options,
     '&&',
-    'cp', cargo_target_dir / rust_target / 'niepce', '@OUTDIR@',
-    '&&',
-    'cp', cargo_target_dir / rust_target / 'libniepce_core.a', '@OUTDIR@'
+    'cp', cargo_target_dir / rust_target / 'niepce', '@OUTDIR@'
   ],
   depends: [niepce_lib, resources_bundle, rtengine]
 )
