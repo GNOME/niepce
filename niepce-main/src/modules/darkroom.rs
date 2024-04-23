@@ -39,13 +39,13 @@ use npc_engine::library::{RenderEngine, RenderMsg, RenderParams};
 use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::Dock;
-use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
+use npc_fwk::toolkit::{ComboModel, Controller, ControllerImplCell, UiController};
 use npc_fwk::{dbg_out, on_err_out};
 use toolbox_controller::ToolboxController;
 
 pub enum Msg {
     SelectionChanged(Option<db::LibFile>),
-    SetRenderEngine(String),
+    SetRenderEngine(RenderEngine),
 }
 
 pub struct DarkroomModule {
@@ -55,8 +55,8 @@ pub struct DarkroomModule {
     worker: RenderWorker,
     imagecanvas: ImageCanvas,
     overlay: adw::ToastOverlay,
-    engine_combo: gtk4::ComboBoxText,
-    engine_combo_change: Option<glib::SignalHandlerId>,
+    engine_combo: gtk4::DropDown,
+    engine_combo_model: Rc<ComboModel<RenderEngine>>,
     toolbox_controller: ToolboxController,
     file: RefCell<Option<db::LibFile>>,
     render_params: RefCell<Option<RenderParams>>,
@@ -80,7 +80,7 @@ impl Controller for DarkroomModule {
                     self.client.client().set_metadata(
                         file.id(),
                         Np::Index(Npi::NpNiepceRenderEngineProp),
-                        &npc_fwk::base::PropertyValue::String(engine.clone()),
+                        &npc_fwk::base::PropertyValue::String(engine.key().to_string()),
                     );
                 }
             }
@@ -125,7 +125,7 @@ impl DarkroomModule {
         let overlay = adw::ToastOverlay::new();
         let toolbox_controller = ToolboxController::new();
         let widget: gtk4::Widget = gtk4::Paned::new(gtk4::Orientation::Horizontal).into();
-        let engine_combo = gtk4::ComboBoxText::new();
+        let engine_combo = gtk4::DropDown::default();
 
         let mut module = Self {
             imp_: ControllerImplCell::default(),
@@ -134,7 +134,7 @@ impl DarkroomModule {
             imagecanvas,
             overlay,
             engine_combo,
-            engine_combo_change: None,
+            engine_combo_model: Rc::default(),
             worker,
             toolbox_controller,
             file: RefCell::new(None),
@@ -155,13 +155,10 @@ impl DarkroomModule {
 
     /// Set the active engine in the UI, but don't emit the signal change
     /// This is for when we set the UI value.
-    fn set_active_engine(&self, engine: Option<&str>) {
-        if let Some(ref handler) = self.engine_combo_change {
-            glib::signal::signal_handler_block(&self.engine_combo, handler);
-        }
-        self.engine_combo.set_active_id(engine);
-        if let Some(ref handler) = self.engine_combo_change {
-            glib::signal::signal_handler_unblock(&self.engine_combo, handler);
+    fn set_active_engine(&self, engine: Option<RenderEngine>) {
+        if let Some(index) = engine.and_then(|ref engine| self.engine_combo_model.index_of(engine))
+        {
+            self.engine_combo.set_selected(index as u32);
         }
     }
 
@@ -248,7 +245,7 @@ impl DarkroomModule {
             let params = self.params_for_metadata(file);
             self.render_params.replace(Some(params.clone()));
 
-            let key = params.engine().key();
+            let key = params.engine();
             self.set_active_engine(Some(key));
 
             self.need_reload.set(true);
@@ -282,16 +279,15 @@ impl DarkroomModule {
         let toolbar = crate::niepce::ui::imagetoolbar::image_toolbar_new();
         vbox.append(&toolbar);
         let dock = Dock::new();
-        self.engine_combo
-            .append(Some(RenderEngine::Ncr.key()), "Niepce Camera Raw");
-        self.engine_combo
-            .append(Some(RenderEngine::Rt.key()), "RawTherapee");
+        self.engine_combo_model
+            .push("Niepce Camera Raw", RenderEngine::Ncr);
+        self.engine_combo_model
+            .push("RawTherapee", RenderEngine::Rt);
         let tx = self.sender();
-        self.engine_combo_change = Some(self.engine_combo.connect_changed(move |combo| {
-            if let Some(id) = combo.active_id().map(|id| id.to_string()) {
-                npc_fwk::toolkit::send_async_local!(Msg::SetRenderEngine(id), tx);
-            }
-        }));
+        self.engine_combo_model.bind(&self.engine_combo, move |id| {
+            let id = *id;
+            npc_fwk::toolkit::send_async_local!(Msg::SetRenderEngine(id), tx);
+        });
         dock.vbox().append(&self.engine_combo);
         let toolbox = self.toolbox_controller.widget();
         dock.vbox().append(toolbox);
@@ -350,7 +346,7 @@ impl DarkroomModule {
                 let params = self.params_for_metadata(file);
                 self.render_params.replace(Some(params.clone()));
 
-                let key = params.engine().key();
+                let key = params.engine();
                 self.set_active_engine(Some(key));
 
                 if self.need_reload.get() && self.active.get() {
@@ -366,7 +362,7 @@ impl DarkroomModule {
                 // Don't retrigger render if the engine didn't change.
                 if params.engine() != engine {
                     params.set_engine(engine);
-                    self.set_active_engine(Some(engine.key()));
+                    self.set_active_engine(Some(engine));
                     self.need_reload.set(true);
                 }
             }
