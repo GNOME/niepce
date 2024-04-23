@@ -36,7 +36,8 @@ pub enum Event {
 #[derive(Default)]
 struct Widgets {
     parent: Option<gtk4::Window>,
-    camera_list_combo: Option<gtk4::ComboBoxText>,
+    camera_list_combo: Option<gtk4::DropDown>,
+    camera_list_model: Rc<toolkit::ComboModel<String>>,
     select_camera: Option<gtk4::Button>,
     source_selected_cb: Option<SourceSelectedCallback>,
 }
@@ -81,9 +82,14 @@ impl CameraImporterUI {
             .borrow()
             .camera_list_combo
             .as_ref()
-            .and_then(|combo| combo.active_id())
+            .map(|combo| combo.selected())
         {
             let datetime = chrono::Local::now();
+            let source = self
+                .widgets
+                .borrow()
+                .camera_list_model
+                .value(source as usize);
             let today = format!("{}", datetime.format("%F %H%M%S"));
             let dest_dir = i18n("Camera import ") + &today;
             if let Some(callback) = &self.widgets.borrow().source_selected_cb {
@@ -114,7 +120,7 @@ impl ImporterUI for CameraImporterUI {
         select_camera_btn.connect_clicked(glib::clone!(@strong sender =>
             move |_| npc_fwk::send_async_local!(Event::CameraSelected, sender);
         ));
-        get_widget!(builder, gtk4::ComboBoxText, camera_list_combo);
+        get_widget!(builder, gtk4::DropDown, camera_list_combo);
 
         let mut widgets = self.widgets.borrow_mut();
         widgets.parent = Some(parent.clone());
@@ -123,16 +129,19 @@ impl ImporterUI for CameraImporterUI {
 
         toolkit::GpDeviceList::instance().detect();
 
+        widgets
+            .camera_list_model
+            .bind(&camera_list_combo, move |_| {});
         // XXX restore the selection from the preferences.
-        for (idx, device) in toolkit::GpDeviceList::instance().list().iter().enumerate() {
-            camera_list_combo.append(Some(&device.port), &device.model);
-            if idx == 0 {
-                camera_list_combo.set_active_id(Some(&device.port));
-            }
+        for device in toolkit::GpDeviceList::instance().list().iter() {
+            widgets
+                .camera_list_model
+                .push(&device.model, device.port.clone());
         }
-        if camera_list_combo.active_id().is_none() {
-            camera_list_combo.append(Some(""), &i18n("No camera found"));
-            camera_list_combo.set_active_id(Some(""));
+        if widgets.camera_list_model.is_empty() {
+            widgets
+                .camera_list_model
+                .push(&i18n("No camera found"), String::default());
             camera_list_combo.set_sensitive(false);
             select_camera_btn.set_sensitive(false);
         }

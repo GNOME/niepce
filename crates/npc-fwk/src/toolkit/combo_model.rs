@@ -23,6 +23,7 @@ use std::rc::Rc;
 use gtk4::prelude::*;
 
 /// A "model" to bind T values to a `gtk4::StringList`.
+#[derive(Default)]
 pub struct ComboModel<T> {
     model: gtk4::StringList,
     map: RefCell<Vec<T>>,
@@ -45,6 +46,10 @@ impl<T: Clone + std::cmp::PartialEq + 'static> ComboModel<T> {
         })
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.map.borrow().is_empty()
+    }
+
     /// Push a value.
     pub fn push(&self, key: &str, value: T) {
         self.map.borrow_mut().push(value);
@@ -58,7 +63,7 @@ impl<T: Clone + std::cmp::PartialEq + 'static> ComboModel<T> {
     }
 
     /// Get value at index.
-    fn value(&self, index: usize) -> T {
+    pub fn value(&self, index: usize) -> T {
         self.map.borrow()[index].clone()
     }
 
