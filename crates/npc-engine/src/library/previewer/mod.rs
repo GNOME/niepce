@@ -1,7 +1,7 @@
 /*
  * niepce - library/previewer/mod.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ impl ParamDigest for RenderEngine {
 /// The message for the renderers.
 pub enum RenderMsg {
     /// The the image for the processors.
-    SetImage(Option<db::LibFile>),
+    SetImage(Option<Box<db::LibFile>>),
     /// Reload with processing params
     Reload(Option<RenderParams>),
     /// Get the bitmap and call the lambda with the result.

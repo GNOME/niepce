@@ -430,18 +430,14 @@ impl ModuleShell {
         }
         // Forward to the darkroom module.
         let store = &self.selection_controller.list_store();
-        if let Some(libfile) = store.file(id) {
-            self.darkroom.set_image(Some(libfile));
-        }
+        self.darkroom.set_image(store.file(id).as_ref());
     }
 
     fn on_image_activated(&self, id: db::LibraryId) {
         dbg_out!("Activated callback for {}", id);
         let store = &self.selection_controller.list_store();
-        if let Some(libfile) = store.file(id) {
-            self.darkroom.set_image(Some(libfile));
-            self.widget.activate_page("darkroom");
-        }
+        self.darkroom.set_image(store.file(id).as_ref());
+        self.widget.activate_page("darkroom");
     }
 
     fn module_activated(&self, name: &str) {

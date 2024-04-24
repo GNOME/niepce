@@ -1,7 +1,7 @@
 /*
  * niepce - ncr/render_worker.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ impl WorkerImpl for RenderImpl {
                 {
                     dbg_out!("Same image file, doing nothing");
                 } else {
-                    self.imagefile.replace(file);
+                    self.imagefile.replace(file.as_deref().cloned());
                 }
             }
             Reload(params) => {

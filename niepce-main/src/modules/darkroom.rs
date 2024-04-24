@@ -44,7 +44,7 @@ use npc_fwk::{dbg_out, on_err_out};
 use toolbox_controller::ToolboxController;
 
 pub enum Msg {
-    SelectionChanged(Option<db::LibFile>),
+    SelectionChanged(Option<Box<db::LibFile>>),
     SetRenderEngine(RenderEngine),
 }
 
@@ -84,7 +84,7 @@ impl Controller for DarkroomModule {
                     );
                 }
             }
-            Msg::SelectionChanged(file) => self.set_image(file),
+            Msg::SelectionChanged(file) => self.set_image(file.as_deref()),
         }
     }
 }
@@ -336,12 +336,14 @@ impl DarkroomModule {
         RenderParams::new_preview(file, engine, Size::default())
     }
 
-    pub fn set_image(&self, file: Option<db::LibFile>) {
+    pub fn set_image(&self, file: Option<&db::LibFile>) {
         self.need_reload.set(true);
-        self.file.replace(file.clone());
+        self.file.replace(file.cloned());
 
-        if let Some(ref file) = file {
-            on_err_out!(self.worker.send(RenderMsg::SetImage(Some(file.clone()))));
+        if let Some(file) = file {
+            on_err_out!(self
+                .worker
+                .send(RenderMsg::SetImage(Some(Box::new(file.clone())))));
             if file.metadata().is_some() {
                 let params = self.params_for_metadata(file);
                 self.render_params.replace(Some(params.clone()));
