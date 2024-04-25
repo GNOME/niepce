@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/darkroom/image_canvas.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,19 +139,6 @@ mod imp {
                 let canvas_h = obj.height();
                 let canvas_w = obj.width();
                 dbg_out!("canvas w = {canvas_w} ; h = {canvas_h}");
-
-                let st_ctx = obj.style_context();
-                st_ctx.save();
-                st_ctx.set_state(gtk4::StateFlags::NORMAL);
-                gtk4::render_background(
-                    &st_ctx,
-                    context,
-                    0.0,
-                    0.0,
-                    canvas_w as f64,
-                    canvas_h as f64,
-                );
-                st_ctx.restore();
 
                 dbg_out!("image w = {img_w} ; h = {img_h}");
                 let scale = self.calc_image_scale(img_w, img_h);
