@@ -48,26 +48,6 @@ endif
 
 # cargo env is defined in the top-level
 
-niepce_rust = custom_target(
-  'cargo-build',
-  build_always_stale: true,
-  output: [
-    'niepce'
-  ],
-  console: true,
-  install: true,
-  install_dir: 'bin',
-  command: [
-    'env',
-    cargo_env,
-    cargo, 'build',
-    cargo_options,
-    '&&',
-    'cp', cargo_target_dir / rust_target / 'niepce', '@OUTDIR@' / '..'
-  ],
-  depends: [resources_bundle, rtengine]
-)
-
 clippy = run_target(
   'clippy',
   env: cargo_env,
@@ -98,8 +78,6 @@ examples = run_target(
   ],
   depends: [resources_bundle]
 )
-
-niepce_rust_deps = declare_dependency(link_with: niepce_rust[0])
 
 # Target to build the test prior to running cargo-test
 niepce_test = custom_target(
