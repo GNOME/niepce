@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/importer/directory_importer.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,9 +115,15 @@ impl ImportBackend for DirectoryImporter {
             .spawn(move || {
                 for path in paths {
                     dbg_out!("path {}", path);
-                    let thumbnail = npc_fwk::toolkit::Thumbnail::thumbnail_file(&path, 160, 160, 0);
-                    let date =
-                        XmpMeta::new_from_file(&path, false).and_then(|xmp| xmp.creation_date());
+                    let xmp = XmpMeta::new_from_file(&path, false);
+                    let date = xmp.as_ref().and_then(|xmp| xmp.creation_date());
+                    let orientation = xmp.as_ref().and_then(|xmp| xmp.orientation()).unwrap_or(1);
+                    let thumbnail = npc_fwk::toolkit::Thumbnail::thumbnail_file(
+                        &path,
+                        160,
+                        160,
+                        orientation as u32,
+                    );
                     callback(path.to_string(), thumbnail, date);
                 }
             }));
