@@ -16,6 +16,7 @@
         "--filesystem=host",
         "--share=network",
         "--talk-name=org.gtk.vfs.*",
+        "--filesystem=xdg-run/gvfsd",
         "--device=all"
     ],
     "build-options" : {
@@ -25,7 +26,8 @@
         "env": {
             "CARGO_HOME": "/run/build/niepce/cargo"
         },
-        "append-path": "/usr/lib/sdk/rust-stable/bin"
+        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm16/bin",
+        "prepend-ld-library-path": "/usr/lib/sdk/llvm16/lib"
     },
     "cleanup": [
         "/include",
@@ -351,10 +353,6 @@
         {
             "name": "niepce",
 	    "buildsystem": "meson",
-            "build-options":{
-                "append-path": "/usr/lib/sdk/llvm16/bin",
-                "prepend-ld-library-path": "/usr/lib/sdk/llvm16/lib"
-            },
             "config-opts": [
                 "-Dprofile=release"
             ],

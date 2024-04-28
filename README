@@ -75,6 +75,18 @@ $ cd flatpak
 $ flatpak-builder --force-clean --ccache  --install --user build-dir net.figuiere.Niepce.json
 ```
 
+### Build with fenv
+
+You can use [`fenv`](https://gitlab.gnome.org/ZanderBrown/fenv) to
+build the flatpak.
+
+```shell
+fenv gen flatpak/net.figuiere.Niepce.Devel.json
+fenv exec ninja -C _build install
+```
+
+Then you can run with `fenv run`.
+
 Getting the code
 ----------------
 
