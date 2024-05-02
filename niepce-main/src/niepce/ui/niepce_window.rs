@@ -389,15 +389,19 @@ impl NiepceWindow {
         let tx = self.sender();
         dialog.connect_response(
             glib::clone!(@strong dialog, @strong tx => move |_, response| {
-                if response == gtk4::ResponseType::Accept {
-                    if let Some(catalog_to_create) = dialog.file().and_then(|f| f.path()) {
-                        let catalog_to_create2 = catalog_to_create.clone();
-                        npc_fwk::send_async_local!(Event::OpenCatalog(catalog_to_create2), tx);
-                        let app = NiepceApplication::instance();
-                        let cfg = &app.config();
-                        cfg.set_value("last_open_catalog", &catalog_to_create.to_string_lossy());
+                match response {
+                    gtk4::ResponseType::Accept => {
+                        if let Some(catalog_to_create) = dialog.file().and_then(|f| f.path()) {
+                            let catalog_to_create2 = catalog_to_create.clone();
+                            npc_fwk::send_async_local!(Event::OpenCatalog(catalog_to_create2), tx);
+                            let app = NiepceApplication::instance();
+                            let cfg = &app.config();
+                            cfg.set_value("last_open_catalog", &catalog_to_create.to_string_lossy());
+                        }
+                        dialog.destroy();
                     }
-                    dialog.destroy();
+                    gtk4::ResponseType::Cancel => dialog.destroy(),
+                    _ => err_out!("File chooser: unknown response {response}"),
                 }
             }),
         );
