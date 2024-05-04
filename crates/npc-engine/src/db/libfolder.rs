@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libfolder.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ use super::FromDb;
 use super::LibraryId;
 
 #[repr(i32)]
-#[derive(Clone, Debug, Default, FromPrimitive, ToPrimitive, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, FromPrimitive, ToPrimitive, PartialEq, Eq)]
 pub enum FolderVirtualType {
     #[default]
     None = 0,
@@ -36,7 +36,6 @@ pub struct LibFolder {
     id: LibraryId,
     /// Name of the folder
     name: String,
-    #[allow(dead_code)]
     /// Path of the folder.
     path: Option<String>,
     locked: bool,
@@ -83,7 +82,7 @@ impl LibFolder {
     }
 
     pub fn virtual_type(&self) -> FolderVirtualType {
-        self.virt.to_owned()
+        self.virt
     }
 
     pub fn set_virtual_type(&mut self, virt: FolderVirtualType) {
@@ -96,6 +95,10 @@ impl LibFolder {
 
     pub fn set_parent(&mut self, parent: LibraryId) {
         self.parent = parent;
+    }
+
+    pub fn path(&self) -> Option<&str> {
+        self.path.as_deref()
     }
 }
 
