@@ -19,9 +19,3 @@ gegl = "0.1.1"
 npc-fwk = { path = "../npc-fwk" }
 npc-engine = { path = "../npc-engine" }
 rtengine = { path = "../rtengine" }
-
-[build-dependencies]
-system-deps = "6.0"
-
-[package.metadata.system-deps]
-"gegl-0.4" = "0.4"

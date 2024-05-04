@@ -116,10 +116,6 @@ cargo_target_dir = meson.project_build_root() / 'target'
 cargo_env = [
   'CARGO_HOME=' + meson.project_build_root() / 'cargo-home',
   'CARGO_TARGET_DIR=' + cargo_target_dir,
-  'NIEPCE_LIB_PATH=' + '' + meson.project_build_root() / 'src' / 'niepce'
-     + ':' + meson.project_build_root() / 'src' / 'fwk'
-     + ':' + meson.project_build_root() / 'src' / 'ncr'
-     + ':' + meson.project_build_root() / 'third_party' / 'rtengine'
 ]
 
 # We need to set the libs to build with the sanitizer.
