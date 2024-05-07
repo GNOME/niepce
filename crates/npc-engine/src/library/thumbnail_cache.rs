@@ -41,7 +41,6 @@ struct Task {
     params: RenderParams,
     /// File to generate thumbnail for.
     file: LibFile,
-    ///
     processor: Option<RenderSender>,
 }
 

@@ -64,9 +64,9 @@ impl FromStr for RgbColour {
     }
 }
 
-impl ToString for RgbColour {
-    fn to_string(&self) -> String {
-        format!("{} {} {}", self.r, self.g, self.b)
+impl std::fmt::Display for RgbColour {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {} {}", self.r, self.g, self.b)
     }
 }
 

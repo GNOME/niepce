@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/filebundle.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,7 +158,7 @@ impl FileBundle {
             MType::Image(format) => match format {
                 ImgFormat::Raw => {
                     if !self.main.as_os_str().is_empty() && self.jpeg.as_os_str().is_empty() {
-                        self.jpeg = self.main.clone();
+                        self.jpeg.clone_from(&self.main);
                         self.bundle_type = FileType::RawJpeg;
                     } else {
                         self.bundle_type = FileType::Raw;

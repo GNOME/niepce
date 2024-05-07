@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/moniker.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,12 +48,12 @@ impl From<&str> for Moniker {
     }
 }
 
-impl ToString for Moniker {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for Moniker {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.scheme.is_empty() {
-            self.path.to_string()
+            write!(f, "{}", self.path)
         } else {
-            format!("{}:{}", self.scheme, self.path)
+            write!(f, "{}:{}", self.scheme, self.path)
         }
     }
 }

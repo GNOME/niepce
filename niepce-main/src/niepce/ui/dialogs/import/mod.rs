@@ -55,7 +55,6 @@ pub enum Event {
     SetDatePathFormat(DatePathFormat),
     PreviewReceived(String, Option<Thumbnail>, Option<Date>),
     AppendFiles(Vec<Box<dyn ImportedFile>>),
-    ///
     Cancel,
     Import,
 }

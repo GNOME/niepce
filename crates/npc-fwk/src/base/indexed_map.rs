@@ -1,7 +1,7 @@
 /*
  * niepce - ncp_fwk/base/indexed_map.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,10 +66,10 @@ impl<K, V> IndexedMap<K, V> {
 
     /// Return the index of the `key`.
     /// This is currenly SLOW O(n)
-    pub fn index_of<Q: ?Sized>(&self, key: &Q) -> Option<usize>
+    pub fn index_of<Q>(&self, key: &Q) -> Option<usize>
     where
         K: Borrow<Q> + std::cmp::Eq + std::cmp::PartialEq<Q> + std::hash::Hash,
-        Q: std::cmp::Eq + std::hash::Hash,
+        Q: std::cmp::Eq + std::hash::Hash + ?Sized,
     {
         self.index.iter().position(|item| item == key)
     }
@@ -84,19 +84,19 @@ impl<K, V> IndexedMap<K, V> {
     }
 
     /// Get the value at `key`
-    pub fn get<Q: ?Sized>(&self, key: &Q) -> Option<&V>
+    pub fn get<Q>(&self, key: &Q) -> Option<&V>
     where
         K: Borrow<Q> + std::cmp::Eq + std::hash::Hash,
-        Q: std::cmp::Eq + std::hash::Hash,
+        Q: std::cmp::Eq + std::hash::Hash + ?Sized,
     {
         self.map.get(key)
     }
 
     /// Remove value for `key`
-    pub fn remove<Q: ?Sized>(&mut self, key: &Q) -> Option<V>
+    pub fn remove<Q>(&mut self, key: &Q) -> Option<V>
     where
         K: Borrow<Q> + std::cmp::Eq + std::cmp::PartialEq<Q> + std::hash::Hash,
-        Q: std::cmp::Eq + std::hash::Hash,
+        Q: std::cmp::Eq + std::hash::Hash + ?Sized,
     {
         // Currently this is slow O(n)
         if let Some(pos) = self.index_of(key) {

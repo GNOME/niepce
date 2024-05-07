@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/date.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,9 +38,9 @@ impl Date {
     }
 }
 
-impl std::string::ToString for Date {
-    fn to_string(&self) -> String {
-        self.0.to_string()
+impl std::fmt::Display for Date {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 

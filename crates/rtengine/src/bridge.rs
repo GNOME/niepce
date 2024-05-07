@@ -43,7 +43,6 @@ pub(crate) mod ffi {
     }
 
     extern "C++" {
-        type ProgressListener;
         type FramesMetaData;
     }
 
