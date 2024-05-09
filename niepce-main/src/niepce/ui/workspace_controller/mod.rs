@@ -492,11 +492,11 @@ impl WorkspaceController {
     /// Initiate the initial loading.
     pub fn startup(&self) {
         if let Some(client) = self.client.upgrade() {
-            client.get_all_folders();
+            client.get_all_folders(None);
             client.get_all_keywords();
             client.get_all_albums();
         } else {
-            err_out!("coudln't get client");
+            err_out!("couldn't get client");
         }
     }
 

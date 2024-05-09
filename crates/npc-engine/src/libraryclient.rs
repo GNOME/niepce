@@ -21,7 +21,7 @@ pub mod clientinterface;
 mod host;
 mod ui_data_provider;
 
-pub use clientinterface::{ClientInterface, ClientInterfaceSync};
+pub use clientinterface::{ClientCallback, ClientInterface, ClientInterfaceSync};
 pub use host::LibraryClientHost;
 pub use ui_data_provider::UIDataProvider;
 
@@ -33,7 +33,7 @@ use std::thread;
 
 use crate::db::filebundle::FileBundle;
 use crate::db::props::NiepceProperties as Np;
-use crate::db::{Library, LibraryId};
+use crate::db::{LibFolder, Library, LibraryId};
 use crate::library::commands;
 use crate::library::notification::LcChannel;
 use crate::library::op::Op;
@@ -156,8 +156,8 @@ impl ClientInterface for LibraryClientSender {
     }
 
     /// get all the folders
-    fn get_all_folders(&self) {
-        self.schedule_op(commands::cmd_list_all_folders);
+    fn get_all_folders(&self, callback: Option<ClientCallback<Vec<LibFolder>>>) {
+        self.schedule_op(move |lib| commands::cmd_list_all_folders(lib, callback));
     }
 
     fn query_folder_content(&self, folder_id: LibraryId) {

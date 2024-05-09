@@ -21,9 +21,12 @@ use std::path::PathBuf;
 
 use crate::db::filebundle::FileBundle;
 use crate::db::props::NiepceProperties as Np;
-use crate::db::LibraryId;
+use crate::db::{LibFolder, LibraryId};
 use crate::NiepcePropertyBag;
 use npc_fwk::base::{PropertyValue, RgbColour};
+
+/// Callback for a local library request.
+pub type ClientCallback<T> = Box<dyn Fn(T) + Sync + Send>;
 
 /// Client interface.
 pub trait ClientInterface {
@@ -37,7 +40,7 @@ pub trait ClientInterface {
     fn count_keyword(&self, id: LibraryId);
 
     /// get all the folder
-    fn get_all_folders(&self);
+    fn get_all_folders(&self, callback: Option<ClientCallback<Vec<LibFolder>>>);
     fn query_folder_content(&self, id: LibraryId);
     fn count_folder(&self, id: LibraryId);
     fn create_folder(&self, name: String, path: Option<String>);

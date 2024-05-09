@@ -29,6 +29,7 @@ use crate::db::libfolder::LibFolder;
 use crate::db::props::NiepceProperties as Np;
 use crate::db::LibraryId;
 use crate::db::{LibError, LibResult, Library};
+use crate::libraryclient::ClientCallback;
 use crate::NiepcePropertyBag;
 use npc_fwk::base::RgbColour;
 use npc_fwk::PropertyValue;
@@ -88,14 +89,21 @@ pub fn cmd_list_all_keywords(lib: &Library) -> bool {
     }
 }
 
-pub fn cmd_list_all_folders(lib: &Library) -> bool {
+pub fn cmd_list_all_folders(
+    lib: &Library,
+    callback: Option<ClientCallback<Vec<LibFolder>>>,
+) -> bool {
     match lib.get_all_folders() {
         Ok(list) => {
-            // XXX change this to "LoadedFolders"
-            for folder in list {
-                if let Err(err) = lib.notify(LibNotification::AddedFolder(folder)) {
-                    err_out!("Failed to notify AddedFolder {:?}", err);
-                    return false;
+            if let Some(callback) = callback {
+                callback(list);
+            } else {
+                // XXX change this to "LoadedFolders"
+                for folder in list {
+                    if let Err(err) = lib.notify(LibNotification::AddedFolder(folder)) {
+                        err_out!("Failed to notify AddedFolder {:?}", err);
+                        return false;
+                    }
                 }
             }
             true
