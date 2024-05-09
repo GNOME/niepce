@@ -18,7 +18,8 @@
         "--share=network",
         "--talk-name=org.gtk.vfs.*",
         "--filesystem=xdg-run/gvfsd",
-        "--device=all"
+        "--device=all",
+        "--env=RUST_BACKTRACE=1"
     ],
     "build-options" : {
         "build-args": [
