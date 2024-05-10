@@ -43,7 +43,7 @@ Adw.Window import_dialog {
       }
     }
 
-    Box box1 {
+    Box {
       margin-bottom: 12;
       margin-end: 12;
       margin-start: 12;
@@ -59,7 +59,7 @@ Adw.Window import_dialog {
 
         Stack importer_ui_stack {}
 
-        Label label1 {
+        Label {
           halign: start;
           label: _('_Images to import');
           use-underline: true;
@@ -73,7 +73,7 @@ Adw.Window import_dialog {
         }
       }
 
-      Box box3 {
+      Box {
         margin-start: 12;
         orientation: vertical;
         spacing: 6;
@@ -97,11 +97,11 @@ Adw.Window import_dialog {
           }
         }
 
-        Expander expander1 {
+        Expander {
           expanded: true;
           focusable: true;
 
-          Box vbox3 {
+          Box {
             margin-bottom: 6;
             margin-end: 6;
             margin-start: 18;
@@ -125,17 +125,17 @@ Adw.Window import_dialog {
           }
 
           [label]
-          Label label3 {
+          Label {
             label: _('_Options');
             use-underline: true;
           }
         }
 
-        Expander expander2 {
+        Expander {
           expanded: true;
           focusable: true;
 
-          Box box4 {
+          Box {
             margin-bottom: 6;
             margin-end: 6;
             margin-start: 18;
@@ -155,7 +155,7 @@ Adw.Window import_dialog {
               margin-top: 6;
 
               [label]
-              Label label8 {
+              Label {
                 label: _('Presets:');
                 margin-start: 6;
                 margin-top: 6;
@@ -164,7 +164,7 @@ Adw.Window import_dialog {
             }
 
             Frame date_frame {
-              child: Box vbox1 {
+              child: Box {
                 orientation: vertical;
                 spacing: 4;
 
@@ -191,7 +191,7 @@ Adw.Window import_dialog {
               margin-top: 6;
 
               [label]
-              Label label4 {
+              Label {
                 label: _('Date:');
                 margin-start: 6;
                 margin-top: 6;
@@ -214,7 +214,7 @@ Adw.Window import_dialog {
               vexpand: true;
 
               [label]
-              Label label9 {
+              Label {
                 label: _('Attributes:');
                 margin-start: 6;
                 margin-top: 6;
@@ -223,7 +223,7 @@ Adw.Window import_dialog {
           }
 
           [label]
-          Label label7 {
+          Label {
             label: _('Metadata');
           }
         }
