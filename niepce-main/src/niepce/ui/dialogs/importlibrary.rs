@@ -360,6 +360,7 @@ impl ImportLibraryDialog {
 
     fn select_file(&self) {
         let message = i18n("Select Lightroom™ Library");
+        #[allow(deprecated)]
         let file_dialog = gtk4::FileChooserDialog::new(
             Some(&message),
             Some(&self.assistant),
@@ -370,9 +371,11 @@ impl ImportLibraryDialog {
             ],
         );
         let sender = self.sender();
+        #[allow(deprecated)]
         file_dialog.connect_response(move |d, response| {
             if response == gtk4::ResponseType::Accept {
                 dbg_out!("Accept");
+                #[allow(deprecated)]
                 if let Some(file) = d.file().as_ref().and_then(gio::prelude::FileExt::path) {
                     dbg_out!("Lr file: {:?}", file);
                     npc_fwk::send_async_local!(Command::SetFile(file), sender);

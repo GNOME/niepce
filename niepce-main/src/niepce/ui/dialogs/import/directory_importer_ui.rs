@@ -95,6 +95,7 @@ impl DirectoryImporterUI {
     }
 
     fn do_select_directories(&self) {
+        #[allow(deprecated)]
         let dialog = gtk4::FileChooserDialog::new(
             Some(&i18n("Import picture folder")),
             self.widgets.borrow().parent.as_ref(),
@@ -104,15 +105,20 @@ impl DirectoryImporterUI {
                 (&i18n("Select"), gtk4::ResponseType::Ok),
             ],
         );
+        #[allow(deprecated)]
         dialog.set_select_multiple(false);
 
         if let Some(last_import_location) = self.cfg.value_opt("last_dir_import_location") {
             let file = gio::File::for_path(last_import_location);
-            on_err_out!(dialog.set_current_folder(Some(&file)));
+            #[allow(deprecated)]
+            let result = dialog.set_current_folder(Some(&file));
+            on_err_out!(result);
         }
         let sender = self.sender();
+        #[allow(deprecated)]
         dialog.connect_response(glib::clone!(@strong sender, @weak self.cfg as cfg => move |dialog, response| {
             let mut source = None;
+            #[allow(deprecated)]
             if response == gtk4::ResponseType::Ok {
                 source = dialog.file().and_then(|f| f.path());
                 let dest_dir = source.as_ref().and_then(|p| p.file_name()?.to_str())
