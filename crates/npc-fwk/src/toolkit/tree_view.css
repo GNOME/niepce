@@ -1,0 +1,4 @@
+
+listview.npc > row > box.nochildren > treeexpander > expander {
+	-gtk-icon-source: none;
+}

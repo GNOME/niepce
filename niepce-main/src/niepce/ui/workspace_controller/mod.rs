@@ -331,8 +331,11 @@ impl UiController for WorkspaceController {
                 });
                 let librarytree = gtk4::ListView::new(Some(selection_model), Some(factory));
                 librarytree.set_widget_name("workspace");
+                librarytree.add_css_class("npc");
                 librarytree.set_single_click_activate(false);
-                ws_item_row::load_css();
+                // XXX this should move to the TreeViewModel constructor when we use it here.
+                // And then make the method non public.
+                npc_fwk::toolkit::tree_view_model::css::load();
 
                 let folders_node = WorkspaceController::add_toplevel_item(
                     &treemodel,

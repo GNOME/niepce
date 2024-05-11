@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/ws_item_widget.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,17 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::sync::Once;
-
 use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 
+use npc_fwk::toolkit::tree_view_model::css::NOCHILDREN_CSS;
+
 use super::{Event, Item, TreeItemType};
-
-/// The class to mark a row having no children
-const NOCHILDREN_CSS: &str = "nochildren";
-
-static LOAD_CSS: Once = Once::new();
 
 glib::wrapper! {
     /// This is the row item for the workspace.
@@ -35,21 +30,6 @@ glib::wrapper! {
     pub struct WsItemRow(
         ObjectSubclass<imp::WsItemRow>)
     @extends gtk4::Box, gtk4::Widget;
-}
-
-/// Load the CSS for the item row. Will do it once.
-pub(super) fn load_css() {
-    LOAD_CSS.call_once(|| {
-        if let Some(display) = gdk4::Display::default() {
-            let provider = gtk4::CssProvider::new();
-            provider.load_from_data(include_str!("workspace.css"));
-            gtk4::style_context_add_provider_for_display(
-                &display,
-                &provider,
-                gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
-            );
-        }
-    });
 }
 
 impl WsItemRow {

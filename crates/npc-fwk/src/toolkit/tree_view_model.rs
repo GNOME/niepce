@@ -22,6 +22,37 @@ use std::rc::Rc;
 
 use gtk4::prelude::*;
 
+// XXX make non public
+pub mod css {
+    //! Handle CSS hack to hide the tree exander.
+    //!
+    //! There is an API in gtk 4.10 to do that.
+
+    use std::sync::Once;
+
+    /// The class to mark a row having no children
+    // XXX make non public
+    pub const NOCHILDREN_CSS: &str = "nochildren";
+
+    static LOAD_CSS: Once = Once::new();
+
+    /// Load the CSS for the item row. Will do it once.
+    // XXX make non public
+    pub fn load() {
+        LOAD_CSS.call_once(|| {
+            if let Some(display) = gdk4::Display::default() {
+                let provider = gtk4::CssProvider::new();
+                provider.load_from_data(include_str!("tree_view.css"));
+                gtk4::style_context_add_provider_for_display(
+                    &display,
+                    &provider,
+                    gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
+                );
+            }
+        });
+    }
+}
+
 /// A tree view model
 pub struct TreeViewModel<T> {
     model: gtk4::TreeListModel,
@@ -55,10 +86,12 @@ impl<T: IsA<glib::Object>> TreeViewModel<T> {
     where
         F: TreeViewFactory<T>,
     {
+        self::css::load();
         let factory = factory.build();
         let selection_model = gtk4::SingleSelection::new(Some(self.model.clone()));
         listview.set_model(Some(&selection_model));
         listview.set_factory(Some(&factory));
+        listview.add_css_class("npc");
     }
 }
 
