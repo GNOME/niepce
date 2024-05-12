@@ -1,0 +1,131 @@
+# Hindi translation for niepce.
+# Copyright (C) 2024 niepce's COPYRIGHT HOLDER
+# This file is distributed under the same license as the niepce package.
+# Scrambled 777 <weblate.scrambled777@simplelogin.com>, 2024.
+# Scrambled777 <weblate.scrambled777@simplelogin.com>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: niepce master\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
+"POT-Creation-Date: 2024-04-21 16:11+0000\n"
+"PO-Revision-Date: 2024-04-23 12:55+0530\n"
+"Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"
+"Language-Team: Hindi\n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Gtranslator 46.0\n"
+
+#: data/net.figuiere.Niepce.desktop.in.in:3
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
+
+#: data/net.figuiere.Niepce.desktop.in.in:4
+msgid "Manage and edit your photos"
+msgstr "अपनी फोटो प्रबंधित और संपादित करें"
+
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/net.figuiere.Niepce.desktop.in.in:6
+msgid "photo;"
+msgstr "फोटो;"
+
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:6
+msgid "Niepce Digital@app-name-suffix@"
+msgstr "Niepce Digital@app-name-suffix@"
+
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:7
+msgid "Advanced Photo Editing"
+msgstr "उन्नत फोटो संपादन"
+
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:9
+msgid "Niepce Digital is an application used to manage and edit photos."
+msgstr ""
+"Niepce Digital एक अनुप्रयोग है जिसका उपयोग तस्वीरों को प्रबंधित और संपादित करने के लिए "
+"किया जाता है।"
+
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:12
+msgid "Features:"
+msgstr "विशेषताएं:"
+
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:14
+msgid "Photo library management"
+msgstr "फोटो लाइब्रेरी प्रबंधन"
+
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:15
+msgid "Non destructive image editing"
+msgstr "गैर विनाशकारी छवि संपादन"
+
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:16
+msgid "RAW processing"
+msgstr "RAW प्रसंस्करण"
+
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:24
+msgid "Hubert Figuière"
+msgstr "ह्यूबर्ट फ़िगुएरे"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
+msgid "Label _6"
+msgstr "लेबल _6"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:39
+msgid "Label _7"
+msgstr "लेबल _7"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:51
+msgid "Label _8"
+msgstr "लेबल _8"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:63
+msgid "Label _9"
+msgstr "लेबल _9"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:116
+msgid "Label _10"
+msgstr "लेबल _10"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:196
+msgid "<b>Labels</b>"
+msgstr "<b>लेबल</b>"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:208
+msgid "Edit Labels"
+msgstr "लेबल संपादित करें"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
+msgid "Import Library"
+msgstr "लाइब्रेरी आयात करें"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:65
+msgid "Folder Roots"
+msgstr "फोल्डर रूट"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:73
+msgid "Start import"
+msgstr "आयात प्रारंभ करें"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:81
+msgid "Import in progress"
+msgstr "आयात प्रगति पर है"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:89
+msgid "All done"
+msgstr "सब हो गया"
+
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:16
+msgid "_Reopen Catalog"
+msgstr "सूचीपत्र जोड़ें (_R)"
+
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:20
+msgid "Write XMP automatically (not recommended)"
+msgstr "XMP स्वचालित रूप से लिखें (अनुशंसित नहीं)"
+
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:23
+msgid "Use dark interface"
+msgstr "गहरे इंटरफ़ेस का प्रयोग करें"
+
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
+msgid "Preferences"
+msgstr "प्राथमिकताएं"
