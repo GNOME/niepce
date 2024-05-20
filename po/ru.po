@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Niepce Digital 0.0.1\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2023-04-10 14:54+0000\n"
-"PO-Revision-Date: 2023-04-21 19:25+1000\n"
+"POT-Creation-Date: 2024-05-12 13:25+0000\n"
+"PO-Revision-Date: 2024-05-13 07:26+1000\n"
 "Last-Translator: Ser82-png <asvmail.as@gmail.com>\n"
 "Language-Team: GNOME Russian <gnome-cyr@lists.gnome.org>\n"
 "Language: ru\n"
@@ -19,52 +19,20 @@ msgstr ""
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: camerawire/src/cwwindow.cpp:62
-msgid "Camera"
-msgstr "Камера"
+#: data/net.figuiere.Niepce.desktop.in.in:3
+msgid "Niepce Digital"
+msgstr "Niepce Digital"
 
-#: camerawire/src/cwwindow.cpp:87
-msgid "File"
-msgstr "Файл"
+#: data/net.figuiere.Niepce.desktop.in.in:4
+msgid "Manage and edit your photos"
+msgstr "Управление и редактирование ваших фотографий"
 
-#: camerawire/src/cwwindow.cpp:92
-msgid "_Import..."
-msgstr "_Импортировать..."
-
-#: camerawire/src/cwwindow.cpp:96
-msgid "Close"
-msgstr "Закрыть"
-
-#: camerawire/src/cwwindow.cpp:99
-msgid "Edit"
-msgstr "Правка"
-
-#: camerawire/src/cwwindow.cpp:113
-msgid "Cut"
-msgstr "Вырезать"
-
-#: camerawire/src/cwwindow.cpp:117
-msgid "Copy"
-msgstr "Копировать"
-
-#: camerawire/src/cwwindow.cpp:121
-msgid "Paste"
-msgstr "Вставить"
-
-#: camerawire/src/cwwindow.cpp:124
-msgid "Tools"
-msgstr "Инструменты"
-
-#: camerawire/src/cwwindow.cpp:129
-msgid "Refresh"
-msgstr "Обновить"
-
-#: camerawire/src/cwwindow.cpp:135
-msgid "Hide tools"
-msgstr "Скрыть инструменты"
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/net.figuiere.Niepce.desktop.in.in:6
+msgid "photo;"
+msgstr "photo;фото;фотография;"
 
 #: data/net.figuiere.Niepce.metainfo.xml.in.in:6
-#| msgid "Niepce Digital"
 msgid "Niepce Digital@app-name-suffix@"
 msgstr "Niepce Digital@app-name-suffix@"
 
@@ -93,18 +61,37 @@ msgstr "Недеструктивное редактирование изобра
 msgid "RAW processing"
 msgstr "Обработка изображений формата RAW"
 
-#: data/net.figuiere.Niepce.desktop.in.in:3
-msgid "Niepce Digital"
-msgstr "Niepce Digital"
+#: data/net.figuiere.Niepce.metainfo.xml.in.in:24
+msgid "Hubert Figuière"
+msgstr "Hubert Figuière"
 
-#: data/net.figuiere.Niepce.desktop.in.in:4
-msgid "Manage and edit your photos"
-msgstr "Управление и редактирование ваших фотографий"
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
+msgid "Label _6"
+msgstr "Метка _6"
 
-#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/net.figuiere.Niepce.desktop.in.in:6
-msgid "photo;"
-msgstr "photo;фото;фотография;"
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:39
+msgid "Label _7"
+msgstr "Метка _7"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:51
+msgid "Label _8"
+msgstr "Метка _8"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:63
+msgid "Label _9"
+msgstr "Метка _9"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:116
+msgid "Label _10"
+msgstr "Метка _10"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:196
+msgid "<b>Labels</b>"
+msgstr "<b>Метки</b>"
+
+#: niepce-main/src/niepce/ui/dialogs/editlabels.ui:208
+msgid "Edit Labels"
+msgstr "Редактирование меток"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
 msgid "Import Library"
@@ -126,187 +113,156 @@ msgstr "Импорт в процессе выполнения"
 msgid "All done"
 msgstr "Все выполнено"
 
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:40
-msgid "Develop"
-msgstr "Разработка"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:58
-msgid "Crop"
-msgstr "Кадрирование"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:62
-msgid "Tilt"
-msgstr "Выравнивание"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:64
-msgid "White balance"
-msgstr "Баланс белого"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:67
-msgid "Color temperature"
-msgstr "Температура цвета"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:69
-msgid "Tone and colour"
-msgstr "Тон и цвет"
-
-#. s->signal_value_changed().connect();
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:73
-msgid "Exposure"
-msgstr "Экспозиция"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:75
-msgid "Recovery"
-msgstr "Восстановление"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:77
-msgid "Fill Light"
-msgstr "Заполнить светом"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:79
-msgid "Blacks"
-msgstr "Темные тона"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:81
-msgid "Brightness"
-msgstr "Яркость"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:83
-msgid "Contrast"
-msgstr "Контраст"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:85
-msgid "Saturation"
-msgstr "Насыщенность"
-
-#: src/niepce/modules/darkroom/toolboxcontroller.cpp:87
-msgid "Vibrance"
-msgstr "Живость"
-
-#: src/niepce/ui/dialogs/editlabels.cpp:59
-#: src/niepce/ui/dialogs/editlabels.ui:5
-msgid "Edit Labels"
-msgstr "Редактирование меток"
-
-#: src/niepce/ui/dialogs/editlabels.cpp:101
-msgid "Change Labels"
-msgstr "Изменить метки"
-
-#: src/niepce/ui/dialogs/editlabels.ui:26
-msgid "Label _6"
-msgstr "Метка _6"
-
-#: src/niepce/ui/dialogs/editlabels.ui:38
-msgid "Label _7"
-msgstr "Метка _7"
-
-#: src/niepce/ui/dialogs/editlabels.ui:50
-msgid "Label _8"
-msgstr "Метка _8"
-
-#: src/niepce/ui/dialogs/editlabels.ui:62
-msgid "Label _9"
-msgstr "Метка _9"
-
-#: src/niepce/ui/dialogs/editlabels.ui:115
-msgid "Label _10"
-msgstr "Метка _10"
-
-#: src/niepce/ui/dialogs/editlabels.ui:214
-msgid "<b>Labels</b>"
-msgstr "<b>Метки</b>"
-
-#: src/niepce/ui/dialogs/importdialog.ui:37
-msgid "Import"
-msgstr "Импортировать"
-
-#: src/niepce/ui/dialogs/importdialog.ui:67
-msgid "_Images to import"
-msgstr "_Изображения для импорта"
-
-#: src/niepce/ui/dialogs/importdialog.ui:93
-msgid "Destination _Folder:"
-msgstr "_Папка назначения:"
-
-#: src/niepce/ui/dialogs/importdialog.ui:141
-msgid "_Options"
-msgstr "П_араметры"
-
-#: src/niepce/ui/dialogs/importdialog.ui:176
-msgid "Presets:"
-msgstr "Пресеты:"
-
-#: src/niepce/ui/dialogs/importdialog.ui:206
-msgid "You can still change this after importing the pictures."
-msgstr "После импорта изображений можно внести дополнительные изменения."
-
-#: src/niepce/ui/dialogs/importdialog.ui:223
-msgid "Date:"
-msgstr "Дата:"
-
-#: src/niepce/ui/dialogs/importdialog.ui:250
-msgid "Attributes:"
-msgstr "Атрибуты:"
-
-#: src/niepce/ui/dialogs/importdialog.ui:264
-msgid "Metadata"
-msgstr "Метаданные"
-
-#: src/niepce/ui/dialogs/importdialog.ui:289
-msgid "_Import"
-msgstr "_Импортировать"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:18
-msgid "Available cameras:"
-msgstr "Доступные камеры:"
-
-#: src/niepce/ui/dialogs/importers/cameraimporterui.ui:27
-msgid "Select"
-msgstr "Выбрать"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:15
-msgid "_Directory:"
-msgstr "_Папка:"
-
-#: src/niepce/ui/dialogs/importers/directoryimporterui.ui:27
-msgid "..."
-msgstr "..."
-
-#: src/niepce/ui/dialogs/preferencesdialog.cpp:38
-#: src/niepce/ui/dialogs/preferences.ui:5
-msgid "Preferences"
-msgstr "Параметры"
-
-#: src/niepce/ui/dialogs/preferences.ui:35
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:16
 msgid "_Reopen Catalog"
 msgstr "_Повторно открыть каталог"
 
-#: src/niepce/ui/dialogs/preferences.ui:48
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:20
 msgid "Write XMP automatically (not recommended)"
 msgstr "Записывать XMP автоматически (не рекомендуется)"
 
-#: src/niepce/ui/dialogs/preferences.ui:62
-msgid "_General"
-msgstr "О_бщие"
-
-#: src/niepce/ui/dialogs/preferences.ui:81
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:23
 msgid "Use dark interface"
 msgstr "Использовать тёмный интерфейс"
 
-#: src/niepce/ui/dialogs/preferences.ui:95
-msgid "_User Interface"
-msgstr "_Интерфейс"
+#: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
+msgid "Preferences"
+msgstr "Параметры"
 
-#: src/niepce/ui/metadatapanecontroller.cpp:56
-msgid "Image Properties"
-msgstr "Свойства изображения"
+#~ msgid "Camera"
+#~ msgstr "Камера"
 
-#: src/niepce/ui/niepceapplication.cpp:70
-msgid ""
-"A digital photo application.\n"
-"\n"
-"Build options: "
-msgstr ""
-"Программа для работы с цифровым фото.\n"
-"\n"
-"Параметры сборки: "
+#~ msgid "File"
+#~ msgstr "Файл"
+
+#~ msgid "_Import..."
+#~ msgstr "_Импортировать..."
+
+#~ msgid "Close"
+#~ msgstr "Закрыть"
+
+#~ msgid "Edit"
+#~ msgstr "Правка"
+
+#~ msgid "Cut"
+#~ msgstr "Вырезать"
+
+#~ msgid "Copy"
+#~ msgstr "Копировать"
+
+#~ msgid "Paste"
+#~ msgstr "Вставить"
+
+#~ msgid "Tools"
+#~ msgstr "Инструменты"
+
+#~ msgid "Refresh"
+#~ msgstr "Обновить"
+
+#~ msgid "Hide tools"
+#~ msgstr "Скрыть инструменты"
+
+#~ msgid "Develop"
+#~ msgstr "Разработка"
+
+#~ msgid "Crop"
+#~ msgstr "Кадрирование"
+
+#~ msgid "Tilt"
+#~ msgstr "Выравнивание"
+
+#~ msgid "White balance"
+#~ msgstr "Баланс белого"
+
+#~ msgid "Color temperature"
+#~ msgstr "Температура цвета"
+
+#~ msgid "Tone and colour"
+#~ msgstr "Тон и цвет"
+
+#~ msgid "Exposure"
+#~ msgstr "Экспозиция"
+
+#~ msgid "Recovery"
+#~ msgstr "Восстановление"
+
+#~ msgid "Fill Light"
+#~ msgstr "Заполнить светом"
+
+#~ msgid "Blacks"
+#~ msgstr "Темные тона"
+
+#~ msgid "Brightness"
+#~ msgstr "Яркость"
+
+#~ msgid "Contrast"
+#~ msgstr "Контраст"
+
+#~ msgid "Saturation"
+#~ msgstr "Насыщенность"
+
+#~ msgid "Vibrance"
+#~ msgstr "Живость"
+
+#~ msgid "Change Labels"
+#~ msgstr "Изменить метки"
+
+#~ msgid "Import"
+#~ msgstr "Импортировать"
+
+#~ msgid "_Images to import"
+#~ msgstr "_Изображения для импорта"
+
+#~ msgid "Destination _Folder:"
+#~ msgstr "_Папка назначения:"
+
+#~ msgid "_Options"
+#~ msgstr "П_араметры"
+
+#~ msgid "Presets:"
+#~ msgstr "Пресеты:"
+
+#~ msgid "You can still change this after importing the pictures."
+#~ msgstr "После импорта изображений можно внести дополнительные изменения."
+
+#~ msgid "Date:"
+#~ msgstr "Дата:"
+
+#~ msgid "Attributes:"
+#~ msgstr "Атрибуты:"
+
+#~ msgid "Metadata"
+#~ msgstr "Метаданные"
+
+#~ msgid "_Import"
+#~ msgstr "_Импортировать"
+
+#~ msgid "Available cameras:"
+#~ msgstr "Доступные камеры:"
+
+#~ msgid "Select"
+#~ msgstr "Выбрать"
+
+#~ msgid "_Directory:"
+#~ msgstr "_Папка:"
+
+#~ msgid "..."
+#~ msgstr "..."
+
+#~ msgid "_General"
+#~ msgstr "О_бщие"
+
+#~ msgid "_User Interface"
+#~ msgstr "_Интерфейс"
+
+#~ msgid "Image Properties"
+#~ msgstr "Свойства изображения"
+
+#~ msgid ""
+#~ "A digital photo application.\n"
+#~ "\n"
+#~ "Build options: "
+#~ msgstr ""
+#~ "Программа для работы с цифровым фото.\n"
+#~ "\n"
+#~ "Параметры сборки: "
