@@ -691,6 +691,24 @@ impl Library {
         Err(Error::NoSqlDb)
     }
 
+    /// Get the root folders, ie those whose parent_id is 0.
+    pub(crate) fn get_root_folders(&self) -> Result<Vec<LibFolder>> {
+        let conn = self.dbconn.as_ref().ok_or(Error::NoSqlDb)?;
+        let sql = format!(
+            "SELECT {} FROM {} WHERE parent_id = 0 AND virtual = false",
+            LibFolder::read_db_columns(),
+            LibFolder::read_db_tables()
+        );
+        let mut stmt = conn.prepare(&sql)?;
+        let mut rows = stmt.query([])?;
+        let mut folders: Vec<LibFolder> = vec![];
+        while let Ok(Some(row)) = rows.next() {
+            folders.push(LibFolder::read_from(row)?);
+        }
+
+        Ok(folders)
+    }
+
     pub(crate) fn get_all_folders(&self) -> Result<Vec<LibFolder>> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
@@ -1542,13 +1560,13 @@ pub(crate) mod test {
 
         let folder_added = lib.add_folder("foo", String::from("/bar/foo"));
         assert!(folder_added.is_ok());
-        let folder_added = folder_added.ok().unwrap();
+        let folder_added = folder_added.unwrap();
         let parent_id = folder_added.id();
         assert!(parent_id > 0);
 
         let f = lib.get_folder("/bar/foo");
         assert!(f.is_ok());
-        let f = f.ok().unwrap();
+        let f = f.unwrap();
         assert_eq!(folder_added.id(), f.id());
 
         let id = f.id();
@@ -1557,17 +1575,25 @@ pub(crate) mod test {
         // The triggers have changed the path to match the parent's.
         let f = lib.get_folder("/bar/foo/bar");
         assert!(f.is_ok());
-        let f = f.ok().unwrap();
+        let f = f.unwrap();
         assert_eq!(f.parent(), id);
 
         let folders = lib.get_all_folders();
         assert!(folders.is_ok());
-        let folders = folders.ok().unwrap();
+        let folders = folders.unwrap();
         assert_eq!(folders.len(), 3);
+        println!("folder {folders:?}");
+
+        let root_folders = lib.get_root_folders();
+        assert!(root_folders.is_ok());
+        let root_folders = root_folders.unwrap();
+        println!("root folder {root_folders:?}");
+        assert_eq!(root_folders.len(), 1);
+        assert_eq!(root_folders[0].path(), Some("/bar/foo"));
 
         let file_id = lib.add_file(folder_added.id(), "foo/myfile", None);
         assert!(file_id.is_ok());
-        let file_id = file_id.ok().unwrap();
+        let file_id = file_id.unwrap();
         assert!(file_id > 0);
 
         assert!(lib.move_file_to_folder(file_id, 100).is_err());

@@ -89,6 +89,19 @@ pub fn cmd_list_all_keywords(lib: &Library) -> bool {
     }
 }
 
+pub fn cmd_list_root_folders(lib: &Library, callback: ClientCallback<Vec<LibFolder>>) -> bool {
+    match lib.get_root_folders() {
+        Ok(list) => {
+            callback(list);
+            true
+        }
+        Err(err) => {
+            err_out_line!("get_root_folders failed: {:?}", err);
+            false
+        }
+    }
+}
+
 pub fn cmd_list_all_folders(
     lib: &Library,
     callback: Option<ClientCallback<Vec<LibFolder>>>,

@@ -155,6 +155,11 @@ impl ClientInterface for LibraryClientSender {
         self.schedule_op(move |lib| commands::cmd_count_keyword(lib, id));
     }
 
+    /// Get the root folder.
+    fn get_root_folders(&self, callback: ClientCallback<Vec<LibFolder>>) {
+        self.schedule_op(move |lib| commands::cmd_list_root_folders(lib, callback));
+    }
+
     /// get all the folders
     fn get_all_folders(&self, callback: Option<ClientCallback<Vec<LibFolder>>>) {
         self.schedule_op(move |lib| commands::cmd_list_all_folders(lib, callback));

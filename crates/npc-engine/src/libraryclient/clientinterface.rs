@@ -39,7 +39,9 @@ pub trait ClientInterface {
     fn query_keyword_content(&self, id: LibraryId);
     fn count_keyword(&self, id: LibraryId);
 
-    /// get all the folder
+    /// Get the root folders.
+    fn get_root_folders(&self, callback: ClientCallback<Vec<LibFolder>>);
+    /// Get all the folders.
     fn get_all_folders(&self, callback: Option<ClientCallback<Vec<LibFolder>>>);
     fn query_folder_content(&self, id: LibraryId);
     fn count_folder(&self, id: LibraryId);
