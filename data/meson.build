@@ -1,8 +1,9 @@
 subdir('icons')
 
-# Desktop file
+# Desktop file configuration
 desktop_conf = configuration_data()
 desktop_conf.set('icon', application_id)
+
 desktop_file = i18n.merge_file(
   type: 'desktop',
   input: configure_file(
@@ -15,23 +16,22 @@ desktop_file = i18n.merge_file(
   install: true,
   install_dir: datadir / 'applications'
 )
+
 # Validate Desktop file
-if desktop_file_validate.found()
+if desktop_file_validate.found():
   test(
     'validate-desktop',
     desktop_file_validate,
-    args: [
-      desktop_file.full_path()
-    ],
+    args: [desktop_file.full_path()],
     depends: desktop_file,
   )
-endif
 
-# Appdata
+# Appdata configuration
 appdata_conf = configuration_data()
 appdata_conf.set('app-id', application_id)
 appdata_conf.set('gettext-package', gettext_package)
 appdata_conf.set('app-name-suffix', app_name_suffix)
+
 appdata_file = i18n.merge_file(
   input: configure_file(
     input: '@0@.metainfo.xml.in.in'.format(base_id),
@@ -43,36 +43,33 @@ appdata_file = i18n.merge_file(
   install: true,
   install_dir: datadir / 'metainfo'
 )
+
 # Validate Appdata
-if appstream_util.found()
+if appstream_util.found():
   test(
-    'validate-appdata', appstream_util,
-    args: [
-      'validate', '--nonet', appdata_file.full_path()
-    ],
+    'validate-appdata', 
+    appstream_util,
+    args: ['validate', '--nonet', appdata_file.full_path()],
     depends: appdata_file,
   )
-endif
 
-# xxx no gschema at the time
-# GSchema
-#gschema_conf = configuration_data()
-#gschema_conf.set('app-id', application_id)
-#gschema_conf.set('gettext-package', gettext_package)
-#configure_file(
-#  input: '@0@.gschema.xml.in'.format(base_id),
-#  output: '@0@.gschema.xml'.format(application_id),
-#  configuration: gschema_conf,
-#  install: true,
-#  install_dir: datadir / 'glib-2.0' / 'schemas'
-#)
+# No GSchema configuration at the time
+# GSchema configuration
+# gschema_conf = configuration_data()
+# gschema_conf.set('app-id', application_id)
+# gschema_conf.set('gettext-package', gettext_package)
+# configure_file(
+#   input: '@0@.gschema.xml.in'.format(base_id),
+#   output: '@0@.gschema.xml'.format(application_id),
+#   configuration: gschema_conf,
+#   install: true,
+#   install_dir: datadir / 'glib-2.0' / 'schemas'
+# )
 
 # Validate GSchema
-#if glib_compile_schemas.found()
+# if glib_compile_schemas.found():
 #   test(
-#    'validate-gschema', glib_compile_schemas,
-#    args: [
-#      '--strict', '--dry-run', meson.current_build_dir()
-#    ],
-#  )
-#endif
+#     'validate-gschema',
+#     glib_compile_schemas,
+#     args: ['--strict', '--dry-run', meson.current_build_dir()],
+#   )
