@@ -18,14 +18,14 @@ glib = "^0.19"
 gdk4 = "^0.8"
 gdk-pixbuf = "^0.19"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
-gphoto2 = "3.2.3"
+gphoto2 = "3.3.0"
 graphene-rs = "0.19"
 gtk4 = { version = "^0.8", features = [ "gnome_43" ] }
 image = { version = "0.24.5", features = [ "png" ], default-features = false }
 lazy_static = "^1.2.0"
 libadwaita = { version = "^0.6.0", features = [ "v1_4" ] }
 libc = "0.2.39"
-libheif-rs = "1.0.1"
+libheif-rs = "1.0.2"
 libopenraw = "0.4.0-alpha.6"
 serde_json = "1.0.116"
 serde = { version = "1.0.198", features = ["derive"] }
