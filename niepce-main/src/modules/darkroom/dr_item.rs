@@ -19,6 +19,7 @@
 
 use glib::subclass::prelude::*;
 use gtk4::prelude::*;
+use npc_fwk::{glib, gtk4};
 
 use npc_fwk::toolkit::widgets::ToolboxItem;
 
@@ -52,6 +53,7 @@ mod imp {
     use glib::subclass::prelude::*;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
+    use npc_fwk::{glib, gtk4};
 
     use npc_fwk::toolkit::widgets::prelude::*;
     use npc_fwk::toolkit::widgets::ToolboxItem;

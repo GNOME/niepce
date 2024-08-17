@@ -27,6 +27,7 @@ use std::rc::Rc;
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use i18n_format::i18n_fmt;
+use npc_fwk::{adw, gtk4};
 
 use crate::niepce::ui::LibraryModule;
 use image_canvas::ImageCanvas;

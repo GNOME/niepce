@@ -26,10 +26,10 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 use gettextrs::gettext as i18n;
-use gtk4;
 use gtk4::prelude::*;
 use gtk4::{Assistant, Builder};
 use i18n_format::i18n_fmt;
+use npc_fwk::{gio, glib, gtk4};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 

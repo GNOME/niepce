@@ -1,7 +1,7 @@
 /*
  * niepce - ui/dialogs/import/importer_ui.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
  */
 
 use std::rc::Rc;
+
+use npc_fwk::gtk4;
 
 use npc_engine::importer::ImportBackend;
 

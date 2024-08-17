@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/library_cell_renderer.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ use glib::subclass::Signal;
 use graphene::Rect;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
+use npc_fwk::{cairo, gdk4, glib, graphene, gtk4};
 
 use npc_engine::db;
 use npc_engine::db::libfile::{FileStatus, FileType, LibFile};

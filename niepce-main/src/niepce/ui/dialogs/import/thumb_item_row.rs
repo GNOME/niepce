@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use npc_fwk::{glib, gtk4};
+
 glib::wrapper! {
     /// Item in the workspace
     pub struct ThumbItemRow(
@@ -43,6 +45,7 @@ mod imp {
     use glib::Properties;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
+    use npc_fwk::{gdk_pixbuf, glib, gtk4};
 
     #[derive(Default, Properties)]
     #[properties(wrapper_type = super::ThumbItemRow)]

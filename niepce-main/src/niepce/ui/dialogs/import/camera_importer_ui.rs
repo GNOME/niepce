@@ -22,6 +22,7 @@ use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
+use npc_fwk::{glib, gtk4};
 
 use super::{ImporterUI, SourceSelectedCallback};
 use npc_engine::importer::{CameraImporter, ImportBackend};

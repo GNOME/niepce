@@ -20,6 +20,7 @@
 use std::rc::Rc;
 
 use adw::prelude::*;
+use npc_fwk::{adw, gtk4};
 
 use npc_fwk::controller_imp_imp;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, DialogController, UiController};

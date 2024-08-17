@@ -20,6 +20,7 @@
 use std::ops::Deref;
 
 use gtk4::prelude::*;
+use npc_fwk::{gdk4, gio, glib, gtk4};
 
 use niepce_core::init_resources;
 use niepce_core::modules::ImageCanvas;

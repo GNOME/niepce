@@ -23,6 +23,7 @@ use std::sync::Arc;
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
+use npc_fwk::{adw, glib, gtk4};
 
 use npc_engine::db;
 use npc_engine::libraryclient::{

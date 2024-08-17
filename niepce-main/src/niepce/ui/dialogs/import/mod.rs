@@ -35,6 +35,7 @@ use std::rc::Rc;
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use gtk_macros::get_widget;
+use npc_fwk::{adw, gio, glib, gtk4};
 use once_cell::sync::OnceCell;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};

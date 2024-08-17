@@ -26,8 +26,7 @@ use std::sync::{Arc, Weak};
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
-use gio;
-use glib;
+use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 use num_derive::FromPrimitive;
 use once_cell::unsync::OnceCell;
 

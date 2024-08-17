@@ -20,6 +20,7 @@
 use std::rc::Rc;
 
 use gtk4::prelude::*;
+use npc_fwk::{gio, gtk4};
 use once_cell::unsync::OnceCell;
 
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};

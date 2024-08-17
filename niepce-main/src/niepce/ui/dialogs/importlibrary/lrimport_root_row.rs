@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importlibrary/lrimport_root_row.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 use gtk4::CompositeTemplate;
+use npc_fwk::{glib, gtk4, gtk4 as gtk};
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/net/figuiere/Niepce/ui/lrimport_root_row.ui")]

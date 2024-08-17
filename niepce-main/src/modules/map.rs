@@ -21,6 +21,7 @@ use std::cell::Cell;
 use std::rc::Rc;
 
 use gtk4::prelude::*;
+use npc_fwk::gtk4;
 
 use crate::niepce::ui::LibraryModule;
 use npc_engine::db::NiepceProperties as Np;

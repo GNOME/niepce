@@ -23,6 +23,7 @@ use std::sync::Arc;
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
+use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 
 use crate::config;
 use crate::niepce::ui::niepce_window::NiepceWindow;

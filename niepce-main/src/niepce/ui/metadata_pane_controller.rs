@@ -23,6 +23,7 @@ use std::rc::Rc;
 use gettextrs::gettext as i18n;
 use glib::SignalHandlerId;
 use gtk4::prelude::*;
+use npc_fwk::{glib, gtk4};
 
 use npc_engine::db;
 use npc_engine::db::NiepcePropertyIdx;

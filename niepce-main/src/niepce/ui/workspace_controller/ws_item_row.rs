@@ -19,6 +19,7 @@
 
 use glib::subclass::prelude::*;
 use gtk4::prelude::*;
+use npc_fwk::{glib, gtk4};
 
 use npc_fwk::toolkit::tree_view_model::css::NOCHILDREN_CSS;
 
@@ -73,6 +74,7 @@ mod imp {
 
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
+    use npc_fwk::{gdk4, glib, gtk4};
 
     use super::super::{Event, Item, TreeItemType};
     use npc_engine::db;

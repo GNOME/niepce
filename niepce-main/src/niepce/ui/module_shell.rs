@@ -23,6 +23,7 @@ use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
+use npc_fwk::{gio, glib, gtk4};
 
 use super::{
     GridViewModule, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,

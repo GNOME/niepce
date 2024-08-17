@@ -27,6 +27,7 @@ use glib::subclass::prelude::*;
 use glib::ControlFlow;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
+use npc_fwk::{glib, gtk4};
 
 use npc_fwk::err_out;
 

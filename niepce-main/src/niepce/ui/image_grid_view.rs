@@ -22,6 +22,7 @@ pub use super::image_list_item::ImageListItem;
 use std::rc::Rc;
 
 use gtk4::prelude::*;
+use npc_fwk::{gdk4, glib, gtk4};
 
 use super::library_cell_renderer::LibraryCellRenderer;
 use npc_engine::db;

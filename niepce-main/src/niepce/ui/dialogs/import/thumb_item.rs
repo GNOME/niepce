@@ -18,6 +18,7 @@
  */
 
 use glib::subclass::prelude::*;
+use npc_fwk::glib;
 
 use npc_engine::importer::ImportedFile;
 use npc_fwk::Date;
@@ -51,6 +52,7 @@ mod imp {
     use gio::subclass::prelude::*;
     use glib::prelude::*;
     use glib::Properties;
+    use npc_fwk::{gdk_pixbuf, gio, glib};
 
     use npc_fwk::Date;
 

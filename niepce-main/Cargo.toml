@@ -8,21 +8,12 @@ license = "GPL-3.0"
 
 [dependencies]
 async-channel = "1.6.1"
-cairo-sys-rs = "0.19"
-cairo-rs = "0.19"
 chrono = "0.4.23"
 cxx = { version = "1.0", features = [ "c++17" ] }
-gdk4 = "0.8"
-gdk-pixbuf = "0.19"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
-gio = "0.19"
-glib = "0.19"
-graphene-rs = "0.19"
-gtk4 = { version = "0.8", features = [ "v4_6" ] }
 gtk-macros = "0.3.0"
 i18n-format = "0.2.0"
 lazy_static = "^1.4.0"
-libadwaita = { version = "0.6.0",  features = [ "v1_4" ] }
 libc = "0.2.39"
 num-derive = "0.4.2"
 num-traits = "0.2.18"

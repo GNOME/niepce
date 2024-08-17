@@ -18,6 +18,7 @@
  */
 
 use gtk4::prelude::*;
+use npc_fwk::gtk4;
 
 /// Create a box for linked button.
 fn linked_box() -> gtk4::Box {

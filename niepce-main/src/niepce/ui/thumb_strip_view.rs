@@ -21,6 +21,7 @@ use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use gtk4::prelude::*;
+use npc_fwk::{glib, gtk4};
 
 use crate::niepce::ui::image_list_item::ImageListItem;
 use crate::niepce::ui::library_cell_renderer::LibraryCellRenderer;

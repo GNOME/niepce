@@ -19,7 +19,6 @@
 
 #[macro_use]
 extern crate gtk_macros;
-extern crate libadwaita as adw;
 
 pub mod config;
 pub mod modules;
@@ -27,6 +26,8 @@ pub mod niepce;
 mod notification_center;
 
 use std::sync::Once;
+
+use npc_fwk::{adw, gio, glib, gtk4};
 
 pub use niepce::ui::niepce_application::NiepceApplication;
 

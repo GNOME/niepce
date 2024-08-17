@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use npc_fwk::{gio, gtk4};
+
 /// Trait for Library modules.
 pub trait LibraryModule {
     /// Called when it is activated / deactivated.

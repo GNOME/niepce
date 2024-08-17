@@ -24,6 +24,7 @@ use std::str::FromStr;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
+use npc_fwk::{gio, glib, gtk4};
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
 use npc_fwk::toolkit::{Controller, ControllerImplCell};

@@ -21,6 +21,7 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 use gtk4::prelude::*;
+use npc_fwk::{gdk4, gio, glib, gtk4};
 
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;

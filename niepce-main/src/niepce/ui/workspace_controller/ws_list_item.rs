@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/ws_list_item.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  */
 
 use glib::subclass::prelude::*;
+use npc_fwk::{gio, glib};
 
 use npc_engine::db;
 use npc_fwk::err_out;
@@ -144,6 +145,7 @@ mod imp {
 
     use gio::subclass::prelude::*;
     use glib::prelude::*;
+    use npc_fwk::{gio, glib};
     use once_cell::unsync::OnceCell;
 
     use super::super::ws_list_model::WorkspaceList;

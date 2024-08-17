@@ -22,6 +22,7 @@ use std::cell::{Cell, RefCell};
 use gdk4::subclass::prelude::*;
 use glib::prelude::*;
 use glib::Properties;
+use npc_fwk::{gdk4, glib};
 
 use npc_engine::db::libfile::{FileStatus, LibFile};
 

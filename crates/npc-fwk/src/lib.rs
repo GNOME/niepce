@@ -22,6 +22,7 @@ pub use adw::gdk as gdk4;
 pub use adw::gio;
 pub use adw::glib;
 pub use adw::gtk as gtk4;
+pub use gdk4::cairo;
 pub use gdk4::gdk_pixbuf;
 pub use gtk4::graphene;
 

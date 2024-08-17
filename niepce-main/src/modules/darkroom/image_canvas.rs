@@ -19,6 +19,7 @@
 
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
+use npc_fwk::{glib, gtk4};
 
 use npc_fwk::toolkit::ImageBitmap;
 
@@ -70,6 +71,7 @@ mod imp {
 
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
+    use npc_fwk::{cairo, gdk4, glib, graphene, gtk4};
 
     use super::ZoomMode;
     use npc_fwk::base::Rect;

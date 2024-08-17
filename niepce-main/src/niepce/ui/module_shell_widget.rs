@@ -19,6 +19,7 @@
 
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
+use npc_fwk::{glib, gtk4, gtk4 as gtk};
 
 glib::wrapper! {
     pub struct ModuleShellWidget(
@@ -66,6 +67,7 @@ mod imp {
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
     use gtk4::TemplateChild;
+    use npc_fwk::{glib, gtk4, gtk4 as gtk};
 
     #[derive(Default, gtk4::CompositeTemplate)]
     #[template(string = r#"

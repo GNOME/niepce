@@ -19,6 +19,7 @@
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
+use npc_fwk::gtk4;
 
 use npc_fwk::toolkit::widgets::EditableHScale;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};

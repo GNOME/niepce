@@ -22,7 +22,7 @@ use std::rc::Rc;
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
-use gtk4::gio;
+use npc_fwk::{adw, gio, glib, gtk4};
 use once_cell::unsync::OnceCell;
 
 use npc_engine::db;

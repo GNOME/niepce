@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/ws_list_model.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 use glib::subclass::prelude::*;
 use gtk4::prelude::*;
+use npc_fwk::{gio, glib, gtk4};
 use thiserror::Error;
 
 use super::ws_list_item::{CountUpdate, Item};
@@ -177,6 +178,7 @@ mod imp {
 
     use gio::subclass::prelude::*;
     use glib::prelude::*;
+    use npc_fwk::{gio, glib};
 
     use npc_engine::db;
     use npc_fwk::base::IndexedMap;
@@ -228,6 +230,7 @@ mod imp {
 #[cfg(test)]
 mod test {
     use gio::prelude::*;
+    use npc_fwk::gio;
 
     use super::super::ws_list_item::Item;
     use super::super::TreeItemType;
