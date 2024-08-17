@@ -19,6 +19,8 @@
 
 /*! RawTherapee engine pipeline */
 
+use npc_fwk::gdk_pixbuf;
+
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 

@@ -8,12 +8,7 @@ license = "GPL-3.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cairo-rs = "0.19"
 cxx = { version = "1.0", features = [ "c++17" ] }
-gdk-pixbuf = "0.19"
-gdk4 = "0.8"
-glib = "0.19"
-gtk4 = "0.8"
 gegl = "0.1.1"
 
 npc-fwk = { path = "../npc-fwk" }

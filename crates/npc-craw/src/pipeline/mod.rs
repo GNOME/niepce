@@ -22,6 +22,8 @@
 mod ncr;
 mod rt;
 
+use npc_fwk::gdk_pixbuf;
+
 use npc_engine::library::RenderEngine;
 use npc_fwk::toolkit::ImageBitmap;
 

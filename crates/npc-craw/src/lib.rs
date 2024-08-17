@@ -23,7 +23,7 @@ mod render_worker;
 
 use std::sync::Once;
 
-use gtk4::prelude::*;
+use npc_fwk::gtk4::prelude::*;
 
 use npc_fwk::dbg_out;
 

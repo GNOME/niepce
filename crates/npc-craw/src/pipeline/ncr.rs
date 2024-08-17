@@ -22,6 +22,7 @@
 use std::cell::{Cell, RefCell};
 
 use gegl::Node as GeglNode;
+use npc_fwk::gdk_pixbuf;
 
 use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
 use npc_fwk::toolkit::ImageBitmap;

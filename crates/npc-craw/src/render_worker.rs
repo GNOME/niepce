@@ -20,6 +20,8 @@
 use std::cell::RefCell;
 use std::ops::Deref;
 
+use npc_fwk::gdk_pixbuf;
+
 use npc_engine::db;
 use npc_engine::library::{RenderMsg, RenderParams};
 use npc_fwk::base::{Worker, WorkerImpl};

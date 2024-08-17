@@ -1605,13 +1605,8 @@ dependencies = [
 name = "npc-craw"
 version = "0.1.0"
 dependencies = [
- "cairo-rs",
  "cxx",
- "gdk-pixbuf",
- "gdk4",
  "gegl",
- "glib",
- "gtk4",
  "npc-engine",
  "npc-fwk",
  "rtengine",
