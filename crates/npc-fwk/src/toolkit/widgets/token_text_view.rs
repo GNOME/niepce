@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/token_text_view.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::glib;
+use crate::gtk4;
 use gtk4::prelude::*;
 
 glib::wrapper! {
@@ -58,6 +60,8 @@ impl Default for TokenTextView {
 }
 
 mod imp {
+    use crate::glib;
+    use crate::gtk4;
     use gtk4::subclass::prelude::*;
 
     #[derive(Default)]

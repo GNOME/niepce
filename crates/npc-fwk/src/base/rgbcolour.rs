@@ -20,6 +20,8 @@
 use std::num::ParseIntError;
 use std::str::FromStr;
 
+use crate::gdk4;
+
 #[derive(Clone, Debug, Default)]
 pub struct RgbColour {
     pub r: u16,

@@ -19,6 +19,8 @@
 
 mod keyfile;
 
+use crate::glib;
+
 /// Config backend
 pub trait ConfigBackend {
     /// Start the backend

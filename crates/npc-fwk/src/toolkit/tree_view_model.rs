@@ -20,6 +20,9 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::gio;
+use crate::glib;
+use crate::gtk4;
 use gtk4::prelude::*;
 
 // XXX make non public
@@ -29,6 +32,9 @@ pub mod css {
     //! There is an API in gtk 4.10 to do that.
 
     use std::sync::Once;
+
+    use crate::gdk4;
+    use crate::gtk4;
 
     /// The class to mark a row having no children
     // XXX make non public

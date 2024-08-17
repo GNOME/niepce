@@ -1,7 +1,7 @@
 /*
  * niepce - toolkit/thumbnail.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ use std::convert::From;
 use std::fs;
 use std::path::Path;
 
+use crate::gdk_pixbuf;
+use crate::glib;
 use gdk_pixbuf::Colorspace;
 
 use super::gdk_utils;

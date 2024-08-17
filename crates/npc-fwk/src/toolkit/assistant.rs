@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/assistant.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2023 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 //!
 //! Utilities for handling assistant.
 //! Currently Gtk specific
+
+use crate::gtk4;
 
 use gtk4::prelude::*;
 use gtk4::Widget;

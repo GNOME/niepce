@@ -1,7 +1,7 @@
 /*
  * niepce - npc_fwk/toolkit/gphoto.rs
  *
- * Copyright (C) 2009-2023 Hubert Figuière
+ * Copyright (C) 2009-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,9 @@
 
 use std::sync::{Mutex, RwLock, RwLockReadGuard};
 
+use crate::gdk_pixbuf;
+use crate::gio;
+use crate::glib;
 use gdk_pixbuf::prelude::*;
 
 use crate::toolkit::Thumbnail;

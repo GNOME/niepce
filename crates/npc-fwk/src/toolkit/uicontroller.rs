@@ -19,6 +19,8 @@
 
 use std::rc::Rc;
 
+use crate::gio;
+use crate::gtk4;
 use gtk4::prelude::*;
 
 use super::Controller;

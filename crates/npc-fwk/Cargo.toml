@@ -8,23 +8,16 @@ license = "GPL-3.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+adw = { package = "libadwaita", version = "^0.6.0", features = [ "v1_4" ] }
 anyhow = "1.0.81"
 async-channel = "1.6.1"
-cairo-rs = "0.19"
 chrono = "0.4.0"
 cxx = { version = "1.0", features = [ "c++17" ] }
 exempi2 = { version = "0.2.0" }
-gdk4 = "^0.8"
-gdk-pixbuf = "^0.19"
 gettext-rs = { version = "0.7.0", features = [ "gettext-system" ] }
-gio = "^0.19"
-glib = "^0.19"
 gphoto2 = "3.3.0"
-graphene-rs = "0.19"
-gtk4 = { version = "^0.8", features = [ "gnome_43" ] }
 image = { version = "0.24.5", features = [ "png" ], default-features = false }
 lazy_static = "^1.2.0"
-libadwaita = { version = "^0.6.0", features = [ "v1_4" ] }
 libc = "0.2.39"
 libheif-rs = "1.0.2"
 libopenraw = "0.4.0-alpha.7"

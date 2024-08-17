@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::glib;
+use crate::gtk4;
 use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
@@ -61,6 +63,8 @@ pub trait ToolboxItemImpl: BoxImpl {}
 unsafe impl<T: ToolboxItemImpl> IsSubclassable<T> for ToolboxItem {}
 
 mod imp {
+    use crate::glib;
+    use crate::gtk4;
     use glib::subclass::prelude::*;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;

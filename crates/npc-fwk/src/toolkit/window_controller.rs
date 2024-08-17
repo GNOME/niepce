@@ -20,6 +20,9 @@
 use std::rc::Rc;
 use std::sync::Arc;
 
+use crate::gio;
+use crate::glib;
+use crate::gtk4;
 use gtk4::prelude::*;
 use serde::{Deserialize, Serialize};
 

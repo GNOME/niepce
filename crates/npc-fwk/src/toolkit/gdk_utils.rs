@@ -20,6 +20,8 @@
 use std::cmp;
 use std::path::Path;
 
+use crate::gdk_pixbuf;
+use crate::glib;
 use gdk_pixbuf::prelude::*;
 use libopenraw as or;
 use libopenraw::{Bitmap, DataType};

@@ -20,6 +20,8 @@
 use std::convert::AsRef;
 use std::path::Path;
 
+use crate::gio;
+
 /// MType image format
 #[derive(PartialEq, Copy, Clone, Debug, Eq)]
 pub enum ImgFormat {

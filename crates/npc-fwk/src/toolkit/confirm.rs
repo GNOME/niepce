@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::gtk4;
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
 

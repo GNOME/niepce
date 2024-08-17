@@ -20,6 +20,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::glib;
+use crate::gtk4;
 use gtk4::prelude::*;
 
 /// A "model" to bind T values to a `gtk4::StringList`.

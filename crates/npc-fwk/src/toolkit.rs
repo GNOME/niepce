@@ -57,6 +57,8 @@ pub use window_controller::{create_redo_action, create_undo_action, WindowContro
 
 pub use configuration::{ConfigBackend, Configuration};
 
+use crate::glib;
+
 pub fn thread_context() -> glib::MainContext {
     glib::MainContext::thread_default().unwrap_or_else(|| {
         let ctx = glib::MainContext::new();

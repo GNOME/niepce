@@ -1,7 +1,7 @@
 /*
  * niepce - toolkit/gtk_utils.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::gio;
+use crate::glib;
+use crate::gtk4;
 use gtk4::prelude::*;
 
 /// Create an action group and add all these actions

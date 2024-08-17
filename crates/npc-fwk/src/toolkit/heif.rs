@@ -20,6 +20,8 @@
 use std::cmp;
 use std::path::Path;
 
+use crate::gdk_pixbuf;
+use crate::glib;
 use anyhow::{anyhow, Context, Result};
 use libheif_rs::{
     Channel, ColorSpace, DecodingOptions, HeifContext, ImageHandle, ItemId, LibHeif, RgbChroma,

@@ -19,7 +19,10 @@
 
 use std::cell::Cell;
 
-use gdk4::prelude::*;
+use crate::gdk4;
+use crate::glib;
+use crate::graphene;
+use crate::gtk4;
 use glib::subclass::prelude::*;
 use glib::subclass::Signal;
 use gtk4::prelude::*;

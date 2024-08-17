@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::glib;
+use crate::gtk4;
 use gtk4::subclass::prelude::*;
 
 glib::wrapper! {
@@ -42,6 +44,8 @@ impl Default for Dock {
 }
 
 mod imp {
+    use crate::glib;
+    use crate::gtk4;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
 

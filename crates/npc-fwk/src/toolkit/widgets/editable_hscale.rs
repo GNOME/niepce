@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::glib;
+use crate::gtk4;
 use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 
@@ -41,6 +43,8 @@ impl EditableHScale {
 }
 
 mod imp {
+    use crate::glib;
+    use crate::gtk4;
     use glib::subclass::prelude::*;
     use glib::subclass::Signal;
     use gtk4::prelude::*;

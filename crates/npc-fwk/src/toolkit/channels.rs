@@ -19,7 +19,7 @@
 
 use std::future::Future;
 
-use glib;
+use crate::glib;
 
 pub type Sender<T> = async_channel::Sender<T>;
 pub type Receiver<T> = async_channel::Receiver<T>;

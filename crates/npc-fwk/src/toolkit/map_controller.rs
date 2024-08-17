@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::gtk4;
 use shumate::prelude::*;
 
 use super::{Controller, ControllerImplCell, UiController};

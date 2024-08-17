@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/tookit/image_bitmap.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 use std::io::{Read, Write};
 use std::sync::Arc;
 
+use crate::gdk4;
+use crate::glib;
 use image::{ImageDecoder, ImageEncoder};
 use thiserror::Error;
 
