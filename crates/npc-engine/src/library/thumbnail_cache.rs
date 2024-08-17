@@ -21,6 +21,8 @@ use std::cmp;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use npc_fwk::gdk_pixbuf;
+
 use crate::db;
 use crate::db::libfile::{FileStatus, LibFile};
 use crate::library::notification;
