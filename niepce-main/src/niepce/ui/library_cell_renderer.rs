@@ -384,7 +384,8 @@ impl ObjectImpl for LibraryCellRendererPriv {
         gesture.connect_pressed(move |gesture, n_press, x, y| {
             dbg_out!("list item clicked {}={},{}", n_press, x, y);
             let renderer = gesture
-                .widget().and_then(|w| w.downcast::<LibraryCellRenderer>().ok())
+                .widget()
+                .and_then(|w| w.downcast::<LibraryCellRenderer>().ok())
                 .expect("couldn't get renderer");
             renderer.hit(x, y);
         });
@@ -392,13 +393,17 @@ impl ObjectImpl for LibraryCellRendererPriv {
 
         // Drag and drop
         let drag_source = gtk4::DragSource::new();
-        drag_source.connect_prepare(
-            glib::clone!(@weak self as this => @default-return None, move |source, _, _| {
+        drag_source.connect_prepare(glib::clone!(
+            #[weak(rename_to = this)]
+            self,
+            #[upgrade_or]
+            None,
+            move |source, _, _| {
                 source.set_icon(this.pixbuf.borrow().as_ref(), 0, 0);
                 let libfile = this.libfile.borrow().clone();
                 libfile.map(|libfile| gdk4::ContentProvider::for_value(&libfile.into()))
-            }),
-        );
+            }
+        ));
         self.obj().add_controller(drag_source);
     }
 

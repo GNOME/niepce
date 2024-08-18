@@ -58,18 +58,28 @@ pub fn request_name<F: Fn(&str) + 'static>(
     content_area.append(&button_box);
     let cancel_button = gtk4::Button::with_label(&i18n("Cancel"));
     button_box.append(&cancel_button);
-    cancel_button.connect_clicked(glib::clone!(@strong dialog => move |_| {
-        dialog.close();
-    }));
+    cancel_button.connect_clicked(glib::clone!(
+        #[strong]
+        dialog,
+        move |_| {
+            dialog.close();
+        }
+    ));
 
     let ok_button = gtk4::Button::with_label(&i18n("OK"));
     button_box.append(&ok_button);
-    ok_button.connect_clicked(glib::clone!(@strong entry, @strong dialog => move |_| {
-        let name = entry.text();
-        action(&name);
+    ok_button.connect_clicked(glib::clone!(
+        #[strong]
+        entry,
+        #[strong]
+        dialog,
+        move |_| {
+            let name = entry.text();
+            action(&name);
 
-        dialog.close();
-    }));
+            dialog.close();
+        }
+    ));
 
     dialog.set_transient_for(parent);
     dialog.set_modal(true);

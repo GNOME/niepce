@@ -123,14 +123,18 @@ impl Controller for NiepceWindow {
                 );
                 dialog.connect_response(
                     None,
-                    glib::clone!(@strong self.libraryclient as client => move |dialog, response| {
-                        if response == "confirm" {
-                            if let Some(client_host) = client.borrow().as_ref() {
-                                client_host.client().upgrade_library_from_sync(v);
+                    glib::clone!(
+                        #[strong(rename_to = client)]
+                        self.libraryclient,
+                        move |dialog, response| {
+                            if response == "confirm" {
+                                if let Some(client_host) = client.borrow().as_ref() {
+                                    client_host.client().upgrade_library_from_sync(v);
+                                }
                             }
+                            dialog.destroy();
                         }
-                        dialog.destroy();
-                    }),
+                    ),
                 );
                 dialog.present();
             }
@@ -254,9 +258,11 @@ impl UiController for NiepceWindow {
         action!(
             group,
             "Close",
-            glib::clone!(@strong self.window as window => move |_, _| {
-                window.close()
-            })
+            glib::clone!(
+                #[strong(rename_to = window)]
+                self.window,
+                move |_, _| window.close()
+            )
         );
 
         let app = NiepceApplication::instance();
@@ -387,8 +393,12 @@ impl NiepceWindow {
         dialog.set_modal(true);
         dialog.set_create_folders(true);
         let tx = self.sender();
-        dialog.connect_response(
-            glib::clone!(@strong dialog, @strong tx => move |_, response| {
+        dialog.connect_response(glib::clone!(
+            #[strong]
+            dialog,
+            #[strong]
+            tx,
+            move |_, response| {
                 match response {
                     gtk4::ResponseType::Accept => {
                         if let Some(catalog_to_create) = dialog.file().and_then(|f| f.path()) {
@@ -396,15 +406,18 @@ impl NiepceWindow {
                             npc_fwk::send_async_local!(Event::OpenCatalog(catalog_to_create2), tx);
                             let app = NiepceApplication::instance();
                             let cfg = &app.config();
-                            cfg.set_value("last_open_catalog", &catalog_to_create.to_string_lossy());
+                            cfg.set_value(
+                                "last_open_catalog",
+                                &catalog_to_create.to_string_lossy(),
+                            );
                         }
                         dialog.destroy();
                     }
                     gtk4::ResponseType::Cancel => dialog.destroy(),
                     _ => err_out!("File chooser: unknown response {response}"),
                 }
-            }),
-        );
+            }
+        ));
         dialog.present();
     }
 
@@ -457,9 +470,11 @@ impl NiepceWindow {
         if let Some(actions) = workspace.actions() {
             self.window.insert_action_group(actions.0, Some(actions.1));
         }
-        workspace.selection_changed.connect(
-            glib::clone!(@weak module_shell => move |content| module_shell.on_content_will_change(content)),
-        );
+        workspace.selection_changed.connect(glib::clone!(
+            #[weak]
+            module_shell,
+            move |content| module_shell.on_content_will_change(content)
+        ));
         if let Some(notif_center) = self.widgets.get().map(|w| &w.notif_center) {
             let workspace = workspace.clone();
             notif_center
@@ -484,10 +499,15 @@ impl NiepceWindow {
 
         let sender = module_shell.selection_sender();
         filmstrip.grid_view().connect_activate(glib::clone!(
-            @strong sender => move |_, pos| {
-                npc_fwk::send_async_local!(super::selection_controller::SelectionInMsg::Activated(pos), sender)
-            })
-        );
+            #[strong]
+            sender,
+            move |_, pos| {
+                npc_fwk::send_async_local!(
+                    super::selection_controller::SelectionInMsg::Activated(pos),
+                    sender
+                )
+            }
+        ));
 
         // `ShellWidget` isn't `Debug` so we can't unwrap.
         let _ = self.shell_widgets.set(ShellWidgets {

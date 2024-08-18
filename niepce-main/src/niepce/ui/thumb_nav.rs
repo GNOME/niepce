@@ -285,21 +285,33 @@ impl ObjectImpl for ThumbNavPriv {
         // button_left.set_relief(gtk4::ReliefStyle::None);
         button_left.set_size_request(20, 0);
         obj.append(&button_left);
-        button_left.connect_clicked(glib::clone!(@weak obj => move |_| {
-            obj.imp().left_button_clicked();
-        }));
+        button_left.connect_clicked(glib::clone!(
+            #[weak]
+            obj,
+            move |_| {
+                obj.imp().left_button_clicked();
+            }
+        ));
 
         let sw = gtk4::ScrolledWindow::new();
         // XXX
         // sw.set_shadow_type(gtk4::ShadowType::In);
         sw.set_policy(gtk4::PolicyType::Always, gtk4::PolicyType::Never);
         let adj = sw.hadjustment();
-        adj.connect_changed(glib::clone!(@weak obj => move |adj| {
-            obj.imp().adj_changed(adj);
-        }));
-        adj.connect_value_changed(glib::clone!(@weak obj => move |adj| {
-            obj.imp().adj_value_changed(adj);
-        }));
+        adj.connect_changed(glib::clone!(
+            #[weak]
+            obj,
+            move |adj| {
+                obj.imp().adj_changed(adj);
+            }
+        ));
+        adj.connect_value_changed(glib::clone!(
+            #[weak]
+            obj,
+            move |adj| {
+                obj.imp().adj_value_changed(adj);
+            }
+        ));
         obj.append(&sw);
 
         let button_right = gtk4::Button::from_icon_name("pan-end-symbolic");
@@ -307,9 +319,13 @@ impl ObjectImpl for ThumbNavPriv {
         // button_right.set_relief(gtk4::ReliefStyle::None);
         button_right.set_size_request(20, 0);
         obj.append(&button_right);
-        button_right.connect_clicked(glib::clone!(@weak obj => move |_| {
-            obj.imp().right_button_clicked();
-        }));
+        button_right.connect_clicked(glib::clone!(
+            #[weak]
+            obj,
+            move |_| {
+                obj.imp().right_button_clicked();
+            }
+        ));
         let adj = sw.hadjustment();
 
         if self

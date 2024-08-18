@@ -97,10 +97,14 @@ impl SelectionController {
         controller
             .store
             .selection_model()
-            .connect_selection_changed(glib::clone!(@strong sender => move |model, _, _| {
-                let pos = model.selected();
-                send_async_local!(SelectionInMsg::Selected(pos), sender);
-            }));
+            .connect_selection_changed(glib::clone!(
+                #[strong]
+                sender,
+                move |model, _, _| {
+                    let pos = model.selected();
+                    send_async_local!(SelectionInMsg::Selected(pos), sender);
+                }
+            ));
         <Self as Controller>::start(&controller);
 
         controller

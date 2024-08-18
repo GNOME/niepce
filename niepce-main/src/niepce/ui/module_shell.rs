@@ -86,21 +86,33 @@ impl ModuleShell {
 
         shell.add_library_module(&shell.gridview, "grid", &i18n("Catalog"));
         let sender = shell.selection_controller.sender();
-        shell.gridview.image_grid_view.connect_activate(glib::clone!(
-        @strong sender => move |_, pos| {
-            send_async_local!(super::selection_controller::SelectionInMsg::Activated(pos), sender)
-        }));
+        shell
+            .gridview
+            .image_grid_view
+            .connect_activate(glib::clone!(
+                #[strong]
+                sender,
+                move |_, pos| {
+                    send_async_local!(
+                        super::selection_controller::SelectionInMsg::Activated(pos),
+                        sender
+                    )
+                }
+            ));
 
         shell
             .selection_controller
             .set_forwarder(Some(Box::new(glib::clone!(
-            @weak shell => move |msg| {
-                use super::selection_controller::SelectionOutMsg;
-                match msg {
-                    SelectionOutMsg::Selected(id) => shell.on_image_selected(id),
-                    SelectionOutMsg::Activated(id) => shell.on_image_activated(id),
+                #[weak]
+                shell,
+                move |msg| {
+                    use super::selection_controller::SelectionOutMsg;
+                    match msg {
+                        SelectionOutMsg::Selected(id) => shell.on_image_selected(id),
+                        SelectionOutMsg::Activated(id) => shell.on_image_activated(id),
+                    }
                 }
-            }))));
+            ))));
 
         // built-in modules;
         shell.add_library_module(&shell.darkroom, "darkroom", &i18n("Darkroom"));
@@ -110,21 +122,35 @@ impl ModuleShell {
         shell.widget.connect(
             "activated",
             true,
-            glib::clone!(@strong tx => move |value| {
-                let name = value[1].get::<&str>().expect("Failed to convert callback parameter").to_string();
-                npc_fwk::send_async_local!(Event::ModuleActivated(name), tx);
-                None
-            }),
+            glib::clone!(
+                #[strong]
+                tx,
+                move |value| {
+                    let name = value[1]
+                        .get::<&str>()
+                        .expect("Failed to convert callback parameter")
+                        .to_string();
+                    npc_fwk::send_async_local!(Event::ModuleActivated(name), tx);
+                    None
+                }
+            ),
         );
         let tx = shell.sender();
         shell.widget.connect(
             "deactivated",
             true,
-            glib::clone!(@strong tx => move |value| {
-                let name = value[1].get::<&str>().expect("Failed to convert callback parameter").to_string();
-                npc_fwk::send_async_local!(Event::ModuleDeactivated(name), tx);
-                None
-            }),
+            glib::clone!(
+                #[strong]
+                tx,
+                move |value| {
+                    let name = value[1]
+                        .get::<&str>()
+                        .expect("Failed to convert callback parameter")
+                        .to_string();
+                    npc_fwk::send_async_local!(Event::ModuleDeactivated(name), tx);
+                    None
+                }
+            ),
         );
         shell
     }
@@ -136,9 +162,10 @@ impl ModuleShell {
             group,
             "PrevImage",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.select_previous()
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.select_previous()
+            ),
             &shell.menu,
             Some(&i18n("Back")),
             Some("shell"),
@@ -148,9 +175,10 @@ impl ModuleShell {
             group,
             "NextImage",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.select_next()
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.select_next()
+            ),
             &shell.menu,
             Some(&i18n("Forward")),
             Some("shell"),
@@ -163,9 +191,10 @@ impl ModuleShell {
             group,
             "RotateLeft",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.rotate(-90)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.rotate(-90)
+            ),
             &section,
             Some(&i18n("Rotate Left")),
             Some("shell"),
@@ -175,9 +204,10 @@ impl ModuleShell {
             group,
             "RotateRight",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.rotate(90)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.rotate(90)
+            ),
             &section,
             Some(&i18n("Rotate Right")),
             Some("shell"),
@@ -193,9 +223,10 @@ impl ModuleShell {
             group,
             "SetLabel6",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_label(1)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_label(1)
+            ),
             &submenu,
             Some(&i18n("Label 6")),
             Some("shell"),
@@ -205,9 +236,10 @@ impl ModuleShell {
             group,
             "SetLabel7",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_label(2)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_label(2)
+            ),
             &submenu,
             Some(&i18n("Label 7")),
             Some("shell"),
@@ -217,9 +249,10 @@ impl ModuleShell {
             group,
             "SetLabel8",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_label(3)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_label(3)
+            ),
             &submenu,
             Some(&i18n("Label 8")),
             Some("shell"),
@@ -229,9 +262,10 @@ impl ModuleShell {
             group,
             "SetLabel9",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_label(4)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_label(4)
+            ),
             &submenu,
             Some(&i18n("Label 9")),
             Some("shell"),
@@ -244,9 +278,10 @@ impl ModuleShell {
             group,
             "SetRating0",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_rating(0)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_rating(0)
+            ),
             &submenu,
             Some(&i18n("Unrated")),
             Some("shell"),
@@ -256,9 +291,10 @@ impl ModuleShell {
             group,
             "SetRating1",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_rating(1)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_rating(1)
+            ),
             &submenu,
             Some(&i18n("Rating 1")),
             Some("shell"),
@@ -268,9 +304,10 @@ impl ModuleShell {
             group,
             "SetRating2",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_rating(2)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_rating(2)
+            ),
             &submenu,
             Some(&i18n("Rating 2")),
             Some("shell"),
@@ -280,9 +317,10 @@ impl ModuleShell {
             group,
             "SetRating3",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_rating(3)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_rating(3)
+            ),
             &submenu,
             Some(&i18n("Rating 3")),
             Some("shell"),
@@ -292,9 +330,10 @@ impl ModuleShell {
             group,
             "SetRating4",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_rating(4)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_rating(4)
+            ),
             &submenu,
             Some(&i18n("Rating 4")),
             Some("shell"),
@@ -304,9 +343,10 @@ impl ModuleShell {
             group,
             "SetRating5",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_rating(5)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_rating(5)
+            ),
             &submenu,
             Some(&i18n("Rating 5")),
             Some("shell"),
@@ -319,9 +359,10 @@ impl ModuleShell {
             group,
             "SetFlagReject",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_flag(-1)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_flag(-1)
+            ),
             &submenu,
             Some(&i18n("Flag as Rejected")),
             Some("shell"),
@@ -331,9 +372,10 @@ impl ModuleShell {
             group,
             "SetFlagNone",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_flag(0)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_flag(0)
+            ),
             &submenu,
             Some(&i18n("Unflagged")),
             Some("shell"),
@@ -343,9 +385,10 @@ impl ModuleShell {
             group,
             "SetFlagPick",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.set_flag(1)
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.set_flag(1)
+            ),
             &submenu,
             Some(&i18n("Flag as Pick")),
             Some("shell"),
@@ -358,9 +401,10 @@ impl ModuleShell {
             group,
             "WriteMetadata",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.write_metadata()
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.write_metadata()
+            ),
             &section,
             Some(&i18n("Write metadata")),
             Some("shell"),
@@ -373,9 +417,10 @@ impl ModuleShell {
             group,
             "Delete",
             glib::clone!(
-            @weak shell.selection_controller as selection_controller => move |_, _| {
-                selection_controller.delete_from_view()
-            }),
+                #[weak(rename_to = selection_controller)]
+                shell.selection_controller,
+                move |_, _| selection_controller.delete_from_view()
+            ),
             &section,
             Some(&i18n("Delete")),
             Some("shell"),

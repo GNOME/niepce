@@ -82,11 +82,13 @@ impl<T: Clone + std::cmp::PartialEq + 'static> ComboModel<T> {
     ) {
         let dropdown = dropdown.as_ref();
         dropdown.set_model(Some(&self.model));
-        dropdown.connect_selected_item_notify(
-            glib::clone!(@strong self as model => move |dropdown| {
+        dropdown.connect_selected_item_notify(glib::clone!(
+            #[strong(rename_to = model)]
+            self,
+            move |dropdown| {
                 let value = model.value(dropdown.selected() as usize);
                 callback(&value);
-            }),
-        );
+            }
+        ));
     }
 }

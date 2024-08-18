@@ -81,11 +81,15 @@ impl ImageGridView {
         // Context menu
         let click = gtk4::GestureClick::new();
         click.set_button(0);
-        click.connect_pressed(
-            glib::clone!(@weak grid_view, @strong context_menu => move |gesture, _, x, y| {
+        click.connect_pressed(glib::clone!(
+            #[weak]
+            grid_view,
+            #[strong]
+            context_menu,
+            move |gesture, _, x, y| {
                 Self::press_event(&grid_view, &context_menu, gesture, x, y);
-            }),
-        );
+            }
+        ));
         grid_view.add_controller(click);
         grid_view.set_min_columns(1);
         grid_view.set_max_columns(1000);

@@ -256,9 +256,11 @@ impl ImportLibraryDialog {
 
         <Self as Controller>::start(&dlg);
 
-        assistant.connect_prepare(glib::clone!(@strong dlg => move |_, p| {
-            dlg.prepare_page(p)
-        }));
+        assistant.connect_prepare(glib::clone!(
+            #[strong]
+            dlg,
+            move |_, p| dlg.prepare_page(p)
+        ));
 
         dlg
     }

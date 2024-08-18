@@ -166,10 +166,13 @@ impl MetadataPaneController {
             self.vbox.append(&w);
             w.set_data_format(Some(current.clone()));
             let sender = self.sender();
-            let sig_id =
-                w.connect_metadata_changed(glib::clone!(@strong sender => move |_, new, old| {
+            let sig_id = w.connect_metadata_changed(glib::clone!(
+                #[strong]
+                sender,
+                move |_, new, old| {
                     send_async_local!(MetadataInputMsg::MetadataChanged(new, old), sender);
-                }));
+                }
+            ));
             self.widgets.push((w, sig_id));
         }
     }

@@ -118,8 +118,10 @@ impl ImporterUI for CameraImporterUI {
         get_widget!(builder, gtk4::Grid, main_widget);
         get_widget!(builder, gtk4::Button, select_camera_btn);
         let sender = self.sender();
-        select_camera_btn.connect_clicked(glib::clone!(@strong sender =>
-            move |_| npc_fwk::send_async_local!(Event::CameraSelected, sender);
+        select_camera_btn.connect_clicked(glib::clone!(
+            #[strong]
+            sender,
+            move |_| npc_fwk::send_async_local!(Event::CameraSelected, sender),
         ));
         get_widget!(builder, gtk4::DropDown, camera_list_combo);
 

@@ -158,9 +158,14 @@ mod imp {
             let rating = RatingLabel::new(0, !readonly);
             if !readonly {
                 let obj = self.obj();
-                rating.connect_rating_changed(glib::clone!(@weak obj => move |_, rating| {
-                    obj.imp().emit_metadata_changed(id, &PropertyValue::Int(rating));
-                }));
+                rating.connect_rating_changed(glib::clone!(
+                    #[weak]
+                    obj,
+                    move |_, rating| {
+                        obj.imp()
+                            .emit_metadata_changed(id, &PropertyValue::Int(rating));
+                    }
+                ));
             }
 
             rating.upcast()
@@ -176,12 +181,21 @@ mod imp {
                 entry.set_wrap_mode(gtk4::WrapMode::Word);
                 let ctrl = gtk4::EventControllerFocus::new();
                 let obj = self.obj();
-                ctrl.connect_leave(glib::clone!(@weak entry, @weak obj => move |_| {
-                    let buffer = entry.buffer();
-                    let start = buffer.start_iter();
-                    let end = buffer.end_iter();
-                    obj.imp().emit_metadata_changed(id, &PropertyValue::String(buffer.text(&start, &end, true).to_string()));
-                }));
+                ctrl.connect_leave(glib::clone!(
+                    #[weak]
+                    entry,
+                    #[weak]
+                    obj,
+                    move |_| {
+                        let buffer = entry.buffer();
+                        let start = buffer.start_iter();
+                        let end = buffer.end_iter();
+                        obj.imp().emit_metadata_changed(
+                            id,
+                            &PropertyValue::String(buffer.text(&start, &end, true).to_string()),
+                        );
+                    }
+                ));
 
                 entry.add_controller(ctrl);
                 entry.upcast()
@@ -201,9 +215,18 @@ mod imp {
                 let ctrl = gtk4::EventControllerFocus::new();
 
                 let obj = self.obj();
-                ctrl.connect_leave(glib::clone!(@weak entry, @weak obj => move |_| {
-                    obj.imp().emit_metadata_changed(id, &PropertyValue::String(entry.text().to_string()));
-                }));
+                ctrl.connect_leave(glib::clone!(
+                    #[weak]
+                    entry,
+                    #[weak]
+                    obj,
+                    move |_| {
+                        obj.imp().emit_metadata_changed(
+                            id,
+                            &PropertyValue::String(entry.text().to_string()),
+                        );
+                    }
+                ));
 
                 entry.add_controller(ctrl);
                 entry.upcast()
@@ -216,9 +239,16 @@ mod imp {
                 let ctrl = gtk4::EventControllerFocus::new();
 
                 let obj = self.obj();
-                ctrl.connect_leave(glib::clone!(@weak ttv, @weak obj => move |_| {
-                    obj.imp().emit_metadata_changed(id, &PropertyValue::StringArray(ttv.tokens()));
-                }));
+                ctrl.connect_leave(glib::clone!(
+                    #[weak]
+                    ttv,
+                    #[weak]
+                    obj,
+                    move |_| {
+                        obj.imp()
+                            .emit_metadata_changed(id, &PropertyValue::StringArray(ttv.tokens()));
+                    }
+                ));
                 ttv.add_controller(ctrl);
             }
 

@@ -282,50 +282,83 @@ impl UiController for WorkspaceController {
 
                 let rootstore = gio::ListStore::new::<Item>();
                 let treemodel = gtk4::TreeListModel::new(rootstore, false, true, |item| {
-                    Some(item.downcast_ref::<Item>()?.create_children()?.upcast_ref::<gio::ListModel>().clone())
+                    Some(
+                        item.downcast_ref::<Item>()?
+                            .create_children()?
+                            .upcast_ref::<gio::ListModel>()
+                            .clone(),
+                    )
                 });
                 let selection_model = gtk4::SingleSelection::new(Some(treemodel.clone()));
 
                 let factory = gtk4::SignalListItemFactory::new();
                 let tx = self.sender();
-                factory.connect_setup(glib::clone!(@strong tx => move |_, item| {
-                    let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
-                    let item_row = WsItemRow::new(tx.clone());
-                    item.set_child(Some(&item_row));
-                }));
+                factory.connect_setup(glib::clone!(
+                    #[strong]
+                    tx,
+                    move |_, item| {
+                        let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
+                        let item_row = WsItemRow::new(tx.clone());
+                        item.set_child(Some(&item_row));
+                    }
+                ));
                 let tx = self.sender();
-                factory.connect_bind(glib::clone!(@strong tx => move |_, list_item| {
-                    let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
-                    let ws_item_row = list_item.child().and_downcast_ref::<WsItemRow>().unwrap().clone();
-                    if let Some(item) = list_item.item() {
-                        let tree_list_row = item.downcast_ref::<gtk4::TreeListRow>().expect("to be a TreeListRow");
-                        if let Some(item) = tree_list_row.item() {
-                            match item.downcast_ref::<Item>().unwrap().tree_item_type() {
-                                TreeItemType::Folders |
-                                TreeItemType::Albums |
-                                TreeItemType::Keywords => {
-                                    // We connect the expanded notify signal only
-                                    // for these top level tree item.
-                                    tree_list_row.connect_expanded_notify(glib::clone!(@strong tx => move |tree_list_row| {
-                                        let expanded = tree_list_row.is_expanded();
-                                        let pos = tree_list_row.position();
-                                        if expanded {
-                                            npc_fwk::send_async_local!(Event::RowExpanded(pos), tx);
-                                        } else {
-                                            npc_fwk::send_async_local!(Event::RowCollapsed(pos), tx);
-                                        }
-                                    }));
-                                }
-                            _ => {}
-                            };
-                            let ws_item = item.downcast::<Item>().expect("is an item");
-                            ws_item_row.bind(&ws_item, tree_list_row);
+                factory.connect_bind(glib::clone!(
+                    #[strong]
+                    tx,
+                    move |_, list_item| {
+                        let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
+                        let ws_item_row = list_item
+                            .child()
+                            .and_downcast_ref::<WsItemRow>()
+                            .unwrap()
+                            .clone();
+                        if let Some(item) = list_item.item() {
+                            let tree_list_row = item
+                                .downcast_ref::<gtk4::TreeListRow>()
+                                .expect("to be a TreeListRow");
+                            if let Some(item) = tree_list_row.item() {
+                                match item.downcast_ref::<Item>().unwrap().tree_item_type() {
+                                    TreeItemType::Folders
+                                    | TreeItemType::Albums
+                                    | TreeItemType::Keywords => {
+                                        // We connect the expanded notify signal only
+                                        // for these top level tree item.
+                                        tree_list_row.connect_expanded_notify(glib::clone!(
+                                            #[strong]
+                                            tx,
+                                            move |tree_list_row| {
+                                                let expanded = tree_list_row.is_expanded();
+                                                let pos = tree_list_row.position();
+                                                if expanded {
+                                                    npc_fwk::send_async_local!(
+                                                        Event::RowExpanded(pos),
+                                                        tx
+                                                    );
+                                                } else {
+                                                    npc_fwk::send_async_local!(
+                                                        Event::RowCollapsed(pos),
+                                                        tx
+                                                    );
+                                                }
+                                            }
+                                        ));
+                                    }
+                                    _ => {}
+                                };
+                                let ws_item = item.downcast::<Item>().expect("is an item");
+                                ws_item_row.bind(&ws_item, tree_list_row);
+                            }
                         }
                     }
-                }));
+                ));
                 factory.connect_unbind(move |_, list_item| {
                     let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
-                    let ws_item_row = list_item.child().and_downcast_ref::<WsItemRow>().unwrap().clone();
+                    let ws_item_row = list_item
+                        .child()
+                        .and_downcast_ref::<WsItemRow>()
+                        .unwrap()
+                        .clone();
                     ws_item_row.unbind();
                 });
                 let librarytree = gtk4::ListView::new(Some(selection_model), Some(factory));
@@ -402,9 +435,13 @@ impl UiController for WorkspaceController {
                     .has_arrow(false)
                     .build();
                 context_menu.set_parent(&librarytree);
-                librarytree.connect_unrealize(glib::clone!(@strong context_menu => move |_| {
-                    context_menu.unparent();
-                }));
+                librarytree.connect_unrealize(glib::clone!(
+                    #[strong]
+                    context_menu,
+                    move |_| {
+                        context_menu.unparent();
+                    }
+                ));
                 header.append(&add_btn);
                 main_box.append(&header);
 
@@ -416,18 +453,24 @@ impl UiController for WorkspaceController {
                 // connect signals
                 if let Some(model) = librarytree.model() {
                     let tx = self.sender();
-                    model.connect_selection_changed(
-                        glib::clone!(@strong tx => move |_, _, _| {
+                    model.connect_selection_changed(glib::clone!(
+                        #[strong]
+                        tx,
+                        move |_, _, _| {
                             npc_fwk::send_async_local!(Event::SelectionChanged, tx);
-                        }),
-                    );
+                        }
+                    ));
                 }
                 let gesture = gtk4::GestureClick::new();
                 gesture.set_button(3);
                 let tx = self.sender();
-                gesture.connect_pressed(glib::clone!(@strong tx => move |_, _, x, y| {
-                    npc_fwk::send_async_local!(Event::ButtonPress(x, y), tx);
-                }));
+                gesture.connect_pressed(glib::clone!(
+                    #[strong]
+                    tx,
+                    move |_, _, x, y| {
+                        npc_fwk::send_async_local!(Event::ButtonPress(x, y), tx);
+                    }
+                ));
                 librarytree.add_controller(gesture);
 
                 Widgets {
@@ -648,14 +691,20 @@ impl WorkspaceController {
         );
         dialog.connect_response(
             None,
-            glib::clone!(@strong dialog, @strong self.client as client => move |_, response| {
-                if response == "confirm" {
-                    if let Some(client) = client.upgrade() {
-                        client.delete_folder(id);
+            glib::clone!(
+                #[strong]
+                dialog,
+                #[strong(rename_to = client)]
+                self.client,
+                move |_, response| {
+                    if response == "confirm" {
+                        if let Some(client) = client.upgrade() {
+                            client.delete_folder(id);
+                        }
                     }
+                    dialog.destroy();
                 }
-                dialog.destroy();
-            }),
+            ),
         );
         dialog.present();
     }
@@ -692,14 +741,20 @@ impl WorkspaceController {
         );
         dialog.connect_response(
             None,
-            glib::clone!(@strong dialog, @strong self.client as client => move |_, response| {
-                if response == "confirm" {
-                    if let Some(client) = client.upgrade() {
-                        client.delete_album(id);
+            glib::clone!(
+                #[strong]
+                dialog,
+                #[strong(rename_to = client)]
+                self.client,
+                move |_, response| {
+                    if response == "confirm" {
+                        if let Some(client) = client.upgrade() {
+                            client.delete_album(id);
+                        }
                     }
+                    dialog.destroy();
                 }
-                dialog.destroy();
-            }),
+            ),
         );
         dialog.present();
     }
@@ -730,9 +785,13 @@ impl WorkspaceController {
         let tx = self.sender();
         import_dialog.run_modal(
             parent.as_ref(),
-            glib::clone!(@weak import_dialog, @strong tx => move |request| {
-                npc_fwk::send_async_local!(Event::PerformImport(request), tx);
-            }),
+            glib::clone!(
+                #[strong]
+                tx,
+                move |request| {
+                    npc_fwk::send_async_local!(Event::PerformImport(request), tx);
+                }
+            ),
         );
     }
 

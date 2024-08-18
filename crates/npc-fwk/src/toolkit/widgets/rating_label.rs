@@ -96,9 +96,13 @@ impl ObjectImpl for RatingLabelPriv {
 
         let obj = self.obj();
         let click = gtk4::GestureClick::new();
-        click.connect_pressed(glib::clone!(@weak obj => move |gesture, n, x, y| {
-            obj.imp().press_event(gesture, n, x, y);
-        }));
+        click.connect_pressed(glib::clone!(
+            #[weak]
+            obj,
+            move |gesture, n, x, y| {
+                obj.imp().press_event(gesture, n, x, y);
+            }
+        ));
         obj.add_controller(click);
     }
 
@@ -131,13 +135,19 @@ impl RatingLabel {
         self.connect_local(
             "rating-changed",
             true,
-            glib::clone!(@weak self as w => @default-return None, move |values| {
-                // values[0] is self.
-                if let Ok(rating) = values[1].get::<i32>() {
-                    f(&w, rating);
+            glib::clone!(
+                #[weak(rename_to = w)]
+                self,
+                #[upgrade_or]
+                None,
+                move |values| {
+                    // values[0] is self.
+                    if let Ok(rating) = values[1].get::<i32>() {
+                        f(&w, rating);
+                    }
+                    None
                 }
-                None
-            }),
+            ),
         )
     }
 

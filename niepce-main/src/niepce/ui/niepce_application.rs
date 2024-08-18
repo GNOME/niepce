@@ -107,16 +107,21 @@ impl NiepceApplication {
         theme.add_resource_path("/net/figuiere/Niepce/pixmaps");
         theme.add_resource_path("/net/figuiere/Niepce/icons");
 
-        app.app
-            .connect_activate(glib::clone!(@weak app => move |_| {
+        app.app.connect_activate(glib::clone!(
+            #[weak]
+            app,
+            move |_| {
                 let win = app.main_window.borrow();
                 if let Some(win) = win.clone() {
                     win.window().present();
                 }
-            }));
-        app.app.connect_startup(glib::clone!(@weak app => move |_| {
-            app.on_startup()
-        }));
+            }
+        ));
+        app.app.connect_startup(glib::clone!(
+            #[weak]
+            app,
+            move |_| app.on_startup()
+        ));
         <Self as AppControllerSingleton>::start(&app);
 
         app

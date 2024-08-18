@@ -147,12 +147,16 @@ impl ThumbStripView {
             let mut signals = self.signals.borrow_mut();
             let item_count = self.item_count.clone();
             let view = self.grid_view.clone();
-            signals.model_changed = Some(store.connect_items_changed(
-                glib::clone!(@strong item_count, @weak view => move |_, _, removed, added| {
+            signals.model_changed = Some(store.connect_items_changed(glib::clone!(
+                #[strong]
+                item_count,
+                #[weak]
+                view,
+                move |_, _, removed, added| {
                     let changed: i32 = added as i32 - removed as i32;
                     item_count.changed(&view, changed);
-                }),
-            ));
+                }
+            )));
         }
     }
 }

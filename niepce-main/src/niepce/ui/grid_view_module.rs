@@ -126,19 +126,25 @@ impl GridViewModule {
         self.image_grid_view.set_vexpand(true);
         self.context_menu.set_parent(&*self.image_grid_view);
         self.context_menu.set_has_arrow(false);
-        self.image_grid_view.connect_unrealize(
-            glib::clone!(@strong self.context_menu as menu => move |_| {
+        self.image_grid_view.connect_unrealize(glib::clone!(
+            #[strong(rename_to = menu)]
+            self.context_menu,
+            move |_| {
                 menu.unparent();
-            }),
-        );
+            }
+        ));
 
         let gesture = gtk4::GestureClick::new();
         self.image_grid_view.add_controller(gesture.clone());
         let sender = self.sender();
-        gesture.connect_pressed(glib::clone!(@strong sender => move |gesture, _, x, y| {
-            let gesture = gesture.clone();
-            send_async_local!(GridMsg::Click(gesture, x, y), sender);
-        }));
+        gesture.connect_pressed(glib::clone!(
+            #[strong]
+            sender,
+            move |gesture, _, x, y| {
+                let gesture = gesture.clone();
+                send_async_local!(GridMsg::Click(gesture, x, y), sender);
+            }
+        ));
         let sender = self.sender();
         self.image_grid_view
             .add_rating_listener(Box::new(move |(id, rating)| {

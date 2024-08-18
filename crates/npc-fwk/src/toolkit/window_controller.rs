@@ -51,13 +51,19 @@ pub trait WindowController {
 
     /// Initialize the state saving if needed
     fn init_state<T: WindowController + 'static>(this: &Rc<T>) {
-        this.window().connect_close_request(glib::clone!(@weak this as ctrl => @default-return glib::Propagation::Proceed, move |_| {
-            if let Some(cfg) = ctrl.configuration() {
-                ctrl.save_state(&cfg);
-                dbg_out!("State saved");
+        this.window().connect_close_request(glib::clone!(
+            #[weak]
+            this,
+            #[upgrade_or]
+            glib::Propagation::Proceed,
+            move |_| {
+                if let Some(cfg) = this.configuration() {
+                    this.save_state(&cfg);
+                    dbg_out!("State saved");
+                }
+                glib::Propagation::Proceed
             }
-            glib::Propagation::Proceed
-        }));
+        ));
     }
 
     fn save_state(&self, cfg: &Configuration) {
@@ -100,21 +106,29 @@ pub fn create_undo_action(
     action_map: &gio::ActionMap,
 ) -> gio::SimpleAction {
     let action = gio::SimpleAction::new("Undo", None);
-    action.connect_activate(glib::clone!(@strong app => move |_, _| {
-        app.undo_history().undo();
-    }));
+    action.connect_activate(glib::clone!(
+        #[strong]
+        app,
+        move |_, _| {
+            app.undo_history().undo();
+        }
+    ));
     action_map.add_action(&action);
     gtk4::Application::default().set_accels_for_action("win.Undo", &["<control>Z"]);
 
-    app.undo_history()
-        .signal_changed
-        .connect(glib::clone!(@strong app, @weak action => move |_| {
+    app.undo_history().signal_changed.connect(glib::clone!(
+        #[strong]
+        app,
+        #[weak]
+        action,
+        move |_| {
             let history = app.undo_history();
             action.set_enabled(history.has_undo());
             // let label = history.next_undo();
             // Maybe gio::SimpleAction isn't the best.
             // action.set_label(&format!("Undo {}", label));
-        }));
+        }
+    ));
 
     action
 }
@@ -125,20 +139,28 @@ pub fn create_redo_action(
     action_map: &gio::ActionMap,
 ) -> gio::SimpleAction {
     let action = gio::SimpleAction::new("Redo", None);
-    action.connect_activate(glib::clone!(@strong app => move |_, _| {
-        app.undo_history().redo();
-    }));
+    action.connect_activate(glib::clone!(
+        #[strong]
+        app,
+        move |_, _| {
+            app.undo_history().redo();
+        }
+    ));
     action_map.add_action(&action);
     gtk4::Application::default().set_accels_for_action("win.Redo", &["<control><shift>Z"]);
 
-    app.undo_history()
-        .signal_changed
-        .connect(glib::clone!(@strong app, @weak action => move |_| {
+    app.undo_history().signal_changed.connect(glib::clone!(
+        #[strong]
+        app,
+        #[weak]
+        action,
+        move |_| {
             let history = app.undo_history();
             action.set_enabled(history.has_redo());
             // let label = history.next_redo();
             // action.set_label(&format!("Redo {}", label));
-        }));
+        }
+    ));
 
     action
 }

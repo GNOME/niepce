@@ -117,22 +117,34 @@ impl DirectoryImporterUI {
         }
         let sender = self.sender();
         #[allow(deprecated)]
-        dialog.connect_response(glib::clone!(@strong sender, @weak self.cfg as cfg => move |dialog, response| {
-            let mut source = None;
-            #[allow(deprecated)]
-            if response == gtk4::ResponseType::Ok {
-                source = dialog.file().and_then(|f| f.path());
-                let dest_dir = source.as_ref().and_then(|p| p.file_name()?.to_str())
-                    .unwrap_or("");
-                if let Some(source) = source.as_ref().and_then(|p| p.to_str()).map(|s| s.to_string()) {
-                    cfg.set_value("last_dir_import_location", &source);
-                    let dest_dir = dest_dir.to_string();
-                    npc_fwk::send_async_local!(Event::SourceSelected(source, dest_dir), sender);
+        dialog.connect_response(glib::clone!(
+            #[strong]
+            sender,
+            #[weak(rename_to = cfg)]
+            self.cfg,
+            move |dialog, response| {
+                let mut source = None;
+                #[allow(deprecated)]
+                if response == gtk4::ResponseType::Ok {
+                    source = dialog.file().and_then(|f| f.path());
+                    let dest_dir = source
+                        .as_ref()
+                        .and_then(|p| p.file_name()?.to_str())
+                        .unwrap_or("");
+                    if let Some(source) = source
+                        .as_ref()
+                        .and_then(|p| p.to_str())
+                        .map(|s| s.to_string())
+                    {
+                        cfg.set_value("last_dir_import_location", &source);
+                        let dest_dir = dest_dir.to_string();
+                        npc_fwk::send_async_local!(Event::SourceSelected(source, dest_dir), sender);
+                    }
                 }
+                npc_fwk::send_async_local!(Event::SetDirectoryName(source), sender);
+                dialog.close()
             }
-            npc_fwk::send_async_local!(Event::SetDirectoryName(source), sender);
-            dialog.close()
-        }));
+        ));
 
         dialog.present();
     }
@@ -172,28 +184,34 @@ impl ImporterUI for DirectoryImporterUI {
         get_widget!(builder, gtk4::Box, main_widget);
         get_widget!(builder, gtk4::Button, select_directories);
         let sender = self.sender();
-        select_directories.connect_clicked(glib::clone!(@strong sender =>
-            move |_| npc_fwk::send_async_local!(Event::SelectDirectories, sender);
+        select_directories.connect_clicked(glib::clone!(
+            #[strong]
+            sender,
+            move |_| npc_fwk::send_async_local!(Event::SelectDirectories, sender),
         ));
         get_widget!(builder, gtk4::Label, directory_name);
         get_widget!(builder, gtk4::CheckButton, copy_files);
         get_widget!(builder, gtk4::CheckButton, recursive);
         let sender = self.sender();
-        copy_files.connect_toggled(glib::clone!(@strong sender =>
-                move |check| {
-                    let is_active = check.is_active();
-                    npc_fwk::send_async_local!(Event::CopyToggled(is_active), sender);
-                }
+        copy_files.connect_toggled(glib::clone!(
+            #[strong]
+            sender,
+            move |check| {
+                let is_active = check.is_active();
+                npc_fwk::send_async_local!(Event::CopyToggled(is_active), sender);
+            }
         ));
         copy_files.set_active(
             bool::from_str(&self.cfg.value("dir_import_copy", "false")).unwrap_or(false),
         );
         let sender = self.sender();
-        recursive.connect_toggled(glib::clone!(@strong sender =>
-                                               move |check| {
-                                                   let is_active = check.is_active();
-                                                   npc_fwk::send_async_local!(Event::RecursiveToggled(is_active), sender);
-                                               }
+        recursive.connect_toggled(glib::clone!(
+            #[strong]
+            sender,
+            move |check| {
+                let is_active = check.is_active();
+                npc_fwk::send_async_local!(Event::RecursiveToggled(is_active), sender);
+            }
         ));
         recursive.set_active(
             bool::from_str(&self.cfg.value("dir_import_recursive", "false")).unwrap_or(false),

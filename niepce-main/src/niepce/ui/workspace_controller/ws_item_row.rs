@@ -134,24 +134,36 @@ mod imp {
                 npc_engine::db::LibFile::static_type(),
                 gdk4::DragAction::COPY,
             );
-            drop_target.connect_accept(
-                glib::clone!(@weak self as this => @default-return false, move |_, _| {
-                    matches!(this.type_.get(), TreeItemType::Album)
-                }),
-            );
-            drop_target.connect_drop(glib::clone!(@weak self as this => @default-return false, move |_, value, _, _| {
-                if let Ok(libfile) = value.get::<npc_engine::db::LibFile>() {
-                    dbg_out!("accepted value {}", libfile.id());
-                    if let Some(ref tx) = *this.tx.borrow() {
-                        let event = Event::DropLibFile(this.id.get(), this.type_.get(), vec![libfile.id()]);
-                        npc_fwk::send_async_local!(event, tx);
+            drop_target.connect_accept(glib::clone!(
+                #[weak(rename_to = this)]
+                self,
+                #[upgrade_or]
+                false,
+                move |_, _| matches!(this.type_.get(), TreeItemType::Album)
+            ));
+            drop_target.connect_drop(glib::clone!(
+                #[weak(rename_to = this)]
+                self,
+                #[upgrade_or]
+                false,
+                move |_, value, _, _| {
+                    if let Ok(libfile) = value.get::<npc_engine::db::LibFile>() {
+                        dbg_out!("accepted value {}", libfile.id());
+                        if let Some(ref tx) = *this.tx.borrow() {
+                            let event = Event::DropLibFile(
+                                this.id.get(),
+                                this.type_.get(),
+                                vec![libfile.id()],
+                            );
+                            npc_fwk::send_async_local!(event, tx);
+                        }
+                        true
+                    } else {
+                        dbg_out!("no value to accept");
+                        false
                     }
-                    true
-                } else {
-                    dbg_out!("no value to accept");
-                    false
                 }
-            }));
+            ));
             self.obj().add_controller(drop_target);
         }
     }
