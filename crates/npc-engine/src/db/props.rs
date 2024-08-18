@@ -81,7 +81,7 @@ impl From<NiepceProperties> for u32 {
 impl From<u32> for NiepceProperties {
     fn from(v: u32) -> NiepceProperties {
         if v > 0 && v < NiepcePropertyIdx::_NpPropertyEnd as u32 {
-            Self::Index(unsafe { std::mem::transmute(v) })
+            Self::Index(unsafe { std::mem::transmute::<u32, NiepcePropertyIdx>(v) })
         } else {
             Self::Other(v)
         }
