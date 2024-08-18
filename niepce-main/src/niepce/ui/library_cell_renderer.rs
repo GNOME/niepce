@@ -384,8 +384,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
         gesture.connect_pressed(move |gesture, n_press, x, y| {
             dbg_out!("list item clicked {}={},{}", n_press, x, y);
             let renderer = gesture
-                .widget()
-                .downcast::<LibraryCellRenderer>()
+                .widget().and_then(|w| w.downcast::<LibraryCellRenderer>().ok())
                 .expect("couldn't get renderer");
             renderer.hit(x, y);
         });
