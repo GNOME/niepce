@@ -1,9 +1,12 @@
+# Build RawTherapee for rtengine embedding.
+#
 
 openmp_deps = dependency('openmp')
 cairomm_deps = dependency('cairomm-1.16')
 iptcdata_deps = dependency('libiptcdata')
 lcms2_deps = dependency('lcms2')
 lensfun_deps = dependency('lensfun')
+libraw_deps = dependency('libraw')
 # The needed for the C++ tests.
 png16_deps = dependency('libpng16')
 tiff_deps = dependency('libtiff-4')
@@ -119,6 +122,9 @@ install_data(
   'RawTherapee/rtdata/dcpprofiles/NIKON Z 6.dcp',
   'RawTherapee/rtdata/dcpprofiles/NIKON Z 6_2.dcp',
   'RawTherapee/rtdata/dcpprofiles/NIKON Z 7.dcp',
+  'RawTherapee/rtdata/dcpprofiles/NIKON Z 8.dcp',
+  'RawTherapee/rtdata/dcpprofiles/NIKON Z 9.dcp',
+  'RawTherapee/rtdata/dcpprofiles/NIKON Z F.dcp',
   'RawTherapee/rtdata/dcpprofiles/Olympus E-1.dcp',
   'RawTherapee/rtdata/dcpprofiles/OLYMPUS E-510.dcp',
   'RawTherapee/rtdata/dcpprofiles/Olympus E-520.dcp',
@@ -401,6 +407,7 @@ rtengine = static_library(
   'RawTherapee/rtengine/jpeg_ijg/jpeg_memsrc.cc',
   'RawTherapee/rtengine/labimage.cc',
   'RawTherapee/rtengine/lcp.cc',
+  'RawTherapee/rtengine/lensmetadata.cc',
   'RawTherapee/rtengine/lmmse_demosaic.cc',
   'RawTherapee/rtengine/loadinitial.cc',
   'RawTherapee/rtengine/metadata.cc',
@@ -459,6 +466,6 @@ rtengine = static_library(
     # warnings for things we don't control in that tree.
     '-Wno-deprecated-declarations'
   ],
-  include_directories: [ 'RawTherapee' / 'rtengine' / 'klt' ],
-  dependencies: [ glibmm_deps, giomm_deps, cairomm_deps, iptcdata_deps, lcms2_deps, lensfun_deps, openmp_deps, exiv2_deps ],
+  include_directories: [ 'RawTherapee' / 'rtengine' / 'klt', ],
+  dependencies: [ glibmm_deps, giomm_deps, cairomm_deps, iptcdata_deps, lcms2_deps, lensfun_deps, libraw_deps, openmp_deps, exiv2_deps ],
 )

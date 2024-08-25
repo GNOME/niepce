@@ -60,7 +60,7 @@ pub(crate) mod ffi {
             error_code: &mut i32,
         ) -> UniquePtr<InitialImage>;
         #[cxx_name = "getMetaData"]
-        fn get_meta_data(self: Pin<&mut InitialImage>) -> *const FramesMetaData;
+        fn get_meta_data(&self) -> *const FramesMetaData;
         /// Takes ownership
         unsafe fn decrease_ref(image: *mut InitialImage);
     }

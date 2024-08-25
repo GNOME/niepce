@@ -47,6 +47,7 @@ For the RawTherapee engine:
 - expat
 - fftw3f
 - libiptcdata
+- libraw >= 0.21
 - lensfun > 0.3
 - lcms2
 
