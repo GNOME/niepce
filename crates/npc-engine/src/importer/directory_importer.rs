@@ -147,9 +147,8 @@ impl ImportBackend for DirectoryImporter {
                                 std::fs::create_dir_all(
                                     import.1.parent().expect("No parent, bailing out."),
                                 )
-                                .map_err(|err| {
-                                    err_out!("Couldn't create directories");
-                                    err
+                                .inspect_err(|err| {
+                                    err_out!("Couldn't create directories: {err:?}");
                                 })
                                 .ok()?;
                                 npc_fwk::utils::copy(&import.0, &import.1)
