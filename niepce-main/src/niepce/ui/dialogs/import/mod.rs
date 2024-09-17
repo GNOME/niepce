@@ -411,11 +411,9 @@ impl ImportDialog {
                     .images_list_model
                     .item(*idx)
                     .and_downcast::<ThumbItem>()
-                    .map(|item| {
+                    .inspect(|item| {
                         item.set_pixbuf(thumbnail.and_then(|t| t.make_pixbuf()));
                         item.set_date(date);
-
-                        item
                     })
             });
         }

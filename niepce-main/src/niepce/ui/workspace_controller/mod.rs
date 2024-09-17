@@ -132,12 +132,10 @@ impl Widgets {
             folder.parent(),
             tree_item_type,
         )
-        .map(|pos| {
+        .inspect(|_| {
             if was_empty {
                 self.expand_from_cfg("workspace_folders_expanded", &self.folders_node);
             }
-
-            pos
         })
     }
 
