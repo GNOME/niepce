@@ -1,7 +1,7 @@
 /*
  * niepce - npc_engine/examples/copy_importer.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,20 +28,30 @@ use npc_engine::library::notification::LibNotification;
 
 #[derive(Parser, Debug)]
 struct Args {
+    /// Destination base directory.
     #[arg(short, long)]
     dest: String,
 
+    /// Source directory.
     #[arg(short, long)]
     source: String,
 
+    /// (Optional) Catalog to import into.
     #[arg(short, long)]
     catalog: Option<String>,
 
+    /// (Optional) Date directory to restrict.
+    #[arg(long)]
+    date: Option<String>,
+
+    /// Import recursively
     #[arg(short, long)]
     recursive: bool,
 
+    /// Dry run.
     #[arg(short = 'n', long)]
     dry_run: bool,
+    /// Verbose output.
     #[arg(short, long)]
     verbose: bool,
 }
@@ -56,6 +66,7 @@ fn main() {
     let catalog = args.catalog.map(PathBuf::from);
     let dry_run = args.dry_run;
     let verbose = args.verbose;
+    let date = args.date;
     let format = DatePathFormat::YearSlashYearMonthDay;
 
     if verbose {
@@ -77,7 +88,14 @@ fn main() {
         catalog
     });
     let imports = Importer::get_imports(&source, &dest, format, args.recursive);
+    let only_dest_dir = date.map(|d| dest.join(d));
     for import in &imports {
+        if only_dest_dir.is_some() {
+            if import.1.parent() != only_dest_dir.as_deref() {
+                println!("{:?} excluded", import.1);
+                continue;
+            }
+        }
         if import.1.exists() {
             println!("{:?} already exists", import.1);
             continue;
