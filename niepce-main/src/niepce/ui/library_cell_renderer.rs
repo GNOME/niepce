@@ -492,9 +492,8 @@ impl WidgetImpl for LibraryCellRendererPriv {
             );
         }
         if self.draw_flag.get() {
-            match &*file {
-                Some(f) => Self::do_draw_flag(snapshot, f.flag(), &r),
-                None => {}
+            if let Some(f) = &*file {
+                Self::do_draw_flag(snapshot, f.flag(), &r);
             }
         }
 

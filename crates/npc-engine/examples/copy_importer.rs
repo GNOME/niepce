@@ -90,11 +90,9 @@ fn main() {
     let imports = Importer::get_imports(&source, &dest, format, args.recursive);
     let only_dest_dir = date.map(|d| dest.join(d));
     for import in &imports {
-        if only_dest_dir.is_some() {
-            if import.1.parent() != only_dest_dir.as_deref() {
-                println!("{:?} excluded", import.1);
-                continue;
-            }
+        if only_dest_dir.is_some() && import.1.parent() != only_dest_dir.as_deref() {
+            println!("{:?} excluded", import.1);
+            continue;
         }
         if import.1.exists() {
             println!("{:?} already exists", import.1);
