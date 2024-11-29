@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/signals.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 //! Implement simple signals/slot. Unlike the `signals2` create this doesn't
 //! require `Sync` + `Send`.
 
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::{Arc, RwLock};
 
 type Slot<T> = Box<dyn Fn(T)>;
 
@@ -35,7 +34,7 @@ pub struct Signal<T>
 where
     T: Clone,
 {
-    slots: Rc<RefCell<Vec<Slot<T>>>>,
+    slots: Arc<RwLock<Vec<Slot<T>>>>,
 }
 
 impl<T> Signal<T>
@@ -45,21 +44,22 @@ where
     /// Create a new signal.
     pub fn new() -> Self {
         Signal {
-            slots: Rc::new(RefCell::new(Vec::default())),
+            slots: Arc::new(RwLock::new(Vec::default())),
         }
     }
 
     /// Emit the `param`: call all the slots.
     pub fn emit(&self, param: T) {
         self.slots
-            .borrow()
+            .read()
+            .unwrap()
             .iter()
             .for_each(move |s| s(param.clone()));
     }
 
     /// Connect a slot.
     pub fn connect<F: Fn(T) + 'static>(&self, f: F) {
-        self.slots.borrow_mut().push(Box::new(f))
+        self.slots.write().unwrap().push(Box::new(f))
     }
 }
 
