@@ -183,7 +183,7 @@ impl From<gdk_pixbuf::Pixbuf> for Thumbnail {
         let bits_per_sample = pixbuf.bits_per_sample();
         let colorspace = pixbuf.colorspace();
         let has_alpha = pixbuf.has_alpha();
-        return Self {
+        Self {
             width,
             height,
             stride,
@@ -191,7 +191,7 @@ impl From<gdk_pixbuf::Pixbuf> for Thumbnail {
             colorspace,
             has_alpha,
             bytes: Vec::from(bytes.as_ref()),
-        };
+        }
     }
 }
 
