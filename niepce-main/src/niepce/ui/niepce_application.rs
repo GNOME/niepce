@@ -30,9 +30,9 @@ use crate::niepce::ui::niepce_window::NiepceWindow;
 use crate::niepce::ui::PreferencesDialog;
 
 use npc_fwk::toolkit::{
-    gtk_utils, AppController, AppControllerSingleton, Configuration, Controller,
-    ControllerImplCell, DialogController, UiController, UndoHistory, UndoTransaction,
-    WindowController,
+    gtk_utils, undo_do_command, AppController, AppControllerSingleton, Configuration, Controller,
+    ControllerImplCell, DialogController, RedoFn, UiController, UndoFn, UndoHistory,
+    UndoTransaction, WindowController,
 };
 use npc_fwk::{controller_imp_imp, send_async_any};
 
@@ -204,5 +204,13 @@ impl NiepceApplication {
 
         let dialog = PreferencesDialog::new();
         dialog.run_modal(win, |_| {});
+    }
+
+    pub fn begin_undo(transaction: UndoTransaction) {
+        NiepceApplication::instance().begin_undo(transaction);
+    }
+
+    pub fn undo_do_command(label: &str, redo_fn: RedoFn, undo_fn: UndoFn) {
+        undo_do_command(&NiepceApplication::instance(), label, redo_fn, undo_fn);
     }
 }

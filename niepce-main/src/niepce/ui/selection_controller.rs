@@ -186,8 +186,7 @@ impl SelectionController {
     ) -> bool {
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
-        npc_fwk::toolkit::undo_do_command(
-            &NiepceApplication::instance(),
+        NiepceApplication::undo_do_command(
             undo_label,
             Box::new(move || {
                 client_redo.set_metadata(file_id, Np::Index(meta), &PropertyValue::Int(new_value));
@@ -226,7 +225,7 @@ impl SelectionController {
             undo.add(command);
         }
         undo.execute();
-        NiepceApplication::instance().begin_undo(undo);
+        NiepceApplication::begin_undo(undo);
         true
     }
 
@@ -316,8 +315,7 @@ impl SelectionController {
         let file_id = f.id();
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
-        npc_fwk::toolkit::undo_do_command(
-            &NiepceApplication::instance(),
+        NiepceApplication::undo_do_command(
             &i18n("Remove from album"),
             Box::new(move || {
                 client_redo.remove_from_album(&[file_id], album);
@@ -334,8 +332,7 @@ impl SelectionController {
         let from_folder = f.folder_id();
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
-        npc_fwk::toolkit::undo_do_command(
-            &NiepceApplication::instance(),
+        NiepceApplication::undo_do_command(
             &i18n("Move to Trash"),
             Box::new(move || {
                 client_redo.move_file_to_folder(file_id, from_folder, trash_folder);

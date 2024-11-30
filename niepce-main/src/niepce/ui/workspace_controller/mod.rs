@@ -831,8 +831,7 @@ impl WorkspaceController {
                 if let Some(client) = self.client.upgrade() {
                     let client_redo = client.clone();
                     let redo_source = source.clone();
-                    npc_fwk::toolkit::undo_do_command(
-                        &NiepceApplication::instance(),
+                    NiepceApplication::undo_do_command(
                         &i18n("Add to Album"),
                         Box::new(move || {
                             client_redo.add_to_album(&redo_source, target);

@@ -17,9 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
 use std::collections::VecDeque;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use crate::base::Signal;
 use crate::toolkit::AppController;
@@ -57,19 +56,24 @@ impl From<Storage> for () {
     }
 }
 
+/// The function to do something in a undo command
+pub type RedoFn = Box<dyn Fn() -> Storage>;
+/// The function to undo the thing in a undo command
+pub type UndoFn = Box<dyn Fn(&Storage)>;
+
 /// The base command for an undo operation. Redo is executing, undo is
 /// the reverse.
 pub struct UndoCommand {
     /// Storage for the return value of redo_fn to pass to undo_fn
-    storage: RefCell<Storage>,
-    redo_fn: Box<dyn Fn() -> Storage>,
-    undo_fn: Box<dyn Fn(&Storage)>,
+    storage: RwLock<Storage>,
+    redo_fn: RedoFn,
+    undo_fn: UndoFn,
 }
 
 impl UndoCommand {
-    pub fn new(redo_fn: Box<dyn Fn() -> Storage>, undo_fn: Box<dyn Fn(&Storage)>) -> UndoCommand {
+    pub fn new(redo_fn: RedoFn, undo_fn: UndoFn) -> UndoCommand {
         UndoCommand {
-            storage: RefCell::new(Storage::Void),
+            storage: RwLock::new(Storage::Void),
             redo_fn,
             undo_fn,
         }
@@ -77,12 +81,12 @@ impl UndoCommand {
 
     /// Call undo_fn
     pub fn undo(&self) {
-        (self.undo_fn)(&self.storage.borrow());
+        (self.undo_fn)(&self.storage.read().unwrap());
     }
 
     /// Call redo_fn
     pub fn redo(&self) {
-        self.storage.replace((self.redo_fn)());
+        *self.storage.write().unwrap() = (self.redo_fn)();
     }
 }
 
@@ -134,9 +138,9 @@ impl UndoTransaction {
 #[derive(Default)]
 pub struct UndoHistory {
     /// A LIFO queue of the undos
-    undos: RefCell<VecDeque<UndoTransaction>>,
+    undos: RwLock<VecDeque<UndoTransaction>>,
     /// A LIFO queue of the redo
-    redos: RefCell<VecDeque<UndoTransaction>>,
+    redos: RwLock<VecDeque<UndoTransaction>>,
     /// When the state changed.
     pub signal_changed: Signal<()>,
 }
@@ -145,24 +149,25 @@ impl UndoHistory {
     /// Add the transaction. This clear the redos.
     pub fn add(&self, transaction: UndoTransaction) {
         {
-            self.undos.borrow_mut().push_back(transaction);
-            self.redos.borrow_mut().clear();
+            self.undos.write().unwrap().push_back(transaction);
+            self.redos.write().unwrap().clear();
         }
         self.signal_changed.emit(());
     }
 
     pub fn has_undo(&self) -> bool {
-        !self.undos.borrow().is_empty()
+        !self.undos.read().unwrap().is_empty()
     }
 
     pub fn has_redo(&self) -> bool {
-        !self.redos.borrow().is_empty()
+        !self.redos.read().unwrap().is_empty()
     }
 
     /// The name of the next undo operation
     pub fn next_undo(&self) -> String {
         self.undos
-            .borrow()
+            .read()
+            .unwrap()
             .back()
             .map(|t| t.name.to_string())
             .unwrap_or_default()
@@ -171,7 +176,8 @@ impl UndoHistory {
     /// The name of the next undo operation
     pub fn next_redo(&self) -> String {
         self.redos
-            .borrow()
+            .read()
+            .unwrap()
             .back()
             .map(|t| t.name.to_string())
             .unwrap_or_default()
@@ -179,9 +185,9 @@ impl UndoHistory {
 
     /// Perform the undo operation
     pub fn undo(&self) {
-        let changed = if let Some(transaction) = self.undos.borrow_mut().pop_back() {
+        let changed = if let Some(transaction) = self.undos.write().unwrap().pop_back() {
             transaction.undo();
-            self.redos.borrow_mut().push_back(transaction);
+            self.redos.write().unwrap().push_back(transaction);
             true
         } else {
             false
@@ -193,9 +199,9 @@ impl UndoHistory {
 
     /// Perform the redo operation
     pub fn redo(&self) {
-        let changed = if let Some(transaction) = self.redos.borrow_mut().pop_back() {
+        let changed = if let Some(transaction) = self.redos.write().unwrap().pop_back() {
             transaction.redo();
-            self.undos.borrow_mut().push_back(transaction);
+            self.undos.write().unwrap().push_back(transaction);
             true
         } else {
             false
@@ -207,12 +213,7 @@ impl UndoHistory {
 }
 
 /// An all around wrapper to create and run and undoable command
-pub fn do_command(
-    app: &Arc<dyn AppController>,
-    label: &str,
-    redo_fn: Box<dyn Fn() -> Storage>,
-    undo_fn: Box<dyn Fn(&Storage)>,
-) {
+pub fn do_command(app: &Arc<dyn AppController>, label: &str, redo_fn: RedoFn, undo_fn: UndoFn) {
     let mut transaction = UndoTransaction::new(label);
     let command = UndoCommand::new(redo_fn, undo_fn);
     transaction.add(command);

@@ -52,7 +52,7 @@ pub use thumbnail::Thumbnail;
 pub use tree_view_model::{TreeViewFactory, TreeViewModel};
 pub use uicontroller::{DialogController, UiController};
 pub use undo::do_command as undo_do_command;
-pub use undo::{Storage, UndoCommand, UndoHistory, UndoTransaction};
+pub use undo::{RedoFn, Storage, UndoCommand, UndoFn, UndoHistory, UndoTransaction};
 pub use window_controller::{create_redo_action, create_undo_action, WindowController};
 
 pub use configuration::{ConfigBackend, Configuration};

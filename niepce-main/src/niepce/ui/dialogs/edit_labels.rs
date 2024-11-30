@@ -201,7 +201,7 @@ impl EditLabels {
         }
         if !undo.is_empty() {
             undo.execute();
-            NiepceApplication::instance().begin_undo(undo);
+            NiepceApplication::begin_undo(undo);
         }
     }
 }
