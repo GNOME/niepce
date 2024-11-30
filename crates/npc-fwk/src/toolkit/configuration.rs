@@ -22,7 +22,7 @@ mod keyfile;
 use crate::glib;
 
 /// Config backend
-pub trait ConfigBackend {
+pub trait ConfigBackend: Send + Sync {
     /// Start the backend
     fn start(&self) {}
     fn initialise(&self, _prefs: &[(String, String)]) {}
@@ -113,16 +113,26 @@ mod tests {
         test_file.push("test_file.ini");
 
         assert!(!test_file.exists());
-        let cfg = Configuration::from_file(&test_file);
-        assert!(!test_file.exists());
+        {
+            let cfg = Configuration::from_file(&test_file);
+            assert!(!test_file.exists());
 
-        assert!(!cfg.has("foobar"));
-        assert_eq!(cfg.value("foobar", "some_default"), "some_default");
+            assert!(!cfg.has("foobar"));
+            assert_eq!(cfg.value("foobar", "some_default"), "some_default");
 
-        cfg.set_value("foobar", "some_value");
+            cfg.set_value("foobar", "some_value");
+            assert!(test_file.exists());
+
+            assert!(cfg.has("foobar"));
+            assert_eq!(cfg.value("foobar", "some_default"), "some_value");
+        }
+
+        // Test we can read it back.
         assert!(test_file.exists());
-
-        assert!(cfg.has("foobar"));
-        assert_eq!(cfg.value("foobar", "some_default"), "some_value");
+        {
+            let cfg = Configuration::from_file(&test_file);
+            assert!(cfg.has("foobar"));
+            assert_eq!(cfg.value("foobar", "some_default"), "some_value");
+        }
     }
 }

@@ -17,9 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use crate::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::dbg_out;
@@ -29,14 +28,14 @@ use npc_fwk::toolkit::ConfigBackend;
 /// It is read once and abd write many.
 pub struct CatalogPreferences {
     client: Arc<LibraryClient>,
-    store: RefCell<HashMap<String, String>>,
+    store: RwLock<HashMap<String, String>>,
 }
 
 impl CatalogPreferences {
     pub fn new(client: Arc<LibraryClient>) -> Self {
         Self {
             client,
-            store: RefCell::default(),
+            store: RwLock::default(),
         }
     }
 
@@ -56,7 +55,7 @@ impl ConfigBackend for CatalogPreferences {
     }
 
     fn initialise(&self, prefs: &[(String, String)]) {
-        let mut store = self.store.borrow_mut();
+        let mut store = self.store.write().unwrap();
         for pref in prefs {
             store.insert(pref.0.clone(), pref.1.clone());
         }
@@ -65,18 +64,26 @@ impl ConfigBackend for CatalogPreferences {
 
     /// Return true if it has `key`.
     fn has(&self, key: &str) -> bool {
-        self.store.borrow().contains_key(&Self::normalise_key(key))
+        self.store
+            .read()
+            .unwrap()
+            .contains_key(&Self::normalise_key(key))
     }
 
     /// Return the string value for `key` or `None` if not found.
     fn value_opt(&self, key: &str) -> Option<String> {
-        self.store.borrow().get(&Self::normalise_key(key)).cloned()
+        self.store
+            .read()
+            .unwrap()
+            .get(&Self::normalise_key(key))
+            .cloned()
     }
 
     /// Return string value for `key`, or `def` if not found.
     fn value(&self, key: &str, def: &str) -> String {
         self.store
-            .borrow()
+            .read()
+            .unwrap()
             .get(&Self::normalise_key(key))
             .cloned()
             .unwrap_or_else(|| def.to_string())
@@ -86,7 +93,8 @@ impl ConfigBackend for CatalogPreferences {
     fn set_value(&self, key: &str, value: &str) {
         let key = Self::normalise_key(key);
         self.store
-            .borrow_mut()
+            .write()
+            .unwrap()
             .insert(key.clone(), value.to_string());
         self.client.set_preference(key, value.to_string());
     }

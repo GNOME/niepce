@@ -17,21 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::glib;
+use std::sync::RwLock;
+
+use configparser::ini::Ini;
 
 use super::ConfigBackend;
 
-/// A configuration, backed by a `glib::Keyfile`
+/// A configuration, backed by an ini file.
 pub(super) struct KeyFile {
     filename: std::path::PathBuf,
-    keyfile: glib::KeyFile,
+    keyfile: RwLock<Ini>,
     root: String,
 }
 
 impl ConfigBackend for KeyFile {
     /// Return true if it has `key`.
     fn has(&self, key: &str) -> bool {
-        self.keyfile.has_group(&self.root) && self.keyfile.has_key(&self.root, key).unwrap_or(false)
+        self.keyfile.read().unwrap().get(&self.root, key).is_some()
     }
 
     /// Return the string value for `key` or `None` if not found.
@@ -40,9 +42,10 @@ impl ConfigBackend for KeyFile {
             return None;
         }
         self.keyfile
-            .string(&self.root, key)
+            .read()
+            .unwrap()
+            .get(&self.root, key)
             .map(|v| v.as_str().to_string())
-            .ok()
     }
 
     /// Return string value for `key`, or `def` if not found.
@@ -52,24 +55,27 @@ impl ConfigBackend for KeyFile {
 
     /// Set `value` for `key`
     fn set_value(&self, key: &str, value: &str) {
-        self.keyfile.set_string(&self.root, key, value);
+        self.keyfile
+            .write()
+            .unwrap()
+            .set(&self.root, key, Some(value.to_string()));
         on_err_out!(self.save());
     }
 }
 
 impl KeyFile {
     pub fn new<P: AsRef<std::path::Path>>(filename: P, root: String) -> KeyFile {
-        let keyfile = glib::KeyFile::new();
-        on_err_out!(keyfile.load_from_file(&filename, glib::KeyFileFlags::NONE));
+        let mut keyfile = Ini::new();
+        on_err_out!(keyfile.load(&filename));
         KeyFile {
             filename: filename.as_ref().to_path_buf(),
-            keyfile,
+            keyfile: RwLock::new(keyfile),
             root,
         }
     }
 
     /// Save
-    fn save(&self) -> Result<(), glib::Error> {
-        glib::file_set_contents(&self.filename, self.keyfile.to_data().as_gstr().as_bytes())
+    fn save(&self) -> std::io::Result<()> {
+        self.keyfile.read().unwrap().write(&self.filename)
     }
 }
