@@ -33,10 +33,9 @@ use npc_engine::db::LibraryId;
 use npc_engine::library::notification::{LibNotification, MetadataChange};
 use npc_engine::library::thumbnail_cache::ThumbnailCache;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};
+use npc_fwk::toolkit::Configuration;
 use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_out, err_out};
-
-use crate::NiepceApplication;
 
 #[derive(Clone, Copy)]
 enum CurrentContainer {
@@ -53,25 +52,21 @@ enum CurrentContainer {
 pub struct ImageListStore {
     store: gio::ListStore,
     model: gtk4::SingleSelection,
+    config: Arc<Configuration>,
     current: Cell<CurrentContainer>,
     idmap: RefCell<BTreeMap<LibraryId, u32>>,
     image_loading_icon: OnceCell<gtk4::IconPaintable>,
 }
 
-impl Default for ImageListStore {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl ImageListStore {
-    pub fn new() -> Self {
+    pub fn new(config: Arc<Configuration>) -> Self {
         let store = gio::ListStore::new::<ImageListItem>();
         let model = gtk4::SingleSelection::new(Some(store.clone()));
 
         Self {
             store,
             model,
+            config,
             current: Cell::new(CurrentContainer::None),
             idmap: RefCell::new(BTreeMap::new()),
             image_loading_icon: OnceCell::new(),
@@ -148,9 +143,8 @@ impl ImageListStore {
 
         match *notification {
             XmpNeedsUpdate => {
-                let app = NiepceApplication::instance();
-                let cfg = &app.config();
-                let write_xmp = cfg
+                let write_xmp = self
+                    .config
                     .value("write_xmp_automatically", "0")
                     .parse::<bool>()
                     .unwrap_or(false);

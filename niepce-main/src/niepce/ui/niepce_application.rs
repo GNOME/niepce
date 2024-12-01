@@ -19,7 +19,7 @@
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock, Weak};
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
@@ -30,11 +30,10 @@ use crate::niepce::ui::niepce_window::NiepceWindow;
 use crate::niepce::ui::PreferencesDialog;
 
 use npc_fwk::toolkit::{
-    gtk_utils, undo_do_command, AppController, AppControllerSingleton, Configuration, Controller,
-    ControllerImplCell, DialogController, RedoFn, UiController, UndoFn, UndoHistory,
-    UndoTransaction, WindowController,
+    gtk_utils, AppController, Configuration, Controller, ControllerImplCell, DialogController,
+    UiController, UndoHistory, UndoTransaction, WindowController,
 };
-use npc_fwk::{controller_imp_imp, send_async_any};
+use npc_fwk::{controller_imp_imp, err_out, send_async_any};
 
 pub enum Event {
     FileOpen,
@@ -45,7 +44,8 @@ pub enum Event {
 
 pub struct NiepceApplication {
     imp_: ControllerImplCell<Event, ()>,
-    config: Configuration,
+    this: RwLock<Weak<NiepceApplication>>,
+    config: Arc<Configuration>,
     undo_history: UndoHistory,
     app: adw::Application,
     main_window: RefCell<Option<Rc<NiepceWindow>>>,
@@ -76,31 +76,28 @@ impl AppController for NiepceApplication {
         &self.undo_history
     }
 
-    fn config(&self) -> &Configuration {
-        &self.config
+    fn config(&self) -> Arc<Configuration> {
+        self.config.clone()
     }
 }
 
-impl AppControllerSingleton for NiepceApplication {}
-
 impl NiepceApplication {
-    pub fn instance() -> Arc<dyn AppController> {
-        <Self as AppControllerSingleton>::singleton::<Self>()
-    }
-
     pub fn new() -> Arc<NiepceApplication> {
         let undo_history = UndoHistory::default();
         let config_path = Configuration::make_config_path(config::PACKAGE);
-        let config = Configuration::from_file(config_path);
+        let config = Arc::new(Configuration::from_file(config_path));
         let gtkapp = adw::Application::new(Some(config::APP_ID), gio::ApplicationFlags::FLAGS_NONE);
         let app = Arc::new(NiepceApplication {
             imp_: ControllerImplCell::default(),
+            this: RwLock::new(Weak::new()),
             config,
             undo_history,
             app: gtkapp,
             main_window: RefCell::default(),
         });
-        <Self as AppControllerSingleton>::create(app.clone());
+
+        let this = Arc::downgrade(&app);
+        *app.this.write().unwrap() = this;
 
         // This will panic for there is no default display.
         let theme = gtk4::IconTheme::for_display(&gdk4::Display::default().unwrap());
@@ -122,9 +119,18 @@ impl NiepceApplication {
             app,
             move |_| app.on_startup()
         ));
-        <Self as AppControllerSingleton>::start(&app);
+        <Self as AppController>::start(&app);
 
         app
+    }
+
+    pub fn weak(&self) -> Weak<Self> {
+        self.this.read().unwrap().clone()
+    }
+
+    /// Return the toolkit application.
+    pub fn app(&self) -> &adw::Application {
+        &self.app
     }
 
     pub fn main(&self) {
@@ -134,10 +140,14 @@ impl NiepceApplication {
     fn on_startup(&self) {
         self.init_actions();
 
-        let window = NiepceWindow::new(self.app.upcast_ref());
-        self.main_window.replace(Some(window.clone()));
-        window.widget();
-        window.on_open_catalog();
+        if let Some(this) = Weak::upgrade(&self.weak()) {
+            let window = NiepceWindow::new(&this);
+            self.main_window.replace(Some(window.clone()));
+            window.widget();
+            window.on_open_catalog();
+        } else {
+            err_out!("No more application!");
+        }
     }
 
     fn init_actions(&self) {
@@ -202,15 +212,7 @@ impl NiepceApplication {
         let win = self.main_window.borrow();
         let win = win.as_ref().map(|win| win.window());
 
-        let dialog = PreferencesDialog::new();
+        let dialog = PreferencesDialog::new(self);
         dialog.run_modal(win, |_| {});
-    }
-
-    pub fn begin_undo(transaction: UndoTransaction) {
-        NiepceApplication::instance().begin_undo(transaction);
-    }
-
-    pub fn undo_do_command(label: &str, redo_fn: RedoFn, undo_fn: UndoFn) {
-        undo_do_command(&NiepceApplication::instance(), label, redo_fn, undo_fn);
     }
 }

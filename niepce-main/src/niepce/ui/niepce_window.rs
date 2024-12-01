@@ -19,6 +19,7 @@
 
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
@@ -32,7 +33,8 @@ use npc_engine::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryCli
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Moniker;
 use npc_fwk::toolkit::{
-    self, Controller, ControllerImplCell, DialogController, UiController, WindowController,
+    self, AppController, Controller, ControllerImplCell, DialogController, UiController,
+    WindowController,
 };
 use npc_fwk::{dbg_out, err_out};
 
@@ -77,6 +79,7 @@ struct ShellWidgets {
 
 pub struct NiepceWindow {
     imp_: ControllerImplCell<Event, ()>,
+    app: Arc<NiepceApplication>,
     window: gtk4::ApplicationWindow,
     libraryclient: RefCell<Option<Rc<LibraryClientHost>>>,
     configuration: RefCell<Option<Rc<toolkit::Configuration>>>,
@@ -265,9 +268,8 @@ impl UiController for NiepceWindow {
             )
         );
 
-        let app = NiepceApplication::instance();
-        npc_fwk::toolkit::create_undo_action(&app, group);
-        npc_fwk::toolkit::create_redo_action(&app, group);
+        npc_fwk::toolkit::create_undo_action(self.app.clone(), group);
+        npc_fwk::toolkit::create_redo_action(self.app.clone(), group);
 
         action!(group, "Cut", move |_, _| {});
         action!(group, "Copy", move |_, _| {});
@@ -296,10 +298,11 @@ impl WindowController for NiepceWindow {
 }
 
 impl NiepceWindow {
-    pub fn new(app: &gtk4::Application) -> Rc<NiepceWindow> {
+    pub fn new(app: &Arc<NiepceApplication>) -> Rc<NiepceWindow> {
         let ctrl = Rc::new(NiepceWindow {
             imp_: ControllerImplCell::default(),
-            window: gtk4::ApplicationWindow::new(app),
+            app: app.clone(),
+            window: gtk4::ApplicationWindow::new(app.app()),
             libraryclient: RefCell::new(None),
             configuration: RefCell::new(None),
 
@@ -360,8 +363,7 @@ impl NiepceWindow {
 
     /// Opening a library has been requested
     pub fn on_open_catalog(&self) {
-        let app = NiepceApplication::instance();
-        let cfg = &app.config();
+        let cfg = &self.app.config();
         let reopen = cfg.value("reopen_last_catalog", "0");
         let cat_moniker = if reopen == "1" {
             cfg.value("last_open_catalog", "")
@@ -394,6 +396,8 @@ impl NiepceWindow {
         dialog.set_create_folders(true);
         let tx = self.sender();
         dialog.connect_response(glib::clone!(
+            #[weak(rename_to=app)]
+            self.app,
             #[strong]
             dialog,
             #[strong]
@@ -404,7 +408,6 @@ impl NiepceWindow {
                         if let Some(catalog_to_create) = dialog.file().and_then(|f| f.path()) {
                             let catalog_to_create2 = catalog_to_create.clone();
                             npc_fwk::send_async_local!(Event::OpenCatalog(catalog_to_create2), tx);
-                            let app = NiepceApplication::instance();
                             let cfg = &app.config();
                             cfg.set_value(
                                 "last_open_catalog",
@@ -452,7 +455,7 @@ impl NiepceWindow {
 
         client_host.client().get_all_labels();
 
-        let module_shell = ModuleShell::new(client_host);
+        let module_shell = ModuleShell::new(client_host, self.app.weak().clone());
         let module_widget = module_shell.widget();
 
         if let Some(notif_center) = self.widgets.get().map(|w| &w.notif_center) {
@@ -466,7 +469,7 @@ impl NiepceWindow {
         let configuration = self.configuration.borrow();
         let cfg = configuration.as_ref().unwrap();
         let client = client_host.client();
-        let workspace = WorkspaceController::new(cfg.clone(), client);
+        let workspace = WorkspaceController::new(self.app.weak().clone(), cfg.clone(), client);
         if let Some(actions) = workspace.actions() {
             self.window.insert_action_group(actions.0, Some(actions.1));
         }
@@ -523,7 +526,7 @@ impl NiepceWindow {
     fn on_action_edit_labels(&self) {
         dbg_out!("edit labels");
         if let Some(ref libclient) = *self.libraryclient.borrow() {
-            let editlabel_dialog = EditLabels::new(libclient);
+            let editlabel_dialog = EditLabels::new(libclient, self.app.weak().clone());
             editlabel_dialog.run_modal(Some(self.window()), move |_| {});
         }
     }

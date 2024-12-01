@@ -19,7 +19,7 @@
 
 use std::cell::Cell;
 use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
@@ -36,7 +36,9 @@ use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHos
 use npc_engine::ThumbnailCache;
 use npc_fwk::send_async_local;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
-use npc_fwk::toolkit::{Controller, ControllerImplCell, UndoCommand, UndoTransaction};
+use npc_fwk::toolkit::{
+    AppController, Controller, ControllerImplCell, UndoCommand, UndoTransaction,
+};
 use npc_fwk::{dbg_out, err_out, PropertyValue};
 
 #[derive(PartialEq)]
@@ -58,6 +60,7 @@ pub enum SelectionOutMsg {
 pub struct SelectionController {
     imp_: ControllerImplCell<SelectionInMsg, SelectionOutMsg>,
     client: Arc<LibraryClient>,
+    app: Weak<NiepceApplication>,
     store: Rc<ImageListStore>,
     content: Cell<ContentView>,
 }
@@ -83,12 +86,17 @@ impl Controller for SelectionController {
 }
 
 impl SelectionController {
-    pub fn new(client_host: &LibraryClientHost) -> Rc<SelectionController> {
-        let store = Rc::<ImageListStore>::default();
+    pub fn new(
+        client_host: &LibraryClientHost,
+        app: Weak<NiepceApplication>,
+    ) -> Rc<SelectionController> {
+        let config = Weak::upgrade(&app).unwrap().config();
+        let store = Rc::new(ImageListStore::new(config));
 
         let controller = Rc::new(SelectionController {
             imp_: ControllerImplCell::default(),
             client: client_host.client().clone(),
+            app,
             store,
             content: Cell::default(),
         });
@@ -186,7 +194,9 @@ impl SelectionController {
     ) -> bool {
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
-        NiepceApplication::undo_do_command(
+        let app = Weak::upgrade(&self.app).unwrap();
+        npc_fwk::toolkit::undo_do_command(
+            &app,
             undo_label,
             Box::new(move || {
                 client_redo.set_metadata(file_id, Np::Index(meta), &PropertyValue::Int(new_value));
@@ -225,7 +235,8 @@ impl SelectionController {
             undo.add(command);
         }
         undo.execute();
-        NiepceApplication::begin_undo(undo);
+        let app = Weak::upgrade(&self.app).unwrap();
+        app.begin_undo(undo);
         true
     }
 
@@ -315,7 +326,9 @@ impl SelectionController {
         let file_id = f.id();
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
-        NiepceApplication::undo_do_command(
+        let app = Weak::upgrade(&self.app).unwrap();
+        npc_fwk::toolkit::undo_do_command(
+            &app,
             &i18n("Remove from album"),
             Box::new(move || {
                 client_redo.remove_from_album(&[file_id], album);
@@ -332,7 +345,9 @@ impl SelectionController {
         let from_folder = f.folder_id();
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
-        NiepceApplication::undo_do_command(
+        let app = Weak::upgrade(&self.app).unwrap();
+        npc_fwk::toolkit::undo_do_command(
+            &app,
             &i18n("Move to Trash"),
             Box::new(move || {
                 client_redo.move_file_to_folder(file_id, from_folder, trash_folder);

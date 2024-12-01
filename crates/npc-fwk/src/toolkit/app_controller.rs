@@ -26,35 +26,14 @@ use crate::toolkit::{Configuration, Controller, UndoHistory, UndoTransaction};
 pub trait AppController {
     fn begin_undo(&self, transaction: UndoTransaction);
     fn undo_history(&self) -> &UndoHistory;
-    fn config(&self) -> &Configuration;
-}
-
-/// This implement the singleton as the application, there can only be
-/// one.
-pub trait AppControllerSingleton {
-    /// Get the singleton.
-    fn singleton<T: AppController>() -> Arc<dyn AppController> {
-        Self::singleton_init::<T>(None)
-    }
-
-    /// Initialise the singleton from the controller.  It is an error
-    /// to pass `None` if the singleton hasn't been created.
-    fn singleton_init<T: AppController>(
-        init: Option<Arc<dyn AppController>>,
-    ) -> Arc<dyn AppController> {
-        static mut INSTANCE: Option<Arc<dyn AppController>> = None;
-        static INIT: std::sync::Once = std::sync::Once::new();
-
-        INIT.call_once(|| unsafe {
-            INSTANCE = init;
-        });
-
-        unsafe { INSTANCE.clone().unwrap() }
-    }
+    fn config(&self) -> Arc<Configuration>;
 
     /// Start the controller event loop
     /// Like `Controller::start<>` but takes an `Arc<>`
-    fn start<T: Controller + 'static>(this: &Arc<T>) {
+    fn start<T: Controller + 'static>(this: &Arc<T>)
+    where
+        Self: Sized,
+    {
         let rx = this.receiver();
         let ctrl = this.clone();
         super::channels::receiver_attach(rx, move |e| {
@@ -65,13 +44,5 @@ pub trait AppControllerSingleton {
             );
             ctrl.dispatch(e);
         });
-    }
-
-    /// Create the singleton with the controller.
-    fn create<T>(app: Arc<T>)
-    where
-        T: AppController + 'static,
-    {
-        Self::singleton_init::<T>(Some(app));
     }
 }

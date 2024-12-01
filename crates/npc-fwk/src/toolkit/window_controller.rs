@@ -102,7 +102,7 @@ pub trait WindowController {
 
 /// Create an undo action, with accel, and automatic state handling.
 pub fn create_undo_action(
-    app: &Arc<dyn AppController>,
+    app: Arc<dyn AppController>,
     action_map: &gio::ActionMap,
 ) -> gio::SimpleAction {
     let action = gio::SimpleAction::new("Undo", None);
@@ -135,7 +135,7 @@ pub fn create_undo_action(
 
 /// Create an redo action, with accel, and automatic state handling.
 pub fn create_redo_action(
-    app: &Arc<dyn AppController>,
+    app: Arc<dyn AppController>,
     action_map: &gio::ActionMap,
 ) -> gio::SimpleAction {
     let action = gio::SimpleAction::new("Redo", None);

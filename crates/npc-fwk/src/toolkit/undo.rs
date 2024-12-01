@@ -213,7 +213,10 @@ impl UndoHistory {
 }
 
 /// An all around wrapper to create and run and undoable command
-pub fn do_command(app: &Arc<dyn AppController>, label: &str, redo_fn: RedoFn, undo_fn: UndoFn) {
+pub fn do_command<T>(app: &Arc<T>, label: &str, redo_fn: RedoFn, undo_fn: UndoFn)
+where
+    T: AppController,
+{
     let mut transaction = UndoTransaction::new(label);
     let command = UndoCommand::new(redo_fn, undo_fn);
     transaction.add(command);

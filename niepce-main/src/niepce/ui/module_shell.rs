@@ -20,6 +20,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::sync::Weak;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
@@ -29,6 +30,7 @@ use super::{
     GridViewModule, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,
 };
 use crate::modules::{DarkroomModule, MapModule};
+use crate::NiepceApplication;
 use npc_engine::db;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
@@ -58,8 +60,11 @@ pub struct ModuleShell {
 }
 
 impl ModuleShell {
-    pub fn new(client_host: &Rc<LibraryClientHost>) -> Rc<ModuleShell> {
-        let selection_controller = SelectionController::new(client_host);
+    pub fn new(
+        client_host: &Rc<LibraryClientHost>,
+        app: Weak<NiepceApplication>,
+    ) -> Rc<ModuleShell> {
+        let selection_controller = SelectionController::new(client_host, app);
         let menu = gio::Menu::new();
         let shell = Rc::new(ModuleShell {
             imp_: ControllerImplCell::default(),

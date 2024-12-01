@@ -41,7 +41,7 @@ mod undo;
 pub mod widgets;
 mod window_controller;
 
-pub use app_controller::{AppController, AppControllerSingleton};
+pub use app_controller::AppController;
 pub use channels::{channel, send_async_any, send_async_local, Receiver, Sender};
 pub use combo_model::ComboModel;
 pub use controller::{Controller, ControllerImpl, ControllerImplCell};

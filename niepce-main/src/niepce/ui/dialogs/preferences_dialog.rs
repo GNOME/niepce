@@ -20,10 +20,12 @@
 use std::rc::Rc;
 
 use adw::prelude::*;
-use npc_fwk::{adw, gtk4};
+use npc_fwk::{adw, glib, gtk4};
 
 use npc_fwk::controller_imp_imp;
-use npc_fwk::toolkit::{Controller, ControllerImplCell, DialogController, UiController};
+use npc_fwk::toolkit::{
+    AppController, Controller, ControllerImplCell, DialogController, UiController,
+};
 
 use crate::NiepceApplication;
 
@@ -62,36 +64,41 @@ impl DialogController for PreferencesDialog {
 }
 
 impl PreferencesDialog {
-    pub fn new() -> Rc<PreferencesDialog> {
+    pub fn new(app: &NiepceApplication) -> Rc<PreferencesDialog> {
         let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/preferences.ui");
         get_widget!(builder, adw::Window, preferences);
         get_widget!(builder, adw::SwitchRow, reopen_checkbutton);
         get_widget!(builder, adw::SwitchRow, write_xmp_checkbutton);
         get_widget!(builder, adw::SwitchRow, dark_theme_checkbox);
 
-        let app = NiepceApplication::instance();
         let cfg = &app.config();
 
         cfg.to_switchrow(&reopen_checkbutton, "reopen_last_catalog", "0");
-        reopen_checkbutton.connect_active_notify(move |w| {
-            let app = NiepceApplication::instance();
-            let cfg = &app.config();
-            cfg.from_switchrow(w, "reopen_last_catalog");
-        });
+        reopen_checkbutton.connect_active_notify(glib::clone!(
+            #[weak]
+            cfg,
+            move |w| {
+                cfg.from_switchrow(w, "reopen_last_catalog");
+            }
+        ));
 
         cfg.to_switchrow(&write_xmp_checkbutton, "write_xmp_automatically", "0");
-        write_xmp_checkbutton.connect_active_notify(move |w| {
-            let app = NiepceApplication::instance();
-            let cfg = &app.config();
-            cfg.from_switchrow(w, "write_xmp_automatically");
-        });
+        write_xmp_checkbutton.connect_active_notify(glib::clone!(
+            #[weak]
+            cfg,
+            move |w| {
+                cfg.from_switchrow(w, "write_xmp_automatically");
+            }
+        ));
 
         cfg.to_switchrow(&dark_theme_checkbox, "ui_dark_theme", "0");
-        dark_theme_checkbox.connect_active_notify(move |w| {
-            let app = NiepceApplication::instance();
-            let cfg = &app.config();
-            cfg.from_switchrow(w, "ui_dark_theme");
-        });
+        dark_theme_checkbox.connect_active_notify(glib::clone!(
+            #[weak]
+            cfg,
+            move |w| {
+                cfg.from_switchrow(w, "ui_dark_theme");
+            }
+        ));
 
         let ctrl = Rc::new(PreferencesDialog {
             imp_: ControllerImplCell::default(),

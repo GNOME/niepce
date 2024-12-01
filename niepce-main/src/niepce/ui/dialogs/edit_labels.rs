@@ -19,7 +19,7 @@
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
@@ -31,8 +31,8 @@ use npc_engine::libraryclient::{
 };
 use npc_fwk::base::RgbColour;
 use npc_fwk::toolkit::{
-    Controller, ControllerImplCell, DialogController, Storage, UiController, UndoCommand,
-    UndoTransaction,
+    AppController, Controller, ControllerImplCell, DialogController, Storage, UiController,
+    UndoCommand, UndoTransaction,
 };
 use npc_fwk::{controller_imp_imp, send_async_local};
 
@@ -49,6 +49,7 @@ pub enum InMsg {
 pub struct EditLabels {
     imp_: ControllerImplCell<InMsg, ()>,
     client: Arc<LibraryClient>,
+    app: Weak<NiepceApplication>,
     labels: Vec<db::Label>,
     colours: Vec<gtk4::ColorButton>,
     entries: Vec<gtk4::Entry>,
@@ -86,7 +87,7 @@ impl DialogController for EditLabels {
 }
 
 impl EditLabels {
-    pub fn new(client: &Rc<LibraryClientHost>) -> Rc<EditLabels> {
+    pub fn new(client: &Rc<LibraryClientHost>, app: Weak<NiepceApplication>) -> Rc<EditLabels> {
         let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/editlabels.ui");
         let provider = client.ui_provider();
         let mut labels = vec![];
@@ -101,6 +102,7 @@ impl EditLabels {
         let mut ctrl = EditLabels {
             imp_: ControllerImplCell::default(),
             client: client.client().clone(),
+            app,
             labels,
             entries: vec![],
             colours: vec![],
@@ -201,7 +203,9 @@ impl EditLabels {
         }
         if !undo.is_empty() {
             undo.execute();
-            NiepceApplication::begin_undo(undo);
+            if let Some(app) = Weak::upgrade(&self.app) {
+                app.begin_undo(undo);
+            }
         }
     }
 }

@@ -83,6 +83,7 @@ pub enum Event {
 
 pub struct WorkspaceController {
     imp_: ControllerImplCell<Event, ()>,
+    app: Weak<NiepceApplication>,
     cfg: Rc<toolkit::Configuration>,
     widgets: OnceCell<Widgets>,
     client: Weak<LibraryClient>,
@@ -508,12 +509,13 @@ impl UiController for WorkspaceController {
 
 impl WorkspaceController {
     pub fn new(
+        app: Weak<NiepceApplication>,
         cfg: Rc<toolkit::Configuration>,
         client: &Arc<LibraryClient>,
     ) -> Rc<WorkspaceController> {
         let ctrl = Rc::new(WorkspaceController {
             imp_: ControllerImplCell::default(),
-
+            app,
             cfg,
             widgets: OnceCell::new(),
             action_group: OnceCell::new(),
@@ -831,7 +833,9 @@ impl WorkspaceController {
                 if let Some(client) = self.client.upgrade() {
                     let client_redo = client.clone();
                     let redo_source = source.clone();
-                    NiepceApplication::undo_do_command(
+                    let app = Weak::upgrade(&self.app).unwrap();
+                    npc_fwk::toolkit::undo_do_command(
+                        &app,
                         &i18n("Add to Album"),
                         Box::new(move || {
                             client_redo.add_to_album(&redo_source, target);
