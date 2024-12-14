@@ -1301,9 +1301,9 @@ dependencies = [
 
 [[package]]
 name = "libopenraw"
-version = "0.4.0-alpha.7"
+version = "0.4.0-alpha.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ffeb9300b9b792ac3d948ccedbecc324d296ac359aec6aba7f9d5ccdd5b2f3be"
+checksum = "17b5eea4c5d8402a07516cca4a92a3d99faf19f518a006d11e260ca5b38abd8b"
 dependencies = [
  "bitreader",
  "byteorder",
