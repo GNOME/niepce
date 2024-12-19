@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2024-04-04 00:50+0000\n"
-"PO-Revision-Date: 2024-04-05 00:12+0200\n"
+"POT-Creation-Date: 2024-12-18 20:42+0000\n"
+"PO-Revision-Date: 2024-12-19 14:03+0100\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups."
 "com>\n"
@@ -98,55 +98,67 @@ msgstr "<b>Oznake</b>"
 msgid "Edit Labels"
 msgstr "Uredi oznake"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui:20
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
 msgid "Available cameras:"
 msgstr "Razpoložljivi fotoaparati:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui:30
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
 msgid "Select"
 msgstr "Izbor"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui:15
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
 msgid "_Directory:"
 msgstr "_Mapa:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui:27
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
 msgid "..."
 msgstr "..."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:52
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+msgid "Import images"
+msgstr "Uvozi slike"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
 msgid "_Import"
 msgstr "_Uvozi"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:98
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
+msgid "Cancel"
+msgstr "Prekliči"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
 msgid "_Images to import"
 msgstr "_Slike za uvoz"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:124
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
 msgid "Destination _Folder:"
 msgstr "Ciljna _mapa:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:172
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+msgid "_Date Sorting:"
+msgstr "Razvrščanje _datumov:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
 msgid "_Options"
 msgstr "_Možnosti"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:207
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
 msgid "Presets:"
 msgstr "Prednastavitve:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:238
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
 msgid "You can still change this after importing the pictures."
 msgstr "Vrednosti je mogoče spreminjati tudi po uvozu slik."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:255
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
 msgid "Date:"
 msgstr "Datum:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:283
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
 msgid "Attributes:"
 msgstr "Atributi:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:297
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
 msgid "Metadata"
 msgstr "Metapodatki"
 
