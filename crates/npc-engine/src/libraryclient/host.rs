@@ -25,7 +25,7 @@ use npc_fwk::base::Moniker;
 
 use super::{LcChannel, LibraryClient, UIDataProvider};
 
-const THUMBCACHE_DIRNAME: &str = "thumbcache";
+const LEGACY_DATABASENAME: &str = "niepcelibrary.db";
 
 /// This host of the element of the library client.
 pub struct LibraryClientHost {
@@ -37,9 +37,17 @@ pub struct LibraryClientHost {
 
 impl LibraryClientHost {
     pub fn new(moniker: &Moniker, channel: &LcChannel) -> LibraryClientHost {
-        let path = std::path::PathBuf::from(moniker.path());
-        let mut cache_path = path.clone();
-        cache_path.push(THUMBCACHE_DIRNAME);
+        let mut path = std::path::PathBuf::from(moniker.path());
+        // This can't be a directory. Try to get the legacy path.
+        if path.is_dir() {
+            path = path.join(LEGACY_DATABASENAME);
+        }
+        // XXX have a more recoverable check.
+        // XXX what if path doesn't exist
+        assert!(!path.is_dir());
+
+        // XXX these unwrap should not be fatal.
+        let cache_path = ThumbnailCache::path_from_catalog(&path).unwrap();
 
         LibraryClientHost {
             notif_sender: channel.clone(),

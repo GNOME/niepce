@@ -382,16 +382,25 @@ impl NiepceWindow {
         }
     }
 
-    fn prompt_open_catalog(&self) {
+    /// Request to open a catalog.
+    #[allow(deprecated)]
+    pub fn prompt_open_catalog(&self) {
+        let filter = gtk4::FileFilter::new();
+        filter.add_pattern("*.npcat");
+        filter.add_mime_type("application/x-niepce-catalog");
+
+        // Can't use FileDialog because it will use the file portal
+        // which we don't want because we can't request the whole directory
         let dialog = gtk4::FileChooserDialog::new(
             Some(&i18n("Open catalog")),
             Some(self.window()),
-            gtk4::FileChooserAction::SelectFolder,
+            gtk4::FileChooserAction::Open,
             &[
                 (&i18n("Cancel"), gtk4::ResponseType::Cancel),
                 (&i18n("Open"), gtk4::ResponseType::Accept),
             ],
         );
+        dialog.add_filter(&filter);
         dialog.set_modal(true);
         dialog.set_create_folders(true);
         let tx = self.sender();

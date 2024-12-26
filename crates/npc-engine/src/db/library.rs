@@ -56,7 +56,6 @@ use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_assert, dbg_out, err_out, on_err_out};
 
 const DB_SCHEMA_VERSION: i32 = 13;
-const DATABASENAME: &str = "niepcelibrary.db";
 
 /// Error from the library database
 #[derive(Error, Debug, PartialEq)]
@@ -121,26 +120,16 @@ impl Library {
         lib
     }
 
-    pub fn new(
-        dir: &Path,
-        name: Option<&str>,
-        sender: npc_fwk::toolkit::Sender<LibNotification>,
-    ) -> Library {
-        let mut dbpath = PathBuf::from(dir);
-        if let Some(filename) = name {
-            dbpath.push(filename);
-        } else {
-            dbpath.push(DATABASENAME);
-        }
+    pub fn new(filename: &Path, sender: npc_fwk::toolkit::Sender<LibNotification>) -> Library {
         let mut lib = Library {
             // maindir: dir,
             dbconn: None,
-            dbfile: Some(dbpath.clone()),
+            dbfile: Some(filename.to_path_buf()),
             inited: false,
             sender,
         };
 
-        match rusqlite::Connection::open(dbpath) {
+        match rusqlite::Connection::open(filename) {
             Ok(conn) => {
                 lib.dbconn = Some(conn);
                 lib.inited = lib.init().is_ok();

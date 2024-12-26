@@ -54,6 +54,15 @@ if appstream_util.found()
   )
 endif
 
+# Mimetypes
+mimetype_file = i18n.merge_file(
+  input: files('@0@.xml.in'.format(base_id)),
+  output: '@0@.xml'.format(application_id),
+  po_dir: podir,
+  install: true,
+  install_dir: datadir / 'mime' / 'packages'
+)
+
 # xxx no gschema at the time
 # GSchema
 #gschema_conf = configuration_data()

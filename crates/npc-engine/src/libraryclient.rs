@@ -64,7 +64,7 @@ impl Deref for LibraryClient {
 }
 
 impl LibraryClient {
-    pub fn new(dir: PathBuf, sender: LcChannel) -> LibraryClient {
+    pub fn new(filename: PathBuf, sender: LcChannel) -> LibraryClient {
         let (task_sender, task_receiver) = mpsc::channel::<Op>();
 
         let mut terminate = sync::Arc::new(atomic::AtomicBool::new(false));
@@ -74,7 +74,7 @@ impl LibraryClient {
         on_err_out!(thread::Builder::new()
             .name("library client".to_string())
             .spawn(move || {
-                let library = Library::new(&dir, None, sender);
+                let library = Library::new(&filename, sender);
                 Self::main(&mut terminate, task_receiver, &library);
             }));
 

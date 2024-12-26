@@ -37,6 +37,9 @@ use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
+/// Suffix to add to the stem catalog file name.
+const THUMBCACHE_SUFFIX: &str = "-thumbcache";
+
 /// Previewing task
 struct Task {
     /// Params for the rendering task
@@ -235,6 +238,13 @@ impl ThumbnailCache {
             }));
 
         Self { queue_sender }
+    }
+
+    /// Build a path for the cache directory based on the catalog path.
+    pub fn path_from_catalog(catalog_path: &Path) -> Option<PathBuf> {
+        let mut cache_name = catalog_path.file_stem()?.to_os_string();
+        cache_name.push(THUMBCACHE_SUFFIX);
+        Some(std::path::PathBuf::from(catalog_path.parent()?).join(cache_name))
     }
 
     fn execute(task: &Task, cache: &Cache, sender: &LcChannel) {

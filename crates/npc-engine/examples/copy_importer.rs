@@ -74,7 +74,7 @@ fn main() {
     }
     let catalog = catalog.map(|file| {
         let (sender, receiver) = async_channel::unbounded();
-        let catalog = Library::new(&file, None, sender);
+        let catalog = Library::new(&file, sender);
 
         // Note that this could cause an infinite loop.
         while let Ok(msg) = receiver.try_recv() {
