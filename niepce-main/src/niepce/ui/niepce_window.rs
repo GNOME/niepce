@@ -67,6 +67,7 @@ struct Widgets {
     _main_menu: gio::Menu,
     header: gtk4::HeaderBar,
     statusbar: gtk4::Label,
+    filmstrip: RefCell<Option<gtk4::Widget>>,
 
     notif_center: NotificationCenter,
 }
@@ -136,6 +137,7 @@ impl Widgets {
             _main_menu: main_menu,
             header,
             statusbar,
+            filmstrip: RefCell::new(None),
             notif_center,
         }
     }
@@ -153,7 +155,11 @@ impl Widgets {
     }
 
     fn set_filmstrip(&self, filmstrip: &gtk4::Widget) {
+        if let Some(old_strip) = &*self.filmstrip.borrow() {
+            self.vbox.remove(old_strip);
+        }
         self.vbox.insert_child_after(filmstrip, Some(&self.hbox));
+        self.filmstrip.replace(Some(filmstrip.clone()));
     }
 }
 
