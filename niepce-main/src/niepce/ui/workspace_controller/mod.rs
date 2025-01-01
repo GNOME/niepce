@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/mod.rs
  *
- * Copyright (C) 2021-2024 Hubert Figuière
+ * Copyright (C) 2021-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,10 +92,7 @@ pub struct WorkspaceController {
 
     icon_trash: gio::Icon,
     icon_roll: gio::Icon,
-    icon_folder: gio::Icon,
     // icon_project: gio::Icon,
-    icon_keyword: gio::Icon,
-    icon_album: gio::Icon,
 }
 
 struct Widgets {
@@ -110,10 +107,224 @@ struct Widgets {
     // project_node: gtk4::TreeListRow,
     keywords_node: gtk4::TreeListRow,
     albums_node: gtk4::TreeListRow,
-    cfg: Rc<toolkit::Configuration>,
+    icon_keyword: gio::Icon,
+    icon_album: gio::Icon,
+    // icon_folder: gio::Icon,
+    cfg: std::rc::Weak<toolkit::Configuration>,
 }
 
 impl Widgets {
+    fn new(
+        cfg: &Rc<toolkit::Configuration>,
+        tx: toolkit::Sender<<WorkspaceController as Controller>::InMsg>,
+    ) -> Widgets {
+        let icon_folder = gio::ThemedIcon::new("folder-symbolic").upcast();
+        let icon_keyword = gio::ThemedIcon::new("tag-symbolic").upcast();
+        let icon_album = gio::ThemedIcon::new("open-book-symbolic").upcast();
+
+        let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+
+        let rootstore = gio::ListStore::new::<Item>();
+        let treemodel = gtk4::TreeListModel::new(rootstore, false, true, |item| {
+            Some(
+                item.downcast_ref::<Item>()?
+                    .create_children()?
+                    .upcast_ref::<gio::ListModel>()
+                    .clone(),
+            )
+        });
+        let selection_model = gtk4::SingleSelection::new(Some(treemodel.clone()));
+
+        let factory = gtk4::SignalListItemFactory::new();
+        factory.connect_setup(glib::clone!(
+            #[strong]
+            tx,
+            move |_, item| {
+                let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
+                let item_row = WsItemRow::new(tx.clone());
+                item.set_child(Some(&item_row));
+            }
+        ));
+        factory.connect_bind(glib::clone!(
+            #[strong]
+            tx,
+            move |_, list_item| {
+                let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
+                let ws_item_row = list_item
+                    .child()
+                    .and_downcast_ref::<WsItemRow>()
+                    .unwrap()
+                    .clone();
+                if let Some(item) = list_item.item() {
+                    let tree_list_row = item
+                        .downcast_ref::<gtk4::TreeListRow>()
+                        .expect("to be a TreeListRow");
+                    if let Some(item) = tree_list_row.item() {
+                        match item.downcast_ref::<Item>().unwrap().tree_item_type() {
+                            TreeItemType::Folders
+                            | TreeItemType::Albums
+                            | TreeItemType::Keywords => {
+                                // We connect the expanded notify signal only
+                                // for these top level tree item.
+                                tree_list_row.connect_expanded_notify(glib::clone!(
+                                    #[strong]
+                                    tx,
+                                    move |tree_list_row| {
+                                        let expanded = tree_list_row.is_expanded();
+                                        let pos = tree_list_row.position();
+                                        if expanded {
+                                            npc_fwk::send_async_local!(Event::RowExpanded(pos), tx);
+                                        } else {
+                                            npc_fwk::send_async_local!(
+                                                Event::RowCollapsed(pos),
+                                                tx
+                                            );
+                                        }
+                                    }
+                                ));
+                            }
+                            _ => {}
+                        };
+                        let ws_item = item.downcast::<Item>().expect("is an item");
+                        ws_item_row.bind(&ws_item, tree_list_row);
+                    }
+                }
+            }
+        ));
+        factory.connect_unbind(move |_, list_item| {
+            let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
+            let ws_item_row = list_item
+                .child()
+                .and_downcast_ref::<WsItemRow>()
+                .unwrap()
+                .clone();
+            ws_item_row.unbind();
+        });
+        let librarytree = gtk4::ListView::new(Some(selection_model), Some(factory));
+        librarytree.set_widget_name("workspace");
+        librarytree.add_css_class("npc");
+        librarytree.set_single_click_activate(false);
+        // XXX this should move to the TreeViewModel constructor when we use it here.
+        // And then make the method non public.
+        npc_fwk::toolkit::tree_view_model::css::load();
+
+        let folders_node = WorkspaceController::add_toplevel_item(
+            &treemodel,
+            &icon_folder,
+            &i18n("Pictures"),
+            TreeItemType::Folders,
+        );
+        // Projects are not implemented yet
+        // let project_node = Self::add_toplevel_item(
+        //     &treestore,
+        //     &self.icon_project,
+        //     &i18n("Projects"),
+        //     TreeItemType::Projects,
+        // );
+        let albums_node = WorkspaceController::add_toplevel_item(
+            &treemodel,
+            &icon_album,
+            &i18n("Albums"),
+            TreeItemType::Albums,
+        );
+        let keywords_node = WorkspaceController::add_toplevel_item(
+            &treemodel,
+            &icon_keyword,
+            &i18n("Keywords"),
+            TreeItemType::Keywords,
+        );
+
+        let header = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
+        // header.set_margin(4);
+        let label = gtk4::Label::with_mnemonic(&i18n("_Workspace"));
+        label.set_mnemonic_widget(Some(&librarytree));
+        label.set_hexpand(true);
+        header.append(&label);
+
+        let add_btn = gtk4::MenuButton::builder()
+            .direction(gtk4::ArrowType::None)
+            .icon_name("view-more-symbolic")
+            .build();
+
+        // Menu
+        let menu = gio::Menu::new();
+        let section = gio::Menu::new();
+        menu.append_section(None, &section);
+        section.append(Some(&i18n("New Folder…")), Some("workspace.NewFolder"));
+        section.append(Some(&i18n("New Album…")), Some("workspace.NewAlbum"));
+        // section.append(
+        //     Some(&i18n("New Project…")),
+        //     Some("workspace.NewProject"),
+        // );
+        section.append(Some(&i18n("Rename…")), Some("workspace.RenameItem"));
+        section.append(Some(&i18n("Delete")), Some("workspace.DeleteItem"));
+
+        let section = gio::Menu::new();
+        menu.append_section(None, &section);
+        section.append(Some(&i18n("Import…")), Some("workspace.Import"));
+        section.append(
+            Some(&i18n("Import Library…")),
+            Some("workspace.ImportLibrary"),
+        );
+
+        add_btn.set_menu_model(Some(&menu));
+
+        let context_menu = gtk4::PopoverMenu::builder()
+            .menu_model(&menu)
+            .has_arrow(false)
+            .build();
+        context_menu.set_parent(&librarytree);
+        librarytree.connect_unrealize(glib::clone!(
+            #[strong]
+            context_menu,
+            move |_| {
+                context_menu.unparent();
+            }
+        ));
+        header.append(&add_btn);
+        main_box.append(&header);
+
+        let scrolled = gtk4::ScrolledWindow::new();
+        librarytree.set_vexpand(true);
+        scrolled.set_child(Some(&librarytree));
+        main_box.append(&scrolled);
+
+        // connect signals
+        if let Some(model) = librarytree.model() {
+            model.connect_selection_changed(glib::clone!(
+                #[strong]
+                tx,
+                move |_, _, _| {
+                    npc_fwk::send_async_local!(Event::SelectionChanged, tx);
+                }
+            ));
+        }
+        let gesture = gtk4::GestureClick::new();
+        gesture.set_button(3);
+        gesture.connect_pressed(glib::clone!(
+            #[strong]
+            tx,
+            move |_, _, x, y| {
+                npc_fwk::send_async_local!(Event::ButtonPress(x, y), tx);
+            }
+        ));
+        librarytree.add_controller(gesture);
+
+        Widgets {
+            widget_: main_box.upcast(),
+            librarytree,
+            treemodel,
+            context_menu,
+            // project_node,
+            folders_node: folders_node.unwrap(),
+            albums_node: albums_node.unwrap(),
+            keywords_node: keywords_node.unwrap(),
+            icon_album,
+            icon_keyword,
+            cfg: Rc::downgrade(cfg),
+        }
+    }
+
     fn add_folder_item(&self, folder: &db::LibFolder, icon: &gio::Icon) -> Option<u32> {
         let was_empty = self
             .folders_node
@@ -152,7 +363,7 @@ impl Widgets {
         }
     }
 
-    fn add_keyword_item(&self, keyword: &db::Keyword, icon: &gio::Icon) {
+    fn add_keyword_item(&self, keyword: &db::Keyword) {
         let was_empty = self
             .keywords_node
             .children()
@@ -160,7 +371,7 @@ impl Widgets {
             .unwrap_or(true);
         if WorkspaceController::add_item(
             &self.keywords_node,
-            icon,
+            &self.icon_keyword,
             keyword.keyword(),
             keyword.id(),
             0, // keyword.parent(),
@@ -173,7 +384,7 @@ impl Widgets {
         }
     }
 
-    fn add_album_item(&self, album: &db::Album, icon: &gio::Icon) {
+    fn add_album_item(&self, album: &db::Album) {
         let was_empty = self
             .albums_node
             .children()
@@ -181,7 +392,7 @@ impl Widgets {
             .unwrap_or(true);
         if WorkspaceController::add_item(
             &self.albums_node,
-            icon,
+            &self.icon_album,
             album.name(),
             album.id(),
             album.parent(),
@@ -207,9 +418,13 @@ impl Widgets {
     }
 
     fn expand_from_cfg(&self, key: &str, row: &gtk4::TreeListRow) {
-        let expanded = self.cfg.value(key, "true");
-        dbg_out!("expand from cfg {} - {}", key, &expanded);
-        row.set_expanded(expanded == "true");
+        let expanded = self
+            .cfg
+            .upgrade()
+            .map(|cfg| cfg.value(key, "true") == "true")
+            .unwrap_or(true);
+        dbg_out!("expand from cfg {} - {}", key, expanded);
+        row.set_expanded(expanded);
     }
 
     /// Get the model for the top level tree item type.
@@ -276,214 +491,7 @@ impl UiController for WorkspaceController {
     fn widget(&self) -> &gtk4::Widget {
         &self
             .widgets
-            .get_or_init(|| {
-                let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
-
-                let rootstore = gio::ListStore::new::<Item>();
-                let treemodel = gtk4::TreeListModel::new(rootstore, false, true, |item| {
-                    Some(
-                        item.downcast_ref::<Item>()?
-                            .create_children()?
-                            .upcast_ref::<gio::ListModel>()
-                            .clone(),
-                    )
-                });
-                let selection_model = gtk4::SingleSelection::new(Some(treemodel.clone()));
-
-                let factory = gtk4::SignalListItemFactory::new();
-                let tx = self.sender();
-                factory.connect_setup(glib::clone!(
-                    #[strong]
-                    tx,
-                    move |_, item| {
-                        let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
-                        let item_row = WsItemRow::new(tx.clone());
-                        item.set_child(Some(&item_row));
-                    }
-                ));
-                let tx = self.sender();
-                factory.connect_bind(glib::clone!(
-                    #[strong]
-                    tx,
-                    move |_, list_item| {
-                        let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
-                        let ws_item_row = list_item
-                            .child()
-                            .and_downcast_ref::<WsItemRow>()
-                            .unwrap()
-                            .clone();
-                        if let Some(item) = list_item.item() {
-                            let tree_list_row = item
-                                .downcast_ref::<gtk4::TreeListRow>()
-                                .expect("to be a TreeListRow");
-                            if let Some(item) = tree_list_row.item() {
-                                match item.downcast_ref::<Item>().unwrap().tree_item_type() {
-                                    TreeItemType::Folders
-                                    | TreeItemType::Albums
-                                    | TreeItemType::Keywords => {
-                                        // We connect the expanded notify signal only
-                                        // for these top level tree item.
-                                        tree_list_row.connect_expanded_notify(glib::clone!(
-                                            #[strong]
-                                            tx,
-                                            move |tree_list_row| {
-                                                let expanded = tree_list_row.is_expanded();
-                                                let pos = tree_list_row.position();
-                                                if expanded {
-                                                    npc_fwk::send_async_local!(
-                                                        Event::RowExpanded(pos),
-                                                        tx
-                                                    );
-                                                } else {
-                                                    npc_fwk::send_async_local!(
-                                                        Event::RowCollapsed(pos),
-                                                        tx
-                                                    );
-                                                }
-                                            }
-                                        ));
-                                    }
-                                    _ => {}
-                                };
-                                let ws_item = item.downcast::<Item>().expect("is an item");
-                                ws_item_row.bind(&ws_item, tree_list_row);
-                            }
-                        }
-                    }
-                ));
-                factory.connect_unbind(move |_, list_item| {
-                    let list_item = list_item.downcast_ref::<gtk4::ListItem>().unwrap();
-                    let ws_item_row = list_item
-                        .child()
-                        .and_downcast_ref::<WsItemRow>()
-                        .unwrap()
-                        .clone();
-                    ws_item_row.unbind();
-                });
-                let librarytree = gtk4::ListView::new(Some(selection_model), Some(factory));
-                librarytree.set_widget_name("workspace");
-                librarytree.add_css_class("npc");
-                librarytree.set_single_click_activate(false);
-                // XXX this should move to the TreeViewModel constructor when we use it here.
-                // And then make the method non public.
-                npc_fwk::toolkit::tree_view_model::css::load();
-
-                let folders_node = WorkspaceController::add_toplevel_item(
-                    &treemodel,
-                    &self.icon_folder,
-                    &i18n("Pictures"),
-                    TreeItemType::Folders,
-                );
-                // Projects are not implemented yet
-                // let project_node = Self::add_toplevel_item(
-                //     &treestore,
-                //     &self.icon_project,
-                //     &i18n("Projects"),
-                //     TreeItemType::Projects,
-                // );
-                let albums_node = WorkspaceController::add_toplevel_item(
-                    &treemodel,
-                    &self.icon_album,
-                    &i18n("Albums"),
-                    TreeItemType::Albums,
-                );
-                let keywords_node = WorkspaceController::add_toplevel_item(
-                    &treemodel,
-                    &self.icon_keyword,
-                    &i18n("Keywords"),
-                    TreeItemType::Keywords,
-                );
-
-                let header = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
-                // header.set_margin(4);
-                let label = gtk4::Label::with_mnemonic(&i18n("_Workspace"));
-                label.set_mnemonic_widget(Some(&librarytree));
-                label.set_hexpand(true);
-                header.append(&label);
-
-                let add_btn = gtk4::MenuButton::builder()
-                    .direction(gtk4::ArrowType::None)
-                    .icon_name("view-more-symbolic")
-                    .build();
-
-                // Menu
-                let menu = gio::Menu::new();
-                let section = gio::Menu::new();
-                menu.append_section(None, &section);
-                section.append(Some(&i18n("New Folder…")), Some("workspace.NewFolder"));
-                section.append(Some(&i18n("New Album…")), Some("workspace.NewAlbum"));
-                // section.append(
-                //     Some(&i18n("New Project…")),
-                //     Some("workspace.NewProject"),
-                // );
-                section.append(Some(&i18n("Rename…")), Some("workspace.RenameItem"));
-                section.append(Some(&i18n("Delete")), Some("workspace.DeleteItem"));
-
-                let section = gio::Menu::new();
-                menu.append_section(None, &section);
-                section.append(Some(&i18n("Import…")), Some("workspace.Import"));
-                section.append(
-                    Some(&i18n("Import Library…")),
-                    Some("workspace.ImportLibrary"),
-                );
-
-                add_btn.set_menu_model(Some(&menu));
-
-                let context_menu = gtk4::PopoverMenu::builder()
-                    .menu_model(&menu)
-                    .has_arrow(false)
-                    .build();
-                context_menu.set_parent(&librarytree);
-                librarytree.connect_unrealize(glib::clone!(
-                    #[strong]
-                    context_menu,
-                    move |_| {
-                        context_menu.unparent();
-                    }
-                ));
-                header.append(&add_btn);
-                main_box.append(&header);
-
-                let scrolled = gtk4::ScrolledWindow::new();
-                librarytree.set_vexpand(true);
-                scrolled.set_child(Some(&librarytree));
-                main_box.append(&scrolled);
-
-                // connect signals
-                if let Some(model) = librarytree.model() {
-                    let tx = self.sender();
-                    model.connect_selection_changed(glib::clone!(
-                        #[strong]
-                        tx,
-                        move |_, _, _| {
-                            npc_fwk::send_async_local!(Event::SelectionChanged, tx);
-                        }
-                    ));
-                }
-                let gesture = gtk4::GestureClick::new();
-                gesture.set_button(3);
-                let tx = self.sender();
-                gesture.connect_pressed(glib::clone!(
-                    #[strong]
-                    tx,
-                    move |_, _, x, y| {
-                        npc_fwk::send_async_local!(Event::ButtonPress(x, y), tx);
-                    }
-                ));
-                librarytree.add_controller(gesture);
-
-                Widgets {
-                    widget_: main_box.upcast(),
-                    librarytree,
-                    treemodel,
-                    context_menu,
-                    // project_node,
-                    folders_node: folders_node.unwrap(),
-                    albums_node: albums_node.unwrap(),
-                    keywords_node: keywords_node.unwrap(),
-                    cfg: self.cfg.clone(),
-                }
-            })
+            .get_or_init(|| Widgets::new(&self.cfg, self.sender()))
             .widget_
     }
 
@@ -521,12 +529,9 @@ impl WorkspaceController {
             action_group: OnceCell::new(),
             selection_changed: Signal::default(),
             client: Arc::downgrade(client),
-            icon_folder: gio::ThemedIcon::new("folder-symbolic").upcast(),
             icon_trash: gio::ThemedIcon::new("user-trash-symbolic").upcast(),
             icon_roll: gio::ThemedIcon::new("image-round-symbolic").upcast(),
             // icon_project: gio::ThemedIcon::new("file-cabinet-symbolic").upcast(),
-            icon_keyword: gio::ThemedIcon::new("tag-symbolic").upcast(),
-            icon_album: gio::ThemedIcon::new("open-book-symbolic").upcast(),
         });
 
         <Self as Controller>::start(&ctrl);
@@ -592,14 +597,10 @@ impl WorkspaceController {
     }
 
     fn row_expanded_collapsed(&self, pos: u32, expanded: bool) {
-        if let Some(item) = self
-            .widgets
-            .get()
-            .and_then(|widgets| widgets.treemodel.item(pos))
-            .and_downcast_ref::<gtk4::TreeListRow>()
-            .and_then(gtk4::TreeListRow::item)
-            .and_downcast::<Item>()
-        {
+        self.widgets.get().and_then(|widgets| {
+            let item = widgets.treemodel.item(pos);
+            let row = item.and_downcast_ref::<gtk4::TreeListRow>()?;
+            let item = row.item().and_downcast::<Item>()?;
             let type_ = item.tree_item_type();
             if let Some(key) = match type_ {
                 TreeItemType::Folders => Some("workspace_folders_expanded"),
@@ -609,9 +610,10 @@ impl WorkspaceController {
                 // Not an error. This is no-op
                 _ => None,
             } {
-                self.cfg.set_value(key, &expanded.to_string());
+                widgets.cfg.upgrade()?.set_value(key, &expanded.to_string());
             }
-        }
+            Some(())
+        });
     }
 
     fn action_new_folder(&self) {
@@ -902,7 +904,7 @@ impl WorkspaceController {
 
     fn add_keyword_item(&self, keyword: &db::Keyword) {
         if let Some(widgets) = self.widgets.get() {
-            widgets.add_keyword_item(keyword, &self.icon_keyword);
+            widgets.add_keyword_item(keyword);
             if let Some(client) = self.client.upgrade() {
                 client.count_keyword(keyword.id());
             }
@@ -913,7 +915,7 @@ impl WorkspaceController {
 
     fn add_album_item(&self, album: &db::Album) {
         if let Some(widgets) = self.widgets.get() {
-            widgets.add_album_item(album, &self.icon_album);
+            widgets.add_album_item(album);
             if let Some(client) = self.client.upgrade() {
                 client.count_album(album.id());
             }
