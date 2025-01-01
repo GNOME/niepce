@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/niepce_window.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -200,7 +200,8 @@ impl Controller for NiepceWindow {
                 // XXX todo
             }
             OpenCatalog(catalog) => {
-                self.open_catalog(&catalog);
+                NiepceApplication::reopen_with(catalog.to_str().unwrap());
+                // We have terminated here.
             }
             NewLibraryCreated => self.create_initial_labels(),
             DatabaseReady => {
@@ -398,12 +399,16 @@ impl NiepceWindow {
 
     /// Opening a library has been requested
     pub fn on_open_catalog(&self) {
-        let cfg = &self.app.config();
-        let reopen = cfg.value("reopen_last_catalog", "0");
-        let cat_moniker = if reopen == "1" {
-            cfg.value("last_open_catalog", "")
+        let cat_moniker = if let Ok(reopen) = std::env::var(NiepceApplication::NIEPCE_OPEN_ENV) {
+            reopen
         } else {
-            "".into()
+            let cfg = &self.app.config();
+            let reopen = cfg.value("reopen_last_catalog", "0");
+            if reopen == "1" {
+                cfg.value("last_open_catalog", "")
+            } else {
+                "".into()
+            }
         };
         if cat_moniker.is_empty() {
             self.prompt_open_catalog();

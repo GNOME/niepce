@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/niepce_application.rs
  *
- * Copyright (C) 2024 Hubert Figuière
+ * Copyright (C) 2024-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  */
 
 use std::cell::RefCell;
+use std::ffi::CString;
 use std::rc::Rc;
 use std::sync::{Arc, RwLock, Weak};
 
@@ -28,6 +29,7 @@ use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 use crate::config;
 use crate::niepce::ui::niepce_window::NiepceWindow;
 use crate::niepce::ui::PreferencesDialog;
+use npc_fwk::base::Moniker;
 
 use npc_fwk::toolkit::{
     gtk_utils, AppController, Configuration, Controller, ControllerImplCell, DialogController,
@@ -59,7 +61,11 @@ impl Controller for NiepceApplication {
 
     fn dispatch(&self, msg: Event) {
         match msg {
-            Event::FileOpen => (),
+            Event::FileOpen => {
+                if let Some(win) = self.main_window.borrow().as_ref() {
+                    win.prompt_open_catalog();
+                }
+            }
             Event::About => self.action_about(),
             Event::Preferences => self.action_preferences(),
             Event::Quit => (),
@@ -122,6 +128,23 @@ impl NiepceApplication {
         <Self as AppController>::start(&app);
 
         app
+    }
+
+    pub const NIEPCE_OPEN_ENV: &str = "NIEPCE_OPEN";
+
+    /// Reopen the app with a specific catalog.
+    /// This literally relaunch the executable.
+    pub fn reopen_with(catalog_path: &str) {
+        let catalog = Moniker::from(catalog_path);
+        std::env::set_var(Self::NIEPCE_OPEN_ENV, catalog.to_string());
+        let self_path = CString::new(
+            std::env::current_exe()
+                .expect("Coudln't get current exe")
+                .as_os_str()
+                .as_encoded_bytes(),
+        )
+        .unwrap();
+        nix::unistd::execv(&self_path, &[&self_path]).expect("execv failed");
     }
 
     pub fn weak(&self) -> Weak<Self> {

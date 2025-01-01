@@ -1580,6 +1580,7 @@ dependencies = [
  "i18n-format",
  "lazy_static",
  "libc",
+ "nix",
  "npc-craw",
  "npc-engine",
  "npc-fwk",
