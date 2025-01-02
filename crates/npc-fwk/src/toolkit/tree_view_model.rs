@@ -27,7 +27,7 @@ use gtk4::prelude::*;
 
 // XXX make non public
 pub mod css {
-    //! Handle CSS hack to hide the tree exander.
+    //! Handle CSS hack to hide the tree expander.
     //!
     //! There is an API in gtk 4.10 to do that.
 
