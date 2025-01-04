@@ -18,6 +18,7 @@
  */
 
 pub mod album;
+pub(crate) mod db;
 pub mod filebundle;
 pub mod fsfile;
 pub mod keyword;
@@ -25,7 +26,6 @@ pub mod label;
 pub mod libfile;
 pub mod libfolder;
 pub mod libmetadata;
-pub(crate) mod library;
 pub mod props;
 
 pub type LibraryId = i64;
@@ -39,16 +39,16 @@ pub enum SortOrder {
 
 // flatten namespace a bit.
 pub use self::album::Album;
+pub use self::db::{Error as LibError, Library, Result as LibResult};
 pub use self::keyword::Keyword;
 pub use self::label::Label;
 pub use self::libfile::{FileType, LibFile};
 pub use self::libfolder::LibFolder;
 pub use self::libmetadata::LibMetadata;
-pub use self::library::{Error as LibError, Library, Result as LibResult};
 pub use self::props::NiepceProperties;
 pub use self::props::NiepcePropertyIdx;
 #[cfg(test)]
-pub(crate) use library::test as library_test;
+pub(crate) use db::test as db_test;
 
 pub trait FromDb: Sized {
     /// return the columns for reading from the DB.

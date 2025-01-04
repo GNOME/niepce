@@ -756,13 +756,13 @@ pub fn cmd_upgrade_library_from(lib: &Library, version: i32) -> bool {
 #[cfg(test)]
 mod test {
 
-    use crate::catalog::library_test;
+    use crate::catalog::db_test;
 
     use super::get_folder_for_import;
 
     #[test]
     fn test_folder_for_import() {
-        let lib = library_test::test_library();
+        let lib = db_test::test_library();
 
         let folder = get_folder_for_import(&lib, std::path::Path::new("Pictures/2023/20230524"))
             .expect("Folder for import failed");
