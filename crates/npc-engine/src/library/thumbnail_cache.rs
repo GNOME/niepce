@@ -1,7 +1,7 @@
 /*
  * niepce - library/thumbnail_cache.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ use std::path::{Path, PathBuf};
 
 use npc_fwk::gdk_pixbuf;
 
-use crate::db;
-use crate::db::libfile::{FileStatus, LibFile};
+use crate::catalog;
+use crate::catalog::libfile::{FileStatus, LibFile};
 use crate::library::notification;
 use crate::library::notification::LibNotification::{
     FileStatusChanged, ImageRendered, ThumbnailLoaded,
@@ -73,7 +73,7 @@ impl Task {
 }
 
 /// Check the file status (ie is it still present?) and report.
-fn check_file_status(id: db::LibraryId, path: &Path, sender: &LcChannel) {
+fn check_file_status(id: catalog::LibraryId, path: &Path, sender: &LcChannel) {
     if !path.is_file() {
         dbg_out!("file doesn't exist");
         if let Err(err) =

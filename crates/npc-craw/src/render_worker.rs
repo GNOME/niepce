@@ -1,7 +1,7 @@
 /*
  * niepce - ncr/render_worker.rs
  *
- * Copyright (C) 2023-2024 Hubert Figuière
+ * Copyright (C) 2023-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ use std::ops::Deref;
 
 use npc_fwk::gdk_pixbuf;
 
-use npc_engine::db;
+use npc_engine::catalog;
 use npc_engine::library::{RenderMsg, RenderParams};
 use npc_fwk::base::{Worker, WorkerImpl};
 use npc_fwk::dbg_out;
@@ -34,7 +34,7 @@ pub type RenderWorker = Worker<RenderImpl>;
 
 #[derive(Default)]
 pub struct RenderImpl {
-    imagefile: RefCell<Option<db::LibFile>>,
+    imagefile: RefCell<Option<catalog::LibFile>>,
 }
 
 impl RenderImpl {
@@ -51,7 +51,8 @@ impl RenderImpl {
             // currently we treat RAW + JPEG as RAW.
             // TODO: have a way to actually choose the JPEG.
             let file_type = file.file_type();
-            let is_raw = (file_type == db::FileType::Raw) || (file_type == db::FileType::RawJpeg);
+            let is_raw =
+                (file_type == catalog::FileType::Raw) || (file_type == catalog::FileType::RawJpeg);
             let path = file.path().to_string_lossy();
             dbg_out!("pipeline reload for {path}");
             pipeline.reload(&path, is_raw, file.orientation());

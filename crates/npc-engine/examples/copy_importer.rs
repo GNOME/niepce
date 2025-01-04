@@ -1,7 +1,7 @@
 /*
  * niepce - npc_engine/examples/copy_importer.rs
  *
- * Copyright (C) 2023-2024 Hubert Figuière
+ * Copyright (C) 2023-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
-use npc_engine::db::Library;
+use npc_engine::catalog::Library;
 use npc_engine::importer::{DatePathFormat, Importer};
 use npc_engine::library::commands::cmd_import_files;
 use npc_engine::library::notification::LibNotification;

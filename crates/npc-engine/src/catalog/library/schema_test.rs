@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/db/schema_test.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ use chrono::Utc;
 use num_traits::ToPrimitive;
 use rusqlite::params;
 
+use super::libfolder;
 use super::{sql, upgrade, Result};
-use crate::db::libfolder;
 
 /// Create a v9 schema
 fn init_schema_v9(conn: &rusqlite::Connection) -> Result<()> {

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_list_item.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ use glib::prelude::*;
 use glib::Properties;
 use npc_fwk::{gdk4, glib};
 
-use npc_engine::db::libfile::{FileStatus, LibFile};
+use npc_engine::catalog::libfile::{FileStatus, LibFile};
 
 glib::wrapper! {
     /// The is the list item as stored in the `gio::ListModel`.

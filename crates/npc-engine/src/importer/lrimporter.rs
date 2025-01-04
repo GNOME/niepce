@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/importer/lrimporter.rs
  *
- * Copyright (C) 2021-2022 Hubert Figuière
+ * Copyright (C) 2021-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,10 +31,10 @@ use lrcat::{
 use npc_fwk::{dbg_out, err_out};
 
 use super::libraryimporter::{Error, LibraryImporter, LibraryImporterProbe, Result};
-use crate::db::filebundle::FileBundle;
-use crate::db::props::NiepceProperties as Np;
-use crate::db::props::NiepcePropertyIdx as NpI;
-use crate::db::LibraryId;
+use crate::catalog::filebundle::FileBundle;
+use crate::catalog::props::NiepceProperties as Np;
+use crate::catalog::props::NiepcePropertyIdx as NpI;
+use crate::catalog::LibraryId;
 use crate::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryClient};
 use crate::NiepcePropertyBag;
 

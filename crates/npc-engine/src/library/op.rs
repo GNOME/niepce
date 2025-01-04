@@ -1,7 +1,7 @@
 /*
  * niepce - engine/library/op.rs
  *
- * Copyright (C) 2017-2022 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::db::Library;
+use crate::catalog::Library;
 
 type Function = dyn FnOnce(&Library) -> bool + Send + Sync + 'static;
 

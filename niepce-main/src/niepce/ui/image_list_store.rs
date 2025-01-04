@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_list_store.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +26,10 @@ use npc_fwk::{gdk4, gdk_pixbuf, gio, gtk4};
 use once_cell::unsync::OnceCell;
 
 use super::image_grid_view::ImageListItem;
-use npc_engine::db::libfile::{FileStatus, LibFile};
-use npc_engine::db::props::NiepceProperties as Np;
-use npc_engine::db::props::NiepcePropertyIdx as Npi;
-use npc_engine::db::LibraryId;
+use npc_engine::catalog::libfile::{FileStatus, LibFile};
+use npc_engine::catalog::props::NiepceProperties as Np;
+use npc_engine::catalog::props::NiepcePropertyIdx as Npi;
+use npc_engine::catalog::LibraryId;
 use npc_engine::library::notification::{LibNotification, MetadataChange};
 use npc_engine::library::thumbnail_cache::ThumbnailCache;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/darkroom.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,9 +32,9 @@ use npc_fwk::{adw, gtk4};
 use crate::niepce::ui::LibraryModule;
 use image_canvas::ImageCanvas;
 use npc_craw::{RenderImpl, RenderWorker};
-use npc_engine::db::NiepceProperties as Np;
-use npc_engine::db::NiepcePropertyIdx as Npi;
-use npc_engine::db::{self, LibMetadata, LibraryId};
+use npc_engine::catalog::NiepceProperties as Np;
+use npc_engine::catalog::NiepcePropertyIdx as Npi;
+use npc_engine::catalog::{self, LibMetadata, LibraryId};
 use npc_engine::library::notification::{ImageRendered, LibNotification, MetadataChange};
 use npc_engine::library::{RenderEngine, RenderMsg, RenderParams};
 use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
@@ -45,7 +45,7 @@ use npc_fwk::{dbg_out, on_err_out};
 use toolbox_controller::ToolboxController;
 
 pub enum Msg {
-    SelectionChanged(Option<Box<db::LibFile>>),
+    SelectionChanged(Option<Box<catalog::LibFile>>),
     SetRenderEngine(RenderEngine),
 }
 
@@ -59,7 +59,7 @@ pub struct DarkroomModule {
     engine_combo: gtk4::DropDown,
     engine_combo_model: Rc<ComboModel<RenderEngine>>,
     toolbox_controller: ToolboxController,
-    file: RefCell<Option<db::LibFile>>,
+    file: RefCell<Option<catalog::LibFile>>,
     render_params: RefCell<Option<RenderParams>>,
     need_reload: Cell<bool>,
     active: Cell<bool>,
@@ -312,7 +312,7 @@ impl DarkroomModule {
     }
 
     /// Build the `RenderParams` from the metadata.
-    fn params_for_metadata(&self, file: &db::LibFile) -> RenderParams {
+    fn params_for_metadata(&self, file: &catalog::LibFile) -> RenderParams {
         // If we have metadata, use them.
         let engine = file.metadata().and_then(|metadata| {
             metadata
@@ -337,7 +337,7 @@ impl DarkroomModule {
         RenderParams::new_preview(file, engine, Size::default())
     }
 
-    pub fn set_image(&self, file: Option<&db::LibFile>) {
+    pub fn set_image(&self, file: Option<&catalog::LibFile>) {
         self.need_reload.set(true);
         self.file.replace(file.cloned());
 

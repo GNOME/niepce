@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/ws_item_widget.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ mod imp {
     use npc_fwk::{gdk4, glib, gtk4};
 
     use super::super::{Event, Item, TreeItemType};
-    use npc_engine::db;
+    use npc_engine::catalog;
     use npc_fwk::dbg_out;
 
     #[derive(Default)]
@@ -88,7 +88,7 @@ mod imp {
         label: gtk4::Label,
         count: gtk4::Label,
         type_: Cell<TreeItemType>,
-        id: Cell<db::LibraryId>,
+        id: Cell<catalog::LibraryId>,
     }
 
     impl WsItemRow {
@@ -131,7 +131,7 @@ mod imp {
             inner.append(&self.count);
 
             let drop_target = gtk4::DropTarget::new(
-                npc_engine::db::LibFile::static_type(),
+                npc_engine::catalog::LibFile::static_type(),
                 gdk4::DragAction::COPY,
             );
             drop_target.connect_accept(glib::clone!(
@@ -147,7 +147,7 @@ mod imp {
                 #[upgrade_or]
                 false,
                 move |_, value, _, _| {
-                    if let Ok(libfile) = value.get::<npc_engine::db::LibFile>() {
+                    if let Ok(libfile) = value.get::<npc_engine::catalog::LibFile>() {
                         dbg_out!("accepted value {}", libfile.id());
                         if let Some(ref tx) = *this.tx.borrow() {
                             let event = Event::DropLibFile(

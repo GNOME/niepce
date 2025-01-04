@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_grid_view.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,13 @@ use gtk4::prelude::*;
 use npc_fwk::{gdk4, glib, gtk4};
 
 use super::library_cell_renderer::LibraryCellRenderer;
-use npc_engine::db;
+use npc_engine::catalog;
 use npc_engine::libraryclient::UIDataProvider;
 use npc_fwk::base::Signal;
 
 pub struct ImageGridView {
     grid_view: gtk4::GridView,
-    signal_rating_changed: Rc<Signal<(db::LibraryId, i32)>>,
+    signal_rating_changed: Rc<Signal<(catalog::LibraryId, i32)>>,
 }
 
 impl ImageGridView {
@@ -100,7 +100,7 @@ impl ImageGridView {
         }
     }
 
-    pub fn add_rating_listener(&self, listener: Box<dyn Fn((db::LibraryId, i32))>) {
+    pub fn add_rating_listener(&self, listener: Box<dyn Fn((catalog::LibraryId, i32))>) {
         self.signal_rating_changed.connect(listener);
     }
 }

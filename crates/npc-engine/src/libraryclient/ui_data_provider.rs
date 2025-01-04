@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/uidataprovider.rs
  *
- * Copyright (C) 2022 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 use std::cell::RefCell;
 
-use crate::db::{Label, LibraryId};
+use crate::catalog::{Label, LibraryId};
 use npc_fwk::base::rgbcolour::RgbColour;
 
 /// UIDataProvider provide data for the library for the UI

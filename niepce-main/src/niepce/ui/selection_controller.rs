@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/selection_controller.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,9 +28,9 @@ use npc_fwk::{glib, gtk4};
 use super::image_list_store::ImageListStore;
 use super::ContentView;
 use crate::NiepceApplication;
-use npc_engine::db;
-use npc_engine::db::props::NiepceProperties as Np;
-use npc_engine::db::{LibFile, NiepcePropertyIdx};
+use npc_engine::catalog;
+use npc_engine::catalog::props::NiepceProperties as Np;
+use npc_engine::catalog::{LibFile, NiepcePropertyIdx};
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
 use npc_engine::ThumbnailCache;
@@ -53,8 +53,8 @@ pub enum SelectionInMsg {
 }
 
 pub enum SelectionOutMsg {
-    Selected(db::LibraryId),
-    Activated(db::LibraryId),
+    Selected(catalog::LibraryId),
+    Activated(catalog::LibraryId),
 }
 
 pub struct SelectionController {
@@ -128,11 +128,11 @@ impl SelectionController {
     }
 
     /// Get the file with `id`.
-    pub fn file(&self, id: db::LibraryId) -> Option<LibFile> {
+    pub fn file(&self, id: catalog::LibraryId) -> Option<LibFile> {
         self.store.file(id)
     }
 
-    pub fn selection(&self) -> Option<db::LibraryId> {
+    pub fn selection(&self) -> Option<catalog::LibraryId> {
         let pos = self.store.selection_model().selected();
         if pos == gtk4::INVALID_LIST_POSITION {
             None
@@ -187,7 +187,7 @@ impl SelectionController {
     fn set_one_metadata(
         &self,
         undo_label: &str,
-        file_id: db::LibraryId,
+        file_id: catalog::LibraryId,
         meta: NiepcePropertyIdx,
         old_value: i32,
         new_value: i32,
@@ -212,7 +212,7 @@ impl SelectionController {
     fn set_metadata(
         &self,
         undo_label: &str,
-        file_id: db::LibraryId,
+        file_id: catalog::LibraryId,
         props: &WrappedPropertyBag,
         old: &WrappedPropertyBag,
     ) -> bool {
@@ -241,31 +241,31 @@ impl SelectionController {
     }
 
     pub fn set_label(&self, label: i32) {
-        self.set_property(db::NiepcePropertyIdx::NpXmpLabelProp, label);
+        self.set_property(catalog::NiepcePropertyIdx::NpXmpLabelProp, label);
     }
 
     /// Set rating of selection
     pub fn set_rating(&self, rating: i32) {
-        self.set_property(db::NiepcePropertyIdx::NpXmpRatingProp, rating);
+        self.set_property(catalog::NiepcePropertyIdx::NpXmpRatingProp, rating);
     }
 
     /// Set rating of specific file.
-    pub fn set_rating_of(&self, id: db::LibraryId, rating: i32) {
-        self.set_property_of(id, db::NiepcePropertyIdx::NpXmpRatingProp, rating);
+    pub fn set_rating_of(&self, id: catalog::LibraryId, rating: i32) {
+        self.set_property_of(id, catalog::NiepcePropertyIdx::NpXmpRatingProp, rating);
     }
 
     pub fn set_flag(&self, flag: i32) {
-        self.set_property(db::NiepcePropertyIdx::NpNiepceFlagProp, flag);
+        self.set_property(catalog::NiepcePropertyIdx::NpNiepceFlagProp, flag);
     }
 
-    fn set_property(&self, idx: db::NiepcePropertyIdx, value: i32) {
+    fn set_property(&self, idx: catalog::NiepcePropertyIdx, value: i32) {
         dbg_out!("property {:?} = {}", idx, value);
         if let Some(selection) = self.selection() {
             self.set_property_of(selection, idx, value)
         }
     }
 
-    fn set_property_of(&self, id: db::LibraryId, idx: db::NiepcePropertyIdx, value: i32) {
+    fn set_property_of(&self, id: catalog::LibraryId, idx: catalog::NiepcePropertyIdx, value: i32) {
         if let Some(mut file) = self.store.file(id) {
             dbg_out!("old property is {}", file.property(Np::Index(idx)));
             let old_value = file.property(Np::Index(idx));
@@ -322,7 +322,7 @@ impl SelectionController {
     }
 
     /// Remove file `f` from `album`
-    fn remove_from_album(&self, album: db::LibraryId, f: &LibFile) {
+    fn remove_from_album(&self, album: catalog::LibraryId, f: &LibFile) {
         let file_id = f.id();
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();

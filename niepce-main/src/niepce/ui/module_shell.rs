@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/module_shell.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ use super::{
 };
 use crate::modules::{DarkroomModule, MapModule};
 use crate::NiepceApplication;
-use npc_engine::db;
+use npc_engine::catalog;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_fwk::dbg_out;
@@ -472,7 +472,7 @@ impl ModuleShell {
         self.selection_controller.content_will_change(content);
     }
 
-    fn on_image_selected(&self, id: db::LibraryId) {
+    fn on_image_selected(&self, id: catalog::LibraryId) {
         dbg_out!("Selected callback for {}", id);
         if id > 0 {
             self.client.client().request_metadata(id);
@@ -484,7 +484,7 @@ impl ModuleShell {
         self.darkroom.set_image(store.file(id).as_ref());
     }
 
-    fn on_image_activated(&self, id: db::LibraryId) {
+    fn on_image_activated(&self, id: catalog::LibraryId) {
         dbg_out!("Activated callback for {}", id);
         let store = &self.selection_controller.list_store();
         self.darkroom.set_image(store.file(id).as_ref());

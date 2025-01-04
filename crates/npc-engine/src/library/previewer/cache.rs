@@ -1,7 +1,7 @@
 /*
  * niepce - library/previewer/cache.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ use std::sync::mpsc::SyncSender;
 use std::sync::Mutex;
 
 use super::RenderParams;
-use crate::db;
+use crate::catalog;
 use npc_fwk::base::{Worker, WorkerImpl};
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
@@ -61,7 +61,7 @@ pub struct CacheItem {
 pub(crate) enum DbMessage {
     Init(PathBuf),
     Put(String, u32, RenderParams, String),
-    Get(String, String, SyncSender<db::LibResult<CacheItem>>),
+    Get(String, String, SyncSender<catalog::LibResult<CacheItem>>),
     Hit(String, String),
 }
 
@@ -74,7 +74,7 @@ struct DbWorker {
 impl DbWorker {
     /// Check the database version as stored in the admin table.
     /// A version of 0 mean the database is empty.
-    fn check_database_version(&self, conn: &rusqlite::Connection) -> db::LibResult<i32> {
+    fn check_database_version(&self, conn: &rusqlite::Connection) -> catalog::LibResult<i32> {
         dbg_out!("Checking version");
         let result = conn.prepare("SELECT value FROM admin WHERE key='kind'");
         if let Ok(mut stmt) = result {
@@ -82,7 +82,7 @@ impl DbWorker {
             if let Ok(Some(row)) = rows.next() {
                 let value: String = row.get(0)?;
                 if value != "cache" {
-                    return Err(db::LibError::InvalidResult);
+                    return Err(catalog::LibError::InvalidResult);
                 }
             }
         }
@@ -93,7 +93,7 @@ impl DbWorker {
                 let value: String = row.get(0)?;
                 return value
                     .parse::<i32>()
-                    .map_err(|_| db::LibError::InvalidResult);
+                    .map_err(|_| catalog::LibError::InvalidResult);
             }
         }
 
@@ -103,7 +103,7 @@ impl DbWorker {
     }
 
     /// Initialize the database. Will create the schema if needed.
-    fn initialize(&self, cache_dir: &Path) -> db::LibResult<()> {
+    fn initialize(&self, cache_dir: &Path) -> catalog::LibResult<()> {
         let db_file = cache_dir.join("cache.db");
         dbg_out!("Opening database at {:?}", db_file);
         on_err_out!(cachedir::ensure_tag(cache_dir));
@@ -119,7 +119,7 @@ impl DbWorker {
                 Ok(v) => {
                     if v != DB_SCHEMA_VERSION {
                         dbg_out!("Chache version check incorrect value {}", v);
-                        return Err(db::LibError::IncorrectDbVersion);
+                        return Err(catalog::LibError::IncorrectDbVersion);
                     }
                 }
                 Err(err) => return Err(err),
@@ -130,11 +130,17 @@ impl DbWorker {
         }
 
         err_out!("Couldn't open database");
-        Err(db::LibError::NoSqlDb)
+        Err(catalog::LibError::NoSqlDb)
     }
 
     /// Put a new entry in the cache.
-    fn put(&self, file: &str, size: u32, render: &RenderParams, dest: &str) -> db::LibResult<()> {
+    fn put(
+        &self,
+        file: &str,
+        size: u32,
+        render: &RenderParams,
+        dest: &str,
+    ) -> catalog::LibResult<()> {
         let now = chrono::Utc::now().timestamp();
         if let Some(conn) = &*self.dbconn.borrow() {
             let mut stmt = conn.prepare(
@@ -153,11 +159,11 @@ impl DbWorker {
             return Ok(());
         }
 
-        Err(db::LibError::NoSqlDb)
+        Err(catalog::LibError::NoSqlDb)
     }
 
     /// "Hit" the cache, ie update the access date.
-    fn hit(&self, file: &str, digest: &str) -> db::LibResult<()> {
+    fn hit(&self, file: &str, digest: &str) -> catalog::LibResult<()> {
         if let Some(conn) = &*self.dbconn.borrow() {
             let mut stmt = conn.prepare(
                 "UPDATE cache_items SET last_access = ?1 \
@@ -168,11 +174,11 @@ impl DbWorker {
             return Ok(());
         }
 
-        Err(db::LibError::NoSqlDb)
+        Err(catalog::LibError::NoSqlDb)
     }
 
     /// Update the access for the row id.
-    fn update_access(&self, conn: &rusqlite::Connection, id: i64) -> db::LibResult<usize> {
+    fn update_access(&self, conn: &rusqlite::Connection, id: i64) -> catalog::LibResult<usize> {
         let mut stmt = conn.prepare("UPDATE cache_items SET last_access = ?1 WHERE id = ?2;")?;
         let now = chrono::Utc::now().timestamp();
         let count = stmt.execute(rusqlite::params![now, id])?;
@@ -183,7 +189,7 @@ impl DbWorker {
     ///
     /// This will cause `last_access` to be updated to now, however the new value is
     /// not returned.
-    fn get(&self, file: &str, digest: &str) -> db::LibResult<CacheItem> {
+    fn get(&self, file: &str, digest: &str) -> catalog::LibResult<CacheItem> {
         if let Some(conn) = &*self.dbconn.borrow() {
             let mut stmt = conn.prepare(
                 "SELECT id, path, last_access, created, dimension, render, target \
@@ -203,8 +209,8 @@ impl DbWorker {
 
             let item = results
                 .next()
-                .map(|r| r.map_err(db::LibError::SqlError))
-                .unwrap_or(Err(db::LibError::NotFound));
+                .map(|r| r.map_err(catalog::LibError::SqlError))
+                .unwrap_or(Err(catalog::LibError::NotFound));
 
             dbg_out!("Found item {:?}", item);
             let item = item?;
@@ -212,7 +218,7 @@ impl DbWorker {
             return Ok(item);
         }
 
-        Err(db::LibError::NoSqlDb)
+        Err(catalog::LibError::NoSqlDb)
     }
 }
 
@@ -282,8 +288,8 @@ impl Cache {
             .send(DbMessage::Hit(file.to_string(), digest.to_string())));
     }
 
-    pub fn get(&self, file: &str, digest: &str) -> db::LibResult<CacheItem> {
-        let (sender, receiver) = std::sync::mpsc::sync_channel::<db::LibResult<CacheItem>>(1);
+    pub fn get(&self, file: &str, digest: &str) -> catalog::LibResult<CacheItem> {
+        let (sender, receiver) = std::sync::mpsc::sync_channel::<catalog::LibResult<CacheItem>>(1);
         on_err_out!(self.worker.lock().unwrap().send(DbMessage::Get(
             file.to_string(),
             digest.to_string(),
@@ -307,7 +313,7 @@ impl Cache {
     pub fn path_for_thumbnail(
         &self,
         filename: &Path,
-        id: db::LibraryId,
+        id: catalog::LibraryId,
         digest: &str,
     ) -> Option<PathBuf> {
         // XXX properly report the error
@@ -340,7 +346,7 @@ mod test {
 
     use super::super::RenderParams;
     use super::Cache;
-    use crate::db;
+    use crate::catalog;
 
     #[test]
     fn the_cache_works() {
@@ -353,7 +359,7 @@ mod test {
 
         let file_name = "test-image1.jpg";
         let file_path = tmpdir.path().join("images").join(file_name);
-        let libfile = db::LibFile::new(15, 14, 13, file_path.clone(), file_name);
+        let libfile = catalog::LibFile::new(15, 14, 13, file_path.clone(), file_name);
 
         let rendering = RenderParams::new_thumbnail(libfile.id(), Size { w: 160, h: 120 });
         let digest = rendering.digest();

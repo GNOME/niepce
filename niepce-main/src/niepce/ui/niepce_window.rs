@@ -26,7 +26,7 @@ use gettextrs::gettext as i18n;
 use npc_fwk::{adw, gio, glib, gtk4};
 use once_cell::unsync::OnceCell;
 
-use npc_engine::db;
+use npc_engine::catalog;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::library::CatalogPreferences;
 use npc_engine::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryClientHost};
@@ -51,9 +51,9 @@ pub enum Event {
     EditLabels,
     OpenCatalog(std::path::PathBuf),
     NewLibraryCreated,
-    AddedLabel(db::Label),
-    LabelChanged(db::Label),
-    LabelDeleted(db::LibraryId),
+    AddedLabel(catalog::Label),
+    LabelChanged(catalog::Label),
+    LabelDeleted(catalog::LibraryId),
     DatabaseReady,
     DatabaseNeedUpgrade(i32),
     InitialisePrefs(Vec<(String, String)>),

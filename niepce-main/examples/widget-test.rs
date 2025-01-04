@@ -1,7 +1,7 @@
 /*
  * niepce - examples/widget-test.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ use niepce_core::niepce::ui::image_grid_view::{ImageGridView, ImageListItem};
 use niepce_core::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
 use niepce_core::niepce::ui::thumb_strip_view::ThumbStripView;
 use niepce_core::niepce::ui::ModuleShellWidget;
-use npc_engine::db::libfile::FileStatus;
+use npc_engine::catalog::libfile::FileStatus;
 use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
 

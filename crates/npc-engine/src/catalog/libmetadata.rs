@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libmetadata.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -306,7 +306,7 @@ impl FromDb for LibMetadata {
 mod test {
 
     use super::{LibMetadata, Np};
-    use crate::db::NiepcePropertyIdx as Npi;
+    use crate::catalog::NiepcePropertyIdx as Npi;
     use chrono::TimeZone;
     use npc_fwk::{Date, PropertySet, PropertyValue, XmpMeta};
 

@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/library/queriedcontent.rs
  *
- * Copyright (C) 2020 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::db::libfile::LibFile;
-use crate::db::LibraryId;
+use crate::catalog::libfile::LibFile;
+use crate::catalog::LibraryId;
 
 /// Queried content to pass a list of LibFile and the id of the container.
 #[derive(Clone, Debug)]

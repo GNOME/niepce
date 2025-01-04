@@ -1,7 +1,7 @@
 /*
  * niepce - library/previewer/mod.rs
  *
- * Copyright (C) 2023-2024 Hubert Figuière
+ * Copyright (C) 2023-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ mod cache;
 use md5::Digest;
 use num_derive::{FromPrimitive, ToPrimitive};
 
-use crate::db;
+use crate::catalog;
 pub(crate) use cache::{Cache, DbMessage};
 use npc_fwk::base::Size;
 use npc_fwk::err_out;
@@ -83,7 +83,7 @@ impl ParamDigest for RenderEngine {
 /// The message for the renderers.
 pub enum RenderMsg {
     /// The the image for the processors.
-    SetImage(Option<Box<db::LibFile>>),
+    SetImage(Option<Box<catalog::LibFile>>),
     /// Reload with processing params
     Reload(Option<RenderParams>),
     /// Get the bitmap and call the lambda with the result.
@@ -129,11 +129,11 @@ pub struct RenderParams {
     /// Note for consistency if type is `RenderingType::Thumbnail` then
     /// dimensions should be a square.
     pub(super) dimensions: Size,
-    id: db::LibraryId,
+    id: catalog::LibraryId,
 }
 
 impl RenderParams {
-    pub fn new_thumbnail(id: db::LibraryId, dimensions: Size) -> RenderParams {
+    pub fn new_thumbnail(id: catalog::LibraryId, dimensions: Size) -> RenderParams {
         RenderParams {
             type_: RenderType::Thumbnail,
             engine: RenderEngine::Thumbnailer,
@@ -142,7 +142,11 @@ impl RenderParams {
         }
     }
 
-    pub fn new_preview(file: &db::LibFile, engine: RenderEngine, dimensions: Size) -> RenderParams {
+    pub fn new_preview(
+        file: &catalog::LibFile,
+        engine: RenderEngine,
+        dimensions: Size,
+    ) -> RenderParams {
         let id = file.id();
         if file.metadata.is_none() {
             err_out!("new preview, metadata is none");
@@ -182,7 +186,7 @@ impl RenderParams {
 #[cfg(test)]
 mod test {
     use super::{RenderEngine, RenderParams};
-    use crate::db::LibFile;
+    use crate::catalog::LibFile;
     use npc_fwk::base::Size;
 
     #[test]

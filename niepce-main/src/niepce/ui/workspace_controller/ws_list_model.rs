@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/ws_list_model.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ use npc_fwk::{gio, glib, gtk4};
 use thiserror::Error;
 
 use super::ws_list_item::{CountUpdate, Item};
-use npc_engine::db;
+use npc_engine::catalog;
 
 #[derive(Error, Debug)]
 /// Errors from the list model
@@ -101,7 +101,7 @@ impl WorkspaceList {
     }
 
     /// Remove the item with `id`. Return it if found or an error.
-    pub fn remove_by_id(&self, id: db::LibraryId) -> Result<Item, Error> {
+    pub fn remove_by_id(&self, id: catalog::LibraryId) -> Result<Item, Error> {
         let items = &self.imp().items;
         if items.borrow().contains_key(&id) {
             let index = items.borrow().index_of(&id).ok_or(Error::NotFound)?;
@@ -120,7 +120,7 @@ impl WorkspaceList {
 
     /// Get item with `id`
     /// Will recurse into the tree.
-    pub fn item_by_id(&self, id: db::LibraryId) -> Option<Item> {
+    pub fn item_by_id(&self, id: catalog::LibraryId) -> Option<Item> {
         let items = self.imp().items.borrow();
         items.get(&id).cloned().or_else(|| {
             items
@@ -131,7 +131,7 @@ impl WorkspaceList {
 
     /// Return the position of item with `id`.
     /// Currently tied to `IndexedMap::index_of` which is slow.
-    pub(super) fn pos_by_id(&self, id: db::LibraryId) -> Option<ItemPos> {
+    pub(super) fn pos_by_id(&self, id: catalog::LibraryId) -> Option<ItemPos> {
         let items = self.imp().items.borrow();
         items
             .index_of(&id)
@@ -146,7 +146,7 @@ impl WorkspaceList {
             })
     }
 
-    pub(super) fn set_count_by_id(&self, id: db::LibraryId, count: CountUpdate) {
+    pub(super) fn set_count_by_id(&self, id: catalog::LibraryId, count: CountUpdate) {
         if let Some(item_pos) = self.pos_by_id(id) {
             if let Some(item) = item_pos
                 .model
@@ -159,7 +159,7 @@ impl WorkspaceList {
         }
     }
 
-    pub(super) fn rename_by_id(&self, id: db::LibraryId, name: &str) {
+    pub(super) fn rename_by_id(&self, id: catalog::LibraryId, name: &str) {
         if let Some(item_pos) = self.pos_by_id(id) {
             if let Some(item) = item_pos
                 .model
@@ -180,14 +180,14 @@ mod imp {
     use glib::prelude::*;
     use npc_fwk::{gio, glib};
 
-    use npc_engine::db;
+    use npc_engine::catalog;
     use npc_fwk::base::IndexedMap;
     use npc_fwk::err_out;
 
     #[derive(Default)]
     pub struct WorkspaceList {
         /// The ordered items `id`
-        pub(super) items: RefCell<IndexedMap<db::LibraryId, super::Item>>,
+        pub(super) items: RefCell<IndexedMap<catalog::LibraryId, super::Item>>,
     }
 
     #[glib::object_subclass]

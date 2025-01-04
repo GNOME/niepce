@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/grid_view_module.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ use std::sync::Arc;
 use gtk4::prelude::*;
 use npc_fwk::{gdk4, gio, glib, gtk4};
 
-use npc_engine::db;
+use npc_engine::catalog;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
 use npc_fwk::toolkit::widgets::Dock;
@@ -38,7 +38,7 @@ use crate::niepce::ui::{
 
 pub enum GridMsg {
     Click(gtk4::GestureClick, f64, f64),
-    ChangeRating(db::LibraryId, i32),
+    ChangeRating(catalog::LibraryId, i32),
     MetadataChanged(WrappedPropertyBag, WrappedPropertyBag),
 }
 

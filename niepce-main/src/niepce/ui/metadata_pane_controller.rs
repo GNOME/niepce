@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/metadata_pane_controller.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ use glib::SignalHandlerId;
 use gtk4::prelude::*;
 use npc_fwk::{glib, gtk4};
 
-use npc_engine::db;
-use npc_engine::db::NiepcePropertyIdx;
+use npc_engine::catalog;
+use npc_engine::catalog::NiepcePropertyIdx;
 use npc_engine::NiepcePropertySet;
 use npc_fwk::toolkit::widgets::WrappedPropertyBag;
 use npc_fwk::toolkit::widgets::{MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget};
@@ -109,7 +109,7 @@ pub struct MetadataPaneController {
     vbox: gtk4::Box,
     widgets: Vec<(MetadataWidget, SignalHandlerId)>,
     propset: NiepcePropertySet,
-    fileid: Cell<db::LibraryId>,
+    fileid: Cell<catalog::LibraryId>,
 }
 
 impl Controller for MetadataPaneController {
@@ -177,11 +177,11 @@ impl MetadataPaneController {
         }
     }
 
-    pub fn displayed(&self) -> db::LibraryId {
+    pub fn displayed(&self) -> catalog::LibraryId {
         self.fileid.get()
     }
 
-    pub fn display(&self, id: db::LibraryId, metadata: Option<&db::LibMetadata>) {
+    pub fn display(&self, id: catalog::LibraryId, metadata: Option<&catalog::LibMetadata>) {
         self.fileid.set(id);
         dbg_out!("displaying metadata");
         if let Some(meta) = metadata {

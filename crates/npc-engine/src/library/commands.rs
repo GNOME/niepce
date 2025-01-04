@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/library/commands.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@ use std::path::PathBuf;
 use super::notification::LibNotification;
 use super::notification::{Count, FileMove, MetadataChange};
 use super::queriedcontent::QueriedContent;
-use crate::db::filebundle::FileBundle;
-use crate::db::keyword::Keyword;
-use crate::db::label::Label;
-use crate::db::libfolder::LibFolder;
-use crate::db::props::NiepceProperties as Np;
-use crate::db::LibraryId;
-use crate::db::{LibError, LibResult, Library};
+use crate::catalog::filebundle::FileBundle;
+use crate::catalog::keyword::Keyword;
+use crate::catalog::label::Label;
+use crate::catalog::libfolder::LibFolder;
+use crate::catalog::props::NiepceProperties as Np;
+use crate::catalog::LibraryId;
+use crate::catalog::{LibError, LibResult, Library};
 use crate::libraryclient::ClientCallback;
 use crate::NiepcePropertyBag;
 use npc_fwk::base::RgbColour;
@@ -756,7 +756,7 @@ pub fn cmd_upgrade_library_from(lib: &Library, version: i32) -> bool {
 #[cfg(test)]
 mod test {
 
-    use crate::db::library_test;
+    use crate::catalog::library_test;
 
     use super::get_folder_for_import;
 

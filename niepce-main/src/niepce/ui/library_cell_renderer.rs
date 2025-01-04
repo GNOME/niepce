@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/library_cell_renderer.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 use npc_fwk::{cairo, gdk4, glib, graphene, gtk4};
 
-use npc_engine::db;
-use npc_engine::db::libfile::{FileStatus, FileType, LibFile};
+use npc_engine::catalog;
+use npc_engine::catalog::libfile::{FileStatus, FileType, LibFile};
 use npc_engine::libraryclient::UIDataProvider;
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Size;
@@ -287,7 +287,7 @@ impl LibraryCellRendererPriv {
             .borrow()
             .as_ref()
             .and_then(|weak| weak.upgrade())
-            .map(|ui_provider| ui_provider.colour_for_label(label_id as db::LibraryId))
+            .map(|ui_provider| ui_provider.colour_for_label(label_id as catalog::LibraryId))
     }
 
     /// Test hit on rating and emit the signal if applicable.

@@ -1,7 +1,7 @@
 /*
  * niepce - engine/importer/mod.rs
  *
- * Copyright (C) 2021-2023 Hubert Figuière
+ * Copyright (C) 2021-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ use std::rc::Rc;
 
 use num_derive::{FromPrimitive, ToPrimitive};
 
-use crate::db::filebundle::FileBundle;
+use crate::catalog::filebundle::FileBundle;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::utils::FileList;
 use npc_fwk::{dbg_out, Date, XmpMeta};

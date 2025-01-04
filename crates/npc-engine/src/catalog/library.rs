@@ -37,17 +37,17 @@ use rusqlite::{functions::FunctionFlags, params};
 use thiserror::Error;
 
 use super::{FromDb, LibraryId};
-use crate::db::album::Album;
-use crate::db::filebundle::{FileBundle, Sidecar};
-use crate::db::keyword::Keyword;
-use crate::db::label::Label;
-use crate::db::libfile;
-use crate::db::libfile::LibFile;
-use crate::db::libfolder;
-use crate::db::libfolder::LibFolder;
-use crate::db::libmetadata::LibMetadata;
-use crate::db::props::NiepceProperties as Np;
-use crate::db::NiepcePropertyIdx as Npi;
+use crate::catalog::album::Album;
+use crate::catalog::filebundle::{FileBundle, Sidecar};
+use crate::catalog::keyword::Keyword;
+use crate::catalog::label::Label;
+use crate::catalog::libfile;
+use crate::catalog::libfile::LibFile;
+use crate::catalog::libfolder;
+use crate::catalog::libfolder::LibFolder;
+use crate::catalog::libmetadata::LibMetadata;
+use crate::catalog::props::NiepceProperties as Np;
+use crate::catalog::NiepcePropertyIdx as Npi;
 use crate::library::notification::LibNotification;
 use crate::NiepcePropertyBag;
 use npc_fwk::base::RgbColour;
@@ -1484,9 +1484,9 @@ impl Library {
 
 #[cfg(test)]
 pub(crate) mod test {
-    use crate::db::filebundle::FileBundle;
-    use crate::db::NiepceProperties as Np;
-    use crate::db::NiepcePropertyIdx as Npi;
+    use crate::catalog::filebundle::FileBundle;
+    use crate::catalog::NiepceProperties as Np;
+    use crate::catalog::NiepcePropertyIdx as Npi;
     use crate::library::notification::LibNotification;
     use crate::NiepcePropertyBag;
 
@@ -1532,13 +1532,13 @@ pub(crate) mod test {
             std::mem::size_of::<crate::library::notification::Thumbnail>(),
             std::mem::size_of::<crate::library::notification::ImageRendered>(),
             std::mem::size_of::<crate::library::notification::MetadataChange>(),
-            std::mem::size_of::<crate::db::Label>(),
-            std::mem::size_of::<crate::db::Album>(),
-            std::mem::size_of::<crate::db::LibFolder>(),
-            std::mem::size_of::<crate::db::Keyword>(),
-            std::mem::size_of::<crate::db::Label>(),
-            std::mem::size_of::<crate::db::LibFile>(),
-            std::mem::size_of::<crate::db::LibMetadata>(),
+            std::mem::size_of::<crate::catalog::Label>(),
+            std::mem::size_of::<crate::catalog::Album>(),
+            std::mem::size_of::<crate::catalog::LibFolder>(),
+            std::mem::size_of::<crate::catalog::Keyword>(),
+            std::mem::size_of::<crate::catalog::Label>(),
+            std::mem::size_of::<crate::catalog::LibFile>(),
+            std::mem::size_of::<crate::catalog::LibMetadata>(),
         );
 
         // Backup should return an error.

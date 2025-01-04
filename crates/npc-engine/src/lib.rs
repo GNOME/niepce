@@ -1,7 +1,7 @@
 /*
  * niepce - npc_engine/lib.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-pub mod db;
+pub mod catalog;
 pub mod importer;
 pub mod library;
 pub mod libraryclient;
 
 pub use library::thumbnail_cache::ThumbnailCache;
 
-pub type NiepcePropertySet = npc_fwk::PropertySet<db::NiepceProperties>;
-pub type NiepcePropertyBag = npc_fwk::PropertyBag<db::NiepceProperties>;
+pub type NiepcePropertySet = npc_fwk::PropertySet<catalog::NiepceProperties>;
+pub type NiepcePropertyBag = npc_fwk::PropertyBag<catalog::NiepceProperties>;

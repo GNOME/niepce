@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/ws_list_item.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 use glib::subclass::prelude::*;
 use npc_fwk::{gio, glib};
 
-use npc_engine::db;
+use npc_engine::catalog;
 use npc_fwk::err_out;
 
 use super::ws_list_model::WorkspaceList;
@@ -54,7 +54,7 @@ impl Item {
     pub(super) fn with_values(
         icon: &gio::Icon,
         label: &str,
-        id: db::LibraryId,
+        id: catalog::LibraryId,
         type_: TreeItemType,
     ) -> Item {
         let item = Self::new();
@@ -84,7 +84,7 @@ impl Item {
         self.imp().data.replace(new_data);
     }
 
-    pub(super) fn id(&self) -> db::LibraryId {
+    pub(super) fn id(&self) -> catalog::LibraryId {
         self.imp().data.borrow().id
     }
 
@@ -150,7 +150,7 @@ mod imp {
 
     use super::super::ws_list_model::WorkspaceList;
     use super::super::TreeItemType;
-    use npc_engine::db;
+    use npc_engine::catalog;
 
     #[derive(Default)]
     pub struct Item {
@@ -160,7 +160,7 @@ mod imp {
 
     pub(super) struct ItemData {
         pub(super) icon: gio::Icon,
-        pub(super) id: db::LibraryId,
+        pub(super) id: catalog::LibraryId,
         pub(super) label: String,
         pub(super) type_: TreeItemType,
         pub(super) count: i32,

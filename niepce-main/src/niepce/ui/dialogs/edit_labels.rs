@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/edit_labels.rs
  *
- * Copyright (C) 2024 Hubert Figuière
+ * Copyright (C) 2024-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ use adw::prelude::*;
 use gettextrs::gettext as i18n;
 use npc_fwk::{adw, glib, gtk4};
 
-use npc_engine::db;
+use npc_engine::catalog;
 use npc_engine::libraryclient::{
     ClientInterface, ClientInterfaceSync, LibraryClient, LibraryClientHost,
 };
@@ -50,7 +50,7 @@ pub struct EditLabels {
     imp_: ControllerImplCell<InMsg, ()>,
     client: Arc<LibraryClient>,
     app: Weak<NiepceApplication>,
-    labels: Vec<db::Label>,
+    labels: Vec<catalog::Label>,
     colours: Vec<gtk4::ColorButton>,
     entries: Vec<gtk4::Entry>,
     status: RefCell<[bool; NUM_LABELS]>,

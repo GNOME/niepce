@@ -31,7 +31,7 @@ use num_derive::FromPrimitive;
 use once_cell::unsync::OnceCell;
 
 use super::ContentView;
-use npc_engine::db;
+use npc_engine::catalog;
 use npc_engine::importer::ImportRequest;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};
@@ -78,7 +78,7 @@ pub enum Event {
     /// Import a library
     ImportLibrary,
     /// `LibFile`s dropped onto workspace. (target, type, source)
-    DropLibFile(db::LibraryId, TreeItemType, Vec<db::LibraryId>),
+    DropLibFile(catalog::LibraryId, TreeItemType, Vec<catalog::LibraryId>),
 }
 
 pub struct WorkspaceController {
@@ -325,17 +325,18 @@ impl Widgets {
         }
     }
 
-    fn add_folder_item(&self, folder: &db::LibFolder, icon: &gio::Icon) -> Option<u32> {
+    fn add_folder_item(&self, folder: &catalog::LibFolder, icon: &gio::Icon) -> Option<u32> {
         let was_empty = self
             .folders_node
             .children()
             .map(|children| children.n_items() == 0)
             .unwrap_or(true);
-        let tree_item_type = if folder.virtual_type() == db::libfolder::FolderVirtualType::Trash {
-            TreeItemType::Trash
-        } else {
-            TreeItemType::Folder
-        };
+        let tree_item_type =
+            if folder.virtual_type() == catalog::libfolder::FolderVirtualType::Trash {
+                TreeItemType::Trash
+            } else {
+                TreeItemType::Folder
+            };
         WorkspaceController::add_item(
             &self.folders_node,
             icon,
@@ -351,7 +352,7 @@ impl Widgets {
         })
     }
 
-    fn remove_folder_item(&self, id: db::LibraryId) {
+    fn remove_folder_item(&self, id: catalog::LibraryId) {
         if let Some(store) = self
             .folders_node
             .children()
@@ -363,7 +364,7 @@ impl Widgets {
         }
     }
 
-    fn add_keyword_item(&self, keyword: &db::Keyword) {
+    fn add_keyword_item(&self, keyword: &catalog::Keyword) {
         let was_empty = self
             .keywords_node
             .children()
@@ -384,7 +385,7 @@ impl Widgets {
         }
     }
 
-    fn add_album_item(&self, album: &db::Album) {
+    fn add_album_item(&self, album: &catalog::Album) {
         let was_empty = self
             .albums_node
             .children()
@@ -405,7 +406,7 @@ impl Widgets {
         }
     }
 
-    fn remove_album_item(&self, id: db::LibraryId) {
+    fn remove_album_item(&self, id: catalog::LibraryId) {
         if let Some(store) = self
             .albums_node
             .children()
@@ -441,14 +442,14 @@ impl Widgets {
         .and_then(|model| model.downcast::<WorkspaceList>().ok())
     }
 
-    fn set_count(&self, tree_item_type: TreeItemType, id: db::LibraryId, count: CountUpdate) {
+    fn set_count(&self, tree_item_type: TreeItemType, id: catalog::LibraryId, count: CountUpdate) {
         if let Some(model) = self.model_for_tree_item_type(tree_item_type) {
             model.set_count_by_id(id, count);
         }
     }
 
     /// Change the label of an item in the list
-    fn rename_item(&self, tree_item_type: TreeItemType, id: db::LibraryId, name: &str) {
+    fn rename_item(&self, tree_item_type: TreeItemType, id: catalog::LibraryId, name: &str) {
         if let Some(model) = self.model_for_tree_item_type(tree_item_type) {
             model.rename_by_id(id, name);
         }
@@ -635,7 +636,7 @@ impl WorkspaceController {
         }
     }
 
-    fn action_rename_album(&self, album: db::LibraryId, name: &str) {
+    fn action_rename_album(&self, album: catalog::LibraryId, name: &str) {
         if let Some(client) = self.client.upgrade() {
             let window = self
                 .widget()
@@ -679,7 +680,7 @@ impl WorkspaceController {
         }
     }
 
-    fn action_delete_folder(&self, id: db::LibraryId) {
+    fn action_delete_folder(&self, id: catalog::LibraryId) {
         let window = self
             .widget()
             .ancestor(gtk4::Window::static_type())
@@ -729,7 +730,7 @@ impl WorkspaceController {
         }
     }
 
-    fn action_delete_album(&self, id: db::LibraryId) {
+    fn action_delete_album(&self, id: catalog::LibraryId) {
         let window = self
             .widget()
             .ancestor(gtk4::Window::static_type())
@@ -816,9 +817,9 @@ impl WorkspaceController {
     /// Act upon it.
     fn action_drop_libfile(
         &self,
-        target: db::LibraryId,
+        target: catalog::LibraryId,
         type_: TreeItemType,
-        source: Vec<db::LibraryId>,
+        source: Vec<catalog::LibraryId>,
     ) {
         dbg_out!(
             "dropped files id {:?} onto a {:?}({})",
@@ -865,14 +866,14 @@ impl WorkspaceController {
     }
 
     /// Get the selected item id and type in the workspace.
-    fn selected_item_id(&self) -> Option<(TreeItemType, db::LibraryId)> {
+    fn selected_item_id(&self) -> Option<(TreeItemType, catalog::LibraryId)> {
         self.selected_item()
             .map(|item| (item.tree_item_type(), item.id()))
     }
 
-    fn add_folder_item(&self, folder: &db::LibFolder) {
+    fn add_folder_item(&self, folder: &catalog::LibFolder) {
         if let Some(widgets) = self.widgets.get() {
-            let icon = if folder.virtual_type() == db::libfolder::FolderVirtualType::Trash {
+            let icon = if folder.virtual_type() == catalog::libfolder::FolderVirtualType::Trash {
                 if let Some(client) = self.client.upgrade() {
                     client.set_trash_id(folder.id());
                 }
@@ -894,7 +895,7 @@ impl WorkspaceController {
         }
     }
 
-    fn remove_folder_item(&self, id: db::LibraryId) {
+    fn remove_folder_item(&self, id: catalog::LibraryId) {
         if let Some(widgets) = self.widgets.get() {
             widgets.remove_folder_item(id);
         } else {
@@ -902,7 +903,7 @@ impl WorkspaceController {
         }
     }
 
-    fn add_keyword_item(&self, keyword: &db::Keyword) {
+    fn add_keyword_item(&self, keyword: &catalog::Keyword) {
         if let Some(widgets) = self.widgets.get() {
             widgets.add_keyword_item(keyword);
             if let Some(client) = self.client.upgrade() {
@@ -913,7 +914,7 @@ impl WorkspaceController {
         }
     }
 
-    fn add_album_item(&self, album: &db::Album) {
+    fn add_album_item(&self, album: &catalog::Album) {
         if let Some(widgets) = self.widgets.get() {
             widgets.add_album_item(album);
             if let Some(client) = self.client.upgrade() {
@@ -924,7 +925,7 @@ impl WorkspaceController {
         }
     }
 
-    fn remove_album_item(&self, id: db::LibraryId) {
+    fn remove_album_item(&self, id: catalog::LibraryId) {
         if let Some(widgets) = self.widgets.get() {
             widgets.remove_album_item(id);
         } else {
@@ -951,8 +952,8 @@ impl WorkspaceController {
     /// back.
     fn reparent_item(
         subtree: &gtk4::TreeListRow,
-        id: db::LibraryId,
-        parent_id: db::LibraryId,
+        id: catalog::LibraryId,
+        parent_id: catalog::LibraryId,
     ) -> Option<u32> {
         dbg_out!("reparent_item");
         let item = subtree.item().and_downcast::<Item>().expect("not an item");
@@ -978,8 +979,8 @@ impl WorkspaceController {
         subtree: &gtk4::TreeListRow,
         icon: &gio::Icon,
         label: &str,
-        id: db::LibraryId,
-        parent_id: db::LibraryId,
+        id: catalog::LibraryId,
+        parent_id: catalog::LibraryId,
         type_: TreeItemType,
     ) -> Option<u32> {
         // XXX probably there is a different way

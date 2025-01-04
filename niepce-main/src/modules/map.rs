@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/map.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ use gtk4::prelude::*;
 use npc_fwk::gtk4;
 
 use crate::niepce::ui::LibraryModule;
-use npc_engine::db::NiepceProperties as Np;
-use npc_engine::db::NiepcePropertyIdx as Npi;
+use npc_engine::catalog::NiepceProperties as Np;
+use npc_engine::catalog::NiepcePropertyIdx as Npi;
 use npc_engine::library::notification::LibNotification;
 use npc_fwk::dbg_out;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, MapController, UiController};

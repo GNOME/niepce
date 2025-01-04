@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/filebundle.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
-use crate::db::libfile::FileType;
+use super::libfile::FileType;
 use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
 use npc_fwk::MimeType;
 use npc_fwk::{dbg_out, err_out};
@@ -246,7 +246,7 @@ impl FileBundle {
 #[cfg(test)]
 mod test {
     use super::{FileBundle, Sidecar};
-    use crate::db::libfile::FileType;
+    use crate::catalog::libfile::FileType;
     use std::path::PathBuf;
 
     #[test]

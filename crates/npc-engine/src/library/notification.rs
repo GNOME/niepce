@@ -1,7 +1,7 @@
 /*
  * niepce - engine/library/notification.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  */
 
 use super::queriedcontent::QueriedContent;
-use crate::db::libfile::FileStatus;
-use crate::db::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
+use crate::catalog::libfile::FileStatus;
+use crate::catalog::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
 use npc_fwk::toolkit::thumbnail;
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::PropertyValue;
