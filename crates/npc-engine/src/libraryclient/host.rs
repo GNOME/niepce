@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/host.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +55,11 @@ impl LibraryClientHost {
             thumbnail_cache: ThumbnailCache::new(&cache_path, channel.clone()),
             ui_provider: Rc::new(UIDataProvider::default()),
         }
+    }
+
+    pub fn close(&self) {
+        self.thumbnail_cache.close();
+        self.client.close();
     }
 
     pub fn notif_sender(&self) -> &LcChannel {

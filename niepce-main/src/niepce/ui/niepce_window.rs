@@ -200,6 +200,7 @@ impl Controller for NiepceWindow {
                 // XXX todo
             }
             OpenCatalog(catalog) => {
+                self.on_close();
                 NiepceApplication::reopen_with(catalog.to_str().unwrap());
                 // We have terminated here.
             }
@@ -322,6 +323,12 @@ impl UiController for NiepceWindow {
 impl WindowController for NiepceWindow {
     fn window(&self) -> &gtk4::Window {
         self.window.upcast_ref()
+    }
+
+    fn on_close(&self) {
+        if let Some(client) = self.libraryclient.borrow().as_ref() {
+            client.close();
+        }
     }
 
     fn state_key(&self) -> Option<&str> {
