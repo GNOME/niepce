@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/window_controller.rs
  *
- * Copyright (C) 2024 Hubert Figuière
+ * Copyright (C) 2024-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,9 @@ pub trait WindowController {
         None
     }
 
+    /// What to do when the close request.
+    fn on_close(&self) {}
+
     /// Initialize the state saving if needed
     fn init_state<T: WindowController + 'static>(this: &Rc<T>) {
         this.window().connect_close_request(glib::clone!(
@@ -61,6 +64,7 @@ pub trait WindowController {
                     this.save_state(&cfg);
                     dbg_out!("State saved");
                 }
+                this.on_close();
                 glib::Propagation::Proceed
             }
         ));

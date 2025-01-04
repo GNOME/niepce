@@ -222,9 +222,14 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
     thumbnail
 }
 
+enum Request {
+    Terminate,
+    Task(Vec<Task>),
+}
+
 pub struct ThumbnailCache {
     /// Queue to send task
-    queue_sender: std::sync::mpsc::Sender<Vec<Task>>,
+    queue_sender: std::sync::mpsc::Sender<Request>,
 }
 
 impl ThumbnailCache {
@@ -238,6 +243,10 @@ impl ThumbnailCache {
             }));
 
         Self { queue_sender }
+    }
+
+    pub fn close(&self) {
+        on_err_out!(self.queue_sender.send(Request::Terminate));
     }
 
     /// Build a path for the cache directory based on the catalog path.
@@ -280,15 +289,20 @@ impl ThumbnailCache {
         }
     }
 
-    fn main(cache_dir: PathBuf, queue: std::sync::mpsc::Receiver<Vec<Task>>, sender: LcChannel) {
+    fn main(cache_dir: PathBuf, queue: std::sync::mpsc::Receiver<Request>, sender: LcChannel) {
         let cache = Cache::new(cache_dir);
         cache.initialize();
         dbg_out!("Cache database ready");
         while let Ok(tasks) = queue.recv() {
-            dbg_out!("Parallel thumbnailing of {} files", tasks.len());
-            tasks.iter().for_each(|task| {
-                Self::execute(task, &cache, &sender);
-            })
+            match tasks {
+                Request::Task(tasks) => {
+                    dbg_out!("Parallel thumbnailing of {} files", tasks.len());
+                    tasks.iter().for_each(|task| {
+                        Self::execute(task, &cache, &sender);
+                    })
+                }
+                Request::Terminate => break,
+            }
         }
         dbg_out!("thumbnail cache thread terminating");
     }
@@ -302,18 +316,20 @@ impl ThumbnailCache {
     ) {
         on_err_out!(self
             .queue_sender
-            .send(vec![Task::new_rendering(file, params, processor)]));
+            .send(Request::Task(vec![Task::new_rendering(
+                file, params, processor
+            )])));
     }
 
     /// Request thumbnails.
     pub fn request(&self, fl: &[LibFile]) {
-        on_err_out!(self.queue_sender.send(
+        on_err_out!(self.queue_sender.send(Request::Task(
             fl.iter()
                 .map(|f| Task::new_thumbnail(
                     f.clone(),
                     RenderParams::new_thumbnail(f.id(), Size { w: 160, h: 160 })
                 ))
                 .collect()
-        ));
+        )));
     }
 }

@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/mod.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ pub use ui_data_provider::UIDataProvider;
 
 use std::ops::Deref;
 use std::path::PathBuf;
-use std::sync;
 use std::sync::{atomic, mpsc};
 use std::thread;
 
@@ -41,10 +40,15 @@ use crate::NiepcePropertyBag;
 use npc_fwk::base::{PropertyValue, RgbColour};
 use npc_fwk::on_err_out;
 
+enum Request {
+    Terminate,
+    Op(Op),
+}
+
 /// LibraryClient is in charge of creating both side of the worker:
 /// the sender and the actual library on a separate thread.
 pub struct LibraryClient {
-    terminate: sync::Arc<atomic::AtomicBool>,
+    thread: thread::JoinHandle<()>,
     trash_id: atomic::AtomicI64,
     /// This is what will implement the interface.
     sender: LibraryClientSender,
@@ -65,21 +69,18 @@ impl Deref for LibraryClient {
 
 impl LibraryClient {
     pub fn new(filename: PathBuf, sender: LcChannel) -> LibraryClient {
-        let (task_sender, task_receiver) = mpsc::channel::<Op>();
+        let (task_sender, task_receiver) = mpsc::channel::<Request>();
 
-        let mut terminate = sync::Arc::new(atomic::AtomicBool::new(false));
-        let terminate2 = terminate.clone();
-
-        /* let thread = */
-        on_err_out!(thread::Builder::new()
+        let thread = thread::Builder::new()
             .name("library client".to_string())
             .spawn(move || {
                 let library = Library::new(&filename, sender);
-                Self::main(&mut terminate, task_receiver, &library);
-            }));
+                Self::main(task_receiver, &library);
+            })
+            .unwrap();
 
         LibraryClient {
-            terminate: terminate2,
+            thread,
             sender: LibraryClientSender(task_sender),
             trash_id: atomic::AtomicI64::new(0),
         }
@@ -93,22 +94,38 @@ impl LibraryClient {
         self.trash_id.store(id, atomic::Ordering::Relaxed);
     }
 
-    fn stop(&mut self) {
-        self.terminate.store(true, atomic::Ordering::Relaxed);
+    fn stop(&self) {
+        self.close();
     }
 
-    fn main(
-        terminate: &mut sync::Arc<atomic::AtomicBool>,
-        tasks: mpsc::Receiver<Op>,
-        library: &Library,
-    ) {
-        while !terminate.load(atomic::Ordering::Relaxed) {
-            let elem: Option<Op> = tasks.recv().ok();
-
-            if let Some(op) = elem {
-                op.execute(library);
+    /// Close the library client. This will wait for the thread to be
+    /// terminated unless it's closed on the same thread.  This is
+    /// meant to ensure the sqlite file is flushed to disk.
+    fn close(&self) {
+        on_err_out!(self.sender.0.send(Request::Terminate));
+        if self.thread.thread().id() != std::thread::current().id() {
+            // We could join the handle but this require a `&mut self`
+            // which we don't really have.
+            while !self.thread.is_finished() {
+                thread::sleep(std::time::Duration::from_millis(10));
             }
         }
+    }
+
+    fn main(tasks: mpsc::Receiver<Request>, library: &Library) {
+        loop {
+            match tasks.recv() {
+                Ok(Request::Terminate) => break,
+                Ok(Request::Op(op)) => {
+                    op.execute(library);
+                }
+                Err(err) => {
+                    npc_fwk::err_out!("LibrayClient err: {err}");
+                    break;
+                }
+            }
+        }
+        npc_fwk::dbg_out!("LibraryClient terminated");
     }
 
     pub fn sender(&self) -> &LibraryClientSender {
@@ -119,7 +136,7 @@ impl LibraryClient {
 #[derive(Clone)]
 /// The sender for the library client.
 /// It is all you should need to perform ops on the library
-pub struct LibraryClientSender(mpsc::Sender<Op>);
+pub struct LibraryClientSender(mpsc::Sender<Request>);
 
 impl LibraryClientSender {
     pub fn schedule_op<F>(&self, f: F)
@@ -128,7 +145,7 @@ impl LibraryClientSender {
     {
         let op = Op::new(f);
 
-        on_err_out!(self.0.send(op));
+        on_err_out!(self.0.send(Request::Op(op)));
     }
 }
 
