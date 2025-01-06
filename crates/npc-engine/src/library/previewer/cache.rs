@@ -214,7 +214,8 @@ impl DbWorker {
 
             dbg_out!("Found item {:?}", item);
             let item = item?;
-            dbg_out!("access updated {:?}", self.update_access(conn, item.id));
+            let r = self.update_access(conn, item.id);
+            dbg_out!("access updated {:?}", r);
             return Ok(item);
         }
 
