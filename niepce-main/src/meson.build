@@ -105,7 +105,9 @@ test(
   env: cargo_env,
   args: [
     'test',
-    cargo_options
+    cargo_options,
+    '--',
+    '--nocapture'
   ],
   depends: [resources_bundle, rtengine],
   timeout: 0
