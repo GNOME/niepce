@@ -1,7 +1,7 @@
 /*
- * niepce - engine/db/library.rs
+ * niepce - engine/catalog/db.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,8 +88,8 @@ pub enum Error {
 
 pub type Result<T> = result::Result<T, Error>;
 
-/// Library database
-pub struct Library {
+/// The Catalog database
+pub struct CatalogDb {
     /// Sqlite3 connection handle.
     dbconn: Option<rusqlite::Connection>,
     /// The file backing the DB, if any.
@@ -100,11 +100,11 @@ pub struct Library {
     sender: npc_fwk::toolkit::Sender<LibNotification>,
 }
 
-impl Library {
+impl CatalogDb {
     /// New database library in memory (testing only)
     #[cfg(test)]
-    pub(crate) fn new_in_memory(sender: npc_fwk::toolkit::Sender<LibNotification>) -> Library {
-        let mut lib = Library {
+    pub(crate) fn new_in_memory(sender: npc_fwk::toolkit::Sender<LibNotification>) -> CatalogDb {
+        let mut catalog = CatalogDb {
             // maindir: dir,
             dbconn: None,
             dbfile: None,
@@ -113,15 +113,15 @@ impl Library {
         };
 
         if let Ok(conn) = rusqlite::Connection::open_in_memory() {
-            lib.dbconn = Some(conn);
-            lib.inited = lib.init().is_ok();
+            catalog.dbconn = Some(conn);
+            catalog.inited = catalog.init().is_ok();
         }
 
-        lib
+        catalog
     }
 
-    pub fn new(filename: &Path, sender: npc_fwk::toolkit::Sender<LibNotification>) -> Library {
-        let mut lib = Library {
+    pub fn new(filename: &Path, sender: npc_fwk::toolkit::Sender<LibNotification>) -> CatalogDb {
+        let mut catalog = CatalogDb {
             // maindir: dir,
             dbconn: None,
             dbfile: Some(filename.to_path_buf()),
@@ -131,15 +131,15 @@ impl Library {
 
         match rusqlite::Connection::open(filename) {
             Ok(conn) => {
-                lib.dbconn = Some(conn);
-                lib.inited = lib.init().is_ok();
+                catalog.dbconn = Some(conn);
+                catalog.inited = catalog.init().is_ok();
             }
             Err(err) => {
                 err_out!("open failed {:?}", err);
             }
         };
 
-        lib
+        catalog
     }
 
     /// Load the database and perform some sanity checking
@@ -245,7 +245,7 @@ impl Library {
         dbg_out!("Upgrading...");
         let suffix = format!("version_{from_version}");
         self.backup_database_file(&suffix)?;
-        upgrade::library_to(self, from_version, DB_SCHEMA_VERSION)?;
+        upgrade::catalog_to(self, from_version, DB_SCHEMA_VERSION)?;
         on_err_out!(self.notify(LibNotification::DatabaseReady));
 
         Ok(())
@@ -1490,13 +1490,13 @@ pub(crate) mod test {
     use crate::library::notification::LibNotification;
     use crate::NiepcePropertyBag;
 
-    use super::{Error, Library, DB_SCHEMA_VERSION};
+    use super::{CatalogDb, Error, DB_SCHEMA_VERSION};
 
     /// Create a test library. Call this to create an in memory library.
-    pub(crate) fn test_library() -> Library {
+    pub(crate) fn test_catalog() -> CatalogDb {
         let (sender, receiver) = async_channel::unbounded();
-        let lib = Library::new_in_memory(sender);
-        assert_eq!(lib.dbfile, None);
+        let catalog = CatalogDb::new_in_memory(sender);
+        assert_eq!(catalog.dbfile, None);
         let msg = receiver
             .try_recv()
             .expect("Didn't receive LibCreated message");
@@ -1513,14 +1513,14 @@ pub(crate) mod test {
             _ => panic!("Wrong message type, expected DatabaseReady"),
         }
 
-        assert!(lib.is_ok());
-        lib
+        assert!(catalog.is_ok());
+        catalog
     }
 
     #[test]
-    fn library_works() {
-        let lib = test_library();
-        let version = lib.check_database_version();
+    fn catalog_works() {
+        let catalog = test_catalog();
+        let version = catalog.check_database_version();
         assert!(version.is_ok());
         assert!(version.ok().unwrap() == super::DB_SCHEMA_VERSION);
 
@@ -1543,87 +1543,89 @@ pub(crate) mod test {
 
         // Backup should return an error.
         assert!(matches!(
-            lib.backup_database_file("backup"),
+            catalog.backup_database_file("backup"),
             Err(Error::NoDbFile)
         ));
 
-        let folder_added = lib.add_folder("foo", String::from("/bar/foo"));
+        let folder_added = catalog.add_folder("foo", String::from("/bar/foo"));
         assert!(folder_added.is_ok());
         let folder_added = folder_added.unwrap();
         let parent_id = folder_added.id();
         assert!(parent_id > 0);
 
-        let f = lib.get_folder("/bar/foo");
+        let f = catalog.get_folder("/bar/foo");
         assert!(f.is_ok());
         let f = f.unwrap();
         assert_eq!(folder_added.id(), f.id());
 
         let id = f.id();
-        let f = lib.add_folder_into("bar", Some(String::from("/bar/bar")), id);
+        let f = catalog.add_folder_into("bar", Some(String::from("/bar/bar")), id);
         assert!(f.is_ok());
         // The triggers have changed the path to match the parent's.
-        let f = lib.get_folder("/bar/foo/bar");
+        let f = catalog.get_folder("/bar/foo/bar");
         assert!(f.is_ok());
         let f = f.unwrap();
         assert_eq!(f.parent(), id);
 
-        let folders = lib.get_all_folders();
+        let folders = catalog.get_all_folders();
         assert!(folders.is_ok());
         let folders = folders.unwrap();
         assert_eq!(folders.len(), 3);
         println!("folder {folders:?}");
 
-        let root_folders = lib.get_root_folders();
+        let root_folders = catalog.get_root_folders();
         assert!(root_folders.is_ok());
         let root_folders = root_folders.unwrap();
         println!("root folder {root_folders:?}");
         assert_eq!(root_folders.len(), 1);
         assert_eq!(root_folders[0].path(), Some("/bar/foo"));
 
-        let file_id = lib.add_file(folder_added.id(), "foo/myfile", None);
+        let file_id = catalog.add_file(folder_added.id(), "foo/myfile", None);
         assert!(file_id.is_ok());
         let file_id = file_id.unwrap();
         assert!(file_id > 0);
 
-        assert!(lib.move_file_to_folder(file_id, 100).is_err());
-        assert!(lib.move_file_to_folder(file_id, folder_added.id()).is_ok());
-        let count = lib.count_folder(folder_added.id());
+        assert!(catalog.move_file_to_folder(file_id, 100).is_err());
+        assert!(catalog
+            .move_file_to_folder(file_id, folder_added.id())
+            .is_ok());
+        let count = catalog.count_folder(folder_added.id());
         assert!(count.is_ok());
         let count = count.ok().unwrap();
         assert_eq!(count, 1);
 
-        let fl = lib.get_folder_content(folder_added.id());
+        let fl = catalog.get_folder_content(folder_added.id());
         assert!(fl.is_ok());
         let fl = fl.ok().unwrap();
         assert_eq!(fl.len(), count as usize);
         assert_eq!(fl[0].id(), file_id);
 
-        let kwid1 = lib.make_keyword("foo");
+        let kwid1 = catalog.make_keyword("foo");
         assert!(kwid1.is_ok());
         let kwid1 = kwid1.ok().unwrap();
         assert!(kwid1 > 0);
-        let kwid2 = lib.make_keyword("bar");
+        let kwid2 = catalog.make_keyword("bar");
         assert!(kwid2.is_ok());
         let kwid2 = kwid2.ok().unwrap();
         assert!(kwid2 > 0);
 
         // duplicate keyword
-        let kwid3 = lib.make_keyword("foo");
+        let kwid3 = catalog.make_keyword("foo");
         assert!(kwid3.is_ok());
         let kwid3 = kwid3.ok().unwrap();
         // should return kwid1 because it already exists.
         assert_eq!(kwid3, kwid1);
 
-        assert!(lib.assign_keyword(kwid1, file_id).is_ok());
-        assert!(lib.assign_keyword(kwid2, file_id).is_ok());
+        assert!(catalog.assign_keyword(kwid1, file_id).is_ok());
+        assert!(catalog.assign_keyword(kwid2, file_id).is_ok());
 
-        let fl2 = lib.get_keyword_content(kwid1);
+        let fl2 = catalog.get_keyword_content(kwid1);
         assert!(fl2.is_ok());
         let fl2 = fl2.ok().unwrap();
         assert_eq!(fl2.len(), 1);
         assert_eq!(fl2[0].id(), file_id);
 
-        let kl = lib.get_all_keywords();
+        let kl = catalog.get_all_keywords();
         assert!(kl.is_ok());
         let kl = kl.ok().unwrap();
         assert_eq!(kl.len(), 2);
@@ -1635,7 +1637,7 @@ pub(crate) mod test {
         assert!(bundle.add("img_0123.thm"));
         assert!(bundle.add("img_0123.xmp"));
 
-        let bundle_id = lib.add_bundle(folder_added.id(), &bundle);
+        let bundle_id = catalog.add_bundle(folder_added.id(), &bundle);
         assert!(bundle_id.is_ok());
         assert!(bundle_id.unwrap() > 0);
     }
@@ -1650,9 +1652,9 @@ pub(crate) mod test {
     fn file_bundle_import() {
         use npc_fwk::utils::exempi::XmpMeta;
 
-        let lib = test_library();
+        let catalog = test_catalog();
 
-        let folder_added = lib.add_folder("foo", String::from("/bar/foo"));
+        let folder_added = catalog.add_folder("foo", String::from("/bar/foo"));
         assert!(folder_added.is_ok());
         let folder_added = folder_added.unwrap();
 
@@ -1660,7 +1662,7 @@ pub(crate) mod test {
         assert!(bundle0.add("img_0123.jpg"));
         assert!(bundle0.add("img_0123.raf"));
 
-        let bundle_id = lib.add_bundle(folder_added.id(), &bundle0);
+        let bundle_id = catalog.add_bundle(folder_added.id(), &bundle0);
         assert!(bundle_id.is_ok());
         assert!(bundle_id.ok().unwrap() > 0);
 
@@ -1668,7 +1670,7 @@ pub(crate) mod test {
         assert!(bundle.add("img_0124.jpg"));
         assert!(bundle.add("img_0124.raf"));
 
-        let bundle_id = lib.add_bundle(folder_added.id(), &bundle);
+        let bundle_id = catalog.add_bundle(folder_added.id(), &bundle);
         assert!(bundle_id.is_ok());
         let bundle_id = bundle_id.unwrap();
         assert!(bundle_id > 0);
@@ -1683,10 +1685,10 @@ pub(crate) mod test {
         let original_xmp_packet =
             exempi2::Xmp::from_buffer(XMP_PACKET.as_bytes()).expect("XMP packet created");
         let original_xmp_packet = XmpMeta::from(original_xmp_packet);
-        let result = lib.set_image_properties(bundle_id, &props);
+        let result = catalog.set_image_properties(bundle_id, &props);
         result.expect("Setting the XMP works");
 
-        let result = lib.get_metadata(bundle_id);
+        let result = catalog.get_metadata(bundle_id);
         let metadata = result.expect("Have retrieved metadata");
         let xmp_packet = metadata.serialize_inline();
         assert_eq!(
@@ -1697,19 +1699,19 @@ pub(crate) mod test {
 
     #[test]
     fn root_folders() {
-        let lib = test_library();
+        let catalog = test_catalog();
 
         // Check for a root folder for the folder: it doesn't exist.
-        let lf = lib.root_folder_for("/home/USER/Pictures/20230619");
+        let lf = catalog.root_folder_for("/home/USER/Pictures/20230619");
         assert!(matches!(lf, Err(Error::NotFound)));
 
         // Add a root folder.
-        let f = lib.add_folder("Pictures", "/home/USER/Pictures".to_owned());
+        let f = catalog.add_folder("Pictures", "/home/USER/Pictures".to_owned());
         assert!(f.is_ok());
         let root_id = f.unwrap().id();
 
         // Check for a root folder for the folder: we just created it.
-        let lf = lib.root_folder_for("/home/USER/Pictures/20230619");
+        let lf = catalog.root_folder_for("/home/USER/Pictures/20230619");
         assert!(lf.is_ok());
         let lf = lf.unwrap();
         // Checking its name and its id.
@@ -1717,7 +1719,7 @@ pub(crate) mod test {
         assert_eq!(lf.name(), "Pictures");
 
         // Add a folder into
-        let lf = lib.add_folder_into("20230619", None, root_id);
+        let lf = catalog.add_folder_into("20230619", None, root_id);
         assert!(lf.is_ok());
         let lf = lf.unwrap();
         assert_eq!(lf.parent(), root_id);
@@ -1725,7 +1727,7 @@ pub(crate) mod test {
         let folder_id = lf.id();
 
         // Add same folder into
-        let lf = lib.add_folder_into("20230619", None, root_id);
+        let lf = catalog.add_folder_into("20230619", None, root_id);
         assert!(lf.is_ok());
         let lf = lf.unwrap();
         assert_eq!(lf.parent(), root_id);
@@ -1735,33 +1737,33 @@ pub(crate) mod test {
 
     #[test]
     fn preferences() {
-        let lib = test_library();
+        let catalog = test_catalog();
 
         // Sanity testing.
-        let dbversion = lib.get_pref("version", None);
+        let dbversion = catalog.get_pref("version", None);
         let verstr = format!("{DB_SCHEMA_VERSION}");
         assert_eq!(dbversion, Ok(verstr));
 
         // Test not found and default.
-        let pref1 = lib.get_pref("prefs.pref1", None);
+        let pref1 = catalog.get_pref("prefs.pref1", None);
         assert_eq!(pref1, Err(Error::NotFound));
-        let pref1 = lib.get_pref("prefs.pref1", Some("default"));
+        let pref1 = catalog.get_pref("prefs.pref1", Some("default"));
         assert_eq!(pref1, Ok("default".to_string()));
         // Ensure default didn't set it.
-        let pref1 = lib.get_pref("prefs.pref1", None);
+        let pref1 = catalog.get_pref("prefs.pref1", None);
         assert_eq!(pref1, Err(Error::NotFound));
 
         // Test setting values
-        let pref1 = lib.set_pref("prefs.pref1", "value1");
+        let pref1 = catalog.set_pref("prefs.pref1", "value1");
         assert!(pref1.is_ok());
-        let pref1 = lib.get_pref("prefs.pref1", None);
+        let pref1 = catalog.get_pref("prefs.pref1", None);
         assert_eq!(pref1, Ok("value1".to_string()));
-        let pref1 = lib.set_pref("prefs.pref1", "value2");
+        let pref1 = catalog.set_pref("prefs.pref1", "value2");
         assert!(pref1.is_ok());
-        let pref1 = lib.get_pref("prefs.pref1", None);
+        let pref1 = catalog.get_pref("prefs.pref1", None);
         assert_eq!(pref1, Ok("value2".to_string()));
 
-        let prefs = lib.get_all_preferences();
+        let prefs = catalog.get_all_preferences();
         assert!(prefs.is_ok());
         let prefs = prefs.unwrap();
         assert_eq!(prefs.len(), 2);

@@ -32,7 +32,7 @@ use std::thread;
 
 use crate::catalog::filebundle::FileBundle;
 use crate::catalog::props::NiepceProperties as Np;
-use crate::catalog::{LibFolder, Library, LibraryId};
+use crate::catalog::{CatalogDb, LibFolder, LibraryId};
 use crate::library::commands;
 use crate::library::notification::LcChannel;
 use crate::library::op::Op;
@@ -74,7 +74,7 @@ impl LibraryClient {
         let thread = thread::Builder::new()
             .name("library client".to_string())
             .spawn(move || {
-                let library = Library::new(&filename, sender);
+                let library = CatalogDb::new(&filename, sender);
                 Self::main(task_receiver, &library);
             })
             .unwrap();
@@ -112,7 +112,7 @@ impl LibraryClient {
         }
     }
 
-    fn main(tasks: mpsc::Receiver<Request>, library: &Library) {
+    fn main(tasks: mpsc::Receiver<Request>, library: &CatalogDb) {
         loop {
             match tasks.recv() {
                 Ok(Request::Terminate) => break,
@@ -141,7 +141,7 @@ pub struct LibraryClientSender(mpsc::Sender<Request>);
 impl LibraryClientSender {
     pub fn schedule_op<F>(&self, f: F)
     where
-        F: FnOnce(&Library) -> bool + Send + Sync + 'static,
+        F: FnOnce(&CatalogDb) -> bool + Send + Sync + 'static,
     {
         let op = Op::new(f);
 
@@ -156,7 +156,7 @@ impl ClientInterface for LibraryClientSender {
     }
 
     fn set_preference(&self, key: String, value: String) {
-        self.schedule_op(move |lib| commands::cmd_set_preference(lib, &key, &value))
+        self.schedule_op(move |catalog| commands::cmd_set_preference(catalog, &key, &value))
     }
 
     /// get all the keywords
@@ -165,37 +165,39 @@ impl ClientInterface for LibraryClientSender {
     }
 
     fn query_keyword_content(&self, keyword_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_query_keyword_content(lib, keyword_id));
+        self.schedule_op(move |catalog| commands::cmd_query_keyword_content(catalog, keyword_id));
     }
 
     fn count_keyword(&self, id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_count_keyword(lib, id));
+        self.schedule_op(move |catalog| commands::cmd_count_keyword(catalog, id));
     }
 
     /// Get the root folder.
     fn get_root_folders(&self, callback: ClientCallback<Vec<LibFolder>>) {
-        self.schedule_op(move |lib| commands::cmd_list_root_folders(lib, callback));
+        self.schedule_op(move |catalog| commands::cmd_list_root_folders(catalog, callback));
     }
 
     /// get all the folders
     fn get_all_folders(&self, callback: Option<ClientCallback<Vec<LibFolder>>>) {
-        self.schedule_op(move |lib| commands::cmd_list_all_folders(lib, callback));
+        self.schedule_op(move |catalog| commands::cmd_list_all_folders(catalog, callback));
     }
 
     fn query_folder_content(&self, folder_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_query_folder_content(lib, folder_id));
+        self.schedule_op(move |catalog| commands::cmd_query_folder_content(catalog, folder_id));
     }
 
     fn count_folder(&self, folder_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_count_folder(lib, folder_id));
+        self.schedule_op(move |catalog| commands::cmd_count_folder(catalog, folder_id));
     }
 
     fn create_folder(&self, name: String, path: Option<String>) {
-        self.schedule_op(move |lib| commands::cmd_create_folder(lib, &name, path.clone()) != 0);
+        self.schedule_op(move |catalog| {
+            commands::cmd_create_folder(catalog, &name, path.clone()) != 0
+        });
     }
 
     fn delete_folder(&self, id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_delete_folder(lib, id));
+        self.schedule_op(move |catalog| commands::cmd_delete_folder(catalog, id));
     }
 
     /// get all the albums
@@ -205,25 +207,25 @@ impl ClientInterface for LibraryClientSender {
 
     /// Count album
     fn count_album(&self, album_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_count_album(lib, album_id));
+        self.schedule_op(move |catalog| commands::cmd_count_album(catalog, album_id));
     }
 
     /// Create an album (async)
     fn create_album(&self, name: String, parent: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_create_album(lib, &name, parent) != 0);
+        self.schedule_op(move |catalog| commands::cmd_create_album(catalog, &name, parent) != 0);
     }
 
     /// Delete an album
     fn delete_album(&self, id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_delete_album(lib, id));
+        self.schedule_op(move |catalog| commands::cmd_delete_album(catalog, id));
     }
 
     /// Add images to an album.
     fn add_to_album(&self, images: &[LibraryId], album_id: LibraryId) {
         let images = images.to_vec();
-        self.schedule_op(move |lib| {
-            if commands::cmd_add_to_album(lib, images, album_id) {
-                commands::cmd_count_album(lib, album_id)
+        self.schedule_op(move |catalog| {
+            if commands::cmd_add_to_album(catalog, images, album_id) {
+                commands::cmd_count_album(catalog, album_id)
             } else {
                 false
             }
@@ -233,9 +235,9 @@ impl ClientInterface for LibraryClientSender {
     /// Remove images to an album.
     fn remove_from_album(&self, images: &[LibraryId], album_id: LibraryId) {
         let images = images.to_vec();
-        self.schedule_op(move |lib| {
-            if commands::cmd_remove_from_album(lib, images, album_id) {
-                commands::cmd_count_album(lib, album_id)
+        self.schedule_op(move |catalog| {
+            if commands::cmd_remove_from_album(catalog, images, album_id) {
+                commands::cmd_count_album(catalog, album_id)
             } else {
                 false
             }
@@ -244,35 +246,41 @@ impl ClientInterface for LibraryClientSender {
 
     /// Rename album `album_id` to `name`.
     fn rename_album(&self, album_id: LibraryId, name: String) {
-        self.schedule_op(move |lib| commands::cmd_rename_album(lib, album_id, &name));
+        self.schedule_op(move |catalog| commands::cmd_rename_album(catalog, album_id, &name));
     }
 
     /// Query content for album.
     fn query_album_content(&self, album_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_query_album_content(lib, album_id));
+        self.schedule_op(move |catalog| commands::cmd_query_album_content(catalog, album_id));
     }
 
     fn request_metadata(&self, file_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_request_metadata(lib, file_id));
+        self.schedule_op(move |catalog| commands::cmd_request_metadata(catalog, file_id));
     }
 
     /// set the metadata
     fn set_metadata(&self, file_id: LibraryId, meta: Np, value: &PropertyValue) {
         let value2 = value.clone();
-        self.schedule_op(move |lib| commands::cmd_set_metadata(lib, file_id, meta, &value2));
+        self.schedule_op(move |catalog| {
+            commands::cmd_set_metadata(catalog, file_id, meta, &value2)
+        });
     }
 
     fn set_image_properties(&self, image_id: LibraryId, props: &NiepcePropertyBag) {
         let props = props.clone();
-        self.schedule_op(move |lib| commands::cmd_set_image_properties(lib, image_id, &props));
+        self.schedule_op(move |catalog| {
+            commands::cmd_set_image_properties(catalog, image_id, &props)
+        });
     }
 
     fn write_metadata(&self, file_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_write_metadata(lib, file_id));
+        self.schedule_op(move |catalog| commands::cmd_write_metadata(catalog, file_id));
     }
 
     fn move_file_to_folder(&self, file_id: LibraryId, from: LibraryId, to: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_move_file_to_folder(lib, file_id, from, to));
+        self.schedule_op(move |catalog| {
+            commands::cmd_move_file_to_folder(catalog, file_id, from, to)
+        });
     }
 
     /// get all the labels
@@ -281,28 +289,28 @@ impl ClientInterface for LibraryClientSender {
     }
 
     fn create_label(&self, name: String, colour: RgbColour) {
-        self.schedule_op(move |lib| commands::cmd_create_label(lib, &name, &colour) != 0);
+        self.schedule_op(move |catalog| commands::cmd_create_label(catalog, &name, &colour) != 0);
     }
 
     fn delete_label(&self, label_id: LibraryId) {
-        self.schedule_op(move |lib| commands::cmd_delete_label(lib, label_id));
+        self.schedule_op(move |catalog| commands::cmd_delete_label(catalog, label_id));
     }
 
     /// update a label
     fn update_label(&self, label_id: LibraryId, new_name: String, new_colour: RgbColour) {
-        self.schedule_op(move |lib| {
-            commands::cmd_update_label(lib, label_id, &new_name, &new_colour)
+        self.schedule_op(move |catalog| {
+            commands::cmd_update_label(catalog, label_id, &new_name, &new_colour)
         });
     }
 
     /// tell to process the Xmp update Queue
     fn process_xmp_update_queue(&self, write_xmp: bool) {
-        self.schedule_op(move |lib| commands::cmd_process_xmp_update_queue(lib, write_xmp));
+        self.schedule_op(move |catalog| commands::cmd_process_xmp_update_queue(catalog, write_xmp));
     }
 
     /// Import files in place.
     fn import_files(&self, files: Vec<PathBuf>) {
-        self.schedule_op(move |lib| commands::cmd_import_files(lib, &files));
+        self.schedule_op(move |catalog| commands::cmd_import_files(catalog, &files));
     }
 }
 
@@ -311,8 +319,8 @@ impl ClientInterfaceSync for LibraryClientSender {
         // can't use futures::sync::oneshot
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
-        self.schedule_op(move |lib| {
-            tx.send(commands::cmd_create_label(lib, &name, &colour))
+        self.schedule_op(move |catalog| {
+            tx.send(commands::cmd_create_label(catalog, &name, &colour))
                 .unwrap();
             true
         });
@@ -324,8 +332,9 @@ impl ClientInterfaceSync for LibraryClientSender {
         // can't use futures::sync::oneshot
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
-        self.schedule_op(move |lib| {
-            tx.send(commands::cmd_add_keyword(lib, &keyword)).unwrap();
+        self.schedule_op(move |catalog| {
+            tx.send(commands::cmd_add_keyword(catalog, &keyword))
+                .unwrap();
             true
         });
 
@@ -336,8 +345,8 @@ impl ClientInterfaceSync for LibraryClientSender {
         // can't use futures::sync::oneshot
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
-        self.schedule_op(move |lib| {
-            tx.send(commands::cmd_create_folder(lib, &name, path.clone()))
+        self.schedule_op(move |catalog| {
+            tx.send(commands::cmd_create_folder(catalog, &name, path.clone()))
                 .unwrap();
             true
         });
@@ -349,8 +358,8 @@ impl ClientInterfaceSync for LibraryClientSender {
         // can't use futures::sync::oneshot
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
-        self.schedule_op(move |lib| {
-            tx.send(commands::cmd_create_album(lib, &name, parent))
+        self.schedule_op(move |catalog| {
+            tx.send(commands::cmd_create_album(catalog, &name, parent))
                 .unwrap();
             true
         });
@@ -362,8 +371,8 @@ impl ClientInterfaceSync for LibraryClientSender {
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         let bundle = bundle.clone();
-        self.schedule_op(move |lib| {
-            tx.send(commands::cmd_add_bundle(lib, &bundle, folder))
+        self.schedule_op(move |catalog| {
+            tx.send(commands::cmd_add_bundle(catalog, &bundle, folder))
                 .unwrap();
             true
         });
@@ -371,11 +380,11 @@ impl ClientInterfaceSync for LibraryClientSender {
         rx.recv().unwrap()
     }
 
-    fn upgrade_library_from_sync(&self, version: i32) -> bool {
+    fn upgrade_catalog_from_sync(&self, version: i32) -> bool {
         let (tx, rx) = mpsc::sync_channel::<bool>(1);
 
-        self.schedule_op(move |lib| {
-            tx.send(commands::cmd_upgrade_library_from(lib, version))
+        self.schedule_op(move |catalog| {
+            tx.send(commands::cmd_upgrade_catalog_from(catalog, version))
                 .unwrap();
             true
         });
