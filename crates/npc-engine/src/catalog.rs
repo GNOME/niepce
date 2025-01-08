@@ -39,7 +39,7 @@ pub enum SortOrder {
 
 // flatten namespace a bit.
 pub use self::album::Album;
-pub use self::db::{Error as LibError, Library, Result as LibResult};
+pub use self::db::{CatalogDb, Error as LibError, Result as LibResult};
 pub use self::keyword::Keyword;
 pub use self::label::Label;
 pub use self::libfile::{FileType, LibFile};

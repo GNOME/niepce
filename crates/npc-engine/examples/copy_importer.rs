@@ -21,7 +21,7 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
-use npc_engine::catalog::Library;
+use npc_engine::catalog::CatalogDb;
 use npc_engine::importer::{DatePathFormat, Importer};
 use npc_engine::library::commands::cmd_import_files;
 use npc_engine::library::notification::LibNotification;
@@ -74,7 +74,7 @@ fn main() {
     }
     let catalog = catalog.map(|file| {
         let (sender, receiver) = async_channel::unbounded();
-        let catalog = Library::new(&file, sender);
+        let catalog = CatalogDb::new(&file, sender);
 
         // Note that this could cause an infinite loop.
         while let Ok(msg) = receiver.try_recv() {

@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::catalog::Library;
+use crate::catalog::CatalogDb;
 
-type Function = dyn FnOnce(&Library) -> bool + Send + Sync + 'static;
+type Function = dyn FnOnce(&CatalogDb) -> bool + Send + Sync + 'static;
 
 pub struct Op {
     op: Box<Function>,
@@ -28,12 +28,12 @@ pub struct Op {
 impl Op {
     pub fn new<F>(f: F) -> Op
     where
-        F: FnOnce(&Library) -> bool + Send + Sync + 'static,
+        F: FnOnce(&CatalogDb) -> bool + Send + Sync + 'static,
     {
         Op { op: Box::new(f) }
     }
 
-    pub fn execute(self, lib: &Library) -> bool {
+    pub fn execute(self, lib: &CatalogDb) -> bool {
         (self.op)(lib)
     }
 }

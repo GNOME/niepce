@@ -226,7 +226,7 @@ impl Controller for NiepceWindow {
                         move |dialog, response| {
                             if response == "confirm" {
                                 if let Some(client_host) = client.borrow().as_ref() {
-                                    client_host.client().upgrade_library_from_sync(v);
+                                    client_host.client().upgrade_catalog_from_sync(v);
                                 }
                             }
                             dialog.destroy();

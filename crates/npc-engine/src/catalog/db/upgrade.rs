@@ -1,7 +1,7 @@
 /*
- * niepce - npc-engine/src/db/upgrade.rs
+ * niepce - npc-engine/src/catalog/db/upgrade.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,10 @@
 //! The database schema upgrade
 #![doc = include_str!("../../../../../doc/database_upgrade.md")]
 
-use super::{sql, Error, Library, Result};
+use super::{sql, CatalogDb, Error, Result};
 use npc_fwk::dbg_out;
 
-/// Upgrade library `from` version `to` version
+/// Upgrade catalog `from` version `to` version
 /// Will run the step by step upgrade
 ///
 /// A few notes:
@@ -36,11 +36,11 @@ use npc_fwk::dbg_out;
 /// See sqlite documentation <https://www.sqlite.org/lang_altertable.html>,
 /// section 7.
 ///
-pub(crate) fn library_to(library: &Library, from: i32, to: i32) -> Result<()> {
+pub(crate) fn catalog_to(catalog: &CatalogDb, from: i32, to: i32) -> Result<()> {
     if from > to {
         return Err(Error::IncorrectDbVersion);
     }
-    let version = library.check_database_version()?;
+    let version = catalog.check_database_version()?;
     if version != from {
         return Err(Error::IncorrectDbVersion);
     }
@@ -53,24 +53,24 @@ pub(crate) fn library_to(library: &Library, from: i32, to: i32) -> Result<()> {
             11 => {
                 // This was tested from version 9. Some feature branch mess make that
                 // there are two version 10.
-                if let Some(conn) = &library.dbconn {
+                if let Some(conn) = &catalog.dbconn {
                     let schema_version = sql::pragma_schema_version(conn)?;
                     perform_upgrade_11(conn, schema_version).expect("Upgrade failed");
-                    library.set_db_version(11).expect("set_db_version failed");
+                    catalog.set_db_version(11).expect("set_db_version failed");
                 }
             }
             12 => {
-                if let Some(conn) = &library.dbconn {
+                if let Some(conn) = &catalog.dbconn {
                     let schema_version = sql::pragma_schema_version(conn)?;
                     perform_upgrade_12(conn, schema_version).expect("Upgrade failed");
-                    library.set_db_version(12).expect("set_db_version failed");
+                    catalog.set_db_version(12).expect("set_db_version failed");
                 }
             }
             13 => {
-                if let Some(conn) = &library.dbconn {
+                if let Some(conn) = &catalog.dbconn {
                     let schema_version = sql::pragma_schema_version(conn)?;
                     perform_upgrade_13(conn, schema_version).expect("Upgrade failed");
-                    library.set_db_version(13).expect("set_db_version failed");
+                    catalog.set_db_version(13).expect("set_db_version failed");
                 }
             }
             _ => {}
