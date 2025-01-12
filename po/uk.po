@@ -2,13 +2,13 @@
 # Copyright (C) 2020 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
 #
-# yurchor <yurchor@ukr.net>, 2020, 2022, 2023, 2024.
+# yurchor <yurchor@ukr.net>, 2020, 2022, 2023, 2024, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2024-12-18 20:42+0000\n"
-"PO-Revision-Date: 2024-12-20 22:13+0200\n"
+"POT-Creation-Date: 2025-01-12 20:05+0000\n"
+"PO-Revision-Date: 2025-01-12 23:18+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -64,6 +64,11 @@ msgstr "Обробка цифрових негативів"
 msgid "Hubert Figuière"
 msgstr "Hubert Figuière"
 
+#: data/net.figuiere.Niepce.xml.in:5
+#| msgid "Open catalog"
+msgid "Niepce catalog file"
+msgstr "файл каталогу Niepce"
+
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
 msgstr "Мітка _6"
@@ -109,7 +114,6 @@ msgid "..."
 msgstr "…"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
-#| msgid "Import in progress"
 msgid "Import images"
 msgstr "Імпортування зображень"
 
@@ -465,9 +469,6 @@ msgstr "Налаштування"
 
 #~ msgid "Catalog need to be upgraded"
 #~ msgstr "Слід оновити каталог"
-
-#~ msgid "Open catalog"
-#~ msgstr "Відкрити каталог"
 
 #~ msgid "Open"
 #~ msgstr "Відкрити"
