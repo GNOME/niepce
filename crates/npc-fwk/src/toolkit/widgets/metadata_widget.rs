@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/metadata_widget.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,13 +95,13 @@ impl MetadataWidget {
     where
         F: Fn(&Self, WrappedPropertyBag, WrappedPropertyBag) + 'static,
     {
-        self.connect_local("metadata-changed", true, move |values| {
-            let w = values[0].get().unwrap();
-            let new: WrappedPropertyBag = values[1].get_owned().unwrap();
-            let old: WrappedPropertyBag = values[2].get_owned().unwrap();
-            f(&w, new, old);
-            None
-        })
+        self.connect_closure(
+            "metadata-changed",
+            true,
+            glib::closure_local!(move |w, new, old| {
+                f(&w, new, old);
+            }),
+        )
     }
 
     /// Set the data source of the metadata.

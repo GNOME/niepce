@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/widgets/rating_label.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,22 +132,12 @@ impl RatingLabel {
     where
         F: Fn(&Self, i32) + 'static,
     {
-        self.connect_local(
+        self.connect_closure(
             "rating-changed",
             true,
-            glib::clone!(
-                #[weak(rename_to = w)]
-                self,
-                #[upgrade_or]
-                None,
-                move |values| {
-                    // values[0] is self.
-                    if let Ok(rating) = values[1].get::<i32>() {
-                        f(&w, rating);
-                    }
-                    None
-                }
-            ),
+            glib::closure_local!(move |w, rating| {
+                f(&w, rating);
+            }),
         )
     }
 

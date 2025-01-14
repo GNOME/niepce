@@ -50,12 +50,15 @@ impl ImageGridView {
             let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
             let renderer = LibraryCellRenderer::new(ui_provider.clone());
             let weak_signal = weak_signal.clone();
-            renderer.connect_local("rating-changed", false, move |values| {
-                if let Some(signal) = weak_signal.upgrade() {
-                    signal.emit((values[1].get().unwrap(), values[2].get().unwrap()));
-                }
-                None
-            });
+            renderer.connect_closure(
+                "rating-changed",
+                false,
+                glib::closure_local!(move |_: &LibraryCellRenderer, id, rating| {
+                    if let Some(signal) = weak_signal.upgrade() {
+                        signal.emit((id, rating));
+                    }
+                }),
+            );
 
             item.set_child(Some(&renderer));
         });
