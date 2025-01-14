@@ -5,21 +5,21 @@
 # Deng Xiyue <manphiz@gmail.com>, 2008
 # 微尘  <squeeze@189.cn>, 2010.
 # 玉堂白鹤 <squeeze@189.cn> 2011.
-# lumingzh <lumingzh@qq.com>, 2022-2024.
+# lumingzh <lumingzh@qq.com>, 2022-2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2024-04-21 16:11+0000\n"
-"PO-Revision-Date: 2024-05-20 20:08+0800\n"
+"POT-Creation-Date: 2025-01-12 20:05+0000\n"
+"PO-Revision-Date: 2025-01-14 13:27+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Gtranslator 46.1\n"
+"X-Generator: Gtranslator 47.1\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: data/net.figuiere.Niepce.desktop.in.in:3
@@ -67,6 +67,10 @@ msgstr "RAW 处理"
 msgid "Hubert Figuière"
 msgstr "Hubert Figuière"
 
+#: data/net.figuiere.Niepce.xml.in:5
+msgid "Niepce catalog file"
+msgstr "Niepce 分类文件"
+
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
 msgstr "标签 6(_6)"
@@ -94,6 +98,70 @@ msgstr "<b>标签</b>"
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:208
 msgid "Edit Labels"
 msgstr "编辑标签"
+
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
+msgid "Available cameras:"
+msgstr "可用的相机："
+
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
+msgid "Select"
+msgstr "选择"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
+msgid "_Directory:"
+msgstr "目录(_D)"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
+msgid "..."
+msgstr "..."
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+msgid "Import images"
+msgstr "导入图像"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
+msgid "_Import"
+msgstr "导入(_I)"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
+msgid "Cancel"
+msgstr "取消"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
+msgid "_Images to import"
+msgstr "导入图像(_I)"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
+msgid "Destination _Folder:"
+msgstr "目标文件夹(_F)："
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+msgid "_Date Sorting:"
+msgstr "日期排序(_D)："
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
+msgid "_Options"
+msgstr "选项(_O)"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
+msgid "Presets:"
+msgstr "预设："
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
+msgid "You can still change this after importing the pictures."
+msgstr "该图片导入后你依旧可以更改。"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
+msgid "Date:"
+msgstr "日期:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
+msgid "Attributes:"
+msgstr "属性："
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
+msgid "Metadata"
+msgstr "元数据"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
 msgid "Import Library"
@@ -212,45 +280,6 @@ msgstr "首选项"
 #~ msgid "Import"
 #~ msgstr "导入"
 
-#~ msgid "_Images to import"
-#~ msgstr "导入图像(_I)"
-
-#~ msgid "Destination _Folder:"
-#~ msgstr "目标文件夹(_F)："
-
-#~ msgid "_Options"
-#~ msgstr "选项(_O)"
-
-#~ msgid "Presets:"
-#~ msgstr "预设："
-
-#~ msgid "You can still change this after importing the pictures."
-#~ msgstr "该图片导入后你依旧可以更改。"
-
-#~ msgid "Date:"
-#~ msgstr "日期:"
-
-#~ msgid "Attributes:"
-#~ msgstr "属性："
-
-#~ msgid "Metadata"
-#~ msgstr "元数据"
-
-#~ msgid "_Import"
-#~ msgstr "导入(_I)"
-
-#~ msgid "Available cameras:"
-#~ msgstr "可用的相机："
-
-#~ msgid "Select"
-#~ msgstr "选择"
-
-#~ msgid "_Directory:"
-#~ msgstr "目录(_D)"
-
-#~ msgid "..."
-#~ msgstr "..."
-
 #~ msgid "_General"
 #~ msgstr "常规(_G)"
 
@@ -271,9 +300,6 @@ msgstr "首选项"
 
 #~ msgid "OK"
 #~ msgstr "确定"
-
-#~ msgid "Cancel"
-#~ msgstr "取消"
 
 #~ msgid "Folder _name:"
 #~ msgstr "文件夹名称(_N):"
@@ -505,9 +531,6 @@ msgstr "首选项"
 
 #~ msgid "Label 5"
 #~ msgstr "标签 5"
-
-#~ msgid "Open catalog"
-#~ msgstr "打开目录"
 
 #~ msgid "Open"
 #~ msgstr "打开"
