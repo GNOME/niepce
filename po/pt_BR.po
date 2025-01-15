@@ -1,26 +1,26 @@
 # Brazilian Portuguese translation for niepce.
-# Copyright (C) 2018 niepce's COPYRIGHT HOLDER
+# Copyright (C) 2025 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
 # Djavan Fagundes <djavan@comum.org>, 2010.
 # Júnior Pires <juniorpiresupe@gmail.com>, 2013.
-# Rafael Fontenelle <rafaelff@gnome.org>, 2014-2018.
 # Enrico Nicoletto <hiko@duck.com>, 2013, 2023.
 # Juliano de Souza Camargo <julianosc@pm.me>, 2024.
+# Rafael Fontenelle <rafaelff@gnome.org>, 2014-2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2024-09-23 12:26+0000\n"
-"PO-Revision-Date: 2024-09-23 09:24-0300\n"
-"Last-Translator: Juliano de Souza Camargo <julianosc@pm.me>\n"
+"POT-Creation-Date: 2025-01-12 20:05+0000\n"
+"PO-Revision-Date: 2025-01-15 00:31-0300\n"
+"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <https://br.gnome.org/traducao>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Gtranslator 46.1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"X-Generator: Gtranslator 47.1\n"
 
 # Nome do aplicativo
 #: data/net.figuiere.Niepce.desktop.in.in:3
@@ -69,6 +69,10 @@ msgstr "Processamento de RAW"
 msgid "Hubert Figuière"
 msgstr "Hubert Figuière"
 
+#: data/net.figuiere.Niepce.xml.in:5
+msgid "Niepce catalog file"
+msgstr "Arquivo de catálogo Niepce"
+
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
 msgstr "Rótulo _6"
@@ -96,6 +100,70 @@ msgstr "<b>Rótulos</b>"
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:208
 msgid "Edit Labels"
 msgstr "Editar rótulos"
+
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
+msgid "Available cameras:"
+msgstr "Câmeras disponíveis:"
+
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
+msgid "Select"
+msgstr "Selecionar"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
+msgid "_Directory:"
+msgstr "_Diretório:"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
+msgid "..."
+msgstr "…"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+msgid "Import images"
+msgstr "Importar imagens"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
+msgid "_Import"
+msgstr "_Importar"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
+msgid "_Images to import"
+msgstr "_Imagens para importar"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
+msgid "Destination _Folder:"
+msgstr "Pas_ta de destino:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+msgid "_Date Sorting:"
+msgstr "Ordem de _data:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
+msgid "_Options"
+msgstr "_Opções"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
+msgid "Presets:"
+msgstr "Predefinições:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
+msgid "You can still change this after importing the pictures."
+msgstr "Você ainda poderá alterar isto após importar as imagens."
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
+msgid "Date:"
+msgstr "Data:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
+msgid "Attributes:"
+msgstr "Atributos:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
+msgid "Metadata"
+msgstr "Metadados"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
 msgid "Import Library"
@@ -232,38 +300,11 @@ msgstr "Preferências"
 #~ msgid "Import"
 #~ msgstr "Importar"
 
-#~ msgid "_Images to import"
-#~ msgstr "_Imagens para importar"
-
-#~ msgid "Destination _Folder"
-#~ msgstr "Pas_ta de destino"
-
 #~ msgid "Import _UFRaw"
 #~ msgstr "Importar _UFRaw"
 
 #~ msgid "Import Raw_Studio"
 #~ msgstr "Importar Raw_Studio"
-
-#~ msgid "_Options"
-#~ msgstr "_Opções"
-
-#~ msgid "Presets:"
-#~ msgstr "Predefinições:"
-
-#~ msgid "You can still change this after importing the pictures."
-#~ msgstr "Você ainda poderá alterar isto após importar as imagens."
-
-#~ msgid "Date:"
-#~ msgstr "Data:"
-
-#~ msgid "Attributes:"
-#~ msgstr "Atributos:"
-
-#~ msgid "Metadata"
-#~ msgstr "Metadados"
-
-#~ msgid "_Import"
-#~ msgstr "_Importar"
 
 #~ msgid "No camera found"
 #~ msgstr "Nenhuma câmera localizada"
@@ -271,26 +312,11 @@ msgstr "Preferências"
 #~ msgid "Camera import %1%"
 #~ msgstr "Importação da câmera %1%"
 
-#~ msgid "Available cameras:"
-#~ msgstr "Câmeras disponíveis:"
-
-#~ msgid "Select"
-#~ msgstr "Selecionar"
-
 #~ msgid "Directory"
 #~ msgstr "Diretório"
 
 #~ msgid "Import picture folder"
 #~ msgstr "Importar pasta de fotos"
-
-#~ msgid "Cancel"
-#~ msgstr "Cancelar"
-
-#~ msgid "_Directory:"
-#~ msgstr "_Diretório:"
-
-#~ msgid "..."
-#~ msgstr "…"
 
 #~ msgid "_General"
 #~ msgstr "_Geral"
@@ -512,9 +538,6 @@ msgstr "Preferências"
 
 #~ msgid "Label 5"
 #~ msgstr "Rótulo 5"
-
-#~ msgid "Open catalog"
-#~ msgstr "Abrir catálogo"
 
 #~ msgid "Open"
 #~ msgstr "Abrir"
