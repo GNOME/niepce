@@ -1,16 +1,16 @@
 # Swedish translation for niepce.
-# Copyright © 2009-2024 Free Software Foundation, Inc.
+# Copyright © 2009-2025 Free Software Foundation, Inc.
 # This file is distributed under the same license as the niepce package.
 # Daniel Nylander <po@danielnylander.se>, 2009.
 # Josef Andersson <josef.andersson@fripost.org>, 2016.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2018, 2019, 2022, 2023, 2024.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2018, 2019, 2022, 2023, 2024, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2024-04-04 00:50+0000\n"
-"PO-Revision-Date: 2024-04-04 20:38+0200\n"
+"POT-Creation-Date: 2025-01-12 20:05+0000\n"
+"PO-Revision-Date: 2025-01-13 01:34+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.5\n"
 
 #: data/net.figuiere.Niepce.desktop.in.in:3
 msgid "Niepce Digital"
@@ -65,6 +65,10 @@ msgstr "RAW-bearbetning"
 msgid "Hubert Figuière"
 msgstr "Hubert Figuière"
 
+#: data/net.figuiere.Niepce.xml.in:5
+msgid "Niepce catalog file"
+msgstr "Niepce-katalogfil"
+
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
 msgstr "Etikett _6"
@@ -93,55 +97,67 @@ msgstr "<b>Etiketter</b>"
 msgid "Edit Labels"
 msgstr "Redigera etiketter"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui:20
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
 msgid "Available cameras:"
 msgstr "Tillgängliga kameror:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui:30
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
 msgid "Select"
 msgstr "Välj"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui:15
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
 msgid "_Directory:"
 msgstr "_Mapp:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui:27
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
 msgid "..."
 msgstr "…"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:52
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+msgid "Import images"
+msgstr "Importera bilder"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
 msgid "_Import"
 msgstr "_Importera"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:98
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
+msgid "Cancel"
+msgstr "Avbryt"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
 msgid "_Images to import"
 msgstr "_Bilder att importera"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:124
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
 msgid "Destination _Folder:"
 msgstr "Mål_mapp:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:172
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+msgid "_Date Sorting:"
+msgstr "_Datumsortering:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
 msgid "_Options"
 msgstr "A_lternativ"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:207
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
 msgid "Presets:"
 msgstr "Förval:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:238
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
 msgid "You can still change this after importing the pictures."
 msgstr "Du kan fortfarande ändra detta efter bilderna importerats."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:255
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
 msgid "Date:"
 msgstr "Datum:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:283
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
 msgid "Attributes:"
 msgstr "Attribut:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:297
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -315,9 +331,6 @@ msgstr "Inställningar"
 
 #~ msgid "Import picture folder"
 #~ msgstr "Importera bildmapp"
-
-#~ msgid "Cancel"
-#~ msgstr "Avbryt"
 
 #~ msgid "Set Flag"
 #~ msgstr "Märk"
@@ -526,9 +539,6 @@ msgstr "Inställningar"
 
 #~ msgid "Label 5"
 #~ msgstr "Etikett 5"
-
-#~ msgid "Open catalog"
-#~ msgstr "Öppna katalog"
 
 #~ msgid "Open"
 #~ msgstr "Öppna"
