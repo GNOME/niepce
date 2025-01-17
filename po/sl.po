@@ -4,13 +4,14 @@
 #
 # Andrej Žnidaršič <andrej.znidarsic@gmail.com>, 2009-2010.
 # Matej Urbančič <mateju@svn.gnome.org>, 2012-2013.
+# Martin Srebotnjak <miles@filmsi.net>, 2024,2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2024-12-18 20:42+0000\n"
-"PO-Revision-Date: 2024-12-19 14:03+0100\n"
+"POT-Creation-Date: 2025-01-12 20:05+0000\n"
+"PO-Revision-Date: 2025-01-17 11:26+0100\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups."
 "com>\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: data/net.figuiere.Niepce.desktop.in.in:3
 msgid "Niepce Digital"
@@ -69,6 +70,10 @@ msgstr "Obdelovanje zapisa RAW"
 #: data/net.figuiere.Niepce.metainfo.xml.in.in:24
 msgid "Hubert Figuière"
 msgstr "Hubert Figuière"
+
+#: data/net.figuiere.Niepce.xml.in:5
+msgid "Niepce catalog file"
+msgstr "Datoteka kataloga Niepce"
 
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
