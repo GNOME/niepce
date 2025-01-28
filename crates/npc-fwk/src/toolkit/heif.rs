@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/heif.rs
  *
- * Copyright (C) 2024 Hubert Figuière
+ * Copyright (C) 2024-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ pub fn has_hevc_decoder() -> bool {
 pub fn is_heif<P: AsRef<Path>>(file: P) -> bool {
     file.as_ref()
         .extension()
-        .map(|ext| ext.to_ascii_lowercase() == "heic")
+        .map(|ext| ext.eq_ignore_ascii_case("heic"))
         .unwrap_or(false)
 }
 
