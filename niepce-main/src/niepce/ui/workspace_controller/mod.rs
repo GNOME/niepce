@@ -203,6 +203,7 @@ impl Widgets {
         let librarytree = gtk4::ListView::new(Some(selection_model), Some(factory));
         librarytree.set_widget_name("workspace");
         librarytree.add_css_class("npc");
+        librarytree.add_css_class("navigation-sidebar");
         librarytree.set_single_click_activate(false);
         // XXX this should move to the TreeViewModel constructor when we use it here.
         // And then make the method non public.
