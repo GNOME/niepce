@@ -2,14 +2,14 @@
 # Copyright (C) 2009 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
 # Mario Blättermann <mario.blaettermann@gmail.com>, 2009-2011, 2016-2018.
-# Jürgen Benvenuti <gastornis@posteo.org>, 2022-2024.
+# Jürgen Benvenuti <gastornis@posteo.org>, 2022-2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2024-04-04 00:50+0000\n"
-"PO-Revision-Date: 2024-04-08 20:17+0200\n"
+"POT-Creation-Date: 2024-12-18 20:42+0000\n"
+"PO-Revision-Date: 2025-01-06 21:44+0100\n"
 "Last-Translator: Jürgen Benvenuti <gastornis@posteo.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.4.4\n"
 
 #: data/net.figuiere.Niepce.desktop.in.in:3
 msgid "Niepce Digital"
@@ -92,55 +92,67 @@ msgstr "<b>Bezeichnungen</b>"
 msgid "Edit Labels"
 msgstr "Bezeichnungen bearbeiten"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui:20
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
 msgid "Available cameras:"
 msgstr "Verfügbare Kameras:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui:30
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
 msgid "Select"
 msgstr "Auswahl"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui:15
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
 msgid "_Directory:"
 msgstr "Or_dner:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui:27
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
 msgid "..."
 msgstr "..."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:52
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+msgid "Import images"
+msgstr "Bilder importieren"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
 msgid "_Import"
 msgstr "_Importieren"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:98
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
 msgid "_Images to import"
 msgstr "Zu importierende B_ilder"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:124
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
 msgid "Destination _Folder:"
 msgstr "Zielor_dner:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:172
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+msgid "_Date Sorting:"
+msgstr "_Datumssortierung:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
 msgid "_Options"
 msgstr "_Optionen"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:207
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
 msgid "Presets:"
 msgstr "Voreinstellungen:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:238
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
 msgid "You can still change this after importing the pictures."
 msgstr "Sie können dies nach dem Importieren der Bilder noch ändern."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:255
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
 msgid "Date:"
 msgstr "Datum:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:283
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
 msgid "Attributes:"
 msgstr "Attribute:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.ui:297
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
 msgid "Metadata"
 msgstr "Metadaten"
 
@@ -332,9 +344,6 @@ msgstr "Einstellungen"
 
 #~ msgid "Import picture folder"
 #~ msgstr "Bilderordner importieren"
-
-#~ msgid "Cancel"
-#~ msgstr "Abbrechen"
 
 #~ msgid "niepce"
 #~ msgstr "niepce"
