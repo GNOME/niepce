@@ -116,15 +116,11 @@ mod imp {
             self.expander.set_hexpand(true);
             self.expander.set_indent_for_icon(true);
             box_.append(&self.expander);
-            let inner = gtk4::Box::new(gtk4::Orientation::Horizontal, 2);
+            let inner = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
             self.expander.set_child(Some(&inner));
-            inner.set_margin_top(3);
-            inner.set_margin_bottom(3);
             inner.set_hexpand(true);
             inner.set_vexpand(true);
             inner.append(&self.icon);
-            self.icon.set_margin_start(4);
-            self.icon.set_margin_end(4);
             inner.append(&self.label);
             self.label.set_hexpand(true);
             self.label.set_xalign(0.0);
