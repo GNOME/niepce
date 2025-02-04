@@ -51,6 +51,7 @@ pub struct EditLabels {
     client: Arc<LibraryClient>,
     app: Weak<NiepceApplication>,
     labels: Vec<catalog::Label>,
+    #[allow(deprecated)]
     colours: Vec<gtk4::ColorButton>,
     entries: Vec<gtk4::Entry>,
     status: RefCell<[bool; NUM_LABELS]>,
@@ -119,6 +120,7 @@ impl EditLabels {
     }
 
     fn build_widget(&mut self, builder: gtk4::Builder) {
+        #[allow(deprecated)]
         for idx in 0..NUM_LABELS {
             self.colours.push(
                 builder
@@ -159,6 +161,7 @@ impl EditLabels {
     fn update_labels(&self) {
         let mut undo = UndoTransaction::new(&i18n("Change Labels"));
         let statuses = self.status.borrow();
+        #[allow(deprecated)]
         for status in statuses.iter().enumerate() {
             if !status.1 {
                 continue;

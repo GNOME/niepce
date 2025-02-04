@@ -17,7 +17,7 @@ cxx = { version = "1.0", features = [ "c++17" ] }
 exempi2 = { version = "0.2.0" }
 gettext-rs = { version = "=0.7.0", features = [ "gettext-system" ] }
 gphoto2 = "3.3.0"
-gtk4 = { version = "0.9", features = [ "v4_6" ] }
+gtk4 = { version = "0.9", features = [ "v4_10" ] }
 image = { version = "0.24.5", features = [ "png" ], default-features = false }
 lazy_static = "^1.2.0"
 libc = "0.2.39"

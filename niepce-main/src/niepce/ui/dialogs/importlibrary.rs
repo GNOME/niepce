@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importlibrary.rs
  *
- * Copyright (C) 2021-2024 Hubert Figuière
+ * Copyright (C) 2021-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ use std::sync::Arc;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
-use gtk4::{Assistant, Builder};
+use gtk4::Builder;
 use i18n_format::i18n_fmt;
 use npc_fwk::{gio, glib, gtk4};
 use num_derive::{FromPrimitive, ToPrimitive};
@@ -115,6 +115,7 @@ pub enum Command {
 
 pub struct ImportLibraryDialog {
     imp_: ControllerImplCell<Command, ()>,
+    #[allow(deprecated)]
     assistant: gtk4::Assistant,
     client: Arc<LibraryClient>,
     state: ImportStateRef,
@@ -132,6 +133,7 @@ impl Controller for ImportLibraryDialog {
             Command::SetFile(p) => self.library_file_set(p),
             Command::SelectFile => self.select_file(),
             Command::FoundRoot(p) => {
+                #[allow(deprecated)]
                 if self.assistant.current_page() == Page::Roots.to_i32().unwrap() {
                     // add the root to the list.
                     self.state.borrow_mut().remap_root(p.clone(), p.clone());
@@ -159,6 +161,7 @@ impl Controller for ImportLibraryDialog {
                 }
             }
             Command::RootsDone => {
+                #[allow(deprecated)]
                 if self.assistant.current_page() == Page::Roots.to_i32().unwrap() {
                     // we are done with all.
                     self.set_page_complete(Page::Roots);
@@ -182,8 +185,9 @@ impl Controller for ImportLibraryDialog {
 }
 
 impl ImportLibraryDialog {
+    #[allow(deprecated)]
     pub fn new(client: Arc<LibraryClient>) -> Rc<Self> {
-        let assistant = Assistant::new();
+        let assistant = gtk4::Assistant::new();
 
         let mut dlg = Rc::new(Self {
             imp_: ControllerImplCell::default(),
@@ -265,6 +269,7 @@ impl ImportLibraryDialog {
         dlg
     }
 
+    #[allow(deprecated)]
     pub fn run(&self, parent: Option<&gtk4::Window>) {
         self.assistant.set_transient_for(parent);
         self.assistant.set_modal(true);
@@ -331,9 +336,11 @@ impl ImportLibraryDialog {
                 .expect("import library");
         }
         self.set_page_complete(Page::Progress);
+        #[allow(deprecated)]
         self.assistant.commit();
     }
 
+    #[allow(deprecated)]
     fn set_page_complete(&self, page: Page) {
         let idx = page.to_i32().unwrap();
         if let Some(w) = self.assistant.nth_page(idx) {
