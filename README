@@ -24,11 +24,8 @@ To build you need the following:
 --------------------------------
 
 - A C++17 compiler
-- rustc >= 1.64.0
+- rustc >= 1.76
 - cairo 1.1
-- glibmm 2.68
-- giomm
-- cairomm
 - shumate 1.0.0
 - libadwaita >= 1.4.0
 - exempi >= 2.6.0
@@ -40,9 +37,13 @@ To build you need the following:
   - HEVC codec should be installed at runtime for HEIC.
 - meson >= 0.59
 - blueprint
+- gtk4 4.10
 
 For the RawTherapee engine:
 
+- glibmm 2.68
+- giomm
+- cairomm
 - exiv2 ~= 0.27
 - expat
 - fftw3f

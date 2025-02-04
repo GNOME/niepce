@@ -5,6 +5,7 @@ authors = ["Hubert Figuière <hub@figuiere.net>"]
 build = "build.rs"
 edition = "2021"
 license = "GPL-3.0"
+rust-version = "1.76"
 
 [dependencies]
 async-channel = "1.6.1"
