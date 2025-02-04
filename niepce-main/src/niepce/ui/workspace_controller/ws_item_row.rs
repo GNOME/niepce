@@ -21,8 +21,6 @@ use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 use npc_fwk::{glib, gtk4};
 
-use npc_fwk::toolkit::tree_view_model::css::NOCHILDREN_CSS;
-
 use super::{Event, Item, TreeItemType};
 
 glib::wrapper! {
@@ -42,30 +40,28 @@ impl WsItemRow {
 
     pub fn bind(&self, item: &Item, tree_list_row: &gtk4::TreeListRow) {
         self.imp().update(item);
-        self.imp().expander.set_list_row(Some(tree_list_row));
+        let expander = &self.imp().expander;
+        expander.set_list_row(Some(tree_list_row));
         match item.tree_item_type() {
             // The top levels always have the expander
             TreeItemType::Folders | TreeItemType::Keywords | TreeItemType::Albums => {
-                self.remove_css_class(NOCHILDREN_CSS)
+                expander.set_hide_expander(false);
             }
             _ => {
-                if item
-                    .children()
-                    .map(|children| children.n_items())
-                    .unwrap_or(0)
-                    == 0
-                {
-                    self.add_css_class(NOCHILDREN_CSS);
-                } else {
-                    self.remove_css_class(NOCHILDREN_CSS);
-                }
+                expander.set_hide_expander(
+                    item.children()
+                        .map(|children| children.n_items())
+                        .unwrap_or(0)
+                        == 0,
+                );
             }
         }
     }
 
     pub fn unbind(&self) {
-        self.remove_css_class(NOCHILDREN_CSS);
-        self.imp().expander.set_list_row(None);
+        let expander = &self.imp().expander;
+        expander.set_hide_expander(false);
+        expander.set_list_row(None);
     }
 }
 
