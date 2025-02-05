@@ -48,6 +48,14 @@ impl WsItemRow {
                 expander.set_hide_expander(false);
             }
             _ => {
+                if let Some(children) = item.children() {
+                    children.connect_items_changed(glib::clone!(
+                        #[weak]
+                        expander,
+                        move |model, _, _, _| expander.set_hide_expander(model.n_items() == 0)
+                    ));
+                }
+
                 expander.set_hide_expander(
                     item.children()
                         .map(|children| children.n_items())
