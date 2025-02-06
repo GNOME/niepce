@@ -59,18 +59,12 @@ impl RatingLabelPriv {
         self.editable.set(editable);
     }
 
-    fn set_rating(&self, rating: i32) {
-        self.rating.set(rating);
-        let w = self.obj();
-        w.queue_draw();
-    }
-
     fn press_event(&self, _gesture: &gtk4::GestureClick, _: i32, x: f64, _: f64) {
         let new_rating = RatingLabel::rating_value_from_hit_x(x);
         if new_rating != self.rating.get() {
-            self.set_rating(new_rating);
-            self.obj()
-                .emit_by_name::<()>("rating-changed", &[&new_rating]);
+            let obj = self.obj();
+            obj.set_rating(new_rating);
+            obj.emit_by_name::<()>("rating-changed", &[&new_rating]);
         }
     }
 }
@@ -104,6 +98,7 @@ impl ObjectImpl for RatingLabelPriv {
             }
         ));
         obj.add_controller(click);
+        obj.connect_notify(Some("rating"), |w, _| w.queue_draw());
     }
 
     fn signals() -> &'static [Signal] {
@@ -115,14 +110,6 @@ impl ObjectImpl for RatingLabelPriv {
                 .build()]
         });
         SIGNALS.as_ref()
-    }
-
-    // we want to queue_draw() when the property is changed
-    // XXX do we have a better way?
-    fn set_property(&self, id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
-        Self::derived_set_property(self, id, value, pspec);
-
-        self.obj().queue_draw();
     }
 }
 
@@ -190,9 +177,8 @@ impl RatingLabel {
     pub fn new(rating: i32, editable: bool) -> Self {
         let obj: Self = glib::Object::new();
 
-        let priv_ = &obj.imp();
-        priv_.set_editable(editable);
-        priv_.set_rating(rating);
+        obj.imp().set_editable(editable);
+        obj.set_rating(rating);
         obj
     }
 }
