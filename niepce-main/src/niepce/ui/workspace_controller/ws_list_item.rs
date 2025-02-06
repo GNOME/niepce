@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use glib::prelude::*;
 use glib::subclass::prelude::*;
 use npc_fwk::{gio, glib};
 
@@ -59,13 +60,14 @@ impl Item {
     ) -> Item {
         let item = Self::new();
 
-        item.imp().data.replace(imp::ItemData {
+        let imp = item.imp();
+        imp.data.replace(imp::ItemData {
             icon: icon.clone(),
-            label: label.to_string(),
             id,
             type_,
-            count: 0,
         });
+        imp.label.replace(label.to_string());
+        imp.count.set(0);
 
         item
     }
@@ -73,15 +75,14 @@ impl Item {
     /// Replace the values. This is mostly for placeholders
     pub(super) fn replace_values(&self, icon: &gio::Icon, label: &str, type_: TreeItemType) {
         let id = self.imp().data.borrow().id;
-        let count = self.imp().data.borrow().count;
         let new_data = imp::ItemData {
             icon: icon.clone(),
-            label: label.to_string(),
             id,
             type_,
-            count,
         };
-        self.imp().data.replace(new_data);
+        let imp = self.imp();
+        imp.label.replace(label.to_string());
+        imp.data.replace(new_data);
     }
 
     pub(super) fn id(&self) -> catalog::LibraryId {
@@ -93,27 +94,20 @@ impl Item {
         self.imp().data.borrow().type_
     }
 
-    pub fn count(&self) -> i32 {
-        self.imp().data.borrow().count
-    }
-
     pub(super) fn set_count(&self, count: CountUpdate) {
         match count {
-            CountUpdate::Set(count) => self.imp().data.borrow_mut().count = count,
-            CountUpdate::Change(count) => self.imp().data.borrow_mut().count += count,
+            CountUpdate::Set(count) => self.imp().count.set(count),
+            CountUpdate::Change(count) => {
+                let imp = self.imp();
+                let count = imp.count.get() + count;
+                imp.count.set(count);
+            }
         }
+        self.notify("count");
     }
 
     pub fn icon(&self) -> gio::Icon {
         self.imp().data.borrow().icon.clone()
-    }
-
-    pub fn label(&self) -> String {
-        self.imp().data.borrow().label.to_string()
-    }
-
-    pub fn set_label(&self, label: &str) {
-        self.imp().data.borrow_mut().label = label.to_string()
     }
 
     pub fn children(&self) -> Option<&WorkspaceList> {
@@ -129,7 +123,7 @@ impl Item {
     }
 
     /// Add item to the children.
-    /// Return its position. If it already exist (same id) repace it.
+    /// Return its position. If it already exist (same id) replace it.
     pub fn add_item(&self, item: Item) -> Option<u32> {
         self.create_children().and_then(|children| {
             children.append(item).ok().or_else(|| {
@@ -141,7 +135,7 @@ impl Item {
 }
 
 mod imp {
-    use std::cell::RefCell;
+    use std::cell::{Cell, RefCell};
 
     use gio::subclass::prelude::*;
     use glib::prelude::*;
@@ -152,18 +146,21 @@ mod imp {
     use super::super::TreeItemType;
     use npc_engine::catalog;
 
-    #[derive(Default)]
+    #[derive(Default, glib::Properties)]
+    #[properties(wrapper_type = super::Item)]
     pub struct Item {
         pub(super) data: RefCell<ItemData>,
+        #[property(get, set, default_value = "")]
+        pub(super) label: RefCell<String>,
+        #[property(get, default_value = 0)]
+        pub(super) count: Cell<i32>,
         pub(super) children: OnceCell<WorkspaceList>,
     }
 
     pub(super) struct ItemData {
         pub(super) icon: gio::Icon,
         pub(super) id: catalog::LibraryId,
-        pub(super) label: String,
         pub(super) type_: TreeItemType,
-        pub(super) count: i32,
     }
 
     impl Default for ItemData {
@@ -171,9 +168,7 @@ mod imp {
             Self {
                 icon: gio::ThemedIcon::new("dialog-error-symbolic").upcast(),
                 id: 0,
-                label: String::default(),
                 type_: TreeItemType::default(),
-                count: 0,
             }
         }
     }
@@ -185,5 +180,6 @@ mod imp {
         type ParentType = glib::Object;
     }
 
+    #[glib::derived_properties]
     impl ObjectImpl for Item {}
 }

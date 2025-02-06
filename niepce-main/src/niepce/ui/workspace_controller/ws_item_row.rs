@@ -1,5 +1,5 @@
 /*
- * niepce - niepce/ui/workspace_controller/ws_item_widget.rs
+ * niepce - niepce/ui/workspace_controller/ws_item_row.rs
  *
  * Copyright (C) 2022-2025 Hubert Figuière
  *
@@ -24,7 +24,7 @@ use npc_fwk::{glib, gtk4};
 use super::{Event, Item, TreeItemType};
 
 glib::wrapper! {
-    /// This is the row item for the workspace.
+    /// This is the row item (widget) for the workspace.
     /// It containes and expander, icon, label and count.
     pub struct WsItemRow(
         ObjectSubclass<imp::WsItemRow>)
@@ -40,6 +40,20 @@ impl WsItemRow {
 
     pub fn bind(&self, item: &Item, tree_list_row: &gtk4::TreeListRow) {
         self.imp().update(item);
+        let binding = item
+            .bind_property("count", &self.imp().count, "label")
+            .transform_to(|_, count: i32| {
+                let value = format!("{count}");
+                Some(value.to_value())
+            })
+            .sync_create()
+            .build();
+        self.imp().bindings.borrow_mut().push(binding);
+        let binding = item
+            .bind_property("label", &self.imp().label, "label")
+            .sync_create()
+            .build();
+        self.imp().bindings.borrow_mut().push(binding);
         let expander = &self.imp().expander;
         expander.set_list_row(Some(tree_list_row));
         match item.tree_item_type() {
@@ -70,6 +84,12 @@ impl WsItemRow {
         let expander = &self.imp().expander;
         expander.set_hide_expander(false);
         expander.set_list_row(None);
+        self.imp()
+            .bindings
+            .borrow()
+            .iter()
+            .for_each(glib::Binding::unbind);
+        self.imp().bindings.borrow_mut().clear();
     }
 }
 
@@ -89,17 +109,16 @@ mod imp {
         pub(super) tx: RefCell<Option<npc_fwk::toolkit::Sender<Event>>>,
         pub(super) expander: gtk4::TreeExpander,
         icon: gtk4::Image,
-        label: gtk4::Label,
-        count: gtk4::Label,
+        pub(super) label: gtk4::Label,
+        pub(super) count: gtk4::Label,
         type_: Cell<TreeItemType>,
         id: Cell<catalog::LibraryId>,
+        pub(super) bindings: RefCell<Vec<glib::Binding>>,
     }
 
     impl WsItemRow {
         pub(super) fn update(&self, item: &Item) {
             self.icon.set_from_gicon(&item.icon());
-            self.label.set_label(&item.label());
-            self.count.set_label(&format!("{}", item.count()));
             self.type_.set(item.tree_item_type());
             self.id.set(item.id());
         }
