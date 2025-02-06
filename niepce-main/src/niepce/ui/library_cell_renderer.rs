@@ -380,6 +380,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
     fn constructed(&self) {
         self.parent_constructed();
 
+        let obj = self.obj();
         let gesture = gtk4::GestureClick::new();
         gesture.connect_pressed(move |gesture, n_press, x, y| {
             dbg_out!("list item clicked {}={},{}", n_press, x, y);
@@ -389,7 +390,7 @@ impl ObjectImpl for LibraryCellRendererPriv {
                 .expect("couldn't get renderer");
             renderer.hit(x, y);
         });
-        self.obj().add_controller(gesture);
+        obj.add_controller(gesture);
 
         // Drag and drop
         let drag_source = gtk4::DragSource::new();
@@ -404,7 +405,10 @@ impl ObjectImpl for LibraryCellRendererPriv {
                 libfile.map(|libfile| gdk4::ContentProvider::for_value(&libfile.into()))
             }
         ));
-        self.obj().add_controller(drag_source);
+        obj.add_controller(drag_source);
+        obj.connect_notify(Some("libfile"), |w, _| w.queue_draw());
+        obj.connect_notify(Some("pixbuf"), |w, _| w.queue_draw());
+        obj.connect_notify(Some("status"), |w, _| w.queue_draw());
     }
 
     fn signals() -> &'static [Signal] {
@@ -417,14 +421,6 @@ impl ObjectImpl for LibraryCellRendererPriv {
         });
 
         SIGNALS.as_ref()
-    }
-
-    // we want to queue_draw() when the property is changed
-    // XXX do we have a better way?
-    fn set_property(&self, id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
-        Self::derived_set_property(self, id, value, pspec);
-
-        self.obj().queue_draw();
     }
 }
 
