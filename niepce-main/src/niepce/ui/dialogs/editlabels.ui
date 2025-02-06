@@ -133,7 +133,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton" id="colorbutton1">
+                  <object class="GtkColorDialogButton" id="colorbutton1">
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
                     <property name="rgba">rgb(204,0,0)</property>
@@ -144,7 +144,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton" id="colorbutton2">
+                  <object class="GtkColorDialogButton" id="colorbutton2">
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
                     <property name="rgba">rgb(245,121,0)</property>
@@ -155,7 +155,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton" id="colorbutton3">
+                  <object class="GtkColorDialogButton" id="colorbutton3">
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
                     <property name="rgba">rgb(237,212,0)</property>
@@ -166,7 +166,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton" id="colorbutton4">
+                  <object class="GtkColorDialogButton" id="colorbutton4">
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
                     <property name="rgba">rgb(115,210,22)</property>
@@ -177,7 +177,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton" id="colorbutton5">
+                  <object class="GtkColorDialogButton" id="colorbutton5">
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
                     <property name="rgba">rgb(52,101,164)</property>

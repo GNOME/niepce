@@ -51,8 +51,7 @@ pub struct EditLabels {
     client: Arc<LibraryClient>,
     app: Weak<NiepceApplication>,
     labels: Vec<catalog::Label>,
-    #[allow(deprecated)]
-    colours: Vec<gtk4::ColorButton>,
+    colours: Vec<gtk4::ColorDialogButton>,
     entries: Vec<gtk4::Entry>,
     status: RefCell<[bool; NUM_LABELS]>,
     dialog: adw::Window,
@@ -120,11 +119,11 @@ impl EditLabels {
     }
 
     fn build_widget(&mut self, builder: gtk4::Builder) {
-        #[allow(deprecated)]
+        let colour_dialog = gtk4::ColorDialog::new();
         for idx in 0..NUM_LABELS {
             self.colours.push(
                 builder
-                    .object::<gtk4::ColorButton>(format!("colorbutton{}", idx + 1))
+                    .object::<gtk4::ColorDialogButton>(format!("colorbutton{}", idx + 1))
                     .unwrap(),
             );
             self.entries.push(
@@ -134,11 +133,12 @@ impl EditLabels {
             );
 
             let colour = self.labels[idx].colour();
+            self.colours[idx].set_dialog(&colour_dialog);
             self.colours[idx].set_rgba(&(colour.clone()).into());
             self.entries[idx].set_text(self.labels[idx].label());
 
             let sender = self.sender();
-            self.colours[idx].connect_color_set(move |_| {
+            self.colours[idx].connect_notify(Some("rgba"), move |_, _| {
                 send_async_local!(InMsg::ColourChanged(idx), sender);
             });
             let sender = self.sender();
@@ -161,7 +161,6 @@ impl EditLabels {
     fn update_labels(&self) {
         let mut undo = UndoTransaction::new(&i18n("Change Labels"));
         let statuses = self.status.borrow();
-        #[allow(deprecated)]
         for status in statuses.iter().enumerate() {
             if !status.1 {
                 continue;
