@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2024-12-18 20:42+0000\n"
-"PO-Revision-Date: 2025-01-06 21:44+0100\n"
+"POT-Creation-Date: 2025-01-31 20:28+0000\n"
+"PO-Revision-Date: 2025-02-07 21:50+0100\n"
 "Last-Translator: Jürgen Benvenuti <gastornis@posteo.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -63,6 +63,10 @@ msgstr "RAW-Verarbeitung"
 #: data/net.figuiere.Niepce.metainfo.xml.in.in:24
 msgid "Hubert Figuière"
 msgstr "Hubert Figuière"
+
+#: data/net.figuiere.Niepce.xml.in:5
+msgid "Niepce catalog file"
+msgstr "Niepce-Katalogdatei"
 
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
@@ -537,9 +541,6 @@ msgstr "Einstellungen"
 
 #~ msgid "Label 5"
 #~ msgstr "Bezeichnung 4"
-
-#~ msgid "Open catalog"
-#~ msgstr "Katalog öffnen"
 
 #~ msgid "Open"
 #~ msgstr "Öffnen"
