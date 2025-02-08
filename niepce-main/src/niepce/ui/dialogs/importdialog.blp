@@ -78,23 +78,29 @@ Adw.Window import_dialog {
         orientation: vertical;
         spacing: 6;
 
-        Box hbox2 {
-          homogeneous: true;
-          spacing: 6;
+        Label {
+          hexpand: true;
+          label: _("Destination _Folder:");
+          mnemonic-widget: destination_folders;
+          use-underline: true;
+          xalign: 0;
+        }
 
-          Label label6 {
-            hexpand: true;
-            label: _("Destination _Folder:");
-            mnemonic-widget: destination_folder;
-            use-underline: true;
-            xalign: 0;
-          }
+        ScrolledWindow {
+          focusable: true;
+          hscrollbar-policy: never;
+          vexpand: true;
 
-          Entry destination_folder {
+          ListView destination_folders {
             focusable: true;
-            hexpand: true;
-            invisible-char: 8226;
+            vexpand: true;
           }
+        }
+
+        Label destination_help {
+          hexpand: true;
+          xalign: 0;
+          wrap: true;
         }
 
         Expander {

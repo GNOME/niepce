@@ -18,6 +18,7 @@
  */
 
 mod camera_importer_ui;
+mod dest_folders;
 mod directory_importer_ui;
 mod importer_ui;
 mod thumb_item;
@@ -29,17 +30,21 @@ use importer_ui::{ImporterMsg, ImporterUI};
 
 use std::cell::{OnceCell, RefCell};
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
+use std::sync::Arc;
 
 use gettextrs::gettext as i18n;
 use gtk_macros::get_widget;
 use gtk4::prelude::*;
+use i18n_format::i18n_fmt;
 use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 use num_traits::ToPrimitive;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
+use dest_folders::DestFoldersIn;
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
+use npc_engine::libraryclient::LibraryClient;
 use npc_fwk::toolkit::{
     self, Controller, ControllerImplCell, DialogController, ListViewRow, Receiver, Sender,
     Thumbnail, UiController,
@@ -53,6 +58,8 @@ pub enum Event {
     SetSource(String, String),
     /// The source changed. `id` in the combo box.
     SourceChanged(String),
+    /// The destination was changed. Path of the dest folder.
+    DestChanged(PathBuf),
     /// The `DatePathFormat` has been changed.
     SetDatePathFormat(DatePathFormat),
     PreviewReceived(String, Option<Thumbnail>, Option<Date>),
@@ -65,7 +72,8 @@ struct Widgets {
     dialog: adw::Window,
     import_source_combo_model: Rc<toolkit::ComboModel<String>>,
     importer_ui_stack: gtk4::Stack,
-    destination_folder: gtk4::Entry,
+    dest_folders: Rc<dest_folders::DestFolders>,
+    destination_help: gtk4::Label,
     images_list_model: gio::ListStore,
 
     importers: HashMap<String, Rc<dyn ImporterUI>>,
@@ -105,7 +113,8 @@ impl Widgets {
 
     fn clear_import_list(&self) {
         self.images_list_model.remove_all();
-        self.destination_folder.set_text("");
+        //
+        self.dest_folders.send(DestFoldersIn::Clear);
     }
 
     fn importer_changed(&self, source: &str) {
@@ -128,6 +137,7 @@ pub struct ImportDialog {
     imp_: ControllerImplCell<Event, ImportRequest>,
     base_dest_dir: PathBuf,
     cfg: Rc<toolkit::Configuration>,
+    client: Arc<LibraryClient>,
 
     widgets: OnceCell<Widgets>,
     state: RefCell<State>,
@@ -143,8 +153,19 @@ impl Controller for ImportDialog {
         match e {
             Event::SetSource(source, destdir) => self.set_source(&source, &destdir),
             Event::SourceChanged(source) => self.import_source_changed(&source),
-            Event::SetDatePathFormat(f) => self.set_sorting_format(f),
+            Event::DestChanged(dest_dir) => self.set_destdir(&dest_dir),
+            Event::SetDatePathFormat(f) => {
+                if let Some(widgets) = self.widgets.get() {
+                    widgets.dest_folders.send(DestFoldersIn::SortingChanged(f));
+                }
+                self.set_sorting_format(f)
+            }
             Event::PreviewReceived(path, thumbnail, date) => {
+                if let Some(widgets) = self.widgets.get() {
+                    widgets
+                        .dest_folders
+                        .send(DestFoldersIn::PreviewReceived(path.to_string(), date));
+                }
                 self.preview_received(&path, thumbnail, date)
             }
             Event::AppendFiles(files) => self.append_files_to_import(&files),
@@ -187,7 +208,31 @@ impl DialogController for ImportDialog {
                 import_button.connect_clicked(move |_| {
                     send_async_any!(Event::Import, sender);
                 });
-                get_widget!(builder, gtk4::Entry, destination_folder);
+                get_widget!(builder, gtk4::ListView, destination_folders);
+                let dest_folders =
+                    dest_folders::DestFolders::new(self.client.clone(), destination_folders);
+                let sender = self.sender();
+                dest_folders.set_forwarder(Some(Box::new(glib::clone!(
+                    #[weak]
+                    dest_folders,
+                    move |event| {
+                        use dest_folders::DestFoldersOut::*;
+                        match event {
+                            SelectedFolder(idx) => {
+                                dbg_out!("Selected folder {idx}");
+                                if let Some(dest_dir) = dest_folders.folder_at(idx) {
+                                    let dest_dir = dest_dir.dest().clone();
+                                    dbg_out!("DestChanged {dest_dir:?}");
+                                    send_async_any!(Event::DestChanged(dest_dir), sender);
+                                }
+                            }
+                            DeselectAll => {
+                                dbg_out!("Deselected All");
+                                // XXX todo
+                            }
+                        }
+                    }
+                ))));
                 get_widget!(builder, gtk4::Stack, importer_ui_stack);
 
                 get_widget!(builder, gtk4::DropDown, import_source_combo);
@@ -263,12 +308,15 @@ impl DialogController for ImportDialog {
                 images_list_scrolled
                     .set_policy(gtk4::PolicyType::Automatic, gtk4::PolicyType::Automatic);
 
+                get_widget!(builder, gtk4::Label, destination_help);
+
                 let (importer_tx, importer_rx) = npc_fwk::toolkit::channel();
                 let mut widgets = Widgets {
                     dialog: import_dialog,
                     import_source_combo_model,
                     importer_ui_stack,
-                    destination_folder,
+                    dest_folders,
+                    destination_help,
                     images_list_model,
                     importers: HashMap::new(),
                     current_importer: RefCell::new(None),
@@ -294,7 +342,7 @@ impl DialogController for ImportDialog {
 }
 
 impl ImportDialog {
-    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<Self> {
+    pub fn new(client: Arc<LibraryClient>, cfg: Rc<toolkit::Configuration>) -> Rc<Self> {
         let base_dest_dir = cfg
             .value_opt("base_import_dest_dir")
             .map(PathBuf::from)
@@ -304,6 +352,7 @@ impl ImportDialog {
             imp_: ControllerImplCell::default(),
             base_dest_dir,
             cfg,
+            client,
             widgets: OnceCell::new(),
             state: RefCell::new(State::default()),
         });
@@ -336,7 +385,7 @@ impl ImportDialog {
     fn import_source_changed(&self, source: &str) {
         if let Some(widgets) = self.widgets.get() {
             widgets.importer_changed(source);
-            self.state.borrow_mut().source = "".to_string();
+            self.state.borrow_mut().source = String::default();
             self.clear_import_list();
             self.cfg.set_value("last_importer", source);
         }
@@ -365,14 +414,23 @@ impl ImportDialog {
             );
         }
 
+        self.state.borrow_mut().source = source.to_string();
+        self.set_destdir(&PathBuf::from(dest_dir));
+    }
+
+    fn set_destdir(&self, dest_dir: &Path) {
+        dbg_out!("set destdir");
         let full_dest_dir = self.base_dest_dir.join(dest_dir);
         let mut state = self.state.borrow_mut();
-        state.source = source.to_string();
+        // We should normalize the path to $HOME if applicable.
+        self.widgets
+            .get()
+            .unwrap()
+            .destination_help
+            .set_label(&i18n_fmt! {
+                i18n_fmt("Destination set to \"{}\"", dest_dir.to_string_lossy())
+            });
         state.dest_dir = full_dest_dir;
-
-        if let Some(widgets) = self.widgets.get() {
-            widgets.destination_folder.set_text(dest_dir);
-        }
     }
 
     fn sorting_format(&self) -> DatePathFormat {
@@ -383,7 +441,6 @@ impl ImportDialog {
     fn set_sorting_format(&self, format: DatePathFormat) {
         let mut state = self.state.borrow_mut();
         state.sorting_format = format;
-        // XXX handle the UI
         if let Some(sorting) = format.to_u32() {
             self.cfg.set_value("import_sorting", &sorting.to_string());
         }
