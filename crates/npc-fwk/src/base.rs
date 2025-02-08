@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/base.rs
  *
- * Copyright (C) 2017-2023 Hubert Figuière
+ * Copyright (C) 2017-2024 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ pub mod fractions;
 mod geometry;
 mod indexed_map;
 mod moniker;
+mod path_tree;
 pub mod propertybag;
 pub mod propertyvalue;
 pub mod rgbcolour;
@@ -39,6 +40,7 @@ pub type PropertySet<T> = BTreeSet<T>;
 pub use geometry::{Rect, Size};
 pub use indexed_map::IndexedMap;
 pub use moniker::Moniker;
+pub use path_tree::{PathTree, PathTreeItem};
 pub use propertyvalue::PropertyValue;
 pub use rgbcolour::RgbColour;
 pub use signals::Signal;
