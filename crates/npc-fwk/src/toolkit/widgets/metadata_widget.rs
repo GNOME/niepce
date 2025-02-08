@@ -25,24 +25,12 @@ use gtk4::subclass::prelude::*;
 use super::ToolboxItem;
 use crate::PropertyBag;
 
-/// A wrapped PropertyBag to use in the cxx bridge.
+pub type MetadataPropertyBag = PropertyBag<u32>;
+
+/// A wrapped `MetadataPropertyBag` for use with `glib::Value` in signals.
 #[derive(Clone, Default, glib::Boxed)]
 #[boxed_type(name = "PropertyBag")]
-pub struct WrappedPropertyBag(pub PropertyBag<u32>);
-
-impl std::ops::Deref for WrappedPropertyBag {
-    type Target = PropertyBag<u32>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl std::ops::DerefMut for WrappedPropertyBag {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
+pub struct WrappedPropertyBag(pub MetadataPropertyBag);
 
 // This bridge content should be moved when the bridge is removed.
 #[repr(u32)]
@@ -105,7 +93,7 @@ impl MetadataWidget {
     }
 
     /// Set the data source of the metadata.
-    pub fn set_data_source(&self, properties: Option<PropertyBag<u32>>) {
+    pub fn set_data_source(&self, properties: Option<MetadataPropertyBag>) {
         self.imp().set_data_source(properties);
     }
 
@@ -124,11 +112,13 @@ mod imp {
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
 
-    use crate::{PropertyBag, PropertyValue};
+    use crate::PropertyValue;
 
     use super::super::prelude::*;
     use super::super::{RatingLabel, TokenTextView};
-    use super::{MetaDT, MetadataFormat, MetadataSectionFormat, WrappedPropertyBag};
+    use super::{
+        MetaDT, MetadataFormat, MetadataPropertyBag, MetadataSectionFormat, WrappedPropertyBag,
+    };
 
     fn clear_widget(widget: &gtk4::Widget) {
         if let Some(label) = widget.downcast_ref::<gtk4::Label>() {
@@ -149,7 +139,7 @@ mod imp {
     pub struct MetadataWidget {
         widget: gtk4::Grid,
         data_map: RefCell<HashMap<u32, gtk4::Widget>>,
-        current_data: RefCell<Option<PropertyBag<u32>>>,
+        current_data: RefCell<Option<MetadataPropertyBag>>,
         fmt: RefCell<Option<MetadataSectionFormat>>,
     }
 
@@ -321,7 +311,7 @@ mod imp {
             // XXX what if None? Should we delete the widgets?
         }
 
-        pub(super) fn set_data_source(&self, properties: Option<PropertyBag<u32>>) {
+        pub(super) fn set_data_source(&self, properties: Option<MetadataPropertyBag>) {
             self.current_data.replace(properties);
             self.data_map.borrow().values().for_each(clear_widget);
 
@@ -477,8 +467,8 @@ mod imp {
         }
 
         fn emit_metadata_changed(&self, prop: u32, value: &PropertyValue) {
-            let mut props = WrappedPropertyBag::default();
-            let mut old_props = WrappedPropertyBag::default();
+            let mut props = MetadataPropertyBag::default();
+            let mut old_props = MetadataPropertyBag::default();
             props.set_value(prop, value.clone());
             if let Some(old_val) = self
                 .current_data
@@ -488,8 +478,10 @@ mod imp {
             {
                 old_props.set_value(prop, old_val.clone());
             }
-            self.obj()
-                .emit_by_name::<()>("metadata-changed", &[&props, &old_props]);
+            self.obj().emit_by_name::<()>(
+                "metadata-changed",
+                &[&WrappedPropertyBag(props), &WrappedPropertyBag(old_props)],
+            );
         }
     }
 

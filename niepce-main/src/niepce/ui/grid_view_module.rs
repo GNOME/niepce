@@ -27,7 +27,7 @@ use npc_engine::catalog;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
 use npc_fwk::toolkit::widgets::Dock;
-use npc_fwk::toolkit::widgets::WrappedPropertyBag;
+use npc_fwk::toolkit::widgets::MetadataPropertyBag;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
 use npc_fwk::{dbg_out, send_async_local};
 
@@ -39,7 +39,7 @@ use crate::niepce::ui::{
 pub enum GridMsg {
     Click(gtk4::GestureClick, f64, f64),
     ChangeRating(catalog::LibraryId, i32),
-    MetadataChanged(WrappedPropertyBag, WrappedPropertyBag),
+    MetadataChanged(MetadataPropertyBag, MetadataPropertyBag),
 }
 
 pub struct GridViewModule {

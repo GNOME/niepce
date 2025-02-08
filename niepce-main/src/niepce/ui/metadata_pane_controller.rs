@@ -28,7 +28,7 @@ use npc_fwk::{glib, gtk4};
 use npc_engine::catalog;
 use npc_engine::catalog::NiepcePropertyIdx;
 use npc_engine::NiepcePropertySet;
-use npc_fwk::toolkit::widgets::WrappedPropertyBag;
+use npc_fwk::toolkit::widgets::MetadataPropertyBag;
 use npc_fwk::toolkit::widgets::{MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget};
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
 use npc_fwk::{dbg_out, send_async_local, PropertyBag};
@@ -97,11 +97,11 @@ pub fn get_format() -> &'static [MetadataSectionFormat] {
 }
 
 pub enum MetadataInputMsg {
-    MetadataChanged(WrappedPropertyBag, WrappedPropertyBag),
+    MetadataChanged(MetadataPropertyBag, MetadataPropertyBag),
 }
 
 pub enum MetadataOutputMsg {
-    MetadataChanged(WrappedPropertyBag, WrappedPropertyBag),
+    MetadataChanged(MetadataPropertyBag, MetadataPropertyBag),
 }
 
 pub struct MetadataPaneController {
@@ -170,7 +170,7 @@ impl MetadataPaneController {
                 #[strong]
                 sender,
                 move |_, new, old| {
-                    send_async_local!(MetadataInputMsg::MetadataChanged(new, old), sender);
+                    send_async_local!(MetadataInputMsg::MetadataChanged(new.0, old.0), sender);
                 }
             ));
             self.widgets.push((w, sig_id));

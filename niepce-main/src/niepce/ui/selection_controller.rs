@@ -35,7 +35,7 @@ use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
 use npc_engine::ThumbnailCache;
 use npc_fwk::send_async_local;
-use npc_fwk::toolkit::widgets::WrappedPropertyBag;
+use npc_fwk::toolkit::widgets::MetadataPropertyBag;
 use npc_fwk::toolkit::{
     AppController, Controller, ControllerImplCell, UndoCommand, UndoTransaction,
 };
@@ -213,13 +213,13 @@ impl SelectionController {
         &self,
         undo_label: &str,
         file_id: catalog::LibraryId,
-        props: &WrappedPropertyBag,
-        old: &WrappedPropertyBag,
+        props: &MetadataPropertyBag,
+        old: &MetadataPropertyBag,
     ) -> bool {
         let mut undo = UndoTransaction::new(undo_label);
-        for key in props.0.keys() {
-            let old_value = old.0.get(key).cloned().unwrap_or(PropertyValue::Empty);
-            let new_value = props.0.get(key).cloned().unwrap();
+        for key in props.keys() {
+            let old_value = old.get(key).cloned().unwrap_or(PropertyValue::Empty);
+            let new_value = props.get(key).cloned().unwrap();
             let key = *key;
             let client_undo = self.client.clone();
             let client_redo = self.client.clone();
@@ -284,7 +284,7 @@ impl SelectionController {
         }
     }
 
-    pub fn set_properties(&self, props: &WrappedPropertyBag, old: &WrappedPropertyBag) {
+    pub fn set_properties(&self, props: &MetadataPropertyBag, old: &MetadataPropertyBag) {
         if let Some(selection) = self.selection() {
             self.set_metadata(&i18n("Set Properties"), selection, props, old);
         }
