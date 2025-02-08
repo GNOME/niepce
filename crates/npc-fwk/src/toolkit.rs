@@ -51,7 +51,7 @@ pub use image_bitmap::ImageBitmap;
 pub use list_view::ListViewRow;
 pub use map_controller::MapController;
 pub use thumbnail::Thumbnail;
-pub use tree_view_model::{TreeViewFactory, TreeViewModel};
+pub use tree_view_model::{TreeViewFactory, TreeViewItem, TreeViewModel};
 pub use uicontroller::{DialogController, UiController, WindowSize};
 pub use undo::do_command as undo_do_command;
 pub use undo::{RedoFn, Storage, UndoCommand, UndoFn, UndoHistory, UndoTransaction};
