@@ -9,7 +9,6 @@ rust-version = "1.76"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cxx = { version = "1.0", features = [ "c++17" ] }
 gegl = "0.2.0"
 
 npc-fwk = { path = "../npc-fwk" }

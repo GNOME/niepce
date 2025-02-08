@@ -1615,7 +1615,6 @@ dependencies = [
 name = "npc-craw"
 version = "0.1.0"
 dependencies = [
- "cxx",
  "gegl",
  "npc-engine",
  "npc-fwk",
@@ -1630,7 +1629,6 @@ dependencies = [
  "cachedir",
  "chrono",
  "clap",
- "cxx",
  "exempi2",
  "gettext-rs",
  "lazy_static",
@@ -1657,7 +1655,6 @@ dependencies = [
  "async-channel",
  "chrono",
  "configparser",
- "cxx",
  "exempi2",
  "gettext-rs",
  "gphoto2",

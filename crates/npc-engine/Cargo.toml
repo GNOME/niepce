@@ -13,7 +13,6 @@ rust-version = "1.76"
 async-channel = "1.6.1"
 cachedir = "0.3.0"
 chrono = "0.4.23"
-cxx = { version = "1.0", features = [ "c++17" ] }
 exempi2 = "0.2.0"
 gettext-rs = { version = "=0.7.0", features = [ "gettext-system" ] }
 lazy_static = "^1.2.0"
