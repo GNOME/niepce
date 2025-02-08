@@ -782,20 +782,22 @@ impl WorkspaceController {
     }
 
     fn action_import(&self) {
-        let import_dialog = super::dialogs::ImportDialog::new(self.cfg.clone());
-        let parent = self.widget().root().and_downcast::<gtk4::Window>();
-        let tx = self.sender();
-        import_dialog.run_modal(
-            parent.as_ref(),
-            WindowSize::Parent,
-            glib::clone!(
-                #[strong]
-                tx,
-                move |request| {
-                    npc_fwk::send_async_local!(Event::PerformImport(request), tx);
-                }
-            ),
-        );
+        if let Some(client) = self.client.upgrade() {
+            let import_dialog = super::dialogs::ImportDialog::new(client, self.cfg.clone());
+            let parent = self.widget().root().and_downcast::<gtk4::Window>();
+            let tx = self.sender();
+            import_dialog.run_modal(
+                parent.as_ref(),
+                WindowSize::Parent,
+                glib::clone!(
+                    #[strong]
+                    tx,
+                    move |request| {
+                        npc_fwk::send_async_local!(Event::PerformImport(request), tx);
+                    }
+                ),
+            );
+        }
     }
 
     fn action_import_library(&self) {
