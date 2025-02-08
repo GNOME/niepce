@@ -14,7 +14,7 @@ niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs
 niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp
 niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs
 niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp
-niepce-main/src/niepce/ui/dialogs/import/mod.rs
+niepce-main/src/niepce/ui/dialogs/import.rs
 niepce-main/src/niepce/ui/dialogs/importdialog.blp
 niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui
 niepce-main/src/niepce/ui/dialogs/importlibrary.rs
@@ -25,4 +25,4 @@ niepce-main/src/niepce/ui/module_shell.rs
 niepce-main/src/niepce/ui/niepce_application.rs
 niepce-main/src/niepce/ui/niepce_window.rs
 niepce-main/src/niepce/ui/selection_controller.rs
-niepce-main/src/niepce/ui/workspace_controller/mod.rs
+niepce-main/src/niepce/ui/workspace_controller.rs
