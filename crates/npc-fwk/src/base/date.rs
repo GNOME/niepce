@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/date.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,46 +20,23 @@
 use chrono::{Datelike, Offset, TimeZone, Timelike, Utc};
 
 pub type Time = i64;
-// XXX a new type for the cxx bindings
-#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd)]
-pub struct Date(pub chrono::DateTime<chrono::FixedOffset>);
+pub type Date = chrono::DateTime<chrono::FixedOffset>;
 
-impl Date {
+/// Trait to extend some of the DataTime code.
+pub trait DateExt: Datelike + Timelike {
     /// Now as a `Date`.
-    pub fn now() -> Self {
+    fn now() -> chrono::DateTime<chrono::FixedOffset> {
         let dt = chrono::Local::now();
-        Self(dt.with_timezone(dt.offset()))
+        dt.with_timezone(dt.offset())
     }
 
     /// Create a `Date` from a `SystemTime`.
-    pub fn from_system_time(t: std::time::SystemTime) -> Self {
+    fn from_system_time(t: std::time::SystemTime) -> chrono::DateTime<chrono::FixedOffset> {
         let dt = chrono::DateTime::<Utc>::from(t);
-        Self(dt.with_timezone(&dt.offset().fix()))
+        dt.with_timezone(&dt.offset().fix())
     }
-}
 
-impl std::fmt::Display for Date {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl std::ops::Deref for Date {
-    type Target = chrono::DateTime<chrono::FixedOffset>;
-
-    fn deref(&self) -> &chrono::DateTime<chrono::FixedOffset> {
-        &self.0
-    }
-}
-
-impl From<exempi2::DateTime> for Date {
-    fn from(d: exempi2::DateTime) -> Date {
-        Self::from(&d)
-    }
-}
-
-impl From<&exempi2::DateTime> for Date {
-    fn from(d: &exempi2::DateTime) -> Date {
+    fn from_exempi(d: &exempi2::DateTime) -> Date {
         use exempi2::TzSign;
 
         let tz = if d.has_tz() {
@@ -84,20 +61,26 @@ impl From<&exempi2::DateTime> for Date {
             d.minute() as u32,
             d.second() as u32,
         );
-        Date(result.single().expect("date conversion error"))
+        result.single().expect("date conversion error")
     }
+
+    /// Convert a `Date` (type alias `chrono::DateTime<FixedOffset>`)
+    /// to an `exempi2::DateTime`
+    fn into_xmpdate(self) -> exempi2::DateTime;
 }
 
-impl From<Date> for exempi2::DateTime {
-    /// Convert a `Date` (newtype for `chrono::DateTime<FixedOffset>`)
-    /// to an `exempi2::DateTime`
-    fn from(d: Date) -> exempi2::DateTime {
+impl DateExt for Date {
+    fn into_xmpdate(self) -> exempi2::DateTime {
         use exempi2::TzSign;
 
         let mut xmp_date = exempi2::DateTime::new();
-        xmp_date.set_date(d.year(), d.month() as i32, d.day() as i32);
-        xmp_date.set_time(d.hour() as i32, d.minute() as i32, d.second() as i32);
-        let offset = d.offset().local_minus_utc();
+        xmp_date.set_date(self.year(), self.month() as i32, self.day() as i32);
+        xmp_date.set_time(
+            self.hour() as i32,
+            self.minute() as i32,
+            self.second() as i32,
+        );
+        let offset = self.offset().local_minus_utc();
         let sign = match offset {
             0 => TzSign::UTC,
             1.. => TzSign::East,
@@ -114,14 +97,14 @@ impl From<Date> for exempi2::DateTime {
 mod test {
     use chrono::TimeZone;
 
-    use super::Date;
+    use super::DateExt;
 
     #[test]
     fn test_xmp_date_west_from() {
         let date = chrono::FixedOffset::west_opt(5 * 3600)
             .and_then(|tz| tz.with_ymd_and_hms(2021, 12, 25, 10, 42, 12).single())
             .unwrap();
-        let xmp_date: exempi2::DateTime = Date(date).into();
+        let xmp_date: exempi2::DateTime = date.into_xmpdate();
         assert_eq!(xmp_date.year(), 2021);
         assert_eq!(xmp_date.month(), 12);
         assert_eq!(xmp_date.day(), 25);
@@ -137,7 +120,7 @@ mod test {
         let date = chrono::FixedOffset::east_opt(5 * 3600)
             .and_then(|tz| tz.with_ymd_and_hms(2021, 12, 25, 10, 42, 12).single())
             .unwrap();
-        let xmp_date: exempi2::DateTime = Date(date).into();
+        let xmp_date: exempi2::DateTime = date.into_xmpdate();
         assert_eq!(xmp_date.year(), 2021);
         assert_eq!(xmp_date.month(), 12);
         assert_eq!(xmp_date.day(), 25);

@@ -37,7 +37,7 @@ use num_derive::{FromPrimitive, ToPrimitive};
 use crate::catalog::filebundle::FileBundle;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::utils::FileList;
-use npc_fwk::{dbg_out, Date, XmpMeta};
+use npc_fwk::{dbg_out, Date, DateExt, XmpMeta};
 
 pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>> {
     if LrImporter::can_import_library(path) {
@@ -219,19 +219,17 @@ mod test {
     use chrono::{Offset, TimeZone};
 
     use super::{DatePathFormat, Importer};
-    use npc_fwk::Date;
 
     #[test]
     fn test_dest_dir_for_date() {
         use DatePathFormat::*;
 
-        let date = Date(
-            chrono::Utc
-                .fix()
-                .with_ymd_and_hms(2021, 1, 6, 12, 12, 12)
-                .single()
-                .expect("Date no constructed"),
-        );
+        let date = chrono::Utc
+            .fix()
+            .with_ymd_and_hms(2021, 1, 6, 12, 12, 12)
+            .single()
+            .expect("Date no constructed");
+
         let base_dir = PathBuf::from("/var/home/user/Pictures");
 
         assert_eq!(

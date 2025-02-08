@@ -28,7 +28,7 @@ use exempi2::Xmp;
 
 use super::exiv2;
 use crate::toolkit::heif;
-use crate::Date;
+use crate::{Date, DateExt};
 
 pub const NIEPCE_XMP_NAMESPACE: &str = "http://xmlns.figuiere.net/ns/niepce/1.0";
 pub const NIEPCE_XMP_NS_PREFIX: &str = "niepce";
@@ -427,7 +427,7 @@ impl XmpMeta {
             })
             .ok()?;
 
-        Some(date.into())
+        Some(Date::from_exempi(&date))
     }
 
     /// Same as `creation_date()` but the original string is returned instead.
@@ -453,7 +453,7 @@ impl XmpMeta {
             err_out!("Error getting date property {propname} {err:?}");
             return None;
         }
-        Some(property.unwrap().into())
+        Some(Date::from_exempi(property.as_ref().unwrap()))
     }
 
     pub fn keywords(&mut self) -> &Vec<String> {

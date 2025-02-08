@@ -24,7 +24,7 @@ use super::{FromDb, LibraryId};
 use crate::NiepcePropertyBag;
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
 use npc_fwk::{dbg_out, err_out};
-use npc_fwk::{Date, PropertySet, PropertyValue, XmpMeta};
+use npc_fwk::{DateExt, PropertySet, PropertyValue, XmpMeta};
 
 #[derive(Clone, Debug)]
 pub struct LibMetadata {
@@ -188,7 +188,12 @@ impl LibMetadata {
                     return self
                         .xmp_meta
                         .xmp
-                        .set_property_date(ix.ns, ix.property, &d.into(), exempi2::PropFlags::NONE)
+                        .set_property_date(
+                            ix.ns,
+                            ix.property,
+                            &d.into_xmpdate(),
+                            exempi2::PropFlags::NONE,
+                        )
                         .is_ok();
                 }
             }
@@ -266,7 +271,7 @@ impl LibMetadata {
 
     pub fn touch(&mut self) -> bool {
         let local = chrono::Local::now();
-        let xmpdate = Date(chrono::DateTime::from(local)).into();
+        let xmpdate = chrono::DateTime::from(local).into_xmpdate();
         self.xmp_meta
             .xmp
             .set_property_date(NS_XAP, "MetadataDate", &xmpdate, exempi2::PropFlags::NONE)
@@ -308,7 +313,7 @@ mod test {
     use super::{LibMetadata, Np};
     use crate::catalog::NiepcePropertyIdx as Npi;
     use chrono::TimeZone;
-    use npc_fwk::{Date, PropertySet, PropertyValue, XmpMeta};
+    use npc_fwk::{PropertySet, PropertyValue, XmpMeta};
 
     const XMP_PACKET: &[u8] = include_bytes!("../../tests/test.xmp");
 
@@ -358,7 +363,7 @@ mod test {
             let date = chrono::FixedOffset::west_opt(5 * 3600)
                 .and_then(|tz| tz.with_ymd_and_hms(2006, 12, 7, 23, 37, 30).single())
                 .unwrap();
-            assert_eq!(creation_date, &Date(date));
+            assert_eq!(creation_date, &date);
         } else {
             unreachable!();
         }
