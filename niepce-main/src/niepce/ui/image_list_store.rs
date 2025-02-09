@@ -139,7 +139,7 @@ impl ImageListStore {
         client: &Arc<LibraryClient>,
         thumbnail_cache: &ThumbnailCache,
     ) -> bool {
-        use self::LibNotification::*;
+        use LibNotification::*;
 
         match *notification {
             XmpNeedsUpdate => {

@@ -38,17 +38,17 @@ pub enum SortOrder {
 }
 
 // flatten namespace a bit.
-pub use self::album::Album;
-pub use self::db::{CatalogDb, Error as LibError, Result as LibResult};
-pub use self::keyword::Keyword;
-pub use self::label::Label;
-pub use self::libfile::{FileType, LibFile};
-pub use self::libfolder::LibFolder;
-pub use self::libmetadata::LibMetadata;
-pub use self::props::NiepceProperties;
-pub use self::props::NiepcePropertyIdx;
+pub use album::Album;
 #[cfg(test)]
 pub(crate) use db::test as db_test;
+pub use db::{CatalogDb, Error as LibError, Result as LibResult};
+pub use keyword::Keyword;
+pub use label::Label;
+pub use libfile::{FileType, LibFile};
+pub use libfolder::LibFolder;
+pub use libmetadata::LibMetadata;
+pub use props::NiepceProperties;
+pub use props::NiepcePropertyIdx;
 
 pub trait FromDb: Sized {
     /// return the columns for reading from the DB.
