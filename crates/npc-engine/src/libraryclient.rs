@@ -1,5 +1,5 @@
 /*
- * niepce - libraryclient/mod.rs
+ * niepce - npc-engine/libraryclient.rs
  *
  * Copyright (C) 2017-2025 Hubert Figuière
  *

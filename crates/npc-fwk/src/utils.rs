@@ -1,5 +1,5 @@
 /*
- * niepce - fwk/utils/mod.rs
+ * niepce - npc-fwk/utils.rs
  *
  * Copyright (C) 2017-2023 Hubert Figuière
  *

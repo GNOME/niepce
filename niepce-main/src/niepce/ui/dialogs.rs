@@ -1,5 +1,5 @@
 /*
- * niepce - niepce/ui/dialogs/mod.rs
+ * niepce - niepce/ui/dialogs.rs
  *
  * Copyright (C) 2017-2024 Hubert Figuière
  *

@@ -1,5 +1,5 @@
 /*
- * niepce - niepce/ui/workspace_controller/mod.rs
+ * niepce - niepce/ui/workspace_controller.rs
  *
  * Copyright (C) 2021-2025 Hubert Figuière
  *

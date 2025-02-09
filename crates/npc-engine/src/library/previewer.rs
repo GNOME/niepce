@@ -1,5 +1,5 @@
 /*
- * niepce - library/previewer/mod.rs
+ * niepce - npc-engine/library/previewer.rs
  *
  * Copyright (C) 2023-2025 Hubert Figuière
  *

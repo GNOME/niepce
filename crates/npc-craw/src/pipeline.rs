@@ -1,5 +1,5 @@
 /*
- * niepce - npc_craw/pipeline/mod.rs
+ * niepce - npc_craw/pipeline.rs
  *
  * Copyright (C) 2023-2024 Hubert Figuière
  *

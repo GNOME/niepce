@@ -1,5 +1,5 @@
 /*
- * niepce - niepce/modules/mod.rs
+ * niepce - niepce/modules.rs
  *
  * Copyright (C) 2022-2024 Hubert Figuière
  *

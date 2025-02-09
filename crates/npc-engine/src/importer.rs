@@ -1,5 +1,5 @@
 /*
- * niepce - engine/importer/mod.rs
+ * niepce - npc-engine/importer.rs
  *
  * Copyright (C) 2021-2025 Hubert Figuière
  *

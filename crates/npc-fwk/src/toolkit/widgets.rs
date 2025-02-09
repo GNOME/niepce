@@ -1,5 +1,5 @@
 /*
- * niepce - crates/npc-fwk/src/toolkit/widgets/mod.rs
+ * niepce - npc-fwk/toolkit/widgets.rs
  *
  * Copyright (C) 2020-2025 Hubert Figuière
  *
