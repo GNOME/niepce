@@ -62,6 +62,8 @@ impl ImageListStore {
     pub fn new(config: Arc<Configuration>) -> Self {
         let store = gio::ListStore::new::<ImageListItem>();
         let model = gtk4::SingleSelection::new(Some(store.clone()));
+        model.set_autoselect(false);
+        model.set_can_unselect(true);
 
         Self {
             store,
