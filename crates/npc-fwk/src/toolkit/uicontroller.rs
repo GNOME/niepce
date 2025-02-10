@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/uicontroller.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,14 @@ pub trait UiController: Controller {
     }
 }
 
+/// Specify a Window size.
+pub enum WindowSize {
+    /// Default window size.
+    Default,
+    /// Same size as parent.
+    Parent,
+}
+
 /// A Dialog Controller to handle dialogs asynchronously
 ///
 /// It should start itself calling DialogController::start()
@@ -68,7 +76,7 @@ pub trait DialogController: UiController {
 
     /// Run the dialog modal. Will call `callback` when it is closed
     /// in success.
-    fn run_modal<F>(&self, parent: Option<&gtk4::Window>, callback: F)
+    fn run_modal<F>(&self, parent: Option<&gtk4::Window>, size: WindowSize, callback: F)
     where
         F: Fn(Self::OutMsg) + 'static,
     {
@@ -76,6 +84,16 @@ pub trait DialogController: UiController {
         self.set_forwarder(Some(Box::new(callback)));
         dialog.set_transient_for(parent);
         dialog.set_modal(true);
+        match size {
+            WindowSize::Parent => {
+                if let Some(parent) = parent {
+                    let w = parent.width();
+                    let h = parent.height();
+                    dialog.set_default_size(w, h);
+                }
+            }
+            WindowSize::Default => {}
+        }
         dialog.present();
     }
 }

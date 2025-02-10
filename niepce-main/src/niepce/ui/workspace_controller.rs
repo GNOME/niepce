@@ -36,7 +36,9 @@ use npc_engine::importer::ImportRequest;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::base::Signal;
-use npc_fwk::toolkit::{self, Controller, ControllerImplCell, DialogController, UiController};
+use npc_fwk::toolkit::{
+    self, Controller, ControllerImplCell, DialogController, UiController, WindowSize,
+};
 use npc_fwk::{dbg_out, err_out};
 use ws_item_row::WsItemRow;
 use ws_list_item::{CountUpdate, Item};
@@ -785,6 +787,7 @@ impl WorkspaceController {
         let tx = self.sender();
         import_dialog.run_modal(
             parent.as_ref(),
+            WindowSize::Parent,
             glib::clone!(
                 #[strong]
                 tx,

@@ -33,7 +33,7 @@ use npc_fwk::base::Moniker;
 
 use npc_fwk::toolkit::{
     gtk_utils, AppController, Configuration, Controller, ControllerImplCell, DialogController,
-    UiController, UndoHistory, UndoTransaction, WindowController,
+    UiController, UndoHistory, UndoTransaction, WindowController, WindowSize,
 };
 use npc_fwk::{controller_imp_imp, err_out, send_async_any};
 
@@ -236,6 +236,6 @@ impl NiepceApplication {
         let win = win.as_ref().map(|win| win.window());
 
         let dialog = PreferencesDialog::new(self);
-        dialog.run_modal(win, |_| {});
+        dialog.run_modal(win, WindowSize::Default, |_| {});
     }
 }

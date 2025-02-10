@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ pub use image_bitmap::ImageBitmap;
 pub use map_controller::MapController;
 pub use thumbnail::Thumbnail;
 pub use tree_view_model::{TreeViewFactory, TreeViewModel};
-pub use uicontroller::{DialogController, UiController};
+pub use uicontroller::{DialogController, UiController, WindowSize};
 pub use undo::do_command as undo_do_command;
 pub use undo::{RedoFn, Storage, UndoCommand, UndoFn, UndoHistory, UndoTransaction};
 pub use window_controller::{create_redo_action, create_undo_action, WindowController};

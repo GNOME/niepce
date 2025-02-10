@@ -34,7 +34,7 @@ use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Moniker;
 use npc_fwk::toolkit::{
     self, AppController, Controller, ControllerImplCell, DialogController, UiController,
-    WindowController,
+    WindowController, WindowSize,
 };
 use npc_fwk::{dbg_out, err_out};
 
@@ -578,7 +578,7 @@ impl NiepceWindow {
         dbg_out!("edit labels");
         if let Some(ref libclient) = *self.libraryclient.borrow() {
             let editlabel_dialog = EditLabels::new(libclient, self.app.weak().clone());
-            editlabel_dialog.run_modal(Some(self.window()), move |_| {});
+            editlabel_dialog.run_modal(Some(self.window()), WindowSize::Default, move |_| {});
         }
     }
 }
