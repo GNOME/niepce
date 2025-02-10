@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/import.rs
  *
- * Copyright (C) 2008-2024 Hubert Figuière
+ * Copyright (C) 2008-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ mod thumb_item_row;
 
 use camera_importer_ui::CameraImporterUI;
 use directory_importer_ui::DirectoryImporterUI;
-use importer_ui::{ImporterUI, SourceSelectedCallback};
+use importer_ui::{ImporterMsg, ImporterUI};
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -41,7 +41,8 @@ use once_cell::sync::OnceCell;
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
 use npc_fwk::toolkit::{
-    self, Controller, ControllerImplCell, DialogController, Thumbnail, UiController,
+    self, Controller, ControllerImplCell, DialogController, Receiver, Sender, Thumbnail,
+    UiController,
 };
 use npc_fwk::{controller_imp_imp, dbg_out, send_async_any, Date};
 use thumb_item::ThumbItem;
@@ -69,26 +70,35 @@ struct Widgets {
 
     importers: HashMap<String, Rc<dyn ImporterUI>>,
     current_importer: RefCell<Option<Rc<dyn ImporterUI>>>,
+    importer_tx: Sender<ImporterMsg>,
 }
 
 impl Widgets {
-    fn add_importer_ui(
-        &mut self,
-        importer: Rc<dyn ImporterUI>,
-        tx: npc_fwk::toolkit::Sender<Event>,
-    ) {
+    // XXX This could be a forwarder if ImportUI were a Controller.
+    fn setup(&self, importer_rx: Receiver<ImporterMsg>, tx_out: Sender<Event>) {
+        toolkit::channels::receiver_attach(importer_rx, move |msg| {
+            match msg {
+                ImporterMsg::SetSource(source, dest_dir) => {
+                    npc_fwk::send_async_local!(Event::SetSource(source, dest_dir), tx_out);
+                }
+                ImporterMsg::SetCopy(_copy) => {
+                    // XXX do something
+                }
+            }
+        });
+    }
+
+    fn add_importer_ui(&mut self, importer: Rc<dyn ImporterUI>) {
         self.import_source_combo_model
             .push(importer.name(), importer.id());
 
         dbg_out!("setting up importer widget for {}", &importer.id());
-        let importer_widget = importer.setup_widget(self.dialog.upcast_ref::<gtk4::Window>());
+        let importer_widget = importer.setup_widget(
+            self.dialog.upcast_ref::<gtk4::Window>(),
+            self.importer_tx.clone(),
+        );
         self.importer_ui_stack
             .add_named(&importer_widget, Some(&importer.id()));
-        importer.set_source_selected_callback(Box::new(move |source, dest_dir| {
-            let source = source.to_string();
-            let dest_dir = dest_dir.to_string();
-            npc_fwk::send_async_local!(Event::SetSource(source, dest_dir), tx);
-        }));
 
         self.importers.insert(importer.id(), importer.clone());
     }
@@ -245,6 +255,7 @@ impl DialogController for ImportDialog {
                 images_list_scrolled
                     .set_policy(gtk4::PolicyType::Automatic, gtk4::PolicyType::Automatic);
 
+                let (importer_tx, importer_rx) = npc_fwk::toolkit::channel();
                 let mut widgets = Widgets {
                     dialog: import_dialog,
                     import_source_combo_model,
@@ -253,12 +264,15 @@ impl DialogController for ImportDialog {
                     images_list_model,
                     importers: HashMap::new(),
                     current_importer: RefCell::new(None),
+                    importer_tx,
                 };
 
+                widgets.setup(importer_rx, self.sender());
+
                 let importer = DirectoryImporterUI::new(self.cfg.clone());
-                widgets.add_importer_ui(importer, self.sender());
+                widgets.add_importer_ui(importer);
                 let importer = CameraImporterUI::new();
-                widgets.add_importer_ui(importer, self.sender());
+                widgets.add_importer_ui(importer);
 
                 let last_importer = self.cfg.value("last_importer", "DirectoryImporter");
                 if let Some(selected) = widgets.import_source_combo_model.index_of(&last_importer) {

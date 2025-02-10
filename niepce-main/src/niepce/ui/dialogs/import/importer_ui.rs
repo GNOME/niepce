@@ -1,7 +1,7 @@
 /*
  * niepce - ui/dialogs/import/importer_ui.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,15 @@ use std::rc::Rc;
 use npc_fwk::gtk4;
 
 use npc_engine::importer::ImportBackend;
+use npc_fwk::toolkit::Sender;
 
-pub type SourceSelectedCallback = Box<dyn Fn(&str, &str)>;
+/// Messages sent by the importer.
+pub(super) enum ImporterMsg {
+    /// Sent to set the source.
+    SetSource(String, String),
+    /// Sent to indicate files have to be copied.
+    SetCopy(bool),
+}
 
 /// An importer UI.
 pub(super) trait ImporterUI {
@@ -36,10 +43,5 @@ pub(super) trait ImporterUI {
     fn backend(&self) -> Rc<dyn ImportBackend>;
 
     /// Setup the widget
-    fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget;
-
-    /// Callback for when the source is selected.
-    ///
-    /// XXX shall we switch to a signal?
-    fn set_source_selected_callback(&self, callback: SourceSelectedCallback);
+    fn setup_widget(&self, parent: &gtk4::Window, tx: Sender<ImporterMsg>) -> gtk4::Widget;
 }

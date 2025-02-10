@@ -1,7 +1,7 @@
 /*
  * niepce - ui/dialogs/import/directory_importer_ui.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +27,10 @@ use gtk4::prelude::*;
 use npc_fwk::{gio, glib, gtk4};
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
-use npc_fwk::toolkit::{Controller, ControllerImplCell};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender};
 use npc_fwk::{controller_imp_imp, on_err_out, toolkit};
 
-use super::{ImporterUI, SourceSelectedCallback};
+use super::{ImporterMsg, ImporterUI};
 
 pub enum Event {
     CopyToggled(bool),
@@ -44,7 +44,7 @@ pub enum Event {
 struct Widgets {
     directory_name: Option<gtk4::Label>,
     parent: Option<gtk4::Window>,
-    source_selected_cb: Option<SourceSelectedCallback>,
+    tx: Option<Sender<ImporterMsg>>,
 }
 
 pub(super) struct DirectoryImporterUI {
@@ -72,8 +72,10 @@ impl Controller for DirectoryImporterUI {
                 }
             }
             Event::SourceSelected(source, dest_dir) => {
-                if let Some(source_selected_cb) = &self.widgets.borrow().source_selected_cb {
-                    source_selected_cb(&source, &dest_dir);
+                if let Some(tx) = &self.widgets.borrow().tx.clone() {
+                    let source = source.clone();
+                    let dest_dir = dest_dir.clone();
+                    npc_fwk::send_async_local!(ImporterMsg::SetSource(source, dest_dir), tx);
                 }
             }
         }
@@ -154,6 +156,9 @@ impl DirectoryImporterUI {
             backend.set_copy(toggle);
         }
         self.cfg.set_value("dir_import_copy", &toggle.to_string());
+        if let Some(tx) = &self.widgets.borrow().tx.clone() {
+            npc_fwk::send_async_local!(ImporterMsg::SetCopy(toggle), tx);
+        }
     }
 
     fn recursive_toggled(&self, toggle: bool) {
@@ -178,7 +183,7 @@ impl ImporterUI for DirectoryImporterUI {
         self.backend.borrow().clone()
     }
 
-    fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget {
+    fn setup_widget(&self, parent: &gtk4::Window, tx: Sender<ImporterMsg>) -> gtk4::Widget {
         let builder =
             gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/directoryimporterui.ui");
         get_widget!(builder, gtk4::Box, main_widget);
@@ -220,11 +225,8 @@ impl ImporterUI for DirectoryImporterUI {
         let mut widgets = self.widgets.borrow_mut();
         widgets.parent = Some(parent.clone());
         widgets.directory_name = Some(directory_name);
+        widgets.tx = Some(tx);
 
         main_widget.upcast::<gtk4::Widget>()
-    }
-
-    fn set_source_selected_callback(&self, callback: Box<dyn Fn(&str, &str)>) {
-        self.widgets.borrow_mut().source_selected_cb = Some(callback);
     }
 }

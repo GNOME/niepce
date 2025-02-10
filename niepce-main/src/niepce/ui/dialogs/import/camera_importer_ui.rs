@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importer/camera_importer_ui.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use npc_fwk::{glib, gtk4};
 
-use super::{ImporterUI, SourceSelectedCallback};
+use super::{ImporterMsg, ImporterUI};
 use npc_engine::importer::{CameraImporter, ImportBackend};
 use npc_fwk::controller_imp_imp;
 use npc_fwk::toolkit;
-use npc_fwk::toolkit::{Controller, ControllerImplCell};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender};
 
 pub enum Event {
     CameraSelected,
@@ -40,7 +40,7 @@ struct Widgets {
     camera_list_combo: Option<gtk4::DropDown>,
     camera_list_model: Rc<toolkit::ComboModel<String>>,
     select_camera: Option<gtk4::Button>,
-    source_selected_cb: Option<SourceSelectedCallback>,
+    tx: Option<Sender<ImporterMsg>>,
 }
 
 pub(super) struct CameraImporterUI {
@@ -93,8 +93,10 @@ impl CameraImporterUI {
                 .value(source as usize);
             let today = format!("{}", datetime.format("%F %H%M%S"));
             let dest_dir = i18n("Camera import ") + &today;
-            if let Some(callback) = &self.widgets.borrow().source_selected_cb {
-                callback(&source, &dest_dir);
+            if let Some(tx) = &self.widgets.borrow().tx.clone() {
+                let source = source.clone();
+                let dest_dir = dest_dir.clone();
+                npc_fwk::send_async_local!(ImporterMsg::SetSource(source, dest_dir), tx);
             }
         }
     }
@@ -113,7 +115,7 @@ impl ImporterUI for CameraImporterUI {
         self.backend.clone()
     }
 
-    fn setup_widget(&self, parent: &gtk4::Window) -> gtk4::Widget {
+    fn setup_widget(&self, parent: &gtk4::Window, tx: Sender<ImporterMsg>) -> gtk4::Widget {
         let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/cameraimporterui.ui");
         get_widget!(builder, gtk4::Grid, main_widget);
         get_widget!(builder, gtk4::Button, select_camera_btn);
@@ -129,6 +131,7 @@ impl ImporterUI for CameraImporterUI {
         widgets.parent = Some(parent.clone());
         widgets.select_camera = Some(select_camera_btn.clone());
         widgets.camera_list_combo = Some(camera_list_combo.clone());
+        widgets.tx = Some(tx);
 
         toolkit::GpDeviceList::instance().detect();
 
@@ -150,9 +153,5 @@ impl ImporterUI for CameraImporterUI {
         }
 
         main_widget.upcast::<gtk4::Widget>()
-    }
-
-    fn set_source_selected_callback(&self, callback: Box<dyn Fn(&str, &str)>) {
-        self.widgets.borrow_mut().source_selected_cb = Some(callback);
     }
 }
