@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/import/thumb_item_row.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use glib::prelude::*;
+use glib::subclass::prelude::*;
+
 use npc_fwk::{glib, gtk4};
+
+use super::thumb_item::ThumbItem;
 
 glib::wrapper! {
     /// Item in the workspace
@@ -33,6 +38,28 @@ impl ThumbItemRow {
             .property("orientation", gtk4::Orientation::Vertical)
             .build()
     }
+
+    pub fn bind(&self, thumb_item: &ThumbItem) {
+        let binding = thumb_item
+            .bind_property("name", self, "filename")
+            .sync_create()
+            .build();
+        self.imp().bindings.borrow_mut().push(binding);
+        let binding = thumb_item
+            .bind_property("pixbuf", self, "image")
+            .sync_create()
+            .build();
+        self.imp().bindings.borrow_mut().push(binding);
+    }
+
+    pub fn unbind(&self) {
+        self.imp()
+            .bindings
+            .borrow()
+            .iter()
+            .for_each(glib::Binding::unbind);
+        self.imp().bindings.borrow_mut().clear();
+    }
 }
 
 impl Default for ThumbItemRow {
@@ -42,6 +69,8 @@ impl Default for ThumbItemRow {
 }
 
 mod imp {
+    use std::cell::RefCell;
+
     use glib::Properties;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
@@ -54,6 +83,7 @@ mod imp {
         pub(super) image: gtk4::Image,
         #[property(set = |row: &&Self, n| row.filename.set_label(n), type = String)]
         pub(super) filename: gtk4::Label,
+        pub(super) bindings: RefCell<Vec<glib::Binding>>,
     }
 
     #[glib::object_subclass]

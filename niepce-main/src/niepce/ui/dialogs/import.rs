@@ -239,15 +239,16 @@ impl DialogController for ImportDialog {
                     if let Some(list_item) = item.downcast_ref::<gtk4::ListItem>() {
                         if let Some(row) = list_item.child().and_downcast::<ThumbItemRow>() {
                             let thumb_item = list_item.item().and_downcast::<ThumbItem>().unwrap();
-                            thumb_item
-                                .bind_property("name", &row, "filename")
-                                .sync_create()
-                                .build();
-                            thumb_item
-                                .bind_property("pixbuf", &row, "image")
-                                .sync_create()
-                                .build();
+                            row.bind(&thumb_item);
                         }
+                    }
+                });
+                factory.connect_unbind(move |_, item| {
+                    if let Some(row) = item
+                        .downcast_ref::<gtk4::ListItem>()
+                        .and_then(|list_item| list_item.child().and_downcast::<ThumbItemRow>())
+                    {
+                        row.unbind();
                     }
                 });
 
