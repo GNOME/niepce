@@ -24,7 +24,7 @@ use std::str::FromStr;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
-use npc_fwk::{gio, glib, gtk4};
+use npc_fwk::{adw, gio, glib, gtk4};
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
 use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender};
@@ -42,7 +42,7 @@ pub enum Event {
 
 #[derive(Default)]
 struct Widgets {
-    directory_name: Option<gtk4::Label>,
+    directory_name: Option<adw::ButtonContent>,
     parent: Option<gtk4::Window>,
     tx: Option<Sender<ImporterMsg>>,
 }
@@ -68,7 +68,11 @@ impl Controller for DirectoryImporterUI {
             Event::SelectDirectories => self.do_select_directories(),
             Event::SetDirectoryName(name) => {
                 if let Some(directory_name) = &self.widgets.borrow().directory_name {
-                    directory_name.set_text(name.as_ref().and_then(|p| p.to_str()).unwrap_or(""));
+                    if let Some(name) = name {
+                        directory_name.set_label(name.to_str().unwrap_or(""));
+                    } else {
+                        directory_name.set_label(&i18n("Choose Directory"));
+                    }
                 }
             }
             Event::SourceSelected(source, dest_dir) => {
@@ -125,6 +129,9 @@ impl DirectoryImporterUI {
             #[weak(rename_to = cfg)]
             self.cfg,
             move |dialog, response| {
+                if response == gtk4::ResponseType::DeleteEvent {
+                    return;
+                }
                 let mut source = None;
                 #[allow(deprecated)]
                 if response == gtk4::ResponseType::Ok {
@@ -194,7 +201,7 @@ impl ImporterUI for DirectoryImporterUI {
             sender,
             move |_| npc_fwk::send_async_local!(Event::SelectDirectories, sender),
         ));
-        get_widget!(builder, gtk4::Label, directory_name);
+        get_widget!(builder, adw::ButtonContent, select_dir_content);
         get_widget!(builder, gtk4::CheckButton, copy_files);
         get_widget!(builder, gtk4::CheckButton, recursive);
         let sender = self.sender();
@@ -224,7 +231,7 @@ impl ImporterUI for DirectoryImporterUI {
 
         let mut widgets = self.widgets.borrow_mut();
         widgets.parent = Some(parent.clone());
-        widgets.directory_name = Some(directory_name);
+        widgets.directory_name = Some(select_dir_content);
         widgets.tx = Some(tx);
 
         main_widget.upcast::<gtk4::Widget>()

@@ -1,4 +1,5 @@
 using Gtk 4.0;
+using Adw 1;
 
 Box main_widget {
   orientation: vertical;
@@ -13,21 +14,21 @@ Box main_widget {
       use-underline: true;
     }
 
-    Label directory_name {
-      hexpand: true;
-    }
-
     Button select_directories {
       focusable: true;
-      label: _("...");
+
+      Adw.ButtonContent select_dir_content {
+        icon-name: "folder-open-symbolic";
+        label: _("Choose Directory");
+      }
     }
   }
 
   CheckButton copy_files {
-    label: "Copy files";
+    label: _("Copy files");
   }
 
   CheckButton recursive {
-    label: "Recursive";
+    label: _("Recursive");
   }
 }
