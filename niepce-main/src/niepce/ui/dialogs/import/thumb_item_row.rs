@@ -17,12 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use glib::prelude::*;
-use glib::subclass::prelude::*;
+use std::cell::RefMut;
 
+use glib::subclass::prelude::*;
 use npc_fwk::{glib, gtk4};
 
-use super::thumb_item::ThumbItem;
+use super::ThumbItem;
+use npc_fwk::toolkit::ListViewRow;
 
 glib::wrapper! {
     /// Item in the workspace
@@ -38,27 +39,16 @@ impl ThumbItemRow {
             .property("orientation", gtk4::Orientation::Vertical)
             .build()
     }
+}
 
-    pub fn bind(&self, thumb_item: &ThumbItem) {
-        let binding = thumb_item
-            .bind_property("name", self, "filename")
-            .sync_create()
-            .build();
-        self.imp().bindings.borrow_mut().push(binding);
-        let binding = thumb_item
-            .bind_property("pixbuf", self, "image")
-            .sync_create()
-            .build();
-        self.imp().bindings.borrow_mut().push(binding);
+impl ListViewRow<ThumbItem> for ThumbItemRow {
+    fn bind(&self, thumb_item: &ThumbItem, _tree_list_row: Option<&gtk4::TreeListRow>) {
+        self.bind_to_prop("filename", thumb_item, "name");
+        self.bind_to_prop("image", thumb_item, "pixbuf");
     }
 
-    pub fn unbind(&self) {
-        self.imp()
-            .bindings
-            .borrow()
-            .iter()
-            .for_each(glib::Binding::unbind);
-        self.imp().bindings.borrow_mut().clear();
+    fn bindings_mut(&self) -> RefMut<'_, Vec<glib::Binding>> {
+        self.imp().bindings.borrow_mut()
     }
 }
 

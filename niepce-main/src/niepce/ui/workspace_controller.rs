@@ -37,7 +37,7 @@ use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::base::Signal;
 use npc_fwk::toolkit::{
-    self, Controller, ControllerImplCell, DialogController, UiController, WindowSize,
+    self, Controller, ControllerImplCell, DialogController, ListViewRow, UiController, WindowSize,
 };
 use npc_fwk::{dbg_out, err_out};
 use ws_item_row::WsItemRow;
@@ -188,7 +188,7 @@ impl Widgets {
                             _ => {}
                         };
                         let ws_item = item.downcast::<Item>().expect("is an item");
-                        ws_item_row.bind(&ws_item, tree_list_row);
+                        ws_item_row.bind(&ws_item, Some(tree_list_row));
                     }
                 }
             }

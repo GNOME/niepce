@@ -17,9 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::cell::RefMut;
+
 use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 use npc_fwk::{glib, gtk4};
+
+use npc_fwk::toolkit::ListViewRow;
 
 use super::{Event, Item, TreeItemType};
 
@@ -37,8 +41,12 @@ impl WsItemRow {
         obj.imp().tx.replace(Some(tx));
         obj
     }
+}
 
-    pub fn bind(&self, item: &Item, tree_list_row: &gtk4::TreeListRow) {
+impl ListViewRow<Item> for WsItemRow {
+    fn bind(&self, item: &Item, tree_list_row: Option<&gtk4::TreeListRow>) {
+        // Type resolution doesn't allow downcast<>, but it's
+        // an error if it is not the right type.
         self.imp().update(item);
         let binding = item
             .bind_property("count", &self.imp().count, "label")
@@ -48,14 +56,10 @@ impl WsItemRow {
             })
             .sync_create()
             .build();
-        self.imp().bindings.borrow_mut().push(binding);
-        let binding = item
-            .bind_property("label", &self.imp().label, "label")
-            .sync_create()
-            .build();
-        self.imp().bindings.borrow_mut().push(binding);
+        self.save_binding(binding);
+        self.bind_to(&self.imp().label, "label", item, "label");
         let expander = &self.imp().expander;
-        expander.set_list_row(Some(tree_list_row));
+        expander.set_list_row(tree_list_row);
         match item.tree_item_type() {
             // The top levels always have the expander
             TreeItemType::Folders | TreeItemType::Keywords | TreeItemType::Albums => {
@@ -80,16 +84,15 @@ impl WsItemRow {
         }
     }
 
-    pub fn unbind(&self) {
+    fn unbind(&self) {
         let expander = &self.imp().expander;
         expander.set_hide_expander(false);
         expander.set_list_row(None);
-        self.imp()
-            .bindings
-            .borrow()
-            .iter()
-            .for_each(glib::Binding::unbind);
-        self.imp().bindings.borrow_mut().clear();
+        self.clear_bindings();
+    }
+
+    fn bindings_mut(&self) -> RefMut<'_, Vec<glib::Binding>> {
+        self.imp().bindings.borrow_mut()
     }
 }
 

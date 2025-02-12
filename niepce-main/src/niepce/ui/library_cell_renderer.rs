@@ -17,10 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Cell, RefCell};
+use std::cell::{Cell, RefCell, RefMut};
 use std::rc::Weak;
 
-use gdk4::prelude::*;
 use gdk4::Texture;
 use glib::subclass::prelude::*;
 use glib::subclass::Signal;
@@ -29,12 +28,14 @@ use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 use npc_fwk::{cairo, gdk4, glib, graphene, gtk4};
 
+use super::image_list_item::ImageListItem;
 use npc_engine::catalog;
 use npc_engine::catalog::libfile::{FileStatus, FileType, LibFile};
 use npc_engine::libraryclient::UIDataProvider;
 use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
+use npc_fwk::toolkit::ListViewRow;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
 const CELL_PADDING: f32 = 4.0;
@@ -107,6 +108,18 @@ impl LibraryCellRenderer {
     }
 }
 
+impl ListViewRow<ImageListItem> for LibraryCellRenderer {
+    fn bind(&self, image_item: &ImageListItem, _tree_list_row: Option<&gtk4::TreeListRow>) {
+        self.bind_to_prop("pixbuf", image_item, "thumbnail");
+        self.bind_to_prop("libfile", image_item, "file");
+        self.bind_to_prop("status", image_item, "file_status");
+    }
+
+    fn bindings_mut(&self) -> RefMut<'_, Vec<glib::Binding>> {
+        self.imp().bindings.borrow_mut()
+    }
+}
+
 /// Option to set for the LibraryCellRenderer
 pub trait LibraryCellRendererExt {
     /// Set padding
@@ -173,6 +186,7 @@ pub struct LibraryCellRendererPriv {
     draw_flag: Cell<bool>,
     draw_status: Cell<bool>,
     ui_provider: RefCell<Option<Weak<UIDataProvider>>>,
+    bindings: RefCell<Vec<glib::Binding>>,
 }
 
 impl LibraryCellRendererPriv {
@@ -371,6 +385,7 @@ impl ObjectSubclass for LibraryCellRendererPriv {
             draw_flag: Cell::new(true),
             draw_status: Cell::new(true),
             ui_provider: RefCell::new(None),
+            bindings: RefCell::default(),
         }
     }
 }

@@ -41,8 +41,8 @@ use once_cell::sync::OnceCell;
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
 use npc_fwk::toolkit::{
-    self, Controller, ControllerImplCell, DialogController, Receiver, Sender, Thumbnail,
-    UiController,
+    self, Controller, ControllerImplCell, DialogController, ListViewRow, Receiver, Sender,
+    Thumbnail, UiController,
 };
 use npc_fwk::{controller_imp_imp, dbg_out, send_async_any, Date};
 use thumb_item::ThumbItem;
@@ -239,7 +239,7 @@ impl DialogController for ImportDialog {
                     if let Some(list_item) = item.downcast_ref::<gtk4::ListItem>() {
                         if let Some(row) = list_item.child().and_downcast::<ThumbItemRow>() {
                             let thumb_item = list_item.item().and_downcast::<ThumbItem>().unwrap();
-                            row.bind(&thumb_item);
+                            row.bind(&thumb_item, None);
                         }
                     }
                 });

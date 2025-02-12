@@ -28,6 +28,7 @@ use super::library_cell_renderer::LibraryCellRenderer;
 use npc_engine::catalog;
 use npc_engine::libraryclient::UIDataProvider;
 use npc_fwk::base::Signal;
+use npc_fwk::toolkit::ListViewRow;
 
 pub struct ImageGridView {
     grid_view: gtk4::GridView,
@@ -67,18 +68,13 @@ impl ImageGridView {
             let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
             let image_item = item.item().and_downcast::<ImageListItem>().unwrap();
             let renderer = item.child().and_downcast::<LibraryCellRenderer>().unwrap();
-            image_item
-                .bind_property("thumbnail", &renderer, "pixbuf")
-                .sync_create()
-                .build();
-            image_item
-                .bind_property("file", &renderer, "libfile")
-                .sync_create()
-                .build();
-            image_item
-                .bind_property("file_status", &renderer, "status")
-                .sync_create()
-                .build();
+            renderer.bind(&image_item, None);
+        });
+
+        factory.connect_unbind(move |_, item| {
+            let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
+            let renderer = item.child().and_downcast::<LibraryCellRenderer>().unwrap();
+            renderer.unbind();
         });
 
         // Context menu
