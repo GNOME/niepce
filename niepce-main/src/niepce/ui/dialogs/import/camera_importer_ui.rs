@@ -97,6 +97,7 @@ impl CameraImporterUI {
                 let source = source.clone();
                 let dest_dir = dest_dir.clone();
                 npc_fwk::send_async_local!(ImporterMsg::SetSource(source, dest_dir), tx);
+                npc_fwk::send_async_local!(ImporterMsg::SetCopy(true), tx);
             }
         }
     }
@@ -153,5 +154,11 @@ impl ImporterUI for CameraImporterUI {
         }
 
         main_widget.upcast::<gtk4::Widget>()
+    }
+
+    fn state_update(&self) {
+        if let Some(tx) = &self.widgets.borrow().tx.clone() {
+            npc_fwk::send_async_local!(ImporterMsg::SetCopy(true), tx);
+        }
     }
 }
