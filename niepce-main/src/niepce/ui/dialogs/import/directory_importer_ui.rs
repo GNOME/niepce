@@ -44,6 +44,7 @@ pub enum Event {
 struct Widgets {
     directory_name: Option<adw::ButtonContent>,
     parent: Option<gtk4::Window>,
+    copy_files: Option<gtk4::CheckButton>,
     tx: Option<Sender<ImporterMsg>>,
 }
 
@@ -232,8 +233,21 @@ impl ImporterUI for DirectoryImporterUI {
         let mut widgets = self.widgets.borrow_mut();
         widgets.parent = Some(parent.clone());
         widgets.directory_name = Some(select_dir_content);
+        widgets.copy_files = Some(copy_files);
         widgets.tx = Some(tx);
 
         main_widget.upcast::<gtk4::Widget>()
+    }
+
+    fn state_update(&self) {
+        let widgets = self.widgets.borrow();
+        if let Some(tx) = &widgets.tx.clone() {
+            let is_active = widgets
+                .copy_files
+                .as_ref()
+                .map(|check| check.is_active())
+                .unwrap_or(false);
+            npc_fwk::send_async_local!(ImporterMsg::SetCopy(is_active), tx);
+        }
     }
 }

@@ -56,6 +56,8 @@ use thumb_item_row::ThumbItemRow;
 pub enum Event {
     /// Set Source `source` and `dest_dir`
     SetSource(String, String),
+    /// Set copy to value
+    SetCopy(bool),
     /// The source changed. `id` in the combo box.
     SourceChanged(String),
     /// The destination was changed. Path of the dest folder.
@@ -84,14 +86,13 @@ struct Widgets {
 impl Widgets {
     // XXX This could be a forwarder if ImportUI were a Controller.
     fn setup(&self, importer_rx: Receiver<ImporterMsg>, tx_out: Sender<Event>) {
-        toolkit::channels::receiver_attach(importer_rx, move |msg| {
-            match msg {
-                ImporterMsg::SetSource(source, dest_dir) => {
-                    npc_fwk::send_async_local!(Event::SetSource(source, dest_dir), tx_out);
-                }
-                ImporterMsg::SetCopy(_copy) => {
-                    // XXX do something
-                }
+        toolkit::channels::receiver_attach(importer_rx, move |msg| match msg {
+            ImporterMsg::SetSource(source, dest_dir) => {
+                npc_fwk::send_async_local!(Event::SetSource(source, dest_dir), tx_out);
+            }
+            ImporterMsg::SetCopy(copy) => {
+                dbg_out!("Set copy {copy}");
+                npc_fwk::send_async_local!(Event::SetCopy(copy), tx_out)
             }
         });
     }
@@ -118,8 +119,8 @@ impl Widgets {
     }
 
     fn importer_changed(&self, source: &str) {
-        self.current_importer
-            .replace(self.importers.get(source).cloned());
+        let importer = self.importers.get(source);
+        self.current_importer.replace(importer.cloned());
         self.importer_ui_stack.set_visible_child_name(source);
     }
 }
@@ -128,6 +129,7 @@ impl Widgets {
 struct State {
     source: String,
     dest_dir: PathBuf,
+    copy: bool,
     sorting_format: DatePathFormat,
     // map images name to position in list store.
     images_list_map: HashMap<String, u32>,
@@ -151,6 +153,7 @@ impl Controller for ImportDialog {
 
     fn dispatch(&self, e: Event) {
         match e {
+            Event::SetCopy(copy) => self.set_copy(copy),
             Event::SetSource(source, destdir) => self.set_source(&source, &destdir),
             Event::SourceChanged(source) => self.import_source_changed(&source),
             Event::DestChanged(dest_dir) => self.set_destdir(&dest_dir),
@@ -385,6 +388,11 @@ impl ImportDialog {
     fn import_source_changed(&self, source: &str) {
         if let Some(widgets) = self.widgets.get() {
             widgets.importer_changed(source);
+            widgets
+                .current_importer
+                .borrow()
+                .as_ref()
+                .inspect(|importer| importer.state_update());
             self.state.borrow_mut().source = String::default();
             self.clear_import_list();
             self.cfg.set_value("last_importer", source);
@@ -416,6 +424,11 @@ impl ImportDialog {
 
         self.state.borrow_mut().source = source.to_string();
         self.set_destdir(&PathBuf::from(dest_dir));
+    }
+
+    fn set_copy(&self, copy: bool) {
+        self.widgets.get().unwrap().dest_folders.set_copy_mode(copy);
+        self.state.borrow_mut().copy = copy;
     }
 
     fn set_destdir(&self, dest_dir: &Path) {

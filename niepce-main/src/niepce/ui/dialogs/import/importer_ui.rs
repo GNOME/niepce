@@ -44,4 +44,7 @@ pub(super) trait ImporterUI {
 
     /// Setup the widget
     fn setup_widget(&self, parent: &gtk4::Window, tx: Sender<ImporterMsg>) -> gtk4::Widget;
+
+    /// Send a state update.
+    fn state_update(&self);
 }

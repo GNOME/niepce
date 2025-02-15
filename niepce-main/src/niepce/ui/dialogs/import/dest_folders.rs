@@ -192,6 +192,12 @@ impl DestFolders {
         self.sort(&self.base.borrow(), sorting)
     }
 
+    /// Copy mode change the way the listview behave when copying.
+    /// When not copying the list can be clicked.
+    pub fn set_copy_mode(&self, copy: bool) {
+        self.listview.set_can_target(copy);
+    }
+
     fn received_source(&self, source: String, date: Option<Date>) {
         let mut dest_file = DestFile::new(source, date);
         dest_file.sort(&self.base.borrow(), self.sorting.get());
