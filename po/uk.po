@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2025-01-12 20:05+0000\n"
-"PO-Revision-Date: 2025-01-12 23:18+0200\n"
+"POT-Creation-Date: 2025-02-16 04:44+0000\n"
+"PO-Revision-Date: 2025-02-16 18:22+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -65,7 +65,6 @@ msgid "Hubert Figuière"
 msgstr "Hubert Figuière"
 
 #: data/net.figuiere.Niepce.xml.in:5
-#| msgid "Open catalog"
 msgid "Niepce catalog file"
 msgstr "файл каталогу Niepce"
 
@@ -105,13 +104,22 @@ msgstr "Доступні камери:"
 msgid "Select"
 msgstr "Вибрати"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
 msgid "_Directory:"
 msgstr "_Каталог:"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
-msgid "..."
-msgstr "…"
+#| msgid "Directory"
+msgid "Choose Directory"
+msgstr "Виберіть каталог"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+msgid "Copy files"
+msgstr "Скопіювати файли"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+msgid "Recursive"
+msgstr "Рекурсивно"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
 msgid "Import images"
@@ -196,6 +204,9 @@ msgstr "Темний інтерфейс"
 #: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
 msgid "Preferences"
 msgstr "Налаштування"
+
+#~ msgid "..."
+#~ msgstr "…"
 
 #~ msgid "Camera"
 #~ msgstr "Камера"
@@ -343,9 +354,6 @@ msgstr "Налаштування"
 
 #~ msgid "Camera import %1%"
 #~ msgstr "Імпортування з камери — %1%"
-
-#~ msgid "Directory"
-#~ msgstr "Каталог"
 
 #~ msgid "Import picture folder"
 #~ msgstr "Імпортувати теку із зображеннями"
