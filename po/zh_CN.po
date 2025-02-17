@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2025-01-12 20:05+0000\n"
-"PO-Revision-Date: 2025-01-14 13:27+0800\n"
+"POT-Creation-Date: 2025-02-16 04:44+0000\n"
+"PO-Revision-Date: 2025-02-17 19:05+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -73,23 +73,23 @@ msgstr "Niepce 分类文件"
 
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
-msgstr "标签 6(_6)"
+msgstr "标签 _6"
 
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:39
 msgid "Label _7"
-msgstr "标签 7(_7)"
+msgstr "标签 _7"
 
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:51
 msgid "Label _8"
-msgstr "标签 8(_8)"
+msgstr "标签 _8"
 
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:63
 msgid "Label _9"
-msgstr "标签 9(_9)"
+msgstr "标签 _9"
 
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:116
 msgid "Label _10"
-msgstr "标签 10(10)"
+msgstr "标签 _10"
 
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:196
 msgid "<b>Labels</b>"
@@ -107,13 +107,21 @@ msgstr "可用的相机："
 msgid "Select"
 msgstr "选择"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
 msgid "_Directory:"
 msgstr "目录(_D)"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
-msgid "..."
-msgstr "..."
+msgid "Choose Directory"
+msgstr "选择目录"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+msgid "Copy files"
+msgstr "复制文件"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+msgid "Recursive"
+msgstr "递归"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
 msgid "Import images"
@@ -198,6 +206,9 @@ msgstr "使用深色界面"
 #: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
 msgid "Preferences"
 msgstr "首选项"
+
+#~ msgid "..."
+#~ msgstr "..."
 
 #~ msgid "Camera"
 #~ msgstr "相机"
@@ -333,9 +344,6 @@ msgstr "首选项"
 
 #~ msgid "Camera import %1%"
 #~ msgstr "相机导入 %1%"
-
-#~ msgid "Directory"
-#~ msgstr "目录"
 
 #~ msgid "Import picture folder"
 #~ msgstr "导入图片文件夹"
