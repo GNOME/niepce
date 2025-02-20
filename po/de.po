@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2025-01-31 20:28+0000\n"
-"PO-Revision-Date: 2025-02-07 21:50+0100\n"
+"POT-Creation-Date: 2025-02-16 04:44+0000\n"
+"PO-Revision-Date: 2025-02-20 20:23+0100\n"
 "Last-Translator: Jürgen Benvenuti <gastornis@posteo.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -104,13 +104,21 @@ msgstr "Verfügbare Kameras:"
 msgid "Select"
 msgstr "Auswahl"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
 msgid "_Directory:"
 msgstr "Or_dner:"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
-msgid "..."
-msgstr "..."
+msgid "Choose Directory"
+msgstr "Ordner wählen"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+msgid "Copy files"
+msgstr "Dateien kopieren"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+msgid "Recursive"
+msgstr "Rekursiv"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
 msgid "Import images"
@@ -195,6 +203,9 @@ msgstr "Dunkle Benutzeroberfläche verwenden"
 #: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
 msgid "Preferences"
 msgstr "Einstellungen"
+
+#~ msgid "..."
+#~ msgstr "..."
 
 #~ msgid "Camera"
 #~ msgstr "Kamera"
@@ -342,9 +353,6 @@ msgstr "Einstellungen"
 
 #~ msgid "Camera import %1%"
 #~ msgstr "Kamera-Import %1%"
-
-#~ msgid "Directory"
-#~ msgstr "Ordner"
 
 #~ msgid "Import picture folder"
 #~ msgstr "Bilderordner importieren"
