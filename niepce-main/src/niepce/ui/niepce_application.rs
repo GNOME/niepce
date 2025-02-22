@@ -136,7 +136,7 @@ impl NiepceApplication {
     /// This literally relaunch the executable.
     pub fn reopen_with(catalog_path: &str) {
         let catalog = Moniker::from(catalog_path);
-        std::env::set_var(Self::NIEPCE_OPEN_ENV, catalog.to_string());
+        unsafe { std::env::set_var(Self::NIEPCE_OPEN_ENV, catalog.to_string()) };
         let self_path = CString::new(
             std::env::current_exe()
                 .expect("Coudln't get current exe")
