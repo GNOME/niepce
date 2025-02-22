@@ -83,7 +83,7 @@ impl ImportState {
 
     /// Perform the root remap
     fn importer_root_remap(&mut self) {
-        if let Some(ref mut importer) = &mut self.importer {
+        if let Some(importer) = &mut self.importer {
             for (root, (dest, enabled)) in &self.root_remapping {
                 if *enabled {
                     importer.map_root_folder(root, dest);
@@ -330,7 +330,7 @@ impl ImportLibraryDialog {
     fn perform_import(&self) {
         dbg_out!("Perform import");
         self.state.borrow_mut().importer_root_remap();
-        if let Some(ref mut importer) = &mut self.state.borrow_mut().importer {
+        if let Some(importer) = &mut self.state.borrow_mut().importer {
             importer
                 .import_library(&self.client)
                 .expect("import library");
