@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/tookit/image_bitmap.rs
  *
- * Copyright (C) 2023-2024 Hubert Figuière
+ * Copyright (C) 2023-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,8 +55,8 @@ impl std::fmt::Debug for BitmapType {
             .field(
                 "buffer",
                 &match self {
-                    BitmapType::Rgb(ref b) => format!("Rgb({})", b.len()),
-                    BitmapType::Png(ref b) => format!("Png({})", b.len()),
+                    BitmapType::Rgb(b) => format!("Rgb({})", b.len()),
+                    BitmapType::Png(b) => format!("Png({})", b.len()),
                 },
             )
             .finish()
