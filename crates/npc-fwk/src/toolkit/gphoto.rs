@@ -1,7 +1,7 @@
 /*
  * niepce - npc_fwk/toolkit/gphoto.rs
  *
- * Copyright (C) 2009-2024 Hubert Figuière
+ * Copyright (C) 2009-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ impl GpDeviceList {
         dbg_out!("Detecting cameras");
         let task = self.context.lock().unwrap().list_cameras();
         *self.list.write().unwrap() = if let Ok(camera_list) = task.wait() {
-            camera_list.map(GpDevice::from).collect()
+            camera_list.collect()
         } else {
             err_out!("error detecting cameras");
             vec![]
