@@ -2,7 +2,7 @@
 # Copyright (C) 2011-2018 niepce's COPYRIGHT HOLDER.
 # This file is distributed under the same license as the niepce package.
 # Joe Hansen (joedalton2@yahoo.dk), 2010, 2011.
-# Alan Mortensen <alanmortensen.am@gmail.com>, 2017, 2018, 2023.
+# Alan Mortensen <alanmortensen.am@gmail.com>, 2017, 2018, 2023-25.
 #
 # item -> element
 #
@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2024-04-21 16:11+0000\n"
-"PO-Revision-Date: 2024-09-24 19:33+0200\n"
+"POT-Creation-Date: 2025-02-16 04:44+0000\n"
+"PO-Revision-Date: 2025-02-18 19:01+0100\n"
 "Last-Translator: Alan Mortensen <alanmortensen.am@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -66,6 +66,11 @@ msgstr "RAW-behandling"
 msgid "Hubert Figuière"
 msgstr "Hubert Figuière"
 
+#: data/net.figuiere.Niepce.xml.in:5
+#| msgid "Open catalog"
+msgid "Niepce catalog file"
+msgstr "Niepce-katalogfil"
+
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
 msgstr "Etiket _6"
@@ -93,6 +98,78 @@ msgstr "<b>Etiketter</b>"
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:208
 msgid "Edit Labels"
 msgstr "Redigér etiketter"
+
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
+msgid "Available cameras:"
+msgstr "Tilgængelige kameraer:"
+
+#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
+msgid "Select"
+msgstr "Vælg"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
+msgid "_Directory:"
+msgstr "_Mappe:"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
+msgid "Choose Directory"
+msgstr "Vælg mappe"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+msgid "Copy files"
+msgstr "Kopiér filer"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+msgid "Recursive"
+msgstr "Rekursiv"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+msgid "Import images"
+msgstr "Importér billeder"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
+msgid "_Import"
+msgstr "_Importér"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
+msgid "Cancel"
+msgstr "Annullér"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
+msgid "_Images to import"
+msgstr "_Billeder der skal importeres"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
+msgid "Destination _Folder:"
+msgstr "M_ålmappe:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+msgid "_Date Sorting:"
+msgstr "_Datosortering:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
+msgid "_Options"
+msgstr "_Indstillinger"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
+msgid "Presets:"
+msgstr "Forudindstillinger:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
+msgid "You can still change this after importing the pictures."
+msgstr "Du kan stadig ændre dette efter import af billederne."
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
+msgid "Date:"
+msgstr "Dato:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
+msgid "Attributes:"
+msgstr "Attributter:"
+
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
+msgid "Metadata"
+msgstr "Metadata"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
 msgid "Import Library"
@@ -211,42 +288,6 @@ msgstr "Indstillinger"
 #~ msgid "Import"
 #~ msgstr "Importér"
 
-#~ msgid "_Images to import"
-#~ msgstr "_Billeder der skal importeres"
-
-#~ msgid "Destination _Folder:"
-#~ msgstr "M_ålmappe:"
-
-#~ msgid "_Options"
-#~ msgstr "_Indstillinger"
-
-#~ msgid "Presets:"
-#~ msgstr "Forudindstillinger:"
-
-#~ msgid "You can still change this after importing the pictures."
-#~ msgstr "Du kan stadig ændre dette efter import af billederne."
-
-#~ msgid "Date:"
-#~ msgstr "Dato:"
-
-#~ msgid "Attributes:"
-#~ msgstr "Attributter:"
-
-#~ msgid "Metadata"
-#~ msgstr "Metadata"
-
-#~ msgid "_Import"
-#~ msgstr "_Importér"
-
-#~ msgid "Available cameras:"
-#~ msgstr "Tilgængelige kameraer:"
-
-#~ msgid "Select"
-#~ msgstr "Vælg"
-
-#~ msgid "_Directory:"
-#~ msgstr "_Mappe:"
-
 #~ msgid "..."
 #~ msgstr "…"
 
@@ -298,14 +339,8 @@ msgstr "Indstillinger"
 #~ msgid "Camera import %1%"
 #~ msgstr "Kameraimport %1%"
 
-#~ msgid "Directory"
-#~ msgstr "Mappe"
-
 #~ msgid "Import picture folder"
 #~ msgstr "Importér billedmappe"
-
-#~ msgid "Cancel"
-#~ msgstr "Annullér"
 
 #~ msgid "niepce"
 #~ msgstr "niepce"
@@ -507,9 +542,6 @@ msgstr "Indstillinger"
 
 #~ msgid "Label 5"
 #~ msgstr "Etiket 5"
-
-#~ msgid "Open catalog"
-#~ msgstr "Åbn album"
 
 #~ msgid "Open"
 #~ msgstr "Åbn"
