@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2025-01-12 20:05+0000\n"
-"PO-Revision-Date: 2025-01-21 04:39+0100\n"
+"POT-Creation-Date: 2025-02-16 04:44+0000\n"
+"PO-Revision-Date: 2025-02-25 07:42+0100\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <ka@li.org>\n"
 "Language: ka\n"
@@ -104,13 +104,21 @@ msgstr "ხელმისაწვდომი კამერები:"
 msgid "Select"
 msgstr "მონიშნეთ"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
 msgid "_Directory:"
 msgstr "_საქაღალდე:"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
-msgid "..."
-msgstr "..."
+msgid "Choose Directory"
+msgstr "აირჩიეთ საქაღალდე"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+msgid "Copy files"
+msgstr "ფაილების კოპირება"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+msgid "Recursive"
+msgstr "რეკურსიული"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
 msgid "Import images"
@@ -195,3 +203,6 @@ msgstr "მუქი ინტერფეისის გამოყენე�
 #: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
 msgid "Preferences"
 msgstr "გამართვა"
+
+#~ msgid "..."
+#~ msgstr "..."
