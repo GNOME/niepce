@@ -174,7 +174,7 @@ fn get_folder_for_import(catalog: &CatalogDb, folder: &std::path::Path) -> LibRe
                         .and_then(std::ffi::OsStr::to_str)
                         .or(Some(""))
                 }) {
-                    catalog.add_folder(parent_folder_name, parent_folder)
+                    catalog.add_root_folder(parent_folder_name, parent_folder)
                 } else {
                     err_out_line!("Could't get parent folder name for '{folder:?}'.");
                     Err(LibError::InvalidResult)
