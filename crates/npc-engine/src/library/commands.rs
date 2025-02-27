@@ -137,19 +137,19 @@ fn add_folder_and_notify(
     name: &str,
     path: Option<String>,
 ) -> LibResult<LibFolder> {
-    match catalog.add_folder_into(name, path, parent) {
-        Ok(lf) => {
-            let libfolder = lf.clone();
-            if catalog.notify(LibNotification::AddedFolder(lf)).is_err() {
+    catalog
+        .add_folder_into(name, path, parent)
+        .inspect(|lf| {
+            if catalog
+                .notify(LibNotification::AddedFolder(lf.clone()))
+                .is_err()
+            {
                 err_out!("Failed to notify AddedFolder");
             }
-            Ok(libfolder)
-        }
-        Err(err) => {
+        })
+        .inspect_err(|err| {
             err_out_line!("Add folder failed {:?}", err);
-            Err(err)
-        }
-    }
+        })
 }
 
 // Get the folder for import. Create it if needed otherwise return the
