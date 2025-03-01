@@ -6,20 +6,21 @@
 # Enrico Nicoletto <hiko@duck.com>, 2013, 2023.
 # Juliano de Souza Camargo <julianosc@pm.me>, 2024.
 # Rafael Fontenelle <rafaelff@gnome.org>, 2014-2025.
+# Álvaro Burns <>, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2025-01-12 20:05+0000\n"
-"PO-Revision-Date: 2025-01-15 00:31-0300\n"
-"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
-"Language-Team: Brazilian Portuguese <https://br.gnome.org/traducao>\n"
+"POT-Creation-Date: 2025-02-20 19:26+0000\n"
+"PO-Revision-Date: 2025-02-22 08:29-0300\n"
+"Last-Translator: Álvaro Burns <>\n"
+"Language-Team: Brazilian Portuguese\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Gtranslator 47.1\n"
 
 # Nome do aplicativo
@@ -109,13 +110,21 @@ msgstr "Câmeras disponíveis:"
 msgid "Select"
 msgstr "Selecionar"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
 msgid "_Directory:"
 msgstr "_Diretório:"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
-msgid "..."
-msgstr "…"
+msgid "Choose Directory"
+msgstr "Escolha o diretório"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+msgid "Copy files"
+msgstr "Copiar arquivos"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+msgid "Recursive"
+msgstr "Recursivo"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
 msgid "Import images"
@@ -200,6 +209,9 @@ msgstr "Utilizar interface escura"
 #: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
 msgid "Preferences"
 msgstr "Preferências"
+
+#~ msgid "..."
+#~ msgstr "…"
 
 #~ msgid "Camera"
 #~ msgstr "Câmera"
@@ -311,9 +323,6 @@ msgstr "Preferências"
 
 #~ msgid "Camera import %1%"
 #~ msgstr "Importação da câmera %1%"
-
-#~ msgid "Directory"
-#~ msgstr "Diretório"
 
 #~ msgid "Import picture folder"
 #~ msgstr "Importar pasta de fotos"
