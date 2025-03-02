@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/lib.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,5 +45,6 @@ pub use utils::exempi::{gps_coord_from_xmp, ExempiManager, NsDef, XmpMeta};
 /// Make sure to call it after gtk::init()
 ///
 pub fn init() {
-    rexiv2::initialize().expect("Unable to initialize rexiv2");
+    rexiv2::initialize().expect("Unable to initialise rexiv2");
+    gstreamer::init().expect("Unable to initialise gstreamer");
 }

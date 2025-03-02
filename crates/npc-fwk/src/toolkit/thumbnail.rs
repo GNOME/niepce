@@ -1,7 +1,7 @@
 /*
  * niepce - toolkit/thumbnail.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 
 use std::cmp;
 use std::convert::From;
-use std::fs;
 use std::path::Path;
 
 use crate::gdk_pixbuf;
@@ -120,14 +119,7 @@ impl Thumbnail {
         } else if mime_type.is_movie() {
             // XXX FIXME
             dbg_out!("video thumbnail");
-            let mut cached = glib::tmp_dir();
-            cached.push("temp-1234");
-            if movieutils::thumbnail_movie(filename, w, h, &cached) {
-                pix = gdk_pixbuf::Pixbuf::from_file_at_size(&cached, w as i32, h as i32).ok();
-                if let Err(err) = fs::remove_file(&cached) {
-                    err_out!("Remove temporary file {:?} failed: {}", &cached, err);
-                }
-            }
+            pix = movieutils::thumbnail_movie(filename, w, h);
             if pix.is_none() {
                 err_out!("exception thumbnailing video ");
             }

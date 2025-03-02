@@ -35,6 +35,7 @@ To build you need the following:
 - gexiv2 >= 0.14 (as required by rexiv2)
 - libheif
   - HEVC codec should be installed at runtime for HEIC.
+- gstreamer-1.0
 - meson >= 0.59
 - blueprint
 - gtk4 4.10
