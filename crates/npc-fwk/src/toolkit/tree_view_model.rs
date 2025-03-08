@@ -150,6 +150,10 @@ where
         }
     }
 
+    pub fn select_item(&self, idx: u32) -> bool {
+        self.selection_model.select_item(idx, true)
+    }
+
     /// Get the item at index. This is the index in the selection model.
     pub fn item(&self, idx: u32) -> Option<T>
     where
@@ -158,6 +162,34 @@ where
         tree_list_row!(self.selection_model.item(idx)?)
             .item()
             .and_downcast::<T>()
+    }
+
+    pub fn item_for_path(&self, path: &str) -> Option<T>
+    where
+        <T as PathTreeItem>::Id: Ord + Copy,
+    {
+        let items = self.items.borrow();
+        items.get(path).cloned()
+    }
+
+    // XXX This is very slow. Didn't find a way to get the index
+    // of an object.
+    pub fn item_index_for_path(&self, path: &str) -> Option<u32>
+    where
+        <T as PathTreeItem>::Id: Ord + Copy + std::fmt::Display,
+    {
+        self.item_for_path(path).and_then(|item| {
+            let n = self.selection_model.n_items();
+            (0..n).find(|&idx| {
+                self.selection_model
+                    .item(idx)
+                    .and_downcast_ref::<gtk4::TreeListRow>()
+                    .and_then(|item| item.item())
+                    .and_downcast_ref::<T>()
+                    .map(|dest| dest.id() == item.id())
+                    .unwrap_or(false)
+            })
+        })
     }
 
     /// Bind to the listview widget. Will setup the factory.

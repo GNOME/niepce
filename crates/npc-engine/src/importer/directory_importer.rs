@@ -74,6 +74,10 @@ pub struct DirectoryImporter {
 }
 
 impl DirectoryImporter {
+    pub fn copy(&self) -> bool {
+        self.copy
+    }
+
     pub fn set_copy(&mut self, copy: bool) {
         self.copy = copy;
     }

@@ -35,6 +35,7 @@ use std::rc::Rc;
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::catalog::filebundle::FileBundle;
+use npc_fwk::glib;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::utils::FileList;
 use npc_fwk::{Date, DateExt, XmpMeta, dbg_out};
@@ -45,6 +46,13 @@ pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>>
     } else {
         None
     }
+}
+
+/// Get the default import destdir. That's if there is none
+/// saved in the catalog. Will always return a PathBuf
+pub fn default_import_destdir() -> PathBuf {
+    glib::user_special_dir(glib::UserDirectory::Pictures)
+        .unwrap_or_else(|| PathBuf::from("~/Pictures"))
 }
 
 /// An import request

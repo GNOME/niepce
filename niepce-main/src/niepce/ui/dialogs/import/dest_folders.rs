@@ -30,11 +30,11 @@ use npc_fwk::{glib, gtk4};
 
 use npc_engine::catalog::LibFolder;
 use npc_engine::catalog::libfolder::FolderVirtualType;
-use npc_engine::importer::{DatePathFormat, Importer};
+use npc_engine::importer::{self, DatePathFormat, Importer};
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::toolkit::{
-    Controller, ControllerImplCell, ListViewRow, TreeViewFactory, TreeViewItem, TreeViewModel,
-    UiController,
+    self, Controller, ControllerImplCell, ListViewRow, TreeViewFactory, TreeViewItem,
+    TreeViewModel, UiController,
 };
 use npc_fwk::{Date, dbg_out};
 
@@ -73,6 +73,8 @@ pub enum DestFoldersIn {
     FoldersLoaded(Vec<LibFolder>),
     /// Selected Folder change to id.
     SelectionChanged(u32),
+    /// Select the item at path
+    SelectPath(PathBuf),
     /// Remove all the sources.
     Clear,
 }
@@ -110,6 +112,12 @@ impl Controller for DestFolders {
             PreviewReceived(source, date) => self.received_source(source, date),
             SortingChanged(format) => self.sorting_changed(format),
             SelectionChanged(idx) => self.selection_changed(idx),
+            SelectPath(path) => {
+                if let Some(index) = self.select_path(&path) {
+                    self.listview
+                        .scroll_to(index, gtk4::ListScrollFlags::NONE, None);
+                }
+            }
             Clear => self.clear_source(),
         }
     }
@@ -130,8 +138,17 @@ impl TreeViewFactory<DestFolder> for DestFolders {
 }
 
 impl DestFolders {
-    pub fn new(client: Arc<LibraryClient>, listview: gtk4::ListView) -> Rc<Self> {
+    pub fn new(
+        client: Arc<LibraryClient>,
+        listview: gtk4::ListView,
+        cfg: &Rc<toolkit::Configuration>,
+    ) -> Rc<Self> {
         let tree_model = TreeViewModel::<DestFolder>::new();
+
+        let base = cfg
+            .value_opt("base_import_dest_dir")
+            .map(PathBuf::from)
+            .unwrap_or_else(importer::default_import_destdir);
 
         let ctrl = Rc::new(DestFolders {
             imp_: ControllerImplCell::default(),
@@ -139,7 +156,7 @@ impl DestFolders {
             tree_model,
             dest_files: RefCell::default(),
             sorting: Cell::default(),
-            base: RefCell::new(PathBuf::from("~/Pictures")),
+            base: RefCell::new(base),
             client: Arc::downgrade(&client),
         });
 
@@ -187,6 +204,15 @@ impl DestFolders {
         }
     }
 
+    /// Select the folder by path and return index if found.
+    fn select_path(&self, path: &Path) -> Option<u32> {
+        path.to_str().and_then(|path| {
+            self.tree_model.item_index_for_path(path).inspect(|&index| {
+                self.tree_model.select_item(index);
+            })
+        })
+    }
+
     fn sorting_changed(&self, sorting: DatePathFormat) {
         self.sorting.set(sorting);
         self.sort(&self.base.borrow(), sorting)
@@ -231,6 +257,11 @@ impl DestFolders {
     /// Populate the folders.
     fn populate_folders(&self, folders: &[LibFolder]) {
         self.populate_any_folders(folders, false);
+
+        if let Some(index) = self.select_path(&self.base.borrow()) {
+            self.listview
+                .scroll_to(index, gtk4::ListScrollFlags::NONE, None);
+        }
     }
 
     /// Populate the root folders.
@@ -243,9 +274,6 @@ impl DestFolders {
                 npc_fwk::send_async_any!(DestFoldersIn::FoldersLoaded(list), sender);
             })));
         }
-
-        // XXX Select the save base. Or the first root if none or not found.
-        self.selection_changed(0);
     }
 
     /// Return the `DestFolder` as the idx as per the list model.
