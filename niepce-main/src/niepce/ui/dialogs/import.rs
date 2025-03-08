@@ -30,7 +30,7 @@ use importer_ui::{ImporterMsg, ImporterUI};
 
 use std::cell::{OnceCell, RefCell};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -55,7 +55,7 @@ use thumb_item_row::ThumbItemRow;
 
 pub enum Event {
     /// Set Source `source` and `dest_dir`
-    SetSource(String, String),
+    SetSource(String, PathBuf),
     /// Set copy to value
     SetCopy(bool),
     /// The source changed. `id` in the combo box.
@@ -154,9 +154,9 @@ impl Controller for ImportDialog {
     fn dispatch(&self, e: Event) {
         match e {
             Event::SetCopy(copy) => self.set_copy(copy),
-            Event::SetSource(source, destdir) => self.set_source(&source, &destdir),
+            Event::SetSource(source, destdir) => self.set_source(&source, destdir),
             Event::SourceChanged(source) => self.import_source_changed(&source),
-            Event::DestChanged(dest_dir) => self.set_destdir(&dest_dir),
+            Event::DestChanged(dest_dir) => self.set_destdir(dest_dir),
             Event::SetDatePathFormat(f) => {
                 if let Some(widgets) = self.widgets.get() {
                     widgets.dest_folders.send(DestFoldersIn::SortingChanged(f));
@@ -212,8 +212,11 @@ impl DialogController for ImportDialog {
                     send_async_any!(Event::Import, sender);
                 });
                 get_widget!(builder, gtk4::ListView, destination_folders);
-                let dest_folders =
-                    dest_folders::DestFolders::new(self.client.clone(), destination_folders);
+                let dest_folders = dest_folders::DestFolders::new(
+                    self.client.clone(),
+                    destination_folders,
+                    &self.cfg,
+                );
                 let sender = self.sender();
                 dest_folders.set_forwarder(Some(Box::new(glib::clone!(
                     #[weak]
@@ -330,7 +333,7 @@ impl DialogController for ImportDialog {
 
                 let importer = DirectoryImporterUI::new(self.cfg.clone());
                 widgets.add_importer_ui(importer);
-                let importer = CameraImporterUI::new();
+                let importer = CameraImporterUI::new(self.cfg.clone());
                 widgets.add_importer_ui(importer);
 
                 let last_importer = self.cfg.value("last_importer", "DirectoryImporter");
@@ -409,7 +412,7 @@ impl ImportDialog {
             .map(|v| v.backend())
     }
 
-    fn set_source(&self, source: &str, dest_dir: &str) {
+    fn set_source(&self, source: &str, dest_dir: PathBuf) {
         self.clear_import_list();
 
         if let Some(importer) = self.importer() {
@@ -423,7 +426,7 @@ impl ImportDialog {
         }
 
         self.state.borrow_mut().source = source.to_string();
-        self.set_destdir(&PathBuf::from(dest_dir));
+        self.set_destdir(dest_dir);
     }
 
     fn set_copy(&self, copy: bool) {
@@ -431,9 +434,9 @@ impl ImportDialog {
         self.state.borrow_mut().copy = copy;
     }
 
-    fn set_destdir(&self, dest_dir: &Path) {
+    fn set_destdir(&self, dest_dir: PathBuf) {
         dbg_out!("set destdir");
-        let full_dest_dir = self.base_dest_dir.join(dest_dir);
+        let full_dest_dir = self.base_dest_dir.join(&dest_dir);
         let mut state = self.state.borrow_mut();
         // We should normalize the path to $HOME if applicable.
         self.widgets
@@ -443,6 +446,16 @@ impl ImportDialog {
             .set_label(&i18n_fmt! {
                 i18n_fmt("Destination set to \"{}\"", dest_dir.to_string_lossy())
             });
+        // Select the destdir in the list
+        if let Some(widgets) = self.widgets.get() {
+            widgets
+                .dest_folders
+                .send(DestFoldersIn::SelectPath(full_dest_dir.clone()));
+        }
+        if state.copy {
+            self.cfg
+                .set_value("base_import_dest_dir", &full_dest_dir.to_string_lossy());
+        }
         state.dest_dir = full_dest_dir;
     }
 
