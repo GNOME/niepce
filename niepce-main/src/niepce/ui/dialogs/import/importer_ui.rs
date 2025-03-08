@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use npc_fwk::gtk4;
@@ -27,7 +28,7 @@ use npc_fwk::toolkit::Sender;
 /// Messages sent by the importer.
 pub(super) enum ImporterMsg {
     /// Sent to set the source.
-    SetSource(String, String),
+    SetSource(String, PathBuf),
     /// Sent to indicate files have to be copied.
     SetCopy(bool),
 }

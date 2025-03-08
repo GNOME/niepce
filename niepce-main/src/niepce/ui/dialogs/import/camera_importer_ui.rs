@@ -18,6 +18,7 @@
  */
 
 use std::cell::RefCell;
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
@@ -25,7 +26,7 @@ use gtk4::prelude::*;
 use npc_fwk::{glib, gtk4};
 
 use super::{ImporterMsg, ImporterUI};
-use npc_engine::importer::{CameraImporter, ImportBackend};
+use npc_engine::importer::{self, CameraImporter, ImportBackend};
 use npc_fwk::controller_imp_imp;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender};
@@ -46,6 +47,7 @@ struct Widgets {
 pub(super) struct CameraImporterUI {
     imp_: ControllerImplCell<Event, ()>,
     name: String,
+    cfg: Rc<toolkit::Configuration>,
     backend: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
 }
@@ -64,10 +66,11 @@ impl Controller for CameraImporterUI {
 }
 
 impl CameraImporterUI {
-    pub fn new() -> Rc<CameraImporterUI> {
+    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<CameraImporterUI> {
         let widget = Rc::new(CameraImporterUI {
             imp_: ControllerImplCell::default(),
             name: i18n("Camera"),
+            cfg,
             backend: Rc::new(CameraImporter::default()),
             widgets: RefCell::default(),
         });
@@ -85,14 +88,17 @@ impl CameraImporterUI {
             .as_ref()
             .map(|combo| combo.selected())
         {
-            let datetime = chrono::Local::now();
             let source = self
                 .widgets
                 .borrow()
                 .camera_list_model
                 .value(source as usize);
-            let today = format!("{}", datetime.format("%F %H%M%S"));
-            let dest_dir = i18n("Camera import ") + &today;
+            let dest_dir = self
+                .cfg
+                .value_opt("base_import_dest_dir")
+                .map(PathBuf::from)
+                .unwrap_or_else(importer::default_import_destdir);
+            npc_fwk::dbg_out!("dest dir for camera {dest_dir:?}");
             if let Some(tx) = &self.widgets.borrow().tx.clone() {
                 let source = source.clone();
                 let dest_dir = dest_dir.clone();

@@ -26,7 +26,7 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use npc_fwk::{adw, gio, glib, gtk4};
 
-use npc_engine::importer::{DirectoryImporter, ImportBackend};
+use npc_engine::importer::{DirectoryImporter, ImportBackend, default_import_destdir};
 use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender};
 use npc_fwk::{controller_imp_imp, on_err_out, toolkit};
 
@@ -37,7 +37,7 @@ pub enum Event {
     RecursiveToggled(bool),
     SelectDirectories,
     SetDirectoryName(Option<PathBuf>),
-    SourceSelected(String, String),
+    SourceSelected(String, PathBuf),
 }
 
 #[derive(Default)]
@@ -79,7 +79,20 @@ impl Controller for DirectoryImporterUI {
             Event::SourceSelected(source, dest_dir) => {
                 if let Some(tx) = &self.widgets.borrow().tx.clone() {
                     let source = source.clone();
-                    let dest_dir = dest_dir.clone();
+                    // In the unlikely case dest_dir is `/`, use the
+                    // default import destdir.
+                    let is_copy = self.backend.borrow().copy();
+                    let dest_dir = if is_copy {
+                        self.cfg
+                            .value_opt("base_import_dest_dir")
+                            .map(PathBuf::from)
+                            .unwrap_or_else(default_import_destdir)
+                    } else {
+                        dest_dir
+                            .parent()
+                            .map(|parent| parent.to_path_buf())
+                            .unwrap_or_else(default_import_destdir)
+                    };
                     npc_fwk::send_async_local!(ImporterMsg::SetSource(source, dest_dir), tx);
                 }
             }
@@ -137,17 +150,13 @@ impl DirectoryImporterUI {
                 #[allow(deprecated)]
                 if response == gtk4::ResponseType::Ok {
                     source = dialog.file().and_then(|f| f.path());
-                    let dest_dir = source
-                        .as_ref()
-                        .and_then(|p| p.file_name()?.to_str())
-                        .unwrap_or("");
+                    let dest_dir = source.clone().unwrap_or_else(|| PathBuf::from(""));
                     if let Some(source) = source
                         .as_ref()
                         .and_then(|p| p.to_str())
                         .map(|s| s.to_string())
                     {
                         cfg.set_value("last_dir_import_location", &source);
-                        let dest_dir = dest_dir.to_string();
                         npc_fwk::send_async_local!(Event::SourceSelected(source, dest_dir), sender);
                     }
                 }
