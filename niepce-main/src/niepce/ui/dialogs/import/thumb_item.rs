@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/import/thumb_item.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ mod imp {
     use gio::subclass::prelude::*;
     use glib::prelude::*;
     use glib::Properties;
-    use npc_fwk::{gdk_pixbuf, gio, glib};
+    use npc_fwk::{gdk4, gio, glib};
 
     use npc_fwk::Date;
 
@@ -63,7 +63,7 @@ mod imp {
         #[property(get, set)]
         pub(super) name: RefCell<String>,
         #[property(get, set, nullable)]
-        pub(super) pixbuf: RefCell<Option<gdk_pixbuf::Pixbuf>>,
+        pub(super) pixbuf: RefCell<Option<gdk4::Paintable>>,
     }
 
     pub(super) struct ItemData {

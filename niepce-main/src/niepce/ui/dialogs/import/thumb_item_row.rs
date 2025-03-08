@@ -64,12 +64,12 @@ mod imp {
     use glib::Properties;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
-    use npc_fwk::{gdk_pixbuf, glib, gtk4};
+    use npc_fwk::{gdk4, glib, gtk4};
 
     #[derive(Default, Properties)]
     #[properties(wrapper_type = super::ThumbItemRow)]
     pub struct ThumbItemRow {
-        #[property(set = |row: &&Self, p| row.image.set_from_pixbuf(p), type = gdk_pixbuf::Pixbuf, nullable)]
+        #[property(set = |row: &&Self, p: Option<&gdk4::Paintable>| row.image.set_paintable(p), type = gdk4::Paintable, nullable)]
         pub(super) image: gtk4::Image,
         #[property(set = |row: &&Self, n| row.filename.set_label(n), type = String)]
         pub(super) filename: gtk4::Label,
