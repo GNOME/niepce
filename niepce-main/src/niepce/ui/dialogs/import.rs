@@ -35,7 +35,7 @@ use std::rc::Rc;
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use gtk_macros::get_widget;
-use npc_fwk::{adw, gio, glib, gtk4};
+use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 use once_cell::sync::OnceCell;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
@@ -427,7 +427,10 @@ impl ImportDialog {
                     .item(*idx)
                     .and_downcast::<ThumbItem>()
                     .inspect(|item| {
-                        item.set_pixbuf(thumbnail.and_then(|t| t.make_pixbuf()));
+                        item.set_pixbuf(thumbnail.map(|ref t| {
+                            let texture: gdk4::Texture = t.into();
+                            texture.upcast::<gdk4::Paintable>()
+                        }));
                         item.set_date(date);
                     })
             });

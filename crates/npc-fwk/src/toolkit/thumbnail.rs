@@ -21,8 +21,8 @@ use std::cmp;
 use std::convert::From;
 use std::path::Path;
 
-use crate::gdk_pixbuf;
 use crate::glib;
+use crate::{gdk4, gdk_pixbuf};
 use gdk_pixbuf::Colorspace;
 
 use super::gdk_utils;
@@ -184,6 +184,31 @@ impl From<gdk_pixbuf::Pixbuf> for Thumbnail {
             has_alpha,
             bytes: Vec::from(bytes.as_ref()),
         }
+    }
+}
+
+impl From<&Thumbnail> for gdk4::Texture {
+    fn from(v: &Thumbnail) -> gdk4::Texture {
+        let format = match v.colorspace {
+            Colorspace::Rgb => {
+                if v.has_alpha {
+                    gdk4::MemoryFormat::R8g8b8a8
+                } else {
+                    gdk4::MemoryFormat::R8g8b8
+                }
+            }
+            // There is only one colorspace, but it's a non-exhaustive
+            // enum.
+            _ => unreachable!(),
+        };
+        gdk4::MemoryTexture::new(
+            v.width as i32,
+            v.height as i32,
+            format,
+            &glib::Bytes::from(&v.bytes),
+            v.stride as usize,
+        )
+        .into()
     }
 }
 
