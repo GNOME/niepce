@@ -22,6 +22,7 @@ use std::path::PathBuf;
 use super::notification::LibNotification;
 use super::notification::{Count, FileMove, MetadataChange};
 use super::queriedcontent::QueriedContent;
+use crate::catalog::db::FolderOpResult;
 use crate::catalog::filebundle::FileBundle;
 use crate::catalog::keyword::Keyword;
 use crate::catalog::label::Label;
@@ -150,23 +151,6 @@ fn add_folder_and_notify(
         .inspect_err(|err| {
             err_out_line!("Add folder failed {:?}", err);
         })
-}
-
-#[derive(Debug)]
-enum FolderOpResult {
-    Existing(LibFolder),
-    Created(LibFolder),
-}
-
-impl std::ops::Deref for FolderOpResult {
-    type Target = LibFolder;
-
-    // Required method
-    fn deref(&self) -> &Self::Target {
-        match self {
-            FolderOpResult::Created(lf) | FolderOpResult::Existing(lf) => lf,
-        }
-    }
 }
 
 // Get the folder for import. Create it if needed otherwise return the
@@ -303,18 +287,43 @@ pub fn cmd_create_folder(catalog: &CatalogDb, name: &str, path: Option<String>) 
     }
 }
 
-pub fn cmd_delete_folder(catalog: &CatalogDb, id: LibraryId) -> bool {
-    match catalog.delete_folder(id) {
-        Ok(_) => {
+pub fn cmd_delete_folder(catalog: &CatalogDb, id: LibraryId, recursive: bool) -> bool {
+    delete_folder(catalog, id, recursive).is_ok()
+}
+
+fn delete_one_folder(catalog: &CatalogDb, id: LibraryId) -> crate::catalog::db::Result<()> {
+    catalog
+        .delete_folder(id)
+        .inspect(|_| {
             if catalog.notify(LibNotification::FolderDeleted(id)).is_err() {
                 err_out!("Failed to notify FolderDeleted");
             }
-            true
-        }
-        Err(err) => {
+        })
+        .inspect_err(|err| {
             err_out_line!("Delete folder failed {:?}", err);
-            false
-        }
+        })
+}
+
+/// Delete the folder, eventually recursively. If `recursive` is false
+/// the it just calls [`delete_one_folder`]
+fn delete_folder(
+    catalog: &CatalogDb,
+    id: LibraryId,
+    recursive: bool,
+) -> crate::catalog::db::Result<()> {
+    if recursive {
+        catalog.get_subfolders(id).and_then(|subfolders| {
+            if subfolders.is_empty() {
+                delete_one_folder(catalog, id)
+            } else {
+                subfolders
+                    .iter()
+                    .try_for_each(|folder| delete_folder(catalog, folder.id(), recursive))
+                    .and_then(|_| delete_one_folder(catalog, id))
+            }
+        })
+    } else {
+        delete_one_folder(catalog, id)
     }
 }
 
@@ -815,9 +824,9 @@ pub fn cmd_upgrade_catalog_from(catalog: &CatalogDb, version: i32) -> bool {
 
 #[cfg(test)]
 mod test {
-    use crate::catalog::db_test;
+    use crate::catalog::{db::Error, db_test};
 
-    use super::{get_folder_for_import, FolderOpResult};
+    use super::{cmd_delete_folder, get_folder_for_import, FolderOpResult};
 
     #[test]
     fn test_folder_for_import() {
@@ -882,5 +891,43 @@ mod test {
         let leaf = roots2.last().unwrap();
         assert!(matches!(leaf, FolderOpResult::Created(_)));
         assert_eq!(leaf.parent(), root2.id());
+    }
+
+    #[test]
+    fn test_delete_folder() {
+        let catalog = db_test::test_catalog();
+
+        let root = catalog.add_root_folder("Pictures", "Pictures".into());
+        assert!(root.is_ok());
+        let root = root.unwrap();
+        assert_eq!(root.parent(), 0);
+
+        let folders = get_folder_for_import(&catalog, std::path::Path::new("Pictures/2023"))
+            .expect("Folder for import failed");
+        assert_eq!(root.id(), folders[0].id());
+        let parent_folder = folders.last().unwrap();
+
+        let lf = catalog.add_folder_into(
+            "20230524",
+            Some("Pictures/2023/20230524".to_string()),
+            parent_folder.id(),
+        );
+        assert!(lf.is_ok());
+        let lf2 = catalog.add_folder_into(
+            "20230508",
+            Some("Pictures/2023/20230508".to_string()),
+            parent_folder.id(),
+        );
+        assert!(lf2.is_ok());
+
+        let result = cmd_delete_folder(&catalog, parent_folder.id(), true);
+        assert!(result);
+
+        let found1 = catalog.get_folder("Pictures/2023/20230524");
+        assert!(matches!(found1, Err(Error::NotFound)));
+        let found2 = catalog.get_folder("Pictures/2023/20230508");
+        assert!(matches!(found2, Err(Error::NotFound)));
+        let found3 = catalog.get_folder("Pictures/2023");
+        assert!(matches!(found3, Err(Error::NotFound)));
     }
 }

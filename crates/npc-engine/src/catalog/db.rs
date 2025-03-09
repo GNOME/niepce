@@ -88,6 +88,27 @@ pub enum Error {
 
 pub type Result<T> = result::Result<T, Error>;
 
+#[derive(Debug)]
+/// Result from a folder operaton.
+/// Can be dereferenced as a `LibFolder`
+pub enum FolderOpResult {
+    /// Folder already exists
+    Existing(LibFolder),
+    /// Folder created.
+    Created(LibFolder),
+    // XXX missing Removed()
+}
+
+impl std::ops::Deref for FolderOpResult {
+    type Target = LibFolder;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            FolderOpResult::Created(lf) | FolderOpResult::Existing(lf) => lf,
+        }
+    }
+}
+
 /// The Catalog database
 pub struct CatalogDb {
     /// Sqlite3 connection handle.
@@ -676,6 +697,35 @@ impl CatalogDb {
                 }
                 Ok(Some(row)) => Ok(LibFolder::read_from(row)?),
             };
+        }
+        Err(Error::NoSqlDb)
+    }
+
+    /// Get the subfolders for id. Only the direct descendents.
+    ///
+    /// Return a `Ok(Vec<LibFolder>)` (may be empty) or `Err(_)`.
+    pub(crate) fn get_subfolders(&self, parent: LibraryId) -> Result<Vec<LibFolder>> {
+        if let Some(ref conn) = self.dbconn {
+            let sql = format!(
+                "SELECT {} FROM {} WHERE parent_id=?1",
+                LibFolder::read_db_columns(),
+                LibFolder::read_db_tables()
+            );
+            let mut stmt = conn.prepare(&sql)?;
+            let mut rows = stmt.query(params![parent])?;
+            let mut subfolders = vec![];
+            loop {
+                let row = rows.next();
+                match row {
+                    Ok(None) => break,
+                    Err(err) => {
+                        err_out!("Error {:?}", err);
+                        return Err(Error::from(err));
+                    }
+                    Ok(Some(row)) => subfolders.push(LibFolder::read_from(row)?),
+                }
+            }
+            return Ok(subfolders);
         }
         Err(Error::NoSqlDb)
     }
@@ -1733,6 +1783,11 @@ pub(crate) mod test {
         assert_eq!(lf.parent(), root_id);
         assert_eq!(lf.name(), "20230619");
         assert_eq!(lf.id(), folder_id);
+
+        let subfolders = catalog.get_subfolders(root_id);
+        assert!(subfolders.is_ok());
+        let subfolders = subfolders.unwrap();
+        assert_eq!(subfolders.len(), 1);
     }
 
     #[test]
