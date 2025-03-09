@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2025-01-12 20:05+0000\n"
-"PO-Revision-Date: 2025-01-13 01:34+0100\n"
+"POT-Creation-Date: 2025-02-16 04:44+0000\n"
+"PO-Revision-Date: 2025-03-09 14:43+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -105,13 +105,21 @@ msgstr "Tillgängliga kameror:"
 msgid "Select"
 msgstr "Välj"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
 msgid "_Directory:"
 msgstr "_Mapp:"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
-msgid "..."
-msgstr "…"
+msgid "Choose Directory"
+msgstr "Välj mapp"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+msgid "Copy files"
+msgstr "Kopiera filer"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+msgid "Recursive"
+msgstr "Rekursivt"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
 msgid "Import images"
@@ -196,6 +204,9 @@ msgstr "Använd mörkt gränssnitt"
 #: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
 msgid "Preferences"
 msgstr "Inställningar"
+
+#~ msgid "..."
+#~ msgstr "…"
 
 #~ msgid "Camera"
 #~ msgstr "Kamera"
@@ -325,9 +336,6 @@ msgstr "Inställningar"
 
 #~ msgid "Camera import %1%"
 #~ msgstr "Kameraimport %1%"
-
-#~ msgid "Directory"
-#~ msgstr "Mapp"
 
 #~ msgid "Import picture folder"
 #~ msgstr "Importera bildmapp"
