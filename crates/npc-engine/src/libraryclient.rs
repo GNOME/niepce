@@ -197,7 +197,9 @@ impl ClientInterface for LibraryClientSender {
     }
 
     fn delete_folder(&self, id: LibraryId) {
-        self.schedule_op(move |catalog| commands::cmd_delete_folder(catalog, id));
+        // Delete folder, recursive.
+        // XXX maybe one day we'll have a non recursive option.
+        self.schedule_op(move |catalog| commands::cmd_delete_folder(catalog, id, true));
     }
 
     /// get all the albums
