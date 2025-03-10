@@ -315,13 +315,10 @@ impl LibraryCellRendererPriv {
         // hit test with the rating region
         let x = x as f32;
         let y = y as f32;
-        let allocation = self.obj().allocation();
-        let r = Rect::new(
-            allocation.x() as f32,
-            allocation.y() as f32,
-            allocation.width() as f32,
-            allocation.height() as f32,
-        );
+        let obj = self.obj();
+        let w = obj.width();
+        let h = obj.height();
+        let r = Rect::new(0.0, 0.0, w as f32, h as f32);
 
         let (rw, rh) = RatingLabel::geometry();
         let rect = Rect::new(
@@ -357,8 +354,7 @@ impl LibraryCellRendererPriv {
         if let Some(f) = &*file {
             if f.rating() != new_rating {
                 // emit signal if changed
-                self.obj()
-                    .emit_by_name::<()>("rating-changed", &[&f.id(), &new_rating]);
+                obj.emit_by_name::<()>("rating-changed", &[&f.id(), &new_rating]);
             }
         }
         true
@@ -453,14 +449,9 @@ impl WidgetImpl for LibraryCellRendererPriv {
         let self_ = self.obj();
         let xpad = 0.0; // self_.xpad() as f32;
         let ypad = 0.0; // self_.ypad() as f32;
-        let cell_area = self_.allocation();
-
-        let mut r = Rect::new(
-            cell_area.x() as f32,
-            cell_area.y() as f32,
-            cell_area.width() as f32,
-            cell_area.height() as f32,
-        );
+        let w = self_.width();
+        let h = self_.height();
+        let mut r = Rect::new(0.0, 0.0, w as f32, h as f32);
 
         r.offset(xpad, ypad);
 
