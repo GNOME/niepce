@@ -207,9 +207,15 @@ impl DestFolders {
     /// Select the folder by path and return index if found.
     fn select_path(&self, path: &Path) -> Option<u32> {
         path.to_str().and_then(|path| {
-            self.tree_model.item_index_for_path(path).inspect(|&index| {
-                self.tree_model.select_item(index);
-            })
+            self.tree_model
+                .item_index_for_path(path)
+                .inspect(|&index| {
+                    self.tree_model.select_item(index);
+                })
+                .or_else(|| {
+                    self.tree_model.unselect_all();
+                    None
+                })
         })
     }
 
