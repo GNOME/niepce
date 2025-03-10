@@ -96,6 +96,8 @@ where
         // XXX deal with other selection models.
         // XXX This can probably be done by passing a enum to new()
         let selection_model = gtk4::SingleSelection::new(Some(model.clone()));
+        selection_model.set_autoselect(false);
+        selection_model.set_can_unselect(true);
         let items = Rc::new(RefCell::new(PathTree::<T>::new('/')));
         Rc::new(TreeViewModel {
             model,
@@ -152,6 +154,10 @@ where
 
     pub fn select_item(&self, idx: u32) -> bool {
         self.selection_model.select_item(idx, true)
+    }
+
+    pub fn unselect_all(&self) -> bool {
+        self.selection_model.unselect_all()
     }
 
     /// Get the item at index. This is the index in the selection model.

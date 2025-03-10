@@ -435,7 +435,7 @@ impl ImportDialog {
     }
 
     fn set_destdir(&self, dest_dir: PathBuf) {
-        dbg_out!("set destdir");
+        dbg_out!("set destdir {dest_dir:?}");
         let full_dest_dir = self.base_dest_dir.join(&dest_dir);
         let mut state = self.state.borrow_mut();
         // We should normalize the path to $HOME if applicable.
