@@ -134,6 +134,9 @@ where
                 .get_by_id(parent)
                 .and_then(|parent| parent.children())
                 .inspect(|children| children.append(item));
+        } else if let Ok(store) = self.model.model().downcast::<gio::ListStore>() {
+            // if we don't know the parent, it gets added in the top-level.
+            store.append(item);
         }
     }
 
@@ -182,7 +185,7 @@ where
     // of an object.
     pub fn item_index_for_path(&self, path: &str) -> Option<u32>
     where
-        <T as PathTreeItem>::Id: Ord + Copy + std::fmt::Display,
+        <T as PathTreeItem>::Id: Ord + Copy,
     {
         self.item_for_path(path).and_then(|item| {
             let n = self.selection_model.n_items();
