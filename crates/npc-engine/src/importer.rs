@@ -125,6 +125,8 @@ pub trait ImportBackend {
 }
 
 /// Date path format for import destination
+/// The values are stored in the catalog so it's important to keep
+/// them on a compatible matter.
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, Default, FromPrimitive, ToPrimitive, PartialEq)]
 pub enum DatePathFormat {

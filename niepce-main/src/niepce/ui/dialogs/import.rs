@@ -36,6 +36,7 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use gtk_macros::get_widget;
 use npc_fwk::{adw, gdk4, gio, glib, gtk4};
+use num_traits::ToPrimitive;
 use once_cell::sync::OnceCell;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
@@ -212,6 +213,13 @@ impl DialogController for ImportDialog {
                     dbg_out!("setting format {format:?}");
                     send_async_any!(Event::SetDatePathFormat(format), sender);
                 });
+                if let Some(sorting) = self
+                    .cfg
+                    .value_opt("import_sorting")
+                    .and_then(|sorting| sorting.parse::<u32>().ok())
+                {
+                    date_sorting_combo.set_selected(sorting);
+                }
 
                 get_widget!(builder, gtk4::DropDown, preset_combo);
                 let string_list = toolkit::ComboModel::with_map(&[(&i18n("No preset"), "NONE")]);
@@ -377,6 +385,9 @@ impl ImportDialog {
         let mut state = self.state.borrow_mut();
         state.sorting_format = format;
         // XXX handle the UI
+        if let Some(sorting) = format.to_u32() {
+            self.cfg.set_value("import_sorting", &sorting.to_string());
+        }
     }
 
     fn append_files_to_import(&self, files: &[Box<dyn ImportedFile>]) {

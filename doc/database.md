@@ -26,6 +26,7 @@ The known keys are:
 | `prefs.last_importer`            | Last importer selected (dir or camera)     |
 | `prefs.base_import_dest_dir`     | Base directory for import destination      |
 | `prefs.catalog-window`           | State of the Catalog window (NiepceWindow) |
+| `prefs.import_sorting`           | The import sorting.                        |
 
 The key values aren't part of the version of the database schema,
 except `version`.
