@@ -43,7 +43,7 @@ use num_traits::ToPrimitive;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
 use dest_folders::DestFoldersIn;
-use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};
+use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile, Importer};
 use npc_engine::libraryclient::LibraryClient;
 use npc_fwk::toolkit::{
     self, Controller, ControllerImplCell, DialogController, ListViewRow, Receiver, Sender,
@@ -125,14 +125,17 @@ impl Widgets {
     }
 }
 
+struct DestEntry {
+    idx: u32,
+    dest: Option<PathBuf>,
+}
+
 #[derive(Default)]
 struct State {
     source: String,
     dest_dir: PathBuf,
     copy: bool,
     sorting_format: DatePathFormat,
-    // map images name to position in list store.
-    images_list_map: HashMap<String, u32>,
 }
 
 pub struct ImportDialog {
@@ -143,6 +146,8 @@ pub struct ImportDialog {
 
     widgets: OnceCell<Widgets>,
     state: RefCell<State>,
+    // map images name to position in list store.
+    images_list_map: RefCell<HashMap<String, DestEntry>>,
 }
 
 impl Controller for ImportDialog {
@@ -360,7 +365,8 @@ impl ImportDialog {
             cfg,
             client,
             widgets: OnceCell::new(),
-            state: RefCell::new(State::default()),
+            state: RefCell::default(),
+            images_list_map: RefCell::default(),
         });
 
         <Self as DialogController>::start(&dialog);
@@ -384,8 +390,7 @@ impl ImportDialog {
         if let Some(widgets) = self.widgets.get() {
             widgets.clear_import_list();
         }
-        let mut state = self.state.borrow_mut();
-        state.images_list_map.clear();
+        self.images_list_map.borrow_mut().clear();
     }
 
     fn import_source_changed(&self, source: &str) {
@@ -482,10 +487,13 @@ impl ImportDialog {
                     widgets
                         .images_list_model
                         .append(&ThumbItem::new(f.as_ref()));
-                    self.state
-                        .borrow_mut()
-                        .images_list_map
-                        .insert(path.to_string(), widgets.images_list_model.n_items() - 1);
+                    self.images_list_map.borrow_mut().insert(
+                        path.to_string(),
+                        DestEntry {
+                            idx: widgets.images_list_model.n_items() - 1,
+                            dest: None,
+                        },
+                    );
                 }
                 path.to_string()
             })
@@ -513,11 +521,17 @@ impl ImportDialog {
 
         dbg_out!("preview and date received {:?}", date);
 
-        if let Some(idx) = self.state.borrow_mut().images_list_map.get(path) {
-            self.widgets.get().and_then(|widgets| {
+        let state = self.state.borrow();
+        let dest = Some(Importer::dest_dir_for_date(
+            &state.dest_dir,
+            date.as_ref().unwrap(),
+            state.sorting_format,
+        ));
+        if let Some(entry) = self.images_list_map.borrow_mut().get_mut(path) {
+            self.widgets.get().inspect(|widgets| {
                 widgets
                     .images_list_model
-                    .item(*idx)
+                    .item(entry.idx)
                     .and_downcast::<ThumbItem>()
                     .inspect(|item| {
                         item.set_pixbuf(thumbnail.map(|ref t| {
@@ -525,8 +539,14 @@ impl ImportDialog {
                             texture.upcast::<gdk4::Paintable>()
                         }));
                         item.set_date(date);
-                    })
+                    });
+                if let Some(dest) = &dest {
+                    widgets
+                        .dest_folders
+                        .send(DestFoldersIn::DestDirFile(dest.clone()));
+                }
             });
+            entry.dest = dest;
         }
     }
 
