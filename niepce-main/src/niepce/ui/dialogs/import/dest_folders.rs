@@ -28,8 +28,8 @@ use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 use npc_fwk::{glib, gtk4};
 
-use npc_engine::catalog::LibFolder;
 use npc_engine::catalog::libfolder::FolderVirtualType;
+use npc_engine::catalog::{LibFolder, LibraryId};
 use npc_engine::importer::{self, DatePathFormat, Importer};
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::toolkit::{
@@ -38,7 +38,7 @@ use npc_fwk::toolkit::{
 };
 use npc_fwk::{Date, dbg_out};
 
-use dest_folder::{DestFolder, FolderType};
+use dest_folder::{DestFolder, FolderId, FolderType};
 
 pub struct DestFile {
     source: String,
@@ -77,6 +77,8 @@ pub enum DestFoldersIn {
     SelectPath(PathBuf),
     /// Remove all the sources.
     Clear,
+    /// A destination dir for a file has been received
+    DestDirFile(PathBuf),
 }
 
 pub enum DestFoldersOut {
@@ -93,6 +95,8 @@ pub struct DestFolders {
     /// The base directory for import.
     base: RefCell<PathBuf>,
     client: std::sync::Weak<LibraryClient>,
+    /// Counter for temp IDs.
+    temp_id: Cell<LibraryId>,
 }
 
 impl Controller for DestFolders {
@@ -112,13 +116,9 @@ impl Controller for DestFolders {
             PreviewReceived(source, date) => self.received_source(source, date),
             SortingChanged(format) => self.sorting_changed(format),
             SelectionChanged(idx) => self.selection_changed(idx),
-            SelectPath(path) => {
-                if let Some(index) = self.select_path(&path) {
-                    self.listview
-                        .scroll_to(index, gtk4::ListScrollFlags::NONE, None);
-                }
-            }
+            SelectPath(path) => self.handle_select_path(&path),
             Clear => self.clear_source(),
+            DestDirFile(path) => self.add_dest_dir_file(&path),
         }
     }
 }
@@ -158,6 +158,7 @@ impl DestFolders {
             sorting: Cell::default(),
             base: RefCell::new(base),
             client: Arc::downgrade(&client),
+            temp_id: Cell::new(0),
         });
 
         ctrl.tree_model.bind(&ctrl.listview, &ctrl);
@@ -186,6 +187,23 @@ impl DestFolders {
         self.dest_files.borrow_mut().clear();
     }
 
+    fn add_dest_dir_file(&self, dest_dir: &Path) {
+        dbg_out!("add dest dir file {dest_dir:?}");
+        dest_dir
+            .to_str()
+            .and_then(|path| self.tree_model.item_index_for_path(path))
+            .or_else(|| {
+                let base = self.base.borrow();
+                let leftovers = dest_dir.strip_prefix(&*base).ok()?;
+                let mut current = base.clone();
+                for folder in leftovers.components() {
+                    current.push(folder);
+                    self.add_temp_folder(&current);
+                }
+                None
+            });
+    }
+
     fn sort(&self, base: &Path, sorting: DatePathFormat) {
         for dest_file in self.dest_files.borrow_mut().iter_mut() {
             dest_file.sort(base, sorting);
@@ -201,6 +219,20 @@ impl DestFolders {
             self.emit(DestFoldersOut::SelectedFolder(idx));
         } else {
             self.emit(DestFoldersOut::DeselectAll);
+        }
+    }
+
+    /// Handle the select path message.
+    fn handle_select_path(&self, path: &Path) {
+        let mut index = self.select_path(path);
+        if index.is_none() {
+            // Couldn't find path.
+            self.add_temp_folder(path);
+            index = self.select_path(path);
+        }
+        if let Some(index) = index {
+            self.listview
+                .scroll_to(index, gtk4::ListScrollFlags::NONE, None);
         }
     }
 
@@ -244,8 +276,7 @@ impl DestFolders {
             .filter_map(|folder| {
                 folder.path().map(|path| {
                     DestFolder::new(
-                        folder.id(),
-                        FolderType::Existing,
+                        FolderId::Existing(folder.id()),
                         folder.name().to_string(),
                         path.into(),
                     )
@@ -280,6 +311,29 @@ impl DestFolders {
                 npc_fwk::send_async_any!(DestFoldersIn::FoldersLoaded(list), sender);
             })));
         }
+    }
+
+    fn new_temp_id(&self) -> LibraryId {
+        let id = self.temp_id.get() + 1;
+        self.temp_id.set(id);
+        id
+    }
+
+    /// Add a temp folder if it doesn't exist. Return `Some(())` if it
+    /// was added, `None` if it already existed.
+    fn add_temp_folder(&self, path: &Path) -> Option<()> {
+        if self
+            .tree_model
+            .item_for_path(&path.to_string_lossy())
+            .is_some()
+        {
+            return None;
+        }
+        let id = self.new_temp_id();
+        let name = path.file_name().unwrap().to_string_lossy().to_string();
+        let dest_folder = DestFolder::new(FolderId::New(id), name, path.into());
+        self.tree_model.append(&dest_folder);
+        Some(())
     }
 
     /// Return the `DestFolder` as the idx as per the list model.

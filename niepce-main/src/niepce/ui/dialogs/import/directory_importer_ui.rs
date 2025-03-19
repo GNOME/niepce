@@ -88,10 +88,7 @@ impl Controller for DirectoryImporterUI {
                             .map(PathBuf::from)
                             .unwrap_or_else(default_import_destdir)
                     } else {
-                        dest_dir
-                            .parent()
-                            .map(|parent| parent.to_path_buf())
-                            .unwrap_or_else(default_import_destdir)
+                        dest_dir.to_path_buf()
                     };
                     npc_fwk::send_async_local!(ImporterMsg::SetSource(source, dest_dir), tx);
                 }

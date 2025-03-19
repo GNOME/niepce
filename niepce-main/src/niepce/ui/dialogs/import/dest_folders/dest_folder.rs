@@ -37,12 +37,58 @@ pub enum FolderType {
     New,
 }
 
+/// Folder id, tagged with type.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum FolderId {
+    /// The folder exists in the catalog.
+    Existing(LibraryId),
+    /// The folder will be created by the import.
+    New(LibraryId),
+}
+
+impl Default for FolderId {
+    fn default() -> FolderId {
+        FolderId::New(0)
+    }
+}
+
+impl std::cmp::PartialOrd for FolderId {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl std::cmp::Ord for FolderId {
+    /// `FolderId` ordering is `New(_)` is always greater than
+    /// `Existing(_)` while in the same kind there are ordered by the
+    /// numerical id.
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        use std::cmp::Ordering;
+
+        use FolderId::*;
+
+        if matches!(self, Existing(_)) && matches!(other, New(_)) {
+            Ordering::Less
+        } else if matches!(self, New(_)) && matches!(other, Existing(_)) {
+            Ordering::Greater
+        } else {
+            let v1 = match self {
+                Existing(n) | New(n) => n,
+            };
+            let v2 = match other {
+                Existing(n) | New(n) => n,
+            };
+            v1.cmp(v2)
+        }
+    }
+}
+
 glib::wrapper! {
     pub struct DestFolder(ObjectSubclass<imp::DestFolder>);
 }
 
 impl PathTreeItem for DestFolder {
-    type Id = LibraryId;
+    type Id = FolderId;
 
     fn path(&self) -> String {
         self.dest().to_string_lossy().into()
@@ -59,24 +105,21 @@ impl TreeViewItem for DestFolder {
 }
 
 impl DestFolder {
-    pub fn new(
-        id: <Self as PathTreeItem>::Id,
-        folder_type: FolderType,
-        name: String,
-        folder: PathBuf,
-    ) -> DestFolder {
+    pub fn new(id: <Self as PathTreeItem>::Id, name: String, folder: PathBuf) -> DestFolder {
         let dest_folder = glib::Object::new::<DestFolder>();
 
         let imp = dest_folder.imp();
         imp.id.set(id);
-        imp.folder_type.set(folder_type);
         imp.name.replace(name);
         imp.dest.replace(folder);
         dest_folder
     }
 
     pub fn folder_type(&self) -> FolderType {
-        self.imp().folder_type.get()
+        match self.imp().id.get() {
+            FolderId::New(_) => FolderType::New,
+            FolderId::Existing(_) => FolderType::Existing,
+        }
     }
 
     pub fn dest(&self) -> Ref<'_, PathBuf> {
@@ -93,13 +136,10 @@ mod imp {
     use npc_fwk::base::PathTreeItem;
     use npc_fwk::{gio, glib};
 
-    use super::FolderType;
-
     #[derive(glib::Properties)]
     #[properties(wrapper_type = super::DestFolder)]
     pub struct DestFolder {
         pub(super) id: Cell<<super::DestFolder as PathTreeItem>::Id>,
-        pub(super) folder_type: Cell<FolderType>,
         pub(super) dest: RefCell<PathBuf>,
         #[property(get, default_value = "")]
         pub(super) name: RefCell<String>,
@@ -112,7 +152,6 @@ mod imp {
             DestFolder {
                 children,
                 id: Cell::default(),
-                folder_type: Cell::default(),
                 dest: RefCell::default(),
                 name: RefCell::default(),
             }

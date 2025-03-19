@@ -192,7 +192,7 @@ impl Importer {
     /// Get the imports from `source`. It will create the bundles.  It
     /// will list the files to import recursively if the imorter is
     /// recursive and the `dest` path. They will be sorted out
-    /// accoting to `format`.
+    /// according to `format`.
     pub fn get_imports(
         source: &Path,
         dest: &Path,
