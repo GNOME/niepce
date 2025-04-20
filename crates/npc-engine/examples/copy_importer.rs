@@ -40,9 +40,10 @@ struct Args {
     #[arg(short, long)]
     catalog: Option<String>,
 
-    /// (Optional) Date directory to restrict.
+    /// (Optional) Date directories to restrict. Pass mulitple times
+    /// for multiple directories.
     #[arg(long)]
-    date: Option<String>,
+    date: Option<Vec<String>>,
 
     /// Import recursively
     #[arg(short, long)]
@@ -66,7 +67,7 @@ fn main() {
     let catalog = args.catalog.map(PathBuf::from);
     let dry_run = args.dry_run;
     let verbose = args.verbose;
-    let date = args.date;
+    let dates = args.date;
     let format = DatePathFormat::YearSlashYearMonthDay;
 
     if verbose {
@@ -88,11 +89,15 @@ fn main() {
         catalog
     });
     let imports = Importer::get_imports(&source, &dest, format, args.recursive);
-    let only_dest_dir = date.map(|d| dest.join(d));
+    let only_dest_dirs = dates.map(|dates| dates.iter().map(|d| dest.join(d)).collect::<Vec<_>>());
     for import in &imports {
-        if only_dest_dir.is_some() && import.1.parent() != only_dest_dir.as_deref() {
-            println!("{:?} excluded", import.1);
-            continue;
+        if let Some(only_dest_dirs) = only_dest_dirs.as_ref() {
+            if let Some(parent) = import.1.parent().map(|p| p.to_path_buf()) {
+                if !only_dest_dirs.contains(&parent) {
+                    println!("{:?} excluded", import.1);
+                    continue;
+                }
+            }
         }
         if import.1.exists() {
             println!("{:?} already exists", import.1);
