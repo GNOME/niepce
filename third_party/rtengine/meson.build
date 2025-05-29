@@ -55,6 +55,7 @@ install_data(
   'RawTherapee/rtdata/dcpprofiles/Canon EOS M6 Mark II.dcp',
   'RawTherapee/rtdata/dcpprofiles/Canon EOS R5.dcp',
   'RawTherapee/rtdata/dcpprofiles/Canon EOS R6.dcp',
+  'RawTherapee/rtdata/dcpprofiles/Canon EOS R8.dcp',
   'RawTherapee/rtdata/dcpprofiles/Canon EOS R.dcp',
   'RawTherapee/rtdata/dcpprofiles/Canon EOS RP.dcp',
   'RawTherapee/rtdata/dcpprofiles/Canon PowerShot G10.dcp',
@@ -139,6 +140,7 @@ install_data(
   'RawTherapee/rtdata/dcpprofiles/Panasonic DC-GX9.dcp',
   'RawTherapee/rtdata/dcpprofiles/Panasonic DC-S1.dcp',
   'RawTherapee/rtdata/dcpprofiles/Panasonic DC-S5.dcp',
+  'RawTherapee/rtdata/dcpprofiles/PANASONIC DC-S5M2.dcp',
   'RawTherapee/rtdata/dcpprofiles/Panasonic DC-TZ91.dcp',
   'RawTherapee/rtdata/dcpprofiles/Panasonic DMC-FZ1000.dcp',
   'RawTherapee/rtdata/dcpprofiles/Panasonic DMC-FZ150.dcp',
@@ -466,6 +468,9 @@ rtengine = static_library(
     # warnings for things we don't control in that tree.
     '-Wno-deprecated-declarations'
   ],
-  include_directories: [ 'RawTherapee' / 'rtengine' / 'klt', ],
+  include_directories: [
+    'RawTherapee' / 'rtengine' / 'klt',
+    'RawTherapee'
+  ],
   dependencies: [ glibmm_deps, giomm_deps, cairomm_deps, iptcdata_deps, lcms2_deps, lensfun_deps, libraw_deps, openmp_deps, exiv2_deps ],
 )
