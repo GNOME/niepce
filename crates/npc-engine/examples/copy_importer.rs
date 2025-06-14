@@ -90,6 +90,7 @@ fn main() {
     });
     let imports = Importer::get_imports(&source, &dest, format, args.recursive);
     let only_dest_dirs = dates.map(|dates| dates.iter().map(|d| dest.join(d)).collect::<Vec<_>>());
+    let mut size_to_copy = 0;
     for import in &imports {
         if let Some(only_dest_dirs) = only_dest_dirs.as_ref() {
             if let Some(parent) = import.1.parent().map(|p| p.to_path_buf()) {
@@ -111,8 +112,17 @@ fn main() {
                 .expect("Couldn't create directories");
             npc_fwk::utils::copy(&import.0, &import.1).expect("Couldn't copy files.");
         } else {
+            if let Ok(metadata) = std::fs::metadata(&import.0) {
+                size_to_copy += metadata.len();
+            }
             println!("Will copy {:?} to {:?}", import.0, import.1);
         }
+    }
+    if dry_run {
+        println!(
+            "Would have copied {}",
+            humanize_bytes::humanize_bytes_decimal!(size_to_copy)
+        );
     }
     if !dry_run {
         let imports: Vec<PathBuf> = imports.into_iter().map(|elem| elem.1).collect();
