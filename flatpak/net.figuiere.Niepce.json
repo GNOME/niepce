@@ -1,10 +1,10 @@
 {
     "app-id": "net.figuiere.Niepce",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "46",
+    "runtime-version" : "48",
     "sdk" : "org.gnome.Sdk",
     "sdk-extensions" : [
-        "org.freedesktop.Sdk.Extension.llvm16",
+        "org.freedesktop.Sdk.Extension.llvm18",
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
     "command" : "niepce",
@@ -26,8 +26,8 @@
         "env": {
             "CARGO_HOME": "/run/build/niepce/cargo"
         },
-        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm16/bin",
-        "prepend-ld-library-path": "/usr/lib/sdk/llvm16/lib"
+        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm18/bin",
+        "prepend-ld-library-path": "/usr/lib/sdk/llvm18/lib"
     },
     "cleanup": [
         "/include",
