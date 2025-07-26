@@ -24,7 +24,7 @@ lazy_static = "^1.2.0"
 libc = "0.2.39"
 # 1.1.0 change the sys crate.
 libheif-rs = "=1.0.2"
-libopenraw = "0.4.0-alpha.10"
+libopenraw = "0.4.0-alpha.11"
 multimap = "0.9.0"
 # The return values are not guaranted so we pin the version.
 mime_guess = "=2.0.5"
