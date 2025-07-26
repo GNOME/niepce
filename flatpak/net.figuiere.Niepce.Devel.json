@@ -28,9 +28,6 @@
         "test-args": [
             "--share=network"
         ],
-        "env": {
-            "CARGO_HOME": "/run/build/niepce/cargo"
-        },
         "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm20/bin",
         "prepend-ld-library-path": "/usr/lib/sdk/llvm20/lib"
     },
@@ -359,6 +356,11 @@
         {
             "name": "niepce",
 	    "buildsystem": "meson",
+            "build-options": {
+                "env": {
+                    "CARGO_HOME": "/run/build/niepce/cargo"
+                }
+            },
             "config-opts": [
                 "-Dprofile=development"
             ],
