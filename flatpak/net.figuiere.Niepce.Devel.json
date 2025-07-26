@@ -104,11 +104,11 @@
                 "/share/man"
             ],
             "sources": [
-                 {
+                {
                     "type": "archive",
                     "url": "https://github.com/Exiv2/exiv2/archive/refs/tags/v0.28.2.tar.gz",
                     "sha256": "543bead934135f20f438e0b6d8858c55c5fcb7ff80f5d1d55489965f1aad58b9"
-                 }
+                }
             ]
         },
         {
@@ -142,8 +142,8 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "url" : "https://download.gimp.org/pub/babl/0.1/babl-0.1.108.tar.xz",
-                    "sha256" : "26defe9deaab7ac4d0e076cab49c2a0d6ebd0df0c31fd209925a5f07edee1475"
+                    "url" : "https://download.gimp.org/pub/babl/0.1/babl-0.1.114.tar.xz",
+                    "sha256" : "bcbb7786c1e447703db3bc7fa34d62d0d2d117b22f04d8834c7b2d5ded456487"
                 }
             ]
         },
@@ -163,8 +163,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gimp.org/pub/gegl/0.4/gegl-0.4.48.tar.xz",
-                    "sha256": "418c26d94be8805d7d98f6de0c6825ca26bd74fcacb6c188da47533d9ee28247"
+                    "url": "https://download.gimp.org/pub/gegl/0.4/gegl-0.4.62.tar.xz",
+                    "sha256": "5887576371ebf1d9e90797d10e4b9a7f1658228d4827583e79e1db3d94505c6c"
                 }
             ]
         },
@@ -298,8 +298,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://libopenraw.freedesktop.org/download/exempi-2.6.4.tar.xz",
-                    "sha256": "fa9c2456bf570172f0877c4eb13cd204c62ae1fdf65c3d6b71b41d88e1066f84"
+                    "url": "https://libopenraw.freedesktop.org/download/exempi-2.6.6.tar.xz",
+                    "sha256": "900fb9957be2095c78e5111b99c49378adac58161a358f52f93c55126f34eb8f"
                 }
             ]
         },
@@ -329,6 +329,7 @@
             "buildsystem": "cmake-ninja",
             "builddir": true,
             "config-opts": [
+                "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
                 "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
             ],
             "cleanup": [

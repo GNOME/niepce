@@ -33,6 +33,7 @@
             "buildsystem": "cmake-ninja",
             "subdir": "source",
             "config-opts": [
+                "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
                 "-DEXTRA_LIB='libx265-10.a;libx265-12.a'",
                 "-DEXTRA_LINK_FLAGS=-L.",
                 "-DLINKED_10BIT=ON",
@@ -46,6 +47,10 @@
                     "type": "archive",
                     "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.6.tar.gz",
                     "sha256": "663531f341c5389f460d730e62e10a4fcca3428ca2ca109693867bc5fe2e2807"
+                },
+                {
+                    "type": "patch",
+                    "path": "libx265-cmake-fix.patch"
                 },
                 {
                     "type": "shell",
@@ -62,6 +67,7 @@
                     "buildsystem": "cmake-ninja",
                     "subdir": "source",
                     "config-opts": [
+                        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
                         "-DHIGH_BIT_DEPTH=ON",
                         "-DEXPORT_C_API=OFF",
                         "-DENABLE_SHARED=OFF",
@@ -73,6 +79,10 @@
                             "type": "archive",
                             "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.6.tar.gz",
                             "sha256": "663531f341c5389f460d730e62e10a4fcca3428ca2ca109693867bc5fe2e2807"
+                        },
+                        {
+                            "type": "patch",
+                            "path": "libx265-cmake-fix.patch"
                         }
                     ],
                     "post-install": [
@@ -84,6 +94,7 @@
                     "buildsystem": "cmake-ninja",
                     "subdir": "source",
                     "config-opts": [
+                        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
                         "-DHIGH_BIT_DEPTH=ON",
                         "-DEXPORT_C_API=OFF",
                         "-DENABLE_SHARED=OFF",
@@ -96,6 +107,10 @@
                             "type": "archive",
                             "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.6.tar.gz",
                             "sha256": "663531f341c5389f460d730e62e10a4fcca3428ca2ca109693867bc5fe2e2807"
+                        },
+                        {
+                            "type": "patch",
+                            "path": "libx265-cmake-fix.patch"
                         }
                     ],
                     "post-install": [
