@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/widgets/editable_hscale.rs
  *
- * Copyright (C) 2024 Hubert Figuière
+ * Copyright (C) 2024-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,8 @@ use gtk4::prelude::*;
 glib::wrapper! {
     pub struct EditableHScale(
         ObjectSubclass<imp::EditableHScale>)
-        @extends gtk4::Box, gtk4::Widget;
+        @extends gtk4::Box, gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl EditableHScale {

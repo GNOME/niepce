@@ -32,7 +32,8 @@ glib::wrapper! {
     /// It containes and expander, icon, label and count.
     pub struct WsItemRow(
         ObjectSubclass<imp::WsItemRow>)
-    @extends gtk4::Box, gtk4::Widget;
+    @extends gtk4::Box, gtk4::Widget,
+    @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl WsItemRow {

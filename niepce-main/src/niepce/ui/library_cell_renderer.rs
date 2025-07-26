@@ -68,7 +68,8 @@ glib::wrapper! {
     /// The cell renderer is actually a gtk widget as a per the new `GtkGridView`.
     pub struct LibraryCellRenderer(
         ObjectSubclass<LibraryCellRendererPriv>)
-        @extends gtk4::Widget;
+        @extends gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl LibraryCellRenderer {

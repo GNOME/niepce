@@ -29,7 +29,8 @@ glib::wrapper! {
     /// Item in the workspace
     pub struct ThumbItemRow(
         ObjectSubclass<imp::ThumbItemRow>)
-        @extends gtk4::Box, gtk4::Widget;
+        @extends gtk4::Box, gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl ThumbItemRow {

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/darkroom/image_canvas.rs
  *
- * Copyright (C) 2023-2024 Hubert Figuière
+ * Copyright (C) 2023-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,8 @@ enum ZoomMode {
 glib::wrapper! {
     pub struct ImageCanvas(
         ObjectSubclass<imp::ImageCanvas>)
-        @extends gtk4::DrawingArea, gtk4::Widget;
+        @extends gtk4::DrawingArea, gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl Default for ImageCanvas {

@@ -43,7 +43,8 @@ lazy_static::lazy_static! {
 glib::wrapper! {
     pub struct RatingLabel(
         ObjectSubclass<RatingLabelPriv>)
-        @extends gtk4::Widget;
+        @extends gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 #[derive(glib::Properties)]

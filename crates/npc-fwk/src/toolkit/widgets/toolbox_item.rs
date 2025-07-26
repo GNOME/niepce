@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/toolbox_item.rs
  *
- * Copyright (C) 2022-2023 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,8 @@ glib::wrapper! {
     /// The label is the `gtk4::Expander` label.
     pub struct ToolboxItem(
         ObjectSubclass<imp::ToolboxItem>)
-        @extends gtk4::Box, gtk4::Widget;
+        @extends gtk4::Box, gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl ToolboxItem {

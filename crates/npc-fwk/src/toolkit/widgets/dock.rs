@@ -1,7 +1,7 @@
 /*
  * niepce - npc_fwk/toolkit/widgets/dock.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,8 @@ use gtk4::subclass::prelude::*;
 glib::wrapper! {
     pub struct Dock(
         ObjectSubclass<imp::Dock>)
-        @extends gtk4::Box, gtk4::Widget;
+        @extends gtk4::Box, gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl Dock {

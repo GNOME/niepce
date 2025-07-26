@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/mimetype.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ pub fn guess_type_for_file<P: AsRef<Path>>(p: P) -> MType {
     }
 
     // alternative
-    let (content_type, _) = gio::content_type_guess(path.to_str(), &[]);
+    let (content_type, _) = gio::content_type_guess(path.to_str(), None);
 
     guess_type(content_type.as_str())
 }

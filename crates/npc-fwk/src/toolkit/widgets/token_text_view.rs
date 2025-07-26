@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/token_text_view.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,8 @@ glib::wrapper! {
     /// Work in progress.
     pub struct TokenTextView(
         ObjectSubclass<imp::TokenTextView>)
-        @extends gtk4::TextView, gtk4::Widget;
+        @extends gtk4::TextView, gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::ConstraintTarget, gtk4::Buildable, gtk4::Scrollable;
 }
 
 impl TokenTextView {

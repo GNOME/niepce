@@ -1,7 +1,7 @@
 /*
  * niepce - modules/darkroom/dr_item.rs
  *
- * Copyright (C) 2024 Hubert Figuière
+ * Copyright (C) 2024-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,8 @@ glib::wrapper! {
     /// A `DrItem` is just a box with a `ToolboxItem`
     pub struct DrItem(
         ObjectSubclass<imp::DrItem>)
-        @extends ToolboxItem, gtk4::Box, gtk4::Widget;
+        @extends ToolboxItem, gtk4::Box, gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl DrItem {

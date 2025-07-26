@@ -67,7 +67,8 @@ pub struct MetadataSectionFormat {
 glib::wrapper! {
     pub struct MetadataWidget(
     ObjectSubclass<imp::MetadataWidget>)
-    @extends ToolboxItem, gtk4::Box, gtk4::Widget;
+    @extends ToolboxItem, gtk4::Box, gtk4::Widget,
+    @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl MetadataWidget {

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/thumb_nav.rs
  *
- * Copyright (C) 2020-2023 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,8 @@ pub enum ThumbNavMode {
 glib::wrapper! {
     pub struct ThumbNav(
         ObjectSubclass<ThumbNavPriv>)
-        @extends gtk4::Box, gtk4::Widget;
+        @extends gtk4::Box, gtk4::Widget,
+        @implements gtk4::Accessible, gtk4::Buildable, gtk4::ConstraintTarget;
 }
 
 impl ThumbNav {
