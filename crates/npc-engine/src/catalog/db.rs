@@ -253,7 +253,7 @@ impl CatalogDb {
             .and_then(|dest_file| {
                 dbg_out!("backing up database to {:?}", dest_file);
                 if let Some(ref conn) = self.dbconn {
-                    conn.backup(rusqlite::DatabaseName::Main, &dest_file, None)?;
+                    conn.backup(rusqlite::MAIN_DB, &dest_file, None)?;
                 }
                 Ok(dest_file)
             })

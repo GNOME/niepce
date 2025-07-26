@@ -217,7 +217,7 @@ impl LibraryImporter for LrImporter {
 
     fn init_importer(&mut self, path: &Path) -> Result<()> {
         let mut catalog = Catalog::new(path);
-        if !catalog.open() {
+        if catalog.open().is_err() {
             return Err(Error::UnsupportedFormat);
         }
 
