@@ -282,7 +282,7 @@ impl GpCamera {
             let task = camera.fs().download_preview(folder, name);
             let file = task.wait().ok()?;
 
-            let task = file.get_data(&DEVICE_LIST.context.lock().unwrap());
+            let task = file.get_data(&*DEVICE_LIST.context.lock().unwrap());
             let data = task.wait().ok()?;
 
             let loader = gdk_pixbuf::PixbufLoader::new();
