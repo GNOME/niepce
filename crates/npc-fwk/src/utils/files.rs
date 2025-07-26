@@ -50,7 +50,7 @@ where
     // XXX we do nothing with the created date.
     let file_stat = stat(from.as_ref())?;
     utimensat(
-        None,
+        nix::fcntl::AT_FDCWD,
         to.as_ref(),
         &TimeSpec::new(file_stat.st_atime, file_stat.st_atime_nsec),
         &TimeSpec::new(file_stat.st_mtime, file_stat.st_mtime_nsec),
