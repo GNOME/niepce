@@ -10,7 +10,7 @@ rust-version = "1.76"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-channel = "1.6.1"
+async-channel = "2.5.0"
 cachedir = "0.3.0"
 chrono = "0.4.23"
 exempi2 = "0.2.0"

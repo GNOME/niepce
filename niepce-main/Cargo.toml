@@ -8,7 +8,7 @@ license = "GPL-3.0"
 rust-version = "1.76"
 
 [dependencies]
-async-channel = "1.6.1"
+async-channel = "2.5.0"
 chrono = "0.4.23"
 cxx = { version = "1.0", features = [ "c++17" ] }
 gettext-rs = { version = "^0.7.0", features = [ "gettext-system" ] }

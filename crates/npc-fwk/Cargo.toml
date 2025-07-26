@@ -11,7 +11,7 @@ rust-version = "1.76"
 [dependencies]
 adw = { package = "libadwaita", version = "^0.7.0", features = [ "v1_4" ] }
 anyhow = "1.0.81"
-async-channel = "1.6.1"
+async-channel = "2.5.0"
 chrono = "0.4.0"
 configparser = "3.1.0"
 exempi2 = { version = "0.2.0" }
