@@ -115,7 +115,12 @@ impl ImageBitmap {
             BitmapType::Rgb(ref buffer) => {
                 let f = std::fs::File::create(&file)?;
                 let encoder = image::codecs::png::PngEncoder::new(f);
-                encoder.write_image(buffer, self.size.w, self.size.h, image::ColorType::Rgb8)?;
+                encoder.write_image(
+                    buffer,
+                    self.size.w,
+                    self.size.h,
+                    image::ExtendedColorType::Rgb8,
+                )?;
             }
         }
         Ok(())

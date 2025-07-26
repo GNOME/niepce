@@ -19,7 +19,7 @@ gettext-rs = { version = "^0.7.0", features = [ "gettext-system" ] }
 gphoto2 = "3.3.0"
 gstreamer = "0.23.0"
 gtk4 = { version = "0.9", features = [ "v4_10" ] }
-image = { version = "0.24.5", features = [ "png" ], default-features = false }
+image = { version = "0.25.6", features = [ "png" ], default-features = false }
 lazy_static = "^1.2.0"
 libc = "0.2.39"
 # 1.1.0 change the sys crate.
