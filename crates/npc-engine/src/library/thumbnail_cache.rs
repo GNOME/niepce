@@ -33,8 +33,8 @@ use crate::library::notification::{FileStatusChange, LcChannel};
 use crate::library::previewer::{Cache, RenderMsg, RenderParams, RenderSender, RenderType};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit;
-use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::toolkit::ImageBitmap;
+use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
 /// Suffix to add to the stem catalog file name.
@@ -236,11 +236,13 @@ impl ThumbnailCache {
     pub fn new(dir: &Path, sender: LcChannel) -> Self {
         let (queue_sender, queue) = std::sync::mpsc::channel();
         let cache_dir = PathBuf::from(dir);
-        on_err_out!(std::thread::Builder::new()
-            .name("thumbnail cache".to_string())
-            .spawn(move || {
-                Self::main(cache_dir, queue, sender);
-            }));
+        on_err_out!(
+            std::thread::Builder::new()
+                .name("thumbnail cache".to_string())
+                .spawn(move || {
+                    Self::main(cache_dir, queue, sender);
+                })
+        );
 
         Self { queue_sender }
     }
@@ -314,22 +316,25 @@ impl ThumbnailCache {
         params: RenderParams,
         processor: Option<RenderSender>,
     ) {
-        on_err_out!(self
-            .queue_sender
-            .send(Request::Task(vec![Task::new_rendering(
-                file, params, processor
-            )])));
+        on_err_out!(
+            self.queue_sender
+                .send(Request::Task(vec![Task::new_rendering(
+                    file, params, processor
+                )]))
+        );
     }
 
     /// Request thumbnails.
     pub fn request(&self, fl: &[LibFile]) {
-        on_err_out!(self.queue_sender.send(Request::Task(
-            fl.iter()
-                .map(|f| Task::new_thumbnail(
-                    f.clone(),
-                    RenderParams::new_thumbnail(f.id(), Size { w: 160, h: 160 })
-                ))
-                .collect()
-        )));
+        on_err_out!(
+            self.queue_sender.send(Request::Task(
+                fl.iter()
+                    .map(|f| Task::new_thumbnail(
+                        f.clone(),
+                        RenderParams::new_thumbnail(f.id(), Size { w: 160, h: 160 })
+                    ))
+                    .collect()
+            ))
+        );
     }
 }

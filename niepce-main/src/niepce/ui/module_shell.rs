@@ -29,8 +29,8 @@ use npc_fwk::{gio, glib, gtk4};
 use super::{
     GridViewModule, ImageListStore, LibraryModule, ModuleShellWidget, SelectionController,
 };
-use crate::modules::{DarkroomModule, MapModule};
 use crate::NiepceApplication;
+use crate::modules::{DarkroomModule, MapModule};
 use npc_engine::catalog;
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};

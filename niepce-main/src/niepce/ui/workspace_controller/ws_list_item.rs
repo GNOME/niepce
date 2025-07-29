@@ -24,8 +24,8 @@ use npc_fwk::{gio, glib};
 use npc_engine::catalog;
 use npc_fwk::err_out;
 
-use super::ws_list_model::WorkspaceList;
 use super::TreeItemType;
+use super::ws_list_model::WorkspaceList;
 
 /// Count update operation
 pub(super) enum CountUpdate {
@@ -142,8 +142,8 @@ mod imp {
     use npc_fwk::{gio, glib};
     use once_cell::unsync::OnceCell;
 
-    use super::super::ws_list_model::WorkspaceList;
     use super::super::TreeItemType;
+    use super::super::ws_list_model::WorkspaceList;
     use npc_engine::catalog;
 
     #[derive(Default, glib::Properties)]

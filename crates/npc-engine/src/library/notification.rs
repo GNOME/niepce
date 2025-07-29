@@ -20,9 +20,9 @@
 use super::queriedcontent::QueriedContent;
 use crate::catalog::libfile::FileStatus;
 use crate::catalog::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
-use npc_fwk::toolkit::thumbnail;
-use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::PropertyValue;
+use npc_fwk::toolkit::ImageBitmap;
+use npc_fwk::toolkit::thumbnail;
 
 /// Library client channel sender, to send `LibNotification`.
 pub type LcChannel = async_channel::Sender<LibNotification>;

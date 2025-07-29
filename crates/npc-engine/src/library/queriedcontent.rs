@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::catalog::libfile::LibFile;
 use crate::catalog::LibraryId;
+use crate::catalog::libfile::LibFile;
 
 /// Queried content to pass a list of LibFile and the id of the container.
 #[derive(Clone, Debug)]

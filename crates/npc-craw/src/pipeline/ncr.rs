@@ -24,9 +24,9 @@ use std::cell::{Cell, RefCell};
 use gegl::Node as GeglNode;
 use npc_fwk::gdk_pixbuf;
 
-use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
-use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::MimeType;
+use npc_fwk::toolkit::ImageBitmap;
+use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
 use npc_fwk::{dbg_out, err_out};
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]

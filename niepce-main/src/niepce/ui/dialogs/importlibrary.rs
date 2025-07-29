@@ -26,8 +26,8 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 use gettextrs::gettext as i18n;
-use gtk4::prelude::*;
 use gtk4::Builder;
+use gtk4::prelude::*;
 use i18n_format::i18n_fmt;
 use npc_fwk::{gio, glib, gtk4};
 use num_derive::{FromPrimitive, ToPrimitive};

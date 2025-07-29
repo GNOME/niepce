@@ -17,14 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::NiepceProperties as Np;
 use super::libfile::FileType;
 use super::props;
-use super::NiepceProperties as Np;
 use super::{FromDb, LibraryId};
 use crate::NiepcePropertyBag;
 use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
-use npc_fwk::{dbg_out, err_out};
 use npc_fwk::{DateExt, PropertySet, PropertyValue, XmpMeta};
+use npc_fwk::{dbg_out, err_out};
 
 #[derive(Clone, Debug)]
 pub struct LibMetadata {
@@ -115,14 +115,14 @@ impl LibMetadata {
                         .xmp_meta
                         .xmp
                         .delete_property(ix.ns, ix.property)
-                        .is_ok()
+                        .is_ok();
                 }
                 PropertyValue::Int(i) => {
                     return self
                         .xmp_meta
                         .xmp
                         .set_property_i32(ix.ns, ix.property, i, exempi2::PropFlags::NONE)
-                        .is_ok()
+                        .is_ok();
                 }
                 PropertyValue::String(ref s) => {
                     if s.is_empty() {

@@ -18,9 +18,9 @@
  */
 
 use glib::subclass::prelude::*;
+use gtk4::CompositeTemplate;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
-use gtk4::CompositeTemplate;
 use npc_fwk::{glib, gtk4, gtk4 as gtk};
 
 #[derive(CompositeTemplate, Default)]

@@ -19,8 +19,8 @@
 
 use gettextrs::*;
 
-use niepce_core::{config, NiepceApplication};
-use npc_fwk::{dbg_out, ExempiManager};
+use niepce_core::{NiepceApplication, config};
+use npc_fwk::{ExempiManager, dbg_out};
 
 fn main() {
     bindtextdomain(config::GETTEXT_PACKAGE, config::LOCALEDIR).expect("bindtextdomain failed");

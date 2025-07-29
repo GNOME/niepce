@@ -24,10 +24,10 @@ use npc_fwk::{gdk4, gio, glib, gtk4};
 
 use niepce_core::init_resources;
 use niepce_core::modules::ImageCanvas;
+use niepce_core::niepce::ui::ModuleShellWidget;
 use niepce_core::niepce::ui::image_grid_view::{ImageGridView, ImageListItem};
 use niepce_core::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
 use niepce_core::niepce::ui::thumb_strip_view::ThumbStripView;
-use niepce_core::niepce::ui::ModuleShellWidget;
 use npc_engine::catalog::libfile::FileStatus;
 use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;

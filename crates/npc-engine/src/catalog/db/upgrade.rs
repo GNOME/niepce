@@ -20,7 +20,7 @@
 //! The database schema upgrade
 #![doc = include_str!("../../../../../doc/database_upgrade.md")]
 
-use super::{sql, CatalogDb, Error, Result};
+use super::{CatalogDb, Error, Result, sql};
 use npc_fwk::dbg_out;
 
 /// Upgrade catalog `from` version `to` version
@@ -163,7 +163,8 @@ pub(crate) fn perform_upgrade_11(conn: &rusqlite::Connection, schema_version: i6
          CREATE TRIGGER album_delete_trigger AFTER DELETE ON albums BEGIN DELETE FROM albuming WHERE album_id = old.id; END;\
          UPDATE files SET xmp_file = 0 WHERE xmp_file IS NULL;\
          UPDATE files SET jpeg_file = 0 WHERE jpeg_file IS NULL;\
-         COMMIT;");
+         COMMIT;"
+    );
     conn.execute_batch(&sql)?;
     Ok(())
 }

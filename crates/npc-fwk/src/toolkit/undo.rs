@@ -42,11 +42,7 @@ impl From<()> for Storage {
 
 impl From<&Storage> for i64 {
     fn from(v: &Storage) -> i64 {
-        if let Storage::Int(i) = *v {
-            i
-        } else {
-            0
-        }
+        if let Storage::Int(i) = *v { i } else { 0 }
     }
 }
 

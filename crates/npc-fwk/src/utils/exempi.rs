@@ -48,11 +48,7 @@ const XMP_FALSE: &str = "False";
 
 /// Convert a bool to a propstring
 fn bool_to_propstring(val: bool) -> &'static str {
-    if val {
-        XMP_TRUE
-    } else {
-        XMP_FALSE
-    }
+    if val { XMP_TRUE } else { XMP_FALSE }
 }
 
 /// The Flash property, decoded
@@ -578,9 +574,9 @@ pub fn xmp_date_from_exif(d: &str) -> Option<exempi2::DateTime> {
 
 #[cfg(test)]
 mod tests {
-    use super::xmp_date_from_exif;
     use super::ExempiManager;
     use super::XmpMeta;
+    use super::xmp_date_from_exif;
     use exempi2;
     use std::path::PathBuf;
 

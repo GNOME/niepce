@@ -22,7 +22,7 @@ use std::path::Path;
 
 use crate::gdk_pixbuf;
 use crate::glib;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use libheif_rs::{
     Channel, ColorSpace, DecodingOptions, HeifContext, ImageHandle, ItemId, LibHeif, RgbChroma,
 };

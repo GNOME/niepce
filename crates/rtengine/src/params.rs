@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::LcMode;
 use crate::ffi;
 use crate::image;
-use crate::LcMode;
 
 use std::ffi::OsStr;
 

@@ -30,13 +30,13 @@ use std::path::PathBuf;
 use std::sync::{atomic, mpsc};
 use std::thread;
 
+use crate::NiepcePropertyBag;
 use crate::catalog::filebundle::FileBundle;
 use crate::catalog::props::NiepceProperties as Np;
 use crate::catalog::{CatalogDb, LibFolder, LibraryId};
 use crate::library::commands;
 use crate::library::notification::LcChannel;
 use crate::library::op::Op;
-use crate::NiepcePropertyBag;
 use npc_fwk::base::{PropertyValue, RgbColour};
 use npc_fwk::on_err_out;
 

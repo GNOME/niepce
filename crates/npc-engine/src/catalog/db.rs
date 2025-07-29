@@ -37,6 +37,8 @@ use rusqlite::{functions::FunctionFlags, params};
 use thiserror::Error;
 
 use super::{FromDb, LibraryId};
+use crate::NiepcePropertyBag;
+use crate::catalog::NiepcePropertyIdx as Npi;
 use crate::catalog::album::Album;
 use crate::catalog::filebundle::{FileBundle, Sidecar};
 use crate::catalog::keyword::Keyword;
@@ -47,12 +49,10 @@ use crate::catalog::libfolder;
 use crate::catalog::libfolder::LibFolder;
 use crate::catalog::libmetadata::LibMetadata;
 use crate::catalog::props::NiepceProperties as Np;
-use crate::catalog::NiepcePropertyIdx as Npi;
 use crate::library::notification::LibNotification;
-use crate::NiepcePropertyBag;
+use npc_fwk::PropertyValue;
 use npc_fwk::base::RgbColour;
 use npc_fwk::toolkit;
-use npc_fwk::PropertyValue;
 use npc_fwk::{dbg_assert, dbg_out, err_out, on_err_out};
 
 const DB_SCHEMA_VERSION: i32 = 13;
@@ -1534,13 +1534,13 @@ impl CatalogDb {
 
 #[cfg(test)]
 pub(crate) mod test {
-    use crate::catalog::filebundle::FileBundle;
+    use crate::NiepcePropertyBag;
     use crate::catalog::NiepceProperties as Np;
     use crate::catalog::NiepcePropertyIdx as Npi;
+    use crate::catalog::filebundle::FileBundle;
     use crate::library::notification::LibNotification;
-    use crate::NiepcePropertyBag;
 
-    use super::{CatalogDb, Error, DB_SCHEMA_VERSION};
+    use super::{CatalogDb, DB_SCHEMA_VERSION, Error};
 
     /// Create a test library. Call this to create an in memory library.
     pub(crate) fn test_catalog() -> CatalogDb {
@@ -1636,9 +1636,11 @@ pub(crate) mod test {
         assert!(file_id > 0);
 
         assert!(catalog.move_file_to_folder(file_id, 100).is_err());
-        assert!(catalog
-            .move_file_to_folder(file_id, folder_added.id())
-            .is_ok());
+        assert!(
+            catalog
+                .move_file_to_folder(file_id, folder_added.id())
+                .is_ok()
+        );
         let count = catalog.count_folder(folder_added.id());
         assert!(count.is_ok());
         let count = count.ok().unwrap();
@@ -1692,8 +1694,7 @@ pub(crate) mod test {
         assert!(bundle_id.unwrap() > 0);
     }
 
-    const XMP_PACKET: &str =
-        "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Exempi + XMP Core 5.1.2\"> \
+    const XMP_PACKET: &str = "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Exempi + XMP Core 5.1.2\"> \
  <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> \
  </rdf:RDF> \
 </x:xmpmeta>";

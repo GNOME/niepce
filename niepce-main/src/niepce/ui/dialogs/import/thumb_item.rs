@@ -50,8 +50,8 @@ mod imp {
     use std::cell::RefCell;
 
     use gio::subclass::prelude::*;
-    use glib::prelude::*;
     use glib::Properties;
+    use glib::prelude::*;
     use npc_fwk::{gdk4, gio, glib};
 
     use npc_fwk::Date;

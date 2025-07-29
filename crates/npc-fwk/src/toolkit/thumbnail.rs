@@ -22,7 +22,7 @@ use std::convert::From;
 use std::path::Path;
 
 use crate::glib;
-use crate::{gdk4, gdk_pixbuf};
+use crate::{gdk_pixbuf, gdk4};
 use gdk_pixbuf::Colorspace;
 
 use super::gdk_utils;
@@ -88,11 +88,7 @@ impl Thumbnail {
 
     /// Make a gdk_pixbuf::Pixbuf out of the Thumbnail
     pub fn make_pixbuf(&self) -> Option<gdk_pixbuf::Pixbuf> {
-        if self.ok() {
-            Some(self.into())
-        } else {
-            None
-        }
+        if self.ok() { Some(self.into()) } else { None }
     }
 
     pub fn save<P: AsRef<Path> + std::fmt::Debug>(&self, path: P, format: &str) {

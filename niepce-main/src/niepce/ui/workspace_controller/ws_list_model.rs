@@ -232,8 +232,8 @@ mod test {
     use gio::prelude::*;
     use npc_fwk::gio;
 
-    use super::super::ws_list_item::Item;
     use super::super::TreeItemType;
+    use super::super::ws_list_item::Item;
     use super::WorkspaceList;
 
     #[test]

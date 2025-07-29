@@ -19,11 +19,11 @@
 
 use std::path::{Path, PathBuf};
 
-use nix::sys::stat::{stat, utimensat, UtimensatFlags};
+use nix::sys::stat::{UtimensatFlags, stat, utimensat};
 use nix::sys::time::TimeSpec;
 use walkdir::WalkDir;
 
-use crate::toolkit::mimetype::{guess_type_for_file, MType};
+use crate::toolkit::mimetype::{MType, guess_type_for_file};
 
 /// Copy file `from` to `to`. Return the number of bytes copied which
 /// is the size of both `from` and `to`. See also [`std::fs::copy`] as

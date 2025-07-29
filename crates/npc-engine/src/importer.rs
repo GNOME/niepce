@@ -37,7 +37,7 @@ use num_derive::{FromPrimitive, ToPrimitive};
 use crate::catalog::filebundle::FileBundle;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::utils::FileList;
-use npc_fwk::{dbg_out, Date, DateExt, XmpMeta};
+use npc_fwk::{Date, DateExt, XmpMeta, dbg_out};
 
 pub fn find_importer(path: &std::path::Path) -> Option<Box<dyn LibraryImporter>> {
     if LrImporter::can_import_library(path) {

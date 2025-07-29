@@ -23,8 +23,8 @@
 
 use crate::gtk4;
 
-use gtk4::prelude::*;
 use gtk4::Widget;
+use gtk4::prelude::*;
 use num_traits::{FromPrimitive, ToPrimitive};
 
 /// Set the page index into the widget

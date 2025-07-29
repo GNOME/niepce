@@ -22,19 +22,19 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use gtk4::prelude::*;
-use npc_fwk::{gdk4, gdk_pixbuf, gio, gtk4};
+use npc_fwk::{gdk_pixbuf, gdk4, gio, gtk4};
 use once_cell::unsync::OnceCell;
 
 use super::image_grid_view::ImageListItem;
+use npc_engine::catalog::LibraryId;
 use npc_engine::catalog::libfile::{FileStatus, LibFile};
 use npc_engine::catalog::props::NiepceProperties as Np;
 use npc_engine::catalog::props::NiepcePropertyIdx as Npi;
-use npc_engine::catalog::LibraryId;
 use npc_engine::library::notification::{LibNotification, MetadataChange};
 use npc_engine::library::thumbnail_cache::ThumbnailCache;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};
-use npc_fwk::toolkit::Configuration;
 use npc_fwk::PropertyValue;
+use npc_fwk::toolkit::Configuration;
 use npc_fwk::{dbg_out, err_out};
 
 #[derive(Clone, Copy)]

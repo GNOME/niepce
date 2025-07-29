@@ -22,18 +22,18 @@ use std::path::PathBuf;
 use super::notification::LibNotification;
 use super::notification::{Count, FileMove, MetadataChange};
 use super::queriedcontent::QueriedContent;
+use crate::NiepcePropertyBag;
+use crate::catalog::LibraryId;
 use crate::catalog::db::FolderOpResult;
 use crate::catalog::filebundle::FileBundle;
 use crate::catalog::keyword::Keyword;
 use crate::catalog::label::Label;
 use crate::catalog::libfolder::LibFolder;
 use crate::catalog::props::NiepceProperties as Np;
-use crate::catalog::LibraryId;
 use crate::catalog::{CatalogDb, LibError, LibResult};
 use crate::libraryclient::ClientCallback;
-use crate::NiepcePropertyBag;
-use npc_fwk::base::RgbColour;
 use npc_fwk::PropertyValue;
+use npc_fwk::base::RgbColour;
 use npc_fwk::{err_out, err_out_line};
 
 pub fn cmd_list_all_preferences(catalog: &CatalogDb) -> bool {
@@ -826,7 +826,7 @@ pub fn cmd_upgrade_catalog_from(catalog: &CatalogDb, version: i32) -> bool {
 mod test {
     use crate::catalog::{db::Error, db_test};
 
-    use super::{cmd_delete_folder, get_folder_for_import, FolderOpResult};
+    use super::{FolderOpResult, cmd_delete_folder, get_folder_for_import};
 
     #[test]
     fn test_folder_for_import() {

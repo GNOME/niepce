@@ -56,8 +56,8 @@ mod imp {
     use gtk4::subclass::prelude::*;
     use npc_fwk::{glib, gtk4};
 
-    use npc_fwk::toolkit::widgets::prelude::*;
     use npc_fwk::toolkit::widgets::ToolboxItem;
+    use npc_fwk::toolkit::widgets::prelude::*;
 
     pub struct DrItem {
         pub(super) vbox: gtk4::Box,

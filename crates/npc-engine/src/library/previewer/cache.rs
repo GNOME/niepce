@@ -19,8 +19,8 @@
 
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
-use std::sync::mpsc::SyncSender;
 use std::sync::Mutex;
+use std::sync::mpsc::SyncSender;
 
 use super::RenderParams;
 use crate::catalog;
@@ -274,19 +274,21 @@ impl Cache {
     }
 
     pub fn initialize(&self) {
-        on_err_out!(self
-            .worker
-            .lock()
-            .unwrap()
-            .send(DbMessage::Init(self.cache_dir.to_path_buf())));
+        on_err_out!(
+            self.worker
+                .lock()
+                .unwrap()
+                .send(DbMessage::Init(self.cache_dir.to_path_buf()))
+        );
     }
 
     pub fn hit(&self, file: &str, digest: &str) {
-        on_err_out!(self
-            .worker
-            .lock()
-            .unwrap()
-            .send(DbMessage::Hit(file.to_string(), digest.to_string())));
+        on_err_out!(
+            self.worker
+                .lock()
+                .unwrap()
+                .send(DbMessage::Hit(file.to_string(), digest.to_string()))
+        );
     }
 
     pub fn get(&self, file: &str, digest: &str) -> catalog::LibResult<CacheItem> {

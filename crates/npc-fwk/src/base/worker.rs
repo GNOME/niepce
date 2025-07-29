@@ -75,16 +75,18 @@ impl<I: WorkerImpl + 'static> Worker<I> {
         let (sender, receiver) = mpsc::channel();
         let worker = Self { sender };
 
-        on_err_out!(std::thread::Builder::new()
-            .name(format!("worker-{}", stringify!(I)))
-            .spawn(move || {
-                let mut state = worker_impl.new_state();
-                while let Ok(msg) = receiver.recv() {
-                    if !worker_impl.dispatch(msg, &mut state) {
-                        break;
+        on_err_out!(
+            std::thread::Builder::new()
+                .name(format!("worker-{}", stringify!(I)))
+                .spawn(move || {
+                    let mut state = worker_impl.new_state();
+                    while let Ok(msg) = receiver.recv() {
+                        if !worker_impl.dispatch(msg, &mut state) {
+                            break;
+                        }
                     }
-                }
-            }));
+                })
+        );
 
         worker
     }

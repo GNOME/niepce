@@ -20,8 +20,8 @@
 use std::cell::{Cell, RefCell};
 
 use gdk4::subclass::prelude::*;
-use glib::prelude::*;
 use glib::Properties;
+use glib::prelude::*;
 use npc_fwk::{gdk4, glib};
 
 use npc_engine::catalog::libfile::{FileStatus, LibFile};

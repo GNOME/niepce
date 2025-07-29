@@ -20,6 +20,6 @@
 mod darkroom;
 mod map;
 
-pub use darkroom::image_canvas::ImageCanvas;
 pub use darkroom::DarkroomModule;
+pub use darkroom::image_canvas::ImageCanvas;
 pub use map::MapModule;

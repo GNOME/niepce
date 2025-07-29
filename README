@@ -5,7 +5,7 @@ This software is licensed under GPL version 3. See file
 COPYING for details.
 Some files may be under GPL version 2 or later.
 
-(c) 2006-2022 Hubert Figuière
+(c) 2006-2025 Hubert Figuière
 Some portions are written by other people.
 
 RawTherapee rtengine
@@ -24,7 +24,7 @@ To build you need the following:
 --------------------------------
 
 - A C++17 compiler
-- rustc >= 1.76
+- rustc >= 1.85
 - cairo 1.1
 - shumate 1.0.0
 - libadwaita >= 1.4.0
@@ -38,7 +38,7 @@ To build you need the following:
 - gstreamer-1.0
 - meson >= 0.59
 - blueprint
-- gtk4 4.10
+- gtk4 4.12
 
 For the RawTherapee engine:
 

@@ -24,7 +24,7 @@ use num_traits::ToPrimitive;
 use rusqlite::params;
 
 use super::libfolder;
-use super::{sql, upgrade, Result};
+use super::{Result, sql, upgrade};
 
 /// Create a v9 schema
 fn init_schema_v9(conn: &rusqlite::Connection) -> Result<()> {

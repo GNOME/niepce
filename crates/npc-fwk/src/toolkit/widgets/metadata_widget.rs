@@ -503,13 +503,15 @@ mod imp {
         fn signals() -> &'static [Signal] {
             use once_cell::sync::Lazy;
             static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-                vec![Signal::builder("metadata-changed")
-                    .param_types([
-                        <WrappedPropertyBag>::static_type(),
-                        <WrappedPropertyBag>::static_type(),
-                    ])
-                    .run_last()
-                    .build()]
+                vec![
+                    Signal::builder("metadata-changed")
+                        .param_types([
+                            <WrappedPropertyBag>::static_type(),
+                            <WrappedPropertyBag>::static_type(),
+                        ])
+                        .run_last()
+                        .build(),
+                ]
             });
             SIGNALS.as_ref()
         }

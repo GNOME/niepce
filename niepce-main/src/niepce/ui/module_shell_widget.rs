@@ -65,9 +65,9 @@ mod imp {
     use std::cell::RefCell;
 
     use glib::subclass::Signal;
+    use gtk4::TemplateChild;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
-    use gtk4::TemplateChild;
     use npc_fwk::{glib, gtk4, gtk4 as gtk};
 
     #[derive(Default, gtk4::CompositeTemplate)]

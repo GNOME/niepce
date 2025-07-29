@@ -31,13 +31,13 @@ pub mod base;
 pub mod toolkit;
 pub mod utils;
 
+pub use base::PropertySet;
 pub use base::date::{Date, DateExt, Time};
 pub use base::fractions::{fraction_to_decimal, parse_fraction};
 pub use base::propertybag::PropertyBag;
 pub use base::propertyvalue::PropertyValue;
-pub use base::PropertySet;
 pub use toolkit::mimetype::MimeType;
-pub use utils::exempi::{gps_coord_from_xmp, ExempiManager, NsDef, XmpMeta};
+pub use utils::exempi::{ExempiManager, NsDef, XmpMeta, gps_coord_from_xmp};
 
 ///
 /// Init funtion because rexiv2 need one.

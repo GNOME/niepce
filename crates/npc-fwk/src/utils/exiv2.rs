@@ -21,7 +21,7 @@ use multimap::MultiMap;
 use std::ffi::OsStr;
 
 use super::exempi::{
-    xmp_date_from_exif, Flash, XmpMeta, NS_AUX, NS_EXIF, NS_EXIF_EX, NS_TIFF, NS_XAP,
+    Flash, NS_AUX, NS_EXIF, NS_EXIF_EX, NS_TIFF, NS_XAP, XmpMeta, xmp_date_from_exif,
 };
 
 /// Property conversion rules

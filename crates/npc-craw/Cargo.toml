@@ -1,10 +1,10 @@
 [package]
 name = "npc-craw"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "Niepce Camera Raw"
 license = "GPL-3.0"
-rust-version = "1.76"
+rust-version = "1.85"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

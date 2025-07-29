@@ -27,13 +27,13 @@ use gettextrs::gettext as i18n;
 use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 
 use crate::config;
-use crate::niepce::ui::niepce_window::NiepceWindow;
 use crate::niepce::ui::PreferencesDialog;
+use crate::niepce::ui::niepce_window::NiepceWindow;
 use npc_fwk::base::Moniker;
 
 use npc_fwk::toolkit::{
-    gtk_utils, AppController, Configuration, Controller, ControllerImplCell, DialogController,
-    UiController, UndoHistory, UndoTransaction, WindowController, WindowSize,
+    AppController, Configuration, Controller, ControllerImplCell, DialogController, UiController,
+    UndoHistory, UndoTransaction, WindowController, WindowSize, gtk_utils,
 };
 use npc_fwk::{controller_imp_imp, err_out, send_async_any};
 

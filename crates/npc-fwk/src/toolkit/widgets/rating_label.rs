@@ -23,8 +23,8 @@ use crate::gdk4;
 use crate::glib;
 use crate::graphene;
 use crate::gtk4;
-use glib::subclass::prelude::*;
 use glib::subclass::Signal;
+use glib::subclass::prelude::*;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
@@ -105,10 +105,12 @@ impl ObjectImpl for RatingLabelPriv {
     fn signals() -> &'static [Signal] {
         use once_cell::sync::Lazy;
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-            vec![Signal::builder("rating-changed")
-                .param_types([<i32>::static_type()])
-                .run_last()
-                .build()]
+            vec![
+                Signal::builder("rating-changed")
+                    .param_types([<i32>::static_type()])
+                    .run_last()
+                    .build(),
+            ]
         });
         SIGNALS.as_ref()
     }

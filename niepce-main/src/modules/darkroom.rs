@@ -342,9 +342,10 @@ impl DarkroomModule {
         self.file.replace(file.cloned());
 
         if let Some(file) = file {
-            on_err_out!(self
-                .worker
-                .send(RenderMsg::SetImage(Some(Box::new(file.clone())))));
+            on_err_out!(
+                self.worker
+                    .send(RenderMsg::SetImage(Some(Box::new(file.clone()))))
+            );
             if file.metadata().is_some() {
                 let params = self.params_for_metadata(file);
                 self.render_params.replace(Some(params.clone()));

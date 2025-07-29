@@ -25,21 +25,21 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use npc_fwk::{glib, gtk4};
 
-use super::image_list_store::ImageListStore;
 use super::ContentView;
+use super::image_list_store::ImageListStore;
 use crate::NiepceApplication;
+use npc_engine::ThumbnailCache;
 use npc_engine::catalog;
 use npc_engine::catalog::props::NiepceProperties as Np;
 use npc_engine::catalog::{LibFile, NiepcePropertyIdx};
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
-use npc_engine::ThumbnailCache;
 use npc_fwk::send_async_local;
 use npc_fwk::toolkit::widgets::MetadataPropertyBag;
 use npc_fwk::toolkit::{
     AppController, Controller, ControllerImplCell, UndoCommand, UndoTransaction,
 };
-use npc_fwk::{dbg_out, err_out, PropertyValue};
+use npc_fwk::{PropertyValue, dbg_out, err_out};
 
 #[derive(PartialEq)]
 enum Direction {

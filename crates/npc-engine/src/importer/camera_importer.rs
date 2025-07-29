@@ -25,7 +25,7 @@ use super::{
 };
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
 use npc_fwk::utils::FileList;
-use npc_fwk::{dbg_out, on_err_out, Date};
+use npc_fwk::{Date, dbg_out, on_err_out};
 
 #[derive(Clone, Default)]
 pub struct CameraImportedFile {
@@ -177,30 +177,32 @@ impl ImportBackend for CameraImporter {
             CameraBackend::Gphoto2 => {
                 if let Some(camera) = self.camera.borrow_mut().take() {
                     let dest_dir = request.dest_dir().to_path_buf();
-                    on_err_out!(std::thread::Builder::new()
-                        .name("camera import".to_string())
-                        .spawn(move || {
-                            let file_list = Self::list_content_for_camera(&camera);
-                            // XXX we likely need to handle this error better
-                            on_err_out!(std::fs::create_dir_all(&dest_dir));
-                            let files = file_list
-                                .iter()
-                                .filter_map(|file| {
-                                    let name = file.name();
-                                    let output_path = dest_dir.join(name);
-                                    if camera.download_file(
-                                        file.folder(),
-                                        name,
-                                        &output_path.to_string_lossy(),
-                                    ) {
-                                        return Some(output_path);
-                                    }
+                    on_err_out!(
+                        std::thread::Builder::new()
+                            .name("camera import".to_string())
+                            .spawn(move || {
+                                let file_list = Self::list_content_for_camera(&camera);
+                                // XXX we likely need to handle this error better
+                                on_err_out!(std::fs::create_dir_all(&dest_dir));
+                                let files = file_list
+                                    .iter()
+                                    .filter_map(|file| {
+                                        let name = file.name();
+                                        let output_path = dest_dir.join(name);
+                                        if camera.download_file(
+                                            file.folder(),
+                                            name,
+                                            &output_path.to_string_lossy(),
+                                        ) {
+                                            return Some(output_path);
+                                        }
 
-                                    None
-                                })
-                                .collect();
-                            callback(&FileList(files));
-                        }));
+                                        None
+                                    })
+                                    .collect();
+                                callback(&FileList(files));
+                            })
+                    );
                 }
             }
             CameraBackend::File => {

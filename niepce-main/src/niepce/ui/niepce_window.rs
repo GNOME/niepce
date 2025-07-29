@@ -27,11 +27,11 @@ use npc_fwk::{adw, gio, glib, gtk4};
 use once_cell::unsync::OnceCell;
 
 use npc_engine::catalog;
-use npc_engine::library::notification::LibNotification;
 use npc_engine::library::CatalogPreferences;
+use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryClientHost};
-use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Moniker;
+use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::toolkit::{
     self, AppController, Controller, ControllerImplCell, DialogController, UiController,
     WindowController, WindowSize,
@@ -43,7 +43,7 @@ use super::film_strip_controller::FilmStripController;
 use super::module_shell::ModuleShell;
 use super::workspace_controller::WorkspaceController;
 use crate::NiepceApplication;
-use crate::{config, NotificationCenter};
+use crate::{NotificationCenter, config};
 
 pub enum Event {
     Delete,
@@ -213,7 +213,9 @@ impl Controller for NiepceWindow {
                 dbg_out!("Database need upgrade {}.", v);
                 let dialog = npc_fwk::toolkit::confirm::request(
                     &i18n("Catalog needs to be upgraded"),
-                    &i18n("The catalog will be upgraded to the latest version. A copy of the old version will be save. Upgrade?"),
+                    &i18n(
+                        "The catalog will be upgraded to the latest version. A copy of the old version will be save. Upgrade?",
+                    ),
                     Some(i18n("_Upgrade")),
                     false,
                     Some(self.window()),

@@ -33,8 +33,8 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
-use gtk4::prelude::*;
 use gtk_macros::get_widget;
+use gtk4::prelude::*;
 use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 use num_traits::ToPrimitive;
 use once_cell::sync::OnceCell;
@@ -45,7 +45,7 @@ use npc_fwk::toolkit::{
     self, Controller, ControllerImplCell, DialogController, ListViewRow, Receiver, Sender,
     Thumbnail, UiController,
 };
-use npc_fwk::{controller_imp_imp, dbg_out, send_async_any, Date};
+use npc_fwk::{Date, controller_imp_imp, dbg_out, send_async_any};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
 

@@ -46,8 +46,8 @@ impl EditableHScale {
 mod imp {
     use crate::glib;
     use crate::gtk4;
-    use glib::subclass::prelude::*;
     use glib::subclass::Signal;
+    use glib::subclass::prelude::*;
     use gtk4::prelude::*;
     use gtk4::subclass::prelude::*;
 

@@ -31,12 +31,12 @@ use lrcat::{
 use npc_fwk::{dbg_out, err_out};
 
 use super::libraryimporter::{Error, LibraryImporter, LibraryImporterProbe, Result};
+use crate::NiepcePropertyBag;
+use crate::catalog::LibraryId;
 use crate::catalog::filebundle::FileBundle;
 use crate::catalog::props::NiepceProperties as Np;
 use crate::catalog::props::NiepcePropertyIdx as NpI;
-use crate::catalog::LibraryId;
 use crate::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryClient};
-use crate::NiepcePropertyBag;
 
 /// Library importer for Lightroom™
 #[derive(Default)]

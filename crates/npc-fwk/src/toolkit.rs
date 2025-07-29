@@ -43,7 +43,7 @@ pub mod widgets;
 mod window_controller;
 
 pub use app_controller::AppController;
-pub use channels::{channel, send_async_any, send_async_local, Receiver, Sender};
+pub use channels::{Receiver, Sender, channel, send_async_any, send_async_local};
 pub use combo_model::ComboModel;
 pub use controller::{Controller, ControllerImpl, ControllerImplCell};
 pub use gphoto::{GpCamera, GpDevice, GpDeviceList};
@@ -55,7 +55,7 @@ pub use tree_view_model::{TreeViewFactory, TreeViewModel};
 pub use uicontroller::{DialogController, UiController, WindowSize};
 pub use undo::do_command as undo_do_command;
 pub use undo::{RedoFn, Storage, UndoCommand, UndoFn, UndoHistory, UndoTransaction};
-pub use window_controller::{create_redo_action, create_undo_action, WindowController};
+pub use window_controller::{WindowController, create_redo_action, create_undo_action};
 
 pub use configuration::{ConfigBackend, Configuration};
 

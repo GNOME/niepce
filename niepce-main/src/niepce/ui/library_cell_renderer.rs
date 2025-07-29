@@ -21,8 +21,8 @@ use std::cell::{Cell, RefCell, RefMut};
 use std::rc::Weak;
 
 use gdk4::Texture;
-use glib::subclass::prelude::*;
 use glib::subclass::Signal;
+use glib::subclass::prelude::*;
 use graphene::Rect;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
@@ -32,10 +32,10 @@ use super::image_list_item::ImageListItem;
 use npc_engine::catalog;
 use npc_engine::catalog::libfile::{FileStatus, FileType, LibFile};
 use npc_engine::libraryclient::UIDataProvider;
-use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::base::Size;
-use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
+use npc_fwk::base::rgbcolour::RgbColour;
 use npc_fwk::toolkit::ListViewRow;
+use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
 const CELL_PADDING: f32 = 4.0;
@@ -426,10 +426,12 @@ impl ObjectImpl for LibraryCellRendererPriv {
     fn signals() -> &'static [Signal] {
         use once_cell::sync::Lazy;
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-            vec![Signal::builder("rating-changed")
-                .param_types([<i64>::static_type(), <i32>::static_type()])
-                .run_last()
-                .build()]
+            vec![
+                Signal::builder("rating-changed")
+                    .param_types([<i64>::static_type(), <i32>::static_type()])
+                    .run_last()
+                    .build(),
+            ]
         });
 
         SIGNALS.as_ref()

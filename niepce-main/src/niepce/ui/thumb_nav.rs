@@ -22,9 +22,9 @@ use std::rc::Rc;
 
 use once_cell::unsync::OnceCell;
 
+use glib::ControlFlow;
 use glib::prelude::*;
 use glib::subclass::prelude::*;
-use glib::ControlFlow;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 use npc_fwk::{glib, gtk4};

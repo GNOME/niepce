@@ -22,10 +22,10 @@ use std::path::{Path, PathBuf};
 use npc_fwk::err_out;
 use npc_fwk::glib;
 
-use super::fsfile::FsFile;
 use super::FromDb;
 use super::NiepceProperties as Np;
 use super::NiepcePropertyIdx as Npi;
+use super::fsfile::FsFile;
 use super::{LibMetadata, LibraryId};
 
 #[repr(i32)]

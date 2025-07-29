@@ -21,8 +21,8 @@ use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
 use super::libfile::FileType;
-use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
 use npc_fwk::MimeType;
+use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
 use npc_fwk::{dbg_out, err_out};
 
 /// Sidecar.

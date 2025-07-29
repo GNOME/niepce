@@ -3,9 +3,9 @@ name = "niepce"
 version = "0.1.0"
 authors = ["Hubert Figuière <hub@figuiere.net>"]
 build = "build.rs"
-edition = "2021"
+edition = "2024"
 license = "GPL-3.0"
-rust-version = "1.76"
+rust-version = "1.85"
 
 [dependencies]
 async-channel = "2.5.0"

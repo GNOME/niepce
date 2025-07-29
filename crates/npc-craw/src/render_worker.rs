@@ -90,9 +90,11 @@ impl WorkerImpl for RenderImpl {
                 }
             }
             Reload(params) => {
-                if state.params.as_ref().map_or(true, |p2| {
-                    params.as_ref().map_or(true, |p| p.engine() != p2.engine())
-                }) {
+                if state
+                    .params
+                    .as_ref()
+                    .is_none_or(|p2| params.as_ref().is_none_or(|p| p.engine() != p2.engine()))
+                {
                     state.pipeline = params.as_ref().and_then(|params| {
                         dbg_out!("creating pipeline, engine is {:?}", params.engine());
                         crate::pipeline::create(params.engine())

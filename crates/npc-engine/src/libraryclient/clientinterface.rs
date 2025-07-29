@@ -19,10 +19,10 @@
 
 use std::path::PathBuf;
 
+use crate::NiepcePropertyBag;
 use crate::catalog::filebundle::FileBundle;
 use crate::catalog::props::NiepceProperties as Np;
 use crate::catalog::{LibFolder, LibraryId};
-use crate::NiepcePropertyBag;
 use npc_fwk::base::{PropertyValue, RgbColour};
 
 /// Callback for a local library request.
