@@ -17,13 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Cell, RefCell};
+use std::cell::{Cell, OnceCell, RefCell};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use gtk4::prelude::*;
 use npc_fwk::{gdk_pixbuf, gdk4, gio, gtk4};
-use once_cell::unsync::OnceCell;
 
 use super::image_grid_view::ImageListItem;
 use npc_engine::catalog::LibraryId;

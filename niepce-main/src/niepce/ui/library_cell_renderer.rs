@@ -424,8 +424,8 @@ impl ObjectImpl for LibraryCellRendererPriv {
     }
 
     fn signals() -> &'static [Signal] {
-        use once_cell::sync::Lazy;
-        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
+        use std::sync::LazyLock;
+        static SIGNALS: LazyLock<Vec<Signal>> = LazyLock::new(|| {
             vec![
                 Signal::builder("rating-changed")
                     .param_types([<i64>::static_type(), <i32>::static_type()])

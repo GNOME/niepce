@@ -17,14 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::RefCell;
+use std::cell::{OnceCell, RefCell};
 use std::rc::Rc;
 use std::sync::Arc;
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
 use npc_fwk::{adw, gio, glib, gtk4};
-use once_cell::unsync::OnceCell;
 
 use npc_engine::catalog;
 use npc_engine::library::CatalogPreferences;

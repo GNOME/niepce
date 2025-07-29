@@ -136,8 +136,8 @@ mod imp {
 
     impl ObjectImpl for ModuleShellWidget {
         fn signals() -> &'static [Signal] {
-            use once_cell::sync::Lazy;
-            static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
+            use std::sync::LazyLock;
+            static SIGNALS: LazyLock<Vec<Signal>> = LazyLock::new(|| {
                 vec![
                     Signal::builder("activated")
                         .param_types([<String>::static_type()])

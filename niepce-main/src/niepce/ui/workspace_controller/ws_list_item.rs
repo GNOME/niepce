@@ -135,12 +135,11 @@ impl Item {
 }
 
 mod imp {
-    use std::cell::{Cell, RefCell};
+    use std::cell::{Cell, OnceCell, RefCell};
 
     use gio::subclass::prelude::*;
     use glib::prelude::*;
     use npc_fwk::{gio, glib};
-    use once_cell::unsync::OnceCell;
 
     use super::super::TreeItemType;
     use super::super::ws_list_model::WorkspaceList;

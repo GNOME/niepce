@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/film_strip_controller.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::cell::OnceCell;
 use std::rc::Rc;
 
 use gtk4::prelude::*;
 use npc_fwk::{gio, gtk4};
-use once_cell::unsync::OnceCell;
 
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
 

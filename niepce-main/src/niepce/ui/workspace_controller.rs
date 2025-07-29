@@ -21,6 +21,7 @@ mod ws_item_row;
 mod ws_list_item;
 mod ws_list_model;
 
+use std::cell::OnceCell;
 use std::rc::Rc;
 use std::sync::{Arc, Weak};
 
@@ -28,7 +29,6 @@ use adw::prelude::*;
 use gettextrs::gettext as i18n;
 use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 use num_derive::FromPrimitive;
-use once_cell::unsync::OnceCell;
 
 use super::ContentView;
 use npc_engine::catalog;

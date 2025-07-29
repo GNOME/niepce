@@ -27,7 +27,7 @@ use camera_importer_ui::CameraImporterUI;
 use directory_importer_ui::DirectoryImporterUI;
 use importer_ui::{ImporterMsg, ImporterUI};
 
-use std::cell::RefCell;
+use std::cell::{OnceCell, RefCell};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -37,7 +37,6 @@ use gtk_macros::get_widget;
 use gtk4::prelude::*;
 use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 use num_traits::ToPrimitive;
-use once_cell::sync::OnceCell;
 
 use crate::niepce::ui::{ImageGridView, MetadataPaneController};
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile};

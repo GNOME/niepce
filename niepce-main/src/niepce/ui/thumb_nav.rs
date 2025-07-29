@@ -17,10 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::{Cell, RefCell};
+use std::cell::{Cell, OnceCell, RefCell};
 use std::rc::Rc;
-
-use once_cell::unsync::OnceCell;
 
 use glib::ControlFlow;
 use glib::prelude::*;
