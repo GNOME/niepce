@@ -92,6 +92,7 @@ mod imp {
             self.obj().append(&self.image);
             self.obj().append(&self.filename);
             self.image.set_size_request(100, 100);
+            self.image.set_pixel_size(100);
             // Adwaita class
             self.filename.add_css_class("caption");
         }
