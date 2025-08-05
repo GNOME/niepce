@@ -34,18 +34,6 @@ pub trait PathTreeItem {
 
 type Nodes<T> = BTreeMap<String, Node<T>>;
 
-/// Get or insert a node from a `Nodes<T>`.
-fn get_mut_or_insert<'a, T>(nodes: &'a mut Nodes<T>, component: &str) -> &'a mut Node<T> {
-    // Figure out how to avoid the contains_key, but get_mut cause
-    // twice mutable borrow.
-    if nodes.contains_key(component) {
-        nodes.get_mut(component).unwrap()
-    } else {
-        nodes.insert(component.into(), Node::default());
-        nodes.get_mut(component).unwrap()
-    }
-}
-
 /// Walk until it reaches 0 or the end.
 fn walk<'a, T>(nodes: &'a Nodes<T>, count: &mut usize) -> Option<&'a Node<T>> {
     let mut iter = nodes.values();
@@ -82,7 +70,8 @@ struct Inserted<T: PathTreeItem> {
 #[derive(Debug)]
 pub struct PathTree<T: PathTreeItem> {
     separator: char,
-    nodes: Nodes<T::Id>,
+    /// Top level node. It has a `None` value
+    node: Node<T::Id>,
     by_id: BTreeMap<T::Id, T>,
 }
 
@@ -107,7 +96,11 @@ impl<T> Default for Node<T> {
 impl<T: Ord> Node<T> {
     /// Get the mutable node, or insert a new one.
     fn get_mut_or_insert(&mut self, component: &str) -> &mut Node<T> {
-        get_mut_or_insert(&mut self.nodes, component)
+        let nodes = &mut self.nodes;
+        if !nodes.contains_key(component) {
+            nodes.insert(component.into(), Node::default());
+        }
+        nodes.get_mut(component).unwrap()
     }
 }
 
@@ -126,7 +119,7 @@ impl<T: PathTreeItem> std::ops::Index<usize> for PathTree<T> {
 
     fn index(&self, index: usize) -> &Option<T::Id> {
         let mut index = index + 1;
-        let node = walk(&self.nodes, &mut index);
+        let node = walk(&self.node.nodes, &mut index);
         assert!(node.is_some());
         &node.unwrap().value
     }
@@ -137,28 +130,25 @@ impl<T: PathTreeItem> PathTree<T> {
     pub fn new(separator: char) -> PathTree<T> {
         PathTree {
             separator,
-            nodes: Nodes::default(),
+            node: Node {
+                value: None,
+                nodes: Nodes::default(),
+            },
             by_id: BTreeMap::new(),
         }
     }
 
     /// Return true it has no node.
     pub fn is_empty(&self) -> bool {
-        self.nodes.is_empty()
+        self.node.nodes.is_empty()
     }
 
     /// Locate the node for `path`.
     fn get_node(&self, path: &str) -> Option<&Node<T::Id>> {
         let components = path.split(self.separator);
-        let mut node: Option<&Node<T::Id>> = None;
-        let mut nodes = &self.nodes;
+        let mut node: Option<&Node<T::Id>> = Some(&self.node);
         for component in components {
-            node = nodes.get(component);
-            if let Some(n) = node {
-                nodes = &n.nodes;
-            } else {
-                return None;
-            }
+            node = node?.nodes.get(component);
         }
         node
     }
@@ -186,7 +176,7 @@ impl<T: PathTreeItem> PathTree<T> {
         let mut components = path.split(self.separator);
         let component = components.next()?;
         let mut parent = None;
-        let mut node = get_mut_or_insert(&mut self.nodes, component);
+        let mut node = self.node.get_mut_or_insert(component);
         for component in components {
             parent = node.value;
             node = node.get_mut_or_insert(component);
