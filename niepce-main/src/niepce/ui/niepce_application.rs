@@ -92,7 +92,7 @@ impl NiepceApplication {
         let undo_history = UndoHistory::default();
         let config_path = Configuration::make_config_path(config::PACKAGE);
         let config = Arc::new(Configuration::from_file(config_path));
-        let gtkapp = adw::Application::new(Some(config::APP_ID), gio::ApplicationFlags::FLAGS_NONE);
+        let gtkapp = adw::Application::new(Some(config::APP_ID), gio::ApplicationFlags::default());
         let app = Arc::new(NiepceApplication {
             imp_: ControllerImplCell::default(),
             this: RwLock::new(Weak::new()),

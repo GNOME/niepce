@@ -60,7 +60,7 @@ pub fn main() {
 
     let app = gtk4::Application::new(
         Some("net.figuiere.Niepce.WidgetTest"),
-        gio::ApplicationFlags::FLAGS_NONE,
+        gio::ApplicationFlags::default(),
     );
 
     app.connect_activate(|app| {
