@@ -153,6 +153,16 @@ impl<T: PathTreeItem> PathTree<T> {
         node
     }
 
+    /// Locate the mutable node for `path`.
+    fn get_node_mut(&mut self, path: &str) -> Option<&mut Node<T::Id>> {
+        let components = path.split(self.separator);
+        let mut node: Option<&mut Node<T::Id>> = Some(&mut self.node);
+        for component in components {
+            node = node?.nodes.get_mut(component);
+        }
+        node
+    }
+
     /// Get the children at `path`.
     pub fn children(&self, path: &str) -> Option<Vec<&T::Id>> {
         self.get_node(path).map(|node| {
