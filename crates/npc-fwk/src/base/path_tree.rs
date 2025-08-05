@@ -250,13 +250,98 @@ impl<T: PathTreeItem> PathTree<T> {
     }
 
     /// Get the item at `path` if there is one.
+    ///
+    /// #Panic
+    /// Will panic if the `Node` has a value, but it's not found
+    /// in the `by_id` hash map. This is a bug.
     pub fn get(&self, path: &str) -> Option<&T>
     where
         <T as PathTreeItem>::Id: Ord,
     {
         self.get_node(path)
             .and_then(|v| v.value.as_ref())
-            .and_then(|id| self.by_id.get(id))
+            .map(|id| self.by_id.get(id).expect("Node not found by id"))
+    }
+
+    /// Return the last component of the path. This is the entry in the
+    /// `nodes` list. The other side of `parent_path`.
+    fn leaf_path(path: &str, separator: char) -> Option<&str> {
+        let split_path = path.rsplitn(2, separator).collect::<Vec<_>>();
+        if split_path.len() != 2 {
+            return None;
+        }
+        Some(split_path[0])
+    }
+
+    fn parent_path<'a>(&self, path: &'a str) -> Option<&'a str> {
+        let parent_path = path.rsplitn(2, self.separator).collect::<Vec<_>>();
+        if parent_path.len() != 2 {
+            return None;
+        }
+        Some(parent_path[1])
+    }
+
+    /// Get the parent item for the path.
+    pub fn parent_for(&self, path: &str) -> Option<&T>
+    where
+        <T as PathTreeItem>::Id: Ord,
+    {
+        let parent_path = self.parent_path(path)?;
+        self.get(parent_path)
+    }
+
+    /// Get the parent item for the path.
+    fn parent_node_mut_for(&mut self, path: &str) -> Option<&mut Node<<T as PathTreeItem>::Id>>
+    where
+        <T as PathTreeItem>::Id: Ord,
+    {
+        let parent_path = self.parent_path(path)?;
+        self.get_node_mut(parent_path)
+    }
+
+    fn enumerate_children_of(node: &Node<T::Id>) -> Vec<T::Id>
+    where
+        <T as PathTreeItem>::Id: Ord + Copy,
+    {
+        let mut children = vec![];
+        for child in node.nodes.values() {
+            let ids = Self::enumerate_children_of(child);
+            children.extend(ids);
+            if let Some(value) = &child.value {
+                children.push(*value);
+            }
+        }
+        children
+    }
+
+    /// Remove the node at path. Recursively.
+    pub fn remove(&mut self, path: &str)
+    where
+        <T as PathTreeItem>::Id: Ord + Copy,
+    {
+        let mut ids = None;
+        let node = self.get_node(path);
+        if let Some(node) = node {
+            let mut ids_ = Self::enumerate_children_of(node);
+            if let Some(value) = &node.value {
+                ids_.push(*value);
+            }
+            ids = Some(ids_);
+            // remove the node
+        }
+        if let Some(ids) = ids {
+            ids.into_iter().for_each(|id| {
+                self.by_id.remove(&id);
+            });
+        }
+        let separator = self.separator;
+        if let Some(ref mut parent) = self.parent_node_mut_for(path)
+            && let Some(leaf_path) = Self::leaf_path(path, separator)
+        {
+            parent.nodes.remove(leaf_path);
+        } else {
+            self.node.nodes.remove(path);
+        }
     }
 }
 
@@ -354,5 +439,31 @@ mod test {
             path_tree.get_by_id(69).map(|v| v.path()),
             Some("usr/lib".to_string())
         );
+
+        let parent = path_tree.parent_for("usr/lib");
+        assert!(parent.is_some());
+        let parent = parent.unwrap();
+        assert_eq!(parent.path(), "usr");
+        assert_eq!(parent.id(), 21);
+
+        // Test removal
+
+        assert!(path_tree.get_node("usr").is_some());
+        assert!(path_tree.get("usr/lib").is_some());
+        assert!(path_tree.get("usr/bin").is_some());
+        path_tree.remove("usr/bin");
+        assert!(path_tree.get("usr/bin").is_none());
+        assert!(path_tree.get_node("usr/bin").is_none());
+        path_tree.remove("usr");
+
+        assert!(path_tree.get_by_id(21).is_none());
+        assert!(path_tree.get("usr").is_none());
+        assert!(path_tree.get_node("usr").is_none());
+        assert!(path_tree.get_by_id(69).is_none());
+        assert!(path_tree.get("usr/lib").is_none());
+        assert!(path_tree.get_node("usr/lib").is_none());
+        assert!(path_tree.get_by_id(42).is_none());
+        assert!(path_tree.get("usr/bin").is_none());
+        assert!(path_tree.get_node("usr/bin").is_none());
     }
 }
