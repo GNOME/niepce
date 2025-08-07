@@ -16,6 +16,17 @@ macro_rules! on_err_out {
     };
 }
 
+/// Print a trace message.
+#[macro_export]
+macro_rules! trace_out {
+    ( $( $x:expr ),* $(,)?) => {
+        {
+            print!("TRACE: ");
+            println!( $($x),* );
+        }
+    };
+}
+
 /// Print a debug message.
 #[macro_export]
 macro_rules! dbg_out {
@@ -67,6 +78,7 @@ mod tests {
     fn it_works() {
         dbg_out!("debug {}", 42);
         err_out!("error {}", 69);
+        trace_out!("trace {}", 666);
         dbg_assert!(false, "failed assert");
     }
 }
