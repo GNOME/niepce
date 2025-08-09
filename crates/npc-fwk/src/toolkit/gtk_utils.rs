@@ -1,7 +1,7 @@
 /*
  * niepce - toolkit/gtk_utils.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,9 +79,11 @@ where
     let action = gio::SimpleAction::new(name, None);
     group.add_action(&action);
     action.connect_activate(f);
-    if context.is_some() && accel.is_some() {
-        let detail = format!("{}.{}", context.unwrap(), name);
-        gtk4::Application::default().set_accels_for_action(&detail, &[accel.unwrap()]);
+    if let Some(context) = context
+        && let Some(accel) = accel
+    {
+        let detail = format!("{context}.{name}");
+        gtk4::Application::default().set_accels_for_action(&detail, &[accel]);
     }
 
     action

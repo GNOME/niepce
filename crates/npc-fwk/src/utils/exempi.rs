@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/exempi.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -270,6 +270,8 @@ impl XmpMeta {
                 }
             }
         }
+        #[allow(clippy::unnecessary_unwrap)]
+        // XXX we can revise the logic to avoid the clippy warning.
         if meta.is_none() || sidecar_meta.is_none() {
             if meta.is_some() {
                 return meta;

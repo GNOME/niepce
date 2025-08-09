@@ -47,7 +47,7 @@ impl<Index: Ord + Copy> PropertyBag<Index> {
     }
 
     /// Return the keys in the order of the bag, i.e. in which they have been added.
-    pub fn keys(&self) -> std::slice::Iter<Index> {
+    pub fn keys(&self) -> std::slice::Iter<'_, Index> {
         self.bag.iter()
     }
 
