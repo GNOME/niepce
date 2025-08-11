@@ -48,13 +48,6 @@ Adw.Window import_dialog {
       orientation: vertical;
       spacing: 6;
 
-      Stack importer_ui_stack {
-        margin-bottom: 12;
-        margin-end: 12;
-        margin-start: 12;
-        margin-top: 12;
-      }
-
       Box {
         margin-bottom: 12;
         margin-end: 12;
@@ -68,6 +61,13 @@ Adw.Window import_dialog {
           hexpand: true;
           orientation: vertical;
           spacing: 6;
+
+          Stack importer_ui_stack {
+            margin-bottom: 12;
+            margin-end: 12;
+            margin-start: 12;
+            margin-top: 12;
+          }
 
           Label {
             halign: start;
@@ -109,9 +109,13 @@ Adw.Window import_dialog {
           }
 
           Label destination_help {
+            margin-bottom: 6;
+            margin-end: 6;
+            margin-start: 6;
+            margin-top: 6;
             xalign: 0;
             wrap: true;
-            vexpand: true;
+            hexpand: false;
           }
 
           Expander {
