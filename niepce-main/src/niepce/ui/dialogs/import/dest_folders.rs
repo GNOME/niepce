@@ -54,9 +54,7 @@ impl DestFile {
     }
 
     pub fn sort(&mut self, base: &Path, format: DatePathFormat) {
-        if let Some(ref date) = self.date {
-            self.dest = Importer::dest_dir_for_date(base, date, format)
-        }
+        self.dest = Importer::dest_dir_for_date(base, self.date.as_ref(), format)
     }
 }
 
