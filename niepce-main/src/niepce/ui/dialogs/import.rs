@@ -173,7 +173,7 @@ impl Controller for ImportDialog {
                 if let Some(widgets) = self.widgets.get() {
                     widgets
                         .dest_folders
-                        .send(DestFoldersIn::PreviewReceived(path.to_string(), date));
+                        .send(DestFoldersIn::PreviewReceived(date));
                 }
                 self.preview_received(&path, thumbnail, date)
             }
