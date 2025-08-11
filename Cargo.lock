@@ -1795,6 +1795,7 @@ dependencies = [
  "configparser",
  "exempi2",
  "gettext-rs",
+ "gio",
  "gphoto2",
  "gstreamer",
  "gtk4",

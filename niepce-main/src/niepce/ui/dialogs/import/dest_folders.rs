@@ -36,7 +36,7 @@ use npc_fwk::toolkit::{
     self, Controller, ControllerImplCell, ListViewRow, TreeViewFactory, TreeViewItem,
     TreeViewModel, UiController,
 };
-use npc_fwk::{Date, dbg_out};
+use npc_fwk::{Date, base::PathTreeItem, dbg_out, trace_out};
 
 use dest_folder::{DestFolder, FolderId, FolderType};
 
@@ -74,7 +74,7 @@ pub enum DestFoldersIn {
     /// Selected Folder change to id.
     SelectionChanged(u32),
     /// Select the item at path
-    SelectPath(PathBuf),
+    SelectPath(Option<PathBuf>),
     /// Remove all the sources.
     Clear,
     /// A destination dir for a file has been received
@@ -82,7 +82,7 @@ pub enum DestFoldersIn {
 }
 
 pub enum DestFoldersOut {
-    SelectedFolder(u32),
+    SelectedFolder(DestFolder),
     DeselectAll,
 }
 
@@ -91,12 +91,15 @@ pub struct DestFolders {
     tree_model: Rc<TreeViewModel<DestFolder>>,
     listview: gtk4::ListView,
     dest_files: RefCell<Vec<DestFile>>,
+    copy_mode: Cell<bool>,
     sorting: Cell<DatePathFormat>,
     /// The base directory for import.
     base: RefCell<PathBuf>,
     client: std::sync::Weak<LibraryClient>,
     /// Counter for temp IDs.
     temp_id: Cell<LibraryId>,
+    /// The created temporary folders.
+    temp_folders: RefCell<Vec<<DestFolder as PathTreeItem>::Id>>,
 }
 
 impl Controller for DestFolders {
@@ -116,7 +119,7 @@ impl Controller for DestFolders {
             PreviewReceived(source, date) => self.received_source(source, date),
             SortingChanged(format) => self.sorting_changed(format),
             SelectionChanged(idx) => self.selection_changed(idx),
-            SelectPath(path) => self.handle_select_path(&path),
+            SelectPath(path) => self.handle_select_path(path.as_deref()),
             Clear => self.clear_source(),
             DestDirFile(path) => self.add_dest_dir_file(&path),
         }
@@ -154,11 +157,13 @@ impl DestFolders {
             imp_: ControllerImplCell::default(),
             listview,
             tree_model,
+            copy_mode: Cell::default(),
             dest_files: RefCell::default(),
             sorting: Cell::default(),
             base: RefCell::new(base),
             client: Arc::downgrade(&client),
             temp_id: Cell::new(0),
+            temp_folders: RefCell::default(),
         });
 
         ctrl.tree_model.bind(&ctrl.listview, &ctrl);
@@ -188,7 +193,7 @@ impl DestFolders {
     }
 
     fn add_dest_dir_file(&self, dest_dir: &Path) {
-        dbg_out!("add dest dir file {dest_dir:?}");
+        trace_out!("add dest dir file {dest_dir:?}");
         dest_dir
             .to_str()
             .and_then(|path| self.tree_model.item_index_for_path(path))
@@ -207,51 +212,60 @@ impl DestFolders {
     fn sort(&self, base: &Path, sorting: DatePathFormat) {
         for dest_file in self.dest_files.borrow_mut().iter_mut() {
             dest_file.sort(base, sorting);
-            dbg_out!("DestFolders: Resorted {:?}", &dest_file.dest);
+            // trace_out!("DestFolders: Resorted {:?}", &dest_file.dest);
+            self.add_dest_dir_file(&dest_file.dest);
         }
     }
 
     fn selection_changed(&self, idx: u32) {
-        if let Some(folder) = self.tree_model.item(idx) {
+        if idx != gtk4::INVALID_LIST_POSITION
+            && let Some(folder) = self.tree_model.item(idx)
+        {
             let dest = folder.dest();
             self.base.replace(dest.to_path_buf());
+            // This invalidate the index.
+            if self.copy_mode.get() {
+                self.remove_temp_folders();
+            }
             self.sort(&dest, self.sorting.get());
-            self.emit(DestFoldersOut::SelectedFolder(idx));
+            self.emit(DestFoldersOut::SelectedFolder(folder.clone()));
         } else {
+            trace_out!("Deselect all");
             self.emit(DestFoldersOut::DeselectAll);
         }
     }
 
     /// Handle the select path message.
-    fn handle_select_path(&self, path: &Path) {
-        let mut index = self.select_path(path);
-        if index.is_none() {
-            // Couldn't find path.
-            self.add_temp_folder(path);
-            index = self.select_path(path);
-        }
-        if let Some(index) = index {
-            self.listview
-                .scroll_to(index, gtk4::ListScrollFlags::NONE, None);
+    fn handle_select_path(&self, path: Option<&Path>) {
+        trace_out!("handle select path {path:?}");
+        let index = self.select_path(path);
+        if let Some(path) = path {
+            if index.is_none() {
+                // Couldn't find path.
+                trace_out!("add temp folder {path:?}");
+                self.add_temp_folder(path);
+                self.select_path(Some(path));
+            }
         }
     }
 
     /// Select the folder by path and return index if found.
-    fn select_path(&self, path: &Path) -> Option<u32> {
-        path.to_str().and_then(|path| {
-            self.tree_model
-                .item_index_for_path(path)
-                .inspect(|&index| {
-                    self.tree_model.select_item(index);
+    fn select_path(&self, path: Option<&Path>) -> Option<u32> {
+        path.and_then(|path| path.to_str())
+            .and_then(|path| {
+                self.tree_model.item_index_for_path(path).inspect(|&index| {
+                    self.listview
+                        .scroll_to(index, gtk4::ListScrollFlags::SELECT, None);
                 })
-                .or_else(|| {
-                    self.tree_model.unselect_all();
-                    None
-                })
-        })
+            })
+            .or_else(|| {
+                self.tree_model.unselect_all();
+                None
+            })
     }
 
     fn sorting_changed(&self, sorting: DatePathFormat) {
+        self.remove_temp_folders();
         self.sorting.set(sorting);
         self.sort(&self.base.borrow(), sorting)
     }
@@ -259,6 +273,7 @@ impl DestFolders {
     /// Copy mode change the way the listview behave when copying.
     /// When not copying the list can be clicked.
     pub fn set_copy_mode(&self, copy: bool) {
+        self.copy_mode.set(copy);
         self.listview.set_can_target(copy);
     }
 
@@ -295,10 +310,7 @@ impl DestFolders {
     fn populate_folders(&self, folders: &[LibFolder]) {
         self.populate_any_folders(folders, false);
 
-        if let Some(index) = self.select_path(&self.base.borrow()) {
-            self.listview
-                .scroll_to(index, gtk4::ListScrollFlags::NONE, None);
-        }
+        self.select_path(Some(&self.base.borrow()));
     }
 
     /// Populate the root folders.
@@ -319,9 +331,9 @@ impl DestFolders {
         id
     }
 
-    /// Add a temp folder if it doesn't exist. Return `Some(())` if it
+    /// Add a temp folder if it doesn't exist. Return `Some(Id)` if it
     /// was added, `None` if it already existed.
-    fn add_temp_folder(&self, path: &Path) -> Option<()> {
+    fn add_temp_folder(&self, path: &Path) -> Option<FolderId> {
         if self
             .tree_model
             .item_for_path(&path.to_string_lossy())
@@ -333,12 +345,17 @@ impl DestFolders {
         let name = path.file_name().unwrap().to_string_lossy().to_string();
         let dest_folder = DestFolder::new(FolderId::New(id), name, path.into());
         self.tree_model.append(&dest_folder);
-        Some(())
+        self.temp_folders.borrow_mut().push(FolderId::New(id));
+        Some(FolderId::New(id))
     }
 
-    /// Return the `DestFolder` as the idx as per the list model.
-    pub fn folder_at(&self, idx: u32) -> Option<DestFolder> {
-        self.tree_model.item(idx).clone()
+    /// Remove the existing temp folders.
+    fn remove_temp_folders(&self) {
+        self.temp_folders
+            .borrow()
+            .iter()
+            .for_each(|id| self.tree_model.remove(id));
+        self.temp_folders.borrow_mut().clear();
     }
 }
 

@@ -18,7 +18,6 @@
  */
 
 use std::cell::RefCell;
-use std::path::PathBuf;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
@@ -26,13 +25,18 @@ use gtk4::prelude::*;
 use npc_fwk::{glib, gtk4};
 
 use super::{ImporterMsg, ImporterUI};
-use npc_engine::importer::{self, CameraImporter, ImportBackend};
+use npc_engine::importer::{CameraImporter, ImportBackend};
 use npc_fwk::controller_imp_imp;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender};
 
 pub enum Event {
     CameraSelected,
+}
+
+#[derive(Default)]
+struct State {
+    source: Option<String>,
 }
 
 #[derive(Default)]
@@ -47,9 +51,9 @@ struct Widgets {
 pub(super) struct CameraImporterUI {
     imp_: ControllerImplCell<Event, ()>,
     name: String,
-    cfg: Rc<toolkit::Configuration>,
     backend: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
+    state: RefCell<State>,
 }
 
 impl Controller for CameraImporterUI {
@@ -66,13 +70,13 @@ impl Controller for CameraImporterUI {
 }
 
 impl CameraImporterUI {
-    pub fn new(cfg: Rc<toolkit::Configuration>) -> Rc<CameraImporterUI> {
+    pub fn new() -> Rc<CameraImporterUI> {
         let widget = Rc::new(CameraImporterUI {
             imp_: ControllerImplCell::default(),
             name: i18n("Camera"),
-            cfg,
             backend: Rc::new(CameraImporter::default()),
             widgets: RefCell::default(),
+            state: RefCell::default(),
         });
 
         <Self as Controller>::start(&widget);
@@ -93,17 +97,13 @@ impl CameraImporterUI {
                 .borrow()
                 .camera_list_model
                 .value(source as usize);
-            let dest_dir = self
-                .cfg
-                .value_opt("base_import_dest_dir")
-                .map(PathBuf::from)
-                .unwrap_or_else(importer::default_import_destdir);
-            npc_fwk::dbg_out!("dest dir for camera {dest_dir:?}");
             if let Some(tx) = &self.widgets.borrow().tx.clone() {
-                let source = source.clone();
-                let dest_dir = dest_dir.clone();
-                npc_fwk::send_async_local!(ImporterMsg::SetSource(source, dest_dir), tx);
-                npc_fwk::send_async_local!(ImporterMsg::SetCopy(true), tx);
+                let source = Some(source.clone());
+                {
+                    let mut state = self.state.borrow_mut();
+                    state.source = source.clone();
+                }
+                npc_fwk::send_async_local!(ImporterMsg::SetSource(source, true), tx);
             }
         }
     }
@@ -164,7 +164,8 @@ impl ImporterUI for CameraImporterUI {
 
     fn state_update(&self) {
         if let Some(tx) = &self.widgets.borrow().tx.clone() {
-            npc_fwk::send_async_local!(ImporterMsg::SetCopy(true), tx);
+            let source = self.state.borrow().source.clone();
+            npc_fwk::send_async_local!(ImporterMsg::SetSource(source, true), tx);
         }
     }
 }
