@@ -36,7 +36,7 @@ use npc_fwk::toolkit::{
     self, Controller, ControllerImplCell, ListViewRow, TreeViewFactory, TreeViewItem,
     TreeViewModel, UiController,
 };
-use npc_fwk::{Date, base::PathTreeItem, dbg_out, trace_out};
+use npc_fwk::{Date, base::PathTreeItem, trace_out};
 
 use dest_folder::{DestFolder, FolderId, FolderType};
 
@@ -110,7 +110,7 @@ impl Controller for DestFolders {
         use DestFoldersIn::*;
         match e {
             RootFoldersLoaded(folders) => {
-                dbg_out!("Received {:?} root folders", folders.len());
+                trace_out!("Received {:?} root folders", folders.len());
                 self.populate_root_folders(&folders);
             }
             FoldersLoaded(folders) => self.populate_folders(&folders),
@@ -278,7 +278,7 @@ impl DestFolders {
     fn received_source(&self, date: Option<Date>) {
         let mut dest_file = DestFile::new(date);
         dest_file.sort(&self.base.borrow(), self.sorting.get());
-        dbg_out!("DestFolders: Added {:?}", &dest_file.dest);
+        trace_out!("DestFolders: Added {:?}", &dest_file.dest);
         self.dest_files.borrow_mut().push(dest_file);
     }
 
