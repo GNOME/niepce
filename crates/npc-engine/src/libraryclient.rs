@@ -52,6 +52,7 @@ pub struct LibraryClient {
     trash_id: atomic::AtomicI64,
     /// This is what will implement the interface.
     sender: LibraryClientSender,
+    catalog_file: PathBuf,
 }
 
 impl Drop for LibraryClient {
@@ -70,7 +71,7 @@ impl Deref for LibraryClient {
 impl LibraryClient {
     pub fn new(filename: PathBuf, sender: LcChannel) -> LibraryClient {
         let (task_sender, task_receiver) = mpsc::channel::<Request>();
-
+        let catalog_file = filename.clone();
         let thread = thread::Builder::new()
             .name("library client".to_string())
             .spawn(move || {
@@ -83,7 +84,12 @@ impl LibraryClient {
             thread,
             sender: LibraryClientSender(task_sender),
             trash_id: atomic::AtomicI64::new(0),
+            catalog_file,
         }
+    }
+
+    pub fn base_directory(&self) -> Option<&std::path::Path> {
+        self.catalog_file.parent()
     }
 
     pub fn get_trash_id(&self) -> LibraryId {

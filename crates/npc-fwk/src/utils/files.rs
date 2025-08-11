@@ -135,9 +135,9 @@ impl FileList {
 /// canonicalized.  If `path` is under `base` return the part relative
 /// to base.  If `path` is under the home dir, (`from_home` is true),
 /// returns a path that start with `~/` instead of the home dir.
-pub fn normalize_for_display<P: AsRef<Path>>(
+pub fn normalize_for_display<P: AsRef<Path>, Q: AsRef<Path>>(
     path: &P,
-    base: Option<&P>,
+    base: Option<&Q>,
     from_home: bool,
 ) -> anyhow::Result<String> {
     let path = path.as_ref();
@@ -201,7 +201,7 @@ mod tests {
         let norm = norm.unwrap();
         assert_eq!(norm, "2025/20250101".to_string());
 
-        let norm = normalize_for_display(&path, None, true);
+        let norm = normalize_for_display(&path, None::<&PathBuf>, true);
         let norm = norm.unwrap();
         // XXX this might just break if the special dir isn't in $HOME.
         // XXX or if it's not a standard env....
