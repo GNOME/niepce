@@ -156,16 +156,18 @@ pub struct Importer {}
 impl Importer {
     /// Determine the destination dir based on the date format.
     /// If format is none, return `base`
-    pub fn dest_dir_for_date(base: &Path, date: &Date, format: DatePathFormat) -> PathBuf {
+    pub fn dest_dir_for_date(base: &Path, date: Option<&Date>, format: DatePathFormat) -> PathBuf {
         use DatePathFormat::*;
 
-        if let Some(d) = match format {
-            NoPath => None,
-            YearMonthDay => Some(date.format("%Y%m%d")),
-            YearSlashMonthDay => Some(date.format("%Y/%m%d")),
-            YearSlashMonthSlashDay => Some(date.format("%Y/%m/%d")),
-            YearSlashYearMonthDay => Some(date.format("%Y/%Y%m%d")),
-        } {
+        if let Some(date) = date
+            && let Some(d) = match format {
+                NoPath => None,
+                YearMonthDay => Some(date.format("%Y%m%d")),
+                YearSlashMonthDay => Some(date.format("%Y/%m%d")),
+                YearSlashMonthSlashDay => Some(date.format("%Y/%m/%d")),
+                YearSlashYearMonthDay => Some(date.format("%Y/%Y%m%d")),
+            }
+        {
             base.join(d.to_string())
         } else {
             base.to_path_buf()
@@ -205,8 +207,8 @@ impl Importer {
             .iter()
             .flat_map(|bundle| {
                 //
-                let date = Self::date_from(bundle.main()).unwrap_or_else(Date::now);
-                let dest_dir = Self::dest_dir_for_date(dest, &date, format);
+                let date = Self::date_from(bundle.main()).or_else(|| Some(Date::now()));
+                let dest_dir = Self::dest_dir_for_date(dest, date.as_ref(), format);
                 bundle
                     .all_files()
                     .iter()
@@ -243,34 +245,38 @@ mod test {
         let base_dir = PathBuf::from("/var/home/user/Pictures");
 
         assert_eq!(
-            Importer::dest_dir_for_date(&base_dir, &date, NoPath),
+            Importer::dest_dir_for_date(&base_dir, Some(&date), NoPath),
+            base_dir
+        );
+        assert_eq!(
+            Importer::dest_dir_for_date(&base_dir, None, YearMonthDay),
             base_dir
         );
 
         let mut expected_dir = base_dir.clone();
         expected_dir.push("20210106");
         assert_eq!(
-            Importer::dest_dir_for_date(&base_dir, &date, YearMonthDay),
+            Importer::dest_dir_for_date(&base_dir, Some(&date), YearMonthDay),
             expected_dir
         );
 
         let mut expected_dir = base_dir.clone();
         expected_dir.push("2021/0106");
         assert_eq!(
-            Importer::dest_dir_for_date(&base_dir, &date, YearSlashMonthDay),
+            Importer::dest_dir_for_date(&base_dir, Some(&date), YearSlashMonthDay),
             expected_dir
         );
 
         let mut expected_dir = base_dir.clone();
         expected_dir.push("2021/01/06");
         assert_eq!(
-            Importer::dest_dir_for_date(&base_dir, &date, YearSlashMonthSlashDay),
+            Importer::dest_dir_for_date(&base_dir, Some(&date), YearSlashMonthSlashDay),
             expected_dir
         );
         let mut expected_dir = base_dir.clone();
         expected_dir.push("2021/20210106");
         assert_eq!(
-            Importer::dest_dir_for_date(&base_dir, &date, YearSlashYearMonthDay),
+            Importer::dest_dir_for_date(&base_dir, Some(&date), YearSlashYearMonthDay),
             expected_dir
         );
     }
