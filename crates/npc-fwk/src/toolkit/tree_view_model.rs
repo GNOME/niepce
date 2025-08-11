@@ -118,14 +118,15 @@ where
     }
 
     /// Append an item. If it already exist (by id) then
-    /// it is a no-op
-    pub fn append(&self, item: &T)
+    /// it is a no-op.
+    /// If the item has a known parent, will return the id of the parent.
+    pub fn append(&self, item: &T) -> Option<T::Id>
     where
         T: TreeViewItem,
         <T as PathTreeItem>::Id: Ord + Copy,
     {
         if self.contains(item.id()) {
-            return;
+            return None;
         }
         let parent = self.items.borrow_mut().push(item.clone());
         if let Some(parent) = parent {
@@ -134,9 +135,13 @@ where
                 .get_by_id(parent)
                 .and_then(|parent| parent.children())
                 .inspect(|children| children.append(item));
+            Some(parent)
         } else if let Ok(store) = self.model.model().downcast::<gio::ListStore>() {
             // if we don't know the parent, it gets added in the top-level.
             store.append(item);
+            None
+        } else {
+            None
         }
     }
 
@@ -161,6 +166,46 @@ where
 
     pub fn unselect_all(&self) -> bool {
         self.selection_model.unselect_all()
+    }
+
+    fn remove_in_liststore(&self, store: &gio::ListStore, id: &T::Id)
+    where
+        <T as PathTreeItem>::Id: Ord + Copy,
+    {
+        store
+            .find_with_equal_func(|item| {
+                item.downcast_ref::<T>()
+                    .map(|item| item.id() == *id)
+                    .unwrap_or(false)
+            })
+            .inspect(|idx| store.remove(*idx));
+    }
+
+    /// Remove item with `id`.
+    pub fn remove(&self, id: &T::Id)
+    where
+        <T as PathTreeItem>::Id: Ord + Copy,
+        T: TreeViewItem,
+    {
+        let path = self
+            .items
+            .borrow()
+            .get_by_id(*id)
+            .map(|item| item.path())
+            .as_ref()
+            .map(|path| {
+                trace_out!("Looking to remove item at path {path}");
+                self.items
+                    .borrow()
+                    .parent_for(path)
+                    .and_then(|parent| parent.children())
+                    .or_else(|| self.model.model().downcast::<gio::ListStore>().ok())
+                    .inspect(|children| self.remove_in_liststore(children, id));
+                path.clone()
+            });
+        if let Some(path) = path {
+            self.items.borrow_mut().remove(&path);
+        }
     }
 
     /// Get the item at index. This is the index in the selection model.

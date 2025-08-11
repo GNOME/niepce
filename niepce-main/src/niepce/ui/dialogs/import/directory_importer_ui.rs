@@ -26,18 +26,28 @@ use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
 use npc_fwk::{adw, gio, glib, gtk4};
 
-use npc_engine::importer::{DirectoryImporter, ImportBackend, default_import_destdir};
+use npc_engine::importer::{DirectoryImporter, ImportBackend};
 use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender};
 use npc_fwk::{controller_imp_imp, on_err_out, toolkit};
 
 use super::{ImporterMsg, ImporterUI};
 
 pub enum Event {
+    /// Copuy has been toggled.
     CopyToggled(bool),
+    /// Recurisve has been toggled.
     RecursiveToggled(bool),
+    /// Request the UI to select directories.
     SelectDirectories,
+    /// Internal set the directory name in the widget.
     SetDirectoryName(Option<PathBuf>),
-    SourceSelected(String, PathBuf),
+    /// Source directory was selected.
+    SourceSelected(String),
+}
+
+#[derive(Default)]
+struct State {
+    source: Option<String>,
 }
 
 #[derive(Default)]
@@ -54,6 +64,7 @@ pub(super) struct DirectoryImporterUI {
     cfg: Rc<toolkit::Configuration>,
     backend: RefCell<Rc<DirectoryImporter>>,
     widgets: RefCell<Widgets>,
+    state: RefCell<State>,
 }
 
 impl Controller for DirectoryImporterUI {
@@ -76,21 +87,15 @@ impl Controller for DirectoryImporterUI {
                     }
                 }
             }
-            Event::SourceSelected(source, dest_dir) => {
+            Event::SourceSelected(source) => {
                 if let Some(tx) = &self.widgets.borrow().tx.clone() {
                     let source = source.clone();
-                    // In the unlikely case dest_dir is `/`, use the
-                    // default import destdir.
                     let is_copy = self.backend.borrow().copy();
-                    let dest_dir = if is_copy {
-                        self.cfg
-                            .value_opt("base_import_dest_dir")
-                            .map(PathBuf::from)
-                            .unwrap_or_else(default_import_destdir)
-                    } else {
-                        dest_dir.to_path_buf()
-                    };
-                    npc_fwk::send_async_local!(ImporterMsg::SetSource(source, dest_dir), tx);
+                    {
+                        let mut state = self.state.borrow_mut();
+                        state.source = Some(source.clone());
+                    }
+                    npc_fwk::send_async_local!(ImporterMsg::SetSource(Some(source), is_copy), tx);
                 }
             }
         }
@@ -105,6 +110,7 @@ impl DirectoryImporterUI {
             cfg,
             backend: RefCell::new(Rc::new(DirectoryImporter::default())),
             widgets: RefCell::default(),
+            state: RefCell::default(),
         });
 
         <Self as Controller>::start(&widget);
@@ -147,14 +153,13 @@ impl DirectoryImporterUI {
                 #[allow(deprecated)]
                 if response == gtk4::ResponseType::Ok {
                     source = dialog.file().and_then(|f| f.path());
-                    let dest_dir = source.clone().unwrap_or_else(|| PathBuf::from(""));
                     if let Some(source) = source
                         .as_ref()
                         .and_then(|p| p.to_str())
                         .map(|s| s.to_string())
                     {
                         cfg.set_value("last_dir_import_location", &source);
-                        npc_fwk::send_async_local!(Event::SourceSelected(source, dest_dir), sender);
+                        npc_fwk::send_async_local!(Event::SourceSelected(source), sender);
                     }
                 }
                 npc_fwk::send_async_local!(Event::SetDirectoryName(source), sender);
@@ -171,7 +176,8 @@ impl DirectoryImporterUI {
         }
         self.cfg.set_value("dir_import_copy", &toggle.to_string());
         if let Some(tx) = &self.widgets.borrow().tx.clone() {
-            npc_fwk::send_async_local!(ImporterMsg::SetCopy(toggle), tx);
+            let source = self.state.borrow().source.clone();
+            npc_fwk::send_async_local!(ImporterMsg::SetSource(source, toggle), tx);
         }
     }
 
@@ -248,12 +254,13 @@ impl ImporterUI for DirectoryImporterUI {
     fn state_update(&self) {
         let widgets = self.widgets.borrow();
         if let Some(tx) = &widgets.tx.clone() {
-            let is_active = widgets
+            let source = self.state.borrow().source.clone();
+            let is_copy = widgets
                 .copy_files
                 .as_ref()
                 .map(|check| check.is_active())
                 .unwrap_or(false);
-            npc_fwk::send_async_local!(ImporterMsg::SetCopy(is_active), tx);
+            npc_fwk::send_async_local!(ImporterMsg::SetSource(source, is_copy), tx);
         }
     }
 }

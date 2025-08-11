@@ -16,8 +16,8 @@ gnome = import('gnome')
 
 base_id = 'net.figuiere.Niepce'
 
-dependency('glib-2.0', version: '>= 2.66')
-dependency('gio-2.0', version: '>= 2.66')
+dependency('glib-2.0', version: '>= 2.74')
+dependency('gio-2.0', version: '>= 2.74')
 gtk_deps = dependency('gtk4', version: '>= 4.4.0')
 dependency('libadwaita-1', version: '>= 1.4.0')
 glibmm_deps = dependency('glibmm-2.68')
