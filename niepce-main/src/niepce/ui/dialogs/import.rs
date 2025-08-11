@@ -49,6 +49,7 @@ use npc_fwk::toolkit::{
     self, Controller, ControllerImplCell, DialogController, ListViewRow, Receiver, Sender,
     Thumbnail, UiController,
 };
+use npc_fwk::utils::normalize_for_display;
 use npc_fwk::{Date, controller_imp_imp, dbg_out, err_out, send_async_any, trace_out};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
@@ -476,19 +477,24 @@ impl ImportDialog {
 
     fn handle_dest_changed(&self, dest_dir: Option<PathBuf>) {
         trace_out!("handle dest dir {dest_dir:?}");
-        // XXX We should normalize the path to $HOME if applicable.
         let widgets = self.widgets.get().unwrap();
         if let Some(dest_dir) = &dest_dir {
-            widgets.destination_help.set_label(&i18n_fmt! {
-                // Translation note: {} is the directory path.
-                i18n_fmt("Destination set to \"{}\"", dest_dir.to_string_lossy())
-            });
             let copy = self.state.borrow().copy;
+            let norm_dir =
+                normalize_for_display(dest_dir, self.client.base_directory().as_ref(), true);
             if copy {
-                trace_out!("Saving base_import_dest_dir {dest_dir:?}");
+                widgets.destination_help.set_label(&i18n_fmt! {
+                    // Translation note: {} is the directory path.
+                    i18n_fmt("Will images copy to \"{}\".", norm_dir.unwrap_or_else(|_| dest_dir.to_string_lossy().to_string()))
+                });
                 self.state.borrow_mut().copy_dest_dir = dest_dir.clone();
                 self.cfg
                     .set_value("base_import_dest_dir", &dest_dir.to_string_lossy());
+            } else {
+                widgets.destination_help.set_label(&i18n_fmt! {
+                    // Translation note: {} is the directory path.
+                    i18n_fmt("Will import \"{}\" by reference.", norm_dir.unwrap_or_else(|_| dest_dir.to_string_lossy().to_string()))
+                });
             }
         }
         self.state.borrow_mut().full_dest_dir = dest_dir;
