@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/files.rs
  *
- * Copyright (C) 2018-2023 Hubert Figuière
+ * Copyright (C) 2018-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 use std::path::{Path, PathBuf};
 
+use anyhow::anyhow;
 use nix::sys::stat::{UtimensatFlags, stat, utimensat};
 use nix::sys::time::TimeSpec;
 use walkdir::WalkDir;
@@ -128,6 +129,37 @@ impl FileList {
     }
 }
 
+/// Normalize a path to be relative to base, and eventually from $HOME.
+///
+/// This should only be used for display. The inputs should be
+/// canonicalized.  If `path` is under `base` return the part relative
+/// to base.  If `path` is under the home dir, (`from_home` is true),
+/// returns a path that start with `~/` instead of the home dir.
+pub fn normalize_for_display<P: AsRef<Path>>(
+    path: &P,
+    base: Option<&P>,
+    from_home: bool,
+) -> anyhow::Result<String> {
+    let path = path.as_ref();
+    if let Some(base) = base.as_ref() {
+        let stripped = path
+            .strip_prefix(base)
+            .map(|norm| norm.to_string_lossy().to_string());
+        if let Ok(stripped) = stripped {
+            return Ok(stripped);
+        }
+    }
+    if from_home {
+        let home = std::env::home_dir().ok_or(anyhow!("HOME dir not found"))?;
+        if let Ok(stripped) = path.strip_prefix(home) {
+            let norm = stripped.to_string_lossy();
+            let norm = "~/".to_string() + &norm;
+            return Ok(norm);
+        }
+    }
+    Ok(path.to_string_lossy().to_string())
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -156,5 +188,35 @@ mod tests {
         assert_eq!(files.len(), 3);
 
         assert!(fs::remove_dir_all(&root_p).is_ok());
+    }
+
+    #[test]
+    fn test_normalize() {
+        let home_dir = std::env::home_dir().expect("Couldn't get homedir");
+
+        let pictures_dir = home_dir.join("Pictures");
+        let path = pictures_dir.join("2025/20250101");
+
+        let norm = normalize_for_display(&path, Some(&pictures_dir), false);
+        let norm = norm.unwrap();
+        assert_eq!(norm, "2025/20250101".to_string());
+
+        let norm = normalize_for_display(&path, None, true);
+        let norm = norm.unwrap();
+        // XXX this might just break if the special dir isn't in $HOME.
+        // XXX or if it's not a standard env....
+        assert_eq!(norm, "~/Pictures/2025/20250101".to_string());
+
+        let path = home_dir.join("my_images/2025/20250101");
+        let norm = normalize_for_display(&path, Some(&pictures_dir), true);
+        let norm = norm.unwrap();
+        assert_eq!(norm, "~/my_images/2025/20250101".to_string());
+
+        let norm = normalize_for_display(&path, Some(&pictures_dir), false);
+        let norm = norm.unwrap();
+        assert_eq!(
+            norm,
+            home_dir.join("my_images/2025/20250101").to_string_lossy()
+        );
     }
 }
