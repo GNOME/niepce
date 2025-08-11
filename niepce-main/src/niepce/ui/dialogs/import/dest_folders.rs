@@ -41,15 +41,13 @@ use npc_fwk::{Date, base::PathTreeItem, dbg_out, trace_out};
 use dest_folder::{DestFolder, FolderId, FolderType};
 
 pub struct DestFile {
-    source: String,
     date: Option<Date>,
     dest: PathBuf,
 }
 
 impl DestFile {
-    pub fn new(source: String, date: Option<Date>) -> DestFile {
+    pub fn new(date: Option<Date>) -> DestFile {
         DestFile {
-            source,
             date,
             dest: PathBuf::default(),
         }
@@ -63,8 +61,8 @@ impl DestFile {
 }
 
 pub enum DestFoldersIn {
-    /// A preview was received.
-    PreviewReceived(String, Option<Date>),
+    /// A preview was received. Currently only the date matters.
+    PreviewReceived(Option<Date>),
     /// The sorting changed.
     SortingChanged(DatePathFormat),
     /// Root folders have been load (from the library client).
@@ -116,7 +114,7 @@ impl Controller for DestFolders {
                 self.populate_root_folders(&folders);
             }
             FoldersLoaded(folders) => self.populate_folders(&folders),
-            PreviewReceived(source, date) => self.received_source(source, date),
+            PreviewReceived(date) => self.received_source(date),
             SortingChanged(format) => self.sorting_changed(format),
             SelectionChanged(idx) => self.selection_changed(idx),
             SelectPath(path) => self.handle_select_path(path.as_deref()),
@@ -277,8 +275,8 @@ impl DestFolders {
         self.listview.set_can_target(copy);
     }
 
-    fn received_source(&self, source: String, date: Option<Date>) {
-        let mut dest_file = DestFile::new(source, date);
+    fn received_source(&self, date: Option<Date>) {
+        let mut dest_file = DestFile::new(date);
         dest_file.sort(&self.base.borrow(), self.sorting.get());
         dbg_out!("DestFolders: Added {:?}", &dest_file.dest);
         self.dest_files.borrow_mut().push(dest_file);
