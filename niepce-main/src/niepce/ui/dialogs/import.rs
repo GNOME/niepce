@@ -228,9 +228,9 @@ impl DialogController for ImportDialog {
                     use dest_folders::DestFoldersOut::*;
                     match event {
                         SelectedFolder(dest_dir) => {
-                            dbg_out!("Selected folder {}", dest_dir.name());
+                            trace_out!("Selected folder {}", dest_dir.name());
                             let dest_dir = dest_dir.dest().clone();
-                            dbg_out!("DestChanged {dest_dir:?}");
+                            trace_out!("DestChanged {dest_dir:?}");
                             send_async_any!(Event::DestChanged(dest_dir), sender);
                         }
                         DeselectAll => {
@@ -260,7 +260,7 @@ impl DialogController for ImportDialog {
                 let sender = self.sender();
                 string_list.bind(&date_sorting_combo, move |value| {
                     let format = *value;
-                    dbg_out!("setting format {format:?}");
+                    trace_out!("setting format {format:?}");
                     send_async_any!(Event::SetDatePathFormat(format), sender);
                 });
                 if let Some(sorting) = self
@@ -525,7 +525,7 @@ impl ImportDialog {
             .iter()
             .map(|f| {
                 let path = f.path();
-                dbg_out!("selected {}", &path);
+                trace_out!("selected {}", &path);
                 if let Some(widgets) = self.widgets.get() {
                     widgets
                         .images_list_model
@@ -564,7 +564,7 @@ impl ImportDialog {
             return;
         }
 
-        dbg_out!("preview and date received {:?}", date);
+        trace_out!("preview and date received {:?}", date);
 
         let state = self.state.borrow();
         let dest_dir = &state.full_dest_dir;
