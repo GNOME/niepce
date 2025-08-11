@@ -577,7 +577,7 @@ impl ImportDialog {
         let dest_dir = dest_dir.as_ref().unwrap();
         let dest = Some(Importer::dest_dir_for_date(
             dest_dir,
-            date.as_ref().unwrap(),
+            date.as_ref(),
             self.sorting_format(),
         ));
         if let Some(entry) = self.images_list_map.borrow_mut().get_mut(path) {
