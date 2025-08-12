@@ -43,6 +43,8 @@ pub enum Event {
     SetDirectoryName(Option<PathBuf>),
     /// Source directory was selected.
     SourceSelected(String),
+    /// We need to rescan
+    RefreshSource,
 }
 
 #[derive(Default)]
@@ -96,6 +98,13 @@ impl Controller for DirectoryImporterUI {
                         state.source = Some(source.clone());
                     }
                     npc_fwk::send_async_local!(ImporterMsg::SetSource(Some(source), is_copy), tx);
+                }
+            }
+            Event::RefreshSource => {
+                if let Some(tx) = &self.widgets.borrow().tx.clone()
+                    && let Some(source) = self.state.borrow().source.clone()
+                {
+                    npc_fwk::send_async_local!(ImporterMsg::RefreshSource(Some(source)), tx);
                 }
             }
         }
@@ -187,6 +196,8 @@ impl DirectoryImporterUI {
         }
         self.cfg
             .set_value("dir_import_recursive", &toggle.to_string());
+        let sender = self.sender();
+        npc_fwk::send_async_local!(Event::RefreshSource, sender);
     }
 }
 
