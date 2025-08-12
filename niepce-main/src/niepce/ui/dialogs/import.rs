@@ -593,10 +593,16 @@ impl ImportDialog {
                         }));
                         item.set_date(date);
                     });
-                if let Some(dest) = &dest {
+                if self.state.borrow().copy {
+                    if let Some(dest) = &dest {
+                        widgets
+                            .dest_folders
+                            .send(DestFoldersIn::DestDirFile(dest.clone()));
+                    }
+                } else if let Some(parent) = PathBuf::from(path).parent() {
                     widgets
                         .dest_folders
-                        .send(DestFoldersIn::DestDirFile(dest.clone()));
+                        .send(DestFoldersIn::DestDirFile(parent.to_path_buf()));
                 }
             });
             entry.dest = dest;
