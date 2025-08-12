@@ -28,6 +28,8 @@ use npc_fwk::toolkit::Sender;
 pub(super) enum ImporterMsg {
     /// Sent to set the source, and copy.
     SetSource(Option<String>, bool),
+    /// Sent when the source needs to be refreshed.
+    RefreshSource(Option<String>),
 }
 
 /// An importer UI.
