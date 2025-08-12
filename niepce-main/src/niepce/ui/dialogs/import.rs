@@ -57,6 +57,8 @@ use thumb_item_row::ThumbItemRow;
 pub enum Event {
     /// Set Source `source` and `copy`
     SetSource(Option<String>, bool),
+    /// Sent when the source needs to be refreshed.
+    RefreshSource(Option<String>),
     /// The import source changed. `id` in the combo box. The import
     /// source is either directory or camera (currently).
     ImportSourceChanged(String),
@@ -89,6 +91,9 @@ impl Widgets {
         toolkit::channels::receiver_attach(importer_rx, move |msg| match msg {
             ImporterMsg::SetSource(source, copy) => {
                 npc_fwk::send_async_local!(Event::SetSource(source, copy), tx_out);
+            }
+            ImporterMsg::RefreshSource(source) => {
+                npc_fwk::send_async_local!(Event::RefreshSource(source), tx_out);
             }
         });
     }
@@ -161,6 +166,7 @@ impl Controller for ImportDialog {
     fn dispatch(&self, e: Event) {
         match e {
             Event::SetSource(source, copy) => self.set_source(source.as_deref(), copy),
+            Event::RefreshSource(source) => self.refresh_source(source.as_deref()),
             Event::ImportSourceChanged(source) => self.import_source_changed(&source),
             Event::DestChanged(dest_dir) => self.handle_dest_changed(Some(dest_dir)),
             Event::SetDatePathFormat(f) => {
@@ -430,6 +436,24 @@ impl ImportDialog {
             .map(|v| v.backend())
     }
 
+    fn refresh_source(&self, source: Option<&str>) {
+        self.clear_import_list();
+
+        if let Some(importer) = self.importer()
+            && let Some(source) = source
+        {
+            let sender = self.sender();
+            importer.list_source_content(
+                source,
+                Box::new(move |files| {
+                    npc_fwk::send_async_any!(Event::AppendFiles(files), sender);
+                }),
+            );
+        }
+
+        self.state.borrow_mut().source = source.map(|x| x.to_string());
+    }
+
     fn set_source(&self, source: Option<&str>, copy: bool) {
         trace_out!("Set source {source:?} {copy}");
         let dest_dir = if !copy {
@@ -438,21 +462,7 @@ impl ImportDialog {
             Some(self.state.borrow().copy_dest_dir.clone())
         };
         if self.state.borrow().source.as_deref() != source {
-            self.clear_import_list();
-
-            if let Some(importer) = self.importer()
-                && let Some(source) = source
-            {
-                let sender = self.sender();
-                importer.list_source_content(
-                    source,
-                    Box::new(move |files| {
-                        npc_fwk::send_async_any!(Event::AppendFiles(files), sender);
-                    }),
-                );
-            }
-
-            self.state.borrow_mut().source = source.map(|x| x.to_string());
+            self.refresh_source(source);
         }
         self.set_copy(copy);
         // Select the destdir in the list
