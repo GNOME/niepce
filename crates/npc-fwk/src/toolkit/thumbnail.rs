@@ -124,22 +124,22 @@ impl Thumbnail {
         } else if !mime_type.is_digicam_raw() {
             match mime_type.mime_type() {
                 MType::Image(ImgFormat::Heif) => {
-                    dbg_out!("Heif image");
-                    pix = heif::extract_rotated_thumbnail(filename, cmp::min(w, h), orientation)
-                        .map_err(|err| {
-                            err_out!("Error {:?}", err);
-                            err
+                    trace_out!("Heif image");
+                    pix = heif::extract_rotated_thumbnail(filename, cmp::max(w, h), orientation)
+                        .inspect_err(|err| {
+                            err_out!("Error thumnailing HEIF {err:?}");
                         })
                         .ok();
                 }
                 _ => {
-                    dbg_out!("not a raw type, trying GdkPixbuf loaders");
-                    match gdk_pixbuf::Pixbuf::from_file_at_size(filename, w as i32, h as i32) {
-                        Ok(ref pixbuf) => {
-                            pix = gdk_utils::gdkpixbuf_exif_rotate(Some(pixbuf), orientation);
-                        }
-                        Err(err) => err_out!("exception thumbnailing image: {}", err),
-                    }
+                    trace_out!("not a raw type, trying GdkPixbuf loaders");
+                    pix = gdk_utils::gdkpixbuf_scale_to_fit(
+                        gdk_pixbuf::Pixbuf::from_file(filename)
+                            .inspect_err(|err| err_out!("Error thumbnailing with GdkPixbuf: {err}"))
+                            .ok()
+                            .as_ref(),
+                        std::cmp::max(w, h),
+                    );
                 }
             }
         } else {
