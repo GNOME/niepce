@@ -69,11 +69,16 @@ Adw.Window import_dialog {
             margin-top: 12;
           }
 
-          Label image_count {
-            halign: start;
-            hexpand: true;
-            use-underline: true;
-            valign: center;
+          Box {
+            Label image_count {
+              halign: start;
+              hexpand: true;
+              use-underline: true;
+              valign: center;
+            }
+
+            Spinner preview_spinner {
+            }
           }
 
           ScrolledWindow images_list_scrolled {
