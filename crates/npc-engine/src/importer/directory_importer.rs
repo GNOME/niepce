@@ -132,8 +132,9 @@ impl ImportBackend for DirectoryImporter {
                             160,
                             orientation as u32,
                         );
-                        callback(path.to_string(), thumbnail, date);
+                        callback(Some(path.to_string()), thumbnail, date);
                     }
+                    callback(None, None, None)
                 })
         );
     }
