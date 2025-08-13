@@ -67,6 +67,7 @@ pub enum Event {
     /// The `DatePathFormat` has been changed.
     SetDatePathFormat(DatePathFormat),
     PreviewReceived(String, Option<Thumbnail>, Option<Date>),
+    PreviewsDone,
     AppendFiles(Vec<Box<dyn ImportedFile>>),
     Cancel,
     Import,
@@ -80,6 +81,7 @@ struct Widgets {
     destination_help: gtk4::Label,
     images_list_model: gio::ListStore,
     image_count: gtk4::Label,
+    preview_spinner: gtk4::Spinner,
 
     importers: HashMap<String, Rc<dyn ImporterUI>>,
     current_importer: RefCell<Option<Rc<dyn ImporterUI>>>,
@@ -185,6 +187,11 @@ impl Controller for ImportDialog {
                 }
                 self.preview_received(&path, thumbnail, date)
             }
+            Event::PreviewsDone => {
+                if let Some(widgets) = self.widgets.get() {
+                    widgets.preview_spinner.stop();
+                }
+            }
             Event::AppendFiles(files) => self.append_files_to_import(&files),
             Event::Cancel => self.close(),
             Event::Import => {
@@ -232,6 +239,7 @@ impl DialogController for ImportDialog {
                     &self.cfg,
                 );
                 get_widget!(builder, gtk4::Label, image_count);
+                get_widget!(builder, gtk4::Spinner, preview_spinner);
                 let sender = self.sender();
                 dest_folders.set_forwarder(Some(Box::new(glib::clone!(move |event| {
                     use dest_folders::DestFoldersOut::*;
@@ -334,6 +342,7 @@ impl DialogController for ImportDialog {
                     destination_help,
                     images_list_model,
                     image_count,
+                    preview_spinner,
                     importers: HashMap::new(),
                     current_importer: RefCell::new(None),
                     importer_tx,
@@ -569,6 +578,9 @@ impl ImportDialog {
             .collect();
         self.state.borrow_mut().import_count += count;
         self.update_import_count();
+        if let Some(widgets) = self.widgets.get() {
+            widgets.preview_spinner.start();
+        }
 
         if let Some(importer) = self.importer()
             && let Some(source) = &self.state.borrow().source
@@ -578,7 +590,14 @@ impl ImportDialog {
                 source,
                 paths,
                 Box::new(move |path, thumbnail, date| {
-                    npc_fwk::send_async_any!(Event::PreviewReceived(path, thumbnail, date), sender);
+                    if let Some(path) = path {
+                        npc_fwk::send_async_any!(
+                            Event::PreviewReceived(path, thumbnail, date),
+                            sender
+                        );
+                    } else {
+                        npc_fwk::send_async_any!(Event::PreviewsDone, sender);
+                    }
                 }),
             );
         }
