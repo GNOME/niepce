@@ -79,6 +79,7 @@ struct Widgets {
     dest_folders: Rc<dest_folders::DestFolders>,
     destination_help: gtk4::Label,
     images_list_model: gio::ListStore,
+    image_count: gtk4::Label,
 
     importers: HashMap<String, Rc<dyn ImporterUI>>,
     current_importer: RefCell<Option<Rc<dyn ImporterUI>>>,
@@ -139,6 +140,7 @@ struct DestEntry {
 #[derive(Default)]
 struct State {
     source: Option<String>,
+    import_count: usize,
     copy_dest_dir: PathBuf,
     full_dest_dir: Option<PathBuf>,
     copy: bool,
@@ -229,6 +231,7 @@ impl DialogController for ImportDialog {
                     destination_folders,
                     &self.cfg,
                 );
+                get_widget!(builder, gtk4::Label, image_count);
                 let sender = self.sender();
                 dest_folders.set_forwarder(Some(Box::new(glib::clone!(move |event| {
                     use dest_folders::DestFoldersOut::*;
@@ -330,6 +333,7 @@ impl DialogController for ImportDialog {
                     dest_folders,
                     destination_help,
                     images_list_model,
+                    image_count,
                     importers: HashMap::new(),
                     current_importer: RefCell::new(None),
                     importer_tx,
@@ -404,11 +408,22 @@ impl ImportDialog {
             })
     }
 
+    fn update_import_count(&self) {
+        if let Some(widgets) = self.widgets.get() {
+            let import_count = self.state.borrow().import_count;
+            widgets.image_count.set_label(&i18n_fmt! {
+                i18n_fmt("{} _Images to import", import_count)
+            });
+        }
+    }
+
     fn clear_import_list(&self) {
         if let Some(widgets) = self.widgets.get() {
             widgets.clear_import_list();
         }
         self.images_list_map.borrow_mut().clear();
+        self.state.borrow_mut().import_count = 0;
+        self.update_import_count();
     }
 
     /// The import source change: dir or camera.
@@ -531,6 +546,7 @@ impl ImportDialog {
     }
 
     fn append_files_to_import(&self, files: &[Box<dyn ImportedFile>]) {
+        let count = files.len();
         let paths: Vec<String> = files
             .iter()
             .map(|f| {
@@ -551,6 +567,8 @@ impl ImportDialog {
                 path.to_string()
             })
             .collect();
+        self.state.borrow_mut().import_count += count;
+        self.update_import_count();
 
         if let Some(importer) = self.importer()
             && let Some(source) = &self.state.borrow().source
