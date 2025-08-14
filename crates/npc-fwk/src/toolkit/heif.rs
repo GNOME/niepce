@@ -27,32 +27,30 @@ use libheif_rs::{
     Channel, ColorSpace, DecodingOptions, HeifContext, ImageHandle, ItemId, LibHeif, RgbChroma,
 };
 
-use super::gdk_utils::{gdkpixbuf_exif_rotate, gdkpixbuf_scale_to_fit};
+use crate::toolkit::Thumbnail;
 
 /// Return a rotated thumbnail from an HEIF file.
 pub fn extract_rotated_thumbnail<P: AsRef<Path>>(
     filename: P,
-    size: u32,
+    w: u32,
+    h: u32,
     orientation: u32,
-) -> Result<gdk_pixbuf::Pixbuf> {
-    dbg_out!("HEIF thumbnail size = {}", size);
+) -> Result<Thumbnail> {
+    dbg_out!("HEIF thumbnail size = {w}x{h}");
     // This always returns a rotated thumbnail
-    gdkpixbuf_from_heif_thumbnail(filename, size)
-        .and_then(|pixbuf| {
-            gdkpixbuf_scale_to_fit(Some(&pixbuf), size).ok_or(anyhow!("scale to fit failed"))
+    thumbnail_heif(filename, w, h)
+        .map(|buf| buf.thumbnail(w, h))
+        .map(|mut buf| {
+            let orientation = image::metadata::Orientation::from_exif(orientation as u8)
+                .unwrap_or(image::metadata::Orientation::NoTransforms);
+            buf.apply_orientation(orientation);
+            buf
         })
-        .and_then(|pixbuf| {
-            gdkpixbuf_exif_rotate(Some(&pixbuf), orientation).ok_or(anyhow!("exif rotate"))
-        })
+        .map(Thumbnail::from)
 }
 
-/// Return the thumnail image from an HEIF as Pixbuf.
-/// If there is no thumnail it will return the main image
-/// Size determine which image to get. It is returned as is.
-fn gdkpixbuf_from_heif_thumbnail<P: AsRef<Path>>(
-    filename: P,
-    size: u32,
-) -> Result<gdk_pixbuf::Pixbuf> {
+fn thumbnail_heif<P: AsRef<Path>>(filename: P, w: u32, h: u32) -> Result<image::DynamicImage> {
+    let size = std::cmp::max(w, h);
     let ctx = HeifContext::read_from_file(filename.as_ref().to_str().ok_or(anyhow!("filename"))?)?;
     let handle = ctx.primary_image_handle()?;
 
@@ -67,13 +65,13 @@ fn gdkpixbuf_from_heif_thumbnail<P: AsRef<Path>>(
                 let h = thumbnail.height();
                 dbg_out!("found thumbnail {}x{}", w, h);
                 if cmp::max(w, h) >= size {
-                    return gdkpixbuf_from_heif_handle(&thumbnail);
+                    return image_from_heif_handle(&thumbnail);
                 }
             }
         }
     }
 
-    gdkpixbuf_from_heif_handle(&handle)
+    image_from_heif_handle(&handle)
 }
 
 /// Return the main image from an HEIF as Pixbuf.
@@ -140,6 +138,39 @@ pub fn get_exif(file: &str) -> Result<Vec<u8>> {
     } else {
         Err(anyhow!("HEIF Exif metadata not found"))
     }
+}
+
+/// Return the GdkPibuf from the handle
+fn image_from_heif_handle(handle: &ImageHandle) -> Result<image::DynamicImage> {
+    let lib_heif = LibHeif::new();
+
+    let decoding_options = DecodingOptions::new().map(|mut options| {
+        options.set_ignore_transformations(true);
+        options
+    });
+    dbg_out!("Image decoded without transformations");
+    let image = lib_heif
+        .decode(handle, ColorSpace::Rgb(RgbChroma::Rgb), decoding_options)
+        .context("failed decoding")?;
+
+    if image.has_channel(Channel::Interleaved) {
+        let w = image.width();
+        let h = image.height();
+
+        if let Some(plane) = image.planes().interleaved {
+            let stride = plane
+                .stride
+                .try_into()
+                .map(|stride: u32| stride / 3)
+                .unwrap_or(w);
+            return image::RgbImage::from_raw(stride, h, plane.data.to_vec())
+                .map(image::DynamicImage::ImageRgb8)
+                .map(|mut image| image.crop(0, 0, w, h))
+                .ok_or_else(|| anyhow!("Failed to load buffer"));
+        }
+    }
+
+    Err(anyhow!("Failed to decode HEIF"))
 }
 
 /// Return the GdkPibuf from the handle
