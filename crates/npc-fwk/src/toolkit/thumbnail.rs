@@ -24,8 +24,10 @@ use std::path::Path;
 use crate::glib;
 use crate::{gdk_pixbuf, gdk4};
 use gdk_pixbuf::Colorspace;
+use image::DynamicImage;
+use libopenraw as or;
+use libopenraw::Bitmap;
 
-use super::gdk_utils;
 use super::heif;
 use super::mimetype::{ImgFormat, MType, MimeType};
 use super::movieutils;
@@ -99,6 +101,78 @@ impl Thumbnail {
         }
     }
 
+    fn thumbnail_image<P: AsRef<Path>>(
+        filename: P,
+        w: u32,
+        h: u32,
+        orientation: u32,
+    ) -> Option<Self> {
+        let decoder = image::ImageReader::open(filename)
+            .inspect_err(|err| err_out!("Error opening image for thumbnail: {err}"))
+            .ok()?
+            .into_decoder()
+            .inspect_err(|err| err_out!("Error opening image for thumbnail: {err}"))
+            .ok()?;
+        DynamicImage::from_decoder(decoder)
+            .inspect_err(|err| err_out!("Error decoding image for thumbnail: {err}"))
+            .map(|buf| buf.thumbnail(w, h))
+            .map(|mut buf| {
+                let orientation = image::metadata::Orientation::from_exif(orientation as u8)
+                    .unwrap_or(image::metadata::Orientation::NoTransforms);
+                buf.apply_orientation(orientation);
+                buf
+            })
+            .map(Thumbnail::from)
+            .ok()
+    }
+
+    /// Thumbnail using libopenraw. Can work for JPEG.
+    fn thumbnail_raw<P: AsRef<Path>>(
+        filename: P,
+        w: u32,
+        h: u32,
+        orientation: u32,
+    ) -> Option<Self> {
+        let dim = cmp::max(w, h);
+        or::rawfile_from_file(filename, None)
+            .and_then(|r| r.thumbnail(dim))
+            .inspect_err(|err| {
+                err_out!("or_get_extract_thumbnail() failed with {:?}.", err);
+            })
+            .ok()
+            .and_then(|thumbnail| {
+                let format = thumbnail.data_type();
+                let buf = thumbnail.data8()?;
+
+                let pixbuf = match format {
+                    or::DataType::PixmapRgb8 => {
+                        let x = thumbnail.width();
+                        let y = thumbnail.height();
+                        image::RgbImage::from_raw(x, y, buf.to_vec())
+                            .map(image::DynamicImage::ImageRgb8)
+                    }
+                    or::DataType::Jpeg => {
+                        let jpeg_dec =
+                            image::codecs::jpeg::JpegDecoder::new(std::io::Cursor::new(buf))
+                                .ok()?;
+                        image::DynamicImage::from_decoder(jpeg_dec).ok()
+                    }
+                    _ => None,
+                };
+                pixbuf
+                    .map(|buf| buf.thumbnail(w, h))
+                    .map(|mut buf| {
+                        let orientation =
+                            image::metadata::Orientation::from_exif(orientation as u8)
+                                .unwrap_or(image::metadata::Orientation::NoTransforms);
+                        buf.apply_orientation(orientation);
+                        buf
+                    })
+                    .map(Thumbnail::from)
+            })
+    }
+
+    /// Thumbnail a file at `path` within `w` and `h` dimensions.
     pub fn thumbnail_file<P: AsRef<Path>>(
         path: P,
         w: u32,
@@ -113,7 +187,6 @@ impl Thumbnail {
         if mime_type.is_unknown() {
             dbg_out!("unknown file type {:?}", filename);
         } else if mime_type.is_movie() {
-            // XXX FIXME
             dbg_out!("video thumbnail");
             pix = movieutils::thumbnail_movie(filename, w, h);
             if pix.is_none() {
@@ -124,38 +197,21 @@ impl Thumbnail {
         } else if !mime_type.is_digicam_raw() {
             match mime_type.mime_type() {
                 MType::Image(ImgFormat::Heif) => {
-                    dbg_out!("Heif image");
-                    pix = heif::extract_rotated_thumbnail(filename, cmp::min(w, h), orientation)
-                        .map_err(|err| {
-                            err_out!("Error {:?}", err);
-                            err
+                    trace_out!("Heif image");
+                    return heif::extract_rotated_thumbnail(filename, w, h, orientation)
+                        .inspect_err(|err| {
+                            err_out!("Error thumnailing HEIF {err:?}");
                         })
                         .ok();
                 }
                 _ => {
-                    dbg_out!("not a raw type, trying GdkPixbuf loaders");
-                    match gdk_pixbuf::Pixbuf::from_file_at_size(filename, w as i32, h as i32) {
-                        Ok(ref pixbuf) => {
-                            pix = gdk_utils::gdkpixbuf_exif_rotate(Some(pixbuf), orientation);
-                        }
-                        Err(err) => err_out!("exception thumbnailing image: {}", err),
-                    }
+                    trace_out!("not a raw type, trying image loaders");
+                    return Self::thumbnail_image(filename, w, h, orientation);
                 }
             }
         } else {
             dbg_out!("trying raw loader");
-            pix = gdk_utils::openraw_extract_rotated_thumbnail(filename, cmp::min(w, h) as u32)
-                .and_then(|pixbuf| {
-                    if (w < pixbuf.width() as u32) || (h < pixbuf.height() as u32) {
-                        gdk_utils::gdkpixbuf_scale_to_fit(Some(&pixbuf), cmp::min(w, h))
-                    } else {
-                        Some(pixbuf)
-                    }
-                })
-                .or_else(|| {
-                    err_out!("raw loader failed");
-                    None
-                });
+            return Self::thumbnail_raw(filename, w, h, orientation);
         }
 
         pix.map(Thumbnail::from)
@@ -179,6 +235,21 @@ impl From<gdk_pixbuf::Pixbuf> for Thumbnail {
             colorspace,
             has_alpha,
             bytes: Vec::from(bytes.as_ref()),
+        }
+    }
+}
+
+impl From<image::DynamicImage> for Thumbnail {
+    fn from(image: image::DynamicImage) -> Self {
+        let rgb8 = image.into_rgb8();
+        Self {
+            width: rgb8.width(),
+            height: rgb8.height(),
+            stride: rgb8.width() as i32 * 3,
+            bits_per_sample: 8,
+            colorspace: Colorspace::Rgb,
+            has_alpha: false,
+            bytes: rgb8.into_vec(),
         }
     }
 }
