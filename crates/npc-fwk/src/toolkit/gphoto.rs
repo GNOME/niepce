@@ -19,12 +19,12 @@
 
 use std::sync::{Mutex, RwLock, RwLockReadGuard};
 
-use crate::gdk_pixbuf;
 use crate::gio;
 use crate::glib;
-use gdk_pixbuf::prelude::*;
+use gio::prelude::*;
 
 use crate::toolkit::Thumbnail;
+use crate::{Date, DateExt};
 
 /// Describe the camera.
 pub type GpDevice = gphoto2::list::CameraDescriptor;
@@ -277,22 +277,48 @@ impl GpCamera {
         self.camera = None;
     }
 
-    pub fn get_preview(&self, folder: &str, name: &str) -> Option<Thumbnail> {
-        if let Some(camera) = self.camera.as_ref() {
-            let task = camera.fs().download_preview(folder, name);
-            let file = task.wait().ok()?;
+    pub fn get_exif(&self, folder: &str, name: &str) -> Option<Vec<u8>> {
+        let camera = self.camera.as_ref()?;
+        let task = camera.fs().download_exif(folder, name);
+        let file = task.wait().ok()?;
 
-            let task = file.get_data(&*DEVICE_LIST.context.lock().unwrap());
-            let data = task.wait().ok()?;
+        let task = file.get_data(&*DEVICE_LIST.context.lock().unwrap());
+        let data = task.wait().ok()?;
 
-            let loader = gdk_pixbuf::PixbufLoader::new();
-            loader.write(&data).ok()?;
-            loader.close().ok()?;
+        Some(data.to_vec())
+    }
 
-            loader.pixbuf().map(Thumbnail::from)
-        } else {
-            None
-        }
+    pub fn get_preview(
+        &self,
+        folder: &str,
+        name: &str,
+        orientation: Option<i32>,
+    ) -> Option<(Thumbnail, Option<Date>)> {
+        let camera = self.camera.as_ref()?;
+        let task = camera.fs().download_preview(folder, name);
+        let file = task.wait().ok()?;
+
+        let task = file.get_data(&*DEVICE_LIST.context.lock().unwrap());
+        let data = task.wait().ok()?;
+
+        let mtime = file.mtime() as u64;
+        let time = std::time::UNIX_EPOCH
+            .checked_add(std::time::Duration::from_secs(mtime))
+            .map(Date::from_system_time);
+
+        image::load_from_memory(&data)
+            .inspect_err(|err| err_out!("Error decoding image for thumbnail: {err}"))
+            .map(|mut buf| {
+                let orientation = orientation
+                    .and_then(|orientation| {
+                        image::metadata::Orientation::from_exif(orientation as u8)
+                    })
+                    .unwrap_or(image::metadata::Orientation::NoTransforms);
+                buf.apply_orientation(orientation);
+                buf
+            })
+            .map(|t| (Thumbnail::from(t), time))
+            .ok()
     }
 
     pub fn download_file(&self, folder: &str, name: &str, dest: &str) -> bool {
