@@ -24,8 +24,8 @@ use super::{
     SourceContentReady,
 };
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
-use npc_fwk::utils::FileList;
-use npc_fwk::{Date, dbg_out, on_err_out};
+use npc_fwk::utils::{FileList, exiv2};
+use npc_fwk::{Date, dbg_out, on_err_out, trace_out};
 
 #[derive(Clone, Default)]
 pub struct CameraImportedFile {
@@ -151,14 +151,29 @@ impl ImportBackend for CameraImporter {
                     if let Some(last_slash) = path.rfind('/') {
                         let name = &path[last_slash + 1..];
                         let folder = &path[..last_slash];
+                        let xmp = self
+                            .camera
+                            .borrow()
+                            .as_ref()
+                            .and_then(|camera| camera.get_exif(folder, name))
+                            .inspect(|exif| trace_out!("exif {}bytes", exif.len()))
+                            .and_then(|exif| exiv2::xmp_from_exif(&exif));
+                        let orientation = xmp.as_ref().and_then(|xmp| xmp.orientation());
                         let thumbnail = self
                             .camera
                             .borrow()
                             .as_ref()
-                            .and_then(|camera| camera.get_preview(folder, name));
-
-                        if thumbnail.is_some() {
-                            callback(Some(path.to_string()), thumbnail, None);
+                            .and_then(|camera| camera.get_preview(folder, name, orientation));
+                        let date = xmp
+                            .as_ref()
+                            .and_then(|xmp| xmp.creation_date())
+                            .or_else(|| thumbnail.clone().and_then(|t| t.1));
+                        trace_out!("File {path} {orientation:?} {date:?}");
+                        if let Some(xmp) = xmp {
+                            trace_out!("xmp = {}", xmp.serialize());
+                        }
+                        if thumbnail.is_some() || date.is_some() {
+                            callback(Some(path.to_string()), thumbnail.map(|t| t.0), date);
                         }
                     }
                 });
