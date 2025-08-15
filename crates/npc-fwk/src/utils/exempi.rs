@@ -525,7 +525,7 @@ pub fn gps_coord_from_xmp(xmps: &str) -> Option<f64> {
 
 /// Get and XMP date from an Exif date string
 /// XXX Currently assume it is UTC.
-pub fn xmp_date_from_exif(d: &str) -> Option<exempi2::DateTime> {
+pub fn xmp_date_from_exif(d: &str, offset: Option<&str>) -> Option<exempi2::DateTime> {
     let v: Vec<&str> = d.split(' ').collect();
     if v.len() != 2 {
         err_out!("Space split failed {:?}", v);
@@ -568,8 +568,28 @@ pub fn xmp_date_from_exif(d: &str) -> Option<exempi2::DateTime> {
 
     xmp_date.set_date(year, month, day);
     xmp_date.set_time(hour, min, sec);
-    // XXX use an actual timezone
-    xmp_date.set_timezone(exempi2::TzSign::UTC, 0, 0);
+
+    let offset = offset
+        .and_then(|offset| {
+            if offset.len() < 6 {
+                return None;
+            }
+            let sign = match offset.chars().next() {
+                Some('-') => exempi2::TzSign::West,
+                Some('+') => exempi2::TzSign::East,
+                Some(' ') => exempi2::TzSign::UTC,
+                _ => return None,
+            };
+            let v: Vec<&str> = offset[1..].split(':').collect();
+            if v.len() != 2 {
+                return None;
+            }
+            let h = v[0].parse::<i32>().ok()?;
+            let m = v[1].parse::<i32>().ok()?;
+            Some((sign, h, m))
+        })
+        .unwrap_or((exempi2::TzSign::UTC, 0, 0));
+    xmp_date.set_timezone(offset.0, offset.1, offset.2);
 
     Some(xmp_date)
 }
@@ -577,8 +597,8 @@ pub fn xmp_date_from_exif(d: &str) -> Option<exempi2::DateTime> {
 #[cfg(test)]
 mod tests {
     use super::ExempiManager;
-    use super::XmpMeta;
     use super::xmp_date_from_exif;
+    use super::{NS_EXIF, XmpMeta};
     use exempi2;
     use std::path::PathBuf;
 
@@ -730,7 +750,7 @@ mod tests {
 
     #[test]
     fn test_xmp_date_from_exif() {
-        let d = xmp_date_from_exif("2012:02:17 11:10:49");
+        let d = xmp_date_from_exif("2012:02:17 11:10:49", None);
         assert!(d.is_some());
         let d = d.unwrap();
         assert_eq!(d.year(), 2012);
@@ -739,11 +759,39 @@ mod tests {
         assert_eq!(d.hour(), 11);
         assert_eq!(d.minute(), 10);
         assert_eq!(d.second(), 49);
+        assert_eq!(d.tz_sign(), exempi2::TzSign::UTC);
 
-        let d = xmp_date_from_exif("2012:02:17/11:10:49");
+        let d = xmp_date_from_exif("2012:02:17 11:10:49", Some("-04:00"));
+        assert!(d.is_some());
+        let d = d.unwrap();
+        assert_eq!(d.year(), 2012);
+        assert_eq!(d.month(), 2);
+        assert_eq!(d.day(), 17);
+        assert_eq!(d.hour(), 11);
+        assert_eq!(d.minute(), 10);
+        assert_eq!(d.second(), 49);
+        assert_eq!(d.tz_sign(), exempi2::TzSign::West);
+        assert_eq!(d.tz_hours(), 4);
+        assert_eq!(d.tz_minutes(), 0);
+
+        let mut xmp = exempi2::Xmp::new();
+        let r = xmp.set_property_date(NS_EXIF, "DateTimeOriginal", &d, exempi2::PropFlags::NONE);
+        assert!(r.is_ok());
+        let mut flags = exempi2::PropFlags::default();
+        let date = xmp
+            .get_property_date(NS_EXIF, "DateTimeOriginal", &mut flags)
+            .unwrap();
+        assert_eq!(d, date);
+
+        let date = xmp
+            .get_property(NS_EXIF, "DateTimeOriginal", &mut flags)
+            .unwrap();
+        assert_eq!(&date.to_string(), "2012-02-17T11:10:49-04:00");
+
+        let d = xmp_date_from_exif("2012:02:17/11:10:49", None);
         assert!(d.is_none());
 
-        let d = xmp_date_from_exif("2012.02.17 11.10.49");
+        let d = xmp_date_from_exif("2012.02.17 11.10.49", None);
         assert!(d.is_none());
     }
 }

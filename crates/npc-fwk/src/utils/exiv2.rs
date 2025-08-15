@@ -156,10 +156,20 @@ lazy_static::lazy_static! {
         );
 }
 
-fn convert(conversion: Conversion, value: &str) -> Converted {
+fn convert(meta: &rexiv2::Metadata, tag: &str, conversion: Conversion, value: &str) -> Converted {
     match conversion {
         Conversion::None => Converted::Str(value.to_string()),
-        Conversion::ExifDate => Converted::Date(xmp_date_from_exif(value)),
+        Conversion::ExifDate => {
+            // Time difference
+            let offset_tag = match tag {
+                "Exif.Image.DateTime" => Some("Exif.Photo.OffsetTime"),
+                "Exif.Photo.DateTimeOriginal" => Some("Exif.Photo.OffsetTimeOriginal"),
+                "Exif.Photo.DateTimeDigitized" => Some("Exif.Photo.OffsetTimeDigitized"),
+                _ => None,
+            };
+            let offset = offset_tag.and_then(|offset_tag| meta.get_tag_string(offset_tag).ok());
+            Converted::Date(xmp_date_from_exif(value, offset.as_deref()))
+        }
         _ => {
             err_out!("Conversion error for str to {:?}", conversion);
             Converted::Str(value.to_string())
@@ -186,7 +196,7 @@ fn ascii_tag_to_xmp(
     xmp: &mut exempi2::Xmp,
 ) {
     if let Ok(value) = meta.get_tag_string(tag) {
-        let converted = convert(xmp_prop.2, &value);
+        let converted = convert(meta, tag, xmp_prop.2, &value);
         match converted {
             Converted::Str(s) => {
                 if let Err(err) =
