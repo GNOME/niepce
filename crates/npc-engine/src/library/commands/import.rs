@@ -25,6 +25,14 @@ use crate::catalog::{CatalogDb, LibError, LibResult, LibraryId};
 use crate::library::notification::LibNotification;
 use npc_fwk::{err_out, err_out_line};
 
+fn add_root_folder_and_notify(
+    catalog: &CatalogDb,
+    name: &str,
+    path: String,
+) -> LibResult<LibFolder> {
+    add_folder_and_notify(catalog, 0, name, Some(path))
+}
+
 /// Add a folder and send the lib notification.
 fn add_folder_and_notify(
     catalog: &CatalogDb,
@@ -82,8 +90,7 @@ pub(super) fn get_folder_for_import(
                                 LibError::InvalidResult
                             })
                             .and_then(|parent_folder_name| {
-                                catalog
-                                    .add_root_folder(parent_folder_name, parent_folder)
+                                add_root_folder_and_notify(catalog, parent_folder_name, parent_folder)
                                     .map(FolderOpResult::Created)
                             })
                     })
@@ -126,7 +133,7 @@ mod test {
     fn test_folder_for_import() {
         let catalog = db_test::test_catalog();
 
-        let root = catalog.add_root_folder("Pictures", "Pictures".into());
+        let root = catalog.add_folder_into("Pictures", Some("Pictures".into()), 0);
         assert!(root.is_ok());
         let root = root.unwrap();
         assert_eq!(root.parent(), 0);
