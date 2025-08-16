@@ -618,16 +618,6 @@ impl CatalogDb {
         Err(Error::NoSqlDb)
     }
 
-    /// Add a folder at the root.
-    ///
-    /// `name`: the folder name.
-    /// `path`: The path that indicate the physical location.
-    ///
-    /// Returns a `Result<LibFolder>`.
-    pub(crate) fn add_root_folder(&self, name: &str, path: String) -> Result<LibFolder> {
-        self.add_folder_into(name, Some(path), 0)
-    }
-
     /// Add folder with name and optional path into parent whose id is
     /// `into`.  A value of 0 means root.
     ///
@@ -1597,7 +1587,7 @@ pub(crate) mod test {
             Err(Error::NoDbFile)
         ));
 
-        let folder_added = catalog.add_root_folder("foo", String::from("/bar/foo"));
+        let folder_added = catalog.add_folder_into("foo", Some("/bar/foo".to_string()), 0);
         assert!(folder_added.is_ok());
         let folder_added = folder_added.unwrap();
         let parent_id = folder_added.id();
@@ -1705,7 +1695,7 @@ pub(crate) mod test {
 
         let catalog = test_catalog();
 
-        let folder_added = catalog.add_root_folder("foo", String::from("/bar/foo"));
+        let folder_added = catalog.add_folder_into("foo", Some("/bar/foo".to_string()), 0);
         assert!(folder_added.is_ok());
         let folder_added = folder_added.unwrap();
 
@@ -1757,7 +1747,7 @@ pub(crate) mod test {
         assert!(matches!(lf, Err(Error::NotFound)));
 
         // Add a root folder.
-        let f = catalog.add_root_folder("Pictures", "/home/USER/Pictures".to_owned());
+        let f = catalog.add_folder_into("Pictures", Some("/home/USER/Pictures".to_string()), 0);
         assert!(f.is_ok());
         let root_id = f.unwrap().id();
 
