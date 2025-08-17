@@ -33,6 +33,7 @@ use crate::catalog::libfolder::LibFolder;
 use crate::catalog::props::NiepceProperties as Np;
 use crate::catalog::{CatalogDb, LibError};
 use crate::libraryclient::ClientCallback;
+use import::CatalogDbImportHelper;
 use npc_fwk::PropertyValue;
 use npc_fwk::base::RgbColour;
 use npc_fwk::{err_out, err_out_line};
@@ -144,7 +145,7 @@ pub fn cmd_import_files(catalog: &CatalogDb, base: &Path, files: &[PathBuf]) -> 
 
 /// Import a list of bundles into the library.
 pub fn cmd_import_bundles(catalog: &CatalogDb, base: &Path, bundles: &[FileBundle]) -> bool {
-    let base_folders = import::get_folder_for_import(catalog, base);
+    let base_folders = catalog.get_folder_for_import(base);
     if let Err(err) = base_folders {
         err_out!("Couldn't get folder for import {base:?}: {err}");
         return false;
@@ -155,7 +156,7 @@ pub fn cmd_import_bundles(catalog: &CatalogDb, base: &Path, bundles: &[FileBundl
             .main()
             .parent()
             .ok_or(LibError::InvalidResult)
-            .and_then(|folder| import::get_folder_for_import(catalog, folder))
+            .and_then(|folder| catalog.get_folder_for_import(folder))
         {
             Ok(libfolders) => {
                 let folder_id = libfolders.last().unwrap().id();
@@ -744,7 +745,7 @@ pub fn cmd_upgrade_catalog_from(catalog: &CatalogDb, version: i32) -> bool {
 mod test {
     use crate::catalog::{db::Error, db_test};
 
-    use super::{cmd_delete_folder, import::get_folder_for_import};
+    use super::{cmd_delete_folder, import::CatalogDbImportHelper};
 
     #[test]
     fn test_delete_folder() {
@@ -755,7 +756,8 @@ mod test {
         let root = root.unwrap();
         assert_eq!(root.parent(), 0);
 
-        let folders = get_folder_for_import(&catalog, std::path::Path::new("Pictures/2023"))
+        let folders = catalog
+            .get_folder_for_import(std::path::Path::new("Pictures/2023"))
             .expect("Folder for import failed");
         assert_eq!(root.id(), folders[0].id());
         let parent_folder = folders.last().unwrap();
