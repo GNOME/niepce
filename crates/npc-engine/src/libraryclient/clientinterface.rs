@@ -84,7 +84,7 @@ pub trait ClientInterface {
 
     /// Import files in place.
     /// @param files the files to import
-    fn import_files(&self, files: Vec<PathBuf>);
+    fn import_files(&self, base: PathBuf, files: Vec<PathBuf>);
 }
 
 /// Sync client interface
