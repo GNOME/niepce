@@ -130,7 +130,7 @@ fn main() {
     if !dry_run {
         let imports: Vec<PathBuf> = imports.into_iter().map(|elem| elem.1).collect();
         if let Some(catalog) = &catalog {
-            cmd_import_files(catalog, &imports);
+            cmd_import_files(catalog, &dest, &imports);
         }
     }
 }

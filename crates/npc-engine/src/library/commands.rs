@@ -19,7 +19,7 @@
 
 mod import;
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use super::notification::LibNotification;
 use super::notification::{Count, FileMove, MetadataChange};
@@ -136,14 +136,20 @@ pub fn cmd_list_all_folders(
 /// Import a list of files into the library.
 /// It will build the bundles. If you already have the bundles,
 /// call `cmd_import_bundles`
-pub fn cmd_import_files(catalog: &CatalogDb, files: &[PathBuf]) -> bool {
+pub fn cmd_import_files(catalog: &CatalogDb, base: &Path, files: &[PathBuf]) -> bool {
     let bundles = FileBundle::filter_bundles(files);
 
-    cmd_import_bundles(catalog, &bundles)
+    cmd_import_bundles(catalog, base, &bundles)
 }
 
 /// Import a list of bundles into the library.
-pub fn cmd_import_bundles(catalog: &CatalogDb, bundles: &[FileBundle]) -> bool {
+pub fn cmd_import_bundles(catalog: &CatalogDb, base: &Path, bundles: &[FileBundle]) -> bool {
+    let base_folders = import::get_folder_for_import(catalog, base);
+    if let Err(err) = base_folders {
+        err_out!("Couldn't get folder for import {base:?}: {err}");
+        return false;
+    }
+
     for bundle in bundles {
         match bundle
             .main()
