@@ -168,12 +168,12 @@ impl ImportBackend for DirectoryImporter {
                                 })
                                 .collect(),
                         );
-                        callback(&files);
+                        callback(&dest_dir, &files);
                     })
             );
         } else {
             let files = FileList::files_from_directory(request.source(), |_| true, self.recursive);
-            callback(&files);
+            callback(&std::path::PathBuf::from(request.source()), &files);
         }
     }
 }

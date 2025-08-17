@@ -75,24 +75,13 @@ pub(super) fn get_folder_for_import(
                         if !matches!(err, LibError::NotFound) {
                             return Err(err);
                         }
-                        let mut parent_folder = Default::default();
-                        folder
-                            .parent()
-                            .and_then(|parent| {
-                                parent_folder = parent.to_string_lossy().to_string();
-                                parent
-                                    .file_name()
-                                    .and_then(std::ffi::OsStr::to_str)
-                                    .or(Some(""))
-                            })
-                            .ok_or_else(|| {
-                                err_out_line!("Could't get parent folder name for '{folder:?}'.");
-                                LibError::InvalidResult
-                            })
-                            .and_then(|parent_folder_name| {
-                                add_root_folder_and_notify(catalog, parent_folder_name, parent_folder)
-                                    .map(FolderOpResult::Created)
-                            })
+                        let folder_name = folder
+                            .file_name()
+                            .ok_or(LibError::InvalidResult)?
+                            .to_string_lossy()
+                            .to_string();
+                        add_root_folder_and_notify(catalog, &folder_name, folder_str)
+                            .map(FolderOpResult::Created)
                     })
                     .map(|parent_folder| {
                         let mut parent_id = parent_folder.id();
@@ -150,15 +139,14 @@ mod test {
         assert!(matches!(folder, FolderOpResult::Created(_)));
         assert_eq!(folder.name(), "20230524");
         // This should have a parent we created.
-        assert!(folder.parent() != 0);
+        assert_ne!(folder.parent(), 0);
         // And its parent is the root.
-        assert!(folder.parent() != root.id());
+        assert_ne!(folder.parent(), root.id());
         let id = folder.id();
 
         let lf = catalog.root_folder_for("Pictures/2023/20230524");
         assert!(lf.is_ok());
         let lf = lf.unwrap();
-        println!("lf = {lf:?}");
         assert_eq!(lf.id(), root.id());
         assert_eq!(lf.name(), "Pictures");
 
@@ -181,16 +169,54 @@ mod test {
         let root_folder = root_folders.last().unwrap();
         assert_eq!(root_folder.id(), parent_folder.parent());
 
+        // "Pictures" exist, but not "2025", so both 2025 and 20250816
+        // should be created.
+        let folders =
+            get_folder_for_import(&catalog, std::path::Path::new("Pictures/2025/20250816"));
+        assert!(folders.is_ok());
+        let folders = folders.unwrap();
+        assert_eq!(root.id(), folders[0].id());
+
+        assert_eq!(folders.len(), 3);
+        assert!(matches!(folders[0], FolderOpResult::Existing(_)));
+        let folder = &folders[0];
+        assert_eq!(folder.name(), "Pictures");
+        assert!(matches!(folders[1], FolderOpResult::Created(_)));
+        let folder = &folders[1];
+        assert_eq!(folder.name(), "2025");
+
+        let folder = folders.last().unwrap();
+        assert!(matches!(folder, FolderOpResult::Created(_)));
+        assert_eq!(folder.name(), "20250816");
+        // This should have a parent we created.
+        assert!(folder.parent() != 0);
+        // And its parent is the root.
+        assert!(folder.parent() != root.id());
+
+        // "Pictures2" nor "Pictures2/2025" do exist. The root created
+        // in 20250228
         let roots2 =
             get_folder_for_import(&catalog, std::path::Path::new("Pictures2/2025/20250228"))
                 .expect("root Folder for import failed");
-        assert_eq!(roots2.len(), 2);
+        assert_eq!(roots2.len(), 1);
         let root2 = &roots2[0];
         assert!(matches!(root2, FolderOpResult::Created(_)));
-        assert_eq!(root2.name(), "2025");
+        assert_eq!(root2.name(), "20250228");
         assert_eq!(root2.parent(), 0);
-        let leaf = roots2.last().unwrap();
-        assert!(matches!(leaf, FolderOpResult::Created(_)));
-        assert_eq!(leaf.parent(), root2.id());
+
+        //
+        let roots3 = get_folder_for_import(&catalog, std::path::Path::new("Pictures2"))
+            .expect("root Folder for import failed");
+        assert_eq!(roots3.len(), 1);
+        let root3 = &roots3[0];
+        assert!(matches!(root3, FolderOpResult::Created(_)));
+        assert_eq!(root3.name(), "Pictures2");
+        assert_eq!(root3.parent(), 0);
+        // Check that it was reparented.
+        let folder = catalog.get_folder("Pictures2/2025/20250228");
+        assert!(folder.is_ok());
+        let _folder = folder.unwrap();
+        // XXX fixme
+        // assert_ne!(folder.parent(), 0);
     }
 }

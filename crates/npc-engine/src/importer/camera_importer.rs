@@ -216,7 +216,7 @@ impl ImportBackend for CameraImporter {
                                         None
                                     })
                                     .collect();
-                                callback(&FileList(files));
+                                callback(&dest_dir, &FileList(files));
                             })
                     );
                 }

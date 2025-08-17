@@ -317,8 +317,8 @@ impl ClientInterface for LibraryClientSender {
     }
 
     /// Import files in place.
-    fn import_files(&self, files: Vec<PathBuf>) {
-        self.schedule_op(move |catalog| commands::cmd_import_files(catalog, &files));
+    fn import_files(&self, base: PathBuf, files: Vec<PathBuf>) {
+        self.schedule_op(move |catalog| commands::cmd_import_files(catalog, &base, &files));
     }
 }
 

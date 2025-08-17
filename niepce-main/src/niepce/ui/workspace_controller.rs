@@ -774,9 +774,11 @@ impl WorkspaceController {
             let client = client.sender().clone();
             importer.do_import(
                 request,
-                Box::new(move |files: &npc_fwk::utils::FileList| {
-                    client.import_files(files.0.clone());
-                }),
+                Box::new(
+                    move |base: &std::path::Path, files: &npc_fwk::utils::FileList| {
+                        client.import_files(base.to_path_buf(), files.0.clone());
+                    },
+                ),
             );
         }
     }

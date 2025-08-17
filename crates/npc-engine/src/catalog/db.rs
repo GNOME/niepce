@@ -1759,6 +1759,14 @@ pub(crate) mod test {
         assert_eq!(lf.id(), root_id);
         assert_eq!(lf.name(), "Pictures");
 
+        // Check for a root folder for the sub folder: we just created it.
+        let lf = catalog.root_folder_for("/home/USER/Pictures/20230619/phone");
+        assert!(lf.is_ok());
+        let lf = lf.unwrap();
+        // Checking its name and its id.
+        assert_eq!(lf.id(), root_id);
+        assert_eq!(lf.name(), "Pictures");
+
         // Add a folder into
         let lf = catalog.add_folder_into("20230619", None, root_id);
         assert!(lf.is_ok());
