@@ -50,6 +50,12 @@ pub struct Count {
 }
 
 #[derive(Clone, Debug)]
+pub struct FolderReparent {
+    pub id: LibraryId,
+    pub dest: LibraryId,
+}
+
+#[derive(Clone, Debug)]
 pub struct MetadataChange {
     pub id: LibraryId,
     pub meta: NiepceProperties,
@@ -95,6 +101,7 @@ pub enum LibNotification {
     FolderContentQueried(QueriedContent),
     FolderCounted(Count),
     FolderCountChanged(Count),
+    FolderReparented(FolderReparent),
     FolderDeleted(LibraryId),
     KeywordContentQueried(QueriedContent),
     KeywordCounted(Count),
