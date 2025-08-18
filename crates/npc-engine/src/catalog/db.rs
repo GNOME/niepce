@@ -1532,11 +1532,18 @@ pub(crate) mod test {
 
     use super::{CatalogDb, DB_SCHEMA_VERSION, Error};
 
-    /// Create a test library. Call this to create an in memory library.
-    pub(crate) fn test_catalog() -> CatalogDb {
+    /// Create a test library. Call this to create an in memory
+    /// library.  The optional `path` is to open the catalog on disk
+    /// for debugging purpose. This require deleting the file for the
+    /// subsequent runs.
+    pub(crate) fn test_catalog(path: Option<&std::path::Path>) -> CatalogDb {
         let (sender, receiver) = async_channel::unbounded();
-        let catalog = CatalogDb::new_in_memory(sender);
-        assert_eq!(catalog.dbfile, None);
+        let catalog = if let Some(path) = path {
+            CatalogDb::new(path, sender)
+        } else {
+            CatalogDb::new_in_memory(sender)
+        };
+        assert_eq!(catalog.dbfile, path.map(std::path::Path::to_path_buf));
         let msg = receiver
             .try_recv()
             .expect("Didn't receive LibCreated message");
@@ -1559,7 +1566,7 @@ pub(crate) mod test {
 
     #[test]
     fn catalog_works() {
-        let catalog = test_catalog();
+        let catalog = test_catalog(None);
         let version = catalog.check_database_version();
         assert!(version.is_ok());
         assert!(version.ok().unwrap() == super::DB_SCHEMA_VERSION);
@@ -1693,7 +1700,7 @@ pub(crate) mod test {
     fn file_bundle_import() {
         use npc_fwk::utils::exempi::XmpMeta;
 
-        let catalog = test_catalog();
+        let catalog = test_catalog(None);
 
         let folder_added = catalog.add_folder_into("foo", Some("/bar/foo".to_string()), 0);
         assert!(folder_added.is_ok());
@@ -1740,7 +1747,7 @@ pub(crate) mod test {
 
     #[test]
     fn root_folders() {
-        let catalog = test_catalog();
+        let catalog = test_catalog(None);
 
         // Check for a root folder for the folder: it doesn't exist.
         let lf = catalog.root_folder_for("/home/USER/Pictures/20230619");
@@ -1791,7 +1798,7 @@ pub(crate) mod test {
 
     #[test]
     fn preferences() {
-        let catalog = test_catalog();
+        let catalog = test_catalog(None);
 
         // Sanity testing.
         let dbversion = catalog.get_pref("version", None);

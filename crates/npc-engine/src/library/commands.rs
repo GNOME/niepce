@@ -749,7 +749,7 @@ mod test {
 
     #[test]
     fn test_delete_folder() {
-        let catalog = db_test::test_catalog();
+        let catalog = db_test::test_catalog(None);
 
         let root = catalog.add_folder_into("Pictures", Some("Pictures".into()), 0);
         assert!(root.is_ok());
