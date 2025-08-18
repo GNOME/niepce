@@ -66,7 +66,7 @@ impl CatalogDbImportHelper for CatalogDb {
     // one that exists.
     //
     fn get_folder_for_import(&self, folder: &std::path::Path) -> LibResult<Vec<FolderOpResult>> {
-        let folder_str = folder.to_string_lossy().to_string();
+        let folder_str = folder.to_string_lossy();
         self.get_folder(&folder_str)
             .map(|lf| vec![FolderOpResult::Existing(lf)])
             .or_else(|err| {
@@ -80,9 +80,8 @@ impl CatalogDbImportHelper for CatalogDb {
                             let folder_name = folder
                                 .file_name()
                                 .ok_or(LibError::InvalidResult)?
-                                .to_string_lossy()
-                                .to_string();
-                            self.add_root_folder_and_notify(&folder_name, folder_str)
+                                .to_string_lossy();
+                            self.add_root_folder_and_notify(&folder_name, folder_str.to_string())
                                 .map(FolderOpResult::Created)
                         })
                         .map(|parent_folder| {
