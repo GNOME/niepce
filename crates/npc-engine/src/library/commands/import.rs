@@ -82,6 +82,10 @@ impl CatalogDbImportHelper for CatalogDb {
                                 .ok_or(LibError::InvalidResult)?
                                 .to_string_lossy();
                             self.add_root_folder_and_notify(&folder_name, folder_str.to_string())
+                                .and_then(|lf| {
+                                    self.reparent_roots_for(lf.id(), &folder_str)?;
+                                    Ok(lf)
+                                })
                                 .map(FolderOpResult::Created)
                         })
                         .map(|parent_folder| {
@@ -219,8 +223,8 @@ mod test {
         // Check that it was reparented.
         let folder = catalog.get_folder("Pictures2/2025/20250228");
         assert!(folder.is_ok());
-        let _folder = folder.unwrap();
+        let folder = folder.unwrap();
         // XXX fixme
-        // assert_ne!(folder.parent(), 0);
+        assert_ne!(folder.parent(), 0);
     }
 }

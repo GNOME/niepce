@@ -49,7 +49,7 @@ use crate::catalog::libfolder;
 use crate::catalog::libfolder::LibFolder;
 use crate::catalog::libmetadata::LibMetadata;
 use crate::catalog::props::NiepceProperties as Np;
-use crate::library::notification::LibNotification;
+use crate::library::notification::{FolderReparent, LibNotification};
 use npc_fwk::PropertyValue;
 use npc_fwk::base::RgbColour;
 use npc_fwk::toolkit;
@@ -84,6 +84,9 @@ pub enum Error {
     /// SQL Error
     #[error("rusqlite error: {0}")]
     SqlError(#[from] rusqlite::Error),
+    /// Strip Prefix
+    #[error("Strip prefix error: {0}")]
+    StripPrefix(#[from] std::path::StripPrefixError),
 }
 
 pub type Result<T> = result::Result<T, Error>;
@@ -691,6 +694,19 @@ impl CatalogDb {
         Err(Error::NoSqlDb)
     }
 
+    /// Reparent a `folder` to the `new_parent`.
+    fn reparent_folder(&self, id: LibraryId, new_parent: LibraryId) -> Result<()> {
+        let conn = self.dbconn.as_ref().ok_or(Error::NoSqlDb)?;
+        let c = conn.execute(
+            "UPDATE folders SET parent_id=?2 WHERE id=?1",
+            params![id, new_parent],
+        )?;
+        if c == 1 {
+            return Ok(());
+        }
+        Err(Error::InvalidResult)
+    }
+
     /// Get the subfolders for id. Only the direct descendents.
     ///
     /// Return a `Ok(Vec<LibFolder>)` (may be empty) or `Err(_)`.
@@ -774,6 +790,58 @@ impl CatalogDb {
             };
         }
         Err(Error::NoSqlDb)
+    }
+
+    /// Reparent all the root folders.
+    pub(crate) fn reparent_roots_for(&self, id: LibraryId, folder_path: &str) -> Result<()> {
+        let conn = self.dbconn.as_ref().ok_or(Error::NoSqlDb)?;
+        let sql = format!(
+            "SELECT {} FROM {} WHERE INSTR(path, ?1) = 1 AND id != {id} AND parent_id = 0 ORDER BY path;",
+            LibFolder::read_db_columns(),
+            LibFolder::read_db_tables(),
+        );
+        let mut stmt = conn.prepare(&sql)?;
+        let base = std::path::Path::new(folder_path);
+        let rows = stmt.query_map(params![folder_path], LibFolder::read_from)?;
+        for folder in rows {
+            let folder = folder.unwrap();
+            let folder_path = std::path::Path::new(folder.path().ok_or(Error::InvalidArg)?);
+            let trail_path = folder_path.strip_prefix(base)?;
+            let mut current = base.to_path_buf();
+            let mut current_id = id;
+            for p in trail_path.components() {
+                current = current.join(p);
+                match self.get_folder(&current.to_string_lossy()) {
+                    Err(Error::NotFound) => {
+                        let name: &std::path::Path = p.as_ref();
+                        let name = name.to_string_lossy();
+                        let lf = self.add_folder_into(
+                            &name,
+                            Some(current.to_string_lossy().to_string()),
+                            current_id,
+                        )?;
+                        // XXX make sure to notify
+                        current_id = lf.id();
+                        on_err_out!(self.notify(LibNotification::AddedFolder(lf)));
+                    }
+                    Ok(f) => {
+                        if f.parent() != current_id {
+                            self.reparent_folder(f.id(), current_id)?;
+                            on_err_out!(self.notify(LibNotification::FolderReparented(
+                                FolderReparent {
+                                    id: f.id(),
+                                    dest: current_id
+                                }
+                            )));
+                        }
+                        current_id = f.id()
+                    }
+                    _ => break,
+                }
+            }
+        }
+
+        Ok(())
     }
 
     /// Find the root folder for `folder`
@@ -1794,6 +1862,87 @@ pub(crate) mod test {
         assert!(subfolders.is_ok());
         let subfolders = subfolders.unwrap();
         assert_eq!(subfolders.len(), 1);
+    }
+
+    #[test]
+    fn reparent_folder() {
+        let catalog = test_catalog(None);
+
+        // Create 2 root folders.
+        let f = catalog
+            .add_folder_into("Pictures", Some("/home/USER/Pictures".to_string()), 0)
+            .expect("First root couldn't be created");
+        let root_id = f.id();
+        let f = catalog
+            .add_folder_into("Pictures2", Some("/home/USER/Pictures2".to_string()), 0)
+            .expect("Second root couldn't be created");
+        let root_id2 = f.id();
+
+        // Create a new folder as a descendent of first root.
+        let f = catalog
+            .add_folder_into(
+                "2025",
+                Some("/home/USER/Pictures/2025".to_string()),
+                root_id,
+            )
+            .expect("Couldn't create folder.");
+        assert_eq!(f.parent(), root_id, "Added folder has wrong parent");
+
+        // Reparent the folder to the second root.
+        catalog
+            .reparent_folder(f.id(), root_id2)
+            .expect("Reparent failed");
+        // Check the folder is now into the second root hierarchy.
+        let f = catalog
+            .get_folder("/home/USER/Pictures2/2025")
+            .expect("Reparented folder should have been found");
+        assert_eq!(f.parent(), root_id2, "Reparented folder has wrong parent");
+    }
+
+    #[test]
+    fn reparent_roots() {
+        let catalog = test_catalog(None);
+
+        // Add a root folder.
+        let f = catalog
+            .add_folder_into(
+                "20250816",
+                Some("/home/USER/Pictures/2025/20250816".to_string()),
+                0,
+            )
+            .expect("First root couldn't be created");
+        let root_id = f.id();
+
+        // Add a second root folder.
+        let f = catalog
+            .add_folder_into("Pictures", Some("/home/USER/Pictures".to_string()), 0)
+            .expect("Second root couldn't be created");
+        let root_id2 = f.id();
+
+        // Sanity check: the first root folder exist.
+        let root1 = catalog
+            .get_folder("/home/USER/Pictures/2025/20250816")
+            .expect("Folder (first root) missing");
+        assert_eq!(root1.parent(), 0, "The folder isn't a root");
+
+        // Reparent so that the first root folder is actually a lead
+        // from the second root folder.
+        catalog
+            .reparent_roots_for(root_id2, "/home/USER/Pictures")
+            .expect("Reparent failed");
+        // Need to get the folder to get new values.
+        let root1 = catalog
+            .get_folder("/home/USER/Pictures/2025/20250816")
+            .expect("Folder missing");
+        assert_eq!(root1.id(), root_id, "Root1 ID changed");
+        assert_ne!(root1.parent(), 0, "Root1 is still root");
+        // Check we actually created the intermediate folder and the
+        // hierarchy is correct.
+        let folder1 = catalog
+            .get_folder("/home/USER/Pictures/2025")
+            .expect("Folder missing");
+        assert_eq!(folder1.parent(), root_id2, "Folder 1 parent isn't root2");
+        assert_eq!(root1.parent(), folder1.id(), "Root1 parent isn't folder1");
     }
 
     #[test]

@@ -1063,6 +1063,12 @@ impl WorkspaceController {
                     widgets.rename_item(TreeItemType::Albums, *id, name);
                 }
             }
+            LibNotification::FolderReparented(reparent) => {
+                if let Some(widgets) = self.widgets.get() {
+                    let folders = &widgets.folders_node;
+                    Self::reparent_item(folders, reparent.id, reparent.dest);
+                }
+            }
             _ => {}
         }
     }
