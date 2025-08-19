@@ -111,7 +111,7 @@ impl FileBundle {
             if let Some(basename) = path.file_stem() {
                 let mut basename = basename.to_os_string();
                 while basename != current_base {
-                    let path2 = PathBuf::from(&basename);
+                    let path2 = Path::new(&basename);
                     match path2.file_stem() {
                         None => break,
                         Some(b) => {
@@ -247,7 +247,7 @@ impl FileBundle {
 mod test {
     use super::{FileBundle, Sidecar};
     use crate::catalog::libfile::FileType;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
 
     #[test]
     fn test_filebundle() {
@@ -284,16 +284,16 @@ mod test {
         let mut iter = bundles_list.iter();
         if let Some(b) = iter.next() {
             assert_eq!(b.bundle_type(), FileType::RawJpeg);
-            assert_eq!(b.main(), PathBuf::from("/foo/bar/dcs_0001.nef"));
-            assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/dcs_0001.jpg"));
-            assert_eq!(b.xmp_sidecar(), PathBuf::from("/foo/bar/dcs_0001.xmp"));
+            assert_eq!(b.main(), Path::new("/foo/bar/dcs_0001.nef"));
+            assert_eq!(b.jpeg(), Path::new("/foo/bar/dcs_0001.jpg"));
+            assert_eq!(b.xmp_sidecar(), Path::new("/foo/bar/dcs_0001.xmp"));
             let all_files = b.all_files();
             assert_eq!(
                 all_files,
                 vec![
-                    PathBuf::from("/foo/bar/dcs_0001.nef"),
-                    PathBuf::from("/foo/bar/dcs_0001.jpg"),
-                    PathBuf::from("/foo/bar/dcs_0001.xmp")
+                    Path::new("/foo/bar/dcs_0001.nef"),
+                    Path::new("/foo/bar/dcs_0001.jpg"),
+                    Path::new("/foo/bar/dcs_0001.xmp")
                 ]
             );
         } else {
@@ -302,16 +302,16 @@ mod test {
 
         if let Some(b) = iter.next() {
             assert_eq!(b.bundle_type(), FileType::RawJpeg);
-            assert_eq!(b.main(), PathBuf::from("/foo/bar/img_0001.cr2"));
-            assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/img_0001.jpg"));
-            assert_eq!(b.xmp_sidecar(), PathBuf::from("/foo/bar/img_0001.xmp"));
+            assert_eq!(b.main(), Path::new("/foo/bar/img_0001.cr2"));
+            assert_eq!(b.jpeg(), Path::new("/foo/bar/img_0001.jpg"));
+            assert_eq!(b.xmp_sidecar(), Path::new("/foo/bar/img_0001.xmp"));
             let all_files = b.all_files();
             assert_eq!(
                 all_files,
                 vec![
-                    PathBuf::from("/foo/bar/img_0001.cr2"),
-                    PathBuf::from("/foo/bar/img_0001.jpg"),
-                    PathBuf::from("/foo/bar/img_0001.xmp")
+                    Path::new("/foo/bar/img_0001.cr2"),
+                    Path::new("/foo/bar/img_0001.jpg"),
+                    Path::new("/foo/bar/img_0001.xmp")
                 ]
             );
         } else {
@@ -320,7 +320,7 @@ mod test {
 
         if let Some(b) = iter.next() {
             assert_eq!(b.bundle_type(), FileType::Image);
-            assert_eq!(b.main(), PathBuf::from("/foo/bar/img_0142.jpg"));
+            assert_eq!(b.main(), Path::new("/foo/bar/img_0142.jpg"));
             assert!(b.jpeg().as_os_str().is_empty());
             assert!(b.xmp_sidecar().as_os_str().is_empty());
             assert_eq!(b.sidecars.len(), 1);
@@ -332,8 +332,8 @@ mod test {
             assert_eq!(
                 all_files,
                 vec![
-                    PathBuf::from("/foo/bar/img_0142.jpg"),
-                    PathBuf::from("/foo/bar/img_0142.mov")
+                    Path::new("/foo/bar/img_0142.jpg"),
+                    Path::new("/foo/bar/img_0142.mov")
                 ]
             );
         } else {
@@ -342,7 +342,7 @@ mod test {
 
         if let Some(b) = iter.next() {
             assert_eq!(b.bundle_type(), FileType::Image);
-            assert_eq!(b.main(), PathBuf::from("/foo/bar/img_0143.jpg"));
+            assert_eq!(b.main(), Path::new("/foo/bar/img_0143.jpg"));
             assert!(b.jpeg().as_os_str().is_empty());
             assert!(b.xmp_sidecar().as_os_str().is_empty());
             assert_eq!(b.sidecars.len(), 1);
@@ -354,8 +354,8 @@ mod test {
             assert_eq!(
                 all_files,
                 vec![
-                    PathBuf::from("/foo/bar/img_0143.jpg"),
-                    PathBuf::from("/foo/bar/img_0143.mov")
+                    Path::new("/foo/bar/img_0143.jpg"),
+                    Path::new("/foo/bar/img_0143.mov")
                 ]
             );
         } else {
@@ -364,7 +364,7 @@ mod test {
 
         if let Some(b) = iter.next() {
             assert_eq!(b.bundle_type(), FileType::Raw);
-            assert_eq!(b.main(), PathBuf::from("/foo/bar/img_0144.crw"));
+            assert_eq!(b.main(), Path::new("/foo/bar/img_0144.crw"));
             assert!(b.jpeg().as_os_str().is_empty());
             assert!(b.xmp_sidecar().as_os_str().is_empty());
             assert_eq!(b.sidecars.len(), 1);
@@ -376,8 +376,8 @@ mod test {
             assert_eq!(
                 all_files,
                 vec![
-                    PathBuf::from("/foo/bar/img_0144.crw"),
-                    PathBuf::from("/foo/bar/img_0144.thm")
+                    Path::new("/foo/bar/img_0144.crw"),
+                    Path::new("/foo/bar/img_0144.thm")
                 ]
             );
         } else {
@@ -386,7 +386,7 @@ mod test {
 
         if let Some(b) = iter.next() {
             assert_eq!(b.bundle_type(), FileType::Video);
-            assert_eq!(b.main(), PathBuf::from("/foo/bar/mvi_0145.mov"));
+            assert_eq!(b.main(), Path::new("/foo/bar/mvi_0145.mov"));
             assert!(b.jpeg().as_os_str().is_empty());
             assert!(b.xmp_sidecar().as_os_str().is_empty());
             assert_eq!(b.sidecars.len(), 1);
@@ -398,8 +398,8 @@ mod test {
             assert_eq!(
                 all_files,
                 vec![
-                    PathBuf::from("/foo/bar/mvi_0145.mov"),
-                    PathBuf::from("/foo/bar/mvi_0145.thm")
+                    Path::new("/foo/bar/mvi_0145.mov"),
+                    Path::new("/foo/bar/mvi_0145.thm")
                 ]
             );
         } else {
@@ -414,17 +414,17 @@ mod test {
                 b.xmp_sidecar() /*, b.sidecars()*/
             );
             assert_eq!(b.bundle_type(), FileType::RawJpeg);
-            assert_eq!(b.main(), PathBuf::from("/foo/bar/scs_3445.raf"));
-            assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/scs_3445.jpg"));
-            assert_eq!(b.xmp_sidecar(), PathBuf::from("/foo/bar/scs_3445.jpg.xmp"));
+            assert_eq!(b.main(), Path::new("/foo/bar/scs_3445.raf"));
+            assert_eq!(b.jpeg(), Path::new("/foo/bar/scs_3445.jpg"));
+            assert_eq!(b.xmp_sidecar(), Path::new("/foo/bar/scs_3445.jpg.xmp"));
             assert_eq!(b.sidecars.len(), 0);
             let all_files = b.all_files();
             assert_eq!(
                 all_files,
                 vec![
-                    PathBuf::from("/foo/bar/scs_3445.raf"),
-                    PathBuf::from("/foo/bar/scs_3445.jpg"),
-                    PathBuf::from("/foo/bar/scs_3445.jpg.xmp")
+                    Path::new("/foo/bar/scs_3445.raf"),
+                    Path::new("/foo/bar/scs_3445.jpg"),
+                    Path::new("/foo/bar/scs_3445.jpg.xmp")
                 ]
             );
         } else {
@@ -439,16 +439,16 @@ mod test {
                 b.xmp_sidecar() /*, b.sidecars()*/
             );
             assert_eq!(b.bundle_type(), FileType::RawJpeg);
-            assert_eq!(b.main(), PathBuf::from("/foo/bar/scs_3446.raf"));
-            assert_eq!(b.jpeg(), PathBuf::from("/foo/bar/scs_3446.jpg"));
+            assert_eq!(b.main(), Path::new("/foo/bar/scs_3446.raf"));
+            assert_eq!(b.jpeg(), Path::new("/foo/bar/scs_3446.jpg"));
             assert!(b.xmp_sidecar().as_os_str().is_empty());
             assert_eq!(b.sidecars.len(), 0);
             let all_files = b.all_files();
             assert_eq!(
                 all_files,
                 vec![
-                    PathBuf::from("/foo/bar/scs_3446.raf"),
-                    PathBuf::from("/foo/bar/scs_3446.jpg")
+                    Path::new("/foo/bar/scs_3446.raf"),
+                    Path::new("/foo/bar/scs_3446.jpg")
                 ]
             );
         } else {

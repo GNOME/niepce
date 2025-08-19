@@ -1,7 +1,7 @@
 /*
  * niepce - bin/importlr.rs
  *
- * Copyright (C) 2021-2022 Hubert Figuière
+ * Copyright (C) 2021-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,16 +84,16 @@ fn main() {
 
     let (sender, _recv) = async_channel::unbounded();
 
-    let library = LibraryClient::new(PathBuf::from(library), sender);
+    let library = LibraryClient::new(Path::new(library), sender);
     // library.init();
     let mut importer = LrImporter::new();
-    if !LrImporter::can_import_library(&PathBuf::from(catalog)) {
+    if !LrImporter::can_import_library(Path::new(catalog)) {
         println!("Can't import catalog {}", catalog);
         return;
     }
 
     importer
-        .init_importer(&PathBuf::from(catalog))
+        .init_importer(Path::new(catalog))
         .expect("Init importer");
 
     if let Some(roots) = matches.get_one::<String>("roots") {
