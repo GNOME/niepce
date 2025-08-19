@@ -334,10 +334,10 @@ mod test {
 
     #[test]
     fn test_lrimporter() {
-        assert!(!LrImporter::can_import_library(&std::path::PathBuf::from(
+        assert!(!LrImporter::can_import_library(std::path::Path::new(
             "/tmp/catalog.aplib"
         )));
-        assert!(LrImporter::can_import_library(&std::path::PathBuf::from(
+        assert!(LrImporter::can_import_library(std::path::Path::new(
             "/tmp/catalog.lrcat"
         )));
 
