@@ -147,28 +147,19 @@ impl GpCamera {
         &self.device.port
     }
 
-    /// For a list of folder, get the content of each and return a flattened list.
-    fn process_folders(&self, folders: Vec<String>) -> Vec<CameraContent> {
-        folders
-            .iter()
-            .flat_map(|folder| {
-                if let Some(camera) = self.camera.as_ref() {
-                    let task = camera.fs().list_files(folder);
-                    dbg_out!("processing folder '{}'", folder);
-                    task.wait()
-                        .map(|iter| {
-                            iter.map(|name| CameraContent {
-                                folder: folder.to_string(),
-                                name,
-                            })
-                            .collect()
-                        })
-                        .unwrap_or_default()
-                } else {
-                    vec![]
-                }
+    /// Get te folder content.
+    fn process_folder(&self, fs: &gphoto2::filesys::CameraFS, folder: &str) -> Vec<CameraContent> {
+        let task = fs.list_files(folder);
+        dbg_out!("processing folder '{}'", folder);
+        task.wait()
+            .map(|iter| {
+                iter.map(|name| CameraContent {
+                    folder: folder.to_string(),
+                    name,
+                })
+                .collect()
             })
-            .collect()
+            .unwrap_or_default()
     }
 
     /// List the content of the camera (DCIM only).
@@ -185,31 +176,47 @@ impl GpCamera {
                     .map(|storages| {
                         storages
                             .iter()
-                            .filter_map(|info| {
-                                info.base_directory().map(|s| s.into_owned() + "/DCIM")
-                            })
+                            .filter_map(|info| info.base_directory().map(|s| s.into_owned()))
                             .collect()
                     })
                     .unwrap_or_else(|| vec!["/DCIM".to_owned()]);
+                println!("root_folders {root_folders:?}");
                 // List the content of each root folders, and flatten.
                 root_folders
                     .iter()
                     .flat_map(|root_folder| {
-                        camera
-                            .fs()
-                            .list_folders(root_folder)
-                            .wait()
-                            .map(|iter| {
-                                iter.map(|name| {
-                                    dbg_out!("Found folder '{}'", &name);
-                                    root_folder.to_owned() + "/" + &name
-                                })
-                                .collect()
-                            })
-                            .map(|folders| self.process_folders(folders))
-                            .unwrap_or_default()
+                        println!("processing root folder {root_folder}");
+                        let fs = camera.fs();
+                        self.get_folders(&fs, root_folder)
                     })
                     .collect()
+            })
+            .unwrap_or_default()
+    }
+
+    /// Recursively get the folders from `root_folder`
+    fn get_folders(
+        &self,
+        fs: &gphoto2::filesys::CameraFS,
+        root_folder: &str,
+    ) -> Vec<CameraContent> {
+        trace_out!("get_folders {root_folder}");
+        fs.list_folders(root_folder)
+            .wait()
+            .map(|iter| {
+                iter.map(|name| {
+                    dbg_out!("Found folder '{}'", &name);
+                    root_folder.to_owned() + "/" + &name
+                })
+                .collect::<Vec<_>>()
+                .iter()
+                .flat_map(|folder| {
+                    let mut content = self.process_folder(fs, folder);
+                    let sub_content = self.get_folders(fs, folder);
+                    content.extend(sub_content);
+                    content
+                })
+                .collect()
             })
             .unwrap_or_default()
     }
