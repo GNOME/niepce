@@ -189,7 +189,6 @@ impl DestFolders {
     }
 
     fn add_dest_dir_file(&self, dest_dir: &Path) {
-        trace_out!("add dest dir file {dest_dir:?}");
         dest_dir
             .to_str()
             .and_then(|path| self.tree_model.item_index_for_path(path))
@@ -276,7 +275,6 @@ impl DestFolders {
     fn received_source(&self, date: Option<Date>) {
         let mut dest_file = DestFile::new(date);
         dest_file.sort(&self.base.borrow(), self.sorting.get());
-        trace_out!("DestFolders: Added {:?}", &dest_file.dest);
         self.dest_files.borrow_mut().push(dest_file);
     }
 
