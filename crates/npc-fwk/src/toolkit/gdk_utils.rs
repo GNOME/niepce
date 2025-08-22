@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/gdk_utils.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,8 @@
  */
 
 use std::cmp;
-use std::path::Path;
 
 use crate::gdk_pixbuf;
-use crate::glib;
-use gdk_pixbuf::prelude::*;
-use libopenraw as or;
-use libopenraw::{Bitmap, DataType};
 
 /// Scale the pixbuf to fit in a square of %dim pixels
 pub fn gdkpixbuf_scale_to_fit(
@@ -44,85 +39,4 @@ pub fn gdkpixbuf_scale_to_fit(
             gdk_pixbuf::InterpType::Bilinear,
         )
     })
-}
-
-/// Rotate the pixbuf according to the Exif orientation value
-pub fn gdkpixbuf_exif_rotate(
-    pix: Option<&gdk_pixbuf::Pixbuf>,
-    orientation: u32,
-) -> Option<gdk_pixbuf::Pixbuf> {
-    match orientation {
-        0 | 1 => pix.cloned(),
-        2 => pix.and_then(|p| p.flip(true)),
-        3 => pix.and_then(|p| p.rotate_simple(gdk_pixbuf::PixbufRotation::Upsidedown)),
-        4 => pix
-            .and_then(|p| p.rotate_simple(gdk_pixbuf::PixbufRotation::Upsidedown))
-            .and_then(|p| p.flip(true)),
-        5 => pix
-            .and_then(|p| p.rotate_simple(gdk_pixbuf::PixbufRotation::Clockwise))
-            .and_then(|p| p.flip(false)),
-        6 => pix.and_then(|p| p.rotate_simple(gdk_pixbuf::PixbufRotation::Clockwise)),
-        7 => pix
-            .and_then(|p| p.rotate_simple(gdk_pixbuf::PixbufRotation::Counterclockwise))
-            .and_then(|p| p.flip(false)),
-        8 => pix.and_then(|p| p.rotate_simple(gdk_pixbuf::PixbufRotation::Counterclockwise)),
-        _ => None,
-    }
-}
-
-fn thumbnail_to_pixbuf(thumbnail: &or::Thumbnail, orientation: u32) -> Option<gdk_pixbuf::Pixbuf> {
-    let format = thumbnail.data_type();
-    let buf = thumbnail.data8()?;
-
-    let pixbuf = match format {
-        DataType::PixmapRgb8 => {
-            let x = thumbnail.width();
-            let y = thumbnail.height();
-
-            let bytes = glib::Bytes::from(buf);
-            Some(gdk_pixbuf::Pixbuf::from_bytes(
-                &bytes,
-                gdk_pixbuf::Colorspace::Rgb,
-                false,
-                8,
-                x as i32,
-                y as i32,
-                x as i32 * 3,
-            ))
-        }
-        DataType::Jpeg => {
-            let loader = gdk_pixbuf::PixbufLoader::new();
-
-            if let Err(err) = loader.write(buf) {
-                err_out!("loader write error: {}", err);
-            }
-
-            if let Err(err) = loader.close() {
-                err_out!("loader close error: {}", err);
-            }
-            loader.pixbuf()
-        }
-        _ => None,
-    };
-
-    gdkpixbuf_exif_rotate(pixbuf.as_ref(), orientation)
-}
-
-/// Extract the thumbnail from libopenraw
-pub fn openraw_extract_rotated_thumbnail<P: AsRef<Path>>(
-    path: P,
-    dim: u32,
-) -> Option<gdk_pixbuf::Pixbuf> {
-    let mut orientation: u32 = 0;
-    or::rawfile_from_file(path, None)
-        .and_then(|r| {
-            orientation = r.orientation();
-            r.thumbnail(dim)
-        })
-        .map_err(|err| {
-            err_out!("or_get_extract_thumbnail() failed with {:?}.", err);
-            err
-        })
-        .ok()
-        .and_then(|t| thumbnail_to_pixbuf(&t, orientation))
 }
