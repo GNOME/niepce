@@ -215,8 +215,7 @@ impl DialogController for ImportDialog {
         &self
             .widgets
             .get_or_init(|| {
-                let builder =
-                    gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/importdialog.ui");
+                let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/import.ui");
                 get_widget!(builder, adw::Window, import_dialog);
                 get_widget!(builder, gtk4::DropDown, date_tz_combo);
                 let string_list =

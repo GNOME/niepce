@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/preferences_dialog.rs
  *
- * Copyright (C) 2024 Hubert Figuière
+ * Copyright (C) 2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ impl DialogController for PreferencesDialog {
 
 impl PreferencesDialog {
     pub fn new(app: &NiepceApplication) -> Rc<PreferencesDialog> {
-        let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/preferences.ui");
+        let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/preferences_dialog.ui");
         get_widget!(builder, adw::Window, preferences);
         get_widget!(builder, adw::SwitchRow, reopen_checkbutton);
         get_widget!(builder, adw::SwitchRow, write_xmp_checkbutton);
