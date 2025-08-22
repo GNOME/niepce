@@ -13,10 +13,10 @@ run_command(
 
 blueprints = custom_target('blueprints',
   input: files(
-    'niepce/ui/dialogs/import/cameraimporterui.blp',
-    'niepce/ui/dialogs/import/directoryimporterui.blp',
-    'niepce/ui/dialogs/importdialog.blp',
-    'niepce/ui/dialogs/preferences.blp',
+    'niepce/ui/dialogs/import/camera_importer_ui.blp',
+    'niepce/ui/dialogs/import/directory_importer_ui.blp',
+    'niepce/ui/dialogs/import.blp',
+    'niepce/ui/dialogs/preferences_dialog.blp',
   ),
   output: '.',
   command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],

@@ -202,11 +202,11 @@ msgstr "კამერიდან შემოტანა "
 msgid "No camera found"
 msgstr "კამერა ვერ ვიპოვე"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.blp:17
 msgid "Available cameras:"
 msgstr "ხელმისაწვდომი კამერები:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.blp:27
 #: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:112
 msgid "Select"
 msgstr "მონიშნეთ"
@@ -224,15 +224,15 @@ msgstr "საქაღალდე"
 msgid "Import picture folder"
 msgstr "სურათების საქაღალდის შემოტანა"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:13
 msgid "_Directory:"
 msgstr "_საქაღალდე:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:28
 msgid "Copy files"
 msgstr "ფაილების კოპირება"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:32
 msgid "Recursive"
 msgstr "რეკურსიული"
 
@@ -244,48 +244,48 @@ msgstr "დალაგების გარეშე"
 msgid "No preset"
 msgstr "პრესეტის გარეშე"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+#: niepce-main/src/niepce/ui/dialogs/import.blp:14
 msgid "Import images"
 msgstr "გამოსახულებების შემოტანა"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
+#: niepce-main/src/niepce/ui/dialogs/import.blp:23
 msgid "_Import"
 msgstr "_შემოტანა"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
+#: niepce-main/src/niepce/ui/dialogs/import.blp:64
 msgid "_Images to import"
 msgstr "შემოსატანი გამოსახულებებ_ი"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
+#: niepce-main/src/niepce/ui/dialogs/import.blp:87
 msgid "Destination _Folder:"
 msgstr "სამიზნე სა_ქაღალდე:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+#: niepce-main/src/niepce/ui/dialogs/import.blp:117
 msgid "_Date Sorting:"
 msgstr "_თარიღის დალაგება:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
+#: niepce-main/src/niepce/ui/dialogs/import.blp:129
 msgid "_Options"
 msgstr "_პარამეტრები"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
+#: niepce-main/src/niepce/ui/dialogs/import.blp:159
 msgid "Presets:"
 msgstr "პრესეტები:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
+#: niepce-main/src/niepce/ui/dialogs/import.blp:178
 msgid "You can still change this after importing the pictures."
 msgstr "ამის შეცვლა სურათების შემოტანის შემდეგაც შეგიძლიათ."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
+#: niepce-main/src/niepce/ui/dialogs/import.blp:195
 #: niepce-main/src/niepce/ui/metadata_pane_controller.rs:68
 msgid "Date:"
 msgstr "თარიღი:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
+#: niepce-main/src/niepce/ui/dialogs/import.blp:218
 msgid "Attributes:"
 msgstr "ატრიბუტები:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
+#: niepce-main/src/niepce/ui/dialogs/import.blp:227
 msgid "Metadata"
 msgstr "მეტამონაცემები"
 
@@ -322,19 +322,19 @@ msgstr "შემოტანის მიმდინარეობა"
 msgid "All done"
 msgstr "ყველაფერი მზადაა"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:16
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:16
 msgid "_Reopen Catalog"
 msgstr "კატალოგის _თავიდან გახსნა"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:20
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:20
 msgid "Write XMP automatically (not recommended)"
 msgstr "XMP-ის ავტომატური ჩაწერა (რეკომენდებული არაა)"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:23
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:23
 msgid "Use dark interface"
 msgstr "მუქი ინტერფეისის გამოყენება"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:31
 msgid "Preferences"
 msgstr "მორგება"
 
