@@ -1,34 +1,47 @@
 using Gtk 4.0;
 using Adw 1;
 
-Box main_widget {
-  orientation: vertical;
-  spacing: 8;
+Grid main_widget {
+  row-spacing: 8;
+  column-spacing: 8;
 
-  Box {
-    spacing: 8;
+  Label label2 {
+    halign: start;
+    label: _("_Directory:");
+    use-underline: true;
 
-    Label label2 {
-      halign: center;
-      label: _("_Directory:");
-      use-underline: true;
+    layout {
+      column: '0';
+      row: '0';
     }
+  }
 
-    Button select_directories {
-      focusable: true;
+  Button select_directories {
+    focusable: true;
 
-      Adw.ButtonContent select_dir_content {
-        icon-name: "folder-open-symbolic";
-        label: _("Choose Directory");
-      }
+    Adw.ButtonContent select_dir_content {
+      icon-name: "folder-open-symbolic";
+      label: _("Choose Directory");
+    }
+    layout {
+      column: '1';
+      row: '0';
     }
   }
 
   CheckButton copy_files {
     label: _("Copy files");
+    layout {
+      column: '0';
+      row: '1';
+    }
   }
 
   CheckButton recursive {
     label: _("Recursive");
+    layout {
+      column: '0';
+      row: '2';
+    }
   }
 }
