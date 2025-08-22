@@ -202,11 +202,11 @@ msgstr "Імпортування з камери "
 msgid "No camera found"
 msgstr "Не знайдено камери"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.blp:17
 msgid "Available cameras:"
 msgstr "Доступні камери:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.blp:27
 #: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:112
 msgid "Select"
 msgstr "Вибрати"
@@ -224,15 +224,15 @@ msgstr "Каталог"
 msgid "Import picture folder"
 msgstr "Імпортувати теку із зображеннями"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:13
 msgid "_Directory:"
 msgstr "_Каталог:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:28
 msgid "Copy files"
 msgstr "Скопіювати файли"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:32
 msgid "Recursive"
 msgstr "Рекурсивно"
 
@@ -244,48 +244,48 @@ msgstr "Без упорядкування"
 msgid "No preset"
 msgstr "Без шаблону"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+#: niepce-main/src/niepce/ui/dialogs/import.blp:14
 msgid "Import images"
 msgstr "Імпортування зображень"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
+#: niepce-main/src/niepce/ui/dialogs/import.blp:23
 msgid "_Import"
 msgstr "_Імпорт"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
+#: niepce-main/src/niepce/ui/dialogs/import.blp:64
 msgid "_Images to import"
 msgstr "З_ображення для імпортування"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
+#: niepce-main/src/niepce/ui/dialogs/import.blp:87
 msgid "Destination _Folder:"
 msgstr "_Тека призначення:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+#: niepce-main/src/niepce/ui/dialogs/import.blp:117
 msgid "_Date Sorting:"
 msgstr "Упорядкування за д_атою:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
+#: niepce-main/src/niepce/ui/dialogs/import.blp:129
 msgid "_Options"
 msgstr "П_араметри"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
+#: niepce-main/src/niepce/ui/dialogs/import.blp:159
 msgid "Presets:"
 msgstr "Шаблони:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
+#: niepce-main/src/niepce/ui/dialogs/import.blp:178
 msgid "You can still change this after importing the pictures."
 msgstr "Ви зможете внести додаткові зміни після імпортування зображень."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
+#: niepce-main/src/niepce/ui/dialogs/import.blp:195
 #: niepce-main/src/niepce/ui/metadata_pane_controller.rs:68
 msgid "Date:"
 msgstr "Дата:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
+#: niepce-main/src/niepce/ui/dialogs/import.blp:218
 msgid "Attributes:"
 msgstr "Атрибути:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
+#: niepce-main/src/niepce/ui/dialogs/import.blp:227
 msgid "Metadata"
 msgstr "Метадані"
 
@@ -322,19 +322,19 @@ msgstr "Триває імпортування"
 msgid "All done"
 msgstr "Усе виконано"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:16
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:16
 msgid "_Reopen Catalog"
 msgstr "П_овторно відкрити каталог"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:20
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:20
 msgid "Write XMP automatically (not recommended)"
 msgstr "Записувати XMP автоматично (не рекомендуємо)"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:23
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:23
 msgid "Use dark interface"
 msgstr "Темний інтерфейс"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:31
 msgid "Preferences"
 msgstr "Налаштування"
 

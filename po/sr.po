@@ -97,67 +97,67 @@ msgstr "<b>Натписи</b>"
 msgid "Edit Labels"
 msgstr "Уредите натписе"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.blp:17
 msgid "Available cameras:"
 msgstr "Доступни фото-апарати:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.blp:27
 msgid "Select"
 msgstr "Изабери"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:12
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:12
 msgid "_Directory:"
 msgstr "_Директоријум:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:22
 msgid "..."
 msgstr "..."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+#: niepce-main/src/niepce/ui/dialogs/import.blp:14
 msgid "Import images"
 msgstr "Увезите слике"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
+#: niepce-main/src/niepce/ui/dialogs/import.blp:23
 msgid "_Import"
 msgstr "_Увези"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
+#: niepce-main/src/niepce/ui/dialogs/import.blp:38
 msgid "Cancel"
 msgstr "Откажи"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
+#: niepce-main/src/niepce/ui/dialogs/import.blp:64
 msgid "_Images to import"
 msgstr "_Слике за увоз"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
+#: niepce-main/src/niepce/ui/dialogs/import.blp:87
 msgid "Destination _Folder:"
 msgstr "_Фасцикла одредишта:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+#: niepce-main/src/niepce/ui/dialogs/import.blp:117
 msgid "_Date Sorting:"
 msgstr "Ређање _датума:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
+#: niepce-main/src/niepce/ui/dialogs/import.blp:129
 msgid "_Options"
 msgstr "_Опције"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
+#: niepce-main/src/niepce/ui/dialogs/import.blp:159
 msgid "Presets:"
 msgstr "Подешености:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
+#: niepce-main/src/niepce/ui/dialogs/import.blp:178
 msgid "You can still change this after importing the pictures."
 msgstr "Ово можете још увек да измените након увоза слика."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
+#: niepce-main/src/niepce/ui/dialogs/import.blp:195
 msgid "Date:"
 msgstr "Датум:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
+#: niepce-main/src/niepce/ui/dialogs/import.blp:218
 msgid "Attributes:"
 msgstr "Особине:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
+#: niepce-main/src/niepce/ui/dialogs/import.blp:227
 msgid "Metadata"
 msgstr "Метаподаци"
 
@@ -181,19 +181,19 @@ msgstr "Увоз је у току"
 msgid "All done"
 msgstr "Све је готово"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:16
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:16
 msgid "_Reopen Catalog"
 msgstr "_Поново отвори библиотеку"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:20
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:20
 msgid "Write XMP automatically (not recommended)"
 msgstr "Самостално запиши ИксМП (није препоручљиво)"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:23
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:23
 msgid "Use dark interface"
 msgstr "Користи тамно сучеље"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:31
 msgid "Preferences"
 msgstr "Поставке"
 

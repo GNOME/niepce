@@ -114,18 +114,18 @@ msgstr "आयात प्रगति पर है"
 msgid "All done"
 msgstr "सब हो गया"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:16
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:16
 msgid "_Reopen Catalog"
 msgstr "सूचीपत्र जोड़ें (_R)"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:20
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:20
 msgid "Write XMP automatically (not recommended)"
 msgstr "XMP स्वचालित रूप से लिखें (अनुशंसित नहीं)"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:23
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:23
 msgid "Use dark interface"
 msgstr "गहरे इंटरफ़ेस का प्रयोग करें"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:31
 msgid "Preferences"
 msgstr "प्राथमिकताएं"

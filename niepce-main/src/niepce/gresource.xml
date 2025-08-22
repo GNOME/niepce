@@ -29,11 +29,11 @@
     <file alias="/icons/scalable/actions/open-book-symbolic.svg" preprocess="xml-stripblanks">data/icons/open-book-symbolic.svg</file>
     <file alias="/icons/scalable/actions/tag-symbolic.svg" preprocess="xml-stripblanks">data/icons/tag-symbolic.svg</file>
     <file alias="/ui/editlabels.ui">niepce-main/src/niepce/ui/dialogs/editlabels.ui</file>
-    <file alias="/ui/importdialog.ui">niepce-main/src/niepce/ui/dialogs/importdialog.ui</file>
+    <file alias="/ui/import.ui">niepce-main/src/niepce/ui/dialogs/import.ui</file>
     <file alias="/ui/importlibrary.ui">niepce-main/src/niepce/ui/dialogs/importlibrary.ui</file>
     <file alias="/ui/lrimport_root_row.ui">niepce-main/src/niepce/ui/dialogs/importlibrary/lrimport_root_row.ui</file>
-    <file alias="/ui/preferences.ui">niepce-main/src/niepce/ui/dialogs/preferences.ui</file>
-    <file alias="/ui/cameraimporterui.ui">niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.ui</file>
-    <file alias="/ui/directoryimporterui.ui">niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.ui</file>
+    <file alias="/ui/preferences_dialog.ui">niepce-main/src/niepce/ui/dialogs/preferences_dialog.ui</file>
+    <file alias="/ui/camera_importer_ui.ui">niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.ui</file>
+    <file alias="/ui/directory_importer_ui.ui">niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.ui</file>
   </gresource>
 </gresources>

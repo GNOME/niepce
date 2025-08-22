@@ -208,17 +208,17 @@ msgstr "Importação da câmera"
 msgid "No camera found"
 msgstr "Nenhuma câmera localizada"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.blp:17
 msgid "Available cameras:"
 msgstr "Câmeras disponíveis:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.blp:27
 #: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:112
 msgid "Select"
 msgstr "Selecionar"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:74
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:13
 msgid "Choose Directory"
 msgstr "Escolha o diretório"
 
@@ -230,15 +230,15 @@ msgstr "Diretório"
 msgid "Import picture folder"
 msgstr "Importar pasta de fotos"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:13
 msgid "_Directory:"
 msgstr "_Diretório:"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:28
 msgid "Copy files"
 msgstr "Copiar arquivos"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:32
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.blp:32
 msgid "Recursive"
 msgstr "Recursivo"
 
@@ -250,48 +250,48 @@ msgstr "Sem ordenação"
 msgid "No preset"
 msgstr "Sem predefinição"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
+#: niepce-main/src/niepce/ui/dialogs/import.blp:14
 msgid "Import images"
 msgstr "Importar imagens"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
+#: niepce-main/src/niepce/ui/dialogs/import.blp:23
 msgid "_Import"
 msgstr "_Importar"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
+#: niepce-main/src/niepce/ui/dialogs/import.blp:64
 msgid "_Images to import"
 msgstr "_Imagens para importar"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:87
+#: niepce-main/src/niepce/ui/dialogs/import.blp:87
 msgid "Destination _Folder:"
 msgstr "Pas_ta de destino:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:117
+#: niepce-main/src/niepce/ui/dialogs/import.blp:117
 msgid "_Date Sorting:"
 msgstr "Ordem de _data:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:129
+#: niepce-main/src/niepce/ui/dialogs/import.blp:129
 msgid "_Options"
 msgstr "_Opções"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:159
+#: niepce-main/src/niepce/ui/dialogs/import.blp:159
 msgid "Presets:"
 msgstr "Predefinições:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:178
+#: niepce-main/src/niepce/ui/dialogs/import.blp:178
 msgid "You can still change this after importing the pictures."
 msgstr "Você ainda poderá alterar isto após importar as imagens."
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
+#: niepce-main/src/niepce/ui/dialogs/import.blp:195
 #: niepce-main/src/niepce/ui/metadata_pane_controller.rs:68
 msgid "Date:"
 msgstr "Data:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:218
+#: niepce-main/src/niepce/ui/dialogs/import.blp:218
 msgid "Attributes:"
 msgstr "Atributos:"
 
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
+#: niepce-main/src/niepce/ui/dialogs/import.blp:227
 msgid "Metadata"
 msgstr "Metadados"
 
@@ -328,19 +328,19 @@ msgstr "Importação em andamento"
 msgid "All done"
 msgstr "Tudo pronto"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:16
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:16
 msgid "_Reopen Catalog"
 msgstr "_Reabrir catálogo"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:20
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:20
 msgid "Write XMP automatically (not recommended)"
 msgstr "Escrever XMP automaticamente (não recomendado)"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:23
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:23
 msgid "Use dark interface"
 msgstr "Utilizar interface escura"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:31
 msgid "Preferences"
 msgstr "Preferências"
 

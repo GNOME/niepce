@@ -116,18 +116,18 @@ msgstr "İçe aktarılıyor"
 msgid "All done"
 msgstr "Tümü bitti"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:16
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:16
 msgid "_Reopen Catalog"
 msgstr "Katoloğu _Yeniden Aç"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:20
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:20
 msgid "Write XMP automatically (not recommended)"
 msgstr "Kendiliğinden XMP yaz (önerilmez)"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:23
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:23
 msgid "Use dark interface"
 msgstr "Koyu arayüz kullan"
 
-#: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
+#: niepce-main/src/niepce/ui/dialogs/preferences_dialog.blp:31
 msgid "Preferences"
 msgstr "Tercihler"
