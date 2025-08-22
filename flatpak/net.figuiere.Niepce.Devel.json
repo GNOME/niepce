@@ -41,19 +41,6 @@
     ],
     "modules": [
         {
-            "name": "libusb",
-            "config-opts": [
-                "--disable-udev"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://github.com/libusb/libusb/releases/download/v1.0.22/libusb-1.0.22.tar.bz2",
-                    "sha256": "75aeb9d59a4fdb800d329a545c2e6799f732362193b465ea198f2aa275518157"
-                }
-            ]
-        },
-        {
             "name": "libgphoto2",
             "cleanup": [
                 "/bin",
@@ -62,8 +49,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.31/libgphoto2-2.5.31.tar.xz",
-                    "sha256": "8fc7bf40f979459509b87dd4ff1aae9b6c1c2b4724d37db576081eec15406ace"
+                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.32/libgphoto2-2.5.32.tar.xz",
+                    "sha256": "495a347be21b8f970607a81e739aa91513a8479cbd73b79454a339c73e2b860e"
                 }
             ]
         },
@@ -79,8 +66,8 @@
             "sources": [
                 {
                     "type" : "archive",
-                    "url" : "http://www.libraw.org/data/LibRaw-0.21.1.tar.gz",
-                    "sha256" : "630a6bcf5e65d1b1b40cdb8608bdb922316759bfb981c65091fec8682d1543cd"
+                    "url" : "http://www.libraw.org/data/LibRaw-0.21.4.tar.gz",
+                    "sha256" : "6be43f19397e43214ff56aab056bf3ff4925ca14012ce5a1538a172406a09e63"
                 }
             ]
         },
@@ -103,8 +90,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://github.com/Exiv2/exiv2/archive/refs/tags/v0.28.2.tar.gz",
-                    "sha256": "543bead934135f20f438e0b6d8858c55c5fcb7ff80f5d1d55489965f1aad58b9"
+                    "url": "https://github.com/Exiv2/exiv2/archive/refs/tags/v0.28.5.tar.gz",
+                    "sha256": "e1671f744e379a87ba0c984617406fdf8c0ad0c594e5122f525b2fb7c28d394d"
                 }
             ]
         },
@@ -120,8 +107,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/gexiv2/0.14/gexiv2-0.14.2.tar.xz",
-                    "sha256": "2a0c9cf48fbe8b3435008866ffd40b8eddb0667d2212b42396fdf688e93ce0be"
+                    "url": "https://download.gnome.org/sources/gexiv2/0.14/gexiv2-0.14.6.tar.xz",
+                    "sha256": "606c28aaae7b1f3ef5c8eabe5e7dffd7c5a1c866d25b7671fb847fe287a72b8b"
                 }
             ]
         },
