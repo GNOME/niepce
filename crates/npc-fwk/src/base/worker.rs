@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/base/worker.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,12 @@
 
 use std::sync::mpsc;
 
+#[derive(PartialEq)]
+pub enum Status {
+    Continue,
+    Stop,
+}
+
 /// WorkerImpl trait for a worker. All you need is a message type
 /// and the dispatch method to for each message.
 pub trait WorkerImpl: Send {
@@ -29,12 +35,17 @@ pub trait WorkerImpl: Send {
         Self::State::default()
     }
     /// Dispatch message, and return true to continue.
-    fn dispatch(&self, msg: Self::Message, state: &mut Self::State) -> bool;
+    fn dispatch(&self, msg: Self::Message, state: &mut Self::State) -> Status;
 }
 
-/// Generic worker.
+/// Generic worker. Create a thread to which you send messages to perform
+/// tasks.
+///
+/// The dispatch functions should return `false` to terminate the
+/// worker. Closing all senders will also terminate the worker.
+///
 /// ```
-/// use npc_fwk::base::{Worker, WorkerImpl};
+/// use npc_fwk::base::{Worker, WorkerImpl, WorkerStatus};
 ///
 /// enum SomeMessage {
 ///     One,
@@ -47,12 +58,12 @@ pub trait WorkerImpl: Send {
 ///     type Message = SomeMessage;
 ///     type State = Option<()>;
 ///
-///     fn dispatch(&self, msg: Self::Message, state: &mut Self::State) -> bool {
+///     fn dispatch(&self, msg: Self::Message, state: &mut Self::State) -> WorkerStatus {
 ///         match msg {
 ///             SomeMessage::One => {}
 ///         }
 ///
-///         true
+///         WorkerStatus::Continue
 ///     }
 /// }
 ///
@@ -81,7 +92,7 @@ impl<I: WorkerImpl + 'static> Worker<I> {
                 .spawn(move || {
                     let mut state = worker_impl.new_state();
                     while let Ok(msg) = receiver.recv() {
-                        if !worker_impl.dispatch(msg, &mut state) {
+                        if worker_impl.dispatch(msg, &mut state) == Status::Stop {
                             break;
                         }
                     }
