@@ -97,9 +97,14 @@ impl ImportBackend for DirectoryImporter {
     fn list_source_content(&self, executor: &Executor, source: &str, callback: SourceContentReady) {
         let source = source.to_string();
         let recursive = self.recursive;
+        let terminate = executor.terminator();
         executor.run(move || {
-            let files =
-                FileList::files_from_directory(source.clone(), FileList::file_is_media, recursive);
+            let files = FileList::files_from_directory(
+                source.clone(),
+                FileList::file_is_media,
+                recursive,
+                Some(&terminate),
+            );
             dbg_out!("files size: {}", files.0.len());
             let content = files
                 .0
@@ -173,7 +178,8 @@ impl ImportBackend for DirectoryImporter {
                     })
             );
         } else {
-            let files = FileList::files_from_directory(request.source(), |_| true, self.recursive);
+            let files =
+                FileList::files_from_directory(request.source(), |_| true, self.recursive, None);
             callback(&std::path::PathBuf::from(request.source()), &files);
         }
     }
