@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/base.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,4 +44,5 @@ pub use path_tree::{PathTree, PathTreeItem};
 pub use propertyvalue::PropertyValue;
 pub use rgbcolour::RgbColour;
 pub use signals::Signal;
+pub use worker::Status as WorkerStatus;
 pub use worker::{Worker, WorkerImpl};

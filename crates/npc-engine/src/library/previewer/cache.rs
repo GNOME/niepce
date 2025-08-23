@@ -24,7 +24,7 @@ use std::sync::mpsc::SyncSender;
 
 use super::RenderParams;
 use crate::catalog;
-use npc_fwk::base::{Worker, WorkerImpl};
+use npc_fwk::base::{Worker, WorkerImpl, WorkerStatus};
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
 /// Schema version for the cache
@@ -227,7 +227,7 @@ impl WorkerImpl for DbWorker {
     type Message = DbMessage;
     type State = Option<()>;
 
-    fn dispatch(&self, msg: Self::Message, _: &mut Self::State) -> bool {
+    fn dispatch(&self, msg: Self::Message, _: &mut Self::State) -> WorkerStatus {
         match msg {
             DbMessage::Init(p) => {
                 on_err_out!(self.initialize(&p));
@@ -243,7 +243,7 @@ impl WorkerImpl for DbWorker {
             }
         };
 
-        true
+        WorkerStatus::Continue
     }
 }
 

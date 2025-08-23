@@ -24,7 +24,7 @@ use npc_fwk::gdk_pixbuf;
 
 use npc_engine::catalog;
 use npc_engine::library::{RenderMsg, RenderParams};
-use npc_fwk::base::{Worker, WorkerImpl};
+use npc_fwk::base::{Worker, WorkerImpl, WorkerStatus};
 use npc_fwk::dbg_out;
 use npc_fwk::toolkit::ImageBitmap;
 
@@ -72,7 +72,7 @@ impl WorkerImpl for RenderImpl {
     type Message = RenderMsg;
     type State = RendererState;
 
-    fn dispatch(&self, msg: Self::Message, state: &mut RendererState) -> bool {
+    fn dispatch(&self, msg: Self::Message, state: &mut RendererState) -> WorkerStatus {
         use RenderMsg::*;
         match msg {
             SetImage(file) => {
@@ -112,7 +112,7 @@ impl WorkerImpl for RenderImpl {
             }
         };
 
-        true
+        WorkerStatus::Continue
     }
 }
 
