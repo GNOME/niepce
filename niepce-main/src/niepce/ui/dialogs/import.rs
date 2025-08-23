@@ -471,6 +471,9 @@ impl ImportDialog {
         if let Some(importer) = self.importer()
             && let Some(source) = source
         {
+            if let Some(widgets) = self.widgets.get() {
+                widgets.preview_spinner.start();
+            }
             let sender = self.sender();
             importer.list_source_content(
                 &self.list_task,
