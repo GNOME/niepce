@@ -23,6 +23,7 @@ use std::collections::BTreeSet;
 pub mod debug;
 
 pub mod date;
+mod executor;
 pub mod fractions;
 mod geometry;
 mod indexed_map;
@@ -37,6 +38,7 @@ mod worker;
 pub type PropertyIndex = u32;
 pub type PropertySet<T> = BTreeSet<T>;
 
+pub use executor::Executor;
 pub use geometry::{Rect, Size};
 pub use indexed_map::IndexedMap;
 pub use moniker::Moniker;
