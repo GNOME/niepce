@@ -83,7 +83,12 @@ impl FileList {
     ///
     /// `filter` is a function that will return `true` for files to keep
     /// `recursive` list the content recursively.
-    pub fn files_from_directory<P, F>(dir: P, filter: F, recursive: bool) -> Self
+    pub fn files_from_directory<P, F>(
+        dir: P,
+        filter: F,
+        recursive: bool,
+        terminate: Option<&dyn Fn() -> bool>,
+    ) -> Self
     where
         P: AsRef<Path>,
         F: Fn(&Path) -> bool + 'static,
@@ -107,7 +112,19 @@ impl FileList {
                 .map(|s| s.starts_with('.'))
                 .unwrap_or(false)
         })
+        .take_while(|_| {
+            if let Some(terminate) = terminate {
+                return !terminate();
+            }
+            true
+        })
         .flatten()
+        .take_while(|_| {
+            if let Some(terminate) = terminate {
+                return !terminate();
+            }
+            true
+        })
         .filter_map(|entry| {
             let ftype = entry.file_type();
             if (ftype.is_file() || ftype.is_symlink()) && filter(entry.path()) {
@@ -179,11 +196,11 @@ mod tests {
         let file3 = root_p.join("3");
         assert!(fs::write(file3, "three").is_ok());
 
-        let files = FileList::files_from_directory("foo", |_| true, false);
+        let files = FileList::files_from_directory("foo", |_| true, false, None);
 
         assert_eq!(files.len(), 0);
 
-        let files = FileList::files_from_directory(&root_p, |_| true, false);
+        let files = FileList::files_from_directory(&root_p, |_| true, false, None);
         println!("files {files:?}");
         assert_eq!(files.len(), 3);
 

@@ -209,7 +209,8 @@ impl Importer {
         format: DatePathFormat,
         recursive: bool,
     ) -> Vec<(PathBuf, PathBuf)> {
-        let entries = FileList::files_from_directory(source, FileList::file_is_media, recursive);
+        let entries =
+            FileList::files_from_directory(source, FileList::file_is_media, recursive, None);
         let bundles = FileBundle::filter_bundles(&entries);
         bundles
             .iter()
