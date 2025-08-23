@@ -4,7 +4,7 @@
 #[macro_export]
 macro_rules! on_err_out {
     ($e:expr) => {
-        if let Err(err) = $e {
+        if let Err(ref err) = $e {
             $crate::err_out!(
                 "{}:{} Error '{}': {:?}",
                 file!(),
