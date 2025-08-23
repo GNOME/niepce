@@ -45,6 +45,7 @@ use crate::niepce::ui::{ImageGridView, MetadataPaneController};
 use dest_folders::DestFoldersIn;
 use npc_engine::importer::{DatePathFormat, ImportBackend, ImportRequest, ImportedFile, Importer};
 use npc_engine::libraryclient::LibraryClient;
+use npc_fwk::base::Executor;
 use npc_fwk::toolkit::{
     self, Controller, ControllerImplCell, DialogController, ListViewRow, Receiver, Sender,
     Thumbnail, UiController,
@@ -159,6 +160,9 @@ pub struct ImportDialog {
     state: RefCell<State>,
     // map images name to position in list store.
     images_list_map: RefCell<HashMap<String, DestEntry>>,
+
+    list_task: Executor,
+    thumbnail_task: Executor,
 }
 
 impl Controller for ImportDialog {
@@ -383,6 +387,8 @@ impl ImportDialog {
             widgets: OnceCell::new(),
             state: RefCell::new(state),
             images_list_map: RefCell::default(),
+            list_task: Executor::new("list content".into()),
+            thumbnail_task: Executor::new("import thumbnailing".into()),
         });
 
         <Self as DialogController>::start(&dialog);
@@ -467,6 +473,7 @@ impl ImportDialog {
         {
             let sender = self.sender();
             importer.list_source_content(
+                &self.list_task,
                 source,
                 Box::new(move |files| {
                     npc_fwk::send_async_any!(Event::AppendFiles(files), sender);
@@ -586,6 +593,7 @@ impl ImportDialog {
         {
             let sender = self.sender();
             importer.get_previews_for(
+                &self.thumbnail_task,
                 source,
                 paths,
                 Box::new(move |path, thumbnail, date| {

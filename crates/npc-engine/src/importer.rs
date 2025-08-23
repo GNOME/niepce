@@ -35,6 +35,7 @@ use std::rc::Rc;
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::catalog::filebundle::FileBundle;
+use npc_fwk::base::Executor;
 use npc_fwk::glib;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
 use npc_fwk::utils::FileList;
@@ -123,10 +124,16 @@ pub trait ImportBackend {
 
     /// List the source content. If possible this should be spawning a
     /// thread. `callback` well be run on that thread.
-    fn list_source_content(&self, source: &str, callback: SourceContentReady);
+    fn list_source_content(&self, executor: &Executor, source: &str, callback: SourceContentReady);
     /// Fetch the previews. If possible this should be spawning a thread. `callback`
     /// will be run on that thread.
-    fn get_previews_for(&self, source: &str, paths: Vec<String>, callback: PreviewReady);
+    fn get_previews_for(
+        &self,
+        executor: &Executor,
+        source: &str,
+        paths: Vec<String>,
+        callback: PreviewReady,
+    );
 
     /// Do the import. This just copy (if needed) the files to the destination
     /// and call `callback` that should perform the import into the library.

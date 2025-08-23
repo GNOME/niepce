@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/importer/directory_importer.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 use std::path::Path;
 
+use npc_fwk::base::{Executor, WorkerStatus};
 use npc_fwk::utils::FileList;
 use npc_fwk::{Date, XmpMeta, dbg_out, err_out, on_err_out};
 
@@ -93,50 +94,50 @@ impl ImportBackend for DirectoryImporter {
     }
 
     /// List the source content
-    fn list_source_content(&self, source: &str, callback: SourceContentReady) {
+    fn list_source_content(&self, executor: &Executor, source: &str, callback: SourceContentReady) {
         let source = source.to_string();
         let recursive = self.recursive;
-        on_err_out!(
-            std::thread::Builder::new()
-                .name("dir import list source".to_string())
-                .spawn(move || {
-                    let files =
-                        FileList::files_from_directory(source, FileList::file_is_media, recursive);
-                    dbg_out!("files size: {}", files.0.len());
-                    let content = files
-                        .0
-                        .iter()
-                        .map(|path| DirectoryImportedFile::new_dyn(path))
-                        .collect();
+        executor.run(move || {
+            let files =
+                FileList::files_from_directory(source.clone(), FileList::file_is_media, recursive);
+            dbg_out!("files size: {}", files.0.len());
+            let content = files
+                .0
+                .iter()
+                .map(|path| DirectoryImportedFile::new_dyn(path))
+                .collect();
 
-                    callback(content);
-                })
-        );
+            callback(content);
+            WorkerStatus::Stop
+        });
     }
 
     /// Fetch the previews
-    fn get_previews_for(&self, _source: &str, paths: Vec<String>, callback: PreviewReady) {
-        on_err_out!(
-            std::thread::Builder::new()
-                .name("dir import get previews".to_string())
-                .spawn(move || {
-                    for path in paths {
-                        dbg_out!("path {}", path);
-                        let xmp = XmpMeta::new_from_file(&path, false);
-                        let date = xmp.as_ref().and_then(|xmp| xmp.creation_date());
-                        let orientation =
-                            xmp.as_ref().and_then(|xmp| xmp.orientation()).unwrap_or(1);
-                        let thumbnail = npc_fwk::toolkit::Thumbnail::thumbnail_file(
-                            &path,
-                            160,
-                            160,
-                            orientation as u32,
-                        );
-                        callback(Some(path.to_string()), thumbnail, date);
-                    }
-                    callback(None, None, None)
-                })
-        );
+    fn get_previews_for(
+        &self,
+        executor: &Executor,
+        _source: &str,
+        paths: Vec<String>,
+        callback: PreviewReady,
+    ) {
+        let terminate = executor.terminator();
+        executor.run(move || {
+            for path in &paths {
+                dbg_out!("path {}", path);
+                let xmp = XmpMeta::new_from_file(path, false);
+                let date = xmp.as_ref().and_then(|xmp| xmp.creation_date());
+                let orientation = xmp.as_ref().and_then(|xmp| xmp.orientation()).unwrap_or(1);
+                let thumbnail =
+                    npc_fwk::toolkit::Thumbnail::thumbnail_file(path, 160, 160, orientation as u32);
+                callback(Some(path.to_string()), thumbnail, date);
+                if terminate() {
+                    err_out!("Terminated thumbnailing");
+                    break;
+                }
+            }
+            callback(None, None, None);
+            WorkerStatus::Stop
+        });
     }
 
     /// Do the import
