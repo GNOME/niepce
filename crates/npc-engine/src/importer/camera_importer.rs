@@ -23,6 +23,7 @@ use super::{
     DirectoryImporter, FileImporter, ImportBackend, ImportRequest, ImportedFile, PreviewReady,
     SourceContentReady,
 };
+use npc_fwk::base::{Executor, WorkerStatus};
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
 use npc_fwk::utils::{FileList, exiv2};
 use npc_fwk::{Date, dbg_out, err_out, on_err_out};
@@ -105,9 +106,21 @@ impl CameraImporter {
     }
 
     /// List the content for the `camera` and return the list.
-    fn list_content_for_camera(camera: &GpCamera) -> Vec<Box<dyn ImportedFile>> {
+    fn list_content_for_camera(
+        terminate: Option<&dyn Fn() -> bool>,
+        camera: &GpCamera,
+    ) -> Vec<Box<dyn ImportedFile>> {
         camera
-            .list_content()
+            .list_content(|| {
+                if let Some(terminate) = terminate
+                    && terminate()
+                {
+                    dbg_out!("Terminated listing content");
+                    true
+                } else {
+                    false
+                }
+            })
             .iter()
             .map(|item| CameraImportedFile::new_dyn(&item.folder, &item.name))
             .collect()
@@ -115,8 +128,13 @@ impl CameraImporter {
 
     // Just get the camera file previews.
     // Called on a separate thread.
-    fn camera_previews(camera: GpCamera, paths: Vec<String>, callback: PreviewReady) {
-        paths.iter().for_each(|path| {
+    fn camera_previews(
+        terminate: &dyn Fn() -> bool,
+        camera: &GpCamera,
+        paths: &[String],
+        callback: &PreviewReady,
+    ) {
+        paths.iter().take_while(|_| !terminate()).for_each(|path| {
             if let Some(last_slash) = path.rfind('/') {
                 let name = &path[last_slash + 1..];
                 let folder = &path[..last_slash];
@@ -150,41 +168,43 @@ impl ImportBackend for CameraImporter {
         "CameraImporter"
     }
 
-    fn list_source_content(&self, source: &str, callback: SourceContentReady) {
+    fn list_source_content(&self, executor: &Executor, source: &str, callback: SourceContentReady) {
         match self.ensure_camera_open(source) {
             CameraBackend::Gphoto2(camera) => {
-                on_err_out!(
-                    std::thread::Builder::new()
-                        .name("camera import list source".to_string())
-                        .spawn(move || {
-                            let file_list = Self::list_content_for_camera(&camera);
-                            callback(file_list);
-                        })
-                );
+                let terminate = executor.terminator();
+                executor.run(move || {
+                    let file_list = Self::list_content_for_camera(Some(&terminate), &camera);
+                    callback(file_list);
+                    WorkerStatus::Stop
+                });
             }
             CameraBackend::File => {
                 if let Some(ref backend) = *self.file_backend.borrow() {
-                    backend.list_source_content(&source[5..], callback);
+                    backend.list_source_content(executor, &source[5..], callback);
                 }
             }
             CameraBackend::Error => {}
         }
     }
 
-    fn get_previews_for(&self, source: &str, paths: Vec<String>, callback: PreviewReady) {
+    fn get_previews_for(
+        &self,
+        executor: &Executor,
+        source: &str,
+        paths: Vec<String>,
+        callback: PreviewReady,
+    ) {
         match self.ensure_camera_open(source) {
             CameraBackend::Gphoto2(camera) => {
-                on_err_out!(
-                    std::thread::Builder::new()
-                        .name("camera import get previews".to_string())
-                        .spawn(move || {
-                            Self::camera_previews(camera, paths, callback);
-                        })
-                );
+                let terminate = executor.terminator();
+                executor.run(move || {
+                    Self::camera_previews(&terminate, &camera, &paths, &callback);
+                    WorkerStatus::Stop
+                });
             }
             CameraBackend::File => {
                 if let Some(ref backend) = *self.file_backend.borrow() {
-                    backend.get_previews_for(&source[5..], paths, callback)
+                    backend.get_previews_for(executor, &source[5..], paths, callback)
                 }
             }
             CameraBackend::Error => {}
@@ -199,7 +219,7 @@ impl ImportBackend for CameraImporter {
                     std::thread::Builder::new()
                         .name("camera import".to_string())
                         .spawn(move || {
-                            let file_list = Self::list_content_for_camera(&camera);
+                            let file_list = Self::list_content_for_camera(None, &camera);
                             // XXX we likely need to handle this error better
                             on_err_out!(std::fs::create_dir_all(&dest_dir));
                             let files = file_list

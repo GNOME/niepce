@@ -163,7 +163,10 @@ impl GpCamera {
     }
 
     /// List the content of the camera (DCIM only).
-    pub fn list_content(&self) -> Vec<CameraContent> {
+    pub fn list_content<F>(&self, terminate: F) -> Vec<CameraContent>
+    where
+        F: Fn() -> bool,
+    {
         self.camera
             .as_ref()
             .map(|camera| {
@@ -184,10 +187,11 @@ impl GpCamera {
                 // List the content of each root folders, and flatten.
                 root_folders
                     .iter()
+                    .take_while(|_| !terminate())
                     .flat_map(|root_folder| {
                         println!("processing root folder {root_folder}");
                         let fs = camera.fs();
-                        self.get_folders(&fs, root_folder)
+                        self.get_folders(&fs, root_folder, &terminate)
                     })
                     .collect()
             })
@@ -195,11 +199,15 @@ impl GpCamera {
     }
 
     /// Recursively get the folders from `root_folder`
-    fn get_folders(
+    fn get_folders<F>(
         &self,
         fs: &gphoto2::filesys::CameraFS,
         root_folder: &str,
-    ) -> Vec<CameraContent> {
+        terminate: &F,
+    ) -> Vec<CameraContent>
+    where
+        F: Fn() -> bool,
+    {
         trace_out!("get_folders {root_folder}");
         fs.list_folders(root_folder)
             .wait()
@@ -208,11 +216,10 @@ impl GpCamera {
                     dbg_out!("Found folder '{}'", &name);
                     root_folder.to_owned() + "/" + &name
                 })
-                .collect::<Vec<_>>()
-                .iter()
+                .take_while(|_| !terminate())
                 .flat_map(|folder| {
-                    let mut content = self.process_folder(fs, folder);
-                    let sub_content = self.get_folders(fs, folder);
+                    let mut content = self.process_folder(fs, &folder);
+                    let sub_content = self.get_folders(fs, &folder, terminate);
                     content.extend(sub_content);
                     content
                 })
