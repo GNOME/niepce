@@ -3,7 +3,12 @@
     "buildsystem": "cmake-ninja",
     "builddir": true,
     "config-opts": [
-        "-DWITH_GDK_PIXBUF=OFF"
+        "-DWITH_GDK_PIXBUF=OFF",
+        "-DWITH_LIBDE265_PLUGIN=ON",
+        "-DWITH_X265_PLUGIN=ON",
+        "-DWITH_JPEG_DECODER_PLUGIN=ON",
+        "-DWITH_OpenJPEG_DECODER_PLUGIN=ON",
+        "-DENABLE_PLUGIN_LOADING=ON"
     ],
     "cleanup": [
         "/bin",
@@ -123,8 +128,8 @@
     "sources": [
         {
             "type": "archive",
-            "url": "https://github.com/strukturag/libheif/releases/download/v1.17.3/libheif-1.17.3.tar.gz",
-            "sha256": "8d5b6292e7931324f81f871f250ecbb9f874aa3c66b4f6f35ceb0bf3163b53ea"
+            "url": "https://github.com/strukturag/libheif/releases/download/v1.20.2/libheif-1.20.2.tar.gz",
+            "sha256": "68ac9084243004e0ef3633f184eeae85d615fe7e4444373a0a21cebccae9d12a"
         }
     ]
 }
