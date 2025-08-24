@@ -131,9 +131,12 @@ impl ImportBackend for DirectoryImporter {
                 dbg_out!("path {}", path);
                 let xmp = XmpMeta::new_from_file(path, false);
                 let date = xmp.as_ref().and_then(|xmp| xmp.creation_date());
-                let orientation = xmp.as_ref().and_then(|xmp| xmp.orientation()).unwrap_or(1);
+                let orientation = xmp
+                    .as_ref()
+                    .and_then(|xmp| xmp.orientation())
+                    .map(|orientation| orientation as u32);
                 let thumbnail =
-                    npc_fwk::toolkit::Thumbnail::thumbnail_file(path, 160, 160, orientation as u32);
+                    npc_fwk::toolkit::Thumbnail::thumbnail_file(path, 160, 160, orientation);
                 callback(Some(path.to_string()), thumbnail, date);
                 if terminate() {
                     err_out!("Terminated thumbnailing");
