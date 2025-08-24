@@ -133,6 +133,50 @@
         },
         "heif.json",
         {
+            "name": "lensfun",
+            "buildsystem": "cmake-ninja",
+            "config-opts": [
+                "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+                "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+            ],
+            "build-options": {
+                "arch": {
+                    "x86_64": {
+                        "config-opts": [
+                            "-DBUILD_FOR_SSE=1",
+                            "-DBUILD_FOR_SSE2=1"
+                        ]
+                    }
+                }
+            },
+            "cleanup": [
+                "/lib/python3.*",
+                "/bin"
+            ],
+            "post-install": [
+                "python3 lensfun_convert_db.py $PWD lensfun-git/data/db",
+                "rm -rf /app/share/lensfun/version_1/*",
+                "tar xvf db/version_1.tar -C /app/share/lensfun/version_1"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/lensfun/lensfun/archive/refs/tags/v0.3.3.tar.gz",
+                    "sha256": "57ba5a0377f24948972339e18be946af12eda22b7c707eb0ddd26586370f6765"
+                },
+                {
+                    "type": "file",
+                    "path": "lensfun_convert_db.py"
+                },
+                {
+                    "type": "git",
+                    "dest": "lensfun-git",
+                    "url": "https://github.com/lensfun/lensfun.git",
+                    "commit": "fcbfbf38e5c297fc5595705c2e61ff5b3eaeb9d9"
+                }
+            ]
+        },
+        {
             "name": "gegl",
             "buildsystem": "meson",
             "cleanup": [
@@ -305,25 +349,6 @@
                     "commands": [
                         "cp -p /usr/share/automake-*/config.{sub,guess} ."
                     ]
-                }
-            ]
-        },
-        {
-            "name": "lensfun",
-            "buildsystem": "cmake-ninja",
-            "builddir": true,
-            "config-opts": [
-                "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
-                "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
-            ],
-            "cleanup": [
-                "/bin"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://github.com/lensfun/lensfun/archive/refs/tags/v0.3.3.tar.gz",
-                    "sha256": "57ba5a0377f24948972339e18be946af12eda22b7c707eb0ddd26586370f6765"
                 }
             ]
         },
