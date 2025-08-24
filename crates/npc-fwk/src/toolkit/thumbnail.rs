@@ -105,7 +105,7 @@ impl Thumbnail {
         filename: P,
         w: u32,
         h: u32,
-        orientation: u32,
+        orientation: Option<u32>,
     ) -> Option<Self> {
         let decoder = image::ImageReader::open(filename)
             .inspect_err(|err| err_out!("Error opening image for thumbnail: {err}"))
@@ -117,7 +117,10 @@ impl Thumbnail {
             .inspect_err(|err| err_out!("Error decoding image for thumbnail: {err}"))
             .map(|buf| buf.thumbnail(w, h))
             .map(|mut buf| {
-                let orientation = image::metadata::Orientation::from_exif(orientation as u8)
+                let orientation = orientation
+                    .and_then(|orientation| {
+                        image::metadata::Orientation::from_exif(orientation as u8)
+                    })
                     .unwrap_or(image::metadata::Orientation::NoTransforms);
                 buf.apply_orientation(orientation);
                 buf
@@ -131,7 +134,7 @@ impl Thumbnail {
         filename: P,
         w: u32,
         h: u32,
-        orientation: u32,
+        orientation: Option<u32>,
     ) -> Option<Self> {
         let dim = cmp::max(w, h);
         or::rawfile_from_file(filename, None)
@@ -162,9 +165,11 @@ impl Thumbnail {
                 pixbuf
                     .map(|buf| buf.thumbnail(w, h))
                     .map(|mut buf| {
-                        let orientation =
-                            image::metadata::Orientation::from_exif(orientation as u8)
-                                .unwrap_or(image::metadata::Orientation::NoTransforms);
+                        let orientation = orientation
+                            .and_then(|orientation| {
+                                image::metadata::Orientation::from_exif(orientation as u8)
+                            })
+                            .unwrap_or(image::metadata::Orientation::NoTransforms);
                         buf.apply_orientation(orientation);
                         buf
                     })
@@ -177,7 +182,7 @@ impl Thumbnail {
         path: P,
         w: u32,
         h: u32,
-        orientation: u32,
+        orientation: Option<u32>,
     ) -> Option<Self> {
         let filename = path.as_ref();
         let mime_type = MimeType::new(filename);

@@ -202,7 +202,7 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
         libfile.path(),
         dimensions.w,
         dimensions.h,
-        libfile.orientation(),
+        Some(libfile.orientation()),
     );
     if let Some(ref thumbnail) = thumbnail {
         thumbnail.save(&dest, "png");

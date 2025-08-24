@@ -34,14 +34,18 @@ pub fn extract_rotated_thumbnail<P: AsRef<Path>>(
     filename: P,
     w: u32,
     h: u32,
-    orientation: u32,
+    orientation: Option<u32>,
 ) -> Result<Thumbnail> {
-    dbg_out!("HEIF thumbnail size = {w}x{h}");
+    dbg_out!("HEIF thumbnail size = {w}x{h} <> {orientation:?}");
     // This always returns a rotated thumbnail
-    thumbnail_heif(filename, w, h)
+    let ctx = HeifContext::read_from_file(filename.as_ref().to_str().ok_or(anyhow!("filename"))?)?;
+    let handle = ctx.primary_image_handle()?;
+
+    thumbnail_heif(&handle, w, h, orientation.is_none())
         .map(|buf| buf.thumbnail(w, h))
         .map(|mut buf| {
-            let orientation = image::metadata::Orientation::from_exif(orientation as u8)
+            let orientation = orientation
+                .and_then(|orientation| image::metadata::Orientation::from_exif(orientation as u8))
                 .unwrap_or(image::metadata::Orientation::NoTransforms);
             buf.apply_orientation(orientation);
             buf
@@ -49,29 +53,47 @@ pub fn extract_rotated_thumbnail<P: AsRef<Path>>(
         .map(Thumbnail::from)
 }
 
-fn thumbnail_heif<P: AsRef<Path>>(filename: P, w: u32, h: u32) -> Result<image::DynamicImage> {
+fn thumbnail_heif(
+    handle: &ImageHandle,
+    w: u32,
+    h: u32,
+    rotate: bool,
+) -> Result<image::DynamicImage> {
     let size = std::cmp::max(w, h);
-    let ctx = HeifContext::read_from_file(filename.as_ref().to_str().ok_or(anyhow!("filename"))?)?;
-    let handle = ctx.primary_image_handle()?;
 
     let count = handle.number_of_thumbnails();
     dbg_out!("num of thumbnails {count}");
     if count > 0 {
         let mut ids = vec![0; count];
         let _count = handle.thumbnail_ids(&mut ids);
-        for id in ids {
-            if let Ok(thumbnail) = handle.thumbnail(id) {
-                let w = thumbnail.width();
-                let h = thumbnail.height();
-                dbg_out!("found thumbnail {}x{}", w, h);
-                if cmp::max(w, h) >= size {
-                    return image_from_heif_handle(&thumbnail);
-                }
+        let mut thumbnails = ids
+            .iter()
+            .filter_map(|id| {
+                dbg_out!("thumb id {id}");
+                handle.thumbnail(*id).ok().and_then(|thumbnail| {
+                    let w = thumbnail.width();
+                    let h = thumbnail.height();
+                    dbg_out!("found thumbnail {}x{}", w, h);
+                    let dim = cmp::max(w, h);
+                    if dim >= size {
+                        Some((dim, thumbnail))
+                    } else {
+                        None
+                    }
+                })
+            })
+            .collect::<Vec<_>>();
+        thumbnails.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+        for thumbnail in thumbnails {
+            let t = image_from_heif_handle(&thumbnail.1, rotate);
+            err_out!("thumbnail {} failed to decode.", thumbnail.0);
+            if t.is_ok() {
+                return t;
             }
         }
     }
 
-    image_from_heif_handle(&handle)
+    image_from_heif_handle(handle, rotate)
 }
 
 /// Return the main image from an HEIF as Pixbuf.
@@ -141,14 +163,16 @@ pub fn get_exif(file: &str) -> Result<Vec<u8>> {
 }
 
 /// Return the GdkPibuf from the handle
-fn image_from_heif_handle(handle: &ImageHandle) -> Result<image::DynamicImage> {
+fn image_from_heif_handle(handle: &ImageHandle, rotate: bool) -> Result<image::DynamicImage> {
     let lib_heif = LibHeif::new();
 
     let decoding_options = DecodingOptions::new().map(|mut options| {
-        options.set_ignore_transformations(true);
+        options.set_ignore_transformations(!rotate);
         options
     });
-    dbg_out!("Image decoded without transformations");
+    if !rotate {
+        dbg_out!("Image decoded without transformations");
+    }
     let image = lib_heif
         .decode(handle, ColorSpace::Rgb(RgbChroma::Rgb), decoding_options)
         .context("failed decoding")?;
