@@ -322,13 +322,15 @@ impl super::Pipeline for NcrPipeline {
             let graph = &self.state.borrow().graph;
             let graph = graph.as_ref().expect("Graph");
 
-            // XXX maybe suboptimal
+            // XXX maybe suboptimal but GEGL doesn't support HEIF
+            // XXX without bloat (image magick)
             let mime_type = MimeType::new(std::path::Path::new(path));
-            if matches!(mime_type.mime_type(), MType::Image(ImgFormat::Heif)) {
-                let pixbuf = npc_fwk::toolkit::heif::gdkpixbuf_from_heif(path).ok();
-                graph.new_child(Some("gegl:pixbuf"), &[("pixbuf", pixbuf.into())])
-            } else {
-                graph.new_child(Some("gegl:load"), &[("path", path.into())])
+            match mime_type.mime_type() {
+                MType::Image(ImgFormat::Heif) | MType::Image(ImgFormat::Avif) => {
+                    let pixbuf = npc_fwk::toolkit::heif::gdkpixbuf_from_heif(path).ok();
+                    graph.new_child(Some("gegl:pixbuf"), &[("pixbuf", pixbuf.into())])
+                }
+                _ => graph.new_child(Some("gegl:load"), &[("path", path.into())]),
             }
         } else {
             self.load_dcraw(path)
