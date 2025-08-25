@@ -21,8 +21,8 @@ use std::cmp;
 use std::convert::From;
 use std::path::Path;
 
+use crate::gdk4;
 use crate::glib;
-use crate::{gdk_pixbuf, gdk4};
 use image::{DynamicImage, ExtendedColorType, ImageReader};
 use libopenraw as or;
 use libopenraw::Bitmap;
@@ -86,11 +86,6 @@ impl Thumbnail {
     /// Get the height of the pixbuf. 0 if None
     pub fn get_height(&self) -> u32 {
         self.height
-    }
-
-    /// Make a gdk_pixbuf::Pixbuf out of the Thumbnail
-    pub fn make_pixbuf(&self) -> Option<gdk_pixbuf::Pixbuf> {
-        if self.ok() { Some(self.into()) } else { None }
     }
 
     /// Load the thumbnail. This is not a thumbnail. It's for the cache.
@@ -276,20 +271,5 @@ impl From<&Thumbnail> for gdk4::Texture {
             v.stride as usize,
         )
         .into()
-    }
-}
-
-impl From<&Thumbnail> for gdk_pixbuf::Pixbuf {
-    fn from(v: &Thumbnail) -> gdk_pixbuf::Pixbuf {
-        gdk_pixbuf::Pixbuf::from_bytes(
-            &glib::Bytes::from(&v.bytes),
-            // There is only one value for GdkPixbuf
-            gdk_pixbuf::Colorspace::Rgb,
-            v.has_alpha,
-            v.bits_per_sample,
-            v.width as i32,
-            v.height as i32,
-            v.stride,
-        )
     }
 }
