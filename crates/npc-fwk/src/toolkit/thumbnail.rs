@@ -187,16 +187,13 @@ impl Thumbnail {
         let filename = path.as_ref();
         let mime_type = MimeType::new(filename);
 
-        let mut pix: Option<gdk_pixbuf::Pixbuf> = None;
-
         if mime_type.is_unknown() {
             dbg_out!("unknown file type {:?}", filename);
         } else if mime_type.is_movie() {
             dbg_out!("video thumbnail");
-            pix = movieutils::thumbnail_movie(filename, w, h);
-            if pix.is_none() {
-                err_out!("exception thumbnailing video ");
-            }
+            return movieutils::thumbnail_movie(filename, w, h)
+                .map(Thumbnail::from)
+                .ok();
         } else if !mime_type.is_image() {
             dbg_out!("not an image type");
         } else if !mime_type.is_digicam_raw() {
@@ -223,7 +220,7 @@ impl Thumbnail {
             return Self::thumbnail_raw(filename, w, h, orientation);
         }
 
-        pix.map(Thumbnail::from)
+        None
     }
 }
 
