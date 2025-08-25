@@ -21,12 +21,12 @@
 
 use std::path::Path;
 
-use crate::{gdk_pixbuf, glib};
+use crate::glib;
+use anyhow::{Result, anyhow};
 use glib::prelude::*;
 use gstreamer as gst;
 use gstreamer::prelude::*;
-
-use crate::toolkit::gdk_utils::gdkpixbuf_scale_to_fit;
+use image::DynamicImage;
 
 /// Video thumbnailer using Gstreamer
 /// Largely inspired from totem thumbnailer.
@@ -81,46 +81,46 @@ impl Thumbnailer {
     }
 
     /// Get a the frame at the current seek position.
-    fn get_frame(&self) -> Option<gdk_pixbuf::Pixbuf> {
-        self.player.as_ref().and_then(|player| {
-            let is_gl = player.by_name("glcolorbalance0").is_some();
-            let to_caps = gst::Caps::builder("video/x-raw")
-                .field("format", if is_gl { "RGBA" } else { "RGB" })
-                .field("pixel-aspect-ratio", gst::Fraction::new(1, 1))
-                .build();
-            let sample: Option<gst::Sample> = player.emit_by_name("convert-sample", &[&to_caps]);
-            sample.and_then(|sample| {
-                let caps = sample.caps()?;
-                let s = caps.structure(0)?;
-                let out_w = s.get::<i32>("width").ok()?;
-                let out_h = s.get::<i32>("height").ok()?;
-                let bpp = if is_gl { 4 } else { 3 };
+    fn get_frame(&self) -> Result<DynamicImage> {
+        self.player
+            .as_ref()
+            .and_then(|player| {
+                let is_gl = player.by_name("glcolorbalance0").is_some();
+                let to_caps = gst::Caps::builder("video/x-raw")
+                    .field("format", if is_gl { "RGBA" } else { "RGB" })
+                    .field("pixel-aspect-ratio", gst::Fraction::new(1, 1))
+                    .build();
+                let sample: Option<gst::Sample> =
+                    player.emit_by_name("convert-sample", &[&to_caps]);
+                sample.and_then(|sample| {
+                    let caps = sample.caps()?;
+                    let s = caps.structure(0)?;
+                    let out_w = s.get::<i32>("width").ok()? as u32;
+                    let out_h = s.get::<i32>("height").ok()? as u32;
 
-                let bytes = glib::Bytes::from_owned(
-                    sample.buffer_owned()?.into_mapped_buffer_readable().ok()?,
-                );
-                let pixbuf = gdk_pixbuf::Pixbuf::from_bytes(
-                    &bytes,
-                    gdk_pixbuf::Colorspace::Rgb,
-                    is_gl,
-                    8,
-                    out_w,
-                    out_h,
-                    out_w * bpp,
-                );
-                Some(pixbuf)
+                    let buffer = sample
+                        .buffer_owned()?
+                        .into_mapped_buffer_readable()
+                        .ok()?
+                        .to_vec();
+                    Some(if is_gl {
+                        DynamicImage::ImageRgba8(image::RgbaImage::from_raw(out_w, out_h, buffer)?)
+                    } else {
+                        DynamicImage::ImageRgb8(image::RgbImage::from_raw(out_w, out_h, buffer)?)
+                    })
+                })
             })
-        })
+            .ok_or_else(|| anyhow!("Couldn't extract frame"))
     }
 
-    fn capture_frame_at(&self, milli: u64) -> Option<gdk_pixbuf::Pixbuf> {
+    fn capture_frame_at(&self, milli: u64) -> Result<DynamicImage> {
         if milli != 0 {
             self.seek(gst::ClockTime::from_mseconds(milli));
         }
         self.get_frame()
     }
 
-    fn capture_frame(&self, duration: Option<u64>) -> Option<gdk_pixbuf::Pixbuf> {
+    fn capture_frame(&self, duration: Option<u64>) -> Result<DynamicImage> {
         if duration.is_none() {
             self.capture_frame_at(0)
         } else {
@@ -141,7 +141,7 @@ impl Thumbnailer {
     ///
     /// # Panic
     /// Will panic if `self.player` is `None`.
-    fn thumbnail(&self, w: u32, h: u32) -> Option<gdk_pixbuf::Pixbuf> {
+    fn thumbnail(&self, w: u32, h: u32) -> Result<DynamicImage> {
         let player = self.player.as_ref().expect("player not initialised.");
 
         let _ = player.set_state(gst::State::Paused);
@@ -149,8 +149,7 @@ impl Thumbnailer {
         let mut async_received = false;
         let bus = player.bus();
         if bus.is_none() {
-            err_out!("Can't get bus");
-            return None;
+            return Err(anyhow!("Can't get bus"));
         }
         let bus = bus.unwrap();
         let events = [gst::MessageType::AsyncDone, gst::MessageType::Error];
@@ -175,27 +174,25 @@ impl Thumbnailer {
         }
 
         if !async_received {
-            err_out!("no async");
-            return None;
+            return Err(anyhow!("no async"));
         }
 
         let duration = self.duration();
-        gdkpixbuf_scale_to_fit(self.capture_frame(duration).as_ref(), std::cmp::max(w, h))
+        self.capture_frame(duration).map(|buf| buf.thumbnail(w, h))
     }
 }
 
 /// Thumbnail a move file at path.
 ///
 /// Returns an pixbuf on succes.
-pub fn thumbnail_movie<S>(source: S, w: u32, h: u32) -> Option<gdk_pixbuf::Pixbuf>
+pub fn thumbnail_movie<S>(source: S, w: u32, h: u32) -> Result<image::DynamicImage>
 where
     S: AsRef<Path> + std::fmt::Debug,
 {
     let thumbnailer = Thumbnailer::new(source);
 
     if !thumbnailer.is_ok() {
-        err_out!("Thumbnailer is not ok");
-        return None;
+        return Err(anyhow!("Thumbnailer is not ok"));
     }
     thumbnailer.thumbnail(w, h)
 }

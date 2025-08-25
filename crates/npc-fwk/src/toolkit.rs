@@ -25,7 +25,6 @@ mod configuration;
 pub mod confirm;
 #[macro_use]
 mod controller;
-pub mod gdk_utils;
 mod gphoto;
 pub mod gtk_utils;
 pub mod heif;
