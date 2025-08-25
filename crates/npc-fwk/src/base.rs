@@ -44,7 +44,7 @@ pub use indexed_map::IndexedMap;
 pub use moniker::Moniker;
 pub use path_tree::{PathTree, PathTreeItem};
 pub use propertyvalue::PropertyValue;
-pub use rgbcolour::RgbColour;
+pub use rgbcolour::{ColourSpace, RgbColour};
 pub use signals::Signal;
 pub use worker::Status as WorkerStatus;
 pub use worker::{Worker, WorkerImpl};

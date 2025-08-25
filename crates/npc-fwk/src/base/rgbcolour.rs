@@ -22,6 +22,12 @@ use std::str::FromStr;
 
 use crate::gdk4;
 
+/// ColourSpace.
+#[derive(Clone, Copy, Debug)]
+pub enum ColourSpace {
+    Rgb,
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct RgbColour {
     pub r: u16,
