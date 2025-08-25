@@ -24,7 +24,7 @@ use std::path::Path;
 use crate::glib;
 use crate::{gdk_pixbuf, gdk4};
 use gdk_pixbuf::Colorspace;
-use image::DynamicImage;
+use image::{DynamicImage, ExtendedColorType, ImageReader};
 use libopenraw as or;
 use libopenraw::Bitmap;
 
@@ -93,12 +93,30 @@ impl Thumbnail {
         if self.ok() { Some(self.into()) } else { None }
     }
 
-    pub fn save<P: AsRef<Path> + std::fmt::Debug>(&self, path: P, format: &str) {
-        if let Some(pixbuf) = &self.make_pixbuf() {
-            if let Err(err) = pixbuf.savev(&path, format, &[]) {
-                err_out!("Failed to save pixbuf {:?}: {}", &path, err);
-            }
-        }
+    /// Load the thumbnail. This is not a thumbnail. It's for the cache.
+    pub fn load<P: AsRef<Path>>(path: P) -> anyhow::Result<Self> {
+        Ok(Self::from(ImageReader::open(path)?.decode()?))
+    }
+
+    /// Save the thumnail as PNG.
+    pub fn save_png<P: AsRef<Path> + std::fmt::Debug>(&self, path: P) {
+        self.save(path, image::ImageFormat::Png)
+    }
+
+    fn save<P: AsRef<Path> + std::fmt::Debug>(&self, path: P, format: image::ImageFormat) {
+        assert_eq!(self.bits_per_sample, 8);
+        on_err_out!(image::save_buffer_with_format(
+            path,
+            &self.bytes,
+            self.width,
+            self.height,
+            if self.has_alpha {
+                ExtendedColorType::Rgba8
+            } else {
+                ExtendedColorType::Rgb8
+            },
+            format
+        ));
     }
 
     fn thumbnail_image<P: AsRef<Path>>(
@@ -221,27 +239,6 @@ impl Thumbnail {
         }
 
         None
-    }
-}
-
-impl From<gdk_pixbuf::Pixbuf> for Thumbnail {
-    fn from(pixbuf: gdk_pixbuf::Pixbuf) -> Self {
-        let bytes = pixbuf.read_pixel_bytes();
-        let width = pixbuf.width() as u32;
-        let height = pixbuf.height() as u32;
-        let stride = pixbuf.rowstride();
-        let bits_per_sample = pixbuf.bits_per_sample();
-        let colorspace = pixbuf.colorspace();
-        let has_alpha = pixbuf.has_alpha();
-        Self {
-            width,
-            height,
-            stride,
-            bits_per_sample,
-            colorspace,
-            has_alpha,
-            bytes: Vec::from(bytes.as_ref()),
-        }
     }
 }
 
