@@ -20,7 +20,7 @@ gio = { version = "*", features = [ "v2_74" ] }
 gphoto2 = "3.3.0"
 gstreamer = "0.24.0"
 gtk4 = { version = "0.10", features = [ "v4_12" ] }
-image = { version = "0.25.6", features = [ "png", "jpeg", "tiff" ], default-features = false }
+image = { version = "0.25.6", features = [ "png", "jpeg", "tiff", "avif", "avif-native" ], default-features = false }
 lazy_static = "^1.2.0"
 libc = "0.2.39"
 # 1.1.0 change the sys crate.

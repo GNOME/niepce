@@ -31,6 +31,8 @@ pub enum ImgFormat {
     Jpeg,
     /// HEIF
     Heif,
+    /// AVIF
+    Avif,
 }
 
 /// Mime type
@@ -57,6 +59,8 @@ pub fn guess_type(gmtype: &str) -> MType {
             return MType::Image(ImgFormat::Raw);
         } else if gio::content_type_is_a(gmtype, "image/heif") {
             return MType::Image(ImgFormat::Heif);
+        } else if gio::content_type_is_a(gmtype, "image/avif") {
+            return MType::Image(ImgFormat::Avif);
         }
         return MType::Image(ImgFormat::Jpeg);
     } else if gio::content_type_is_a(gmtype, "video/*") {

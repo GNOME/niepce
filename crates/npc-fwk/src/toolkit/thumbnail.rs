@@ -213,8 +213,8 @@ impl Thumbnail {
                     return Self::thumbnail_raw(filename, w, h, orientation)
                         .or_else(|| Self::thumbnail_image(filename, w, h, orientation));
                 }
-                _ => {
-                    trace_out!("not a raw type, trying image loaders");
+                t => {
+                    trace_out!("{t:?} not a raw type, trying image loaders");
                     return Self::thumbnail_image(filename, w, h, orientation);
                 }
             }
