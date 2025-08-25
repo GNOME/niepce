@@ -22,7 +22,7 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use gtk4::prelude::*;
-use npc_fwk::{gdk_pixbuf, gdk4, gio, gtk4};
+use npc_fwk::{gdk4, gio, gtk4};
 
 use super::image_grid_view::ImageListItem;
 use npc_engine::catalog::LibraryId;
@@ -203,9 +203,8 @@ impl ImageListStore {
                 true
             }
             ThumbnailLoaded(ref t) => {
-                if let Some(pixbuf) = t.pix.make_pixbuf() {
-                    self.set_thumbnail(t.id, &pixbuf);
-                }
+                let pixbuf = gdk4::Texture::from(&t.pix);
+                self.set_thumbnail(t.id, &pixbuf);
                 true
             }
             _ => false,
@@ -241,11 +240,10 @@ impl ImageListStore {
         self.store.n_items() - 1
     }
 
-    pub fn set_thumbnail(&self, id: LibraryId, thumb: &gdk_pixbuf::Pixbuf) {
+    pub fn set_thumbnail(&self, id: LibraryId, thumb: &gdk4::Texture) {
         if let Some(pos) = self.idmap.borrow().get(&id) {
-            let thumb = gdk4::Texture::for_pixbuf(thumb);
-
             if let Some(item) = self.store.item(*pos).and_downcast_ref::<ImageListItem>() {
+                let thumb = thumb.clone();
                 item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
             }
         }
