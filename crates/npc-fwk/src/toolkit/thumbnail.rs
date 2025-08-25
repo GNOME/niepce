@@ -23,7 +23,6 @@ use std::path::Path;
 
 use crate::glib;
 use crate::{gdk_pixbuf, gdk4};
-use gdk_pixbuf::Colorspace;
 use image::{DynamicImage, ExtendedColorType, ImageReader};
 use libopenraw as or;
 use libopenraw::Bitmap;
@@ -31,6 +30,7 @@ use libopenraw::Bitmap;
 use super::heif;
 use super::mimetype::{ImgFormat, MType, MimeType};
 use super::movieutils;
+use crate::base::ColourSpace;
 
 #[derive(Clone)]
 pub struct Thumbnail {
@@ -40,7 +40,7 @@ pub struct Thumbnail {
     stride: i32,
     bits_per_sample: i32,
     has_alpha: bool,
-    colorspace: Colorspace,
+    colorspace: ColourSpace,
 }
 
 impl std::fmt::Debug for Thumbnail {
@@ -67,7 +67,7 @@ impl Default for Thumbnail {
             stride: 0,
             bits_per_sample: 0,
             has_alpha: false,
-            colorspace: Colorspace::Rgb,
+            colorspace: ColourSpace::Rgb,
         }
     }
 }
@@ -250,7 +250,7 @@ impl From<image::DynamicImage> for Thumbnail {
             height: rgb8.height(),
             stride: rgb8.width() as i32 * 3,
             bits_per_sample: 8,
-            colorspace: Colorspace::Rgb,
+            colorspace: ColourSpace::Rgb,
             has_alpha: false,
             bytes: rgb8.into_vec(),
         }
@@ -260,16 +260,13 @@ impl From<image::DynamicImage> for Thumbnail {
 impl From<&Thumbnail> for gdk4::Texture {
     fn from(v: &Thumbnail) -> gdk4::Texture {
         let format = match v.colorspace {
-            Colorspace::Rgb => {
+            ColourSpace::Rgb => {
                 if v.has_alpha {
                     gdk4::MemoryFormat::R8g8b8a8
                 } else {
                     gdk4::MemoryFormat::R8g8b8
                 }
             }
-            // There is only one colorspace, but it's a non-exhaustive
-            // enum.
-            _ => unreachable!(),
         };
         gdk4::MemoryTexture::new(
             v.width as i32,
@@ -286,7 +283,8 @@ impl From<&Thumbnail> for gdk_pixbuf::Pixbuf {
     fn from(v: &Thumbnail) -> gdk_pixbuf::Pixbuf {
         gdk_pixbuf::Pixbuf::from_bytes(
             &glib::Bytes::from(&v.bytes),
-            v.colorspace,
+            // There is only one value for GdkPixbuf
+            gdk_pixbuf::Colorspace::Rgb,
             v.has_alpha,
             v.bits_per_sample,
             v.width as i32,
