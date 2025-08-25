@@ -21,8 +21,6 @@ use std::cmp;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use npc_fwk::gdk_pixbuf;
-
 use crate::catalog;
 use crate::catalog::libfile::{FileStatus, LibFile};
 use crate::library::notification;
@@ -168,9 +166,7 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
     let dest = cache.cache_dir().to_path_buf().join(&rel_dest);
     if dest.exists() {
         cache.hit(&filename, &digest);
-        return gdk_pixbuf::Pixbuf::from_file(dest)
-            .ok()
-            .map(Thumbnail::from);
+        return Thumbnail::load(dest).ok();
     }
 
     if let Ok(cache_item) = cache.get(&filename, &digest) {
@@ -182,9 +178,7 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
             cache_item.target
         };
         if target.exists() {
-            return gdk_pixbuf::Pixbuf::from_file(target)
-                .ok()
-                .map(Thumbnail::from);
+            return Thumbnail::load(dest).ok();
         } else {
             dbg_out!("File is missing");
             is_missing = true;
@@ -205,7 +199,7 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
         Some(libfile.orientation()),
     );
     if let Some(ref thumbnail) = thumbnail {
-        thumbnail.save(&dest, "png");
+        thumbnail.save_png(&dest);
         if !is_missing {
             // We don't need to try to add it back
             // XXX maybe should we update the create date if it was recreated?
