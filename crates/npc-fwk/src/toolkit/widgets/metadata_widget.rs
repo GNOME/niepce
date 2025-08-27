@@ -495,6 +495,7 @@ mod imp {
             self.widget.insert_column(0);
             self.widget.insert_column(0);
             self.widget.set_margin_start(8);
+            self.widget.set_hexpand(true);
             self.obj()
                 .upcast_ref::<super::ToolboxItem>()
                 .set_child(Some(&self.widget));
