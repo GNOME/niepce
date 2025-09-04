@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2025-02-16 04:44+0000\n"
-"PO-Revision-Date: 2025-02-16 09:02+0100\n"
+"POT-Creation-Date: 2025-09-04 07:35+0000\n"
+"PO-Revision-Date: 2025-09-04 11:14+0200\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups."
 "com>\n"
@@ -24,16 +24,41 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Generator: Poedit 2.2.1\n"
 
-#: data/net.figuiere.Niepce.desktop.in.in:3
+#: crates/npc-engine/src/importer/lrimporter.rs:90
+msgid "Untitled"
+msgstr "Neimenovano"
+
+#: crates/npc-fwk/src/toolkit/confirm.rs:37
+msgid "C_onfirm"
+msgstr "P_otrdi"
+
+#: crates/npc-fwk/src/toolkit/confirm.rs:38
+msgid "_Cancel"
+msgstr "Pre_kliči"
+
+#: crates/npc-fwk/src/toolkit/request.rs:59
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:111
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:379
+#: niepce-main/src/niepce/ui/niepce_window.rs:447
+msgid "Cancel"
+msgstr "Prekliči"
+
+#: crates/npc-fwk/src/toolkit/request.rs:69
+msgid "OK"
+msgstr "V redu"
+
+#: data/net.figuiere.Niepce.desktop.in.in:2
+#: niepce-main/src/niepce/ui/niepce_window.rs:402
 msgid "Niepce Digital"
 msgstr "Niepce Digital"
 
-#: data/net.figuiere.Niepce.desktop.in.in:4
+#: data/net.figuiere.Niepce.desktop.in.in:3
 msgid "Manage and edit your photos"
 msgstr "Upravljajte in urejajte svoje fotografije"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/net.figuiere.Niepce.desktop.in.in:6
+#: data/net.figuiere.Niepce.desktop.in.in:5
 msgid "photo;"
 msgstr "fotografija;"
 
@@ -75,6 +100,75 @@ msgstr "Hubert Figuière"
 msgid "Niepce catalog file"
 msgstr "Datoteka kataloga Niepce"
 
+#. Translators: {} is replaced by the file name.
+#: niepce-main/src/modules/darkroom.rs:185
+msgid "Loading \"{}\"..."
+msgstr "Poteka nalaganje »{}« ..."
+
+#: niepce-main/src/modules/darkroom.rs:188
+msgid "Loading..."
+msgstr "Nalaganje ..."
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:54
+msgid "Crop"
+msgstr "Obreži"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:57
+msgid "Tilt"
+msgstr "Nagni"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:59
+msgid "White balance"
+msgstr "Ravnovesje beline"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:63
+msgid "Color temperature"
+msgstr "Barvna temperatura"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:65
+msgid "Tone and colour"
+msgstr "Ton in barva"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:68
+msgid "Exposure"
+msgstr "Ekspozicija"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:70
+msgid "Recovery"
+msgstr "Obnovitev"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:72
+msgid "Fill Light"
+msgstr "Dopolnilna svetloba"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:74
+msgid "Blacks"
+msgstr "Črnine"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:76
+msgid "Brightness"
+msgstr "Svetlost"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:78
+msgid "Contrast"
+msgstr "Kontrast"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:80
+msgid "Saturation"
+msgstr "Nasičenost"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:82
+msgid "Vibrance"
+msgstr "Živahnost"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:87
+msgid "Develop"
+msgstr "Razvij"
+
+#: niepce-main/src/niepce/ui/dialogs/edit_labels.rs:162
+msgid "Change Labels"
+msgstr "Spremeni oznake"
+
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
 msgstr "Oznaka _6"
@@ -103,21 +197,43 @@ msgstr "<b>Oznake</b>"
 msgid "Edit Labels"
 msgstr "Uredi oznake"
 
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs:70
+msgid "Camera"
+msgstr "Fotoaparat/kamera"
+
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs:95
+msgid "Camera import "
+msgstr "Uvoz iz fotoaparata/kamere"
+
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs:150
+msgid "No camera found"
+msgstr "Ni zaznanega fotoaparata/kamere"
+
 #: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
 msgid "Available cameras:"
 msgstr "Razpoložljivi fotoaparati:"
 
 #: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:112
 msgid "Select"
 msgstr "Izbor"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:74
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
+msgid "Choose Directory"
+msgstr "Izberite mapo"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:93
+msgid "Directory"
+msgstr "Mapa"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:107
+msgid "Import picture folder"
+msgstr "Uvozi mapo s slikami"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
 msgid "_Directory:"
 msgstr "_Mapa:"
-
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
-msgid "Choose Directory"
-msgstr "Izberite mapo"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
 msgid "Copy files"
@@ -127,6 +243,14 @@ msgstr "Kopiraj datoteke"
 msgid "Recursive"
 msgstr "Rekurzivni način"
 
+#: niepce-main/src/niepce/ui/dialogs/import.rs:203
+msgid "No Sorting"
+msgstr "Brez razvrščanja"
+
+#: niepce-main/src/niepce/ui/dialogs/import.rs:224
+msgid "No preset"
+msgstr "Brez prednastavitve"
+
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
 msgid "Import images"
 msgstr "Uvozi slike"
@@ -134,10 +258,6 @@ msgstr "Uvozi slike"
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
 msgid "_Import"
 msgstr "_Uvozi"
-
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
-msgid "Cancel"
-msgstr "Prekliči"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
 msgid "_Images to import"
@@ -164,6 +284,7 @@ msgid "You can still change this after importing the pictures."
 msgstr "Vrednosti je mogoče spreminjati tudi po uvozu slik."
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:68
 msgid "Date:"
 msgstr "Datum:"
 
@@ -174,6 +295,19 @@ msgstr "Atributi:"
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
 msgid "Metadata"
 msgstr "Metapodatki"
+
+#. Translators: {} is the import source.
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:305
+msgid "Importing from {}"
+msgstr "Uvažanje iz {}"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:371
+msgid "Select Lightroom™ Library"
+msgstr "Izberi knjižnico Lightroom™"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:378
+msgid "Import"
+msgstr "Uvozi"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
 msgid "Import Library"
@@ -210,3 +344,428 @@ msgstr "Uporabi temno različico vmesnika"
 #: niepce-main/src/niepce/ui/dialogs/preferences.blp:31
 msgid "Preferences"
 msgstr "Možnosti"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:39
+msgid "File Information"
+msgstr "Podatki o datoteki"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:41
+msgid "File Name:"
+msgstr "Ime datoteke:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:42
+msgid "Folder:"
+msgstr "Mapa:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:43
+msgid "File Type:"
+msgstr "Vrsta datoteke."
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:44
+msgid "File Size:"
+msgstr "Velikost datoteke:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:45
+msgid "Sidecar Files:"
+msgstr "Priklopne datoteke:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:49
+msgid "Camera Information"
+msgstr "Podatki o fotoaparatu/kameri"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:51
+msgid "Make:"
+msgstr "Znamka:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:52
+msgid "Model:"
+msgstr "Model:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:53
+msgid "Lens:"
+msgstr "Objektiv:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:57
+msgid "Shooting Information"
+msgstr "Podatki o fotografiranju"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:59
+msgid "Exposure Program:"
+msgstr "Program ekspozicije:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:60
+msgid "Speed:"
+msgstr "Hitrost:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:61
+msgid "Aperture:"
+msgstr "Zaslonka:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:62
+msgid "ISO:"
+msgstr "ISO:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:63
+msgid "Exposure Bias:"
+msgstr "Odmik ekspozicije:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:64
+msgid "Flash:"
+msgstr "Bliskavica:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:65
+msgid "Flash compensation:"
+msgstr "Kompenzacija bliskavice:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:66
+msgid "Focal length:"
+msgstr "Goriščna razdalja:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:67
+msgid "White balance:"
+msgstr "Ravnovesje beline:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:72
+msgid "IPTC"
+msgstr "IPTC"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:74
+msgid "Headline:"
+msgstr "Naslov:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:75
+msgid "Caption:"
+msgstr "Napis:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:76
+msgid "Rating:"
+msgstr "Ocena:"
+
+#. FIXME change this type to the right one when there is a widget
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:78
+msgid "Label:"
+msgstr "Oznaka:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:79
+msgid "Keywords:"
+msgstr "Ključne besede:"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:83
+msgid "Rights"
+msgstr "Pravice"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:87
+msgid "Processing"
+msgstr "V obdelavi"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:89
+msgid "Process:"
+msgstr "Obdelava:"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:92
+msgid "Catalog"
+msgstr "Katalog"
+
+#. built-in modules;
+#: niepce-main/src/niepce/ui/module_shell.rs:123
+msgid "Darkroom"
+msgstr "Temnica"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:124
+msgid "Map"
+msgstr "Zemljevid"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:175
+msgid "Back"
+msgstr "Nazaj"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:188
+msgid "Forward"
+msgstr "Naprej"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:204
+msgid "Rotate Left"
+msgstr "Zavrti v levo"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:217
+msgid "Rotate Right"
+msgstr "Zavrti v desno"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:225
+#: niepce-main/src/niepce/ui/selection_controller.rs:275
+msgid "Set Label"
+msgstr "Nastavi oznako"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:236
+msgid "Label 6"
+msgstr "Oznaka 6"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:249
+msgid "Label 7"
+msgstr "Oznaka 7"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:262
+msgid "Label 8"
+msgstr "Oznaka 8"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:275
+msgid "Label 9"
+msgstr "Oznaka 9"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:281
+#: niepce-main/src/niepce/ui/selection_controller.rs:274
+msgid "Set Rating"
+msgstr "Nastavi oceno"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:291
+msgid "Unrated"
+msgstr "Neocenjeno"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:304
+msgid "Rating 1"
+msgstr "Ocena 1"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:317
+msgid "Rating 2"
+msgstr "Ocena 2"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:330
+msgid "Rating 3"
+msgstr "Ocena 3"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:343
+msgid "Rating 4"
+msgstr "Ocena 4"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:356
+msgid "Rating 5"
+msgstr "Ocena 5"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:362
+#: niepce-main/src/niepce/ui/selection_controller.rs:273
+msgid "Set Flag"
+msgstr "Nastavi zastavico"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:372
+msgid "Flag as Rejected"
+msgstr "Označi kot zavrnjeno"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:385
+msgid "Unflagged"
+msgstr "Brez zastavice"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:398
+msgid "Flag as Pick"
+msgstr "Označi kot izbrano"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:414
+msgid "Write metadata"
+msgstr "Zapiši metapodatke"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:430
+#: niepce-main/src/niepce/ui/workspace_controller.rs:259
+msgid "Delete"
+msgstr "Izbriši "
+
+#: niepce-main/src/niepce/ui/niepce_application.rs:229
+msgid "A digital photo application."
+msgstr "Program za digitalno fotografijo."
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:92
+msgid "Undo"
+msgstr "Razveljavi"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:95
+msgid "Redo"
+msgstr "Ponovi"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:102
+msgid "Import..."
+msgstr "Uvozi …"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:109
+msgid "New Catalog..."
+msgstr "Nov katalog ..."
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:110
+msgid "Open Catalog..."
+msgstr "Odpri katalog ..."
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:114
+msgid "Hide tools"
+msgstr "Skrij orodja"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:115
+msgid "Edit Labels..."
+msgstr "Uredi oznake ..."
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:116
+msgid "Preferences..."
+msgstr "Možnosti ..."
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:120
+msgid "Help"
+msgstr "Pomoč"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:121
+msgid "About"
+msgstr "O programu"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:214
+msgid "Catalog needs to be upgraded"
+msgstr "Katalog je treba nadgraditi"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:216
+msgid ""
+"The catalog will be upgraded to the latest version. A copy of the old "
+"version will be save. Upgrade?"
+msgstr ""
+"Katalog bo nadgrajen na najnovejšo različico. Kopija stare različice bo "
+"shranjena. Ali želite nadgraditi?"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:218
+msgid "_Upgrade"
+msgstr "_Nadgradi"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:368
+msgid "Label 1"
+msgstr "Oznaka 1"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:369
+msgid "Label 2"
+msgstr "Oznaka 2"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:370
+msgid "Label 3"
+msgstr "Oznaka 3"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:371
+msgid "Label 4"
+msgstr "Oznaka 4"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:372
+msgid "Label 5"
+msgstr "Oznaka 5"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:443
+msgid "Open catalog"
+msgstr "Odpri katalog"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:448
+msgid "Open"
+msgstr "Odpri"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:554
+msgid "Ready"
+msgstr "Pripravljen"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:276
+msgid "Set Property"
+msgstr "Nastavi lastnost"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:289
+msgid "Set Properties"
+msgstr "Nastavi lastnosti"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:332
+msgid "Remove from album"
+msgstr "Odstrani iz albuma"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:351
+msgid "Move to Trash"
+msgstr "Premakni v koš"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:213
+msgid "Pictures"
+msgstr "Slike"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:226
+msgid "Albums"
+msgstr "Albumi"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:232
+msgid "Keywords"
+msgstr "Ključne besede"
+
+#. header.set_margin(4);
+#: niepce-main/src/niepce/ui/workspace_controller.rs:238
+msgid "_Workspace"
+msgstr "_Delovna površina"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:252
+msgid "New Folder…"
+msgstr "Nova mapa ..."
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:253
+msgid "New Album…"
+msgstr "Nov album ..."
+
+#. section.append(
+#. Some(&i18n("New Project…")),
+#. Some("workspace.NewProject"),
+#. );
+#: niepce-main/src/niepce/ui/workspace_controller.rs:258
+msgid "Rename…"
+msgstr "Preimenuj …"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:263
+msgid "Import…"
+msgstr "Uvozi …"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:265
+msgid "Import Library…"
+msgstr "Uvozi knjižnico …"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:627
+msgid "New folder"
+msgstr "Nova mapa"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:628
+msgid "Folder _name:"
+msgstr "Ime _mape:"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:629
+msgid "Untitled folder"
+msgstr "Neimenovana mapa"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:646
+msgid "Rename album"
+msgstr "Preimenuj album"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:647
+#: niepce-main/src/niepce/ui/workspace_controller.rs:723
+msgid "Album _name:"
+msgstr "I_me albuma:"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:688
+msgid "Delete selected folder?"
+msgstr "Ali želite izbrisati izbrano mapo?"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:689
+msgid "The folder will be deleted."
+msgstr "Mapa bo izbrisana."
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:690
+#: niepce-main/src/niepce/ui/workspace_controller.rs:740
+msgid "_Delete"
+msgstr "_Izbriši"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:722
+msgid "New Album"
+msgstr "Nov album"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:724
+msgid "Untitled album"
+msgstr "Album brez naslova"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:738
+msgid "Delete selected album?"
+msgstr "Ali želite izbrisati izbrani album?"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:739
+msgid "The album will be deleted."
+msgstr "Album bo izbrisan."
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:842
+msgid "Add to Album"
+msgstr "Dodaj v album"
