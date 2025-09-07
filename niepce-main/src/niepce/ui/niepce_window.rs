@@ -213,7 +213,7 @@ impl Controller for NiepceWindow {
                 let dialog = npc_fwk::toolkit::confirm::request(
                     &i18n("Catalog needs to be upgraded"),
                     &i18n(
-                        "The catalog will be upgraded to the latest version. A copy of the old version will be save. Upgrade?",
+                        "The catalog will be upgraded to the latest version. A copy of the old version will be saved. Upgrade?",
                     ),
                     Some(i18n("_Upgrade")),
                     false,
