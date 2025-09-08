@@ -11,27 +11,52 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2025-02-16 04:44+0000\n"
-"PO-Revision-Date: 2025-02-17 19:05+0800\n"
+"POT-Creation-Date: 2025-09-04 16:51+0000\n"
+"PO-Revision-Date: 2025-09-08 10:25+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Gtranslator 47.1\n"
+"X-Generator: Gtranslator 48.0\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: data/net.figuiere.Niepce.desktop.in.in:3
+#: crates/npc-engine/src/importer/lrimporter.rs:90
+msgid "Untitled"
+msgstr "无标题"
+
+#: crates/npc-fwk/src/toolkit/confirm.rs:37
+msgid "C_onfirm"
+msgstr "确认(_O)"
+
+#: crates/npc-fwk/src/toolkit/confirm.rs:38
+msgid "_Cancel"
+msgstr "取消(_C)"
+
+#: crates/npc-fwk/src/toolkit/request.rs:59
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:111
+#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:379
+#: niepce-main/src/niepce/ui/niepce_window.rs:447
+msgid "Cancel"
+msgstr "取消"
+
+#: crates/npc-fwk/src/toolkit/request.rs:69
+msgid "OK"
+msgstr "确定"
+
+#: data/net.figuiere.Niepce.desktop.in.in:2
+#: niepce-main/src/niepce/ui/niepce_window.rs:402
 msgid "Niepce Digital"
 msgstr "Niepce 数码"
 
-#: data/net.figuiere.Niepce.desktop.in.in:4
+#: data/net.figuiere.Niepce.desktop.in.in:3
 msgid "Manage and edit your photos"
 msgstr "管理和编辑您的照片"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/net.figuiere.Niepce.desktop.in.in:6
+#: data/net.figuiere.Niepce.desktop.in.in:5
 msgid "photo;"
 msgstr "photo;照片;"
 
@@ -49,7 +74,7 @@ msgstr "Niepce 数码是用于管理和编辑照片的应用程序。"
 
 #: data/net.figuiere.Niepce.metainfo.xml.in.in:12
 msgid "Features:"
-msgstr "特点："
+msgstr "特性："
 
 #: data/net.figuiere.Niepce.metainfo.xml.in.in:14
 msgid "Photo library management"
@@ -69,7 +94,76 @@ msgstr "Hubert Figuière"
 
 #: data/net.figuiere.Niepce.xml.in:5
 msgid "Niepce catalog file"
-msgstr "Niepce 分类文件"
+msgstr "Niepce 类目文件"
+
+#. Translators: {} is replaced by the file name.
+#: niepce-main/src/modules/darkroom.rs:185
+msgid "Loading \"{}\"..."
+msgstr "正在加载“{}”…"
+
+#: niepce-main/src/modules/darkroom.rs:188
+msgid "Loading..."
+msgstr "正在加载…"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:54
+msgid "Crop"
+msgstr "裁剪"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:57
+msgid "Tilt"
+msgstr "倾斜"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:59
+msgid "White balance"
+msgstr "白平衡"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:63
+msgid "Color temperature"
+msgstr "色温"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:65
+msgid "Tone and colour"
+msgstr "色调和色彩"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:68
+msgid "Exposure"
+msgstr "曝光"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:70
+msgid "Recovery"
+msgstr "恢复"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:72
+msgid "Fill Light"
+msgstr "补光"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:74
+msgid "Blacks"
+msgstr "黑色"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:76
+msgid "Brightness"
+msgstr "亮度"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:78
+msgid "Contrast"
+msgstr "对比度"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:80
+msgid "Saturation"
+msgstr "饱和度"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:82
+msgid "Vibrance"
+msgstr "自然饱和度"
+
+#: niepce-main/src/modules/darkroom/toolbox_controller.rs:87
+msgid "Develop"
+msgstr "显影"
+
+#: niepce-main/src/niepce/ui/dialogs/edit_labels.rs:162
+msgid "Change Labels"
+msgstr "更改标签"
 
 #: niepce-main/src/niepce/ui/dialogs/editlabels.ui:27
 msgid "Label _6"
@@ -99,21 +193,43 @@ msgstr "<b>标签</b>"
 msgid "Edit Labels"
 msgstr "编辑标签"
 
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs:70
+msgid "Camera"
+msgstr "相机"
+
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs:95
+msgid "Camera import "
+msgstr "相机导入"
+
+#: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs:150
+msgid "No camera found"
+msgstr "找不到相机"
+
 #: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:17
 msgid "Available cameras:"
 msgstr "可用的相机："
 
 #: niepce-main/src/niepce/ui/dialogs/import/cameraimporterui.blp:27
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:112
 msgid "Select"
 msgstr "选择"
 
-#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
-msgid "_Directory:"
-msgstr "目录(_D)"
-
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:74
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:22
 msgid "Choose Directory"
 msgstr "选择目录"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:93
+msgid "Directory"
+msgstr "目录"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:107
+msgid "Import picture folder"
+msgstr "导入图片文件夹"
+
+#: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:13
+msgid "_Directory:"
+msgstr "目录(_D)："
 
 #: niepce-main/src/niepce/ui/dialogs/import/directoryimporterui.blp:28
 msgid "Copy files"
@@ -123,6 +239,14 @@ msgstr "复制文件"
 msgid "Recursive"
 msgstr "递归"
 
+#: niepce-main/src/niepce/ui/dialogs/import.rs:203
+msgid "No Sorting"
+msgstr "无排序"
+
+#: niepce-main/src/niepce/ui/dialogs/import.rs:224
+msgid "No preset"
+msgstr "无预设"
+
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:14
 msgid "Import images"
 msgstr "导入图像"
@@ -130,10 +254,6 @@ msgstr "导入图像"
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:23
 msgid "_Import"
 msgstr "导入(_I)"
-
-#: niepce-main/src/niepce/ui/dialogs/importdialog.blp:38
-msgid "Cancel"
-msgstr "取消"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:64
 msgid "_Images to import"
@@ -160,6 +280,7 @@ msgid "You can still change this after importing the pictures."
 msgstr "该图片导入后你依旧可以更改。"
 
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:195
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:68
 msgid "Date:"
 msgstr "日期:"
 
@@ -170,6 +291,19 @@ msgstr "属性："
 #: niepce-main/src/niepce/ui/dialogs/importdialog.blp:227
 msgid "Metadata"
 msgstr "元数据"
+
+#. Translators: {} is the import source.
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:305
+msgid "Importing from {}"
+msgstr "正在从 {} 导入"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:371
+msgid "Select Lightroom™ Library"
+msgstr "选择 Lightroom™ 库"
+
+#: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:378
+msgid "Import"
+msgstr "导入"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.ui:21
 msgid "Import Library"
@@ -207,11 +341,431 @@ msgstr "使用深色界面"
 msgid "Preferences"
 msgstr "首选项"
 
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:39
+msgid "File Information"
+msgstr "文件信息"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:41
+msgid "File Name:"
+msgstr "文件名："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:42
+msgid "Folder:"
+msgstr "文件夹："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:43
+msgid "File Type:"
+msgstr "文件类型："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:44
+msgid "File Size:"
+msgstr "文件大小："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:45
+msgid "Sidecar Files:"
+msgstr "附属文件："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:49
+msgid "Camera Information"
+msgstr "相机信息"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:51
+msgid "Make:"
+msgstr "制作："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:52
+msgid "Model:"
+msgstr "型号："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:53
+msgid "Lens:"
+msgstr "镜头："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:57
+msgid "Shooting Information"
+msgstr "拍摄信息"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:59
+msgid "Exposure Program:"
+msgstr "曝光程序："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:60
+msgid "Speed:"
+msgstr "速率："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:61
+msgid "Aperture:"
+msgstr "光圈："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:62
+msgid "ISO:"
+msgstr "ISO："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:63
+msgid "Exposure Bias:"
+msgstr "曝光补偿："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:64
+msgid "Flash:"
+msgstr "闪光："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:65
+msgid "Flash compensation:"
+msgstr "闪光补偿："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:66
+msgid "Focal length:"
+msgstr "焦距："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:67
+msgid "White balance:"
+msgstr "白平衡："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:72
+msgid "IPTC"
+msgstr "IPTC"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:74
+msgid "Headline:"
+msgstr "标题："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:75
+msgid "Caption:"
+msgstr "图注："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:76
+msgid "Rating:"
+msgstr "评分："
+
+#. FIXME change this type to the right one when there is a widget
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:78
+msgid "Label:"
+msgstr "标签："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:79
+msgid "Keywords:"
+msgstr "关键词："
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:83
+msgid "Rights"
+msgstr "版权"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:87
+msgid "Processing"
+msgstr "处理"
+
+#: niepce-main/src/niepce/ui/metadata_pane_controller.rs:89
+msgid "Process:"
+msgstr "处理："
+
+#: niepce-main/src/niepce/ui/module_shell.rs:92
+msgid "Catalog"
+msgstr "类目"
+
+#. built-in modules;
+#: niepce-main/src/niepce/ui/module_shell.rs:123
+msgid "Darkroom"
+msgstr "暗室"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:124
+msgid "Map"
+msgstr "地图"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:175
+msgid "Back"
+msgstr "后退"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:188
+msgid "Forward"
+msgstr "前进"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:204
+msgid "Rotate Left"
+msgstr "向左旋转"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:217
+msgid "Rotate Right"
+msgstr "向右旋转"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:225
+#: niepce-main/src/niepce/ui/selection_controller.rs:275
+msgid "Set Label"
+msgstr "设置标签"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:236
+msgid "Label 6"
+msgstr "标签 6"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:249
+msgid "Label 7"
+msgstr "标签 7"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:262
+msgid "Label 8"
+msgstr "标签 8"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:275
+msgid "Label 9"
+msgstr "标签 9"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:281
+#: niepce-main/src/niepce/ui/selection_controller.rs:274
+msgid "Set Rating"
+msgstr "设置评分"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:291
+msgid "Unrated"
+msgstr "未评分"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:304
+msgid "Rating 1"
+msgstr "评分 1"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:317
+msgid "Rating 2"
+msgstr "评分 2"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:330
+msgid "Rating 3"
+msgstr "评分 3"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:343
+msgid "Rating 4"
+msgstr "评分 4"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:356
+msgid "Rating 5"
+msgstr "评分 5"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:362
+#: niepce-main/src/niepce/ui/selection_controller.rs:273
+msgid "Set Flag"
+msgstr "设置标志"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:372
+msgid "Flag as Rejected"
+msgstr "标记为已拒绝"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:385
+msgid "Unflagged"
+msgstr "未标记"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:398
+msgid "Flag as Pick"
+msgstr "标记为选择"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:414
+msgid "Write metadata"
+msgstr "写入元数据"
+
+#: niepce-main/src/niepce/ui/module_shell.rs:430
+#: niepce-main/src/niepce/ui/workspace_controller.rs:259
+msgid "Delete"
+msgstr "删除"
+
+#: niepce-main/src/niepce/ui/niepce_application.rs:229
+msgid "A digital photo application."
+msgstr "一款数码照片应用程序。"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:92
+msgid "Undo"
+msgstr "撤消"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:95
+msgid "Redo"
+msgstr "重做"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:102
+msgid "Import..."
+msgstr "导入…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:109
+msgid "New Catalog..."
+msgstr "新建类目…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:110
+msgid "Open Catalog..."
+msgstr "打开类目…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:114
+msgid "Hide tools"
+msgstr "隐藏工具"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:115
+msgid "Edit Labels..."
+msgstr "编辑标签…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:116
+msgid "Preferences..."
+msgstr "首选项…"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:120
+msgid "Help"
+msgstr "帮助"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:121
+msgid "About"
+msgstr "关于"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:214
+msgid "Catalog needs to be upgraded"
+msgstr "类目需要升级"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:216
+msgid ""
+"The catalog will be upgraded to the latest version. A copy of the old "
+"version will be save. Upgrade?"
+msgstr "类目将被升级至最新版本。将保存一份旧版本的副本。升级吗？"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:218
+msgid "_Upgrade"
+msgstr "升级(_U)"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:368
+msgid "Label 1"
+msgstr "标签 1"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:369
+msgid "Label 2"
+msgstr "标签 2"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:370
+msgid "Label 3"
+msgstr "标签 3"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:371
+msgid "Label 4"
+msgstr "标签 4"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:372
+msgid "Label 5"
+msgstr "标签 5"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:443
+msgid "Open catalog"
+msgstr "打开类目"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:448
+msgid "Open"
+msgstr "打开"
+
+#: niepce-main/src/niepce/ui/niepce_window.rs:554
+msgid "Ready"
+msgstr "就绪"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:276
+msgid "Set Property"
+msgstr "设置属性"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:289
+msgid "Set Properties"
+msgstr "设置属性"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:332
+msgid "Remove from album"
+msgstr "从相册移除"
+
+#: niepce-main/src/niepce/ui/selection_controller.rs:351
+msgid "Move to Trash"
+msgstr "移至回收站"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:213
+msgid "Pictures"
+msgstr "图片"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:226
+msgid "Albums"
+msgstr "相册"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:232
+msgid "Keywords"
+msgstr "关键词"
+
+#. header.set_margin(4);
+#: niepce-main/src/niepce/ui/workspace_controller.rs:238
+msgid "_Workspace"
+msgstr "工作区(_W)"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:252
+msgid "New Folder…"
+msgstr "新建文件夹…"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:253
+msgid "New Album…"
+msgstr "新建相册…"
+
+#. section.append(
+#. Some(&i18n("New Project…")),
+#. Some("workspace.NewProject"),
+#. );
+#: niepce-main/src/niepce/ui/workspace_controller.rs:258
+msgid "Rename…"
+msgstr "重命名…"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:263
+msgid "Import…"
+msgstr "导入…"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:265
+msgid "Import Library…"
+msgstr "导入库…"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:627
+msgid "New folder"
+msgstr "新建文件夹"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:628
+msgid "Folder _name:"
+msgstr "文件夹名称(_N)："
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:629
+msgid "Untitled folder"
+msgstr "未命名文件夹"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:646
+msgid "Rename album"
+msgstr "重命名相册"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:647
+#: niepce-main/src/niepce/ui/workspace_controller.rs:723
+msgid "Album _name:"
+msgstr "相册名称(_N)："
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:688
+msgid "Delete selected folder?"
+msgstr "删除选中的文件夹？"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:689
+msgid "The folder will be deleted."
+msgstr "该文件夹将被删除。"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:690
+#: niepce-main/src/niepce/ui/workspace_controller.rs:740
+msgid "_Delete"
+msgstr "删除(_D)"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:722
+msgid "New Album"
+msgstr "新建相册"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:724
+msgid "Untitled album"
+msgstr "未命名相册"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:738
+msgid "Delete selected album?"
+msgstr "删除选中的相册？"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:739
+msgid "The album will be deleted."
+msgstr "该相册将被删除。"
+
+#: niepce-main/src/niepce/ui/workspace_controller.rs:842
+msgid "Add to Album"
+msgstr "添加到相册"
+
 #~ msgid "..."
 #~ msgstr "..."
-
-#~ msgid "Camera"
-#~ msgstr "相机"
 
 #~ msgid "File"
 #~ msgstr "文件"
@@ -240,57 +794,6 @@ msgstr "首选项"
 #~ msgid "Refresh"
 #~ msgstr "刷新"
 
-#~ msgid "Hide tools"
-#~ msgstr "隐藏工具"
-
-#~ msgid "Develop"
-#~ msgstr "显影"
-
-#~ msgid "Crop"
-#~ msgstr "裁剪"
-
-#~ msgid "Tilt"
-#~ msgstr "倾斜"
-
-#~ msgid "White balance"
-#~ msgstr "白平衡"
-
-#~ msgid "Color temperature"
-#~ msgstr "色温"
-
-#~ msgid "Tone and colour"
-#~ msgstr "色调和色彩"
-
-#~ msgid "Exposure"
-#~ msgstr "曝光"
-
-#~ msgid "Recovery"
-#~ msgstr "恢复"
-
-#~ msgid "Fill Light"
-#~ msgstr "补光"
-
-#~ msgid "Blacks"
-#~ msgstr "黑色"
-
-#~ msgid "Brightness"
-#~ msgstr "亮度"
-
-#~ msgid "Contrast"
-#~ msgstr "对比度"
-
-#~ msgid "Saturation"
-#~ msgstr "饱和度"
-
-#~ msgid "Vibrance"
-#~ msgstr "自然饱和度"
-
-#~ msgid "Change Labels"
-#~ msgstr "更改标签"
-
-#~ msgid "Import"
-#~ msgstr "导入"
-
 #~ msgid "_General"
 #~ msgstr "常规(_G)"
 
@@ -299,21 +802,6 @@ msgstr "首选项"
 
 #~ msgid "Image Properties"
 #~ msgstr "图像属性"
-
-#~ msgid ""
-#~ "A digital photo application.\n"
-#~ "\n"
-#~ "Build options: "
-#~ msgstr ""
-#~ "一款数码相片应用程式。\n"
-#~ "\n"
-#~ "编译选项: "
-
-#~ msgid "OK"
-#~ msgstr "确定"
-
-#~ msgid "Folder _name:"
-#~ msgstr "文件夹名称(_N):"
 
 #~ msgid "Name"
 #~ msgstr "名称"
@@ -339,248 +827,14 @@ msgstr "首选项"
 #~ msgid "Import Raw_Studio"
 #~ msgstr "导入 RawStudio(_S)"
 
-#~ msgid "No camera found"
-#~ msgstr "找不到相机"
-
-#~ msgid "Camera import %1%"
-#~ msgstr "相机导入 %1%"
-
-#~ msgid "Import picture folder"
-#~ msgstr "导入图片文件夹"
-
-#~ msgid "File Name:"
-#~ msgstr "文件名："
-
-#~ msgid "File Type:"
-#~ msgstr "文件类型："
-
-#~ msgid "File Size:"
-#~ msgstr "文件大小："
-
-#~ msgid "Sidecar Files:"
-#~ msgstr "附属文件："
-
-#~ msgid "Make:"
-#~ msgstr "制作："
-
-#~ msgid "Model:"
-#~ msgstr "型号："
-
-#~ msgid "Lens:"
-#~ msgstr "镜头："
-
-#~ msgid "Exposure Program:"
-#~ msgstr "曝光程序："
-
-#~ msgid "Speed:"
-#~ msgstr "速率："
-
-#~ msgid "Aperture:"
-#~ msgstr "光圈："
-
-#~ msgid "ISO:"
-#~ msgstr "ISO："
-
-#~ msgid "Exposure Bias:"
-#~ msgstr "曝光补偿："
-
-#~ msgid "Flash:"
-#~ msgstr "闪光："
-
-#~ msgid "Flash compensation:"
-#~ msgstr "闪光补偿："
-
-#~ msgid "Focal length:"
-#~ msgstr "焦距："
-
-#~ msgid "White balance:"
-#~ msgstr "白平衡："
-
-#~ msgid "Headline:"
-#~ msgstr "标题："
-
-#~ msgid "Caption:"
-#~ msgstr "字幕："
-
-#~ msgid "Rating:"
-#~ msgstr "评分："
-
-#~ msgid "Label:"
-#~ msgstr "标签："
-
-#~ msgid "Keywords:"
-#~ msgstr "关键词："
-
-#~ msgid "File Information"
-#~ msgstr "文件信息"
-
-#~ msgid "Camera Information"
-#~ msgstr "相机信息"
-
-#~ msgid "Shooting Information"
-#~ msgstr "拍摄信息"
-
-#~ msgid "IPTC"
-#~ msgstr "IPTC"
-
-#~ msgid "Rights"
-#~ msgstr "权限"
-
-#~ msgid "Back"
-#~ msgstr "后退"
-
-#~ msgid "Forward"
-#~ msgstr "前进"
-
-#~ msgid "Rotate Left"
-#~ msgstr "向左旋转"
-
-#~ msgid "Rotate Right"
-#~ msgstr "向右旋转"
-
-#~ msgid "Set Label"
-#~ msgstr "设置标签"
-
-#~ msgid "Label 6"
-#~ msgstr "标签 6"
-
-#~ msgid "Label 7"
-#~ msgstr "标签 7"
-
-#~ msgid "Label 8"
-#~ msgstr "标签 8"
-
-#~ msgid "Label 9"
-#~ msgstr "标签 9"
-
-#~ msgid "Set Rating"
-#~ msgstr "设置评分"
-
-#~ msgid "Unrated"
-#~ msgstr "未评分"
-
-#~ msgid "Rating 1"
-#~ msgstr "评分 1"
-
-#~ msgid "Rating 2"
-#~ msgstr "评分 2"
-
-#~ msgid "Rating 3"
-#~ msgstr "评分 3"
-
-#~ msgid "Rating 4"
-#~ msgstr "评分 4"
-
-#~ msgid "Rating 5"
-#~ msgstr "评分 5"
-
-#~ msgid "Set Flag"
-#~ msgstr "设置标志"
-
-#~ msgid "Flag as Rejected"
-#~ msgstr "标记为已拒绝"
-
-#~ msgid "Unflagged"
-#~ msgstr "未标记"
-
-#~ msgid "Flag as Pick"
-#~ msgstr "标记为选择"
-
-#~ msgid "Write metadata"
-#~ msgstr "写入元数据"
-
-#~ msgid "Catalog"
-#~ msgstr "目录"
-
-#~ msgid "Darkroom"
-#~ msgstr "暗室"
-
-#~ msgid "Map"
-#~ msgstr "地图"
-
-#~ msgid "Undo"
-#~ msgstr "撤销"
-
-#~ msgid "Import..."
-#~ msgstr "导入..."
-
-#~ msgid "Ready"
-#~ msgstr "就绪"
-
-#~ msgid "New Catalog..."
-#~ msgstr "新建目录..."
-
-#~ msgid "Open Catalog..."
-#~ msgstr "打开目录..."
-
-#~ msgid "Edit Labels..."
-#~ msgstr "编辑标签..."
-
-#~ msgid "Preferences..."
-#~ msgstr "首选项..."
-
-#~ msgid "Help"
-#~ msgstr "帮助"
-
-#~ msgid "About"
-#~ msgstr "关于"
-
-#~ msgid "Label 1"
-#~ msgstr "标签 1"
-
-#~ msgid "Label 2"
-#~ msgstr "标签 2"
-
-#~ msgid "Label 3"
-#~ msgstr "标签 3"
-
-#~ msgid "Label 4"
-#~ msgstr "标签 4"
-
-#~ msgid "Label 5"
-#~ msgstr "标签 5"
-
-#~ msgid "Open"
-#~ msgstr "打开"
-
-#~ msgid "Set Property"
-#~ msgstr "设置属性"
-
-#~ msgid "Set Properties"
-#~ msgstr "设置属性"
-
-#~ msgid "Move to Trash"
-#~ msgstr "移至回收站"
-
-#~ msgid "Delete selected folder?"
-#~ msgstr "删除选中的文件夹？"
-
-#~ msgid "Pictures"
-#~ msgstr "图片"
-
 #~ msgid "Projects"
 #~ msgstr "项目"
-
-#~ msgid "Keywords"
-#~ msgstr "关键词"
-
-#~ msgid "_Workspace"
-#~ msgstr "工作区(_W)"
-
-#~ msgid "New Folder..."
-#~ msgstr "新建文件夹..."
 
 #~ msgid "New Project..."
 #~ msgstr "新建项目..."
 
-#~ msgid "Delete Folder"
-#~ msgstr "删除文件夹"
-
 #~ msgid "System"
 #~ msgstr "系统"
-
-#~ msgid "Redo "
-#~ msgstr "重做"
 
 #~ msgid "<b>Date:</b>"
 #~ msgstr "<b>日期:</b>"
@@ -596,9 +850,6 @@ msgstr "首选项"
 
 #~ msgid "Set _Rating"
 #~ msgstr "设置评分(_R)"
-
-#~ msgid "_No Rating"
-#~ msgstr "没有评分(_N)"
 
 #~ msgid "_1 Star"
 #~ msgstr "1星级(_1)"
