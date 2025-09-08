@@ -1,10 +1,8 @@
 # Chinese (China) translation for niepce.
 # Copyright (C) 2010 niepce's COPYRIGHT HOLDER
 # This file is distributed under the same license as the niepce package.
-# Wang Jian <lark@linux.net.cn>, 2003
-# Deng Xiyue <manphiz@gmail.com>, 2008
-# 微尘  <squeeze@189.cn>, 2010.
-# 玉堂白鹤 <squeeze@189.cn> 2011.
+# Ray Wang <raywang@gnome.org>, 2010.
+# 玉堂白鹤 <squeeze@189.cn>, 2011.
 # lumingzh <lumingzh@qq.com>, 2022-2025.
 #
 msgid ""
@@ -12,7 +10,7 @@ msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
 "POT-Creation-Date: 2025-09-04 16:51+0000\n"
-"PO-Revision-Date: 2025-09-08 10:25+0800\n"
+"PO-Revision-Date: 2025-09-08 10:36+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
