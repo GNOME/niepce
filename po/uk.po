@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: niepce master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/niepce/issues\n"
-"POT-Creation-Date: 2025-09-04 09:16+0000\n"
-"PO-Revision-Date: 2025-09-04 19:49+0300\n"
+"POT-Creation-Date: 2025-09-10 15:57+0000\n"
+"PO-Revision-Date: 2025-09-10 22:57+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -28,7 +28,6 @@ msgid "C_onfirm"
 msgstr "_Підтвердити"
 
 #: crates/npc-fwk/src/toolkit/confirm.rs:38
-#| msgid "Cancel"
 msgid "_Cancel"
 msgstr "_Скасувати"
 
@@ -196,7 +195,6 @@ msgid "Camera"
 msgstr "Камера"
 
 #: niepce-main/src/niepce/ui/dialogs/import/camera_importer_ui.rs:95
-#| msgid "Camera import %1%"
 msgid "Camera import "
 msgstr "Імпортування з камери "
 
@@ -219,7 +217,6 @@ msgid "Choose Directory"
 msgstr "Виберіть каталог"
 
 #: niepce-main/src/niepce/ui/dialogs/import/directory_importer_ui.rs:93
-#| msgid "_Directory:"
 msgid "Directory"
 msgstr "Каталог"
 
@@ -240,7 +237,6 @@ msgid "Recursive"
 msgstr "Рекурсивно"
 
 #: niepce-main/src/niepce/ui/dialogs/import.rs:203
-#| msgid "_Date Sorting:"
 msgid "No Sorting"
 msgstr "Без упорядкування"
 
@@ -295,12 +291,10 @@ msgstr "Метадані"
 
 #. Translators: {} is the import source.
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:305
-#| msgid "Import in progress"
 msgid "Importing from {}"
 msgstr "Імпортування з {}"
 
 #: niepce-main/src/niepce/ui/dialogs/importlibrary.rs:371
-#| msgid "Select Lightromm Library"
 msgid "Select Lightroom™ Library"
 msgstr "Виберіть бібліотеку Lightroom™"
 
@@ -353,7 +347,6 @@ msgid "File Name:"
 msgstr "Назва файла:"
 
 #: niepce-main/src/niepce/ui/metadata_pane_controller.rs:42
-#| msgid "Folder _name:"
 msgid "Folder:"
 msgstr "Тека:"
 
@@ -455,7 +448,6 @@ msgid "Rights"
 msgstr "Права"
 
 #: niepce-main/src/niepce/ui/metadata_pane_controller.rs:87
-#| msgid "RAW processing"
 msgid "Processing"
 msgstr "Оброблення"
 
@@ -565,15 +557,10 @@ msgstr "Записати метадані"
 
 #: niepce-main/src/niepce/ui/module_shell.rs:430
 #: niepce-main/src/niepce/ui/workspace_controller.rs:259
-#| msgid "Delete Folder"
 msgid "Delete"
 msgstr "Вилучити"
 
 #: niepce-main/src/niepce/ui/niepce_application.rs:229
-#| msgid ""
-#| "A digital photo application.\n"
-#| "\n"
-#| "Build options: "
 msgid "A digital photo application."
 msgstr "Програма для роботи з цифровими фотографіями."
 
@@ -618,17 +605,19 @@ msgid "About"
 msgstr "Про програму"
 
 #: niepce-main/src/niepce/ui/niepce_window.rs:214
-#| msgid "Catalog need to be upgraded"
 msgid "Catalog needs to be upgraded"
 msgstr "Слід оновити каталог"
 
 #: niepce-main/src/niepce/ui/niepce_window.rs:216
+#| msgid ""
+#| "The catalog will be upgraded to the latest version. A copy of the old "
+#| "version will be save. Upgrade?"
 msgid ""
 "The catalog will be upgraded to the latest version. A copy of the old "
-"version will be save. Upgrade?"
+"version will be saved. Upgrade?"
 msgstr ""
-"Дані каталогу буде оновлено до найсвіжішої версії. Програма збереже копію"
-" застарілої версії. Оновити?"
+"Дані каталогу буде оновлено до найсвіжішої версії. Програма збереже копію "
+"застарілої версії. Оновити?"
 
 #: niepce-main/src/niepce/ui/niepce_window.rs:218
 msgid "_Upgrade"
@@ -655,7 +644,6 @@ msgid "Label 5"
 msgstr "Мітка 5"
 
 #: niepce-main/src/niepce/ui/niepce_window.rs:443
-#| msgid "Open Catalog..."
 msgid "Open catalog"
 msgstr "Відкрити каталог"
 
@@ -701,7 +689,6 @@ msgid "_Workspace"
 msgstr "_Робочий простір"
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:252
-#| msgid "New Folder..."
 msgid "New Folder…"
 msgstr "Створити теку…"
 
@@ -718,17 +705,14 @@ msgid "Rename…"
 msgstr "Перейменувати…"
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:263
-#| msgid "Import"
 msgid "Import…"
 msgstr "Імпортувати…"
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:265
-#| msgid "Import Library"
 msgid "Import Library…"
 msgstr "Імпортувати бібліотеку…"
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:627
-#| msgid "New Folder..."
 msgid "New folder"
 msgstr "Нова тека"
 
@@ -737,7 +721,6 @@ msgid "Folder _name:"
 msgstr "_Назва теки:"
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:629
-#| msgid "Untitled"
 msgid "Untitled folder"
 msgstr "Тека без назви"
 
@@ -747,7 +730,6 @@ msgstr "Перейменувати альбом"
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:647
 #: niepce-main/src/niepce/ui/workspace_controller.rs:723
-#| msgid "Folder _name:"
 msgid "Album _name:"
 msgstr "_Назва альбому:"
 
@@ -761,22 +743,18 @@ msgstr "Теку буде вилучено."
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:690
 #: niepce-main/src/niepce/ui/workspace_controller.rs:740
-#| msgid "Delete Folder"
 msgid "_Delete"
 msgstr "В_илучити"
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:722
-#| msgid "Albums"
 msgid "New Album"
 msgstr "Новий альбом"
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:724
-#| msgid "Untitled"
 msgid "Untitled album"
 msgstr "Альбом без назви"
 
 #: niepce-main/src/niepce/ui/workspace_controller.rs:738
-#| msgid "Delete selected folder?"
 msgid "Delete selected album?"
 msgstr "Вилучити позначений альбом?"
 
