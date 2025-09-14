@@ -60,7 +60,7 @@ pub enum Event {
 }
 
 struct Widgets {
-    widget_: gtk4::Widget,
+    widget: gtk4::Widget,
     vbox: gtk4::Box,
     hbox: gtk4::Paned,
     _main_menu: gio::Menu,
@@ -130,7 +130,7 @@ impl Widgets {
         vbox.append(&statusbar);
 
         Widgets {
-            widget_: vbox.clone().upcast(),
+            widget: vbox.clone().upcast(),
             vbox,
             hbox,
             _main_menu: main_menu,
@@ -285,12 +285,12 @@ impl UiController for NiepceWindow {
 
                 self.window().set_titlebar(Some(&widgets.header));
                 self.window().set_size_request(600, 400);
-                self.window.set_child(Some(&widgets.vbox));
+                self.window.set_child(Some(&widgets.widget));
                 self.actions();
 
                 widgets
             })
-            .widget_
+            .widget
     }
 
     fn actions(&self) -> Option<(&str, &gio::ActionGroup)> {
