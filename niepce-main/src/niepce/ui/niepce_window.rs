@@ -63,7 +63,6 @@ struct Widgets {
     widget: gtk4::Widget,
     vbox: gtk4::Box,
     hbox: gtk4::Paned,
-    _main_menu: gio::Menu,
     header: gtk4::HeaderBar,
     statusbar: gtk4::Label,
     filmstrip: RefCell<Option<gtk4::Widget>>,
@@ -73,67 +72,21 @@ struct Widgets {
 
 impl Widgets {
     fn with_sender(tx: toolkit::Sender<<NiepceWindow as Controller>::InMsg>) -> Widgets {
-        let vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
-        let hbox = gtk4::Paned::new(gtk4::Orientation::Horizontal);
-        hbox.set_wide_handle(true);
-        vbox.append(&hbox);
-
-        let header = gtk4::HeaderBar::new();
-        header.set_show_title_buttons(true);
-
-        let main_menu = gio::Menu::new();
-        let menu_btn = gtk4::MenuButton::new();
-        menu_btn.set_direction(gtk4::ArrowType::None);
-        menu_btn.set_menu_model(Some(&main_menu));
-        header.pack_end(&menu_btn);
-
-        let button_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-        button_box.add_css_class("linked");
-        let undo_button = gtk4::Button::with_label(&i18n("Undo"));
-        undo_button.set_icon_name("edit-undo-symbolic");
-        undo_button.set_action_name(Some("win.Undo"));
-        let redo_button = gtk4::Button::with_label(&i18n("Redo"));
-        redo_button.set_icon_name("edit-redo-symbolic");
-        redo_button.set_action_name(Some("win.Redo"));
-        button_box.append(&undo_button);
-        button_box.append(&redo_button);
-        header.pack_start(&button_box);
-
-        let import_button = gtk4::Button::with_label(&i18n("Import..."));
-        import_button.set_action_name(Some("workspace.Import"));
-        header.pack_start(&import_button);
-
-        // Main hamburger menu
-        let section = gio::Menu::new();
-        main_menu.append_section(None, &section);
-        section.append(Some(&i18n("New Catalog...")), Some("app.NewCatalog"));
-        section.append(Some(&i18n("Open Catalog...")), Some("app.OpenCatalog"));
-
-        let section = gio::Menu::new();
-        main_menu.append_section(None, &section);
-        section.append(Some(&i18n("Hide tools")), Some("win.ToggleToolsVisible"));
-        section.append(Some(&i18n("Edit Labels...")), Some("win.EditLabels"));
-        section.append(Some(&i18n("Preferences...")), Some("app.Preferences"));
-
-        let section = gio::Menu::new();
-        main_menu.append_section(None, &section);
-        section.append(Some(&i18n("Help")), Some("app.Help"));
-        section.append(Some(&i18n("About")), Some("app.About"));
+        let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/niepce_window.ui");
+        get_widget!(builder, gtk4::Box, vbox);
+        get_widget!(builder, gtk4::Paned, hbox);
+        get_widget!(builder, gtk4::Label, statusbar);
+        get_widget!(builder, gtk4::HeaderBar, header);
 
         let notif_center = NotificationCenter::new();
         notif_center.signal_notify.connect(move |n| {
             NiepceWindow::lib_notification(&tx, n);
         });
 
-        let statusbar = gtk4::Label::new(None);
-        statusbar.set_xalign(0.0);
-        vbox.append(&statusbar);
-
         Widgets {
             widget: vbox.clone().upcast(),
             vbox,
             hbox,
-            _main_menu: main_menu,
             header,
             statusbar,
             filmstrip: RefCell::new(None),

@@ -1,0 +1,68 @@
+// Copyright (C) 2024 Hubert Figuière
+
+using Gtk 4.0;
+
+Gtk.Box vbox {
+    orientation: vertical;
+    spacing: 0;
+    Gtk.Paned hbox {
+        orientation: horizontal;
+        wide-handle: true;
+
+    }
+    Gtk.Label statusbar {
+        xalign: 0.0;
+    }
+}
+
+menu main_menu {
+    section {
+        item(_("New Catalog..."), "app.NewCatalog")
+        item(_("Open Catalog..."), "app.OpenCatalog")
+    }
+    section {
+        item(_("Hide tools"), "win.ToggleToolsVisible")
+        item(_("Edit Labels..."), "win.EditLabels")
+        item(_("Preferences..."), "app.Preferences")
+    }
+    section {
+        item(_("Help"), "app.Help")
+        item(_("About"), "app.About")
+    }
+}
+
+Gtk.HeaderBar header {
+    show-title-buttons: true;
+
+    [start]
+    Gtk.Box {
+        orientation: horizontal;
+        spacing: 0;
+        css-classes: [
+            "linked"
+        ];
+
+        Gtk.Button {
+            label: _("Undo");
+            icon-name: "edit-undo-symbolic";
+            action-name: "win.Undo";
+        }
+
+        Gtk.Button {
+            label: _("Redo");
+            icon-name: "edit-redo-symbolic";
+            action-name: "win.Redo";
+        }
+    }
+    [start]
+    Gtk.Button {
+        label: _("Import...");
+        action-name: "workspace.Import";
+    }
+
+    [end]
+    Gtk.MenuButton {
+        direction: none;
+        menu-model: main_menu;
+    }
+}
