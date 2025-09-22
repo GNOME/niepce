@@ -1,0 +1,5 @@
+[book]
+authors = ["Hubert Figuière"]
+language = "en"
+src = "src"
+title = "Niepce User's Manual"
