@@ -39,21 +39,78 @@ Then you have the import dialog:
 
 []
 
-On the top left you can select the source, Camera or Directory.
+On the top left you can select the source, Camera or Directory. On the
+top right you have a preview of where in the catalog the images will
+be imported.
+
+[]
 
 ### Camera
 
 There are two different kinds: camera connected over USB and memory
 card in readers. For the later case, some camera present themselves as
-a card reader. The support is provided by libgphoto2 which is a
-project led by volunteers, where the support is done without help from
-camera vendors.
+a card reader and will be handled as such.
 
-It is recommended to use a card reader for speed reliability and
-convenience but some camera and smartphones don't offer that option.
+Note: The support is provided by libgphoto2 which is a project led by
+volunteers, where the support is done without help from camera
+vendors.
 
-Once the camera is plugged, click select and it will automatically
+It is recommended to use a card reader for speed, reliability and
+convenience but some cameras and smartphones don't offer that option.
+
+Once the camera is plugged in, click select and it will automatically
 query the content to display thumbnails.
 
 ### Directory
 
+You can import images from any directory. There are two methods: copy
+and in place. Importing from a camera is always copying.
+
+#### Copy import
+
+Use copy import for when you want to copy the files from where they
+are to a new location like your central location for all your
+images. This is exactly like importing from a camera.
+
+You can sort picture automatically by date.
+
+#### In place
+
+Importing in place mean that you just add the files to the catalog and
+theybecome managed by Niepce. This is useful if, for example, you are
+importing you archives into Niepce.
+
+In that case the structure of the directories on the storage is kept.
+
+## Destination
+
+The tree view to the right show the destination of the import in the
+workspace. Unless it is importing in place, you can select a
+destination. It will show the folders created for sorting with the
+special folder icon [].
+
+## Sorting
+
+On copy import Niepce can sort images by date into subfolders in the
+destination. You can select the sorting and it will be previewed prior
+to importing.
+
+[]
+
+There are 5 sorting options. Examples use a picture taken on 28
+September 2025:
+
+- No sorting: Pictures are all in the destination
+  folder. Example: `Destination/IMG_0001.JPG`.
+- `YYYMMDD`: Pictures will be dispatched in a folder with the year
+  month and day in the destination
+  folder. Example: `Destination/20250928/IMG_0001.JPG`.
+- `YYYY/MMDD`: Pictures will be dispatched in a folder with the month
+  and day, itself in a folder with the year in the destination
+  folder. Example: `Destination/2025/0928/IMG_0001.JPG`.
+- `YYYY/MM/DD`: Picture will be sorted by day, in a monthly folder, in
+  a yearly folder in the destination folder. Example:
+  `Destination/2025/09/28/IMG_0001.JPG`.
+- `YYYY/YYYYMMDD`: Pictures will be dispatched in a folder with the
+  year month and day, itself in a yearly folder in the destination
+  folder. Example: `Destination/2025/20250928/IMG_0001.JPG`.
