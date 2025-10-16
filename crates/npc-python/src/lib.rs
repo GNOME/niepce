@@ -21,6 +21,7 @@
 extern crate gtk_macros;
 
 mod editor;
+mod engine;
 mod python;
 
 pub use editor::Editor;

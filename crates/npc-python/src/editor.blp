@@ -12,6 +12,12 @@ Adw.Window window {
         [top]
         Gtk.HeaderBar {
             show-title-buttons: true;
+
+            [start]
+            Gtk.Button {
+                label: _("Run");
+                action-name: "python.run";
+            }
         }
 
         Gtk.Box {

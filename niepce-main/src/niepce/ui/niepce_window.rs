@@ -42,6 +42,7 @@ use super::film_strip_controller::FilmStripController;
 use super::module_shell::ModuleShell;
 use super::workspace_controller::WorkspaceController;
 use crate::NiepceApplication;
+use crate::python::NiepcePython;
 use crate::{NotificationCenter, config};
 
 pub enum Event {
@@ -157,9 +158,10 @@ impl Controller for NiepceWindow {
             PythonEditor => {
                 if let Some(widgets) = self.widgets.get() {
                     if widgets.python_editor.borrow().is_none() {
+                        let python_app = Box::new(NiepcePython {});
                         widgets
                             .python_editor
-                            .replace(Some(npc_python::Editor::new()));
+                            .replace(Some(npc_python::Editor::new(python_app)));
                     }
                     if let Some(editor) = widgets.python_editor.borrow().as_ref() {
                         editor.run(Some(self.window()));

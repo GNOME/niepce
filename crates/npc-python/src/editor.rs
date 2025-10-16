@@ -20,11 +20,15 @@
 use std::rc::Rc;
 
 use npc_fwk::adw;
+use npc_fwk::gio;
 use npc_fwk::gtk4;
 use sourceview5::prelude::*;
 
-use npc_fwk::controller_imp_imp;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, DialogController, UiController};
+use npc_fwk::{controller_imp_imp, on_err_out};
+
+use crate::PythonApp;
+use crate::engine::Engine;
 
 pub enum Event {
     Run,
@@ -34,6 +38,9 @@ pub enum Event {
 pub struct Editor {
     imp_: ControllerImplCell<Event, ()>,
     window: adw::Window,
+    action_group: gio::SimpleActionGroup,
+    engine: Engine,
+    editor: sourceview5::View,
 }
 
 impl Controller for Editor {
@@ -41,11 +48,24 @@ impl Controller for Editor {
     type OutMsg = ();
 
     controller_imp_imp!(imp_);
+
+    fn dispatch(&self, e: Self::InMsg) {
+        match e {
+            Event::Run => self.run(),
+            Event::Close => {}
+        }
+    }
 }
 
 impl UiController for Editor {
     fn widget(&self) -> &npc_fwk::gtk4::Widget {
         self.dialog().upcast_ref()
+    }
+
+    fn actions(&self) -> Option<(&str, &gio::ActionGroup)> {
+        let tx = self.sender();
+        npc_fwk::sending_action!(self.action_group, "run", tx, Event::Run);
+        Some(("python", self.action_group.upcast_ref()))
     }
 }
 
@@ -56,7 +76,7 @@ impl DialogController for Editor {
 }
 
 impl Editor {
-    pub fn new() -> Rc<Self> {
+    pub fn new(python_app: Box<dyn PythonApp>) -> Rc<Self> {
         let builder = gtk4::Builder::from_resource("/net/figuiere/npc-python/ui/editor.ui");
         get_widget!(builder, adw::Window, window);
         get_widget!(builder, sourceview5::View, editor);
@@ -74,13 +94,31 @@ impl Editor {
         );
         editor.set_buffer(Some(&buffer));
         window.set_default_size(500, 500);
+
         let editor = Rc::new(Self {
             imp_: ControllerImplCell::default(),
             window,
+            action_group: gio::SimpleActionGroup::new(),
+            editor,
+            engine: Engine::new(python_app),
         });
+
+        if let Some(actions) = editor.actions() {
+            editor
+                .window
+                .insert_action_group(actions.0, Some(actions.1));
+        }
 
         <Self as DialogController>::start(&editor);
 
         editor
+    }
+
+    /// Run the python code in the editor.
+    fn run(&self) {
+        let buffer = self.editor.buffer();
+        let text = buffer.text(&buffer.start_iter(), &buffer.end_iter(), false);
+        let code = text.as_str();
+        on_err_out!(self.engine.exec(code));
     }
 }

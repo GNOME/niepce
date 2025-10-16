@@ -23,6 +23,8 @@ use pyo3::ffi::c_str;
 use pyo3::prelude::*;
 use pyo3::types::IntoPyDict;
 
+use npc_python::PythonApp;
+
 #[pyfunction(name = "version")]
 fn version() {
     println!("Hello this is Niepce");
@@ -32,14 +34,14 @@ pub struct NiepcePython;
 
 impl npc_python::PythonApp for NiepcePython {
     /// Create the `niepce` python module.
-    fn module<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyModule>> {
-        let niepce = PyModule::new(py, Self::module_name())?;
+    fn module<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyModule>> {
+        let niepce = PyModule::new(py, self.module_name())?;
         niepce.add_function(wrap_pyfunction!(version, &niepce)?)?;
 
         Ok(niepce)
     }
 
-    fn module_name() -> &'static str {
+    fn module_name(&self) -> &'static str {
         "niepce"
     }
 }
@@ -48,14 +50,15 @@ pub fn test_python<App: npc_python::PythonApp>() {
     Python::attach(|py| {
         let sys = py.import("sys")?;
         let version: String = sys.getattr("version")?.extract()?;
-        let niepce = App::module(py)?;
+        let app = NiepcePython {};
+        let niepce = app.module(py)?;
 
         let locals = [("os", py.import("os")?)].into_py_dict(py)?;
         let code = c"os.getenv('USER') or os.getenv('USERNAME') or 'Unknown'";
         let user: String = py.eval(code, None, Some(&locals))?.extract()?;
         println!("Hello {user}, I'm Python {version}");
 
-        let locals = [(App::module_name(), niepce)].into_py_dict(py)?;
+        let locals = [(app.module_name(), niepce)].into_py_dict(py)?;
         let code = c_str!(
             r#"
 niepce.version()

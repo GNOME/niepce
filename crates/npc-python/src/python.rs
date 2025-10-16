@@ -24,7 +24,7 @@ use pyo3::prelude::*;
 /// Trait to implement a PythonApp.
 pub trait PythonApp {
     /// Return the module for the Python application.
-    fn module<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyModule>>;
+    fn module<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyModule>>;
     /// Return the name of the module.
-    fn module_name() -> &'static str;
+    fn module_name(&self) -> &'static str;
 }
