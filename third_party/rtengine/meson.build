@@ -430,6 +430,7 @@ rtengine = static_library(
   'RawTherapee/rtengine/rawimagesource.cc',
   'RawTherapee/rtengine/rcd_demosaic.cc',
   'RawTherapee/rtengine/refreshmap.cc',
+  'RawTherapee/rtengine/rtapp.cc',
   'RawTherapee/rtengine/rt_algo.cc',
   'RawTherapee/rtengine/rtlensfun.cc',
   'RawTherapee/rtengine/rtthumbnail.cc',
