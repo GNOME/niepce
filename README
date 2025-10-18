@@ -39,6 +39,8 @@ To build you need the following:
 - meson >= 0.59
 - blueprint
 - gtk4 4.12
+- gtksourceview-5
+- python 3
 
 For the RawTherapee engine:
 

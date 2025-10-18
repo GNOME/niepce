@@ -74,6 +74,14 @@ pub trait DialogController: UiController {
         });
     }
 
+    /// Run the dialog modeless.
+    fn run(&self, parent: Option<&gtk4::Window>) {
+        let dialog = self.dialog();
+        dialog.set_transient_for(parent);
+        dialog.set_modal(false);
+        dialog.present();
+    }
+
     /// Run the dialog modal. Will call `callback` when it is closed
     /// in success.
     fn run_modal<F>(&self, parent: Option<&gtk4::Window>, size: WindowSize, callback: F)

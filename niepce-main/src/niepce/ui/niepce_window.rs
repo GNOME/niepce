@@ -48,6 +48,7 @@ pub enum Event {
     Delete,
     ToggleToolsVisible,
     EditLabels,
+    PythonEditor,
     OpenCatalog(std::path::PathBuf),
     NewLibraryCreated,
     AddedLabel(catalog::Label),
@@ -66,6 +67,7 @@ struct Widgets {
     header: gtk4::HeaderBar,
     statusbar: gtk4::Label,
     filmstrip: RefCell<Option<gtk4::Widget>>,
+    python_editor: RefCell<Option<Rc<npc_python::Editor>>>,
 
     notif_center: NotificationCenter,
 }
@@ -90,6 +92,7 @@ impl Widgets {
             header,
             statusbar,
             filmstrip: RefCell::new(None),
+            python_editor: RefCell::new(None),
             notif_center,
         }
     }
@@ -150,6 +153,18 @@ impl Controller for NiepceWindow {
             EditLabels => self.on_action_edit_labels(),
             ToggleToolsVisible => {
                 // XXX todo
+            }
+            PythonEditor => {
+                if let Some(widgets) = self.widgets.get() {
+                    if widgets.python_editor.borrow().is_none() {
+                        widgets
+                            .python_editor
+                            .replace(Some(npc_python::Editor::new()));
+                    }
+                    if let Some(editor) = widgets.python_editor.borrow().as_ref() {
+                        editor.run(Some(self.window()));
+                    }
+                }
             }
             OpenCatalog(catalog) => {
                 self.on_close();
@@ -269,6 +284,7 @@ impl UiController for NiepceWindow {
 
         npc_fwk::sending_action!(group, "ToggleToolsVisible", tx, Event::ToggleToolsVisible);
         npc_fwk::sending_action!(group, "EditLabels", tx, Event::EditLabels);
+        npc_fwk::sending_action!(group, "PythonEditor", tx, Event::PythonEditor);
 
         Some(("win", self.window.upcast_ref()))
     }

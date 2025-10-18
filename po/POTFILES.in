@@ -3,6 +3,7 @@
 crates/npc-engine/src/importer/lrimporter.rs
 crates/npc-fwk/src/toolkit/confirm.rs
 crates/npc-fwk/src/toolkit/request.rs
+crates/npc-python/src/editor.blp
 data/net.figuiere.Niepce.desktop.in.in
 data/net.figuiere.Niepce.metainfo.xml.in.in
 data/net.figuiere.Niepce.xml.in

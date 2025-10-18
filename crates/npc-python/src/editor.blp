@@ -1,0 +1,42 @@
+// Copyright (C) 2025 Hubert Figuière
+
+using Gtk 4.0;
+using GtkSource 5;
+using Adw 1;
+
+Adw.Window window {
+    title: _("Python editor");
+    hide-on-close: true;
+
+    Adw.ToolbarView {
+        [top]
+        Gtk.HeaderBar {
+            show-title-buttons: true;
+        }
+
+        Gtk.Box {
+            orientation: vertical;
+            spacing: 0;
+            Gtk.Paned {
+                orientation: vertical;
+                wide-handle: true;
+
+                Gtk.ScrolledWindow {
+                    vscrollbar-policy: external;
+
+                    GtkSource.View editor {
+                        hexpand: true;
+                        vexpand: true;
+                        tab-width: 4;
+                        auto-indent: true;
+                        monospace: true;
+                        show-line-numbers: true;
+                    }
+                }
+            }
+            Gtk.Label {
+                xalign: 0.0;
+            }
+        }
+    }
+}

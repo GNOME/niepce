@@ -32,7 +32,7 @@ resources_bundle = gnome.compile_resources(
     meson.project_source_root(),
     meson.project_build_root(),
   ],
-  dependencies: blueprints,
+  dependencies: [blueprints, npc_python_resources_bundle],
 )
 
 cargo_options = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml' ]

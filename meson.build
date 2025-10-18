@@ -129,6 +129,7 @@ endif
 subdir('data')
 subdir('po')
 subdir('third_party')
+subdir('crates/npc-python')
 subdir('niepce-main/src')
 subdir('niepce-main')
 subdir('doc')

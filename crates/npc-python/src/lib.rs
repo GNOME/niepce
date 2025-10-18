@@ -1,5 +1,5 @@
 /*
- * niepce - npc-python/src/lib.rs
+ * npc-python - lib.rs
  *
  * Copyright (C) 2025 Hubert Figuière
  *
@@ -17,6 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#[macro_use]
+extern crate gtk_macros;
+
+mod editor;
 mod python;
 
+pub use editor::Editor;
 pub use python::PythonApp;
+
+use npc_fwk::glib;
+
+// Initialize the resource as we can use the C trick,
+// we inline and load them.
+pub fn init_resources() -> Result<(), glib::Error> {
+    // load the gresource binary at build time and include/link it into the final
+    // binary.
+    // The assumption here is that it's built within the build system.
+    let res_bytes = include_bytes!(concat!(
+        env!("CARGO_TARGET_DIR"),
+        "/../crates/npc-python/npc-python-resources.gresource"
+    ));
+    npc_fwk::toolkit::resources::init_resources(res_bytes)
+}

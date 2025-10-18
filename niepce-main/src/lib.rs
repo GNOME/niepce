@@ -41,7 +41,8 @@ pub fn init_resources() -> Result<(), glib::Error> {
         env!("CARGO_TARGET_DIR"),
         "/../niepce-main/src/npc-resources.gresource"
     ));
-    npc_fwk::toolkit::resources::init_resources(res_bytes)
+    npc_fwk::toolkit::resources::init_resources(res_bytes)?;
+    npc_python::init_resources()
 }
 
 pub fn niepce_init() {

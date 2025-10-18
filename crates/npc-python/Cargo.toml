@@ -7,6 +7,8 @@ license = "GPL-3.0"
 rust-version = "1.85"
 
 [dependencies]
+gtk-macros = "0.3.0"
 pyo3 = { version = "0.26", features = [ "auto-initialize" ] }
+sourceview5 = "0.10.0"
 
 npc-fwk = { path = "../npc-fwk" }
