@@ -18,7 +18,7 @@ Adw.Window import_dialog {
       DropDown import_source_combo {}
 
       [end]
-      Button import_button {
+      Button {
         focusable: true;
         label: _("_Import");
         margin-bottom: 3;
@@ -30,16 +30,18 @@ Adw.Window import_dialog {
           "suggested-action"
         ]
         use-underline: true;
+        action-name: "import.Import";
       }
 
       [end]
-      Button cancel_button {
+      Button {
         focusable: true;
         label: _("Cancel");
         margin-bottom: 3;
         margin-end: 3;
         margin-start: 3;
         margin-top: 3;
+        action-name: "import.Cancel";
       }
     }
 

@@ -22,10 +22,11 @@ Grid main_widget {
     }
   }
 
-  Button select_camera_btn {
+  Button {
     focusable: true;
     label: _("Select");
     receives-default: true;
+    action-name: "cameraimport.CameraSelected";
 
     layout {
       column: '2';

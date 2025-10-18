@@ -28,7 +28,7 @@ use npc_fwk::{adw, gio, glib, gtk4};
 
 use npc_engine::importer::{DirectoryImporter, ImportBackend};
 use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender};
-use npc_fwk::{controller_imp_imp, on_err_out, toolkit};
+use npc_fwk::{controller_imp_imp, on_err_out, sending_action, toolkit};
 
 use super::{ImporterMsg, ImporterUI};
 
@@ -65,6 +65,7 @@ pub(super) struct DirectoryImporterUI {
     name: String,
     cfg: Rc<toolkit::Configuration>,
     backend: RefCell<Rc<DirectoryImporter>>,
+    action_group: gio::SimpleActionGroup,
     widgets: RefCell<Widgets>,
     state: RefCell<State>,
 }
@@ -120,6 +121,7 @@ impl DirectoryImporterUI {
             backend: RefCell::new(Rc::new(DirectoryImporter::default())),
             widgets: RefCell::default(),
             state: RefCell::default(),
+            action_group: gio::SimpleActionGroup::new(),
         });
 
         <Self as Controller>::start(&widget);
@@ -218,17 +220,17 @@ impl ImporterUI for DirectoryImporterUI {
         let builder =
             gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/directory_importer_ui.ui");
         get_widget!(builder, gtk4::Grid, main_widget);
-        get_widget!(builder, gtk4::Button, select_directories);
+        main_widget.insert_action_group("dirimport", Some(&self.action_group));
         let sender = self.sender();
-        select_directories.connect_clicked(glib::clone!(
-            #[strong]
+        sending_action!(
+            self.action_group,
+            "SelectDirectories",
             sender,
-            move |_| npc_fwk::send_async_local!(Event::SelectDirectories, sender),
-        ));
+            Event::SelectDirectories
+        );
         get_widget!(builder, adw::ButtonContent, select_dir_content);
         get_widget!(builder, gtk4::CheckButton, copy_files);
         get_widget!(builder, gtk4::CheckButton, recursive);
-        let sender = self.sender();
         copy_files.connect_toggled(glib::clone!(
             #[strong]
             sender,

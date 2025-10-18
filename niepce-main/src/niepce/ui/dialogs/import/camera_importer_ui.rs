@@ -22,13 +22,13 @@ use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
-use npc_fwk::{glib, gtk4};
+use npc_fwk::{gio, gtk4};
 
 use super::{ImporterMsg, ImporterUI};
 use npc_engine::importer::{CameraImporter, ImportBackend};
-use npc_fwk::controller_imp_imp;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, Sender};
+use npc_fwk::{controller_imp_imp, sending_action};
 
 pub enum Event {
     CameraSelected,
@@ -44,7 +44,7 @@ struct Widgets {
     parent: Option<gtk4::Window>,
     camera_list_combo: Option<gtk4::DropDown>,
     camera_list_model: Rc<toolkit::ComboModel<String>>,
-    select_camera: Option<gtk4::Button>,
+    select_camera: Option<gio::SimpleAction>,
     tx: Option<Sender<ImporterMsg>>,
 }
 
@@ -54,6 +54,7 @@ pub(super) struct CameraImporterUI {
     backend: Rc<dyn ImportBackend>,
     widgets: RefCell<Widgets>,
     state: RefCell<State>,
+    action_group: gio::SimpleActionGroup,
 }
 
 impl Controller for CameraImporterUI {
@@ -77,6 +78,7 @@ impl CameraImporterUI {
             backend: Rc::new(CameraImporter::default()),
             widgets: RefCell::default(),
             state: RefCell::default(),
+            action_group: gio::SimpleActionGroup::new(),
         });
 
         <Self as Controller>::start(&widget);
@@ -125,18 +127,22 @@ impl ImporterUI for CameraImporterUI {
     fn setup_widget(&self, parent: &gtk4::Window, tx: Sender<ImporterMsg>) -> gtk4::Widget {
         let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/camera_importer_ui.ui");
         get_widget!(builder, gtk4::Grid, main_widget);
-        get_widget!(builder, gtk4::Button, select_camera_btn);
+        main_widget.insert_action_group("cameraimport", Some(&self.action_group));
         let sender = self.sender();
-        select_camera_btn.connect_clicked(glib::clone!(
-            #[strong]
+        sending_action!(
+            self.action_group,
+            "CameraSelected",
             sender,
-            move |_| npc_fwk::send_async_local!(Event::CameraSelected, sender),
-        ));
+            Event::CameraSelected
+        );
         get_widget!(builder, gtk4::DropDown, camera_list_combo);
 
         let mut widgets = self.widgets.borrow_mut();
         widgets.parent = Some(parent.clone());
-        widgets.select_camera = Some(select_camera_btn.clone());
+        widgets.select_camera = self
+            .action_group
+            .lookup_action("CameraSelected")
+            .and_then(|action| action.downcast::<gio::SimpleAction>().ok());
         widgets.camera_list_combo = Some(camera_list_combo.clone());
         widgets.tx = Some(tx);
 
@@ -156,7 +162,9 @@ impl ImporterUI for CameraImporterUI {
                 .camera_list_model
                 .push(&i18n("No camera found"), String::default());
             camera_list_combo.set_sensitive(false);
-            select_camera_btn.set_sensitive(false);
+            if let Some(select_camera) = &widgets.select_camera {
+                select_camera.set_enabled(false);
+            }
         }
 
         main_widget.upcast::<gtk4::Widget>()

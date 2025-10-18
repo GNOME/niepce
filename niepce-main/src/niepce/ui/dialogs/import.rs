@@ -51,7 +51,9 @@ use npc_fwk::toolkit::{
     Thumbnail, UiController,
 };
 use npc_fwk::utils::normalize_for_display;
-use npc_fwk::{Date, controller_imp_imp, dbg_out, err_out, send_async_any, trace_out};
+use npc_fwk::{
+    Date, controller_imp_imp, dbg_out, err_out, send_async_any, sending_action, trace_out,
+};
 use thumb_item::ThumbItem;
 use thumb_item_row::ThumbItemRow;
 
@@ -155,6 +157,7 @@ pub struct ImportDialog {
     imp_: ControllerImplCell<Event, ImportRequest>,
     cfg: Rc<toolkit::Configuration>,
     client: Arc<LibraryClient>,
+    action_group: gio::SimpleActionGroup,
 
     widgets: OnceCell<Widgets>,
     state: RefCell<State>,
@@ -221,20 +224,14 @@ impl DialogController for ImportDialog {
             .get_or_init(|| {
                 let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/import.ui");
                 get_widget!(builder, adw::Window, import_dialog);
+                import_dialog.insert_action_group("import", Some(&self.action_group));
                 get_widget!(builder, gtk4::DropDown, date_tz_combo);
                 let string_list =
                     toolkit::ComboModel::with_map(&[("Date is local", 0), ("Date is UTC", 1)]);
                 string_list.bind(&date_tz_combo, |_| {});
-                get_widget!(builder, gtk4::Button, cancel_button);
                 let sender = self.sender();
-                cancel_button.connect_clicked(move |_| {
-                    send_async_any!(Event::Cancel, sender);
-                });
-                get_widget!(builder, gtk4::Button, import_button);
-                let sender = self.sender();
-                import_button.connect_clicked(move |_| {
-                    send_async_any!(Event::Import, sender);
-                });
+                sending_action!(self.action_group, "Cancel", sender, Event::Cancel);
+                sending_action!(self.action_group, "Import", sender, Event::Import);
                 get_widget!(builder, gtk4::ListView, destination_folders);
                 let dest_folders = dest_folders::DestFolders::new(
                     self.client.clone(),
@@ -384,6 +381,7 @@ impl ImportDialog {
             imp_: ControllerImplCell::default(),
             cfg,
             client,
+            action_group: gio::SimpleActionGroup::new(),
             widgets: OnceCell::new(),
             state: RefCell::new(state),
             images_list_map: RefCell::default(),

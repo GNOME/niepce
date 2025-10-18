@@ -16,8 +16,9 @@ Grid main_widget {
     }
   }
 
-  Button select_directories {
+  Button {
     focusable: true;
+    action-name: "dirimport.SelectDirectories";
 
     Adw.ButtonContent select_dir_content {
       icon-name: "folder-open-symbolic";
