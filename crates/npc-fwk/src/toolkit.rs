@@ -34,6 +34,7 @@ mod map_controller;
 pub mod mimetype;
 pub mod movieutils;
 pub mod request;
+pub mod resources;
 pub mod thumbnail;
 pub mod tree_view_model;
 mod uicontroller;

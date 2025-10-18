@@ -1,7 +1,7 @@
 /*
  * niepce - lib.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,29 +27,20 @@ mod notification_center;
 
 use std::sync::Once;
 
-use npc_fwk::{adw, gio, glib, gtk4};
+use npc_fwk::{adw, glib, gtk4};
 
 pub use niepce::ui::niepce_application::NiepceApplication;
 
-// Initialize the resource as we can use the C trick,
-// we inline and load them.
+// Initialize the resource with inline bytes
 pub fn init_resources() -> Result<(), glib::Error> {
-    // load the gresource binary at build time and include/link it into the final
-    // binary.
-    // The assumption here is that it's built within the build system.
+    // load the gresource binary at build time and include/link it
+    // into the final binary.  The assumption here is that it's built
+    // within the build system.
     let res_bytes = include_bytes!(concat!(
         env!("CARGO_TARGET_DIR"),
         "/../niepce-main/src/npc-resources.gresource"
     ));
-
-    // Create Resource it will live as long the value lives.
-    let gbytes = glib::Bytes::from_static(res_bytes.as_ref());
-    let resource = gio::Resource::from_data(&gbytes)?;
-
-    // Register the resource so it won't be dropped and will continue to live in
-    // memory.
-    gio::resources_register(&resource);
-    Ok(())
+    npc_fwk::toolkit::resources::init_resources(res_bytes)
 }
 
 pub fn niepce_init() {
