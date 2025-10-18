@@ -19,9 +19,11 @@ libc = "0.2.39"
 nix = { version = "0.30", features = [ "process" ] }
 num-derive = "0.4.2"
 num-traits = "0.2.18"
+pyo3 = "*"
 thiserror = "*"
 
 npc-fwk = { path = "../crates/npc-fwk" }
+npc-python = { path = "../crates/npc-python" }
 npc-engine = { path = "../crates/npc-engine" }
 npc-craw = { path = "../crates/npc-craw" }
 

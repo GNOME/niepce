@@ -1,7 +1,7 @@
 /*
  * niepce - bin/niepce.rs
  *
- * Copyright (C) 2023 Hubert Figuière
+ * Copyright (C) 2023-2025 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 use gettextrs::*;
 
+use niepce_core::python::NiepcePython;
 use niepce_core::{NiepceApplication, config};
 use npc_fwk::{ExempiManager, dbg_out};
 
@@ -31,6 +32,9 @@ fn main() {
     niepce_core::niepce_init();
 
     let _ = ExempiManager::new(None);
+
+    // This is just a test.
+    niepce_core::python::test_python::<NiepcePython>();
 
     dbg_out!("Starting up. DEBUG is on");
 

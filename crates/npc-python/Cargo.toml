@@ -1,0 +1,12 @@
+[package]
+name = "npc-python"
+version = "0.1.0"
+authors = ["Hubert Figuière <hub@figuiere.net>"]
+edition = "2024"
+license = "GPL-3.0"
+rust-version = "1.85"
+
+[dependencies]
+pyo3 = { version = "0.26", features = [ "auto-initialize" ] }
+
+npc-fwk = { path = "../npc-fwk" }

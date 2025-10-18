@@ -24,6 +24,7 @@ pub mod config;
 pub mod modules;
 pub mod niepce;
 mod notification_center;
+pub mod python;
 
 use std::sync::Once;
 
