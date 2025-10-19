@@ -19,15 +19,13 @@
 
 //! Python bindings.
 
-use pyo3::ffi::c_str;
 use pyo3::prelude::*;
-use pyo3::types::IntoPyDict;
 
-use npc_python::PythonApp;
-
-#[pyfunction(name = "version")]
-fn version() {
-    println!("Hello this is Niepce");
+#[pyfunction]
+/// Return the application version.
+/// This is used to test basic python works.
+fn version() -> String {
+    crate::config::VERSION.into()
 }
 
 pub struct NiepcePython;
@@ -46,27 +44,32 @@ impl npc_python::PythonApp for NiepcePython {
     }
 }
 
-pub fn test_python<App: npc_python::PythonApp>() {
-    Python::attach(|py| {
-        let sys = py.import("sys")?;
-        let version: String = sys.getattr("version")?.extract()?;
-        let app = NiepcePython {};
-        let niepce = app.module(py)?;
+#[cfg(test)]
+mod tests {
+    use pyo3::ffi::c_str;
+    use pyo3::prelude::*;
+    use pyo3::types::IntoPyDict;
 
-        let locals = [("os", py.import("os")?)].into_py_dict(py)?;
-        let code = c"os.getenv('USER') or os.getenv('USERNAME') or 'Unknown'";
-        let user: String = py.eval(code, None, Some(&locals))?.extract()?;
-        println!("Hello {user}, I'm Python {version}");
+    use super::NiepcePython;
+    use npc_python::PythonApp;
 
-        let locals = [(app.module_name(), niepce)].into_py_dict(py)?;
-        let code = c_str!(
-            r#"
+    #[test]
+    fn test_python() {
+        Python::attach(|py| {
+            let app = NiepcePython {};
+            let niepce = app.module(py)?;
+            let locals = [(app.module_name(), niepce)].into_py_dict(py)?;
+            let code = c_str!(
+                r#"
 niepce.version()
 "#
-        );
-        py.run(code, None, Some(&locals))?;
+            );
+            let res = py.eval(code, None, Some(&locals)).unwrap();
+            let v: &str = res.extract().unwrap();
+            assert_eq!(v, crate::config::VERSION);
 
-        Ok::<(), PyErr>(())
-    })
-    .expect("Python initialization failed");
+            Ok::<(), PyErr>(())
+        })
+        .expect("Fail to run python");
+    }
 }
