@@ -22,7 +22,6 @@
 use std::ffi::CString;
 
 use pyo3::prelude::*;
-use pyo3::types::IntoPyDict;
 
 use crate::PythonApp;
 
@@ -39,9 +38,11 @@ impl Engine {
     pub fn exec(&self, code: &str) -> pyo3::PyResult<()> {
         Python::attach(|py| {
             let app_module = self.app.module(py)?;
-            let locals = [(self.app.module_name(), app_module)].into_py_dict(py)?;
+            py.import("sys")?
+                .getattr("modules")?
+                .set_item(self.app.module_name(), app_module)?;
             let code = CString::new(code).unwrap();
-            py.run(&code, None, Some(&locals))?;
+            py.run(&code, None, None)?;
 
             Ok::<(), PyErr>(())
         })

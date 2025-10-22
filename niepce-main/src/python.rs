@@ -28,6 +28,13 @@ fn version() -> String {
     crate::config::VERSION.into()
 }
 
+#[pyfunction(name = "println")]
+/// Println a string
+///
+fn py_println(s: &str) {
+    println!("{s}");
+}
+
 pub struct NiepcePython;
 
 impl npc_python::PythonApp for NiepcePython {
@@ -35,6 +42,7 @@ impl npc_python::PythonApp for NiepcePython {
     fn module<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyModule>> {
         let niepce = PyModule::new(py, self.module_name())?;
         niepce.add_function(wrap_pyfunction!(version, &niepce)?)?;
+        niepce.add_function(wrap_pyfunction!(py_println, &niepce)?)?;
 
         Ok(niepce)
     }
