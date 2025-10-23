@@ -22,27 +22,57 @@
 use std::ffi::CString;
 
 use pyo3::prelude::*;
+use pyo3::types::{PyCFunction, PyDict, PyTuple};
 
 use crate::PythonApp;
 
+/// Callback type to print to stdout.
+type CoutCallback = std::sync::Arc<dyn Fn(&str) + Send + Sync>;
+
 pub(crate) struct Engine {
     app: Box<dyn PythonApp>,
+    cout: Option<CoutCallback>,
 }
 
 impl Engine {
-    pub fn new(python_app: Box<dyn PythonApp>) -> Self {
-        Self { app: python_app }
+    pub fn new(app: Box<dyn PythonApp>, cout: Option<CoutCallback>) -> Self {
+        Self { app, cout }
     }
 
     /// Execute `code` into the python interpreter
     pub fn exec(&self, code: &str) -> pyo3::PyResult<()> {
         Python::attach(|py| {
             let app_module = self.app.module(py)?;
+            let cout = self.cout.clone();
+            let py_println = move |args: &Bound<'_, PyTuple>,
+                                   _kwargs: Option<&Bound<'_, PyDict>>|
+                  -> PyResult<_> {
+                if let Some(cout) = &cout {
+                    let mut s = args.extract::<(String,)>()?.0;
+                    s += "\n";
+                    cout(&s);
+                }
+                Ok(())
+            };
+            let py_println =
+                PyCFunction::new_closure(py, Some(c"println"), None, py_println).unwrap();
+            app_module.add_function(py_println)?;
+
             py.import("sys")?
                 .getattr("modules")?
                 .set_item(self.app.module_name(), app_module)?;
             let code = CString::new(code).unwrap();
-            py.run(&code, None, None)?;
+            let result = py.run(&code, None, None);
+            if let Some(cout) = &self.cout {
+                if let Err(error) = result {
+                    cout(&(error.value(py).to_string() + "\n"));
+                    if let Some(traceback) = error.traceback(py) {
+                        cout(&(traceback.to_string() + "\n"));
+                    }
+                }
+            } else {
+                result?;
+            }
 
             Ok::<(), PyErr>(())
         })

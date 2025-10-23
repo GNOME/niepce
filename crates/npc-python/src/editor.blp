@@ -23,12 +23,13 @@ Adw.Window window {
         Gtk.Box {
             orientation: vertical;
             spacing: 0;
-            Gtk.Paned {
+            Gtk.Box {
                 orientation: vertical;
-                wide-handle: true;
 
+                [start]
                 Gtk.ScrolledWindow {
                     vscrollbar-policy: external;
+                    vexpand: true;
 
                     GtkSource.View editor {
                         hexpand: true;
@@ -37,6 +38,32 @@ Adw.Window window {
                         auto-indent: true;
                         monospace: true;
                         show-line-numbers: true;
+                    }
+                }
+
+                [end]
+                Gtk.Box {
+                    orientation: vertical;
+
+                    Gtk.Box {
+                        orientation: horizontal;
+                        css-classes: [
+                            "toolbar"
+                        ];
+
+                        Gtk.Button {
+                            action-name: "python.clear";
+                            icon-name: "user-trash-symbolic";
+                        }
+                    }
+                    Gtk.ScrolledWindow {
+                        vscrollbar-policy: external;
+
+                        Gtk.TextView console {
+                            hexpand: true;
+                            vexpand: true;
+                            editable: false;
+                        }
                     }
                 }
             }

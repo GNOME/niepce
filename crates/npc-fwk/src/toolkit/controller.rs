@@ -67,6 +67,10 @@ impl<I, O> ControllerImpl<I, O> {
             forwarder: None,
         }
     }
+
+    pub fn sender(&self) -> &super::Sender<I> {
+        &self.tx
+    }
 }
 
 /// Controller allow encapsulating functionnality and receive message
