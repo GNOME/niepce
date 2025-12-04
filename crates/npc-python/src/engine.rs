@@ -22,9 +22,22 @@
 use std::ffi::CString;
 
 use pyo3::prelude::*;
-use pyo3::types::{PyCFunction, PyDict, PyTuple};
 
 use crate::PythonApp;
+
+#[pyclass]
+struct Stdout {
+    cout: Option<CoutCallback>,
+}
+
+#[pymethods]
+impl Stdout {
+    fn write(&self, data: &str) {
+        if let Some(cout) = &self.cout {
+            cout(data);
+        }
+    }
+}
 
 /// Callback type to print to stdout.
 type CoutCallback = std::sync::Arc<dyn Fn(&str) + Send + Sync>;
@@ -44,23 +57,12 @@ impl Engine {
         Python::attach(|py| {
             let app_module = self.app.module(py)?;
             let cout = self.cout.clone();
-            let py_println = move |args: &Bound<'_, PyTuple>,
-                                   _kwargs: Option<&Bound<'_, PyDict>>|
-                  -> PyResult<_> {
-                if let Some(cout) = &cout {
-                    let mut s = args.extract::<(String,)>()?.0;
-                    s += "\n";
-                    cout(&s);
-                }
-                Ok(())
-            };
-            let py_println =
-                PyCFunction::new_closure(py, Some(c"println"), None, py_println).unwrap();
-            app_module.add_function(py_println)?;
+            let stdout = Stdout { cout };
 
-            py.import("sys")?
-                .getattr("modules")?
+            let sys = py.import("sys")?;
+            sys.getattr("modules")?
                 .set_item(self.app.module_name(), app_module)?;
+            sys.setattr("stdout", stdout)?;
             let code = CString::new(code).unwrap();
             let result = py.run(&code, None, None);
             if let Some(cout) = &self.cout {
