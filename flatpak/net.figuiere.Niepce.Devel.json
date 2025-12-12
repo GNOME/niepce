@@ -49,8 +49,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.32/libgphoto2-2.5.32.tar.xz",
-                    "sha256": "495a347be21b8f970607a81e739aa91513a8479cbd73b79454a339c73e2b860e"
+                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.33/libgphoto2-2.5.33.tar.bz2",
+                    "sha256": "c55504e725cf44b6ca67e1cd7504ad36dc98d7a0469a9e8d627fd0fb3848aa1d"
                 }
             ]
         },
@@ -131,7 +131,6 @@
                 }
             ]
         },
-        "heif.json",
         {
             "name": "lensfun",
             "buildsystem": "cmake-ninja",
@@ -353,18 +352,6 @@
             ]
         },
         "fftw3f.json",
-        {
-            "name": "blueprint-compiler",
-            "buildsystem": "meson",
-            "cleanup": ["*"],
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
-                    "tag": "v0.16.0"
-                }
-            ]
-        },
         {
             "name": "niepce",
 	    "buildsystem": "meson",

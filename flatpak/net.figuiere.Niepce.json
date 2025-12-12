@@ -1,10 +1,10 @@
 {
     "app-id": "net.figuiere.Niepce",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "48",
+    "runtime-version" : "49",
     "sdk" : "org.gnome.Sdk",
     "sdk-extensions" : [
-        "org.freedesktop.Sdk.Extension.llvm18",
+        "org.freedesktop.Sdk.Extension.llvm20",
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
     "command" : "niepce",
@@ -23,8 +23,8 @@
         "build-args": [
             "--share=network"
         ],
-        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm18/bin",
-        "prepend-ld-library-path": "/usr/lib/sdk/llvm18/lib"
+        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm20/bin",
+        "prepend-ld-library-path": "/usr/lib/sdk/llvm20/lib"
     },
     "cleanup": [
         "/include",
@@ -36,19 +36,6 @@
     ],
     "modules": [
         {
-            "name": "libusb",
-            "config-opts": [
-                "--disable-udev"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://github.com/libusb/libusb/releases/download/v1.0.29/libusb-1.0.29.tar.bz2",
-                    "sha256": "5977fc950f8d1395ccea9bd48c06b3f808fd3c2c961b44b0c2e6e29fc3a70a85"
-                }
-            ]
-        },
-        {
             "name": "libgphoto2",
             "cleanup": [
                 "/bin",
@@ -57,8 +44,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.32/libgphoto2-2.5.32.tar.xz",
-                    "sha256": "495a347be21b8f970607a81e739aa91513a8479cbd73b79454a339c73e2b860e"
+                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.33/libgphoto2-2.5.33.tar.bz2",
+                    "sha256": "c55504e725cf44b6ca67e1cd7504ad36dc98d7a0469a9e8d627fd0fb3848aa1d"
                 }
             ]
         },
@@ -139,7 +126,6 @@
                 }
             ]
         },
-        "heif.json",
         {
             "name": "lensfun",
             "buildsystem": "cmake-ninja",
@@ -361,18 +347,6 @@
             ]
         },
         "fftw3f.json",
-        {
-            "name": "blueprint-compiler",
-            "buildsystem": "meson",
-            "cleanup": ["*"],
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
-                    "tag": "v0.16.0"
-                }
-            ]
-        },
         {
             "name": "niepce",
 	    "buildsystem": "meson",
