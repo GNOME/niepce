@@ -104,8 +104,10 @@ where
     let action = gio::SimpleAction::new(name, None);
     group.add_action(&action);
     action.connect_activate(f);
-    if label.is_some() && context.is_some() {
-        let detail = format!("{}.{}", context.unwrap(), name);
+    if label.is_some()
+        && let Some(context) = context
+    {
+        let detail = format!("{}.{}", context, name);
         menu.append(label, Some(&detail));
         if let Some(accel) = accel {
             gtk4::Application::default().set_accels_for_action(&detail, &[accel]);
