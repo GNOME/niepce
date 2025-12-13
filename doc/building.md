@@ -1,11 +1,77 @@
-Building Niepce
-===============
+# Building Niepce
 
 Niepce build system is written with
 [meson](https://mesonbuild.com). meson will wrap cargo for the Rust
 code, and build the rest.
 
-The autotools system is deprecated and *may* be broken.
+Make sure to get the git submodules. `git submodule update --init`
+should do it.
+
+To build with the address sanitizer, pass `-Db_sanitize=address` to
+meson (it's standard).
+
+## Dependencies
+
+- A C++17 compiler
+- rustc >= 1.85
+- cairo 1.1
+- shumate 1.0.0
+- libadwaita >= 1.4.0
+- exempi >= 2.6.0
+- gegl >= 0.4.0
+- babl
+- libgphoto2
+- gexiv2 >= 0.14 (as required by rexiv2)
+- libheif
+  - HEVC codec should be installed at runtime for HEIC.
+- gstreamer-1.0
+- meson >= 0.59
+- blueprint
+- gtk4 4.12
+- gtksourceview-5
+- python 3
+
+For the RawTherapee engine:
+
+- glibmm 2.68
+- giomm
+- cairomm
+- exiv2 ~= 0.27
+- expat
+- fftw3f
+- libiptcdata
+- libraw >= 0.21
+- lensfun > 0.3
+- lcms2
+
+Niepce is being developed on Linux. It should build and work on other
+UNIX systems.
+
+## Building as a flatpak
+
+If you want to build using flatpak-builder, use the manifest in
+`flatpak/net.figuiere.Niepce.json`. The following will build and install
+it in the user installation of flatpak. It requires the GNOME SDK to
+be installed.
+
+```shell
+$ cd flatpak
+$ flatpak-builder --force-clean --ccache  --install --user build-dir net.figuiere.Niepce.json
+```
+
+## Build with fenv
+
+You can use [`fenv`](https://gitlab.gnome.org/ZanderBrown/fenv) to
+build the flatpak.
+
+```shell
+fenv gen flatpak/net.figuiere.Niepce.Devel.json
+fenv exec ninja -C _build install
+```
+
+Then you can run with `fenv run`.
+
+
 
 ## Build profile
 
