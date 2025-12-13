@@ -144,7 +144,7 @@ impl NiepceApplication {
                 .as_encoded_bytes(),
         )
         .unwrap();
-        nix::unistd::execv(&self_path, &[&self_path]).expect("execv failed");
+        let _ = nix::unistd::execv(&self_path, &[&self_path]);
     }
 
     pub fn weak(&self) -> Weak<Self> {
