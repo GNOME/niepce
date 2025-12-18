@@ -20,8 +20,8 @@
 use std::rc::Rc;
 
 use npc_fwk::adw;
-use npc_fwk::gio;
 use npc_fwk::gtk4;
+use npc_fwk::{gio, glib};
 use sourceview5::prelude::*;
 
 use npc_fwk::toolkit::{Controller, ControllerImplCell, DialogController, UiController};
@@ -34,6 +34,8 @@ pub enum Event {
     Run,
     ConsoleClear,
     ConsoleOut(String),
+    ConsolePrompt(String),
+    Cli(String),
     Close,
 }
 
@@ -60,6 +62,8 @@ impl Controller for Editor {
                 self.console_prompt();
             }
             Event::ConsoleOut(out) => self.console_out(&out),
+            Event::ConsolePrompt(out) => self.display_prompt(&out),
+            Event::Cli(stmt) => self.cli_run(&stmt),
             Event::Close => {}
         }
     }
@@ -90,6 +94,13 @@ impl Editor {
         get_widget!(builder, adw::Window, window);
         get_widget!(builder, sourceview5::View, editor);
         get_widget!(builder, gtk4::TextView, console);
+        get_widget!(builder, gtk4::Entry, cli);
+        let buffer = console.buffer();
+        // "output" is the tag for output styling.
+        // "prompt" is the tag for the prompt input: editable.
+        buffer.create_tag(Some("output"), &[("editable", &false)]);
+        buffer.create_tag(Some("prompt"), &[("weight", &800)]);
+        buffer.apply_tag_by_name("output", &buffer.start_iter(), &buffer.end_iter());
         let buffer = sourceview5::Buffer::new(None);
         buffer.set_highlight_syntax(true);
         buffer.set_language(
@@ -106,6 +117,14 @@ impl Editor {
         window.set_default_size(500, 500);
 
         let imp = ControllerImplCell::default();
+
+        let sender = imp.borrow().sender().clone();
+        cli.connect_activate(glib::clone!(move |this: &gtk4::Entry| {
+            let text = this.text();
+            send_async_local!(Event::Cli(text.to_string()), sender);
+            this.delete_text(0, -1);
+        }));
+
         let sender = imp.borrow().sender().clone();
         let editor = Rc::new(Self {
             imp_: imp,
@@ -140,14 +159,49 @@ impl Editor {
         let buffer = self.editor.buffer();
         let text = buffer.text(&buffer.start_iter(), &buffer.end_iter(), false);
         let code = text.as_str();
+        self.run_code(code);
+    }
+
+    /// Run the Python code in code.
+    fn run_code(&self, code: &str) {
+        let buffer = self.console.buffer();
+        let mark = gtk4::TextMark::new(Some("output_start"), true);
+        buffer.add_mark(&mark, &buffer.end_iter());
+
+        self.console_out("\n");
+
         on_err_out!(self.engine.exec(code));
+
+        self.console_prompt();
+    }
+
+    fn cli_run(&self, stmt: &str) {
+        self.console_out(stmt);
+        self.console_out("\n");
+
+        on_err_out!(self.engine.exec(stmt));
 
         self.console_prompt();
     }
 
     /// Output the console prompt, asynchronously.
     fn console_prompt(&self) {
-        self.send(Event::ConsoleOut(">\n".into()))
+        self.send(Event::ConsolePrompt("> ".into()));
+    }
+
+    fn display_prompt(&self, out: &str) {
+        let buffer = self.console.buffer();
+        let mark = buffer.mark("output_start").unwrap_or_else(|| {
+            let mark = gtk4::TextMark::new(Some("output_start"), true);
+            buffer.add_mark(&mark, &buffer.end_iter());
+            mark
+        });
+        self.console_out(out);
+        let start = buffer.iter_at_mark(&mark);
+        buffer.apply_tag_by_name("output", &start, &buffer.end_iter());
+        buffer.delete_mark(&mark);
+
+        buffer.apply_tag_by_name("prompt", &buffer.end_iter(), &buffer.end_iter());
     }
 
     /// Clear the console.

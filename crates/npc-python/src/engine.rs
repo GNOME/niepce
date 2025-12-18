@@ -25,22 +25,30 @@ use pyo3::prelude::*;
 
 use crate::PythonApp;
 
+/// Callback type to print to stdout.
+type CoutCallback = std::sync::Arc<dyn Fn(&str) + Send + Sync>;
+
 #[pyclass]
+#[derive(Clone)]
+/// Stdout redirected to the callback.
+/// Can replace sys.stdout or sys.stderr.
+///
+/// `cout` can be None.
 struct Stdout {
     cout: Option<CoutCallback>,
 }
 
 #[pymethods]
 impl Stdout {
+    /// Output to the callback or println if `self.cout` is `None`
     fn write(&self, data: &str) {
         if let Some(cout) = &self.cout {
             cout(data);
+        } else {
+            println!("{data}");
         }
     }
 }
-
-/// Callback type to print to stdout.
-type CoutCallback = std::sync::Arc<dyn Fn(&str) + Send + Sync>;
 
 pub(crate) struct Engine {
     app: Box<dyn PythonApp>,
@@ -62,7 +70,8 @@ impl Engine {
             let sys = py.import("sys")?;
             sys.getattr("modules")?
                 .set_item(self.app.module_name(), app_module)?;
-            sys.setattr("stdout", stdout)?;
+            sys.setattr("stdout", stdout.clone())?;
+            sys.setattr("stderr", stdout)?;
             let code = CString::new(code).unwrap();
             let result = py.run(&code, None, None);
             if let Some(cout) = &self.cout {
