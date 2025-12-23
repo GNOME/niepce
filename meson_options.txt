@@ -8,3 +8,10 @@ option(
   value: 'development',
   description: 'The build profile for Niepce. One of "release" or "development" (default value).'
 )
+
+option(
+  'python',
+  type: 'boolean',
+  value: true,
+  description: 'Enable python support'
+)

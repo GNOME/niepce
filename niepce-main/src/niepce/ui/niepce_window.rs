@@ -42,6 +42,7 @@ use super::film_strip_controller::FilmStripController;
 use super::module_shell::ModuleShell;
 use super::workspace_controller::WorkspaceController;
 use crate::NiepceApplication;
+#[cfg(feature = "python")]
 use crate::python::NiepcePython;
 use crate::{NotificationCenter, config};
 
@@ -68,6 +69,7 @@ struct Widgets {
     header: gtk4::HeaderBar,
     statusbar: gtk4::Label,
     filmstrip: RefCell<Option<gtk4::Widget>>,
+    #[cfg(feature = "python")]
     python_editor: RefCell<Option<Rc<npc_python::Editor>>>,
 
     notif_center: NotificationCenter,
@@ -93,6 +95,7 @@ impl Widgets {
             header,
             statusbar,
             filmstrip: RefCell::new(None),
+            #[cfg(feature = "python")]
             python_editor: RefCell::new(None),
             notif_center,
         }
@@ -155,7 +158,9 @@ impl Controller for NiepceWindow {
             ToggleToolsVisible => {
                 // XXX todo
             }
-            PythonEditor => {
+            PythonEditor =>
+            {
+                #[cfg(feature = "python")]
                 if let Some(widgets) = self.widgets.get() {
                     if widgets.python_editor.borrow().is_none() {
                         let python_app = Box::new(NiepcePython {});
@@ -286,6 +291,7 @@ impl UiController for NiepceWindow {
 
         npc_fwk::sending_action!(group, "ToggleToolsVisible", tx, Event::ToggleToolsVisible);
         npc_fwk::sending_action!(group, "EditLabels", tx, Event::EditLabels);
+        #[cfg(feature = "python")]
         npc_fwk::sending_action!(group, "PythonEditor", tx, Event::PythonEditor);
 
         Some(("win", self.window.upcast_ref()))

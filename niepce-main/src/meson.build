@@ -47,6 +47,10 @@ else
   message('Building in debug mode')
 endif
 
+if get_option('python')
+  cargo_options += [ '--features', 'python' ]
+endif
+
 # cargo env is defined in the top-level
 
 clippy = run_target(

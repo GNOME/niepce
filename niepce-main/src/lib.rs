@@ -24,6 +24,7 @@ pub mod config;
 pub mod modules;
 pub mod niepce;
 mod notification_center;
+#[cfg(feature = "python")]
 pub mod python;
 
 use std::sync::Once;
@@ -42,7 +43,10 @@ pub fn init_resources() -> Result<(), glib::Error> {
         "/../niepce-main/src/npc-resources.gresource"
     ));
     npc_fwk::toolkit::resources::init_resources(res_bytes)?;
-    npc_python::init_resources()
+    #[cfg(feature = "python")]
+    npc_python::init_resources()?;
+
+    Ok(())
 }
 
 pub fn niepce_init() {
