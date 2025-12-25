@@ -37,7 +37,7 @@ use std::sync::Arc;
 use gettextrs::gettext as i18n;
 use gtk_macros::get_widget;
 use gtk4::prelude::*;
-use i18n_format::i18n_fmt;
+use i18n_format::i18n_format;
 use npc_fwk::{adw, gdk4, gio, glib, gtk4};
 use num_traits::ToPrimitive;
 
@@ -423,9 +423,9 @@ impl ImportDialog {
     fn update_import_count(&self) {
         if let Some(widgets) = self.widgets.get() {
             let import_count = self.state.borrow().import_count;
-            widgets.image_count.set_label(&i18n_fmt! {
-                i18n_fmt("{} _Images to import", import_count)
-            });
+            widgets
+                .image_count
+                .set_label(&i18n_format!("{} _Images to import", import_count));
         }
     }
 
@@ -524,18 +524,24 @@ impl ImportDialog {
             let norm_dir =
                 normalize_for_display(dest_dir, self.client.base_directory().as_ref(), true);
             if copy {
-                widgets.destination_help.set_label(&i18n_fmt! {
+                widgets.destination_help.set_label(
                     // Translation note: {} is the directory path.
-                    i18n_fmt("Will images copy to \"{}\".", norm_dir.unwrap_or_else(|_| dest_dir.to_string_lossy().to_string()))
-                });
+                    &i18n_format!(
+                        "Will images copy to \"{}\".",
+                        norm_dir.unwrap_or_else(|_| dest_dir.to_string_lossy().to_string())
+                    ),
+                );
                 self.state.borrow_mut().copy_dest_dir = dest_dir.clone();
                 self.cfg
                     .set_value("base_import_dest_dir", &dest_dir.to_string_lossy());
             } else {
-                widgets.destination_help.set_label(&i18n_fmt! {
+                widgets.destination_help.set_label(
                     // Translation note: {} is the directory path.
-                    i18n_fmt("Will import \"{}\" by reference.", norm_dir.unwrap_or_else(|_| dest_dir.to_string_lossy().to_string()))
-                });
+                    &i18n_format!(
+                        "Will import \"{}\" by reference.",
+                        norm_dir.unwrap_or_else(|_| dest_dir.to_string_lossy().to_string())
+                    ),
+                );
             }
         }
         self.state.borrow_mut().full_dest_dir = dest_dir;

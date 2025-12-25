@@ -26,7 +26,7 @@ use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
-use i18n_format::i18n_fmt;
+use i18n_format::i18n_format;
 use npc_fwk::{adw, gtk4};
 
 use crate::niepce::ui::LibraryModule;
@@ -180,10 +180,8 @@ impl DarkroomModule {
         let toast = adw::Toast::new(&if let Some(filename) =
             path.file_name().map(|s| s.to_string_lossy())
         {
-            i18n_fmt! {
-                // Translators: {} is replaced by the file name.
-                i18n_fmt("Loading \"{}\"...", filename)
-            }
+            // Translators: {} is replaced by the file name.
+            i18n_format!("Loading \"{}\"...", filename)
         } else {
             i18n("Loading...")
         });

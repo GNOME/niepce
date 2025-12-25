@@ -28,7 +28,7 @@ use std::sync::Arc;
 use gettextrs::gettext as i18n;
 use gtk4::Builder;
 use gtk4::prelude::*;
-use i18n_format::i18n_fmt;
+use i18n_format::i18n_format;
 use npc_fwk::{gio, glib, gtk4};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
@@ -300,10 +300,8 @@ impl ImportLibraryDialog {
         let label = self.state.borrow().importer_name_label.clone();
         if let Some(ref mut importer) = self.state.borrow_mut().importer {
             if let Some(label) = label {
-                let importing = i18n_fmt! {
-                    // Translators: {} is the import source.
-                    i18n_fmt("Importing from {}", importer.name())
-                };
+                // Translators: {} is the import source.
+                let importing = i18n_format!("Importing from {}", importer.name());
                 label.set_text(&importing);
             }
             let roots = importer.root_folders();

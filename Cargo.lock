@@ -1427,22 +1427,12 @@ dependencies = [
 
 [[package]]
 name = "i18n-format"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a7c04128d7c7664f5296b5bfda286b22067b288aa96da4a75e09e24ea937ace"
+checksum = "f24f35ae2e31a52498d50755e28bef173da86913238c1eb0e48e76b724acd2c6"
 dependencies = [
  "formatx",
  "gettext-rs",
- "i18n-format-macro",
-]
-
-[[package]]
-name = "i18n-format-macro"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46802400c325631f52f78d0f49ce8f7a734e765efd7dd3187b998a17868b5fb2"
-dependencies = [
- "quote",
 ]
 
 [[package]]
