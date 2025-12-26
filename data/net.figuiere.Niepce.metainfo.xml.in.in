@@ -16,11 +16,8 @@
       <li>RAW processing</li>
     </ul>
   </description>
-  <screenshots>
-    <screenshot type="default"></screenshot>
-  </screenshots>
   <url type="homepage">https://wiki.gnome.org/Apps/Niepce</url>
-  <updatecontact>hub@figuiere.net</updatecontact>
+  <update_contact>hub@figuiere.net</update_contact>
   <developer_name>Hubert Figuière</developer_name>
   <translation type="gettext">@gettext-package@</translation>
   <launchable type="desktop-id">@app-id@.desktop</launchable>
