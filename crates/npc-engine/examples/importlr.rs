@@ -25,7 +25,7 @@ use clap::{Arg, Command};
 use serde_derive::Deserialize;
 
 use std::io::Read;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use npc_engine::importer::LrImporter;
 use npc_engine::importer::{LibraryImporter, LibraryImporterProbe};
@@ -84,7 +84,7 @@ fn main() {
 
     let (sender, _recv) = async_channel::unbounded();
 
-    let library = LibraryClient::new(Path::new(library), sender);
+    let library = LibraryClient::new(PathBuf::from(library), sender);
     // library.init();
     let mut importer = LrImporter::new();
     if !LrImporter::can_import_library(Path::new(catalog)) {
