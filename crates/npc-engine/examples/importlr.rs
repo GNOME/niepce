@@ -21,7 +21,7 @@
 //! Sample command line tool to import a Lr Catalog
 //!
 
-use clap::{Arg, Command};
+use clap::Parser;
 use serde_derive::Deserialize;
 
 use std::io::Read;
@@ -46,41 +46,37 @@ struct Remaps {
     roots: Vec<Vec<String>>,
 }
 
+#[derive(Parser, Debug)]
+/// Import a Lr catalog
+struct Args {
+    #[arg(short, action=clap::ArgAction::Count)]
+    /// Sets the level of verbosity
+    verbosity: u8,
+
+    #[arg(short = 'n', long)]
+    /// Dry run
+    dry_run: bool,
+
+    #[arg(short, long)]
+    /// File containing roots remap
+    roots: Option<String>,
+
+    #[arg(short = 'L')]
+    /// Which library to import into
+    library: String,
+
+    /// The catalog to import
+    catalog: String,
+}
+
 fn main() {
     npc_fwk::init();
 
-    let matches = Command::new("LrImporter")
-        .version("0.1.0")
-        .about("Import a Lr catalog")
-        .arg(
-            Arg::new("v")
-                .short('v')
-                .action(clap::ArgAction::Count)
-                .help("Sets the level of verbosity"),
-        )
-        .arg(
-            Arg::new("CATALOG")
-                .help("The catalog to import")
-                .required(true),
-        )
-        .arg(
-            Arg::new("roots")
-                .short('r')
-                .value_name("ROOTS")
-                .help("File containing roots remap"),
-        )
-        .arg(
-            Arg::new("library")
-                .short('L')
-                .value_name("LIBRARY")
-                .help("Which library to import into")
-                .required(true),
-        )
-        .get_matches();
+    let args = Args::parse();
 
-    let library = matches.get_one::<String>("library").unwrap();
-    let catalog = matches.get_one::<String>("CATALOG").unwrap();
-    let verbosity = matches.get_count("v");
+    let library = &args.library;
+    let catalog = &args.catalog;
+    let verbosity = args.verbosity;
 
     let (sender, _recv) = async_channel::unbounded();
 
@@ -96,7 +92,7 @@ fn main() {
         .init_importer(Path::new(catalog))
         .expect("Init importer");
 
-    if let Some(roots) = matches.get_one::<String>("roots") {
+    if let Some(roots) = &args.roots {
         let mut file = std::fs::File::open(roots).expect("Can't open roots file");
         let mut content = String::new();
         file.read_to_string(&mut content).expect("Can't read roots");
