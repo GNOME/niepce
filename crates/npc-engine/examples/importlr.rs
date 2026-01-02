@@ -1,7 +1,7 @@
 /*
  * niepce - bin/importlr.rs
  *
- * Copyright (C) 2021-2025 Hubert Figuière
+ * Copyright (C) 2021-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ use std::path::{Path, PathBuf};
 use npc_engine::importer::LrImporter;
 use npc_engine::importer::{LibraryImporter, LibraryImporterProbe};
 use npc_engine::libraryclient::LibraryClient;
+use npc_fwk::log;
 
 ///
 /// The remaps as loaded from toml passed with `-r`
@@ -50,7 +51,7 @@ struct Remaps {
 /// Import a Lr catalog
 struct Args {
     #[arg(short, action=clap::ArgAction::Count)]
-    /// Sets the level of verbosity
+    /// Sets the level of verbosity. Max `-vvvv`
     verbosity: u8,
 
     #[arg(short = 'n', long)]
@@ -70,6 +71,8 @@ struct Args {
 }
 
 fn main() {
+    use log::Level;
+
     npc_fwk::init();
 
     let args = Args::parse();
@@ -78,13 +81,23 @@ fn main() {
     let catalog = &args.catalog;
     let verbosity = args.verbosity;
 
+    let level = match verbosity {
+        0 => Level::Error,
+        1 => Level::Warn,
+        2 => Level::Info,
+        3 => Level::Debug,
+        4.. => Level::Trace,
+    };
+
+    simple_logger::init_with_level(level).unwrap();
+
     let (sender, _recv) = async_channel::unbounded();
 
     let library = LibraryClient::new(PathBuf::from(library), sender);
     // library.init();
     let mut importer = LrImporter::new();
     if !LrImporter::can_import_library(Path::new(catalog)) {
-        println!("Can't import catalog {}", catalog);
+        eprintln!("Can't import catalog {}", catalog);
         return;
     }
 

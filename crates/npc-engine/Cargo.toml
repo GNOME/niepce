@@ -35,5 +35,6 @@ npc-fwk = { path = "../npc-fwk" }
 clap = { version = "4.5.1", features = [ "derive" ] }
 serde = "*"
 serde_derive = "^1.0"
+simple_logger = "^5"
 tempfile = "3.4.0"
 toml = "0.8"
