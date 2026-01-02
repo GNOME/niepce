@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/exiv2.rs
  *
- * Copyright (C) 2018-2024 Hubert Figuière
+ * Copyright (C) 2018-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ use multimap::MultiMap;
 use std::ffi::OsStr;
 
 use super::exempi::{
-    Flash, NS_AUX, NS_EXIF, NS_EXIF_EX, NS_TIFF, NS_XAP, XmpMeta, xmp_date_from_exif,
+    Flash, NS_EXIF, NS_EXIF_AUX, NS_EXIF_EX, NS_TIFF, NS_XAP, XmpMeta, xmp_date_from_exif,
 };
 
 /// Property conversion rules
@@ -104,7 +104,7 @@ lazy_static::lazy_static! {
             "Exif.Photo.LensMake" =>
                 XmpPropDesc(NS_EXIF_EX, "LensMake", Conversion::None),
             "Exif.Photo.LensModel" =>
-                XmpPropDesc(NS_AUX, "Lens", Conversion::None),
+                XmpPropDesc(NS_EXIF_AUX, "Lens", Conversion::None),
             "Exif.Photo.LensModel" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::None),
             "Exif.Photo.LensSerialNumber" =>
@@ -124,31 +124,31 @@ lazy_static::lazy_static! {
             "Exif.Photo.WhiteBalance" =>
                 XmpPropDesc(NS_EXIF, "WhiteBalance", Conversion::None),
             "Exif.Canon.LensModel" =>
-                XmpPropDesc(NS_AUX, "Lens", Conversion::None),
+                XmpPropDesc(NS_EXIF_AUX, "Lens", Conversion::None),
             "Exif.Canon.LensModel" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::None),
             "Exif.Minolta.LensID" =>
-                XmpPropDesc(NS_AUX, "Lens", Conversion::Interpreted),
+                XmpPropDesc(NS_EXIF_AUX, "Lens", Conversion::Interpreted),
             "Exif.Minolta.LensID" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted),
             "Exif.Nikon3.Lens" =>
-                XmpPropDesc(NS_AUX, "Lens", Conversion::Interpreted),
+                XmpPropDesc(NS_EXIF_AUX, "Lens", Conversion::Interpreted),
             "Exif.Nikon3.Lens" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted),
             "Exif.OlympusEq.LensModel" =>
-                XmpPropDesc(NS_AUX, "Lens", Conversion::None),
+                XmpPropDesc(NS_EXIF_AUX, "Lens", Conversion::None),
             "Exif.OlympusEq.LensModel" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::None),
             "Exif.OlympusEq.LensSerialNumber" =>
                 XmpPropDesc(NS_EXIF_EX, "LensSerialNumber", Conversion::None),
             "Exif.Panasonic.LensType" =>
-                XmpPropDesc(NS_AUX, "Lens", Conversion::None),
+                XmpPropDesc(NS_EXIF_AUX, "Lens", Conversion::None),
             "Exif.Panasonic.LensType" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::None),
             "Exif.Panasonic.LensSerialNumber" =>
                 XmpPropDesc(NS_EXIF_EX, "LensSerialNumber", Conversion::None),
             "Exif.Pentax.LensType" =>
-                XmpPropDesc(NS_AUX, "Lens", Conversion::Interpreted),
+                XmpPropDesc(NS_EXIF_AUX, "Lens", Conversion::Interpreted),
             "Exif.Pentax.LensType" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted),
             "Xmp.xmp.Rating" =>
