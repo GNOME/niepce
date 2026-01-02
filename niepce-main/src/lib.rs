@@ -1,7 +1,7 @@
 /*
  * niepce - lib.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,8 @@ pub fn init_resources() -> Result<(), glib::Error> {
 }
 
 pub fn niepce_init() {
+    env_logger::init();
+
     static START: Once = Once::new();
 
     START.call_once(|| {

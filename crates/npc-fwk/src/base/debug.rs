@@ -1,3 +1,22 @@
+/*
+ * niepce - fwk/base/debug.rs
+ *
+ * Copyright (C) 2019-2026 Hubert Figuière
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /// Use this macro to output a message on a Result returning an error.
 /// This allow removing the warning if you ignore the Result.
 /// `Error` must implement `Debug`
@@ -21,8 +40,7 @@ macro_rules! on_err_out {
 macro_rules! trace_out {
     ( $( $x:expr ),* $(,)?) => {
         {
-            print!("TRACE: ");
-            println!( $($x),* );
+            $crate::log::trace!( $($x),* );
         }
     };
 }
@@ -32,8 +50,7 @@ macro_rules! trace_out {
 macro_rules! dbg_out {
     ( $( $x:expr ),* $(,)?) => {
         {
-            print!("DEBUG: ");
-            println!( $($x),* );
+            $crate::log::debug!( $($x),* );
         }
     };
 }
@@ -43,8 +60,7 @@ macro_rules! dbg_out {
 macro_rules! err_out {
     ( $( $x:expr ),* $(,)?) => {
         {
-            print!("ERROR: ");
-            println!( $($x),* );
+            $crate::log::error!( $($x),* );
         }
     };
 }
@@ -54,8 +70,8 @@ macro_rules! err_out {
 macro_rules! err_out_line {
     ( $( $x:expr ),* $(,)?) => {
         {
-            print!("ERROR: {}:{}:", file!(), line!());
-            println!( $($x),* );
+            let message = format!( $($x),* );
+            $crate::log::error!("{}:{}: {}", file!(), line!(), message);
         }
     };
 }
@@ -66,8 +82,8 @@ macro_rules! err_out_line {
 macro_rules! dbg_assert {
     ( $cond:expr,  $msg:expr ) => {{
         if !$cond {
-            print!("ASSERT: {}:{}: {}", file!(), line!(), stringify!($cond));
-            println!($msg);
+            let message = format!("ASSERT: {}:{}: {}", file!(), line!(), stringify!($cond));
+            $crate::log::error!("{} {}", message, $msg);
         }
     }};
 }

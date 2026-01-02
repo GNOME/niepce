@@ -19,7 +19,8 @@
         "--talk-name=org.gtk.vfs.*",
         "--filesystem=xdg-run/gvfsd",
         "--device=all",
-        "--env=RUST_BACKTRACE=1"
+        "--env=RUST_BACKTRACE=1",
+        "--env=RUST_LOG=debug,glycin=error"
     ],
     "build-options" : {
         "build-args": [
