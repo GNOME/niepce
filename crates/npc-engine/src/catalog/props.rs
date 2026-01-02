@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/props.rs
  *
- * Copyright (C) 2021-2023 Hubert Figuière
+ * Copyright (C) 2021-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,7 @@
 
 use lazy_static::lazy_static;
 use maplit::hashmap;
-use npc_fwk::utils::exempi::NS_AUX as NS_EXIF_AUX;
-use npc_fwk::utils::exempi::{NS_DC, NS_EXIF, NS_PHOTOSHOP, NS_TIFF, NS_XAP};
+use npc_fwk::utils::exempi::{NS_DC, NS_EXIF, NS_EXIF_AUX, NS_PHOTOSHOP, NS_TIFF, NS_XAP};
 mod xmp {
     pub use npc_fwk::utils::exempi::NIEPCE_XMP_NAMESPACE;
 }

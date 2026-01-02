@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/exempi.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,11 +37,13 @@ const UFRAW_INTEROP_NS_PREFIX: &str = "ufrint";
 
 pub const NS_TIFF: &str = "http://ns.adobe.com/tiff/1.0/";
 pub const NS_XAP: &str = "http://ns.adobe.com/xap/1.0/";
+pub const NS_XAP_RIGHTS: &str = "http://ns.adobe.com/xap/1.0/rights/";
 pub const NS_EXIF: &str = "http://ns.adobe.com/exif/1.0/";
 pub const NS_EXIF_EX: &str = "http://cipa.jp/exif/1.0/";
 pub const NS_DC: &str = "http://purl.org/dc/elements/1.1/";
-pub const NS_AUX: &str = "http://ns.adobe.com/exif/1.0/aux/";
+pub const NS_EXIF_AUX: &str = "http://ns.adobe.com/exif/1.0/aux/";
 pub const NS_PHOTOSHOP: &str = "http://ns.adobe.com/photoshop/1.0/";
+pub const NS_LIGHTROOM: &str = "http://ns.adobe.com/lightroom/1.0/";
 
 const XMP_TRUE: &str = "True";
 const XMP_FALSE: &str = "False";
@@ -688,7 +690,7 @@ mod tests {
                 assert!(result);
                 // properties that were missing
                 test_property_value(&dstmeta, super::NS_TIFF, "Model", "Canon EOS 20D");
-                test_property_value(&dstmeta, super::NS_AUX, "Lens", "24.0-85.0 mm");
+                test_property_value(&dstmeta, super::NS_EXIF_AUX, "Lens", "24.0-85.0 mm");
 
                 // Array property that contain less in destination
                 // Shouldn't have changed.
