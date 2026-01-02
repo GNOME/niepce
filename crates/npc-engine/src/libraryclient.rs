@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/libraryclient.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -131,7 +131,7 @@ impl LibraryClient {
                 }
             }
         }
-        npc_fwk::dbg_out!("LibraryClient terminated");
+        npc_fwk::log::trace!("LibraryClient terminated");
     }
 
     pub fn sender(&self) -> &LibraryClientSender {

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/app_controller.rs
  *
- * Copyright (C) 2024 Hubert Figuière
+ * Copyright (C) 2024-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 use std::sync::Arc;
 
+use crate::log;
 use crate::toolkit::{Configuration, Controller, UndoHistory, UndoTransaction};
 
 /// AppController trait allow getting a few App only pieces. Notably
@@ -37,7 +38,7 @@ pub trait AppController {
         let rx = this.receiver();
         let ctrl = this.clone();
         super::channels::receiver_attach(rx, move |e| {
-            dbg_out!(
+            log::trace!(
                 "dialog dispatching for {}:{:p}",
                 std::any::type_name::<T>(),
                 Arc::as_ptr(&ctrl)
