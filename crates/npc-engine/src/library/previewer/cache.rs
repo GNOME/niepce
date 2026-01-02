@@ -1,7 +1,7 @@
 /*
  * niepce - library/previewer/cache.rs
  *
- * Copyright (C) 2023-2025 Hubert Figuière
+ * Copyright (C) 2023-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ use std::sync::mpsc::SyncSender;
 use super::RenderParams;
 use crate::catalog;
 use npc_fwk::base::{Worker, WorkerImpl, WorkerStatus};
-use npc_fwk::{dbg_out, err_out, on_err_out};
+use npc_fwk::{dbg_out, err_out, log, on_err_out};
 
 /// Schema version for the cache
 const DB_SCHEMA_VERSION: i32 = 1;
@@ -212,10 +212,10 @@ impl DbWorker {
                 .map(|r| r.map_err(catalog::LibError::SqlError))
                 .unwrap_or(Err(catalog::LibError::NotFound));
 
-            dbg_out!("Found item {:?}", item);
+            log::trace!("Found item {:?}", item);
             let item = item?;
             let r = self.update_access(conn, item.id);
-            dbg_out!("access updated {:?}", r);
+            log::trace!("access updated {:?}", r);
             return Ok(item);
         }
 

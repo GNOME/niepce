@@ -1,7 +1,7 @@
 /*
  * niepce - toolkit/thumbnail.rs
  *
- * Copyright (C) 2020-2025 Hubert Figuière
+ * Copyright (C) 2020-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ use std::path::Path;
 
 use crate::gdk4;
 use crate::glib;
+use crate::log;
 use image::{DynamicImage, ExtendedColorType, ImageReader};
 use libopenraw as or;
 use libopenraw::Bitmap;
@@ -203,7 +204,7 @@ impl Thumbnail {
         if mime_type.is_unknown() {
             dbg_out!("unknown file type {:?}", filename);
         } else if mime_type.is_movie() {
-            dbg_out!("video thumbnail");
+            log::trace!("video thumbnail");
             return movieutils::thumbnail_movie(filename, w, h)
                 .map(Thumbnail::from)
                 .ok();
@@ -212,7 +213,7 @@ impl Thumbnail {
         } else if !mime_type.is_digicam_raw() {
             match mime_type.mime_type() {
                 MType::Image(ImgFormat::Heif) => {
-                    trace_out!("Heif image");
+                    log::trace!("Heif image");
                     return heif::extract_rotated_thumbnail(filename, w, h, orientation)
                         .inspect_err(|err| {
                             err_out!("Error thumnailing HEIF {err:?}");
@@ -224,12 +225,12 @@ impl Thumbnail {
                         .or_else(|| Self::thumbnail_image(filename, w, h, orientation));
                 }
                 t => {
-                    trace_out!("{t:?} not a raw type, trying image loaders");
+                    log::trace!("{t:?} not a raw type, trying image loaders");
                     return Self::thumbnail_image(filename, w, h, orientation);
                 }
             }
         } else {
-            dbg_out!("trying raw loader");
+            log::trace!("trying raw loader");
             return Self::thumbnail_raw(filename, w, h, orientation);
         }
 

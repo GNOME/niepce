@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/channels.rs
  *
- * Copyright (C) 2021-2024 Hubert Figuière
+ * Copyright (C) 2021-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 use std::future::Future;
 
 use crate::glib;
+use crate::log;
 
 pub type Sender<T> = async_channel::Sender<T>;
 pub type Receiver<T> = async_channel::Receiver<T>;
@@ -40,11 +41,11 @@ where
         #[strong]
         rx,
         async move {
-            dbg_out!("attaching for {}", std::any::type_name::<T>());
+            log::trace!("attaching for {}", std::any::type_name::<T>());
             while let Ok(message) = rx.recv().await {
                 rcv(message)
             }
-            dbg_out!("terminating {}", std::any::type_name::<T>());
+            log::trace!("terminating {}", std::any::type_name::<T>());
         }
     ));
 }

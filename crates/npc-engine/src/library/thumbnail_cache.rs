@@ -1,7 +1,7 @@
 /*
  * niepce - library/thumbnail_cache.rs
  *
- * Copyright (C) 2020-2025 Hubert Figuière
+ * Copyright (C) 2020-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ use crate::library::notification::LibNotification::{
 use crate::library::notification::{FileStatusChange, LcChannel};
 use crate::library::previewer::{Cache, RenderMsg, RenderParams, RenderSender, RenderType};
 use npc_fwk::base::Size;
+use npc_fwk::log;
 use npc_fwk::toolkit;
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::toolkit::thumbnail::Thumbnail;
@@ -73,7 +74,7 @@ impl Task {
 /// Check the file status (ie is it still present?) and report.
 fn check_file_status(id: catalog::LibraryId, path: &Path, sender: &LcChannel) {
     if !path.is_file() {
-        dbg_out!("file doesn't exist");
+        log::trace!("file doesn't exist");
         if let Err(err) =
             toolkit::thread_context().block_on(sender.send(FileStatusChanged(FileStatusChange {
                 id,
@@ -95,7 +96,7 @@ fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBi
 
     let rel_dest = cache.path_for_thumbnail(libfile.path(), libfile.id(), &digest)?;
     let dest = cache.cache_dir().to_path_buf().join(rel_dest);
-    dbg_out!("Found preview entry {dest:?}");
+    log::trace!("Found preview entry {dest:?}");
     if dest.exists() {
         dbg_out!("found {filename} in the cache fs: {dest:?}");
         cache.hit(&filename, &digest);
@@ -104,7 +105,7 @@ fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBi
 
     if let Ok(cache_item) = cache.get(&filename, &digest) {
         // cache hit
-        dbg_out!("thumbnail for {:?} is cached!", filename);
+        log::trace!("thumbnail for {:?} is cached!", filename);
         let target = if cache_item.target.is_relative() {
             cache.cache_dir().to_path_buf().join(cache_item.target)
         } else {
@@ -117,7 +118,7 @@ fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBi
         }
     }
 
-    dbg_out!("creating preview for {:?}", filename);
+    log::trace!("creating preview for {:?}", filename);
     if let Some(cached_dir) = dest.parent() {
         if let Err(err) = fs::create_dir_all(cached_dir) {
             err_out!("Coudln't create directories for {:?}: {}", dest, err);
@@ -185,7 +186,7 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
         }
     }
 
-    dbg_out!("creating thumbnail for {:?}", filename);
+    log::trace!("creating thumbnail for {:?}", filename);
     if let Some(cached_dir) = dest.parent() {
         if let Err(err) = fs::create_dir_all(cached_dir) {
             err_out!("Coudln't create directories for {:?}: {}", dest, err);
@@ -210,8 +211,6 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
                 &rel_dest.to_string_lossy(),
             );
         }
-    } else {
-        dbg_out!("couldn't get the preview for {:?}", filename);
     }
     thumbnail
 }
@@ -300,7 +299,7 @@ impl ThumbnailCache {
                 Request::Terminate => break,
             }
         }
-        dbg_out!("thumbnail cache thread terminating");
+        log::trace!("thumbnail cache thread terminating");
     }
 
     /// Request a render.

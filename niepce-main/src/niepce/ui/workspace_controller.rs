@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller.rs
  *
- * Copyright (C) 2021-2025 Hubert Figuière
+ * Copyright (C) 2021-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ use npc_fwk::base::Signal;
 use npc_fwk::toolkit::{
     self, Controller, ControllerImplCell, DialogController, ListViewRow, UiController, WindowSize,
 };
-use npc_fwk::{dbg_out, err_out};
+use npc_fwk::{dbg_out, err_out, log};
 use ws_item_row::WsItemRow;
 use ws_list_item::{CountUpdate, Item};
 use ws_list_model::WorkspaceList;
@@ -959,13 +959,13 @@ impl WorkspaceController {
         id: catalog::LibraryId,
         parent_id: catalog::LibraryId,
     ) -> Option<u32> {
-        dbg_out!("reparent_item");
+        log::trace!("reparent_item");
         let item = subtree.item().and_downcast::<Item>().expect("not an item");
         if let Some(this_item) = item
             .children()
             .and_then(|children| children.remove_by_id(id).ok())
         {
-            dbg_out!("found item {id}");
+            log::trace!("found item {id}");
             if let Some(parent_item) = item
                 .children()
                 .and_then(|children| children.item_by_id(parent_id))
@@ -1012,7 +1012,7 @@ impl WorkspaceController {
             }
         }
 
-        dbg_out!(
+        log::trace!(
             "children created for item {:?} {}",
             item.tree_item_type(),
             item.label()
@@ -1021,7 +1021,7 @@ impl WorkspaceController {
     }
 
     pub fn on_lib_notification(&self, ln: &LibNotification) {
-        dbg_out!("notification for workspace {:?}", ln);
+        log::trace!("notification for workspace {:?}", ln);
         match ln {
             LibNotification::AddedFolder(f) => self.add_folder_item(f),
             LibNotification::FolderDeleted(id) => self.remove_folder_item(*id),
@@ -1031,7 +1031,7 @@ impl WorkspaceController {
             LibNotification::FolderCounted(count)
             | LibNotification::KeywordCounted(count)
             | LibNotification::AlbumCounted(count) => {
-                dbg_out!("count for container {} is {}", count.id, count.count);
+                log::trace!("count for container {} is {}", count.id, count.count);
                 let type_ = match ln {
                     LibNotification::FolderCounted(_) => TreeItemType::Folders,
                     LibNotification::KeywordCounted(_) => TreeItemType::Keywords,
@@ -1047,7 +1047,7 @@ impl WorkspaceController {
             LibNotification::FolderCountChanged(count)
             | LibNotification::KeywordCountChanged(count)
             | LibNotification::AlbumCountChanged(count) => {
-                dbg_out!("count change for container {} is {}", count.id, count.count);
+                log::trace!("count change for container {} is {}", count.id, count.count);
                 let type_ = match ln {
                     LibNotification::FolderCountChanged(_) => TreeItemType::Folders,
                     LibNotification::KeywordCountChanged(_) => TreeItemType::Keywords,
