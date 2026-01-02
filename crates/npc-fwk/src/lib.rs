@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/lib.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ pub use adw::gtk as gtk4;
 pub use gdk4::cairo;
 pub use gdk4::gdk_pixbuf;
 pub use gtk4::graphene;
+pub use log;
 
 #[macro_use]
 pub mod base;

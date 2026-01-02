@@ -71,7 +71,10 @@ fenv exec ninja -C _build install
 
 Then you can run with `fenv run`.
 
+### Logging
 
+With `fenv` you customise logging with the `--env` finish argument in
+the flatpak manifest.
 
 ## Build profile
 
