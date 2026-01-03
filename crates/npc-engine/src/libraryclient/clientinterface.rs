@@ -1,7 +1,7 @@
 /*
  * niepce - libraryclient/clientinterface.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@ pub trait ClientInterface {
     fn query_folder_content(&self, id: LibraryId);
     fn count_folder(&self, id: LibraryId);
     fn create_folder(&self, name: String, path: Option<String>);
+    fn create_folder_into(&self, name: String, parent: LibraryId);
     fn delete_folder(&self, id: LibraryId);
 
     /// get all the albums

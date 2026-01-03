@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/library/commands.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -189,9 +189,23 @@ pub fn cmd_add_bundle(catalog: &CatalogDb, bundle: &FileBundle, folder: LibraryI
     }
 }
 
+/// Create a folder inside another.
+pub fn cmd_create_folder_into(catalog: &CatalogDb, name: &str, parent: LibraryId) -> LibraryId {
+    cmd_create_folder_impl(catalog, name, None, parent)
+}
+
+/// Create a folder with path.
 pub fn cmd_create_folder(catalog: &CatalogDb, name: &str, path: Option<String>) -> LibraryId {
-    // XXX create folder doesn't allow creating folder inside another.
-    match catalog.add_folder_into(name, path, 0) {
+    cmd_create_folder_impl(catalog, name, path, 0)
+}
+
+fn cmd_create_folder_impl(
+    catalog: &CatalogDb,
+    name: &str,
+    path: Option<String>,
+    parent: LibraryId,
+) -> LibraryId {
+    match catalog.add_folder_into(name, path, parent) {
         Ok(lf) => {
             let id = lf.id();
             if catalog.notify(LibNotification::AddedFolder(lf)).is_err() {
