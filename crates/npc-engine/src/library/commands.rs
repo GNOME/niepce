@@ -195,8 +195,8 @@ pub fn cmd_create_folder_into(catalog: &CatalogDb, name: &str, parent: LibraryId
 }
 
 /// Create a folder with path.
-pub fn cmd_create_folder(catalog: &CatalogDb, name: &str, path: Option<String>) -> LibraryId {
-    cmd_create_folder_impl(catalog, name, path, 0)
+pub fn cmd_create_folder(catalog: &CatalogDb, name: &str, path: &str) -> LibraryId {
+    cmd_create_folder_impl(catalog, name, Some(path.to_string()), 0)
 }
 
 fn cmd_create_folder_impl(
@@ -205,17 +205,25 @@ fn cmd_create_folder_impl(
     path: Option<String>,
     parent: LibraryId,
 ) -> LibraryId {
-    match catalog.add_folder_into(name, path, parent) {
-        Ok(lf) => {
-            let id = lf.id();
-            if catalog.notify(LibNotification::AddedFolder(lf)).is_err() {
-                err_out!("Failed to notify AddedFolder");
+    if let Some(path) = path {
+        catalog
+            .get_folder_for_import(std::path::Path::new(&path))
+            .ok()
+            .and_then(|folders| folders.last().map(|folder| folder.id()))
+            .unwrap_or(0)
+    } else {
+        match catalog.add_folder_into(name, None, parent) {
+            Ok(lf) => {
+                let id = lf.id();
+                if catalog.notify(LibNotification::AddedFolder(lf)).is_err() {
+                    err_out!("Failed to notify AddedFolder");
+                }
+                id
             }
-            id
-        }
-        Err(err) => {
-            err_out_line!("Folder creation failed {:?}", err);
-            -1
+            Err(err) => {
+                err_out_line!("Folder creation failed {:?}", err);
+                -1
+            }
         }
     }
 }
@@ -757,18 +765,38 @@ pub fn cmd_upgrade_catalog_from(catalog: &CatalogDb, version: i32) -> bool {
 
 #[cfg(test)]
 mod test {
-    use crate::catalog::{db::Error, db_test};
+    use crate::catalog::{CatalogDb, LibFolder, db::Error, db_test};
 
-    use super::{cmd_delete_folder, import::CatalogDbImportHelper};
+    use super::{cmd_create_folder, cmd_delete_folder, import::CatalogDbImportHelper};
+
+    fn create_root_folder(catalog: &CatalogDb) -> LibFolder {
+        let root = catalog.add_folder_into("Pictures", Some("Pictures".into()), 0);
+        assert!(root.is_ok());
+        let root = root.unwrap();
+        assert_eq!(root.parent(), 0);
+
+        root
+    }
+
+    #[test]
+    fn test_create_folder() {
+        let catalog = db_test::test_catalog(None);
+
+        let _root = create_root_folder(&catalog);
+
+        cmd_create_folder(&catalog, "20230524", "Pictures/2023/20230524");
+
+        let found = catalog.get_folder("Pictures/2023");
+        assert!(found.is_ok());
+        let found = catalog.get_folder("Pictures/2023/20230524");
+        assert!(found.is_ok());
+    }
 
     #[test]
     fn test_delete_folder() {
         let catalog = db_test::test_catalog(None);
 
-        let root = catalog.add_folder_into("Pictures", Some("Pictures".into()), 0);
-        assert!(root.is_ok());
-        let root = root.unwrap();
-        assert_eq!(root.parent(), 0);
+        let root = create_root_folder(&catalog);
 
         let folders = catalog
             .get_folder_for_import(std::path::Path::new("Pictures/2023"))

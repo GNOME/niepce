@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/importer/lrimporter.rs
  *
- * Copyright (C) 2021-2025 Hubert Figuière
+ * Copyright (C) 2021-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ impl LrImporter {
             .file_name()
             .map(|name| String::from(name.to_string_lossy()))
             .unwrap_or_else(|| i18n("Untitled"));
-        let nid = libclient.create_folder_sync(folder_name, Some(path.into()));
+        let nid = libclient.create_folder_sync(folder_name, path.into());
         self.folder_map
             .borrow_mut()
             .insert(folder_id, (nid, path.into()));

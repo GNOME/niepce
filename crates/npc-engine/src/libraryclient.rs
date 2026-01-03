@@ -196,8 +196,8 @@ impl ClientInterface for LibraryClientSender {
         self.schedule_op(move |catalog| commands::cmd_count_folder(catalog, folder_id));
     }
 
-    fn create_folder(&self, name: String, path: Option<String>) {
-        self.schedule_op(move |catalog| commands::cmd_create_folder(catalog, &name, path) != 0);
+    fn create_folder(&self, name: String, path: String) {
+        self.schedule_op(move |catalog| commands::cmd_create_folder(catalog, &name, &path) != 0);
     }
 
     fn create_folder_into(&self, name: String, parent: LibraryId) {
@@ -353,12 +353,12 @@ impl ClientInterfaceSync for LibraryClientSender {
         rx.recv().unwrap()
     }
 
-    fn create_folder_sync(&self, name: String, path: Option<String>) -> LibraryId {
+    fn create_folder_sync(&self, name: String, path: String) -> LibraryId {
         // can't use futures::sync::oneshot
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |catalog| {
-            tx.send(commands::cmd_create_folder(catalog, &name, path.clone()))
+            tx.send(commands::cmd_create_folder(catalog, &name, &path))
                 .unwrap();
             true
         });
