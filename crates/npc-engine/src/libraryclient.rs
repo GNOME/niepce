@@ -197,8 +197,12 @@ impl ClientInterface for LibraryClientSender {
     }
 
     fn create_folder(&self, name: String, path: Option<String>) {
+        self.schedule_op(move |catalog| commands::cmd_create_folder(catalog, &name, path) != 0);
+    }
+
+    fn create_folder_into(&self, name: String, parent: LibraryId) {
         self.schedule_op(move |catalog| {
-            commands::cmd_create_folder(catalog, &name, path.clone()) != 0
+            commands::cmd_create_folder_into(catalog, &name, parent) != 0
         });
     }
 

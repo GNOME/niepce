@@ -617,21 +617,30 @@ impl WorkspaceController {
     }
 
     fn action_new_folder(&self) {
-        if let Some(client) = self.client.upgrade() {
-            let window = self
-                .widget()
-                .ancestor(gtk4::Window::static_type())
-                .and_downcast::<gtk4::Window>();
-            npc_fwk::toolkit::request::request_name(
-                window.as_ref(),
-                &i18n("New folder"),
-                &i18n("Folder _name:"),
-                Some(&i18n("Untitled folder")),
-                move |name| {
-                    dbg_out!("Create folder {}", &name);
-                    client.create_folder(name.to_string(), None);
-                },
-            );
+        if let Some((type_, id)) = self.selected_item_id() {
+            match type_ {
+                TreeItemType::Folder => {
+                    if let Some(client) = self.client.upgrade() {
+                        let window = self
+                            .widget()
+                            .ancestor(gtk4::Window::static_type())
+                            .and_downcast::<gtk4::Window>();
+                        npc_fwk::toolkit::request::request_name(
+                            window.as_ref(),
+                            &i18n("New folder"),
+                            &i18n("Folder _name:"),
+                            Some(&i18n("Untitled folder")),
+                            move |name| {
+                                dbg_out!("Create folder {}", &name);
+                                client.create_folder_into(name.to_string(), id);
+                            },
+                        );
+                    }
+                }
+                _ => {
+                    log::error!("No folder selected");
+                }
+            }
         }
     }
 
