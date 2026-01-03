@@ -45,7 +45,7 @@ pub trait ClientInterface {
     fn get_all_folders(&self, callback: Option<ClientCallback<Vec<LibFolder>>>);
     fn query_folder_content(&self, id: LibraryId);
     fn count_folder(&self, id: LibraryId);
-    fn create_folder(&self, name: String, path: Option<String>);
+    fn create_folder(&self, name: String, path: String);
     fn create_folder_into(&self, name: String, parent: LibraryId);
     fn delete_folder(&self, id: LibraryId);
 
@@ -98,7 +98,7 @@ pub trait ClientInterfaceSync {
     fn create_label_sync(&self, name: String, colour: RgbColour) -> LibraryId;
 
     /// Create a folder. Return the id of the newly created folder.
-    fn create_folder_sync(&self, name: String, path: Option<String>) -> LibraryId;
+    fn create_folder_sync(&self, name: String, path: String) -> LibraryId;
 
     /// Create an album. Return the id to the newly created album.
     fn create_album_sync(&self, name: String, parent: LibraryId) -> LibraryId;

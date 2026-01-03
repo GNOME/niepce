@@ -62,8 +62,8 @@ impl CatalogDbImportHelper for CatalogDb {
             })
     }
 
-    // Get the folder for import. Create it if needed otherwise return the
-    // one that exists.
+    // Get the `folder` (for import). Create it all if needed otherwise return the
+    // ones that exists.
     //
     fn get_folder_for_import(&self, folder: &std::path::Path) -> LibResult<Vec<FolderOpResult>> {
         let folder_str = folder.to_string_lossy();
