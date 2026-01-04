@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/utils.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,4 +21,4 @@ pub mod exempi;
 pub mod exiv2;
 mod files;
 
-pub use files::{FileList, copy, normalize_for_display};
+pub use files::{FileList, copy, normalize_for_display, trim_trailing_path_sep};

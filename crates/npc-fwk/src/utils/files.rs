@@ -177,6 +177,17 @@ pub fn normalize_for_display<P: AsRef<Path>, Q: AsRef<Path>>(
     Ok(path.to_string_lossy().to_string())
 }
 
+/// Remove the last `/` from `path`.
+///
+/// This is similar to currently nightly API `Path::trim_trailing_sep`
+pub fn trim_trailing_path_sep(path: &str) -> &str {
+    if path.len() >= 2 && path.chars().nth_back(0) == Some('/') {
+        &path[0..path.len() - 1]
+    } else {
+        path
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -235,5 +246,13 @@ mod tests {
             norm,
             home_dir.join("my_images/2025/20250101").to_string_lossy()
         );
+    }
+
+    #[test]
+    fn test_trim_trailing_sep() {
+        assert_eq!(trim_trailing_path_sep("/test/"), "/test");
+        assert_eq!(trim_trailing_path_sep("/test"), "/test");
+        assert_eq!(trim_trailing_path_sep("//"), "/");
+        assert_eq!(trim_trailing_path_sep("/"), "/");
     }
 }
