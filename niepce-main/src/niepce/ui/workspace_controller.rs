@@ -374,7 +374,7 @@ impl Widgets {
             &self.icon_keyword,
             keyword.keyword(),
             keyword.id(),
-            0, // keyword.parent(),
+            keyword.parent(),
             TreeItemType::Keyword,
         )
         .is_some()

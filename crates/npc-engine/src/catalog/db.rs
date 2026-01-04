@@ -1213,7 +1213,7 @@ impl CatalogDb {
             let keyword_id = conn.last_insert_rowid();
             if self
                 .notify(LibNotification::AddedKeyword(Keyword::new(
-                    keyword_id, keyword,
+                    keyword_id, keyword, parent,
                 )))
                 .is_err()
             {

@@ -551,7 +551,9 @@ pub fn cmd_add_keyword(catalog: &CatalogDb, keyword: &str, parent: LibraryId) ->
     match catalog.make_keyword(keyword, parent) {
         Ok(id) => {
             if catalog
-                .notify(LibNotification::AddedKeyword(Keyword::new(id, keyword)))
+                .notify(LibNotification::AddedKeyword(Keyword::new(
+                    id, keyword, parent,
+                )))
                 .is_err()
             {
                 err_out!("Failed to notify AddedKeyword");
