@@ -75,7 +75,18 @@ impl LrImporter {
         tree: &KeywordTree,
     ) {
         if let Some(keyword) = keywords.get(&id) {
-            let nid = libclient.create_keyword_sync(keyword.name.clone(), 0);
+            // In Lr the top-level keyword has parent 0 and is empty. Skip it.
+            let nid = if keyword.parent != 0 {
+                let parent = self
+                    .keyword_map
+                    .borrow()
+                    .get(&keyword.parent)
+                    .cloned()
+                    .unwrap_or(0);
+                libclient.create_keyword_sync(keyword.name.clone(), parent)
+            } else {
+                0
+            };
             self.keyword_map.borrow_mut().insert(id, nid);
             tree.children_for(id).iter().for_each(|child| {
                 self.import_keyword(*child, libclient, keywords, tree);
