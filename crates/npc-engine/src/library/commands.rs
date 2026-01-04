@@ -194,7 +194,7 @@ pub fn cmd_create_folder_into(catalog: &CatalogDb, name: &str, parent: LibraryId
     cmd_create_folder_impl(catalog, name, None, parent)
 }
 
-/// Create a folder with path.
+/// Create a folder with path. Path shouldn't have the trailing separator.
 pub fn cmd_create_folder(catalog: &CatalogDb, name: &str, path: &str) -> LibraryId {
     cmd_create_folder_impl(catalog, name, Some(path.to_string()), 0)
 }

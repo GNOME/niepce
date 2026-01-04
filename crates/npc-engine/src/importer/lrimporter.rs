@@ -84,6 +84,7 @@ impl LrImporter {
     }
 
     fn import_folder(&self, folder_id: LrId, path: &str, libclient: &LibraryClient) {
+        let path = npc_fwk::utils::trim_trailing_path_sep(path);
         let folder_name = Path::new(&path)
             .file_name()
             .map(|name| String::from(name.to_string_lossy()))
