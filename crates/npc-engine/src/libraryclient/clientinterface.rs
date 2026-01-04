@@ -90,9 +90,10 @@ pub trait ClientInterface {
 
 /// Sync client interface
 pub trait ClientInterfaceSync {
-    /// Create a keyword. Return the id for the keyword.
-    /// If the keyword already exists, return its `LibraryId`.
-    fn create_keyword_sync(&self, keyword: String) -> LibraryId;
+    /// Create a keyword with `parent`. Return the id for the keyword.
+    /// If the keyword already exists, return its `LibraryId`. A parent id of 0
+    /// create the keyword at the root.
+    fn create_keyword_sync(&self, keyword: String, parent: LibraryId) -> LibraryId;
 
     /// Create a label. Return the id of the newly created label.
     fn create_label_sync(&self, name: String, colour: RgbColour) -> LibraryId;

@@ -340,12 +340,12 @@ impl ClientInterfaceSync for LibraryClientSender {
         rx.recv().unwrap()
     }
 
-    fn create_keyword_sync(&self, keyword: String) -> LibraryId {
+    fn create_keyword_sync(&self, keyword: String, parent: LibraryId) -> LibraryId {
         // can't use futures::sync::oneshot
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |catalog| {
-            tx.send(commands::cmd_add_keyword(catalog, &keyword))
+            tx.send(commands::cmd_add_keyword(catalog, &keyword, parent))
                 .unwrap();
             true
         });

@@ -547,8 +547,8 @@ pub fn cmd_count_folder(catalog: &CatalogDb, id: LibraryId) -> bool {
 
 /// Add a keyword. Return `LibraryId` of the keyword, already existing
 /// or created.
-pub fn cmd_add_keyword(catalog: &CatalogDb, keyword: &str) -> LibraryId {
-    match catalog.make_keyword(keyword) {
+pub fn cmd_add_keyword(catalog: &CatalogDb, keyword: &str, parent: LibraryId) -> LibraryId {
+    match catalog.make_keyword(keyword, parent) {
         Ok(id) => {
             if catalog
                 .notify(LibNotification::AddedKeyword(Keyword::new(id, keyword)))

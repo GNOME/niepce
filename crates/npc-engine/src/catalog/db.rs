@@ -1,7 +1,7 @@
 /*
  * niepce - engine/catalog/db.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1171,7 +1171,7 @@ impl CatalogDb {
                 if let Some(mut meta) = meta {
                     let keywords = meta.keywords();
                     for k in keywords {
-                        let kwid = self.make_keyword(k)?;
+                        let kwid = self.make_keyword(k, 0)?;
                         if kwid != -1 {
                             self.assign_keyword(kwid, id)?;
                         }
@@ -1185,13 +1185,17 @@ impl CatalogDb {
         Err(Error::NoSqlDb)
     }
 
-    pub(crate) fn make_keyword(&self, keyword: &str) -> Result<LibraryId> {
+    /// Make keyword with name `keyword` and `parent`. If `parent` is 0 then it
+    /// is at the top. Keywords are unique so it might return an existing keyword.
+    ///
+    // XXX make it return whether the keyword was created.
+    pub(crate) fn make_keyword(&self, keyword: &str, parent: LibraryId) -> Result<LibraryId> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare(
                 "SELECT id FROM keywords WHERE \
-                 keyword=?1;",
+                 keyword=?1 AND parent_id=?2;",
             )?;
-            let mut rows = stmt.query(params![keyword])?;
+            let mut rows = stmt.query(params![keyword, parent])?;
             if let Ok(Some(row)) = rows.next() {
                 let keyword_id = row.get(0)?;
                 if keyword_id > 0 {
@@ -1200,8 +1204,8 @@ impl CatalogDb {
             }
 
             let c = conn.execute(
-                "INSERT INTO keywords (keyword, parent_id) VALUES(?1, 0);",
-                params![keyword],
+                "INSERT INTO keywords (keyword, parent_id) VALUES(?1, ?2);",
+                params![keyword, parent],
             )?;
             if c != 1 {
                 return Err(Error::InvalidResult);
@@ -1372,7 +1376,7 @@ impl CatalogDb {
                 match *value {
                     PropertyValue::StringArray(ref keywords) => {
                         for kw in keywords {
-                            let id = self.make_keyword(kw)?;
+                            let id = self.make_keyword(kw, 0)?;
                             if id != -1 {
                                 self.assign_keyword(id, file_id)?;
                             }
@@ -1717,19 +1721,23 @@ pub(crate) mod test {
         assert_eq!(fl.len(), count as usize);
         assert_eq!(fl[0].id(), file_id);
 
-        let kwid1 = catalog.make_keyword("foo");
+        let kwid1 = catalog.make_keyword("foo", 0);
         assert!(kwid1.is_ok());
-        let kwid1 = kwid1.ok().unwrap();
+        let kwid1 = kwid1.unwrap();
         assert!(kwid1 > 0);
-        let kwid2 = catalog.make_keyword("bar");
+        let kwid2 = catalog.make_keyword("bar", 0);
         assert!(kwid2.is_ok());
-        let kwid2 = kwid2.ok().unwrap();
+        let kwid2 = kwid2.unwrap();
         assert!(kwid2 > 0);
+        let kwid4 = catalog.make_keyword("foo", kwid2);
+        assert!(kwid4.is_ok());
+        let kwid4 = kwid4.unwrap();
+        assert_ne!(kwid1, kwid4, "new keyword is not new");
 
         // duplicate keyword
-        let kwid3 = catalog.make_keyword("foo");
+        let kwid3 = catalog.make_keyword("foo", 0);
         assert!(kwid3.is_ok());
-        let kwid3 = kwid3.ok().unwrap();
+        let kwid3 = kwid3.unwrap();
         // should return kwid1 because it already exists.
         assert_eq!(kwid3, kwid1);
 
@@ -1745,7 +1753,7 @@ pub(crate) mod test {
         let kl = catalog.get_all_keywords();
         assert!(kl.is_ok());
         let kl = kl.ok().unwrap();
-        assert_eq!(kl.len(), 2);
+        assert_eq!(kl.len(), 3, "incorrect number of keywords");
 
         // Testing bundles
         let mut bundle = FileBundle::new();
