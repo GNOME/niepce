@@ -210,12 +210,14 @@ impl LrImporter {
         folders
             .find_root_folder(folder.root_folder)
             .map(|root_folder| {
-                let absolute_path = &root_folder.absolute_path;
+                let absolute_path =
+                    npc_fwk::utils::trim_trailing_path_sep(&root_folder.absolute_path);
                 let mut absolute_path = self
                     .root_folder_map
                     .get(absolute_path)
-                    .unwrap_or(absolute_path)
-                    .to_string();
+                    .cloned()
+                    .unwrap_or_else(|| absolute_path.to_string());
+                absolute_path += "/";
                 absolute_path += &folder.path_from_root;
                 absolute_path
             })
