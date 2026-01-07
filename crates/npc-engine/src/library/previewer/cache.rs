@@ -143,7 +143,7 @@ impl DbWorker {
     ) -> catalog::LibResult<()> {
         let now = chrono::Utc::now().timestamp();
         if let Some(conn) = &*self.dbconn.borrow() {
-            let mut stmt = conn.prepare(
+            let mut stmt = conn.prepare_cached(
                 "INSERT INTO cache_items (path, last_access, created, dimension, render, target) \
                                          VALUES (?1, ?2, ?3, ?4, ?5, ?6);",
             )?;
@@ -165,7 +165,7 @@ impl DbWorker {
     /// "Hit" the cache, ie update the access date.
     fn hit(&self, file: &str, digest: &str) -> catalog::LibResult<()> {
         if let Some(conn) = &*self.dbconn.borrow() {
-            let mut stmt = conn.prepare(
+            let mut stmt = conn.prepare_cached(
                 "UPDATE cache_items SET last_access = ?1 \
                                          WHERE path = ?2 AND render = ?3;",
             )?;
@@ -179,7 +179,8 @@ impl DbWorker {
 
     /// Update the access for the row id.
     fn update_access(&self, conn: &rusqlite::Connection, id: i64) -> catalog::LibResult<usize> {
-        let mut stmt = conn.prepare("UPDATE cache_items SET last_access = ?1 WHERE id = ?2;")?;
+        let mut stmt =
+            conn.prepare_cached("UPDATE cache_items SET last_access = ?1 WHERE id = ?2;")?;
         let now = chrono::Utc::now().timestamp();
         let count = stmt.execute(rusqlite::params![now, id])?;
         Ok(count)
@@ -191,7 +192,7 @@ impl DbWorker {
     /// not returned.
     fn get(&self, file: &str, digest: &str) -> catalog::LibResult<CacheItem> {
         if let Some(conn) = &*self.dbconn.borrow() {
-            let mut stmt = conn.prepare(
+            let mut stmt = conn.prepare_cached(
                 "SELECT id, path, last_access, created, dimension, render, target \
                                          FROM cache_items WHERE path = ?1 AND render = ?2;",
             )?;

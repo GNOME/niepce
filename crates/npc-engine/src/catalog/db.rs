@@ -490,10 +490,9 @@ impl CatalogDb {
     /// It is a programing error to have an empty `key`.
     pub fn set_pref(&self, key: &str, value: &str) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute(
-                "INSERT OR REPLACE INTO admin (key, value) VALUES (?1, ?2);",
-                params![key, value],
-            )?;
+            let mut stmt =
+                conn.prepare_cached("INSERT OR REPLACE INTO admin (key, value) VALUES (?1, ?2);")?;
+            let c = stmt.execute(params![key, value])?;
             if c == 1 {
                 return Ok(());
             }
@@ -509,7 +508,7 @@ impl CatalogDb {
     /// `default` is `None`.
     pub fn get_pref(&self, key: &str, default: Option<&str>) -> Result<String> {
         if let Some(ref conn) = self.dbconn {
-            let mut stmt = conn.prepare("SELECT value FROM admin WHERE key = ?1")?;
+            let mut stmt = conn.prepare_cached("SELECT value FROM admin WHERE key = ?1")?;
             let mut rows = stmt.query(params![key])?;
             return if let Some(row) = rows.next()? {
                 Ok(row.get::<usize, String>(0)?)
@@ -524,7 +523,7 @@ impl CatalogDb {
 
     pub fn get_all_preferences(&self) -> Result<Vec<(String, String)>> {
         if let Some(ref conn) = self.dbconn {
-            let mut stmt = conn.prepare("SELECT key, value FROM admin")?;
+            let mut stmt = conn.prepare_cached("SELECT key, value FROM admin")?;
             let mut rows = stmt.query(params![])?;
             let mut prefs = vec![];
             while let Ok(Some(row)) = rows.next() {
@@ -538,10 +537,9 @@ impl CatalogDb {
     fn add_jpeg_file_to_bundle(&self, file_id: LibraryId, fsfile_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let filetype: i32 = libfile::FileType::RawJpeg.into();
-            let c = conn.execute(
-                "UPDATE files SET jpeg_file=?1, file_type=?3 WHERE id=?2;",
-                params![fsfile_id, file_id, filetype],
-            )?;
+            let mut stmt =
+                conn.prepare_cached("UPDATE files SET jpeg_file=?1, file_type=?3 WHERE id=?2;")?;
+            let c = stmt.execute(params![fsfile_id, file_id, filetype])?;
             if c == 1 {
                 return Ok(());
             }
@@ -552,10 +550,8 @@ impl CatalogDb {
 
     fn add_xmp_sidecar_to_bundle(&self, file_id: LibraryId, fsfile_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute(
-                "UPDATE files SET xmp_file=?1 WHERE id=?2;",
-                params![fsfile_id, file_id],
-            )?;
+            let mut stmt = conn.prepare_cached("UPDATE files SET xmp_file=?1 WHERE id=?2;")?;
+            let c = stmt.execute(params![fsfile_id, file_id])?;
             if c == 1 {
                 return Ok(());
             }
@@ -589,10 +585,10 @@ impl CatalogDb {
         ext: &str,
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute(
+            let mut stmt = conn.prepare_cached(
                 "INSERT INTO sidecars (file_id, fsfile_id, type, ext) VALUES(?1, ?2, ?3, ?4)",
-                params![file_id, fsfile_id, sidecar_type, ext],
             )?;
+            let c = stmt.execute(params![file_id, fsfile_id, sidecar_type, ext])?;
             if c == 1 {
                 return Ok(());
             }
@@ -611,7 +607,7 @@ impl CatalogDb {
                 LibFile::read_db_tables(),
                 sql_where
             );
-            let mut stmt = conn.prepare(&sql)?;
+            let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query(params![id])?;
             let mut files: Vec<LibFile> = vec![];
             while let Ok(Some(row)) = rows.next() {
@@ -633,16 +629,14 @@ impl CatalogDb {
         into: LibraryId,
     ) -> Result<LibFolder> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute(
-                "INSERT INTO folders (path,name,vault_id,parent_id) VALUES(?1, ?2, '0', ?3) ON CONFLICT DO NOTHING",
-                params![path, name, into],
-            )?;
+            let mut stmt = conn.prepare_cached("INSERT INTO folders (path,name,vault_id,parent_id) VALUES(?1, ?2, '0', ?3) ON CONFLICT DO NOTHING")?;
+            let c = stmt.execute(params![path, name, into])?;
             let id = if c != 1 {
                 if c != 0 {
                     return Err(Error::InvalidResult);
                 }
-                let mut stmt =
-                    conn.prepare("SELECT id FROM folders WHERE name = ?1 AND parent_id = ?2")?;
+                let mut stmt = conn
+                    .prepare_cached("SELECT id FROM folders WHERE name = ?1 AND parent_id = ?2")?;
                 let mut rows = stmt.query(params![name, into])?;
                 if let Some(row) = rows.next()? {
                     row.get(0)?
@@ -662,7 +656,8 @@ impl CatalogDb {
 
     pub(crate) fn delete_folder(&self, id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute("DELETE FROM folders WHERE id=?1", params![id])?;
+            let mut stmt = conn.prepare_cached("DELETE FROM folders WHERE id=?1")?;
+            let c = stmt.execute(params![id])?;
             if c == 1 {
                 return Ok(());
             }
@@ -681,7 +676,7 @@ impl CatalogDb {
                 LibFolder::read_db_columns(),
                 LibFolder::read_db_tables()
             );
-            let mut stmt = conn.prepare(&sql)?;
+            let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query(params![path])?;
             return match rows.next() {
                 Ok(None) => Err(Error::NotFound),
@@ -698,10 +693,8 @@ impl CatalogDb {
     /// Reparent a `folder` to the `new_parent`.
     fn reparent_folder(&self, id: LibraryId, new_parent: LibraryId) -> Result<()> {
         let conn = self.dbconn.as_ref().ok_or(Error::NoSqlDb)?;
-        let c = conn.execute(
-            "UPDATE folders SET parent_id=?2 WHERE id=?1",
-            params![id, new_parent],
-        )?;
+        let mut stmt = conn.prepare_cached("UPDATE folders SET parent_id=?2 WHERE id=?1")?;
+        let c = stmt.execute(params![id, new_parent])?;
         if c == 1 {
             return Ok(());
         }
@@ -718,7 +711,7 @@ impl CatalogDb {
                 LibFolder::read_db_columns(),
                 LibFolder::read_db_tables()
             );
-            let mut stmt = conn.prepare(&sql)?;
+            let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query(params![parent])?;
             let mut subfolders = vec![];
             loop {
@@ -745,7 +738,7 @@ impl CatalogDb {
             LibFolder::read_db_columns(),
             LibFolder::read_db_tables()
         );
-        let mut stmt = conn.prepare(&sql)?;
+        let mut stmt = conn.prepare_cached(&sql)?;
         let mut rows = stmt.query([])?;
         let mut folders: Vec<LibFolder> = vec![];
         while let Ok(Some(row)) = rows.next() {
@@ -762,7 +755,7 @@ impl CatalogDb {
                 LibFolder::read_db_columns(),
                 LibFolder::read_db_tables()
             );
-            let mut stmt = conn.prepare(&sql)?;
+            let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query([])?;
             let mut folders: Vec<LibFolder> = vec![];
             while let Ok(Some(row)) = rows.next() {
@@ -779,7 +772,7 @@ impl CatalogDb {
 
     pub(crate) fn count_folder(&self, folder_id: LibraryId) -> Result<i64> {
         if let Some(ref conn) = self.dbconn {
-            let mut stmt = conn.prepare(
+            let mut stmt = conn.prepare_cached(
                 "SELECT COUNT(id) FROM files \
                  WHERE parent_id=?1;",
             )?;
@@ -801,7 +794,7 @@ impl CatalogDb {
             LibFolder::read_db_columns(),
             LibFolder::read_db_tables(),
         );
-        let mut stmt = conn.prepare(&sql)?;
+        let mut stmt = conn.prepare_cached(&sql)?;
         let base = std::path::Path::new(folder_path);
         let rows = stmt.query_map(params![folder_path], LibFolder::read_from)?;
         for folder in rows {
@@ -854,7 +847,7 @@ impl CatalogDb {
             LibFolder::read_db_columns(),
             LibFolder::read_db_tables()
         );
-        let mut stmt = conn.prepare(&sql)?;
+        let mut stmt = conn.prepare_cached(&sql)?;
         for p in folder.ancestors() {
             if p.as_os_str().is_empty() {
                 break;
@@ -874,7 +867,7 @@ impl CatalogDb {
                 Keyword::read_db_columns(),
                 Keyword::read_db_tables()
             );
-            let mut stmt = conn.prepare(&sql)?;
+            let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query([])?;
             let mut keywords: Vec<Keyword> = vec![];
             while let Ok(Some(row)) = rows.next() {
@@ -887,7 +880,7 @@ impl CatalogDb {
 
     pub(crate) fn count_keyword(&self, id: LibraryId) -> Result<i64> {
         if let Some(ref conn) = self.dbconn {
-            let mut stmt = conn.prepare(
+            let mut stmt = conn.prepare_cached(
                 "SELECT COUNT(keyword_id) FROM keywording \
                  WHERE keyword_id=?1;",
             )?;
@@ -904,10 +897,9 @@ impl CatalogDb {
     /// Add an album to the library
     pub(crate) fn add_album(&self, name: &str, parent: LibraryId) -> Result<Album> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute(
-                "INSERT INTO albums (name,parent_id) VALUES(?1, ?2)",
-                params![name, parent],
-            )?;
+            let mut stmt =
+                conn.prepare_cached("INSERT INTO albums (name,parent_id) VALUES(?1, ?2)")?;
+            let c = stmt.execute(params![name, parent])?;
             if c != 1 {
                 return Err(Error::InvalidResult);
             }
@@ -919,7 +911,8 @@ impl CatalogDb {
 
     pub(crate) fn delete_album(&self, id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute("DELETE FROM albums WHERE id=?1", params![id])?;
+            let mut stmt = conn.prepare_cached("DELETE FROM albums WHERE id=?1")?;
+            let c = stmt.execute(params![id])?;
             if c == 1 {
                 return Ok(());
             }
@@ -931,7 +924,8 @@ impl CatalogDb {
     /// Rename album `id` to `name`.
     pub(crate) fn rename_album(&self, id: LibraryId, name: &str) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute("UPDATE albums SET name=?2 WHERE id=?1", params![id, name])?;
+            let mut stmt = conn.prepare_cached("UPDATE albums SET name=?2 WHERE id=?1")?;
+            let c = stmt.execute(params![id, name])?;
             if c == 1 {
                 return Ok(());
             }
@@ -948,7 +942,7 @@ impl CatalogDb {
                 Album::read_db_columns(),
                 Album::read_db_tables()
             );
-            let mut stmt = conn.prepare(&sql)?;
+            let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query([])?;
             let mut albums: Vec<Album> = vec![];
             while let Ok(Some(row)) = rows.next() {
@@ -961,7 +955,7 @@ impl CatalogDb {
 
     pub(crate) fn count_album(&self, id: LibraryId) -> Result<i64> {
         if let Some(ref conn) = self.dbconn {
-            let mut stmt = conn.prepare(
+            let mut stmt = conn.prepare_cached(
                 "SELECT COUNT(album_id) FROM albuming \
                  WHERE album_id=?1;",
             )?;
@@ -988,7 +982,7 @@ impl CatalogDb {
     pub(crate) fn add_to_album(&self, images: &[LibraryId], album: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt =
-                conn.prepare("INSERT INTO albuming (file_id, album_id) VALUES(?1, ?2)")?;
+                conn.prepare_cached("INSERT INTO albuming (file_id, album_id) VALUES(?1, ?2)")?;
             for image in images {
                 let c = stmt.execute(params![image, album])?;
                 if c != 1 {
@@ -1004,7 +998,7 @@ impl CatalogDb {
     pub(crate) fn remove_from_album(&self, images: &[LibraryId], album: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt =
-                conn.prepare("DELETE FROM albuming WHERE (file_id=?1 AND album_id=?2)")?;
+                conn.prepare_cached("DELETE FROM albuming WHERE (file_id=?1 AND album_id=?2)")?;
             for image in images {
                 let c = stmt.execute(params![image, album])?;
                 if c != 1 {
@@ -1019,7 +1013,8 @@ impl CatalogDb {
     fn add_fs_file<P: AsRef<Path>>(&self, f: P) -> Result<LibraryId> {
         if let Some(ref conn) = self.dbconn {
             let file = f.as_ref().to_string_lossy();
-            let c = conn.execute("INSERT INTO fsfiles (path) VALUES(?1)", params![file])?;
+            let mut stmt = conn.prepare_cached("INSERT INTO fsfiles (path) VALUES(?1)")?;
+            let c = stmt.execute(params![file])?;
             if c != 1 {
                 return Err(Error::InvalidResult);
             }
@@ -1031,7 +1026,7 @@ impl CatalogDb {
 
     fn get_fs_file(&self, id: LibraryId) -> Result<String> {
         if let Some(ref conn) = self.dbconn {
-            let mut stmt = conn.prepare("SELECT path FROM fsfiles WHERE id=?1")?;
+            let mut stmt = conn.prepare_cached("SELECT path FROM fsfiles WHERE id=?1")?;
             let mut rows = stmt.query(params![id])?;
             return match rows.next() {
                 Ok(Some(row)) => Ok(row.get(0)?),
@@ -1143,7 +1138,7 @@ impl CatalogDb {
         if let Some(ref conn) = self.dbconn {
             let ifile_type = i32::from(file_type);
             let time = Utc::now().timestamp();
-            let c = conn.execute(
+            let mut stmt = conn.prepare_cached(
                 "INSERT INTO files (\
                  main_file, name, parent_id, \
                  import_date, mod_date, \
@@ -1151,21 +1146,21 @@ impl CatalogDb {
                  file_type, flag, xmp) \
                  VALUES (\
                  ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
-                params![
-                    fs_file_id,
-                    filename,
-                    folder_id,
-                    time,
-                    time,
-                    orientation,
-                    creation_date,
-                    rating,
-                    label_id,
-                    ifile_type,
-                    flag,
-                    xmp,
-                ],
             )?;
+            let c = stmt.execute(params![
+                fs_file_id,
+                filename,
+                folder_id,
+                time,
+                time,
+                orientation,
+                creation_date,
+                rating,
+                label_id,
+                ifile_type,
+                flag,
+                xmp,
+            ])?;
 
             if c == 1 {
                 let id = conn.last_insert_rowid();
@@ -1213,7 +1208,7 @@ impl CatalogDb {
     // XXX make it return whether the keyword was created.
     pub(crate) fn make_keyword(&self, keyword: &str, parent: LibraryId) -> Result<LibraryId> {
         if let Some(ref conn) = self.dbconn {
-            let mut stmt = conn.prepare(
+            let mut stmt = conn.prepare_cached(
                 "SELECT id FROM keywords WHERE \
                  keyword=?1 AND parent_id=?2;",
             )?;
@@ -1225,10 +1220,9 @@ impl CatalogDb {
                 }
             }
 
-            let c = conn.execute(
-                "INSERT INTO keywords (keyword, parent_id) VALUES(?1, ?2);",
-                params![keyword, parent],
-            )?;
+            let mut stmt =
+                conn.prepare_cached("INSERT INTO keywords (keyword, parent_id) VALUES(?1, ?2);")?;
+            let c = stmt.execute(params![keyword, parent])?;
             if c != 1 {
                 return Err(Error::InvalidResult);
             }
@@ -1248,12 +1242,12 @@ impl CatalogDb {
 
     fn assign_keyword(&self, keyword_id: LibraryId, file_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            conn.execute(
+            let mut stmt = conn.prepare_cached(
                 "INSERT OR IGNORE INTO keywording\
                  (file_id, keyword_id) \
                  VALUES(?1, ?2)",
-                params![file_id, keyword_id],
             )?;
+            stmt.execute(params![file_id, keyword_id])?;
             Ok(())
         } else {
             Err(Error::NoSqlDb)
@@ -1277,7 +1271,7 @@ impl CatalogDb {
                 LibMetadata::read_db_tables(),
                 LibMetadata::read_db_where_id()
             );
-            let mut stmt = conn.prepare(&sql)?;
+            let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query(params![file_id])?;
             return match rows.next() {
                 Err(err) => Err(Error::from(err)),
@@ -1286,7 +1280,7 @@ impl CatalogDb {
                     let mut metadata = Box::new(LibMetadata::read_from(row)?);
 
                     let sql = "SELECT ext FROM sidecars WHERE file_id=?1";
-                    let mut stmt = conn.prepare(sql)?;
+                    let mut stmt = conn.prepare_cached(sql)?;
                     let mut rows = stmt.query(params![file_id])?;
                     while let Ok(Some(row)) = rows.next() {
                         metadata.sidecars.push(row.get(0)?);
@@ -1300,11 +1294,11 @@ impl CatalogDb {
 
     fn unassign_all_keywords_for_file(&self, file_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            conn.execute(
+            let mut stmt = conn.prepare_cached(
                 "DELETE FROM keywording \
                  WHERE file_id=?1;",
-                params![file_id],
             )?;
+            stmt.execute(params![file_id])?;
             // we don't really know how many rows are supposed to be impacted
             // even 0 is valid.
             return Ok(());
@@ -1323,7 +1317,7 @@ impl CatalogDb {
         if let Some(ref conn) = self.dbconn {
             if let Some(PropertyValue::String(xmp)) = props.get(&Np::Index(Npi::NpNiepceXmpPacket))
             {
-                let mut stmt = conn.prepare("UPDATE files SET xmp=?1 WHERE id=?2;")?;
+                let mut stmt = conn.prepare_cached("UPDATE files SET xmp=?1 WHERE id=?2;")?;
                 stmt.execute(params![xmp, image_id])?;
             }
             return Ok(());
@@ -1349,10 +1343,8 @@ impl CatalogDb {
     fn set_metadata_block(&self, file_id: LibraryId, metablock: &LibMetadata) -> Result<()> {
         let xmp = metablock.serialize_inline();
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute(
-                "UPDATE files SET xmp=?1 WHERE id=?2;",
-                params![xmp, file_id],
-            )?;
+            let mut stmt = conn.prepare_cached("UPDATE files SET xmp=?1 WHERE id=?2;")?;
+            let c = stmt.execute(params![xmp, file_id])?;
             if c != 1 {
                 err_out!("error setting metadatablock");
                 return Err(Error::InvalidResult);
@@ -1427,13 +1419,12 @@ impl CatalogDb {
         folder_id: LibraryId,
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let mut stmt = conn.prepare("SELECT id FROM folders WHERE id=?1;")?;
+            let mut stmt = conn.prepare_cached("SELECT id FROM folders WHERE id=?1;")?;
             let mut rows = stmt.query(params![folder_id])?;
             if let Ok(Some(_)) = rows.next() {
-                conn.execute(
-                    "UPDATE files SET parent_id = ?1 WHERE id = ?2;",
-                    params![folder_id, file_id],
-                )?;
+                let mut stmt =
+                    conn.prepare_cached("UPDATE files SET parent_id = ?1 WHERE id = ?2;")?;
+                stmt.execute(params![folder_id, file_id])?;
                 return Ok(());
             } else {
                 return Err(Error::NotFound);
@@ -1449,7 +1440,7 @@ impl CatalogDb {
                 Label::read_db_columns(),
                 Label::read_db_tables()
             );
-            let mut stmt = conn.prepare(&sql)?;
+            let mut stmt = conn.prepare_cached(&sql)?;
             let mut rows = stmt.query([])?;
             let mut labels: Vec<Label> = vec![];
             while let Ok(Some(row)) = rows.next() {
@@ -1510,7 +1501,7 @@ impl CatalogDb {
 
     fn get_xmp_ids_in_queue(&self) -> Result<Vec<LibraryId>> {
         if let Some(ref conn) = self.dbconn {
-            let mut stmt = conn.prepare("SELECT id FROM xmp_update_queue;")?;
+            let mut stmt = conn.prepare_cached("SELECT id FROM xmp_update_queue;")?;
             let mut rows = stmt.query([])?;
             let mut ids = Vec::<LibraryId>::new();
             while let Ok(Some(row)) = rows.next() {
@@ -1542,7 +1533,7 @@ impl CatalogDb {
                 if !write_xmp {
                     return Ok(());
                 }
-                if let Ok(mut stmt) = conn.prepare(
+                if let Ok(mut stmt) = conn.prepare_cached(
                     "SELECT xmp, main_file, xmp_file FROM files \
                      WHERE id=?1;",
                 ) {
