@@ -154,10 +154,35 @@ impl ExempiManager {
     }
 }
 
+#[derive(Clone, Debug)]
+/// Represent a keyword.
+pub enum XmpKeyword {
+    Flat(String),
+    Hier(Vec<String>),
+}
+
+impl std::cmp::PartialEq<&str> for XmpKeyword {
+    fn eq(&self, other: &&str) -> bool {
+        if let Self::Flat(s) = self {
+            return s == other;
+        }
+        false
+    }
+}
+
+impl std::cmp::PartialEq<&[&str]> for XmpKeyword {
+    fn eq(&self, other: &&[&str]) -> bool {
+        if let Self::Hier(kw) = self {
+            return kw == *other;
+        }
+        false
+    }
+}
+
 #[derive(Clone)]
 pub struct XmpMeta {
     pub xmp: Xmp,
-    keywords: Vec<String>,
+    keywords: Vec<XmpKeyword>,
     keywords_fetched: bool,
 }
 
@@ -456,16 +481,48 @@ impl XmpMeta {
         Some(Date::from_exempi(property.as_ref().unwrap()))
     }
 
-    pub fn keywords(&mut self) -> &Vec<String> {
+    pub fn keywords(&mut self) -> &Vec<XmpKeyword> {
         if !self.keywords_fetched {
-            let iter = exempi2::XmpIterator::new(
-                &self.xmp,
-                NS_DC,
-                "subject",
-                exempi2::IterFlags::JUST_LEAF_NODES,
-            );
-            for v in iter {
-                self.keywords.push(String::from(&v.value));
+            if self.xmp.has_property(NS_LIGHTROOM, "hierarchicalSubject") {
+                let iter = exempi2::XmpIterator::new(
+                    &self.xmp,
+                    NS_LIGHTROOM,
+                    "hierarchicalSubject",
+                    exempi2::IterFlags::JUST_LEAF_NODES,
+                );
+                for v in iter {
+                    let k = v
+                        .value
+                        .to_string()
+                        .as_str()
+                        .split('|')
+                        .map(String::from)
+                        .collect();
+
+                    self.keywords.push(XmpKeyword::Hier(k));
+                }
+            }
+            /* else if self.xmp.has_property(NS_LIGHTROOM,
+                                            "hierarchicalKeywords") {
+                // This is a legacy very early Lightroom™ thing.
+                // It's a base64 blob in Lr own format
+                let mut props = exempi2::PropFlags::empty();
+                if let Ok(k) = self.xmp.get_property(NS_LIGHTROOM,
+                                                     "hierarchicalKeywords", &mut props) {
+                    let hkw = BASE64_STANDARD.decode(k.to_string());
+                }
+            }
+             */
+            else if self.xmp.has_property(NS_DC, "subject") {
+                let iter = exempi2::XmpIterator::new(
+                    &self.xmp,
+                    NS_DC,
+                    "subject",
+                    exempi2::IterFlags::JUST_LEAF_NODES,
+                );
+                for v in iter {
+                    self.keywords.push(XmpKeyword::Flat(v.value.to_string()));
+                }
             }
             self.keywords_fetched = true;
         }
@@ -632,12 +689,14 @@ mod tests {
             assert_eq!(meta.orientation().unwrap_or(0), 1);
             // test keywords()
             let keywords = meta.keywords();
-            assert_eq!(keywords.len(), 5);
-            assert_eq!(keywords[0], "choir");
-            assert_eq!(keywords[1], "night");
-            assert_eq!(keywords[2], "ontario");
-            assert_eq!(keywords[3], "ottawa");
-            assert_eq!(keywords[4], "parliament of canada");
+            assert_eq!(keywords.len(), 4, "Not enough keywords");
+            assert_eq!(keywords[0], ["choir"].as_slice());
+            assert_eq!(keywords[1], ["night"].as_slice());
+            assert_eq!(keywords[2], ["ontario", "ottawa"].as_slice());
+            assert_eq!(
+                keywords[3],
+                ["ontario", "ottawa", "parliament of canada"].as_slice()
+            );
         } else {
             unreachable!();
         }

@@ -53,6 +53,7 @@ use crate::library::notification::{FolderReparent, LibNotification};
 use npc_fwk::PropertyValue;
 use npc_fwk::base::RgbColour;
 use npc_fwk::toolkit;
+use npc_fwk::utils::exempi::XmpKeyword;
 use npc_fwk::{dbg_assert, dbg_out, err_out, on_err_out};
 
 const DB_SCHEMA_VERSION: i32 = 13;
@@ -1171,10 +1172,11 @@ impl CatalogDb {
                 if let Some(mut meta) = meta {
                     let keywords = meta.keywords();
                     for k in keywords {
-                        let kwid = self.make_keyword(k, 0)?;
-                        if kwid != -1 {
-                            self.assign_keyword(kwid, id)?;
-                        }
+                        let kwid = self.make_keywords(k)?;
+                        kwid.iter().for_each(|kid| {
+                            // XXX handle the error here.
+                            let _ = self.assign_keyword(*kid, id);
+                        });
                     }
                 }
                 return Ok(id);
@@ -1183,6 +1185,26 @@ impl CatalogDb {
         }
 
         Err(Error::NoSqlDb)
+    }
+
+    /// Create all the keywords for the hierarchy (if applicable)
+    /// and return the ids in order.
+    pub(crate) fn make_keywords(&self, keywords: &XmpKeyword) -> Result<Vec<LibraryId>> {
+        match keywords {
+            XmpKeyword::Flat(kw) => self.make_keyword(kw, 0).map(|id| vec![id]),
+            XmpKeyword::Hier(hkw) => {
+                let mut last = 0;
+                let mut ids = vec![];
+                hkw.iter().for_each(|kw| {
+                    if let Ok(id) = self.make_keyword(kw, last) {
+                        ids.push(id);
+                        last = id;
+                    }
+                });
+
+                Ok(ids)
+            }
+        }
     }
 
     /// Make keyword with name `keyword` and `parent`. If `parent` is 0 then it
