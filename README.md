@@ -5,7 +5,7 @@ Niepce Digital
 # What is this?
 
 Niepce Digital is a digital photography software. Its goal is to
-provvide asset management and image processing and editing.
+provide asset management and image processing and editing.
 
 It is currently work in progress.
 

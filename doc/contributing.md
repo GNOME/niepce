@@ -2,14 +2,18 @@
 
 This document will guide you into contributing to Niepce.
 
-Please also read the [design philosophy](desgin_philosphy.md) to guide
+Please also read the [design philosophy](design_philosophy.md) to guide
 about what kind of submission would be accepted.
 
 ## AI Policy
 
 Using AI/ChatBot/LLM to contribute code or documentation is not
-allowed. The often produce low quality code and represent a risk about
-ownership since the training data isn't clear.
+allowed. They often produce low quality code and represent a risk
+about ownership since the training data isn't clear, non-withstanding
+all the ethical issues of the technology between being used for labour
+oppression, excessive energy usage, excessive water usage, and unfair
+labour practice towards all the humans that are required for the
+training.
 
 ## Building
 
