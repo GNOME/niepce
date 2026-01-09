@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod lr;
+
 use std::convert::From;
 use std::ffi::OsStr;
 use std::fs::File;
@@ -501,19 +503,21 @@ impl XmpMeta {
 
                     self.keywords.push(XmpKeyword::Hier(k));
                 }
-            }
-            /* else if self.xmp.has_property(NS_LIGHTROOM,
-                                            "hierarchicalKeywords") {
+            } else if self.xmp.has_property(NS_LIGHTROOM, "hierarchicalKeywords") {
                 // This is a legacy very early Lightroom™ thing.
                 // It's a base64 blob in Lr own format
                 let mut props = exempi2::PropFlags::empty();
-                if let Ok(k) = self.xmp.get_property(NS_LIGHTROOM,
-                                                     "hierarchicalKeywords", &mut props) {
-                    let hkw = BASE64_STANDARD.decode(k.to_string());
+                if let Ok(k) =
+                    self.xmp
+                        .get_property(NS_LIGHTROOM, "hierarchicalKeywords", &mut props)
+                {
+                    if let Some(hkw) = lr::decode_old_hierarchical_kw(k) {
+                        for v in hkw {
+                            self.keywords.push(v);
+                        }
+                    }
                 }
-            }
-             */
-            else if self.xmp.has_property(NS_DC, "subject") {
+            } else if self.xmp.has_property(NS_DC, "subject") {
                 let iter = exempi2::XmpIterator::new(
                     &self.xmp,
                     NS_DC,
@@ -697,6 +701,28 @@ mod tests {
                 keywords[3],
                 ["ontario", "ottawa", "parliament of canada"].as_slice()
             );
+        } else {
+            unreachable!();
+        }
+    }
+
+    #[test]
+    fn xmp_meta_old_lr_keywords() {
+        let mut dir = get_xmp_sample_path();
+        dir.push("test3.xmp");
+        let _xmp_manager = ExempiManager::new(None);
+
+        if let Some(xmpfile) = dir.to_str() {
+            let meta = XmpMeta::new_from_file(xmpfile, true);
+
+            assert!(meta.is_some());
+            let mut meta = meta.unwrap();
+            assert_eq!(meta.orientation().unwrap_or(0), 1);
+            // test keywords()
+            let keywords = meta.keywords();
+            assert_eq!(keywords.len(), 2, "Incorrect keywords count");
+            assert_eq!(keywords[0], ["quebec", "outaouais", "gatineau"].as_slice());
+            assert_eq!(keywords[1], ["stella bella blue"].as_slice());
         } else {
             unreachable!();
         }
