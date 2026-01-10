@@ -1246,13 +1246,13 @@ impl CatalogDb {
         Err(Error::NoSqlDb)
     }
 
-    fn assign_keyword(&self, kw_id: LibraryId, file_id: LibraryId) -> Result<()> {
+    fn assign_keyword(&self, keyword_id: LibraryId, file_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             conn.execute(
                 "INSERT OR IGNORE INTO keywording\
                  (file_id, keyword_id) \
                  VALUES(?1, ?2)",
-                params![kw_id, file_id],
+                params![file_id, keyword_id],
             )?;
             Ok(())
         } else {
@@ -1766,11 +1766,13 @@ pub(crate) mod test {
         assert!(catalog.assign_keyword(kwid1, file_id).is_ok());
         assert!(catalog.assign_keyword(kwid2, file_id).is_ok());
 
-        let fl2 = catalog.get_keyword_content(kwid1);
-        assert!(fl2.is_ok());
-        let fl2 = fl2.ok().unwrap();
-        assert_eq!(fl2.len(), 1);
-        assert_eq!(fl2[0].id(), file_id);
+        for kw in [kwid1, kwid2] {
+            let fl2 = catalog.get_keyword_content(kw);
+            assert!(fl2.is_ok());
+            let fl2 = fl2.ok().unwrap();
+            assert_eq!(fl2.len(), 1, "Incorrect content len for tag {kw}");
+            assert_eq!(fl2[0].id(), file_id, "Incorrect content for tag {kw}");
+        }
 
         let kl = catalog.get_all_keywords();
         assert!(kl.is_ok());
