@@ -24,8 +24,7 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use lrcat::{
-    Catalog, CatalogVersion, Collection, Folder, Folders, Image, Keyword, KeywordTree, LibraryFile,
-    LrId, LrObject,
+    Catalog, Collection, Folder, Folders, Image, Keyword, KeywordTree, LibraryFile, LrId, LrObject,
 };
 
 use npc_fwk::{dbg_out, err_out};
@@ -242,7 +241,7 @@ impl LibraryImporter for LrImporter {
     fn import_library(&mut self, libclient: &LibraryClient) -> Result<()> {
         if let Some(ref mut catalog) = self.catalog {
             catalog.load_version();
-            if catalog.catalog_version != CatalogVersion::Lr4 {
+            if !catalog.catalog_version.is_supported() {
                 return Err(Error::UnsupportedFormat);
             }
             catalog.load_folders();
