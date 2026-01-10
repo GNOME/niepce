@@ -483,6 +483,21 @@ impl XmpMeta {
         Some(Date::from_exempi(property.as_ref().unwrap()))
     }
 
+    /// Handle a legacy Lightroom XMP property. You might
+    /// never encounter it.
+    fn legacy_lr_keyword(&mut self, prop: &str) {
+        // This is a legacy very early Lightroom™ thing.
+        // It's a base64 blob in Lr own format
+        let mut props = exempi2::PropFlags::empty();
+        if let Ok(k) = self.xmp.get_property(NS_LIGHTROOM, prop, &mut props) {
+            if let Some(hkw) = lr::decode_old_hierarchical_kw(prop, k) {
+                for v in hkw {
+                    self.keywords.push(v);
+                }
+            }
+        }
+    }
+
     pub fn keywords(&mut self) -> &Vec<XmpKeyword> {
         if !self.keywords_fetched {
             if self.xmp.has_property(NS_LIGHTROOM, "hierarchicalSubject") {
@@ -504,19 +519,9 @@ impl XmpMeta {
                     self.keywords.push(XmpKeyword::Hier(k));
                 }
             } else if self.xmp.has_property(NS_LIGHTROOM, "hierarchicalKeywords") {
-                // This is a legacy very early Lightroom™ thing.
-                // It's a base64 blob in Lr own format
-                let mut props = exempi2::PropFlags::empty();
-                if let Ok(k) =
-                    self.xmp
-                        .get_property(NS_LIGHTROOM, "hierarchicalKeywords", &mut props)
-                {
-                    if let Some(hkw) = lr::decode_old_hierarchical_kw(k) {
-                        for v in hkw {
-                            self.keywords.push(v);
-                        }
-                    }
-                }
+                self.legacy_lr_keyword("hierarchicalKeywords");
+            } else if self.xmp.has_property(NS_LIGHTROOM, "privateRTKInfo") {
+                self.legacy_lr_keyword("privateRTKInfo");
             } else if self.xmp.has_property(NS_DC, "subject") {
                 let iter = exempi2::XmpIterator::new(
                     &self.xmp,

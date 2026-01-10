@@ -59,14 +59,14 @@ fn decode_kw_entry(value: Object) -> Option<XmpKeyword> {
     }
 }
 
-pub(super) fn decode_old_hierarchical_kw(k: XmpString) -> Option<Vec<XmpKeyword>> {
+pub(super) fn decode_old_hierarchical_kw(prop: &str, k: XmpString) -> Option<Vec<XmpKeyword>> {
     BASE64_STANDARD
         .decode(k.to_string())
         .map(|hkw| String::from_utf8_lossy(&hkw).to_string())
         .ok()
         .and_then(|hkw| {
             if let Ok(Object::Pair(hier_kw)) = Object::from_string(hkw.as_str()) {
-                if hier_kw.key == "hierarchicalKeywords" {
+                if hier_kw.key == prop {
                     match hier_kw.value {
                         Value::Dict(dict) => {
                             Some(dict.into_iter().filter_map(decode_kw_entry).collect())
