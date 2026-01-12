@@ -1240,7 +1240,7 @@ impl CatalogDb {
         Err(Error::NoSqlDb)
     }
 
-    fn assign_keyword(&self, keyword_id: LibraryId, file_id: LibraryId) -> Result<()> {
+    pub(crate) fn assign_keyword(&self, keyword_id: LibraryId, file_id: LibraryId) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare_cached(
                 "INSERT OR IGNORE INTO keywording\

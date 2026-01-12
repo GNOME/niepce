@@ -621,6 +621,16 @@ pub fn cmd_write_metadata(catalog: &CatalogDb, file_id: LibraryId) -> bool {
     }
 }
 
+pub fn cmd_assign_keyword(catalog: &CatalogDb, keyword_id: LibraryId, file_id: LibraryId) -> bool {
+    match catalog.assign_keyword(keyword_id, file_id) {
+        Ok(_) => true,
+        Err(err) => {
+            err_out_line!("assign_keyword failed: {:?}", err);
+            false
+        }
+    }
+}
+
 pub fn cmd_move_file_to_folder(
     catalog: &CatalogDb,
     file_id: LibraryId,

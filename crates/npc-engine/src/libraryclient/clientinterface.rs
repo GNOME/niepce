@@ -71,6 +71,8 @@ pub trait ClientInterface {
     /// set some properties for an image.
     fn set_image_properties(&self, id: LibraryId, props: &NiepcePropertyBag);
     fn write_metadata(&self, id: LibraryId);
+    /// Assign keyword to image.
+    fn assign_keyword(&self, kewyord_id: LibraryId, file_id: LibraryId);
 
     fn move_file_to_folder(&self, file_id: LibraryId, from: LibraryId, to: LibraryId);
     /// get all the labels

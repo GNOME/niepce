@@ -210,6 +210,15 @@ impl LrImporter {
             if let Some(ref props) = metadata {
                 libclient.set_image_properties(nid, props);
             }
+
+            if let Some(image) = image {
+                image.keywords.iter().for_each(|keyword| {
+                    if let Some(id) = self.keyword_map.borrow().get(keyword) {
+                        libclient.assign_keyword(*id, nid);
+                    }
+                });
+            }
+
             self.file_map.borrow_mut().insert(file.id(), nid);
             if let Some(image) = image {
                 self.image_map.borrow_mut().insert(image.id(), nid);

@@ -289,6 +289,10 @@ impl ClientInterface for LibraryClientSender {
         self.schedule_op(move |catalog| commands::cmd_write_metadata(catalog, file_id));
     }
 
+    fn assign_keyword(&self, keyword_id: LibraryId, file_id: LibraryId) {
+        self.schedule_op(move |catalog| commands::cmd_assign_keyword(catalog, keyword_id, file_id));
+    }
+
     fn move_file_to_folder(&self, file_id: LibraryId, from: LibraryId, to: LibraryId) {
         self.schedule_op(move |catalog| {
             commands::cmd_move_file_to_folder(catalog, file_id, from, to)
