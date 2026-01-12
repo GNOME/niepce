@@ -27,7 +27,7 @@ use lrcat::{
     Catalog, Collection, Folder, Folders, Image, Keyword, KeywordTree, LibraryFile, LrId, LrObject,
 };
 
-use npc_fwk::{dbg_out, err_out};
+use npc_fwk::{dbg_out, err_out, log};
 
 use super::libraryimporter::{Error, LibraryImporter, LibraryImporterProbe, Result};
 use crate::NiepcePropertyBag;
@@ -171,7 +171,7 @@ impl LrImporter {
         if let Some(folder_id) = self.folder_map.borrow().get(&file.folder) {
             let main_file = format!("{}/{}.{}", &folder_id.1, &file.basename, &file.extension);
             let mut bundle = FileBundle::new();
-            dbg_out!("Adding {}", &main_file);
+            log::debug!("Adding {main_file}");
             bundle.add(main_file);
 
             if !file.sidecar_extensions.is_empty() {
