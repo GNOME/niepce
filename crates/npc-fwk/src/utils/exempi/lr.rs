@@ -25,38 +25,33 @@ use lrcat::lron::Value;
 
 use super::XmpKeyword;
 
-fn decode_kw_entry(value: Value) -> Option<XmpKeyword> {
-    match value {
-        Value::Dict(entries) => {
-            let mut path: Option<Value> = None;
-            let mut primary: Option<Value> = None;
-            for entry in entries {
-                if let Value::Pair(entry) = entry {
-                    match entry.key.as_str() {
-                        // we ignore flat
-                        "path" => path = Some(entry.value),
-                        "primary" => primary = Some(entry.value),
-                        _ => {}
-                    }
+fn decode_kw_entry(value: &Value) -> Option<XmpKeyword> {
+    value.as_dict().and_then(|entries| {
+        let mut path: Option<&Value> = None;
+        let mut primary: Option<&Value> = None;
+        for entry in entries {
+            if let Some(entry) = entry.as_pair() {
+                match entry.key.as_str() {
+                    // we ignore flat
+                    "path" => path = Some(&entry.value),
+                    "primary" => primary = Some(&entry.value),
+                    _ => {}
                 }
             }
-            if let Some(Value::Dict(path)) = path {
-                let path = path
-                    .into_iter()
-                    .filter_map(|v| match v {
-                        Value::Str(s) => Some(s),
-                        _ => None,
-                    })
-                    .collect();
-                Some(XmpKeyword::Hier(path))
-            } else if let Some(Value::Str(primary)) = primary {
-                Some(XmpKeyword::Flat(primary))
-            } else {
-                None
-            }
         }
-        _ => None,
-    }
+        if let Some(path) = path.as_ref().and_then(|path| path.as_dict()) {
+            let path = path
+                .iter()
+                .filter_map(Value::as_str)
+                .map(String::from)
+                .collect();
+            Some(XmpKeyword::Hier(path))
+        } else {
+            primary
+                .and_then(|primary| primary.as_str().map(String::from))
+                .map(XmpKeyword::Flat)
+        }
+    })
 }
 
 pub(super) fn decode_old_hierarchical_kw(prop: &str, k: XmpString) -> Option<Vec<XmpKeyword>> {
@@ -67,12 +62,10 @@ pub(super) fn decode_old_hierarchical_kw(prop: &str, k: XmpString) -> Option<Vec
         .and_then(|hkw| {
             if let Ok(Value::Pair(hier_kw)) = Value::from_string(hkw.as_str()) {
                 if hier_kw.key == prop {
-                    match hier_kw.value {
-                        Value::Dict(dict) => {
-                            Some(dict.into_iter().filter_map(decode_kw_entry).collect())
-                        }
-                        _ => None,
-                    }
+                    hier_kw
+                        .value
+                        .as_dict()
+                        .map(|dict| dict.iter().filter_map(decode_kw_entry).collect())
                 } else {
                     None
                 }
