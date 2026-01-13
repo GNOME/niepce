@@ -28,7 +28,7 @@ libc = "0.2.39"
 libheif-rs = { version = "2.3.0", default-features = false, features = [ "v1_17" ] }
 libopenraw = "0.4.0-alpha.12"
 log = "0.4"
-lrcat-extractor = "0.6.0"
+lrcat-extractor = "0.7.0"
 multimap = "0.10.0"
 # The return values are not guaranted so we pin the version.
 mime_guess = "=2.0.5"

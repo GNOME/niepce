@@ -1,7 +1,7 @@
 /*
  * niepce - engine/importer/libraryimporter.rs
  *
- * Copyright (C) 2021-2023 Hubert Figuière
+ * Copyright (C) 2021-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use thiserror::Error;
 
@@ -50,10 +50,10 @@ pub trait LibraryImporter {
     fn import_library(&mut self, libclient: &LibraryClient) -> Result<()>;
 
     /// Return the root folders. They can then me remapped using `map_root_folder`.
-    fn root_folders(&mut self) -> Vec<String>;
+    fn root_folders(&mut self) -> Vec<PathBuf>;
 
     /// Map a root folder a new destination.
-    fn map_root_folder(&mut self, orig: &str, dest: &str);
+    fn map_root_folder(&mut self, orig: &Path, dest: &Path);
 
     /// The name of the importer. Should be the name of the original application.
     /// XXX see about localizing this.

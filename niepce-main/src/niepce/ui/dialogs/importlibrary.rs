@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/importlibrary.rs
  *
- * Copyright (C) 2021-2025 Hubert Figuière
+ * Copyright (C) 2021-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ mod lrimport_root_row;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -61,12 +61,12 @@ struct ImportState {
     /// The import button.
     import_file_button: Option<gtk4::Button>,
     /// The map for root folders.
-    root_remapping: HashMap<String, (String, bool)>,
+    root_remapping: HashMap<PathBuf, (PathBuf, bool)>,
 }
 
 impl ImportState {
     /// Remap a root folder
-    fn remap_root(&mut self, p: String, v: String) {
+    fn remap_root(&mut self, p: PathBuf, v: PathBuf) {
         if let Some(ref mut entry) = self.root_remapping.get_mut(&p) {
             entry.0 = v;
         } else {
@@ -75,7 +75,7 @@ impl ImportState {
     }
 
     /// Enable/disable root folder
-    fn enable_root(&mut self, p: &str, b: bool) {
+    fn enable_root(&mut self, p: &Path, b: bool) {
         if let Some(ref mut entry) = self.root_remapping.get_mut(p) {
             entry.1 = b;
         }
@@ -100,15 +100,15 @@ pub enum Command {
     /// Request to select a file
     SelectFile,
     /// File selector accept
-    SetFile(std::path::PathBuf),
+    SetFile(PathBuf),
     /// We just located a root. Sent for each.
-    FoundRoot(String),
+    FoundRoot(PathBuf),
     /// We are done loading root
     RootsDone,
     /// Update the remap
-    Remap((String, String)),
+    Remap((PathBuf, PathBuf)),
     /// Update the root enabled
-    SetRootEnabled((String, bool)),
+    SetRootEnabled((PathBuf, bool)),
     /// Close the assistant
     Close,
 }
@@ -138,12 +138,12 @@ impl Controller for ImportLibraryDialog {
                     // add the root to the list.
                     self.state.borrow_mut().remap_root(p.clone(), p.clone());
                     if let Some(roots_list) = &self.roots_list {
-                        let row = LrImportRootRow::new(p.clone());
+                        let row = LrImportRootRow::new(p.to_string_lossy().into());
 
                         let sender = self.sender();
                         let p2 = p.clone();
                         row.connect_changed(move |w| {
-                            let v = w.text().to_string();
+                            let v = PathBuf::from(w.text());
                             let p = p2.clone();
                             npc_fwk::send_async_local!(Command::Remap((p, v)), sender);
                         });
@@ -170,11 +170,11 @@ impl Controller for ImportLibraryDialog {
                 }
             }
             Command::Remap((p, v)) => {
-                dbg_out!("Remap {} to {}", p, v);
+                dbg_out!("Remap {} to {}", p.display(), v.display());
                 self.state.borrow_mut().remap_root(p, v);
             }
             Command::SetRootEnabled((p, v)) => {
-                dbg_out!("{} {}", if v { "Enable" } else { "Disable" }, p);
+                dbg_out!("{} {}", if v { "Enable" } else { "Disable" }, p.display());
                 self.state.borrow_mut().enable_root(&p, v);
             }
             Command::Close => {
@@ -306,7 +306,7 @@ impl ImportLibraryDialog {
             }
             let roots = importer.root_folders();
             for root in roots {
-                dbg_out!("Found root folder {}", &root);
+                dbg_out!("Found root folder {}", root.display());
                 npc_fwk::send_async_local!(Command::FoundRoot(root), self.sender());
             }
             npc_fwk::send_async_local!(Command::RootsDone, self.sender());

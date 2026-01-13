@@ -1840,9 +1840,9 @@ dependencies = [
 
 [[package]]
 name = "lrcat-extractor"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77e942c8bfe4daf53e7ec740e5357cd91d9863d0a164d8c88d6fa896f82e9048"
+checksum = "643296f756581a020dd1b0269b838cbf0640a76b219a81e72d42a01e7ca8bb34"
 dependencies = [
  "chrono",
  "clap",

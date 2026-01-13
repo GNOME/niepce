@@ -21,7 +21,7 @@ use gettextrs::gettext as i18n;
 
 use std::cell::RefCell;
 use std::collections::BTreeMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use lrcat::{
     Catalog, Collection, Folder, Folders, Image, Keyword, KeywordTree, LibraryFile, LrId, LrObject,
@@ -43,7 +43,7 @@ pub struct LrImporter {
     /// The Lr Catalog.
     catalog: Option<Catalog>,
     /// map keyword LrId to LibraryId
-    folder_map: RefCell<BTreeMap<LrId, (LibraryId, String)>>,
+    folder_map: RefCell<BTreeMap<LrId, (LibraryId, PathBuf)>>,
     /// map keyword LrId to LibraryId
     keyword_map: RefCell<BTreeMap<LrId, LibraryId>>,
     /// map collection LrId to album LibraryId
@@ -56,7 +56,7 @@ pub struct LrImporter {
     image_map: RefCell<BTreeMap<LrId, LibraryId>>,
 
     /// The root folder mapping table
-    root_folder_map: BTreeMap<String, String>,
+    root_folder_map: BTreeMap<PathBuf, PathBuf>,
 }
 
 impl LrImporter {
@@ -93,13 +93,13 @@ impl LrImporter {
         }
     }
 
-    fn import_folder(&self, folder_id: LrId, path: &str, libclient: &LibraryClient) {
+    fn import_folder(&self, folder_id: LrId, path: &Path, libclient: &LibraryClient) {
         let path = npc_fwk::utils::trim_trailing_path_sep(path);
-        let folder_name = Path::new(&path)
+        let folder_name = path
             .file_name()
             .map(|name| String::from(name.to_string_lossy()))
             .unwrap_or_else(|| i18n("Untitled"));
-        let nid = libclient.create_folder_sync(folder_name, path.into());
+        let nid = libclient.create_folder_sync(folder_name, path.to_string_lossy().into());
         self.folder_map
             .borrow_mut()
             .insert(folder_id, (nid, path.into()));
@@ -133,7 +133,7 @@ impl LrImporter {
         }
     }
 
-    fn populate_bundle(file: &LibraryFile, folder_path: &str, bundle: &mut FileBundle) {
+    fn populate_bundle(file: &LibraryFile, folder_path: &Path, bundle: &mut FileBundle) {
         let mut xmp_file: Option<String> = None;
         let mut jpeg_file: Option<String> = None;
         let sidecar_exts = file.sidecar_extensions.split(',');
@@ -142,11 +142,21 @@ impl LrImporter {
                 return;
             }
             if ext.to_lowercase() == "xmp" {
-                xmp_file = Some(format!("{}/{}.{}", &folder_path, &file.basename, &ext));
+                xmp_file = Some(format!(
+                    "{}/{}.{}",
+                    folder_path.display(),
+                    &file.basename,
+                    &ext
+                ));
             } else if jpeg_file.is_some() {
                 err_out!("JPEG sidecar already set: {}", ext);
             } else {
-                jpeg_file = Some(format!("{}/{}.{}", &folder_path, &file.basename, &ext));
+                jpeg_file = Some(format!(
+                    "{}/{}.{}",
+                    folder_path.display(),
+                    &file.basename,
+                    &ext
+                ));
             }
         });
 
@@ -168,14 +178,19 @@ impl LrImporter {
         image: Option<&Image>,
         libclient: &LibraryClient,
     ) {
-        if let Some(folder_id) = self.folder_map.borrow().get(&file.folder) {
-            let main_file = format!("{}/{}.{}", &folder_id.1, &file.basename, &file.extension);
+        if let Some(folder) = self.folder_map.borrow().get(&file.folder) {
+            let main_file = format!(
+                "{}/{}.{}",
+                &folder.1.display(),
+                &file.basename,
+                &file.extension
+            );
             let mut bundle = FileBundle::new();
             log::debug!("Adding {main_file}");
             bundle.add(main_file);
 
             if !file.sidecar_extensions.is_empty() {
-                Self::populate_bundle(file, &folder_id.1, &mut bundle);
+                Self::populate_bundle(file, &folder.1, &mut bundle);
             }
 
             let metadata = if let Some(image) = image {
@@ -191,7 +206,7 @@ impl LrImporter {
                 None
             };
 
-            let nid = libclient.add_bundle_sync(&bundle, folder_id.0);
+            let nid = libclient.add_bundle_sync(&bundle, folder.0);
             if let Some(ref props) = metadata {
                 libclient.set_image_properties(nid, props);
             }
@@ -205,7 +220,7 @@ impl LrImporter {
     /// Remap a folder path based on the root folder remapping
     /// If the folder isnt't found, it's the equivalent of
     /// `Folders.resolve_folder_path()`
-    fn remap_folder_path(&self, folders: &Folders, folder: &Folder) -> Option<String> {
+    fn remap_folder_path(&self, folders: &Folders, folder: &Folder) -> Option<PathBuf> {
         folders
             .find_root_folder(folder.root_folder)
             .map(|root_folder| {
@@ -215,9 +230,8 @@ impl LrImporter {
                     .root_folder_map
                     .get(absolute_path)
                     .cloned()
-                    .unwrap_or_else(|| absolute_path.to_string());
-                absolute_path += "/";
-                absolute_path += &folder.path_from_root;
+                    .unwrap_or_else(|| absolute_path.to_owned());
+                absolute_path.push(&folder.path_from_root);
                 absolute_path
             })
     }
@@ -299,7 +313,7 @@ impl LibraryImporter for LrImporter {
         }
     }
 
-    fn root_folders(&mut self) -> Vec<String> {
+    fn root_folders(&mut self) -> Vec<PathBuf> {
         if let Some(ref mut catalog) = self.catalog {
             catalog.load_folders();
         }
@@ -309,11 +323,13 @@ impl LibraryImporter for LrImporter {
                 .roots
                 .iter()
                 .map(|r| {
+                    println!("mapping root folder {}", r.absolute_path.display());
                     let absolute_path = &r.absolute_path;
                     self.root_folder_map
                         .get(absolute_path)
                         .unwrap_or(absolute_path)
                 })
+                .inspect(|p| println!("remapped to {}", p.display()))
                 .cloned()
                 .collect()
         } else {
@@ -321,9 +337,9 @@ impl LibraryImporter for LrImporter {
         }
     }
 
-    fn map_root_folder(&mut self, orig: &str, dest: &str) {
+    fn map_root_folder(&mut self, orig: &Path, dest: &Path) {
         self.root_folder_map
-            .insert(orig.to_string(), dest.to_string());
+            .insert(orig.to_owned(), dest.to_owned());
     }
 }
 

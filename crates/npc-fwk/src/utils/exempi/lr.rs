@@ -21,17 +21,17 @@
 
 use base64::prelude::*;
 use exempi2::XmpString;
-use lrcat::lron::{Object, Value};
+use lrcat::lron::Value;
 
 use super::XmpKeyword;
 
-fn decode_kw_entry(value: Object) -> Option<XmpKeyword> {
+fn decode_kw_entry(value: Value) -> Option<XmpKeyword> {
     match value {
-        Object::Dict(entries) => {
+        Value::Dict(entries) => {
             let mut path: Option<Value> = None;
             let mut primary: Option<Value> = None;
             for entry in entries {
-                if let Object::Pair(entry) = entry {
+                if let Value::Pair(entry) = entry {
                     match entry.key.as_str() {
                         // we ignore flat
                         "path" => path = Some(entry.value),
@@ -44,7 +44,7 @@ fn decode_kw_entry(value: Object) -> Option<XmpKeyword> {
                 let path = path
                     .into_iter()
                     .filter_map(|v| match v {
-                        Object::Str(s) => Some(s),
+                        Value::Str(s) => Some(s),
                         _ => None,
                     })
                     .collect();
@@ -65,7 +65,7 @@ pub(super) fn decode_old_hierarchical_kw(prop: &str, k: XmpString) -> Option<Vec
         .map(|hkw| String::from_utf8_lossy(&hkw).to_string())
         .ok()
         .and_then(|hkw| {
-            if let Ok(Object::Pair(hier_kw)) = Object::from_string(hkw.as_str()) {
+            if let Ok(Value::Pair(hier_kw)) = Value::from_string(hkw.as_str()) {
                 if hier_kw.key == prop {
                     match hier_kw.value {
                         Value::Dict(dict) => {

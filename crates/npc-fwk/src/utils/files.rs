@@ -180,12 +180,21 @@ pub fn normalize_for_display<P: AsRef<Path>, Q: AsRef<Path>>(
 /// Remove the last `/` from `path`.
 ///
 /// This is similar to currently nightly API `Path::trim_trailing_sep`
-pub fn trim_trailing_path_sep(path: &str) -> &str {
-    if path.len() >= 2 && path.chars().nth_back(0) == Some('/') {
-        &path[0..path.len() - 1]
-    } else {
-        path
+pub fn trim_trailing_path_sep(path: &Path) -> &Path {
+    use std::ffi::OsStr;
+
+    let oss = path.as_os_str();
+    if oss.len() < 2 {
+        return path;
     }
+    let mut bytes = oss.as_encoded_bytes();
+    if let Some((last, init)) = bytes.split_last()
+        && *last == b'/'
+    {
+        bytes = init;
+    }
+    // SAFETY: Trimming trailing ASCII bytes will retain the validity of the string.
+    Path::new(unsafe { OsStr::from_encoded_bytes_unchecked(bytes) })
 }
 
 #[cfg(test)]
@@ -250,9 +259,15 @@ mod tests {
 
     #[test]
     fn test_trim_trailing_sep() {
-        assert_eq!(trim_trailing_path_sep("/test/"), "/test");
-        assert_eq!(trim_trailing_path_sep("/test"), "/test");
-        assert_eq!(trim_trailing_path_sep("//"), "/");
-        assert_eq!(trim_trailing_path_sep("/"), "/");
+        assert_eq!(
+            trim_trailing_path_sep(Path::new("/test/")),
+            Path::new("/test")
+        );
+        assert_eq!(
+            trim_trailing_path_sep(Path::new("/test")),
+            Path::new("/test")
+        );
+        assert_eq!(trim_trailing_path_sep(Path::new("//")), Path::new("/"));
+        assert_eq!(trim_trailing_path_sep(Path::new("/")), Path::new("/"));
     }
 }

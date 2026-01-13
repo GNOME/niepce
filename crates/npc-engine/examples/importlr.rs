@@ -113,7 +113,7 @@ fn main() {
         if let Ok(remaps) = toml::from_str::<Remaps>(&content) {
             remaps.roots.iter().for_each(|v| {
                 if v.len() >= 2 {
-                    importer.map_root_folder(&v[0], &v[1]);
+                    importer.map_root_folder(Path::new(&v[0]), Path::new(&v[1]));
                 }
             });
         } else {
