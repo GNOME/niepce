@@ -81,7 +81,7 @@ examples = run_target(
     cargo_options,
     '--examples'
   ],
-  depends: [resources_bundle]
+  depends: [resources_bundle, rtengine]
 )
 
 # Target to build the test prior to running cargo-test
