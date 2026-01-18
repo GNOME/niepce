@@ -14,9 +14,10 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 rust-fmt:
-  image: "registry.gitlab.com/alatiera/rustfmt-oci-image/rustfmt:stable"
+  image: "rust:slim"
   needs: []
   script:
+    - rustup component add rustfmt
     - echo -e "" > niepce-main/src/config.rs
     - rustc -Vv && cargo -Vv
     - cargo --version
