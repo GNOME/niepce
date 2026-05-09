@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/movieutils.rs
  *
- * Copyright (C) 2020-2025 Hubert Figuière
+ * Copyright (C) 2020-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,11 +158,11 @@ impl Thumbnailer {
             if let Some(message) = message {
                 let source = message.src();
                 match message.type_() {
-                    gst::MessageType::AsyncDone => {
-                        if source == self.player.as_ref().map(|o| o.upcast_ref()) {
-                            async_received = true;
-                            terminate = true;
-                        }
+                    gst::MessageType::AsyncDone
+                        if source == self.player.as_ref().map(|o| o.upcast_ref()) =>
+                    {
+                        async_received = true;
+                        terminate = true;
                     }
                     gst::MessageType::Error => {
                         err_out!("gst error: {message:?}");

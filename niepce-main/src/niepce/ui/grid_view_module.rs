@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/grid_view_module.rs
  *
- * Copyright (C) 2022-2025 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -196,10 +196,10 @@ impl GridViewModule {
             LibNotification::MetadataQueried(lm) => {
                 self.metadatapanecontroller.display(lm.id(), Some(lm));
             }
-            LibNotification::MetadataChanged(lm) => {
-                if lm.id != 0 && self.metadatapanecontroller.displayed() == lm.id {
-                    client.request_metadata(lm.id);
-                }
+            LibNotification::MetadataChanged(lm)
+                if lm.id != 0 && self.metadatapanecontroller.displayed() == lm.id =>
+            {
+                client.request_metadata(lm.id);
             }
             _ => (),
         }
