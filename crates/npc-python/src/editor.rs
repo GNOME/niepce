@@ -1,7 +1,7 @@
 /*
  * niepce - npc-python/src/editor.rs
  *
- * Copyright (C) 2025 Hubert Figuière
+ * Copyright (C) 2025-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ use npc_fwk::gtk4;
 use npc_fwk::{gio, glib};
 use sourceview5::prelude::*;
 
-use npc_fwk::toolkit::{Controller, ControllerImplCell, DialogController, UiController};
+use npc_fwk::toolkit::{self, Controller, ControllerImplCell, DialogController, UiController};
 use npc_fwk::{controller_imp_imp, on_err_out, send_async_local};
 
 use crate::PythonApp;
@@ -46,6 +46,7 @@ pub struct Editor {
     engine: Engine,
     editor: sourceview5::View,
     console: gtk4::TextView,
+    cfg: Option<Rc<toolkit::Configuration>>,
 }
 
 impl Controller for Editor {
@@ -88,8 +89,14 @@ impl DialogController for Editor {
     }
 }
 
+const EDITOR_OPEN: &str = "python_editor_open";
+const PYTHON_CONSOLE_SCRIPT: &str = "python_console_script";
+
 impl Editor {
-    pub fn new(python_app: Box<dyn PythonApp>) -> Rc<Self> {
+    pub fn new(
+        python_app: Box<dyn PythonApp>,
+        cfg: Option<Rc<toolkit::Configuration>>,
+    ) -> Rc<Self> {
         let builder = gtk4::Builder::from_resource("/net/figuiere/npc-python/ui/editor.ui");
         get_widget!(builder, adw::Window, window);
         get_widget!(builder, sourceview5::View, editor);
@@ -116,6 +123,13 @@ impl Editor {
         editor.set_buffer(Some(&buffer));
         window.set_default_size(500, 500);
 
+        if let Some(script) = cfg
+            .as_ref()
+            .and_then(|cfg| cfg.value_opt(PYTHON_CONSOLE_SCRIPT))
+        {
+            buffer.set_text(&script);
+        }
+
         let imp = ControllerImplCell::default();
 
         let sender = imp.borrow().sender().clone();
@@ -139,6 +153,7 @@ impl Editor {
                 })),
             ),
             console,
+            cfg,
         });
 
         if let Some(actions) = editor.actions() {
@@ -149,9 +164,32 @@ impl Editor {
 
         <Self as DialogController>::start(&editor);
 
+        if let Some(cfg) = editor.cfg.clone() {
+            editor.window.connect_close_request(glib::clone!(
+                #[weak]
+                cfg,
+                #[upgrade_or]
+                glib::Propagation::Proceed,
+                move |_| {
+                    Editor::save_visible(&cfg, false);
+                    glib::Propagation::Proceed
+                }
+            ));
+        }
+
         editor.console_prompt();
 
         editor
+    }
+
+    pub fn is_visible(cfg: &Rc<toolkit::Configuration>) -> bool {
+        cfg.value_opt(EDITOR_OPEN)
+            .map(|v| v == "true")
+            .unwrap_or(false)
+    }
+
+    pub fn save_visible(cfg: &Rc<toolkit::Configuration>, visible: bool) {
+        cfg.set_value(EDITOR_OPEN, if visible { "true" } else { "false" });
     }
 
     /// Run the python code in the editor.
@@ -159,6 +197,9 @@ impl Editor {
         let buffer = self.editor.buffer();
         let text = buffer.text(&buffer.start_iter(), &buffer.end_iter(), false);
         let code = text.as_str();
+        if let Some(cfg) = &self.cfg {
+            cfg.set_value(PYTHON_CONSOLE_SCRIPT, code);
+        }
         self.run_code(code);
     }
 

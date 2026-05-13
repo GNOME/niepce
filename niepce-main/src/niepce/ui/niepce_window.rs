@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/niepce_window.rs
  *
- * Copyright (C) 2022-2025 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,19 +158,13 @@ impl Controller for NiepceWindow {
             ToggleToolsVisible => {
                 // XXX todo
             }
-            PythonEditor =>
-            {
+            PythonEditor => {
                 #[cfg(feature = "python")]
-                if let Some(widgets) = self.widgets.get() {
-                    if widgets.python_editor.borrow().is_none() {
-                        let python_app = Box::new(NiepcePython {});
-                        widgets
-                            .python_editor
-                            .replace(Some(npc_python::Editor::new(python_app)));
+                {
+                    if let Some(cfg) = self.configuration.borrow().as_ref() {
+                        npc_python::Editor::save_visible(cfg, true);
                     }
-                    if let Some(editor) = widgets.python_editor.borrow().as_ref() {
-                        editor.run(Some(self.window()));
-                    }
+                    self.on_python_editor();
                 }
             }
             OpenCatalog(catalog) => {
@@ -234,6 +228,12 @@ impl Controller for NiepceWindow {
                     .imp()
                     .initialise(&prefs);
                 self.load_state(self.configuration.borrow().as_ref().unwrap());
+                #[cfg(feature = "python")]
+                if let Some(cfg) = self.configuration.borrow().as_ref() {
+                    if npc_python::Editor::is_visible(cfg) {
+                        self.on_python_editor();
+                    }
+                }
             }
             UpdatePrefs(key, value) => {
                 self.configuration
@@ -557,6 +557,22 @@ impl NiepceWindow {
         if let Some(ref libclient) = *self.libraryclient.borrow() {
             let editlabel_dialog = EditLabels::new(libclient, self.app.weak().clone());
             editlabel_dialog.run_modal(Some(self.window()), WindowSize::Default, move |_| {});
+        }
+    }
+
+    #[cfg(feature = "python")]
+    fn on_python_editor(&self) {
+        if let Some(widgets) = self.widgets.get() {
+            if widgets.python_editor.borrow().is_none() {
+                let python_app = Box::new(NiepcePython {});
+                widgets.python_editor.replace(Some(npc_python::Editor::new(
+                    python_app,
+                    self.configuration.borrow().clone(),
+                )));
+            }
+            if let Some(editor) = widgets.python_editor.borrow().as_ref() {
+                editor.run(Some(self.window()));
+            }
         }
     }
 }
