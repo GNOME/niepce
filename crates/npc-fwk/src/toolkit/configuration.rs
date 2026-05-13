@@ -119,12 +119,14 @@ mod tests {
 
             assert!(!cfg.has("foobar"));
             assert_eq!(cfg.value("foobar", "some_default"), "some_default");
+            assert_eq!(cfg.value_opt("foobar"), None);
 
             cfg.set_value("foobar", "some_value");
             assert!(test_file.exists());
 
             assert!(cfg.has("foobar"));
             assert_eq!(cfg.value("foobar", "some_default"), "some_value");
+            assert!(cfg.value_opt("foobar").is_some());
         }
 
         // Test we can read it back.

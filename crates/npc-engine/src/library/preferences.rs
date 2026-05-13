@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-engine/src/library/preferences.rs
  *
- * Copyright (C) 2024 Hubert Figuière
+ * Copyright (C) 2024-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
