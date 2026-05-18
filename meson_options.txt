@@ -12,6 +12,6 @@ option(
 option(
   'python',
   type: 'boolean',
-  value: true,
+  value: false,
   description: 'Enable python support'
 )
