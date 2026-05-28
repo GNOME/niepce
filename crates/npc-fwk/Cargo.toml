@@ -32,7 +32,7 @@ lrcat-extractor = "0.7.0"
 multimap = "0.10.0"
 # The return values are not guaranted so we pin the version.
 mime_guess = "=2.0.5"
-nix = { version = "0.30", features = [ "fs" ] }
+nix = { version = "0.31", features = [ "fs" ] }
 num-traits = "0.2"
 once_cell = "^1.12.0"
 rexiv2 = "^0.10.0"

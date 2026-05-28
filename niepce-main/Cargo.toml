@@ -9,15 +9,12 @@ rust-version = "1.85"
 
 [dependencies]
 async-channel = "2.5.0"
-chrono = "0.4.23"
-cxx = { version = "1.0", features = [ "c++17" ] }
 gettext-rs = { version = "^0.7.0", features = [ "gettext-system" ] }
 gtk-macros = "0.3.0"
 env_logger = "0.11"
 i18n-format = "0.4.0"
 lazy_static = "^1.4.0"
-libc = "0.2.39"
-nix = { version = "0.30", features = [ "process" ] }
+nix = { version = "0.31", features = [ "process" ] }
 num-derive = "0.4.2"
 num-traits = "0.2.18"
 pyo3 = { version = "*", optional = true }
