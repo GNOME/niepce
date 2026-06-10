@@ -22,8 +22,8 @@ mod ws_list_item;
 mod ws_list_model;
 
 use std::cell::OnceCell;
-use std::rc::Rc;
-use std::sync::{Arc, Weak};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
@@ -88,7 +88,7 @@ pub struct WorkspaceController {
     app: Weak<NiepceApplication>,
     cfg: Rc<toolkit::Configuration>,
     widgets: OnceCell<Widgets>,
-    client: Weak<LibraryClient>,
+    client: std::sync::Weak<LibraryClient>,
     action_group: OnceCell<gio::ActionGroup>,
     pub selection_changed: Signal<ContentView>,
 

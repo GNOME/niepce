@@ -19,7 +19,6 @@
 
 use std::cell::{OnceCell, RefCell};
 use std::rc::Rc;
-use std::sync::Arc;
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
@@ -130,7 +129,7 @@ struct ShellWidgets {
 
 pub struct NiepceWindow {
     imp_: ControllerImplCell<Event, ()>,
-    app: Arc<NiepceApplication>,
+    app: Rc<NiepceApplication>,
     window: gtk4::ApplicationWindow,
     libraryclient: RefCell<Option<Rc<LibraryClientHost>>>,
     configuration: RefCell<Option<Rc<toolkit::Configuration>>>,
@@ -319,7 +318,7 @@ impl WindowController for NiepceWindow {
 }
 
 impl NiepceWindow {
-    pub fn new(app: &Arc<NiepceApplication>) -> Rc<NiepceWindow> {
+    pub fn new(app: &Rc<NiepceApplication>) -> Rc<NiepceWindow> {
         let ctrl = Rc::new(NiepceWindow {
             imp_: ControllerImplCell::default(),
             app: app.clone(),

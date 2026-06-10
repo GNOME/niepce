@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/undo.rs
  *
- * Copyright (C) 2022-2024 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@
  */
 
 use std::collections::VecDeque;
-use std::sync::{Arc, RwLock};
+use std::rc::Rc;
+use std::sync::RwLock;
 
 use crate::base::Signal;
 use crate::toolkit::AppController;
@@ -209,7 +210,7 @@ impl UndoHistory {
 }
 
 /// An all around wrapper to create and run and undoable command
-pub fn do_command<T>(app: &Arc<T>, label: &str, redo_fn: RedoFn, undo_fn: UndoFn)
+pub fn do_command<T>(app: &Rc<T>, label: &str, redo_fn: RedoFn, undo_fn: UndoFn)
 where
     T: AppController,
 {

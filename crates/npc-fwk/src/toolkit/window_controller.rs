@@ -1,7 +1,7 @@
 /*
  * niepce - crates/npc-fwk/src/toolkit/window_controller.rs
  *
- * Copyright (C) 2024-2025 Hubert Figuière
+ * Copyright (C) 2024-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
  */
 
 use std::rc::Rc;
-use std::sync::Arc;
 
 use crate::gio;
 use crate::glib;
@@ -106,7 +105,7 @@ pub trait WindowController {
 
 /// Create an undo action, with accel, and automatic state handling.
 pub fn create_undo_action(
-    app: Arc<dyn AppController>,
+    app: Rc<dyn AppController>,
     action_map: &gio::ActionMap,
 ) -> gio::SimpleAction {
     let action = gio::SimpleAction::new("Undo", None);
@@ -139,7 +138,7 @@ pub fn create_undo_action(
 
 /// Create an redo action, with accel, and automatic state handling.
 pub fn create_redo_action(
-    app: Arc<dyn AppController>,
+    app: Rc<dyn AppController>,
     action_map: &gio::ActionMap,
 ) -> gio::SimpleAction {
     let action = gio::SimpleAction::new("Redo", None);

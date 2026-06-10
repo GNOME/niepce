@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/module_shell.rs
  *
- * Copyright (C) 2022-2025 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,7 @@
 
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::rc::Rc;
-use std::sync::Weak;
+use std::rc::{Rc, Weak};
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;

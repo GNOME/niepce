@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/selection_controller.rs
  *
- * Copyright (C) 2022-2025 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  */
 
 use std::cell::Cell;
-use std::rc::Rc;
-use std::sync::{Arc, Weak};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;

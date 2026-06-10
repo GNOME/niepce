@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/niepce_application.rs
  *
- * Copyright (C) 2024-2025 Hubert Figuière
+ * Copyright (C) 2024-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 
 use std::cell::RefCell;
 use std::ffi::CString;
-use std::rc::Rc;
-use std::sync::{Arc, RwLock, Weak};
+use std::rc::{Rc, Weak};
+use std::sync::{Arc, RwLock};
 
 use adw::prelude::*;
 use gettextrs::gettext as i18n;
@@ -88,12 +88,12 @@ impl AppController for NiepceApplication {
 }
 
 impl NiepceApplication {
-    pub fn new() -> Arc<NiepceApplication> {
+    pub fn new() -> Rc<NiepceApplication> {
         let undo_history = UndoHistory::default();
         let config_path = Configuration::make_config_path(config::PACKAGE);
         let config = Arc::new(Configuration::from_file(config_path));
         let gtkapp = adw::Application::new(Some(config::APP_ID), gio::ApplicationFlags::default());
-        let app = Arc::new(NiepceApplication {
+        let app = Rc::new(NiepceApplication {
             imp_: ControllerImplCell::default(),
             this: RwLock::new(Weak::new()),
             config,
@@ -102,7 +102,7 @@ impl NiepceApplication {
             main_window: RefCell::default(),
         });
 
-        let this = Arc::downgrade(&app);
+        let this = Rc::downgrade(&app);
         *app.this.write().unwrap() = this;
 
         // This will panic for there is no default display.

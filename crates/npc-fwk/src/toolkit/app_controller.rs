@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::rc::Rc;
 use std::sync::Arc;
 
 use crate::log;
@@ -31,7 +32,7 @@ pub trait AppController {
 
     /// Start the controller event loop
     /// Like `Controller::start<>` but takes an `Arc<>`
-    fn start<T: Controller + 'static>(this: &Arc<T>)
+    fn start<T: Controller + 'static>(this: &Rc<T>)
     where
         Self: Sized,
     {
@@ -41,7 +42,7 @@ pub trait AppController {
             log::trace!(
                 "dialog dispatching for {}:{:p}",
                 std::any::type_name::<T>(),
-                Arc::as_ptr(&ctrl)
+                Rc::as_ptr(&ctrl)
             );
             ctrl.dispatch(e);
         });
