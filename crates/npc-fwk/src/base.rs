@@ -23,6 +23,7 @@ use std::collections::BTreeSet;
 pub mod debug;
 
 pub mod date;
+pub(crate) mod error;
 mod executor;
 pub mod fractions;
 mod geometry;

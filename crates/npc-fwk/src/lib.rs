@@ -40,6 +40,9 @@ pub use base::propertyvalue::PropertyValue;
 pub use toolkit::mimetype::MimeType;
 pub use utils::exempi::{ExempiManager, NsDef, XmpMeta, gps_coord_from_xmp};
 
+pub use base::error::Error;
+pub type Result<T> = std::result::Result<T, Error>;
+
 ///
 /// Init funtion because rexiv2 need one.
 ///
