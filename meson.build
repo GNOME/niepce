@@ -132,7 +132,6 @@ subdir('third_party')
 subdir('crates/npc-python')
 subdir('niepce-main/src')
 subdir('niepce-main')
-subdir('doc')
 
 gnome.post_install(
   gtk_update_icon_cache: true,

@@ -24,8 +24,6 @@ TAGS
 /src/niepce/npc-resources.c
 /src/niepce/npc-resources.gresource
 /src/niepce/npc-resources.h
-/doc/Doxyfile
-/doc/doxygen/html
 po/*.pot
 po/*.gmo
 po/POTFILES
