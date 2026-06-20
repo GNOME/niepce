@@ -90,7 +90,7 @@ impl Thumbnail {
     }
 
     /// Load the thumbnail. This is not a thumbnail. It's for the cache.
-    pub fn load<P: AsRef<Path>>(path: P) -> anyhow::Result<Self> {
+    pub fn load<P: AsRef<Path>>(path: P) -> crate::Result<Self> {
         Ok(Self::from(ImageReader::open(path)?.decode()?))
     }
 

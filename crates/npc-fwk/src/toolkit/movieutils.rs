@@ -22,11 +22,12 @@
 use std::path::Path;
 
 use crate::glib;
-use anyhow::{Result, anyhow};
 use glib::prelude::*;
 use gstreamer as gst;
 use gstreamer::prelude::*;
 use image::DynamicImage;
+
+use crate::{Result, anyerror};
 
 /// Video thumbnailer using Gstreamer
 /// Largely inspired from totem thumbnailer.
@@ -110,7 +111,7 @@ impl Thumbnailer {
                     })
                 })
             })
-            .ok_or_else(|| anyhow!("Couldn't extract frame"))
+            .ok_or_else(|| anyerror!("Couldn't extract frame"))
     }
 
     fn capture_frame_at(&self, milli: u64) -> Result<DynamicImage> {
@@ -149,7 +150,7 @@ impl Thumbnailer {
         let mut async_received = false;
         let bus = player.bus();
         if bus.is_none() {
-            return Err(anyhow!("Can't get bus"));
+            return Err(anyerror!("Can't get bus"));
         }
         let bus = bus.unwrap();
         let events = [gst::MessageType::AsyncDone, gst::MessageType::Error];
@@ -174,7 +175,7 @@ impl Thumbnailer {
         }
 
         if !async_received {
-            return Err(anyhow!("no async"));
+            return Err(anyerror!("no async"));
         }
 
         let duration = self.duration();
@@ -192,7 +193,7 @@ where
     let thumbnailer = Thumbnailer::new(source);
 
     if !thumbnailer.is_ok() {
-        return Err(anyhow!("Thumbnailer is not ok"));
+        return Err(anyerror!("Thumbnailer is not ok"));
     }
     thumbnailer.thumbnail(w, h)
 }

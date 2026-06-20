@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/heif.rs
  *
- * Copyright (C) 2024-2025 Hubert Figuière
+ * Copyright (C) 2024-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,13 @@ use std::path::Path;
 
 use crate::gdk_pixbuf;
 use crate::glib;
-use anyhow::{Context, Result, anyhow};
 use libheif_rs::{
     Channel, ColorSpace, DecodingOptions, HeifContext, ImageHandle, ItemId, LibHeif, RgbChroma,
 };
 
+use crate::base::error::Context;
 use crate::toolkit::Thumbnail;
+use crate::{Result, anyerror};
 
 /// Return a rotated thumbnail from an HEIF file.
 pub fn extract_rotated_thumbnail<P: AsRef<Path>>(
@@ -38,7 +39,8 @@ pub fn extract_rotated_thumbnail<P: AsRef<Path>>(
 ) -> Result<Thumbnail> {
     dbg_out!("HEIF thumbnail size = {w}x{h} <> {orientation:?}");
     // This always returns a rotated thumbnail
-    let ctx = HeifContext::read_from_file(filename.as_ref().to_str().ok_or(anyhow!("filename"))?)?;
+    let ctx =
+        HeifContext::read_from_file(filename.as_ref().to_str().ok_or(anyerror!("filename"))?)?;
     let handle = ctx.primary_image_handle()?;
 
     thumbnail_heif(&handle, w, h, orientation.is_none())
@@ -98,7 +100,8 @@ fn thumbnail_heif(
 
 /// Return the main image from an HEIF as Pixbuf.
 pub fn gdkpixbuf_from_heif<P: AsRef<Path>>(filename: P) -> Result<gdk_pixbuf::Pixbuf> {
-    let ctx = HeifContext::read_from_file(filename.as_ref().to_str().ok_or(anyhow!("filename"))?)?;
+    let ctx =
+        HeifContext::read_from_file(filename.as_ref().to_str().ok_or(anyerror!("filename"))?)?;
     let handle = ctx.primary_image_handle()?;
 
     gdkpixbuf_from_heif_handle(&handle)
@@ -142,7 +145,7 @@ pub fn get_xmp(file: &str) -> Result<Vec<u8>> {
             .metadata(meta_ids[0])
             .context("Failed to read metadata for XMP")
     } else {
-        Err(anyhow!("HEIF XMP metadata not found"))
+        Err(anyerror!("HEIF XMP metadata not found"))
     }
 }
 
@@ -158,7 +161,7 @@ pub fn get_exif(file: &str) -> Result<Vec<u8>> {
             .metadata(meta_ids[0])
             .context("Failed to read metadata for Exif")
     } else {
-        Err(anyhow!("HEIF Exif metadata not found"))
+        Err(anyerror!("HEIF Exif metadata not found"))
     }
 }
 
@@ -190,11 +193,11 @@ fn image_from_heif_handle(handle: &ImageHandle, rotate: bool) -> Result<image::D
             return image::RgbImage::from_raw(stride, h, plane.data.to_vec())
                 .map(image::DynamicImage::ImageRgb8)
                 .map(|mut image| image.crop(0, 0, w, h))
-                .ok_or_else(|| anyhow!("Failed to load buffer"));
+                .ok_or_else(|| anyerror!("Failed to load buffer"));
         }
     }
 
-    Err(anyhow!("Failed to decode HEIF"))
+    Err(anyerror!("Failed to decode HEIF"))
 }
 
 /// Return the GdkPibuf from the handle
@@ -230,5 +233,5 @@ fn gdkpixbuf_from_heif_handle(handle: &ImageHandle) -> Result<gdk_pixbuf::Pixbuf
         }
     }
 
-    Err(anyhow!("Failed to decode HEIF"))
+    Err(anyerror!("Failed to decode HEIF"))
 }

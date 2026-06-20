@@ -25,10 +25,10 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use anyhow::Context;
 use exempi2::Xmp;
 
 use super::exiv2;
+use crate::base::error::Context;
 use crate::toolkit::heif;
 use crate::{Date, DateExt};
 
@@ -405,7 +405,7 @@ impl XmpMeta {
         self.xmp.parse(buf.as_bytes()).is_ok() // XXX actually report the error.
     }
 
-    pub fn set_orientation(&mut self, orientation: i32) -> anyhow::Result<()> {
+    pub fn set_orientation(&mut self, orientation: i32) -> crate::Result<()> {
         self.xmp
             .set_property_i32(
                 NS_TIFF,

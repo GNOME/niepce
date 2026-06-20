@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/utils/files.rs
  *
- * Copyright (C) 2018-2025 Hubert Figuière
+ * Copyright (C) 2018-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +19,11 @@
 
 use std::path::{Path, PathBuf};
 
-use anyhow::anyhow;
 use nix::sys::stat::{UtimensatFlags, stat, utimensat};
 use nix::sys::time::TimeSpec;
 use walkdir::WalkDir;
 
+use crate::anyerror;
 use crate::toolkit::mimetype::{MType, guess_type_for_file};
 
 /// Copy file `from` to `to`. Return the number of bytes copied which
@@ -156,7 +156,7 @@ pub fn normalize_for_display<P: AsRef<Path>, Q: AsRef<Path>>(
     path: &P,
     base: Option<&Q>,
     from_home: bool,
-) -> anyhow::Result<String> {
+) -> crate::Result<String> {
     let path = path.as_ref();
     if let Some(base) = base.as_ref() {
         let stripped = path
@@ -167,7 +167,7 @@ pub fn normalize_for_display<P: AsRef<Path>, Q: AsRef<Path>>(
         }
     }
     if from_home {
-        let home = std::env::home_dir().ok_or(anyhow!("HOME dir not found"))?;
+        let home = std::env::home_dir().ok_or(anyerror!("HOME dir not found"))?;
         if let Ok(stripped) = path.strip_prefix(home) {
             let norm = stripped.to_string_lossy();
             let norm = "~/".to_string() + &norm;
