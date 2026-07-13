@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libmetadata.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ use super::libfile::FileType;
 use super::props;
 use super::{FromDb, LibraryId};
 use crate::NiepcePropertyBag;
-use npc_fwk::utils::exempi::{NS_DC, NS_XAP};
+use npc_fwk::utils::exempi::{NS_DC, NS_XMP};
 use npc_fwk::{DateExt, PropertySet, PropertyValue, XmpMeta};
 use npc_fwk::{dbg_out, err_out};
 
@@ -274,7 +274,7 @@ impl LibMetadata {
         let xmpdate = chrono::DateTime::from(local).into_xmpdate();
         self.xmp_meta
             .xmp
-            .set_property_date(NS_XAP, "MetadataDate", &xmpdate, exempi2::PropFlags::NONE)
+            .set_property_date(NS_XMP, "MetadataDate", &xmpdate, exempi2::PropFlags::NONE)
             .is_ok()
     }
 }

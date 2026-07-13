@@ -19,7 +19,7 @@
 
 use lazy_static::lazy_static;
 use maplit::hashmap;
-use npc_fwk::utils::exempi::{NS_DC, NS_EXIF, NS_EXIF_AUX, NS_PHOTOSHOP, NS_TIFF, NS_XAP};
+use npc_fwk::utils::exempi::{NS_DC, NS_EXIF, NS_EXIF_AUX, NS_PHOTOSHOP, NS_TIFF, NS_XMP};
 mod xmp {
     pub use npc_fwk::utils::exempi::NIEPCE_XMP_NAMESPACE;
 }
@@ -88,8 +88,8 @@ impl From<u32> for NiepceProperties {
 }
 lazy_static! {
     pub static ref PROP_TO_XMP_MAP: std::collections::HashMap<NiepceProperties, (&'static str, &'static str)> = hashmap! {
-    NiepceProperties::Index(NiepcePropertyIdx::NpXmpRatingProp) => (NS_XAP, "Rating"),
-    NiepceProperties::Index(NiepcePropertyIdx::NpXmpLabelProp) => (NS_XAP, "Label"),
+    NiepceProperties::Index(NiepcePropertyIdx::NpXmpRatingProp) => (NS_XMP, "Rating"),
+    NiepceProperties::Index(NiepcePropertyIdx::NpXmpLabelProp) => (NS_XMP, "Label"),
     NiepceProperties::Index(NiepcePropertyIdx::NpTiffOrientationProp) => (NS_TIFF, "Orientation"),
     NiepceProperties::Index(NiepcePropertyIdx::NpTiffMakeProp) => (NS_TIFF, "Make"),
     NiepceProperties::Index(NiepcePropertyIdx::NpTiffModelProp) => (NS_TIFF, "Model"),

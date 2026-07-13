@@ -21,7 +21,7 @@ use multimap::MultiMap;
 use std::ffi::OsStr;
 
 use super::exempi::{
-    Flash, NS_EXIF, NS_EXIF_AUX, NS_EXIF_EX, NS_TIFF, NS_XAP, XmpMeta, xmp_date_from_exif,
+    Flash, NS_EXIF, NS_EXIF_AUX, NS_EXIF_EX, NS_TIFF, NS_XMP, XmpMeta, xmp_date_from_exif,
 };
 
 /// Property conversion rules
@@ -58,7 +58,7 @@ lazy_static::lazy_static! {
     static ref EXIV2_TO_XMP: MultiMap<&'static str, XmpPropDesc> =
         multimap::multimap!(
             "Exif.Image.DateTime" =>
-                XmpPropDesc(NS_XAP, "ModifyDate", Conversion::ExifDate),
+                XmpPropDesc(NS_XMP, "ModifyDate", Conversion::ExifDate),
             "Exif.Image.ImageHeight" =>
                 XmpPropDesc(NS_TIFF, "ImageHeight", Conversion::None),
             "Exif.Image.ImageWidth" =>
@@ -82,7 +82,7 @@ lazy_static::lazy_static! {
             "Exif.Photo.DateTimeOriginal" =>
                 XmpPropDesc(NS_EXIF, "DateTimeOriginal", Conversion::ExifDate),
             "Exif.Photo.DateTimeDigitized" =>
-                XmpPropDesc(NS_XAP, "CreateDate", Conversion::ExifDate),
+                XmpPropDesc(NS_XMP, "CreateDate", Conversion::ExifDate),
             "Exif.Photo.ExposureBiasValue" =>
                 XmpPropDesc(NS_EXIF, "ExposureBiasValue", Conversion::None),
             "Exif.Photo.ExposureMode" =>
@@ -152,7 +152,7 @@ lazy_static::lazy_static! {
             "Exif.Pentax.LensType" =>
                 XmpPropDesc(NS_EXIF_EX, "LensModel", Conversion::Interpreted),
             "Xmp.xmp.Rating" =>
-                XmpPropDesc(NS_XAP, "Rating", Conversion::None),
+                XmpPropDesc(NS_XMP, "Rating", Conversion::None),
         );
 }
 
@@ -429,9 +429,9 @@ fn xmp_from_exiv2meta(meta: rexiv2::Metadata) -> Option<XmpMeta> {
     meta.get_gps_info();
 
     let mut options = exempi2::PropFlags::default();
-    if let Ok(date) = xmp.get_property_date(NS_XAP, "ModifyDate", &mut options) {
+    if let Ok(date) = xmp.get_property_date(NS_XMP, "ModifyDate", &mut options) {
         if let Err(err) =
-            xmp.set_property_date(NS_XAP, "MetadataDate", &date, exempi2::PropFlags::NONE)
+            xmp.set_property_date(NS_XMP, "MetadataDate", &date, exempi2::PropFlags::NONE)
         {
             err_out!("Error setting MetadataDate: {:?}", &err);
         }

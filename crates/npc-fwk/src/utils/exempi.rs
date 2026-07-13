@@ -38,8 +38,8 @@ const UFRAW_INTEROP_NAMESPACE: &str = "http://xmlns.figuiere.net/ns/ufraw_intero
 const UFRAW_INTEROP_NS_PREFIX: &str = "ufrint";
 
 pub const NS_TIFF: &str = "http://ns.adobe.com/tiff/1.0/";
-pub const NS_XAP: &str = "http://ns.adobe.com/xap/1.0/";
-pub const NS_XAP_RIGHTS: &str = "http://ns.adobe.com/xap/1.0/rights/";
+pub const NS_XMP: &str = "http://ns.adobe.com/xap/1.0/";
+pub const NS_XMP_RIGHTS: &str = "http://ns.adobe.com/xap/1.0/rights/";
 pub const NS_EXIF: &str = "http://ns.adobe.com/exif/1.0/";
 pub const NS_EXIF_EX: &str = "http://cipa.jp/exif/1.0/";
 pub const NS_DC: &str = "http://purl.org/dc/elements/1.1/";
@@ -330,8 +330,8 @@ impl XmpMeta {
     ///
     pub fn merge_missing_into_xmp(&self, dest: &mut XmpMeta) -> bool {
         // Merge XMP self into the dest that has more recent.
-        let source_date = self.get_date_property(NS_XAP, "MetadataDate");
-        let dest_date = dest.get_date_property(NS_XAP, "MetadataDate");
+        let source_date = self.get_date_property(NS_XMP, "MetadataDate");
+        let dest_date = dest.get_date_property(NS_XMP, "MetadataDate");
 
         if source_date.is_none() || dest_date.is_none() {
             dbg_out!(
@@ -425,13 +425,13 @@ impl XmpMeta {
 
     pub fn label(&self) -> Option<String> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
-        let xmpstring = self.xmp.get_property(NS_XAP, "Label", &mut flags).ok()?;
+        let xmpstring = self.xmp.get_property(NS_XMP, "Label", &mut flags).ok()?;
         Some(String::from(&xmpstring))
     }
 
     pub fn rating(&self) -> Option<i32> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
-        self.xmp.get_property_i32(NS_XAP, "Rating", &mut flags).ok()
+        self.xmp.get_property_i32(NS_XMP, "Rating", &mut flags).ok()
     }
 
     pub fn flag(&self) -> Option<i32> {
@@ -450,7 +450,7 @@ impl XmpMeta {
             .get_property_date(NS_EXIF, "DateTimeOriginal", &mut flags)
             .or_else(|_| {
                 let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
-                self.xmp.get_property_date(NS_XAP, "CreateDate", &mut flags)
+                self.xmp.get_property_date(NS_XMP, "CreateDate", &mut flags)
             })
             .ok()?;
 
@@ -465,7 +465,7 @@ impl XmpMeta {
             .get_property(NS_EXIF, "DateTimeOriginal", &mut flags)
             .or_else(|_| {
                 let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
-                self.xmp.get_property(NS_XAP, "CreateDate", &mut flags)
+                self.xmp.get_property(NS_XMP, "CreateDate", &mut flags)
             })
             .ok()?;
         Some(String::from(&xmpstring))
