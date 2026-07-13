@@ -145,8 +145,8 @@ impl LrImporter {
                 xmp_file = Some(format!(
                     "{}/{}.{}",
                     folder_path.display(),
-                    &file.basename,
-                    &ext
+                    file.basename,
+                    ext
                 ));
             } else if jpeg_file.is_some() {
                 err_out!("JPEG sidecar already set: {}", ext);
@@ -154,8 +154,8 @@ impl LrImporter {
                 jpeg_file = Some(format!(
                     "{}/{}.{}",
                     folder_path.display(),
-                    &file.basename,
-                    &ext
+                    file.basename,
+                    ext
                 ));
             }
         });
@@ -181,9 +181,9 @@ impl LrImporter {
         if let Some(folder) = self.folder_map.borrow().get(&file.folder) {
             let main_file = format!(
                 "{}/{}.{}",
-                &folder.1.display(),
-                &file.basename,
-                &file.extension
+                folder.1.display(),
+                file.basename,
+                file.extension
             );
             let mut bundle = FileBundle::new();
             log::debug!("Adding {main_file}");

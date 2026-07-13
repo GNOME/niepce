@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/metadata_widget.rs
  *
- * Copyright (C) 2022-2025 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -252,7 +252,7 @@ mod imp {
 
         fn create_widgets_for_format(&self, fmt: &MetadataSectionFormat) {
             for (i, f) in fmt.formats.iter().enumerate() {
-                let label = gtk4::Label::new(Some(&format!("<b>{}</b>", &f.label)));
+                let label = gtk4::Label::new(Some(&format!("<b>{}</b>", f.label)));
                 label.set_use_markup(true);
                 label.set_xalign(0.0);
                 if f.type_ != MetaDT::StringArray {
