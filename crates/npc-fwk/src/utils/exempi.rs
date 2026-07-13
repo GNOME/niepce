@@ -18,6 +18,7 @@
  */
 
 mod lr;
+mod niepce;
 
 use std::convert::From;
 use std::ffi::OsStr;
@@ -32,14 +33,16 @@ use crate::base::error::Context;
 use crate::toolkit::heif;
 use crate::{Date, DateExt};
 
-pub const NIEPCE_XMP_NAMESPACE: &str = "http://xmlns.figuiere.net/ns/niepce/1.0";
-pub const NIEPCE_XMP_NS_PREFIX: &str = "niepce";
-const UFRAW_INTEROP_NAMESPACE: &str = "http://xmlns.figuiere.net/ns/ufraw_interop/1.0";
-const UFRAW_INTEROP_NS_PREFIX: &str = "ufrint";
+pub use niepce::{NIEPCE_XMP_NAMESPACE, NIEPCE_XMP_NS_PREFIX};
+/// Darktable XMP namespace
+const DARKTABLE_NAMESPACE: &str = "http://darktable.sf.net/";
+/// Darktable XMP "defualt" prefix.
+const DARKTABLE_NS_PREFIX: &str = "darktable";
 
 pub const NS_TIFF: &str = "http://ns.adobe.com/tiff/1.0/";
 pub const NS_XMP: &str = "http://ns.adobe.com/xap/1.0/";
 pub const NS_XMP_RIGHTS: &str = "http://ns.adobe.com/xap/1.0/rights/";
+pub const NS_XMP_MM: &str = "http://ns.adobe.com/xap/1.0/mm/";
 pub const NS_EXIF: &str = "http://ns.adobe.com/exif/1.0/";
 pub const NS_EXIF_EX: &str = "http://cipa.jp/exif/1.0/";
 pub const NS_DC: &str = "http://purl.org/dc/elements/1.1/";
@@ -140,8 +143,8 @@ impl ExempiManager {
             NIEPCE_XMP_NS_PREFIX
         ));
         on_err_out!(exempi2::register_namespace(
-            UFRAW_INTEROP_NAMESPACE,
-            UFRAW_INTEROP_NS_PREFIX
+            DARKTABLE_NAMESPACE,
+            DARKTABLE_NS_PREFIX
         ));
 
         if let Some(nslist) = namespaces {
