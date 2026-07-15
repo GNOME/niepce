@@ -59,7 +59,7 @@ use npc_fwk::{dbg_assert, dbg_out, err_out, on_err_out};
 const DB_SCHEMA_VERSION: i32 = 13;
 
 /// Error from the library database
-#[derive(Error, Debug, PartialEq)]
+#[derive(Error, Debug)]
 pub enum Error {
     /// Operation is unimplemented
     #[error("Unimplemented")]
@@ -1975,26 +1975,26 @@ pub(crate) mod test {
         // Sanity testing.
         let dbversion = catalog.get_pref("version", None);
         let verstr = format!("{DB_SCHEMA_VERSION}");
-        assert_eq!(dbversion, Ok(verstr));
+        assert!(matches!(dbversion, Ok(v) if v == verstr));
 
         // Test not found and default.
         let pref1 = catalog.get_pref("prefs.pref1", None);
-        assert_eq!(pref1, Err(Error::NotFound));
+        assert!(matches!(pref1, Err(Error::NotFound)));
         let pref1 = catalog.get_pref("prefs.pref1", Some("default"));
-        assert_eq!(pref1, Ok("default".to_string()));
+        assert!(matches!(pref1, Ok(value) if value == "default"));
         // Ensure default didn't set it.
         let pref1 = catalog.get_pref("prefs.pref1", None);
-        assert_eq!(pref1, Err(Error::NotFound));
+        assert!(matches!(pref1, Err(Error::NotFound)));
 
         // Test setting values
         let pref1 = catalog.set_pref("prefs.pref1", "value1");
         assert!(pref1.is_ok());
         let pref1 = catalog.get_pref("prefs.pref1", None);
-        assert_eq!(pref1, Ok("value1".to_string()));
+        assert!(matches!(pref1, Ok(value) if value == "value1"));
         let pref1 = catalog.set_pref("prefs.pref1", "value2");
         assert!(pref1.is_ok());
         let pref1 = catalog.get_pref("prefs.pref1", None);
-        assert_eq!(pref1, Ok("value2".to_string()));
+        assert!(matches!(pref1, Ok(value) if value == "value2"));
 
         let prefs = catalog.get_all_preferences();
         assert!(prefs.is_ok());

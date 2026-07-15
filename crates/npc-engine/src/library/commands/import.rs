@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/library/commands/import.rs
  *
- * Copyright (C) 2025 Hubert Figuière
+ * Copyright (C) 2025-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ impl CatalogDbImportHelper for CatalogDb {
         self.get_folder(&folder_str)
             .map(|lf| vec![FolderOpResult::Existing(lf)])
             .or_else(|err| {
-                if err == LibError::NotFound {
+                if matches!(err, LibError::NotFound) {
                     self.root_folder_for(&folder_str)
                         .map(FolderOpResult::Existing)
                         .or_else(|err| {
