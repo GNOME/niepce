@@ -233,9 +233,17 @@
             ],
             "sources": [
                 {
-                    "type": "archive",
-                    "url": "https://download.gnome.org/sources/glibmm/2.68/glibmm-2.68.2.tar.xz",
-                    "sha256": "91e0a8618f7b82db4aaf2648932ea2bcfe626ad030068c18fa2d106fd838d8ad"
+                    "type": "git",
+                    "url": "https://gitlab.gnome.org/GNOME/glibmm.git",
+                    "tag": "2.88.1",
+                    "commit": "e55cb434920942d4f70ada12c6287fccbdb931c9"
+                },
+                {
+                    "type": "patch",
+                    "paths": [
+                        "patches/0001-Gio-Emblem-and-DBus-ActionGroup-Don-t-derive-gtkmm__.patch",
+                        "patches/0002-Gio-DBus-ActionGroup-Improve-the-test-whether-GDBusA.patch"
+                    ]
                 }
             ]
         },
