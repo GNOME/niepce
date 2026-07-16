@@ -87,7 +87,9 @@ impl DateExt for Date {
             _ => TzSign::West,
         };
         let offset = offset.abs();
-        xmp_date.set_timezone(sign, offset / 3600, offset / 60);
+        let hour = offset / 3600;
+        let minute = (offset % 3600) / 60;
+        xmp_date.set_timezone(sign, hour, minute);
 
         xmp_date
     }
@@ -97,11 +99,11 @@ impl DateExt for Date {
 mod test {
     use chrono::TimeZone;
 
-    use super::DateExt;
+    use super::{Date, DateExt};
 
     #[test]
     fn test_xmp_date_west_from() {
-        let date = chrono::FixedOffset::west_opt(5 * 3600)
+        let date = chrono::FixedOffset::west_opt(5 * 3600 + 30 * 60)
             .and_then(|tz| tz.with_ymd_and_hms(2021, 12, 25, 10, 42, 12).single())
             .unwrap();
         let xmp_date: exempi2::DateTime = date.into_xmpdate();
@@ -112,12 +114,13 @@ mod test {
         assert_eq!(xmp_date.hour(), 10);
 
         assert_eq!(xmp_date.tz_hours(), 5);
+        assert_eq!(xmp_date.tz_minutes(), 30);
         assert_eq!(xmp_date.tz_sign(), exempi2::TzSign::West);
     }
 
     #[test]
     fn test_xmp_date_east_from() {
-        let date = chrono::FixedOffset::east_opt(5 * 3600)
+        let date = chrono::FixedOffset::east_opt(5 * 3600 + 30 * 60)
             .and_then(|tz| tz.with_ymd_and_hms(2021, 12, 25, 10, 42, 12).single())
             .unwrap();
         let xmp_date: exempi2::DateTime = date.into_xmpdate();
@@ -128,6 +131,18 @@ mod test {
         assert_eq!(xmp_date.hour(), 10);
 
         assert_eq!(xmp_date.tz_hours(), 5);
+        assert_eq!(xmp_date.tz_minutes(), 30);
         assert_eq!(xmp_date.tz_sign(), exempi2::TzSign::East);
+    }
+
+    #[test]
+    fn test_xmp_date_roundtrip() {
+        let date = chrono::FixedOffset::east_opt(5 * 3600 + 30 * 60)
+            .and_then(|tz| tz.with_ymd_and_hms(2021, 12, 25, 10, 42, 12).single())
+            .unwrap();
+
+        let xmp_date: exempi2::DateTime = date.into_xmpdate();
+        let date2 = Date::from_exempi(&xmp_date);
+        assert_eq!(date, date2);
     }
 }
