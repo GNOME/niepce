@@ -81,7 +81,7 @@ impl LibMetadata {
         self.id
     }
 
-    pub fn serialize_inline(&self) -> String {
+    pub fn serialize_inline(&self) -> exempi2::Result<String> {
         self.xmp_meta.serialize_inline()
     }
 

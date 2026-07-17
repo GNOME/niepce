@@ -379,29 +379,26 @@ impl XmpMeta {
         true
     }
 
-    pub fn serialize_inline(&self) -> String {
-        if let Ok(xmpstr) = self.xmp.serialize_and_format(
+    pub fn serialize_inline(&self) -> exempi2::Result<String> {
+        let xmpstr = self.xmp.serialize_and_format(
             exempi2::SerialFlags::OMITPACKETWRAPPER | exempi2::SerialFlags::OMITALLFORMATTING,
             0,
             "",
             "",
             0,
-        ) {
-            let buf = String::from(&xmpstr);
-            return buf;
-        }
-        String::new()
+        )?;
+        Ok(String::from(&xmpstr))
     }
 
-    pub fn serialize(&self) -> String {
-        if let Ok(xmpstr) =
-            self.xmp
-                .serialize_and_format(exempi2::SerialFlags::OMITPACKETWRAPPER, 0, "\n", "", 0)
-        {
-            let buf = String::from(&xmpstr);
-            return buf;
-        }
-        String::new()
+    pub fn serialize(&self) -> exempi2::Result<String> {
+        let xmpstr = self.xmp.serialize_and_format(
+            exempi2::SerialFlags::OMITPACKETWRAPPER,
+            0,
+            "\n",
+            "",
+            0,
+        )?;
+        Ok(String::from(&xmpstr))
     }
 
     pub fn unserialize(&mut self, buf: &str) -> bool {

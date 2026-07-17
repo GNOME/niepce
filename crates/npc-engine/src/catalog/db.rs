@@ -85,6 +85,9 @@ pub enum Error {
     /// SQL Error
     #[error("rusqlite error: {0}")]
     SqlError(#[from] rusqlite::Error),
+    /// Exempi Error
+    #[error("XMP error: {0}")]
+    XmpError(#[from] exempi2::Error),
     /// Strip Prefix
     #[error("Strip prefix error: {0}")]
     StripPrefix(#[from] std::path::StripPrefixError),
@@ -1091,7 +1094,6 @@ impl CatalogDb {
         //let label: String; // XXX fixme
         let flag: i32;
         let creation_date: npc_fwk::Time;
-        let xmp: String;
 
         // Until we get better metadata support for RAW files, we use the Exif reconcile
         // from the sidecar JPEG to get the initial metadata.
@@ -1105,7 +1107,7 @@ impl CatalogDb {
             npc_fwk::XmpMeta::new_from_file(file_path, false)
         };
 
-        if let Some(ref meta) = meta {
+        let xmp = if let Some(ref meta) = meta {
             orientation = meta.orientation().unwrap_or(0);
             rating = meta.rating().unwrap_or(0);
             //label = meta.label().unwrap_or(String::from(""));
@@ -1115,15 +1117,20 @@ impl CatalogDb {
             } else {
                 creation_date = 0
             }
-            xmp = meta.serialize_inline();
+            meta.serialize_inline()
+                .map_err(|err| {
+                    err_out!("Error serializing XMP: {err}");
+                    err
+                })
+                .ok()
         } else {
             orientation = 0;
             rating = 0;
             //label = String::from("");
             flag = 0;
             creation_date = 0;
-            xmp = String::from("");
-        }
+            None
+        };
 
         let filename = file_path
             .file_name()
@@ -1159,7 +1166,7 @@ impl CatalogDb {
                 label_id,
                 ifile_type,
                 flag,
-                xmp,
+                xmp.unwrap_or_default(),
             ])?;
 
             if c == 1 {
@@ -1341,7 +1348,7 @@ impl CatalogDb {
     }
 
     fn set_metadata_block(&self, file_id: LibraryId, metablock: &LibMetadata) -> Result<()> {
-        let xmp = metablock.serialize_inline();
+        let xmp = metablock.serialize_inline()?;
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare_cached("UPDATE files SET xmp=?1 WHERE id=?2;")?;
             let c = stmt.execute(params![xmp, file_id])?;
@@ -1572,22 +1579,27 @@ impl CatalogDb {
                         }
                         let mut xmppacket = npc_fwk::XmpMeta::new();
                         xmppacket.unserialize(&xmp_buffer);
-                        if let Ok(mut f) = File::create(p.clone()) {
-                            let sidecar = xmppacket.serialize();
-                            if f.write(sidecar.as_bytes()).is_ok() && (xmp_file_id <= 0) {
-                                let xmp_file_id = self.add_fs_file(&p)?;
-                                dbg_assert!(xmp_file_id > 0, "couldn't add xmp_file");
-                                // XXX handle error
-                                let res = self.add_xmp_sidecar_to_bundle(id, xmp_file_id);
-                                dbg_assert!(res.is_ok(), "add_xmp_sidecar_to_bundle failed");
-                                let res = self.add_sidecar_fsfile_to_bundle(
-                                    id,
-                                    xmp_file_id,
-                                    Sidecar::Xmp(PathBuf::new()).to_int(),
-                                    "xmp",
-                                );
-                                dbg_assert!(res.is_ok(), "add_sidecar_fsfile_to_bundle failed");
-                            }
+                        // XXX handle this error. It should keep the
+                        // row in the db and mark it as error.  There
+                        // is no column in `xmp_update_queue` for the
+                        // status. See note further up too.
+                        if let Ok(sidecar) = xmppacket.serialize()
+                            && let Ok(mut f) = File::create(p.clone())
+                            && f.write(sidecar.as_bytes()).is_ok()
+                            && (xmp_file_id <= 0)
+                        {
+                            let xmp_file_id = self.add_fs_file(&p)?;
+                            dbg_assert!(xmp_file_id > 0, "couldn't add xmp_file");
+                            // XXX handle error
+                            let res = self.add_xmp_sidecar_to_bundle(id, xmp_file_id);
+                            dbg_assert!(res.is_ok(), "add_xmp_sidecar_to_bundle failed");
+                            let res = self.add_sidecar_fsfile_to_bundle(
+                                id,
+                                xmp_file_id,
+                                Sidecar::Xmp(PathBuf::new()).to_int(),
+                                "xmp",
+                            );
+                            dbg_assert!(res.is_ok(), "add_sidecar_fsfile_to_bundle failed");
                         }
                     }
                     return Ok(());
@@ -1829,10 +1841,10 @@ pub(crate) mod test {
 
         let result = catalog.get_metadata(bundle_id);
         let metadata = result.expect("Have retrieved metadata");
-        let xmp_packet = metadata.serialize_inline();
+        let xmp_packet = metadata.serialize_inline().expect("Inline serialisation");
         assert_eq!(
             xmp_packet.as_str(),
-            original_xmp_packet.serialize_inline().as_str()
+            original_xmp_packet.serialize_inline().unwrap().as_str()
         );
     }
 
