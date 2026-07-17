@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/label.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,12 +31,8 @@ pub struct Label {
 }
 
 impl Label {
-    pub fn new(id: LibraryId, label: &str, colour: RgbColour) -> Label {
-        Label {
-            id,
-            label: String::from(label),
-            colour,
-        }
+    pub fn new(id: LibraryId, label: String, colour: RgbColour) -> Label {
+        Label { id, label, colour }
     }
 
     pub fn id(&self) -> LibraryId {
@@ -77,6 +73,6 @@ impl FromDb for Label {
         let label: String = row.get(1)?;
         let colourstring: String = row.get(2)?;
         let colour = RgbColour::from_str(&colourstring).unwrap_or_default();
-        Ok(Label::new(row.get(0)?, &label, colour))
+        Ok(Label::new(row.get(0)?, label, colour))
     }
 }

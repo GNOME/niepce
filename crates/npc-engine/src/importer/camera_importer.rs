@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/importer/camera_importer.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -245,7 +245,7 @@ impl ImportBackend for CameraImporter {
             CameraBackend::File => {
                 if let Some(backend) = self.file_backend.borrow_mut().take() {
                     let source = &request.source()[5..];
-                    let request = request.clone().set_source(source);
+                    let request = request.clone().set_source(source.into());
                     backend.do_import(&request, callback);
                 }
             }

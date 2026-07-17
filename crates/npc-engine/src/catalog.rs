@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/src/db.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,9 @@ pub mod props;
 
 pub type LibraryId = i64;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
 pub enum SortOrder {
+    #[default]
     NoSorting,
     Ascending,
     Descending,

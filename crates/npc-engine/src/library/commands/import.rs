@@ -26,18 +26,18 @@ use crate::library::notification::LibNotification;
 use npc_fwk::{err_out, err_out_line};
 
 pub(super) trait CatalogDbImportHelper {
-    fn add_root_folder_and_notify(&self, name: &str, path: String) -> LibResult<LibFolder>;
+    fn add_root_folder_and_notify(&self, name: String, path: String) -> LibResult<LibFolder>;
     fn add_folder_and_notify(
         &self,
         parent: LibraryId,
-        name: &str,
+        name: String,
         path: Option<String>,
     ) -> LibResult<LibFolder>;
     fn get_folder_for_import(&self, folder: &std::path::Path) -> LibResult<Vec<FolderOpResult>>;
 }
 
 impl CatalogDbImportHelper for CatalogDb {
-    fn add_root_folder_and_notify(&self, name: &str, path: String) -> LibResult<LibFolder> {
+    fn add_root_folder_and_notify(&self, name: String, path: String) -> LibResult<LibFolder> {
         self.add_folder_and_notify(0, name, Some(path))
     }
 
@@ -45,7 +45,7 @@ impl CatalogDbImportHelper for CatalogDb {
     fn add_folder_and_notify(
         &self,
         parent: LibraryId,
-        name: &str,
+        name: String,
         path: Option<String>,
     ) -> LibResult<LibFolder> {
         self.add_folder_into(name, path, parent)
@@ -81,12 +81,15 @@ impl CatalogDbImportHelper for CatalogDb {
                                 .file_name()
                                 .ok_or(LibError::InvalidResult)?
                                 .to_string_lossy();
-                            self.add_root_folder_and_notify(&folder_name, folder_str.to_string())
-                                .and_then(|lf| {
-                                    self.reparent_roots_for(lf.id(), &folder_str)?;
-                                    Ok(lf)
-                                })
-                                .map(FolderOpResult::Created)
+                            self.add_root_folder_and_notify(
+                                folder_name.to_string(),
+                                folder_str.to_string(),
+                            )
+                            .and_then(|lf| {
+                                self.reparent_roots_for(lf.id(), &folder_str)?;
+                                Ok(lf)
+                            })
+                            .map(FolderOpResult::Created)
                         })
                         .map(|parent_folder| {
                             let mut parent_id = parent_folder.id();
@@ -96,7 +99,7 @@ impl CatalogDbImportHelper for CatalogDb {
                             let mut folders = vec![parent_folder];
                             for folder in children.iter() {
                                 folder.to_str().inspect(|name| {
-                                    self.add_folder_and_notify(parent_id, name, None)
+                                    self.add_folder_and_notify(parent_id, name.to_string(), None)
                                         .map(FolderOpResult::Created)
                                         .ok()
                                         .map(|folder| {
@@ -128,7 +131,7 @@ mod test {
     fn test_folder_for_import() {
         let catalog = db_test::test_catalog(None);
 
-        let root = catalog.add_folder_into("Pictures", Some("Pictures".into()), 0);
+        let root = catalog.add_folder_into("Pictures".to_string(), Some("Pictures".into()), 0);
         assert!(root.is_ok());
         let root = root.unwrap();
         assert_eq!(root.parent(), 0);

@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/library/previewer.rs
  *
- * Copyright (C) 2023-2025 Hubert Figuière
+ * Copyright (C) 2023-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -196,7 +196,7 @@ mod test {
             1,
             1,
             std::path::PathBuf::from("/tmp/image.jpg"),
-            "image.jpg",
+            "image.jpg".into(),
         );
         let preview1 =
             RenderParams::new_preview(&file, RenderEngine::Ncr, Size { w: 1600, h: 1200 });

@@ -190,18 +190,18 @@ pub fn cmd_add_bundle(catalog: &CatalogDb, bundle: &FileBundle, folder: LibraryI
 }
 
 /// Create a folder inside another.
-pub fn cmd_create_folder_into(catalog: &CatalogDb, name: &str, parent: LibraryId) -> LibraryId {
+pub fn cmd_create_folder_into(catalog: &CatalogDb, name: String, parent: LibraryId) -> LibraryId {
     cmd_create_folder_impl(catalog, name, None, parent)
 }
 
 /// Create a folder with path. Path shouldn't have the trailing separator.
-pub fn cmd_create_folder(catalog: &CatalogDb, name: &str, path: &str) -> LibraryId {
+pub fn cmd_create_folder(catalog: &CatalogDb, name: String, path: &str) -> LibraryId {
     cmd_create_folder_impl(catalog, name, Some(path.to_string()), 0)
 }
 
 fn cmd_create_folder_impl(
     catalog: &CatalogDb,
-    name: &str,
+    name: String,
     path: Option<String>,
     parent: LibraryId,
 ) -> LibraryId {
@@ -307,7 +307,7 @@ pub fn cmd_count_album(catalog: &CatalogDb, id: LibraryId) -> bool {
     }
 }
 
-pub fn cmd_create_album(catalog: &CatalogDb, name: &str, parent: LibraryId) -> LibraryId {
+pub fn cmd_create_album(catalog: &CatalogDb, name: String, parent: LibraryId) -> LibraryId {
     match catalog.add_album(name, parent) {
         Ok(album) => {
             let id = album.id();
@@ -547,9 +547,10 @@ pub fn cmd_count_folder(catalog: &CatalogDb, id: LibraryId) -> bool {
 
 /// Add a keyword. Return `LibraryId` of the keyword, already existing
 /// or created.
-pub fn cmd_add_keyword(catalog: &CatalogDb, keyword: &str, parent: LibraryId) -> LibraryId {
-    match catalog.make_keyword(keyword, parent) {
+pub fn cmd_add_keyword(catalog: &CatalogDb, keyword: String, parent: LibraryId) -> LibraryId {
+    match catalog.make_keyword(keyword.clone(), parent) {
         Ok(id) => {
+            // XXX make_keyword does notify as well.
             if catalog
                 .notify(LibNotification::AddedKeyword(Keyword::new(
                     id, keyword, parent,
@@ -697,8 +698,8 @@ pub fn cmd_list_all_labels(catalog: &CatalogDb) -> bool {
 
 /// This command will create a label, with `name` and `colour`.
 /// Returns id of the label. Or 0 on error.
-pub fn cmd_create_label(catalog: &CatalogDb, name: &str, colour: &RgbColour) -> LibraryId {
-    match catalog.add_label(name, colour) {
+pub fn cmd_create_label(catalog: &CatalogDb, name: String, colour: &RgbColour) -> LibraryId {
+    match catalog.add_label(&name, colour) {
         Ok(id) => {
             let l = Label::new(id, name, colour.clone());
             if catalog.notify(LibNotification::AddedLabel(l)).is_err() {
@@ -734,12 +735,12 @@ pub fn cmd_delete_label(catalog: &CatalogDb, label_id: LibraryId) -> bool {
 pub fn cmd_update_label(
     catalog: &CatalogDb,
     label_id: LibraryId,
-    name: &str,
-    colour: &RgbColour,
+    name: String,
+    colour: RgbColour,
 ) -> bool {
-    match catalog.update_label(label_id, name, colour) {
+    match catalog.update_label(label_id, &name, &colour) {
         Ok(_) => {
-            let label = Label::new(label_id, name, colour.clone());
+            let label = Label::new(label_id, name, colour);
             if catalog
                 .notify(LibNotification::LabelChanged(label))
                 .is_err()
@@ -782,7 +783,7 @@ mod test {
     use super::{cmd_create_folder, cmd_delete_folder, import::CatalogDbImportHelper};
 
     fn create_root_folder(catalog: &CatalogDb) -> LibFolder {
-        let root = catalog.add_folder_into("Pictures", Some("Pictures".into()), 0);
+        let root = catalog.add_folder_into("Pictures".to_string(), Some("Pictures".into()), 0);
         assert!(root.is_ok());
         let root = root.unwrap();
         assert_eq!(root.parent(), 0);
@@ -796,7 +797,7 @@ mod test {
 
         let _root = create_root_folder(&catalog);
 
-        cmd_create_folder(&catalog, "20230524", "Pictures/2023/20230524");
+        cmd_create_folder(&catalog, "20230524".to_string(), "Pictures/2023/20230524");
 
         let found = catalog.get_folder("Pictures/2023");
         assert!(found.is_ok());
@@ -817,13 +818,13 @@ mod test {
         let parent_folder = folders.last().unwrap();
 
         let lf = catalog.add_folder_into(
-            "20230524",
+            "20230524".to_string(),
             Some("Pictures/2023/20230524".to_string()),
             parent_folder.id(),
         );
         assert!(lf.is_ok());
         let lf2 = catalog.add_folder_into(
-            "20230508",
+            "20230508".to_string(),
             Some("Pictures/2023/20230508".to_string()),
             parent_folder.id(),
         );

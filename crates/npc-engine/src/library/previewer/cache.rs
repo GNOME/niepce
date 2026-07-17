@@ -363,7 +363,7 @@ mod test {
 
         let file_name = "test-image1.jpg";
         let file_path = tmpdir.path().join("images").join(file_name);
-        let libfile = catalog::LibFile::new(15, 14, 13, file_path.clone(), file_name);
+        let libfile = catalog::LibFile::new(15, 14, 13, file_path.clone(), file_name.into());
 
         let rendering = RenderParams::new_thumbnail(libfile.id(), Size { w: 160, h: 120 });
         let digest = rendering.digest();

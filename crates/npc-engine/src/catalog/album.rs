@@ -22,7 +22,7 @@ use super::LibraryId;
 use super::SortOrder;
 
 /// Represents an album, that contains image
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Album {
     /// Album ID
     id: LibraryId,
@@ -38,13 +38,12 @@ pub struct Album {
 }
 
 impl Album {
-    pub fn new(id: LibraryId, name: &str, parent: LibraryId) -> Self {
+    pub fn new(id: LibraryId, name: String, parent: LibraryId) -> Self {
         Album {
             id,
-            name: name.to_owned(),
+            name,
             parent,
-            order: SortOrder::NoSorting,
-            order_by: "".to_owned(),
+            ..Default::default()
         }
     }
 
@@ -87,6 +86,6 @@ impl FromDb for Album {
 
     fn read_from(row: &rusqlite::Row) -> rusqlite::Result<Self> {
         let name: String = row.get(1)?;
-        Ok(Album::new(row.get(0)?, &name, row.get(2)?))
+        Ok(Album::new(row.get(0)?, name, row.get(2)?))
     }
 }

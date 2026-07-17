@@ -26,7 +26,7 @@ use npc_fwk::utils::exempi::{NS_DC, NS_XMP};
 use npc_fwk::{DateExt, PropertySet, PropertyValue, XmpMeta};
 use npc_fwk::{dbg_out, err_out};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct LibMetadata {
     /// The XmpMeta block
     xmp_meta: XmpMeta,
@@ -56,12 +56,8 @@ fn property_index_to_xmp(meta: Np) -> Option<IndexToXmp> {
 impl LibMetadata {
     pub fn new(id: LibraryId) -> LibMetadata {
         LibMetadata {
-            xmp_meta: XmpMeta::new(),
             id,
-            sidecars: vec![],
-            file_type: FileType::Unknown,
-            name: String::new(),
-            folder: String::new(),
+            ..Default::default()
         }
     }
 
@@ -70,10 +66,7 @@ impl LibMetadata {
         LibMetadata {
             xmp_meta,
             id,
-            sidecars: vec![],
-            file_type: FileType::Unknown,
-            name: String::new(),
-            folder: String::new(),
+            ..Default::default()
         }
     }
 

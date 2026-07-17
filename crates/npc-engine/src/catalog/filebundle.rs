@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/filebundle.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ impl From<(i32, PathBuf)> for Sidecar {
 
 /// FileBundle is a set of physical files group as one item.
 /// Mostly sticking to the DCF specification.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct FileBundle {
     /// Type of bundle
     bundle_type: FileType,
@@ -79,23 +79,11 @@ pub struct FileBundle {
     sidecars: Vec<Sidecar>,
 }
 
-impl Default for FileBundle {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 /// A file bundle represent files that are together based on their
 /// basename.
 impl FileBundle {
     pub fn new() -> FileBundle {
-        FileBundle {
-            bundle_type: FileType::Unknown,
-            main: PathBuf::new(),
-            xmp_sidecar: PathBuf::new(),
-            jpeg: PathBuf::new(),
-            sidecars: vec![],
-        }
+        FileBundle::default()
     }
 
     /// Filter the file list and turn them to bundles

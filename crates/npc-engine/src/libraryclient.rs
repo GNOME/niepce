@@ -197,12 +197,12 @@ impl ClientInterface for LibraryClientSender {
     }
 
     fn create_folder(&self, name: String, path: String) {
-        self.schedule_op(move |catalog| commands::cmd_create_folder(catalog, &name, &path) != 0);
+        self.schedule_op(move |catalog| commands::cmd_create_folder(catalog, name, &path) != 0);
     }
 
     fn create_folder_into(&self, name: String, parent: LibraryId) {
         self.schedule_op(move |catalog| {
-            commands::cmd_create_folder_into(catalog, &name, parent) != 0
+            commands::cmd_create_folder_into(catalog, name, parent) != 0
         });
     }
 
@@ -224,7 +224,7 @@ impl ClientInterface for LibraryClientSender {
 
     /// Create an album (async)
     fn create_album(&self, name: String, parent: LibraryId) {
-        self.schedule_op(move |catalog| commands::cmd_create_album(catalog, &name, parent) != 0);
+        self.schedule_op(move |catalog| commands::cmd_create_album(catalog, name, parent) != 0);
     }
 
     /// Delete an album
@@ -305,7 +305,7 @@ impl ClientInterface for LibraryClientSender {
     }
 
     fn create_label(&self, name: String, colour: RgbColour) {
-        self.schedule_op(move |catalog| commands::cmd_create_label(catalog, &name, &colour) != 0);
+        self.schedule_op(move |catalog| commands::cmd_create_label(catalog, name, &colour) != 0);
     }
 
     fn delete_label(&self, label_id: LibraryId) {
@@ -315,7 +315,7 @@ impl ClientInterface for LibraryClientSender {
     /// update a label
     fn update_label(&self, label_id: LibraryId, new_name: String, new_colour: RgbColour) {
         self.schedule_op(move |catalog| {
-            commands::cmd_update_label(catalog, label_id, &new_name, &new_colour)
+            commands::cmd_update_label(catalog, label_id, new_name, new_colour)
         });
     }
 
@@ -336,7 +336,7 @@ impl ClientInterfaceSync for LibraryClientSender {
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |catalog| {
-            tx.send(commands::cmd_create_label(catalog, &name, &colour))
+            tx.send(commands::cmd_create_label(catalog, name, &colour))
                 .unwrap();
             true
         });
@@ -349,7 +349,7 @@ impl ClientInterfaceSync for LibraryClientSender {
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |catalog| {
-            tx.send(commands::cmd_add_keyword(catalog, &keyword, parent))
+            tx.send(commands::cmd_add_keyword(catalog, keyword, parent))
                 .unwrap();
             true
         });
@@ -362,7 +362,7 @@ impl ClientInterfaceSync for LibraryClientSender {
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |catalog| {
-            tx.send(commands::cmd_create_folder(catalog, &name, &path))
+            tx.send(commands::cmd_create_folder(catalog, name, &path))
                 .unwrap();
             true
         });
@@ -375,7 +375,7 @@ impl ClientInterfaceSync for LibraryClientSender {
         let (tx, rx) = mpsc::sync_channel::<LibraryId>(1);
 
         self.schedule_op(move |catalog| {
-            tx.send(commands::cmd_create_album(catalog, &name, parent))
+            tx.send(commands::cmd_create_album(catalog, name, parent))
                 .unwrap();
             true
         });

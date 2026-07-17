@@ -1,7 +1,7 @@
 /*
  * niepce - npc-engine/importer.rs
  *
- * Copyright (C) 2021-2025 Hubert Figuière
+ * Copyright (C) 2021-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,8 +94,8 @@ impl ImportRequest {
         self.sorting
     }
 
-    pub fn set_source(mut self, source: &str) -> Self {
-        self.source = source.into();
+    pub fn set_source(mut self, source: String) -> Self {
+        self.source = source;
         self
     }
 

@@ -31,10 +31,10 @@ pub struct Keyword {
 }
 
 impl Keyword {
-    pub fn new(id: LibraryId, keyword: &str, parent: LibraryId) -> Keyword {
+    pub fn new(id: LibraryId, keyword: String, parent: LibraryId) -> Keyword {
         Keyword {
             id,
-            keyword: String::from(keyword),
+            keyword,
             parent,
         }
     }
@@ -68,6 +68,6 @@ impl FromDb for Keyword {
     fn read_from(row: &rusqlite::Row) -> rusqlite::Result<Self> {
         let kw: String = row.get(1)?;
         let parent: LibraryId = row.get(2)?;
-        Ok(Keyword::new(row.get(0)?, &kw, parent))
+        Ok(Keyword::new(row.get(0)?, kw, parent))
     }
 }

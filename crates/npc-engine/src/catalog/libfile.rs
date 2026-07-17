@@ -1,7 +1,7 @@
 /*
  * niepce - engine/db/libfile.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,10 +43,11 @@ pub enum FileStatus {
 }
 
 #[repr(i32)]
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 /// The `LibFile` type.
 pub enum FileType {
     /// Don't know
+    #[default]
     Unknown = 0,
     /// Camera Raw
     Raw = 1,
@@ -95,7 +96,7 @@ impl From<FileType> for i32 {
     }
 }
 
-#[derive(Clone, Debug, glib::Boxed)]
+#[derive(Clone, Debug, Default, glib::Boxed)]
 #[boxed_type(name = "LibFile", nullable)]
 pub struct LibFile {
     id: LibraryId,
@@ -116,20 +117,15 @@ impl LibFile {
         folder_id: LibraryId,
         fs_file_id: LibraryId,
         path: PathBuf,
-        name: &str,
+        name: String,
     ) -> LibFile {
         let main_file = FsFile::new(fs_file_id, path);
         LibFile {
             id,
             folder_id,
-            name: String::from(name),
+            name,
             main_file,
-            orientation: 0,
-            rating: 0,
-            label: 0,
-            flag: 0,
-            file_type: FileType::Unknown,
-            metadata: None,
+            ..Default::default()
         }
     }
 
@@ -213,7 +209,7 @@ impl LibFile {
         };
     }
 
-    /// return an URI of the real path as Glib want this, oftern
+    /// return an URI of the real path as Glib want this, often
     pub fn uri(&self) -> String {
         let mut s = String::from("file://");
         s.push_str(&self.main_file.path().to_string_lossy());
@@ -242,7 +238,7 @@ impl FromDb for LibFile {
         let path: String = row.get(2)?;
         let name: String = row.get(3)?;
         let fsfid = row.get(8)?;
-        let mut file = LibFile::new(id, fid, fsfid, PathBuf::from(&path), &name);
+        let mut file = LibFile::new(id, fid, fsfid, PathBuf::from(&path), name);
 
         file.set_orientation(row.get(4)?);
         file.set_rating(row.get(5)?);

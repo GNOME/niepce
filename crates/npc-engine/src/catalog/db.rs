@@ -627,7 +627,7 @@ impl CatalogDb {
     /// Returns a `Result<LibFolder>`.
     pub(crate) fn add_folder_into(
         &self,
-        name: &str,
+        name: String,
         path: Option<String>,
         into: LibraryId,
     ) -> Result<LibFolder> {
@@ -813,7 +813,7 @@ impl CatalogDb {
                         let name: &std::path::Path = p.as_ref();
                         let name = name.to_string_lossy();
                         let lf = self.add_folder_into(
-                            &name,
+                            name.to_string(),
                             Some(current.to_string_lossy().to_string()),
                             current_id,
                         )?;
@@ -898,11 +898,11 @@ impl CatalogDb {
     }
 
     /// Add an album to the library
-    pub(crate) fn add_album(&self, name: &str, parent: LibraryId) -> Result<Album> {
+    pub(crate) fn add_album(&self, name: String, parent: LibraryId) -> Result<Album> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt =
                 conn.prepare_cached("INSERT INTO albums (name,parent_id) VALUES(?1, ?2)")?;
-            let c = stmt.execute(params![name, parent])?;
+            let c = stmt.execute(params![&name, parent])?;
             if c != 1 {
                 return Err(Error::InvalidResult);
             }
@@ -1174,7 +1174,7 @@ impl CatalogDb {
                 if let Some(mut meta) = meta {
                     let keywords = meta.keywords();
                     for k in keywords {
-                        let kwid = self.make_keywords(k)?;
+                        let kwid = self.make_keywords(k.clone())?;
                         kwid.iter().for_each(|kid| {
                             // XXX handle the error here.
                             let _ = self.assign_keyword(*kid, id);
@@ -1191,13 +1191,13 @@ impl CatalogDb {
 
     /// Create all the keywords for the hierarchy (if applicable)
     /// and return the ids in order.
-    pub(crate) fn make_keywords(&self, keywords: &XmpKeyword) -> Result<Vec<LibraryId>> {
+    pub(crate) fn make_keywords(&self, keywords: XmpKeyword) -> Result<Vec<LibraryId>> {
         match keywords {
             XmpKeyword::Flat(kw) => self.make_keyword(kw, 0).map(|id| vec![id]),
             XmpKeyword::Hier(hkw) => {
                 let mut last = 0;
                 let mut ids = vec![];
-                hkw.iter().for_each(|kw| {
+                hkw.into_iter().for_each(|kw| {
                     if let Ok(id) = self.make_keyword(kw, last) {
                         ids.push(id);
                         last = id;
@@ -1213,13 +1213,13 @@ impl CatalogDb {
     /// is at the top. Keywords are unique so it might return an existing keyword.
     ///
     // XXX make it return whether the keyword was created.
-    pub(crate) fn make_keyword(&self, keyword: &str, parent: LibraryId) -> Result<LibraryId> {
+    pub(crate) fn make_keyword(&self, keyword: String, parent: LibraryId) -> Result<LibraryId> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare_cached(
                 "SELECT id FROM keywords WHERE \
                  keyword=?1 AND parent_id=?2;",
             )?;
-            let mut rows = stmt.query(params![keyword, parent])?;
+            let mut rows = stmt.query(params![&keyword, parent])?;
             if let Ok(Some(row)) = rows.next() {
                 let keyword_id = row.get(0)?;
                 if keyword_id > 0 {
@@ -1229,7 +1229,7 @@ impl CatalogDb {
 
             let mut stmt =
                 conn.prepare_cached("INSERT INTO keywords (keyword, parent_id) VALUES(?1, ?2);")?;
-            let c = stmt.execute(params![keyword, parent])?;
+            let c = stmt.execute(params![&keyword, parent])?;
             if c != 1 {
                 return Err(Error::InvalidResult);
             }
@@ -1394,10 +1394,10 @@ impl CatalogDb {
             Np::Index(Npi::NpIptcKeywordsProp) => {
                 self.unassign_all_keywords_for_file(file_id)?;
 
-                match *value {
-                    PropertyValue::StringArray(ref keywords) => {
+                match value {
+                    PropertyValue::StringArray(keywords) => {
                         for kw in keywords {
-                            let id = self.make_keyword(kw, 0)?;
+                            let id = self.make_keyword(kw.clone(), 0)?;
                             if id != -1 {
                                 self.assign_keyword(id, file_id)?;
                             }
@@ -1691,7 +1691,8 @@ pub(crate) mod test {
             Err(Error::NoDbFile)
         ));
 
-        let folder_added = catalog.add_folder_into("foo", Some("/bar/foo".to_string()), 0);
+        let folder_added =
+            catalog.add_folder_into("foo".to_string(), Some("/bar/foo".to_string()), 0);
         assert!(folder_added.is_ok());
         let folder_added = folder_added.unwrap();
         let parent_id = folder_added.id();
@@ -1703,7 +1704,7 @@ pub(crate) mod test {
         assert_eq!(folder_added.id(), f.id());
 
         let id = f.id();
-        let f = catalog.add_folder_into("bar", Some(String::from("/bar/bar")), id);
+        let f = catalog.add_folder_into("bar".to_string(), Some(String::from("/bar/bar")), id);
         assert!(f.is_ok());
         // The triggers have changed the path to match the parent's.
         let f = catalog.get_folder("/bar/foo/bar");
@@ -1746,21 +1747,21 @@ pub(crate) mod test {
         assert_eq!(fl.len(), count as usize);
         assert_eq!(fl[0].id(), file_id);
 
-        let kwid1 = catalog.make_keyword("foo", 0);
+        let kwid1 = catalog.make_keyword("foo".to_string(), 0);
         assert!(kwid1.is_ok());
         let kwid1 = kwid1.unwrap();
         assert!(kwid1 > 0);
-        let kwid2 = catalog.make_keyword("bar", 0);
+        let kwid2 = catalog.make_keyword("bar".to_string(), 0);
         assert!(kwid2.is_ok());
         let kwid2 = kwid2.unwrap();
         assert!(kwid2 > 0);
-        let kwid4 = catalog.make_keyword("foo", kwid2);
+        let kwid4 = catalog.make_keyword("foo".to_string(), kwid2);
         assert!(kwid4.is_ok());
         let kwid4 = kwid4.unwrap();
         assert_ne!(kwid1, kwid4, "new keyword is not new");
 
         // duplicate keyword
-        let kwid3 = catalog.make_keyword("foo", 0);
+        let kwid3 = catalog.make_keyword("foo".to_string(), 0);
         assert!(kwid3.is_ok());
         let kwid3 = kwid3.unwrap();
         // should return kwid1 because it already exists.
@@ -1805,7 +1806,8 @@ pub(crate) mod test {
 
         let catalog = test_catalog(None);
 
-        let folder_added = catalog.add_folder_into("foo", Some("/bar/foo".to_string()), 0);
+        let folder_added =
+            catalog.add_folder_into("foo".to_string(), Some("/bar/foo".to_string()), 0);
         assert!(folder_added.is_ok());
         let folder_added = folder_added.unwrap();
 
@@ -1857,7 +1859,11 @@ pub(crate) mod test {
         assert!(matches!(lf, Err(Error::NotFound)));
 
         // Add a root folder.
-        let f = catalog.add_folder_into("Pictures", Some("/home/USER/Pictures".to_string()), 0);
+        let f = catalog.add_folder_into(
+            "Pictures".to_string(),
+            Some("/home/USER/Pictures".to_string()),
+            0,
+        );
         assert!(f.is_ok());
         let root_id = f.unwrap().id();
 
@@ -1878,7 +1884,7 @@ pub(crate) mod test {
         assert_eq!(lf.name(), "Pictures");
 
         // Add a folder into
-        let lf = catalog.add_folder_into("20230619", None, root_id);
+        let lf = catalog.add_folder_into("20230619".to_string(), None, root_id);
         assert!(lf.is_ok());
         let lf = lf.unwrap();
         assert_eq!(lf.parent(), root_id);
@@ -1886,7 +1892,7 @@ pub(crate) mod test {
         let folder_id = lf.id();
 
         // Add same folder into
-        let lf = catalog.add_folder_into("20230619", None, root_id);
+        let lf = catalog.add_folder_into("20230619".to_string(), None, root_id);
         assert!(lf.is_ok());
         let lf = lf.unwrap();
         assert_eq!(lf.parent(), root_id);
@@ -1905,18 +1911,26 @@ pub(crate) mod test {
 
         // Create 2 root folders.
         let f = catalog
-            .add_folder_into("Pictures", Some("/home/USER/Pictures".to_string()), 0)
+            .add_folder_into(
+                "Pictures".to_string(),
+                Some("/home/USER/Pictures".to_string()),
+                0,
+            )
             .expect("First root couldn't be created");
         let root_id = f.id();
         let f = catalog
-            .add_folder_into("Pictures2", Some("/home/USER/Pictures2".to_string()), 0)
+            .add_folder_into(
+                "Pictures2".to_string(),
+                Some("/home/USER/Pictures2".to_string()),
+                0,
+            )
             .expect("Second root couldn't be created");
         let root_id2 = f.id();
 
         // Create a new folder as a descendent of first root.
         let f = catalog
             .add_folder_into(
-                "2025",
+                "2025".to_string(),
                 Some("/home/USER/Pictures/2025".to_string()),
                 root_id,
             )
@@ -1941,7 +1955,7 @@ pub(crate) mod test {
         // Add a root folder.
         let f = catalog
             .add_folder_into(
-                "20250816",
+                "20250816".to_string(),
                 Some("/home/USER/Pictures/2025/20250816".to_string()),
                 0,
             )
@@ -1950,7 +1964,11 @@ pub(crate) mod test {
 
         // Add a second root folder.
         let f = catalog
-            .add_folder_into("Pictures", Some("/home/USER/Pictures".to_string()), 0)
+            .add_folder_into(
+                "Pictures".to_string(),
+                Some("/home/USER/Pictures".to_string()),
+                0,
+            )
             .expect("Second root couldn't be created");
         let root_id2 = f.id();
 

@@ -1,7 +1,7 @@
 /*
  * niepce - eng/db/libfolder.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ pub enum FolderVirtualType {
     Trash = 1,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct LibFolder {
     id: LibraryId,
     /// Name of the folder
@@ -45,15 +45,12 @@ pub struct LibFolder {
 }
 
 impl LibFolder {
-    pub fn new(id: LibraryId, name: &str, path: Option<String>) -> LibFolder {
+    pub fn new(id: LibraryId, name: String, path: Option<String>) -> LibFolder {
         LibFolder {
             id,
-            name: String::from(name),
+            name,
             path,
-            locked: false,
-            expanded: false,
-            virt: FolderVirtualType::None,
-            parent: 0,
+            ..Default::default()
         }
     }
 
@@ -124,7 +121,7 @@ impl FromDb for LibFolder {
         let path: Option<String> = row.get(5).ok();
         let parent = row.get(6)?;
 
-        let mut libfolder = LibFolder::new(id, &name, path);
+        let mut libfolder = LibFolder::new(id, name, path);
         libfolder.set_parent(parent);
         libfolder.set_virtual_type(FolderVirtualType::from_i32(virt_type).unwrap_or_default());
         libfolder.set_locked(locked);
