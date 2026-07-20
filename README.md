@@ -11,7 +11,7 @@ It is currently work in progress.
 
 # To build
 
-See [build](doc/build.md).
+See [build](doc/building.md).
 
 Please see the [contributing guide](doc/contributing.md).
 

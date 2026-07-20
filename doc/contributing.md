@@ -21,7 +21,7 @@ See [building](building.md).
 
 ## Code
 
-Please see the [code oragnization](code-organization.md) for details
+Please see the [code organisation](code-organization.md) for details
 on how things are organised.
 
 Code is in Rust.
@@ -52,7 +52,7 @@ Don't use the form `module_name/mod.rs`
 
 ## Foreign code
 
-Dedpending on some external code is useful. Currently Niepce depends
+Depending on some external code is useful. Currently Niepce depends
 on a certain about of Rust crates, and on a fork of RawTherapee
 rtengine which is in C++. The latter fork is a necessity to be able to
 build it. It presents minimal changes.
