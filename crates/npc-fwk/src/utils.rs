@@ -18,7 +18,7 @@
  */
 
 pub mod exempi;
-pub mod exiv2;
+pub mod exif;
 mod files;
 
 pub use files::{FileList, copy, normalize_for_display, trim_trailing_path_sep};

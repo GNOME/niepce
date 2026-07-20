@@ -28,7 +28,7 @@ use std::path::Path;
 
 use exempi2::Xmp;
 
-use super::exiv2;
+use super::exif;
 use crate::base::error::Context;
 use crate::toolkit::heif;
 use crate::{Date, DateExt};
@@ -253,7 +253,7 @@ impl XmpMeta {
                 })
                 .unwrap_or(false);
             meta = if is_raw {
-                exiv2::xmp_from_exiv2(file)
+                exif::xmp_from_exiv2(file)
             } else if heif::is_heif(file) {
                 // HEIF is a special case mostly because on Fedora Exiv2 is built
                 // without support for it. Since we have `libheif` we can extract
@@ -262,7 +262,7 @@ impl XmpMeta {
                 let exif = heif::get_exif(&file.to_string_lossy())
                     .ok()
                     .as_deref()
-                    .and_then(exiv2::xmp_from_exif);
+                    .and_then(exif::xmp_from_exif);
                 let xmp = heif::get_xmp(&file.to_string_lossy())
                     .ok()
                     .and_then(|buf| exempi2::Xmp::from_buffer(buf).ok())
@@ -282,7 +282,7 @@ impl XmpMeta {
                     Ok(xmp) => Some(Self::from(xmp)),
                     Err(err) => {
                         err_out!("Failed to get XMP from {file:?}: {err:?}");
-                        exiv2::xmp_from_exiv2(file)
+                        exif::xmp_from_exiv2(file)
                     }
                 }
             } else {

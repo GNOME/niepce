@@ -25,7 +25,7 @@ use super::{
 };
 use npc_fwk::base::{Executor, WorkerStatus};
 use npc_fwk::toolkit::{GpCamera, GpDeviceList};
-use npc_fwk::utils::{FileList, exiv2};
+use npc_fwk::utils::{FileList, exif};
 use npc_fwk::{Date, dbg_out, err_out, on_err_out};
 
 #[derive(Clone, Default)]
@@ -140,7 +140,7 @@ impl CameraImporter {
                 let folder = &path[..last_slash];
                 let xmp = camera
                     .get_exif(folder, name)
-                    .and_then(|exif| exiv2::xmp_from_exif(&exif))
+                    .and_then(|exif| exif::xmp_from_exif(&exif))
                     .or_else(|| {
                         err_out!("Failed to get exif for {folder}/{name}");
                         None
