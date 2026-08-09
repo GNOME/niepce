@@ -41,7 +41,7 @@ pub struct Thumbnail {
     stride: i32,
     bits_per_sample: i32,
     has_alpha: bool,
-    colorspace: ColourSpace,
+    colourspace: ColourSpace,
 }
 
 impl std::fmt::Debug for Thumbnail {
@@ -54,7 +54,7 @@ impl std::fmt::Debug for Thumbnail {
             .field("stride", &self.stride)
             .field("bits_per_sample", &self.bits_per_sample)
             .field("has_alpha", &self.has_alpha)
-            .field("colorspace", &self.colorspace)
+            .field("colourspace", &self.colourspace)
             .finish()
     }
 }
@@ -68,7 +68,7 @@ impl Default for Thumbnail {
             stride: 0,
             bits_per_sample: 0,
             has_alpha: false,
-            colorspace: ColourSpace::Rgb,
+            colourspace: ColourSpace::Rgb,
         }
     }
 }
@@ -246,7 +246,7 @@ impl From<image::DynamicImage> for Thumbnail {
             height: rgb8.height(),
             stride: rgb8.width() as i32 * 3,
             bits_per_sample: 8,
-            colorspace: ColourSpace::Rgb,
+            colourspace: ColourSpace::Rgb,
             has_alpha: false,
             bytes: rgb8.into_vec(),
         }
@@ -255,7 +255,7 @@ impl From<image::DynamicImage> for Thumbnail {
 
 impl From<&Thumbnail> for gdk4::Texture {
     fn from(v: &Thumbnail) -> gdk4::Texture {
-        let format = match v.colorspace {
+        let format = match v.colourspace {
             ColourSpace::Rgb => {
                 if v.has_alpha {
                     gdk4::MemoryFormat::R8g8b8a8

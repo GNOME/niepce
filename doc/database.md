@@ -144,7 +144,7 @@ Table name: `labels`
 |---------|----------------------------------------|
 | `id`    | The ID of the label                    |
 | `name`  | The name of the label (user displayed) |
-| `color` | The RGB8 color in "R G B" format.      |
+| `color` | The RGB8 colour in "R G B" format.     |
 
 ## Albums
 

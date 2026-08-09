@@ -60,7 +60,7 @@ impl ToolboxController {
         box_.append(&item);
 
         let s = EditableHScale::new(0.0, 100.0, 1.0);
-        item.add_widget(&i18n("Color temperature"), &s);
+        item.add_widget(&i18n("Colour temperature"), &s);
 
         let item = DrItem::new(&i18n("Tone and colour"));
         box_.append(&item);

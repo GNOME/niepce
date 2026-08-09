@@ -123,7 +123,7 @@ impl EditLabels {
         for idx in 0..NUM_LABELS {
             self.colours.push(
                 builder
-                    .object::<gtk4::ColorDialogButton>(format!("colorbutton{}", idx + 1))
+                    .object::<gtk4::ColorDialogButton>(format!("colourbutton{}", idx + 1))
                     .unwrap(),
             );
             self.entries.push(

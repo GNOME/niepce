@@ -22,11 +22,11 @@
 	(3,33,"GtkEntry","value4",25,None,None,None,7,None,None),
 	(3,34,"GtkLabel","label5",25,None,None,None,8,None,None),
 	(3,35,"GtkEntry","value5",25,None,None,None,9,None,None),
-	(3,36,"GtkColorButton","colorbutton1",25,None,None,None,10,None,None),
-	(3,37,"GtkColorButton","colorbutton2",25,None,None,None,11,None,None),
-	(3,38,"GtkColorButton","colorbutton3",25,None,None,None,12,None,None),
-	(3,39,"GtkColorButton","colorbutton4",25,None,None,None,13,None,None),
-	(3,40,"GtkColorButton","colorbutton5",25,None,None,None,14,None,None),
+	(3,36,"GtkColorButton","colourbutton1",25,None,None,None,10,None,None),
+	(3,37,"GtkColorButton","colourbutton2",25,None,None,None,11,None,None),
+	(3,38,"GtkColorButton","colourbutton3",25,None,None,None,12,None,None),
+	(3,39,"GtkColorButton","colourbutton4",25,None,None,None,13,None,None),
+	(3,40,"GtkColorButton","colourbutton5",25,None,None,None,14,None,None),
 	(3,41,"GtkLabel","dialog_title",24,None,"label",None,None,None,None),
 	(3,42,"AdwHeaderBar","header_bar",23,None,None,None,None,None,None)
   </object>
