@@ -88,7 +88,7 @@ impl DialogController for EditLabels {
 
 impl EditLabels {
     pub fn new(client: &Rc<LibraryClientHost>, app: Weak<NiepceApplication>) -> Rc<EditLabels> {
-        let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/editlabels.ui");
+        let builder = gtk4::Builder::from_resource("/net/figuiere/Niepce/ui/edit_labels.ui");
         let provider = client.ui_provider();
         let mut labels = vec![];
 

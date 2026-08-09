@@ -1,0 +1,201 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.Window edit_labels {
+  title: _("Edit Labels");
+
+  content: Box {
+    orientation: vertical;
+
+    Adw.HeaderBar header_bar {}
+
+    Frame frame1 {
+      child: Grid table2 {
+        column-spacing: 8;
+        margin-bottom: 18;
+        margin-end: 12;
+        margin-start: 18;
+        row-homogeneous: true;
+        row-spacing: 8;
+
+        Label label1 {
+          halign: start;
+          label: _("Label _6");
+          mnemonic-widget: value1;
+          use-underline: true;
+
+          layout {
+            column: '1';
+            row: '0';
+          }
+        }
+
+        Label label2 {
+          halign: start;
+          label: _("Label _7");
+          mnemonic-widget: value2;
+          use-underline: true;
+
+          layout {
+            column: '1';
+            row: '1';
+          }
+        }
+
+        Label label3 {
+          halign: start;
+          label: _("Label _8");
+          mnemonic-widget: value3;
+          use-underline: true;
+
+          layout {
+            column: '1';
+            row: '2';
+          }
+        }
+
+        Label label4 {
+          halign: start;
+          label: _("Label _9");
+          mnemonic-widget: value4;
+          use-markup: true;
+          use-underline: true;
+
+          layout {
+            column: '1';
+            row: '3';
+          }
+        }
+
+        Entry value1 {
+          focusable: true;
+          invisible-char: 9679;
+
+          layout {
+            column: '2';
+            row: '0';
+          }
+        }
+
+        Entry value2 {
+          focusable: true;
+          invisible-char: 9679;
+
+          layout {
+            column: '2';
+            row: '1';
+          }
+        }
+
+        Entry value3 {
+          focusable: true;
+          invisible-char: 9679;
+
+          layout {
+            column: '2';
+            row: '2';
+          }
+        }
+
+        Entry value4 {
+          focusable: true;
+          invisible-char: 9679;
+
+          layout {
+            column: '2';
+            row: '3';
+          }
+        }
+
+        Label label5 {
+          halign: start;
+          label: _("Label _10");
+          mnemonic-widget: value5;
+          use-underline: true;
+
+          layout {
+            column: '1';
+            row: '4';
+          }
+        }
+
+        Entry value5 {
+          focusable: true;
+          invisible-char: 8226;
+
+          layout {
+            column: '2';
+            row: '4';
+          }
+        }
+
+        ColorDialogButton colourbutton1 {
+          focusable: true;
+          receives-default: true;
+          rgba: 'rgb(204,0,0)';
+
+          layout {
+            column: '3';
+            row: '0';
+          }
+        }
+
+        ColorDialogButton colourbutton2 {
+          focusable: true;
+          receives-default: true;
+          rgba: 'rgb(245,121,0)';
+
+          layout {
+            column: '3';
+            row: '1';
+          }
+        }
+
+        ColorDialogButton colourbutton3 {
+          focusable: true;
+          receives-default: true;
+          rgba: 'rgb(237,212,0)';
+
+          layout {
+            column: '3';
+            row: '2';
+          }
+        }
+
+        ColorDialogButton colourbutton4 {
+          focusable: true;
+          receives-default: true;
+          rgba: 'rgb(115,210,22)';
+
+          layout {
+            column: '3';
+            row: '3';
+          }
+        }
+
+        ColorDialogButton colourbutton5 {
+          focusable: true;
+          receives-default: true;
+          rgba: 'rgb(52,101,164)';
+
+          layout {
+            column: '3';
+            row: '4';
+          }
+        }
+      };
+
+      [label]
+      Label dialog_title {
+        halign: start;
+        hexpand: true;
+        label: _("<b>Labels</b>");
+        margin-bottom: 12;
+        margin-end: 12;
+        margin-start: 12;
+        margin-top: 6;
+        use-markup: true;
+      }
+    }
+  };
+}

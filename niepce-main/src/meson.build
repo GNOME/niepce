@@ -14,6 +14,7 @@ run_command(
 blueprints = custom_target('blueprints',
   input: files(
     'niepce/ui/niepce_window.blp',
+    'niepce/ui/dialogs/edit_labels.blp',
     'niepce/ui/dialogs/import/camera_importer_ui.blp',
     'niepce/ui/dialogs/import/directory_importer_ui.blp',
     'niepce/ui/dialogs/import.blp',
