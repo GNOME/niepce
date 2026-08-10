@@ -28,7 +28,11 @@
          <exif:MeteringMode>5</exif:MeteringMode>
          <exif:SceneCaptureType>0</exif:SceneCaptureType>
          <exif:ShutterSpeedValue>277/32</exif:ShutterSpeedValue>
-         <exif:UserComment/>
+         <exif:UserComment>
+            <rdf:Alt>
+               <rdf:li xml:lang="x-default"/>
+            </rdf:Alt>
+         </exif:UserComment>
          <exif:WhiteBalance>0</exif:WhiteBalance>
       </rdf:Description>
    </rdf:RDF>

@@ -191,6 +191,27 @@ pub struct XmpMeta {
     keywords_fetched: bool,
 }
 
+impl std::cmp::PartialEq for XmpMeta {
+    fn eq(&self, other: &Self) -> bool {
+        use exempi2::{IterFlags, XmpIterator};
+
+        let iter = XmpIterator::new(&self.xmp, "", [], IterFlags::PROPERTIES);
+        let iter_other = XmpIterator::new(&other.xmp, "", [], IterFlags::PROPERTIES);
+        let combined = std::iter::zip(iter, iter_other);
+        for (item1, item2) in combined {
+            println!("items {} / {}", item1.name, item2.name);
+            if item1 != item2 {
+                println!("item ns {} / {}", item1.schema, item2.schema);
+                println!("item values {} / {}", item1.value, item2.value);
+                println!("item options {:?} / {:?}", item1.option, item2.option);
+                return false;
+            }
+        }
+
+        true
+    }
+}
+
 impl std::fmt::Debug for XmpMeta {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         f.debug_struct("XmpMeta")

@@ -33,6 +33,8 @@ enum Conversion {
     ExifDate,
     /// Convert the Exif flash tag to the struct for XMP
     Flash,
+    /// Convert to alternate string.
+    Alt,
     /// Use exiv2 get_interpreted_tag_string
     Interpreted,
 }
@@ -42,6 +44,8 @@ enum Conversion {
 enum Converted {
     /// A String
     Str(String),
+    /// Alternative String (use x-default)
+    AltStr(String),
     #[allow(dead_code)]
     /// An int 32
     Int(i32),
@@ -120,7 +124,7 @@ lazy_static::lazy_static! {
             "Exif.Photo.ShutterSpeedValue" =>
                 XmpPropDesc(NS_EXIF, "ShutterSpeedValue", Conversion::None),
             "Exif.Photo.UserComment" =>
-                XmpPropDesc(NS_EXIF, "UserComment", Conversion::None),
+                XmpPropDesc(NS_EXIF, "UserComment", Conversion::Alt),
             "Exif.Photo.WhiteBalance" =>
                 XmpPropDesc(NS_EXIF, "WhiteBalance", Conversion::None),
             "Exif.Canon.LensModel" =>
@@ -159,6 +163,7 @@ lazy_static::lazy_static! {
 fn convert(meta: &rexiv2::Metadata, tag: &str, conversion: Conversion, value: &str) -> Converted {
     match conversion {
         Conversion::None => Converted::Str(value.to_string()),
+        Conversion::Alt => Converted::AltStr(value.to_string()),
         Conversion::ExifDate => {
             // Time difference
             let offset_tag = match tag {
@@ -202,6 +207,23 @@ fn ascii_tag_to_xmp(
                 if let Err(err) =
                     xmp.set_property(xmp_prop.0, xmp_prop.1, &s, exempi2::PropFlags::NONE)
                 {
+                    err_out!(
+                        "Error setting property {} {}: {:?}",
+                        &xmp_prop.0,
+                        &xmp_prop.1,
+                        &err
+                    );
+                }
+            }
+            Converted::AltStr(s) => {
+                if let Err(err) = xmp.set_localized_text(
+                    xmp_prop.0,
+                    xmp_prop.1,
+                    "",
+                    "x-default",
+                    &s,
+                    exempi2::PropFlags::NONE,
+                ) {
                     err_out!(
                         "Error setting property {} {}: {:?}",
                         &xmp_prop.0,
@@ -382,9 +404,11 @@ fn xmp_from_exiv2meta(meta: rexiv2::Metadata) -> Option<XmpMeta> {
                     }
                     Ok(rexiv2::TagType::Comment) => {
                         if let Ok(value) = meta.get_tag_string(&tag) {
-                            if let Err(err) = xmp.set_property(
+                            if let Err(err) = xmp.set_localized_text(
                                 xmp_prop.0,
                                 xmp_prop.1,
+                                "",
+                                "x-default",
                                 &value,
                                 exempi2::PropFlags::NONE,
                             ) {
@@ -446,6 +470,8 @@ mod tests {
     use super::super::tests::get_test_sample_path;
     use super::xmp_from_exiv2;
 
+    use crate::XmpMeta;
+
     const XMP_SAMPLE: &str = include_str!("IMG_0107.xmp");
 
     #[test]
@@ -457,6 +483,13 @@ mod tests {
 
         let xmp = xmp_from_exiv2(test_file).expect("Exif to XMP failed");
 
+        let mut reference_xmp = exempi2::Xmp::new();
+        reference_xmp
+            .parse(XMP_SAMPLE)
+            .expect("Reference XMP parsing failed");
+        let reference_xmp = XmpMeta::from(reference_xmp);
+
+        assert_eq!(xmp, reference_xmp);
         assert_eq!(xmp.serialize().unwrap(), XMP_SAMPLE);
     }
 }
