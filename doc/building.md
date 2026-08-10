@@ -38,6 +38,7 @@ For the RawTherapee engine:
 - cairomm
 - exiv2 ~= 0.27
 - expat
+- fmt
 - fftw3f
 - libiptcdata
 - libraw >= 0.21

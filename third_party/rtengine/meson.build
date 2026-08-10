@@ -3,6 +3,7 @@
 
 openmp_deps = dependency('openmp')
 cairomm_deps = dependency('cairomm-1.16')
+fmt_deps = dependency('fmt')
 iptcdata_deps = dependency('libiptcdata')
 lcms2_deps = dependency('lcms2')
 lensfun_deps = dependency('lensfun')
@@ -334,6 +335,7 @@ rtengine = static_library(
   'RawTherapee/rtengine/alpha.cc',
   'RawTherapee/rtengine/ahd_demosaic_RT.cc',
   'RawTherapee/rtengine/amaze_demosaic_RT.cc',
+  'RawTherapee/rtengine/aspectratios.cc',
   'RawTherapee/rtengine/badpixels.cc',
   'RawTherapee/rtengine/bayer_bilinear_demosaic.cc',
   'RawTherapee/rtengine/boxblur.cc',
@@ -416,6 +418,8 @@ rtengine = static_library(
   'RawTherapee/rtengine/munselllch.cc',
   'RawTherapee/rtengine/myfile.cc',
   'RawTherapee/rtengine/panasonic_decoders.cc',
+  'RawTherapee/rtengine/params/locallab.cc',
+  'RawTherapee/rtengine/params/serdes.cc',
   'RawTherapee/rtengine/pdaflinesfilter.cc',
   'RawTherapee/rtengine/perspectivecorrection.cc',
   'RawTherapee/rtengine/PF_correct_RT.cc',
@@ -471,7 +475,8 @@ rtengine = static_library(
   ],
   include_directories: [
     'RawTherapee' / 'rtengine' / 'klt',
+    'RawTherapee' / 'rtengine',
     'RawTherapee'
   ],
-  dependencies: [ glibmm_deps, giomm_deps, cairomm_deps, iptcdata_deps, lcms2_deps, lensfun_deps, libraw_deps, openmp_deps, exiv2_deps ],
+  dependencies: [ glibmm_deps, giomm_deps, cairomm_deps, iptcdata_deps, lcms2_deps, lensfun_deps, libraw_deps, openmp_deps, exiv2_deps, fmt_deps ],
 )
