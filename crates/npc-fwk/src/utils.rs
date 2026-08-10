@@ -22,3 +22,23 @@ pub mod exif;
 mod files;
 
 pub use files::{FileList, copy, normalize_for_display, trim_trailing_path_sep};
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use std::path::PathBuf;
+
+    /// get the test sample path for testing.
+    pub(crate) fn get_test_sample_path() -> PathBuf {
+        use std::env;
+
+        let mut dir: PathBuf;
+        if let Ok(pdir) = env::var("CARGO_MANIFEST_DIR") {
+            dir = PathBuf::from(pdir);
+            dir.push("src");
+            dir.push("utils");
+        } else {
+            dir = PathBuf::from(".");
+        }
+        dir
+    }
+}

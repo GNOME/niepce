@@ -440,3 +440,23 @@ fn xmp_from_exiv2meta(meta: rexiv2::Metadata) -> Option<XmpMeta> {
     }
     Some(XmpMeta::from(xmp))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::super::tests::get_test_sample_path;
+    use super::xmp_from_exiv2;
+
+    const XMP_SAMPLE: &str = include_str!("IMG_0107.xmp");
+
+    #[test]
+    fn test_exif_to_xmp() {
+        let dir = get_test_sample_path();
+
+        let mut test_file = dir.clone();
+        test_file.push("IMG_0107.JPG");
+
+        let xmp = xmp_from_exiv2(test_file).expect("Exif to XMP failed");
+
+        assert_eq!(xmp.serialize().unwrap(), XMP_SAMPLE);
+    }
+}

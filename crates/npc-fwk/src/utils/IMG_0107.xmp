@@ -1,0 +1,35 @@
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Exempi + XMP Core 6.0.0">
+   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description rdf:about=""
+            xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+            xmlns:tiff="http://ns.adobe.com/tiff/1.0/"
+            xmlns:exif="http://ns.adobe.com/exif/1.0/">
+         <xmp:ModifyDate>2026-05-31T14:32:28</xmp:ModifyDate>
+         <xmp:CreateDate>2026-05-31T14:32:28</xmp:CreateDate>
+         <xmp:MetadataDate>2026-05-31T14:32:28</xmp:MetadataDate>
+         <tiff:Make>Canon</tiff:Make>
+         <tiff:Model>Canon IXY DIGITAL 450</tiff:Model>
+         <tiff:Orientation>1</tiff:Orientation>
+         <exif:ApertureValue>95/32</exif:ApertureValue>
+         <exif:ColorSpace>1</exif:ColorSpace>
+         <exif:DateTimeOriginal>2026-05-31T14:32:28</exif:DateTimeOriginal>
+         <exif:ExposureBiasValue>0/1</exif:ExposureBiasValue>
+         <exif:ExposureMode>0</exif:ExposureMode>
+         <exif:ExposureTime>1/400</exif:ExposureTime>
+         <exif:FNumber>14/5</exif:FNumber>
+         <exif:Flash rdf:parseType="Resource">
+            <exif:Fired>False</exif:Fired>
+            <exif:Return>0</exif:Return>
+            <exif:Mode>3</exif:Mode>
+            <exif:Function>False</exif:Function>
+            <exif:RedEyeMode>False</exif:RedEyeMode>
+         </exif:Flash>
+         <exif:FocalLength>237/32</exif:FocalLength>
+         <exif:MeteringMode>5</exif:MeteringMode>
+         <exif:SceneCaptureType>0</exif:SceneCaptureType>
+         <exif:ShutterSpeedValue>277/32</exif:ShutterSpeedValue>
+         <exif:UserComment/>
+         <exif:WhiteBalance>0</exif:WhiteBalance>
+      </rdf:Description>
+   </rdf:RDF>
+</x:xmpmeta>

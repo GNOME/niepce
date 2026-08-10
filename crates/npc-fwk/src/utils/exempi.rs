@@ -663,30 +663,17 @@ pub fn xmp_date_from_exif(d: &str, offset: Option<&str>) -> Option<exempi2::Date
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
+    use super::super::tests::get_test_sample_path;
+
     use super::ExempiManager;
     use super::xmp_date_from_exif;
     use super::{NS_EXIF, XmpMeta};
     use exempi2;
-    use std::path::PathBuf;
-
-    fn get_xmp_sample_path() -> PathBuf {
-        use std::env;
-
-        let mut dir: PathBuf;
-        if let Ok(pdir) = env::var("CARGO_MANIFEST_DIR") {
-            dir = PathBuf::from(pdir);
-            dir.push("src");
-            dir.push("utils");
-        } else {
-            dir = PathBuf::from(".");
-        }
-        dir
-    }
 
     #[test]
     fn xmp_meta_works() {
-        let mut dir = get_xmp_sample_path();
+        let mut dir = get_test_sample_path();
         dir.push("test.xmp");
         let _xmp_manager = ExempiManager::new(None);
 
@@ -713,7 +700,7 @@ mod tests {
 
     #[test]
     fn xmp_meta_old_lr_keywords() {
-        let mut dir = get_xmp_sample_path();
+        let mut dir = get_test_sample_path();
         dir.push("test3.xmp");
         let _xmp_manager = ExempiManager::new(None);
 
@@ -755,7 +742,7 @@ mod tests {
 
     #[test]
     fn test_merge_missing_into_xmp() {
-        let dir = get_xmp_sample_path();
+        let dir = get_test_sample_path();
 
         // Both these files have to exist. They are on the source
         // tree.
