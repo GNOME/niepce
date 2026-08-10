@@ -9,7 +9,7 @@ rust-version = "1.85"
 
 [dependencies]
 async-channel = "2.5.0"
-gettext-rs = { version = "^0.7.0", features = [ "gettext-system" ] }
+gettext-rs = { version = "^0.8.0", features = [ "gettext-system" ] }
 gtk-macros = "0.3.0"
 env_logger = "0.11"
 i18n-format = "0.4.0"

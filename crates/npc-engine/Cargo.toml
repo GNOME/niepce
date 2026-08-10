@@ -14,7 +14,7 @@ async-channel = "2.5.0"
 cachedir = "0.3.0"
 chrono = "0.4.23"
 exempi2 = "0.3.0"
-gettext-rs = { version = "^0.7.0", features = [ "gettext-system" ] }
+gettext-rs = { version = "^0.8.0", features = [ "gettext-system" ] }
 lazy_static = "^1.2.0"
 lrcat-extractor = "0.7"
 maplit = "1.0.2"
