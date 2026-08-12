@@ -20,7 +20,7 @@
 use multimap::MultiMap;
 use std::ffi::OsStr;
 
-use super::exempi::{
+use super::xmp::{
     Flash, NS_EXIF, NS_EXIF_AUX, NS_EXIF_EX, NS_TIFF, NS_XMP, XmpMeta, xmp_date_from_exif,
 };
 

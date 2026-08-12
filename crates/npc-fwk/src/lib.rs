@@ -38,7 +38,7 @@ pub use base::fractions::{fraction_to_decimal, parse_fraction};
 pub use base::propertybag::PropertyBag;
 pub use base::propertyvalue::PropertyValue;
 pub use toolkit::mimetype::MimeType;
-pub use utils::exempi::{ExempiManager, NsDef, XmpMeta, gps_coord_from_xmp};
+pub use utils::xmp::{ExempiManager, NsDef, XmpMeta, gps_coord_from_xmp};
 
 pub use base::error::Error;
 pub type Result<T> = std::result::Result<T, Error>;

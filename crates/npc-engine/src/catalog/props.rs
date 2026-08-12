@@ -19,9 +19,9 @@
 
 use lazy_static::lazy_static;
 use maplit::hashmap;
-use npc_fwk::utils::exempi::{NS_DC, NS_EXIF, NS_EXIF_AUX, NS_PHOTOSHOP, NS_TIFF, NS_XMP};
+use npc_fwk::utils::xmp::{NS_DC, NS_EXIF, NS_EXIF_AUX, NS_PHOTOSHOP, NS_TIFF, NS_XMP};
 mod xmp {
-    pub use npc_fwk::utils::exempi::NIEPCE_XMP_NAMESPACE;
+    pub use npc_fwk::utils::xmp::NIEPCE_XMP_NAMESPACE;
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

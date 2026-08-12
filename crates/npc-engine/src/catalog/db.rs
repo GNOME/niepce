@@ -53,7 +53,7 @@ use crate::library::notification::{FolderReparent, LibNotification};
 use npc_fwk::PropertyValue;
 use npc_fwk::base::RgbColour;
 use npc_fwk::toolkit;
-use npc_fwk::utils::exempi::XmpKeyword;
+use npc_fwk::utils::xmp::XmpKeyword;
 use npc_fwk::{dbg_assert, dbg_out, err_out, on_err_out};
 
 const DB_SCHEMA_VERSION: i32 = 13;
@@ -1802,7 +1802,7 @@ pub(crate) mod test {
 
     #[test]
     fn file_bundle_import() {
-        use npc_fwk::utils::exempi::XmpMeta;
+        use npc_fwk::utils::xmp::XmpMeta;
 
         let catalog = test_catalog(None);
 

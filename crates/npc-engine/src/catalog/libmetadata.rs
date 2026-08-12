@@ -22,7 +22,7 @@ use super::libfile::FileType;
 use super::props;
 use super::{FromDb, LibraryId};
 use crate::NiepcePropertyBag;
-use npc_fwk::utils::exempi::{NS_DC, NS_XMP};
+use npc_fwk::utils::xmp::{NS_DC, NS_XMP};
 use npc_fwk::{DateExt, PropertySet, PropertyValue, XmpMeta};
 use npc_fwk::{dbg_out, err_out};
 
