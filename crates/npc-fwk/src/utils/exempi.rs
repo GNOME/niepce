@@ -129,9 +129,9 @@ impl Flash {
     }
 }
 
-pub struct NsDef {
-    ns: String,
-    prefix: String,
+pub struct NsDef<'a> {
+    pub ns: &'a str,
+    pub prefix: &'a str,
 }
 
 pub struct ExempiManager {}
@@ -149,10 +149,7 @@ impl ExempiManager {
 
         if let Some(nslist) = namespaces {
             for nsdef in nslist {
-                on_err_out!(exempi2::register_namespace(
-                    nsdef.ns.as_str(),
-                    nsdef.prefix.as_str()
-                ));
+                on_err_out!(exempi2::register_namespace(nsdef.ns, nsdef.prefix));
             }
         }
         ExempiManager {}
