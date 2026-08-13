@@ -24,6 +24,7 @@ use gtk4::prelude::*;
 use npc_fwk::gtk4;
 
 use crate::niepce::ui::LibraryModule;
+use npc_engine::NiepcePropertySet;
 use npc_engine::catalog::NiepceProperties as Np;
 use npc_engine::catalog::NiepcePropertyIdx as Npi;
 use npc_engine::library::notification::LibNotification;
@@ -87,7 +88,7 @@ impl MapModule {
         if let LibNotification::MetadataQueried(lm) = ln {
             dbg_out!("received metadata in MapModule");
 
-            let mut propset = npc_fwk::PropertySet::new();
+            let mut propset = NiepcePropertySet::new();
             propset.insert(Np::Index(Npi::NpExifGpsLongProp));
             propset.insert(Np::Index(Npi::NpExifGpsLatProp));
 

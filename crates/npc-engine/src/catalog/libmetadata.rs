@@ -21,9 +21,9 @@ use super::NiepceProperties as Np;
 use super::libfile::FileType;
 use super::props;
 use super::{FromDb, LibraryId};
-use crate::NiepcePropertyBag;
+use crate::{NiepcePropertyBag, NiepcePropertySet};
 use npc_fwk::utils::xmp::{NS_DC, NS_XMP};
-use npc_fwk::{DateExt, PropertySet, PropertyValue, XmpMeta};
+use npc_fwk::{DateExt, PropertyValue, XmpMeta};
 use npc_fwk::{dbg_out, err_out};
 
 #[derive(Clone, Debug, Default)]
@@ -197,7 +197,7 @@ impl LibMetadata {
         false
     }
 
-    pub fn to_properties(&self, propset: &PropertySet<Np>) -> NiepcePropertyBag {
+    pub fn to_properties(&self, propset: &NiepcePropertySet) -> NiepcePropertyBag {
         use super::NiepcePropertyIdx as Npi;
         let mut property_bag = NiepcePropertyBag::default();
         let props = &mut property_bag;
@@ -304,9 +304,10 @@ impl FromDb for LibMetadata {
 mod test {
 
     use super::{LibMetadata, Np};
+    use crate::NiepcePropertySet;
     use crate::catalog::NiepcePropertyIdx as Npi;
     use chrono::TimeZone;
-    use npc_fwk::{PropertySet, PropertyValue, XmpMeta};
+    use npc_fwk::{PropertyValue, XmpMeta};
 
     const XMP_PACKET: &[u8] = include_bytes!("../../tests/test.xmp");
 
@@ -318,7 +319,7 @@ mod test {
         let xmp = xmp.unwrap();
         let xmp_meta = XmpMeta::from(xmp);
         let libmetadata = LibMetadata::new_with_xmp(1, xmp_meta);
-        let mut propset = PropertySet::new();
+        let mut propset = NiepcePropertySet::new();
         propset.insert(Np::Index(Npi::NpIptcKeywordsProp));
         propset.insert(Np::Index(Npi::NpTiffOrientationProp));
         propset.insert(Np::Index(Npi::NpExifDateTimeOriginalProp));
