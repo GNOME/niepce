@@ -1,5 +1,5 @@
 /*
- * niepce - engine/db/filebundle.rs
+ * niepce - engine/catalog/filebundle.rs
  *
  * Copyright (C) 2017-2026 Hubert Figuière
  *
@@ -25,6 +25,19 @@ use npc_fwk::MimeType;
 use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
 use npc_fwk::{dbg_out, err_out};
 
+/// SidecarType. Should match [`Sidecar`].
+///
+/// The integer values shall not be changed they are used in the
+/// database.
+#[repr(u32)]
+pub enum SidecarType {
+    Invalid = 0,
+    Live = 1,
+    Thumbnail = 2,
+    Xmp = 3,
+    Jpeg = 4,
+}
+
 /// Sidecar.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Sidecar {
@@ -39,25 +52,25 @@ pub enum Sidecar {
     Jpeg(PathBuf),
 }
 
-impl Sidecar {
-    pub fn to_int(&self) -> i32 {
-        match *self {
-            Sidecar::Live(_) => 1,
-            Sidecar::Thumbnail(_) => 2,
-            Sidecar::Xmp(_) => 3,
-            Sidecar::Jpeg(_) => 4,
-            Sidecar::Invalid => 0,
+impl From<&Sidecar> for SidecarType {
+    fn from(from: &Sidecar) -> SidecarType {
+        match *from {
+            Sidecar::Live(_) => SidecarType::Live,
+            Sidecar::Thumbnail(_) => SidecarType::Thumbnail,
+            Sidecar::Xmp(_) => SidecarType::Xmp,
+            Sidecar::Jpeg(_) => SidecarType::Jpeg,
+            Sidecar::Invalid => SidecarType::Invalid,
         }
     }
 }
 
-impl From<(i32, PathBuf)> for Sidecar {
-    fn from(t: (i32, PathBuf)) -> Self {
+impl From<(SidecarType, PathBuf)> for Sidecar {
+    fn from(t: (SidecarType, PathBuf)) -> Self {
         match t.0 {
-            1 => Sidecar::Live(t.1),
-            2 => Sidecar::Thumbnail(t.1),
-            3 => Sidecar::Xmp(t.1),
-            4 => Sidecar::Jpeg(t.1),
+            SidecarType::Live => Sidecar::Live(t.1),
+            SidecarType::Thumbnail => Sidecar::Thumbnail(t.1),
+            SidecarType::Xmp => Sidecar::Xmp(t.1),
+            SidecarType::Jpeg => Sidecar::Jpeg(t.1),
             _ => Sidecar::Invalid,
         }
     }

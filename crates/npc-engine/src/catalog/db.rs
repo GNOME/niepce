@@ -40,7 +40,7 @@ use super::{FromDb, LibraryId};
 use crate::NiepcePropertyBag;
 use crate::catalog::NiepcePropertyIdx as Npi;
 use crate::catalog::album::Album;
-use crate::catalog::filebundle::{FileBundle, Sidecar};
+use crate::catalog::filebundle::{FileBundle, SidecarType};
 use crate::catalog::keyword::Keyword;
 use crate::catalog::label::Label;
 use crate::catalog::libfile;
@@ -563,35 +563,18 @@ impl CatalogDb {
         Err(Error::NoSqlDb)
     }
 
-    fn add_sidecar_file_to_bundle(&self, file_id: LibraryId, sidecar: &Sidecar) -> Result<()> {
-        let sidecar_t: (i32, &PathBuf) = match *sidecar {
-            Sidecar::Live(ref p)
-            | Sidecar::Thumbnail(ref p)
-            | Sidecar::Xmp(ref p)
-            | Sidecar::Jpeg(ref p) => (sidecar.to_int(), p),
-            _ => return Err(Error::InvalidArg),
-        };
-        let p = Path::new(sidecar_t.1);
-        let ext = match p.extension() {
-            Some(ext2) => ext2.to_string_lossy(),
-            _ => return Err(Error::InvalidArg),
-        };
-        let fsfile_id = self.add_fs_file(sidecar_t.1)?;
-        self.add_sidecar_fsfile_to_bundle(file_id, fsfile_id, sidecar_t.0, &ext)
-    }
-
     fn add_sidecar_fsfile_to_bundle(
         &self,
         file_id: LibraryId,
         fsfile_id: LibraryId,
-        sidecar_type: i32,
+        sidecar_type: SidecarType,
         ext: &str,
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare_cached(
                 "INSERT INTO sidecars (file_id, fsfile_id, type, ext) VALUES(?1, ?2, ?3, ?4)",
             )?;
-            let c = stmt.execute(params![file_id, fsfile_id, sidecar_type, ext])?;
+            let c = stmt.execute(params![file_id, fsfile_id, sidecar_type as u32, ext])?;
             if c == 1 {
                 return Ok(());
             }
@@ -1054,24 +1037,14 @@ impl CatalogDb {
             let fsfile_id = self.add_fs_file(bundle.xmp_sidecar())?;
             if fsfile_id > 0 {
                 self.add_xmp_sidecar_to_bundle(file_id, fsfile_id)?;
-                self.add_sidecar_fsfile_to_bundle(
-                    file_id,
-                    fsfile_id,
-                    Sidecar::Xmp(PathBuf::new()).to_int(),
-                    "xmp",
-                )?;
+                self.add_sidecar_fsfile_to_bundle(file_id, fsfile_id, SidecarType::Xmp, "xmp")?;
             }
         }
         if !bundle.jpeg().as_os_str().is_empty() {
             let fsfile_id = self.add_fs_file(bundle.jpeg())?;
             if fsfile_id > 0 {
                 self.add_jpeg_file_to_bundle(file_id, fsfile_id)?;
-                self.add_sidecar_fsfile_to_bundle(
-                    file_id,
-                    fsfile_id,
-                    Sidecar::Jpeg(PathBuf::new()).to_int(),
-                    "jpg",
-                )?;
+                self.add_sidecar_fsfile_to_bundle(file_id, fsfile_id, SidecarType::Jpeg, "jpg")?;
             }
         }
 
@@ -1596,7 +1569,7 @@ impl CatalogDb {
                             let res = self.add_sidecar_fsfile_to_bundle(
                                 id,
                                 xmp_file_id,
-                                Sidecar::Xmp(PathBuf::new()).to_int(),
+                                SidecarType::Xmp,
                                 "xmp",
                             );
                             dbg_assert!(res.is_ok(), "add_sidecar_fsfile_to_bundle failed");
