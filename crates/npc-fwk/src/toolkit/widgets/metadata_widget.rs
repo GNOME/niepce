@@ -36,18 +36,15 @@ pub struct WrappedPropertyBag(pub MetadataPropertyBag);
 #[repr(u32)]
 #[derive(Clone, PartialEq)]
 pub enum MetaDT {
-    #[allow(dead_code)]
-    NONE = 0,
-    #[allow(dead_code)]
-    STRING,
+    None = 0,
+    String,
     StringArray,
-    TEXT,
-    DATE,
-    FRAC,
+    Text,
+    Date,
+    Frac,
     FracDec, // Fraction as decimal
     StarRating,
-    #[allow(dead_code)]
-    SIZE, // Size in bytes
+    Size, // Size in bytes
 }
 
 #[derive(Clone)]
@@ -263,8 +260,8 @@ mod imp {
                 let w = match f.type_ {
                     MetaDT::StarRating => self.create_star_rating_widget(f.readonly, f.id),
                     MetaDT::StringArray => self.create_string_array_widget(f.readonly, f.id),
-                    MetaDT::TEXT => self.create_text_widget(f.readonly, f.id),
-                    MetaDT::DATE => self.create_date_widget(f.readonly, f.id),
+                    MetaDT::Text => self.create_text_widget(f.readonly, f.id),
+                    MetaDT::Date => self.create_date_widget(f.readonly, f.id),
                     _ => self.create_string_widget(f.readonly, f.id),
                 };
                 let row = i as i32;
@@ -288,11 +285,11 @@ mod imp {
             let w = w.as_ref().unwrap();
             match fmt.type_ {
                 MetaDT::FracDec => self.set_fraction_dec_data(w, value),
-                MetaDT::FRAC => self.set_fraction_data(w, value),
+                MetaDT::Frac => self.set_fraction_data(w, value),
                 MetaDT::StarRating => self.set_star_rating_data(w, value),
                 MetaDT::StringArray => self.set_string_array_data(w, fmt.readonly, value),
-                MetaDT::TEXT => self.set_text_data(w, fmt.readonly, value),
-                MetaDT::DATE => self.set_date_data(w, value),
+                MetaDT::Text => self.set_text_data(w, fmt.readonly, value),
+                MetaDT::Date => self.set_date_data(w, value),
                 _ => {
                     if !self.set_text_data(w, fmt.readonly, value) {
                         err_out!("failed to set value for {}", fmt.id);
