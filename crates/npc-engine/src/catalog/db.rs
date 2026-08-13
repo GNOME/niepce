@@ -1028,7 +1028,7 @@ impl CatalogDb {
         folder_id: LibraryId,
         bundle: &FileBundle,
     ) -> Result<LibraryId> {
-        let file_id = self.add_file(folder_id, bundle.main(), Some(bundle))?;
+        let file_id = self.add_file(folder_id, bundle.main(), bundle)?;
         if file_id <= 0 {
             err_out!("add_file returned {}", file_id);
             return Err(Error::InvalidResult);
@@ -1055,7 +1055,7 @@ impl CatalogDb {
         &self,
         folder_id: LibraryId,
         file: P,
-        bundle: Option<&FileBundle>,
+        bundle: &FileBundle,
     ) -> Result<LibraryId> {
         dbg_assert!(folder_id != -1, "invalid folder ID");
         let file_path: &Path = file.as_ref();
@@ -1070,12 +1070,8 @@ impl CatalogDb {
 
         // Until we get better metadata support for RAW files, we use the Exif reconcile
         // from the sidecar JPEG to get the initial metadata.
-        let meta = if let Some(bundle) = bundle {
-            if bundle.bundle_type() == libfile::FileType::RawJpeg {
-                npc_fwk::XmpMeta::new_from_file(bundle.jpeg(), false)
-            } else {
-                npc_fwk::XmpMeta::new_from_file(file_path, false)
-            }
+        let meta = if bundle.bundle_type() == libfile::FileType::RawJpeg {
+            npc_fwk::XmpMeta::new_from_file(bundle.jpeg(), false)
         } else {
             npc_fwk::XmpMeta::new_from_file(file_path, false)
         };
@@ -1698,7 +1694,9 @@ pub(crate) mod test {
         assert_eq!(root_folders.len(), 1);
         assert_eq!(root_folders[0].path(), Some("/bar/foo"));
 
-        let file_id = catalog.add_file(folder_added.id(), "foo/myfile", None);
+        let mut bundle = FileBundle::new();
+        bundle.add("foo/myfile.jpg");
+        let file_id = catalog.add_file(folder_added.id(), "foo/myfile.jpg", &bundle);
         assert!(file_id.is_ok());
         let file_id = file_id.unwrap();
         assert!(file_id > 0);
