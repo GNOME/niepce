@@ -267,8 +267,8 @@ impl SelectionController {
 
     fn set_property_of(&self, id: catalog::LibraryId, idx: catalog::NiepcePropertyIdx, value: i32) {
         if let Some(mut file) = self.store.file(id) {
-            dbg_out!("old property is {}", file.property(Np::Index(idx)));
-            let old_value = file.property(Np::Index(idx));
+            dbg_out!("old property is {}", file.property(idx));
+            let old_value = file.property(idx);
             let action = match idx {
                 NiepcePropertyIdx::NiepceFlagProp => i18n("Set Flag"),
                 NiepcePropertyIdx::XmpRatingProp => i18n("Set Rating"),
@@ -278,7 +278,7 @@ impl SelectionController {
             self.set_one_metadata(&action, id, idx, old_value, value);
             // we need to set the property here so that undo/redo works
             // consistently.
-            file.set_property(Np::Index(idx), value);
+            file.set_property(idx, value);
         } else {
             err_out!("requested file {} not found!", id);
         }

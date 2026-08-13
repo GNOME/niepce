@@ -23,7 +23,6 @@ use npc_fwk::err_out;
 use npc_fwk::glib;
 
 use super::FromDb;
-use super::NiepceProperties as Np;
 use super::NiepcePropertyIdx as Npi;
 use super::fsfile::FsFile;
 use super::{LibMetadata, LibraryId};
@@ -189,22 +188,22 @@ impl LibFile {
         self.file_type = ft;
     }
 
-    pub fn property(&self, idx: Np) -> i32 {
+    pub fn property(&self, idx: Npi) -> i32 {
         match idx {
-            Np::Index(Npi::TiffOrientationProp) => self.orientation() as i32,
-            Np::Index(Npi::XmpRatingProp) => self.rating(),
-            Np::Index(Npi::XmpLabelProp) => self.label(),
-            Np::Index(Npi::NiepceFlagProp) => self.flag(),
+            Npi::TiffOrientationProp => self.orientation() as i32,
+            Npi::XmpRatingProp => self.rating(),
+            Npi::XmpLabelProp => self.label(),
+            Npi::NiepceFlagProp => self.flag(),
             _ => -1,
         }
     }
 
-    pub fn set_property(&mut self, idx: Np, value: i32) {
+    pub fn set_property(&mut self, idx: Npi, value: i32) {
         match idx {
-            Np::Index(Npi::TiffOrientationProp) => self.set_orientation(value as u32),
-            Np::Index(Npi::XmpRatingProp) => self.set_rating(value),
-            Np::Index(Npi::XmpLabelProp) => self.set_label(value),
-            Np::Index(Npi::NiepceFlagProp) => self.set_flag(value),
+            Npi::TiffOrientationProp => self.set_orientation(value as u32),
+            Npi::XmpRatingProp => self.set_rating(value),
+            Npi::XmpLabelProp => self.set_label(value),
+            Npi::NiepceFlagProp => self.set_flag(value),
             _ => err_out!("invalid property {:?} - noop", idx),
         };
     }

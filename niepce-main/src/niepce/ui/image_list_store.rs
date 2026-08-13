@@ -256,7 +256,9 @@ impl ImageListStore {
                 let meta = change.meta;
                 if let PropertyValue::Int(value) = change.value {
                     // XXX can we make this less suboptimal
-                    file.set_property(meta, value);
+                    if let Np::Index(meta) = meta {
+                        file.set_property(meta, value);
+                    }
                     item.set_file(Some(file));
                 } else {
                     err_out!("Wrong property type");
