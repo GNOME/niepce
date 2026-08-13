@@ -1291,8 +1291,7 @@ impl CatalogDb {
         props: &NiepcePropertyBag,
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            if let Some(PropertyValue::String(xmp)) = props.get(&Np::Index(Npi::NpNiepceXmpPacket))
-            {
+            if let Some(PropertyValue::String(xmp)) = props.get(&Np::Index(Npi::NiepceXmpPacket)) {
                 let mut stmt = conn.prepare_cached("UPDATE files SET xmp=?1 WHERE id=?2;")?;
                 stmt.execute(params![xmp, image_id])?;
             }
@@ -1338,19 +1337,19 @@ impl CatalogDb {
     ) -> Result<()> {
         #[allow(non_upper_case_globals)]
         match meta {
-            Np::Index(Npi::NpXmpRatingProp)
-            | Np::Index(Npi::NpXmpLabelProp)
-            | Np::Index(Npi::NpTiffOrientationProp)
-            | Np::Index(Npi::NpNiepceFlagProp) => {
+            Np::Index(Npi::XmpRatingProp)
+            | Np::Index(Npi::XmpLabelProp)
+            | Np::Index(Npi::TiffOrientationProp)
+            | Np::Index(Npi::NiepceFlagProp) => {
                 match *value {
                     PropertyValue::Int(i) => {
                         // internal
                         // make the column mapping more generic.
                         let column = match meta {
-                            Np::Index(Npi::NpXmpRatingProp) => "rating",
-                            Np::Index(Npi::NpXmpLabelProp) => "label",
-                            Np::Index(Npi::NpTiffOrientationProp) => "orientation",
-                            Np::Index(Npi::NpNiepceFlagProp) => "flag",
+                            Np::Index(Npi::XmpRatingProp) => "rating",
+                            Np::Index(Npi::XmpLabelProp) => "label",
+                            Np::Index(Npi::TiffOrientationProp) => "orientation",
+                            Np::Index(Npi::NiepceFlagProp) => "flag",
                             _ => unreachable!(),
                         };
                         if !column.is_empty() {
@@ -1360,7 +1359,7 @@ impl CatalogDb {
                     _ => err_out!("improper value type for {:?}", meta),
                 }
             }
-            Np::Index(Npi::NpIptcKeywordsProp) => {
+            Np::Index(Npi::IptcKeywordsProp) => {
                 self.unassign_all_keywords_for_file(file_id)?;
 
                 match value {
@@ -1802,7 +1801,7 @@ pub(crate) mod test {
         // Test setting properties
 
         let mut props = NiepcePropertyBag::default();
-        props.set_value(Np::Index(Npi::NpNiepceXmpPacket), XMP_PACKET.into());
+        props.set_value(Np::Index(Npi::NiepceXmpPacket), XMP_PACKET.into());
         // one of the problem with XMP packet serialisation is that the version
         // of the XMP SDK is written in the header so we can do comparisons
         // byte by byte

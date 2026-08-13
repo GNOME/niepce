@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/darkroom.rs
  *
- * Copyright (C) 2022-2025 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ impl Controller for DarkroomModule {
                 if let Some(ref file) = *self.file.borrow() {
                     self.client.client().set_metadata(
                         file.id(),
-                        Np::Index(Npi::NpNiepceRenderEngineProp),
+                        Np::Index(Npi::NiepceRenderEngineProp),
                         &npc_fwk::base::PropertyValue::String(engine.key().to_string()),
                     );
                 }
@@ -214,7 +214,7 @@ impl DarkroomModule {
     /// We received a metadata change.
     fn metadata_change_received(&self, changed: &MetadataChange) {
         if self.is_current_file_id(changed.id)
-            && changed.meta == Np::Index(Npi::NpNiepceRenderEngineProp)
+            && changed.meta == Np::Index(Npi::NiepceRenderEngineProp)
         {
             if let Some(engine) = changed.value.string() {
                 self.set_engine(engine);
@@ -314,7 +314,7 @@ impl DarkroomModule {
         // If we have metadata, use them.
         let engine = file.metadata().and_then(|metadata| {
             metadata
-                .get_metadata(Np::Index(Npi::NpNiepceRenderEngineProp))?
+                .get_metadata(Np::Index(Npi::NiepceRenderEngineProp))?
                 .string()
                 .and_then(RenderEngine::from_key)
         });
@@ -324,7 +324,7 @@ impl DarkroomModule {
                 let e = RenderEngine::default();
                 self.client.client().set_metadata(
                     file.id(),
-                    Np::Index(Npi::NpNiepceRenderEngineProp),
+                    Np::Index(Npi::NiepceRenderEngineProp),
                     &npc_fwk::base::PropertyValue::String(e.key().to_string()),
                 );
                 e

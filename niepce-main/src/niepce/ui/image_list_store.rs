@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_list_store.rs
  *
- * Copyright (C) 2020-2025 Hubert Figuière
+ * Copyright (C) 2020-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,10 +103,10 @@ impl ImageListStore {
     }
 
     fn is_property_interesting(idx: Np) -> bool {
-        (idx == Np::Index(Npi::NpXmpRatingProp))
-            || (idx == Np::Index(Npi::NpXmpLabelProp))
-            || (idx == Np::Index(Npi::NpTiffOrientationProp))
-            || (idx == Np::Index(Npi::NpNiepceFlagProp))
+        (idx == Np::Index(Npi::XmpRatingProp))
+            || (idx == Np::Index(Npi::XmpLabelProp))
+            || (idx == Np::Index(Npi::TiffOrientationProp))
+            || (idx == Np::Index(Npi::NiepceFlagProp))
     }
 
     pub fn pos_from_id(&self, id: LibraryId) -> Option<u32> {

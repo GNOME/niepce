@@ -241,21 +241,21 @@ impl SelectionController {
     }
 
     pub fn set_label(&self, label: i32) {
-        self.set_property(catalog::NiepcePropertyIdx::NpXmpLabelProp, label);
+        self.set_property(catalog::NiepcePropertyIdx::XmpLabelProp, label);
     }
 
     /// Set rating of selection
     pub fn set_rating(&self, rating: i32) {
-        self.set_property(catalog::NiepcePropertyIdx::NpXmpRatingProp, rating);
+        self.set_property(catalog::NiepcePropertyIdx::XmpRatingProp, rating);
     }
 
     /// Set rating of specific file.
     pub fn set_rating_of(&self, id: catalog::LibraryId, rating: i32) {
-        self.set_property_of(id, catalog::NiepcePropertyIdx::NpXmpRatingProp, rating);
+        self.set_property_of(id, catalog::NiepcePropertyIdx::XmpRatingProp, rating);
     }
 
     pub fn set_flag(&self, flag: i32) {
-        self.set_property(catalog::NiepcePropertyIdx::NpNiepceFlagProp, flag);
+        self.set_property(catalog::NiepcePropertyIdx::NiepceFlagProp, flag);
     }
 
     fn set_property(&self, idx: catalog::NiepcePropertyIdx, value: i32) {
@@ -270,9 +270,9 @@ impl SelectionController {
             dbg_out!("old property is {}", file.property(Np::Index(idx)));
             let old_value = file.property(Np::Index(idx));
             let action = match idx {
-                NiepcePropertyIdx::NpNiepceFlagProp => i18n("Set Flag"),
-                NiepcePropertyIdx::NpXmpRatingProp => i18n("Set Rating"),
-                NiepcePropertyIdx::NpXmpLabelProp => i18n("Set Label"),
+                NiepcePropertyIdx::NiepceFlagProp => i18n("Set Flag"),
+                NiepcePropertyIdx::XmpRatingProp => i18n("Set Rating"),
+                NiepcePropertyIdx::XmpLabelProp => i18n("Set Label"),
                 _ => i18n("Set Property"),
             };
             self.set_one_metadata(&action, id, idx, old_value, value);

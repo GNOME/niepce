@@ -89,17 +89,17 @@ impl MapModule {
             dbg_out!("received metadata in MapModule");
 
             let mut propset = NiepcePropertySet::new();
-            propset.insert(Np::Index(Npi::NpExifGpsLongProp));
-            propset.insert(Np::Index(Npi::NpExifGpsLatProp));
+            propset.insert(Np::Index(Npi::ExifGpsLongProp));
+            propset.insert(Np::Index(Npi::ExifGpsLatProp));
 
             let properties = lm.to_properties(&propset);
             if let Some(longitude) = properties
-                .get(&Np::Index(Npi::NpExifGpsLongProp))
+                .get(&Np::Index(Npi::ExifGpsLongProp))
                 .and_then(|v| v.string())
                 .and_then(npc_fwk::gps_coord_from_xmp)
             {
                 if let Some(latitude) = properties
-                    .get(&Np::Index(Npi::NpExifGpsLatProp))
+                    .get(&Np::Index(Npi::ExifGpsLatProp))
                     .and_then(|v| v.string())
                     .and_then(npc_fwk::gps_coord_from_xmp)
                 {

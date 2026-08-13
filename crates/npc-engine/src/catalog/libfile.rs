@@ -1,5 +1,5 @@
 /*
- * niepce - engine/db/libfile.rs
+ * niepce - engine/catalog/libfile.rs
  *
  * Copyright (C) 2017-2026 Hubert Figuière
  *
@@ -191,20 +191,20 @@ impl LibFile {
 
     pub fn property(&self, idx: Np) -> i32 {
         match idx {
-            Np::Index(Npi::NpTiffOrientationProp) => self.orientation() as i32,
-            Np::Index(Npi::NpXmpRatingProp) => self.rating(),
-            Np::Index(Npi::NpXmpLabelProp) => self.label(),
-            Np::Index(Npi::NpNiepceFlagProp) => self.flag(),
+            Np::Index(Npi::TiffOrientationProp) => self.orientation() as i32,
+            Np::Index(Npi::XmpRatingProp) => self.rating(),
+            Np::Index(Npi::XmpLabelProp) => self.label(),
+            Np::Index(Npi::NiepceFlagProp) => self.flag(),
             _ => -1,
         }
     }
 
     pub fn set_property(&mut self, idx: Np, value: i32) {
         match idx {
-            Np::Index(Npi::NpTiffOrientationProp) => self.set_orientation(value as u32),
-            Np::Index(Npi::NpXmpRatingProp) => self.set_rating(value),
-            Np::Index(Npi::NpXmpLabelProp) => self.set_label(value),
-            Np::Index(Npi::NpNiepceFlagProp) => self.set_flag(value),
+            Np::Index(Npi::TiffOrientationProp) => self.set_orientation(value as u32),
+            Np::Index(Npi::XmpRatingProp) => self.set_rating(value),
+            Np::Index(Npi::XmpLabelProp) => self.set_label(value),
+            Np::Index(Npi::NiepceFlagProp) => self.set_flag(value),
             _ => err_out!("invalid property {:?} - noop", idx),
         };
     }
