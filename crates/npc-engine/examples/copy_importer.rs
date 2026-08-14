@@ -60,7 +60,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let _ = npc_engine::exempi_manager(None);
+    let _ = npc_engine::xmp_manager(None);
 
     println!("destination: {}", args.dest);
 

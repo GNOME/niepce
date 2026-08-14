@@ -30,7 +30,7 @@ fn main() {
 
     niepce_core::niepce_init();
 
-    let _ = npc_engine::exempi_manager(None);
+    let _ = npc_engine::xmp_manager(None);
 
     dbg_out!("Starting up. DEBUG is on");
 

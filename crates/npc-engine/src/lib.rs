@@ -25,7 +25,7 @@ pub mod metadata;
 
 pub use library::thumbnail_cache::ThumbnailCache;
 
-pub use metadata::xmp::exempi_manager;
+pub use metadata::xmp::xmp_manager;
 
 pub type NiepcePropertySet = npc_fwk::PropertySet<catalog::NiepcePropertyIdx>;
 pub type NiepcePropertyBag = npc_fwk::PropertyBag<catalog::NiepcePropertyIdx>;

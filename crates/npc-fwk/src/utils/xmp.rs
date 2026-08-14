@@ -127,16 +127,16 @@ pub struct NsDef<'a> {
     pub prefix: &'a str,
 }
 
-pub struct ExempiManager {}
+pub struct XmpManager {}
 
-impl ExempiManager {
-    pub fn new(namespaces: Option<Vec<NsDef>>) -> ExempiManager {
+impl XmpManager {
+    pub fn new(namespaces: Option<Vec<NsDef>>) -> XmpManager {
         if let Some(nslist) = namespaces {
             for nsdef in nslist {
                 on_err_out!(exempi2::register_namespace(nsdef.ns, nsdef.prefix));
             }
         }
-        ExempiManager {}
+        XmpManager {}
     }
 }
 
@@ -661,7 +661,7 @@ pub fn xmp_date_from_exif(d: &str, offset: Option<&str>) -> Option<exempi2::Date
 pub(crate) mod tests {
     use super::super::tests::get_test_sample_path;
 
-    use super::ExempiManager;
+    use super::XmpManager;
     use super::xmp_date_from_exif;
     use super::{NS_EXIF, XmpMeta};
     use exempi2;
@@ -670,7 +670,7 @@ pub(crate) mod tests {
     fn xmp_meta_works() {
         let mut dir = get_test_sample_path();
         dir.push("test.xmp");
-        let _xmp_manager = ExempiManager::new(None);
+        let _xmp_manager = XmpManager::new(None);
 
         if let Some(xmpfile) = dir.to_str() {
             let meta = XmpMeta::new_from_file(xmpfile, true);
@@ -697,7 +697,7 @@ pub(crate) mod tests {
     fn xmp_meta_old_lr_keywords() {
         let mut dir = get_test_sample_path();
         dir.push("test3.xmp");
-        let _xmp_manager = ExempiManager::new(None);
+        let _xmp_manager = XmpManager::new(None);
 
         if let Some(xmpfile) = dir.to_str() {
             let meta = XmpMeta::new_from_file(xmpfile, true);
@@ -746,7 +746,7 @@ pub(crate) mod tests {
 
         let mut dest = dir;
         dest.push("test2.xmp");
-        let _xmp_manager = ExempiManager::new(None);
+        let _xmp_manager = XmpManager::new(None);
 
         if let Some(xmpfile) = source.to_str() {
             let meta = XmpMeta::new_from_file(xmpfile, true);

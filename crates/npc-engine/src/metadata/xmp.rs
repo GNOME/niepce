@@ -20,7 +20,7 @@
 //! Niepce specific XMP
 
 use npc_fwk::utils::xmp::NsDef;
-use npc_fwk::{ExempiManager, XmpMeta};
+use npc_fwk::{XmpManager, XmpMeta};
 
 pub const NIEPCE_XMP_NAMESPACE: &str = "http://xmlns.figuiere.net/ns/niepce/1.0";
 pub const NIEPCE_XMP_NS_PREFIX: &str = "niepce";
@@ -30,7 +30,7 @@ const DARKTABLE_NAMESPACE: &str = "http://darktable.sf.net/";
 /// Darktable XMP "defualt" prefix.
 const DARKTABLE_NS_PREFIX: &str = "darktable";
 
-pub fn exempi_manager(namespaces: Option<Vec<NsDef>>) -> ExempiManager {
+pub fn xmp_manager(namespaces: Option<Vec<NsDef>>) -> XmpManager {
     let mut namespaces = namespaces.unwrap_or_default();
     namespaces.extend([
         NsDef {
@@ -42,7 +42,7 @@ pub fn exempi_manager(namespaces: Option<Vec<NsDef>>) -> ExempiManager {
             prefix: DARKTABLE_NS_PREFIX,
         },
     ]);
-    ExempiManager::new(Some(namespaces))
+    XmpManager::new(Some(namespaces))
 }
 
 /// Trait to extend XmpMeta api specific to that scope.
