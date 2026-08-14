@@ -18,7 +18,6 @@
  */
 
 mod lr;
-mod niepce;
 
 use std::convert::From;
 use std::ffi::OsStr;
@@ -32,12 +31,6 @@ use super::exif;
 use crate::base::error::Context;
 use crate::toolkit::heif;
 use crate::{Date, DateExt};
-
-pub use niepce::{NIEPCE_XMP_NAMESPACE, NIEPCE_XMP_NS_PREFIX};
-/// Darktable XMP namespace
-const DARKTABLE_NAMESPACE: &str = "http://darktable.sf.net/";
-/// Darktable XMP "defualt" prefix.
-const DARKTABLE_NS_PREFIX: &str = "darktable";
 
 pub const NS_TIFF: &str = "http://ns.adobe.com/tiff/1.0/";
 pub const NS_XMP: &str = "http://ns.adobe.com/xap/1.0/";
@@ -138,15 +131,6 @@ pub struct ExempiManager {}
 
 impl ExempiManager {
     pub fn new(namespaces: Option<Vec<NsDef>>) -> ExempiManager {
-        on_err_out!(exempi2::register_namespace(
-            NIEPCE_XMP_NAMESPACE,
-            NIEPCE_XMP_NS_PREFIX
-        ));
-        on_err_out!(exempi2::register_namespace(
-            DARKTABLE_NAMESPACE,
-            DARKTABLE_NS_PREFIX
-        ));
-
         if let Some(nslist) = namespaces {
             for nsdef in nslist {
                 on_err_out!(exempi2::register_namespace(nsdef.ns, nsdef.prefix));
@@ -450,13 +434,6 @@ impl XmpMeta {
     pub fn rating(&self) -> Option<i32> {
         let mut flags: exempi2::PropFlags = exempi2::PropFlags::default();
         self.xmp.get_property_i32(NS_XMP, "Rating", &mut flags).ok()
-    }
-
-    pub fn flag(&self) -> Option<i32> {
-        let mut flags: exempi2::PropFlags = exempi2::PropFlags::empty();
-        self.xmp
-            .get_property_i32(NIEPCE_XMP_NAMESPACE, "Flag", &mut flags)
-            .ok()
     }
 
     /// Get the creation date. In order, Exif `DateTimeOriginal`, and

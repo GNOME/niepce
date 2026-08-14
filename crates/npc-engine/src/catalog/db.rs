@@ -49,6 +49,7 @@ use crate::catalog::libfolder;
 use crate::catalog::libfolder::LibFolder;
 use crate::catalog::libmetadata::LibMetadata;
 use crate::library::notification::{FolderReparent, LibNotification};
+use crate::metadata::xmp::NpcXmp;
 use npc_fwk::PropertyValue;
 use npc_fwk::base::RgbColour;
 use npc_fwk::toolkit;

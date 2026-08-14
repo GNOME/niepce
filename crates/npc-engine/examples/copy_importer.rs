@@ -25,7 +25,6 @@ use npc_engine::catalog::CatalogDb;
 use npc_engine::importer::{DatePathFormat, Importer};
 use npc_engine::library::commands::cmd_import_files;
 use npc_engine::library::notification::LibNotification;
-use npc_fwk::ExempiManager;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -61,7 +60,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let _ = ExempiManager::new(None);
+    let _ = npc_engine::exempi_manager(None);
 
     println!("destination: {}", args.dest);
 
