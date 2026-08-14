@@ -153,7 +153,8 @@ impl MetadataPaneController {
         let formats = get_format();
         for current in formats {
             for format in &current.formats {
-                self.propset.insert(format.id.into());
+                self.propset
+                    .insert(NiepcePropertyIdx::try_from(format.id).unwrap());
             }
         }
     }
@@ -194,7 +195,7 @@ impl MetadataPaneController {
             let mut into = PropertyBag::<u32>::new();
             for key in properties.bag.iter() {
                 if let Some(elem) = properties.map.get(key) {
-                    into.set_value(u32::from(*key), elem.clone());
+                    into.set_value((*key) as u32, elem.clone());
                 }
             }
             // XXX we have multiple copies of the property bag. That's not a good idea.

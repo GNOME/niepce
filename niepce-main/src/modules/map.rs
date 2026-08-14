@@ -25,7 +25,6 @@ use npc_fwk::gtk4;
 
 use crate::niepce::ui::LibraryModule;
 use npc_engine::NiepcePropertySet;
-use npc_engine::catalog::NiepceProperties as Np;
 use npc_engine::catalog::NiepcePropertyIdx as Npi;
 use npc_engine::library::notification::LibNotification;
 use npc_fwk::dbg_out;
@@ -89,17 +88,17 @@ impl MapModule {
             dbg_out!("received metadata in MapModule");
 
             let mut propset = NiepcePropertySet::new();
-            propset.insert(Np::Index(Npi::ExifGpsLongProp));
-            propset.insert(Np::Index(Npi::ExifGpsLatProp));
+            propset.insert(Npi::ExifGpsLongProp);
+            propset.insert(Npi::ExifGpsLatProp);
 
             let properties = lm.to_properties(&propset);
             if let Some(longitude) = properties
-                .get(&Np::Index(Npi::ExifGpsLongProp))
+                .get(&Npi::ExifGpsLongProp)
                 .and_then(|v| v.string())
                 .and_then(npc_fwk::gps_coord_from_xmp)
             {
                 if let Some(latitude) = properties
-                    .get(&Np::Index(Npi::ExifGpsLatProp))
+                    .get(&Npi::ExifGpsLatProp)
                     .and_then(|v| v.string())
                     .and_then(npc_fwk::gps_coord_from_xmp)
                 {

@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::NiepceProperties as Np;
 use super::NiepcePropertyIdx as Npi;
 use super::libfile::FileType;
 use super::props;
@@ -204,27 +203,27 @@ impl LibMetadata {
         let props = &mut property_bag;
         for prop_id in propset {
             match *prop_id {
-                Np::Index(Npi::XmpRatingProp) => {
+                Npi::XmpRatingProp => {
                     if let Some(rating) = self.xmp_meta.rating() {
                         props.set_value(*prop_id, PropertyValue::Int(rating));
                     }
                 }
-                Np::Index(Npi::XmpLabelProp) => {
+                Npi::XmpLabelProp => {
                     if let Some(label) = self.xmp_meta.label() {
                         props.set_value(*prop_id, PropertyValue::String(label));
                     }
                 }
-                Np::Index(Npi::TiffOrientationProp) => {
+                Npi::TiffOrientationProp => {
                     if let Some(orientation) = self.xmp_meta.orientation() {
                         props.set_value(*prop_id, PropertyValue::Int(orientation));
                     }
                 }
-                Np::Index(Npi::ExifDateTimeOriginalProp) => {
+                Npi::ExifDateTimeOriginalProp => {
                     if let Some(date) = self.xmp_meta.creation_date() {
                         props.set_value(*prop_id, PropertyValue::Date(date));
                     }
                 }
-                Np::Index(Npi::IptcKeywordsProp) => {
+                Npi::IptcKeywordsProp => {
                     let iter = exempi2::XmpIterator::new(
                         &self.xmp_meta.xmp,
                         NS_DC,
@@ -237,29 +236,26 @@ impl LibMetadata {
                     }
                     props.set_value(*prop_id, PropertyValue::StringArray(keywords));
                 }
-                Np::Index(Npi::FileNameProp) => {
+                Npi::FileNameProp => {
                     props.set_value(*prop_id, PropertyValue::String(self.name.clone()));
                 }
-                Np::Index(Npi::FileTypeProp) => {
+                Npi::FileTypeProp => {
                     let file_type: &str = self.file_type.into();
                     props.set_value(*prop_id, PropertyValue::String(String::from(file_type)));
                 }
-                Np::Index(Npi::FileSizeProp) => {}
-                Np::Index(Npi::FolderProp) => {
+                Npi::FileSizeProp => {}
+                Npi::FolderProp => {
                     props.set_value(*prop_id, PropertyValue::String(self.folder.clone()));
                 }
-                Np::Index(Npi::SidecarsProp) => {
+                Npi::SidecarsProp => {
                     props.set_value(*prop_id, PropertyValue::StringArray(self.sidecars.clone()));
                 }
-                Np::Index(idx) => {
-                    if let Some(propval) = self.get_metadata(idx) {
+                _ => {
+                    if let Some(propval) = self.get_metadata(*prop_id) {
                         props.set_value(*prop_id, propval);
                     } else {
-                        dbg_out!("missing prop {:?}", idx);
+                        dbg_out!("missing prop {:?}", *prop_id);
                     }
-                }
-                _ => {
-                    err_out!("We don't handle {:?}", prop_id);
                 }
             }
         }
@@ -307,7 +303,7 @@ impl FromDb for LibMetadata {
 #[cfg(test)]
 mod test {
 
-    use super::{LibMetadata, Np};
+    use super::LibMetadata;
     use crate::NiepcePropertySet;
     use crate::catalog::NiepcePropertyIdx as Npi;
     use chrono::TimeZone;
@@ -324,14 +320,14 @@ mod test {
         let xmp_meta = XmpMeta::from(xmp);
         let libmetadata = LibMetadata::new_with_xmp(1, xmp_meta);
         let mut propset = NiepcePropertySet::new();
-        propset.insert(Np::Index(Npi::IptcKeywordsProp));
-        propset.insert(Np::Index(Npi::TiffOrientationProp));
-        propset.insert(Np::Index(Npi::ExifDateTimeOriginalProp));
+        propset.insert(Npi::IptcKeywordsProp);
+        propset.insert(Npi::TiffOrientationProp);
+        propset.insert(Npi::ExifDateTimeOriginalProp);
 
         let bag = libmetadata.to_properties(&propset);
         assert_eq!(bag.len(), 3);
 
-        let keywords = bag.get(&Np::Index(Npi::IptcKeywordsProp));
+        let keywords = bag.get(&Npi::IptcKeywordsProp);
         assert!(keywords.is_some());
 
         if let PropertyValue::StringArray(keywords) = keywords.unwrap() {
@@ -345,7 +341,7 @@ mod test {
             unreachable!();
         }
 
-        let orientation = bag.get(&Np::Index(Npi::TiffOrientationProp));
+        let orientation = bag.get(&Npi::TiffOrientationProp);
         assert!(orientation.is_some());
 
         if let PropertyValue::Int(orientation) = orientation.unwrap() {
@@ -354,7 +350,7 @@ mod test {
             unreachable!();
         }
 
-        let creation_date = bag.get(&Np::Index(Npi::ExifDateTimeOriginalProp));
+        let creation_date = bag.get(&Npi::ExifDateTimeOriginalProp);
         assert!(creation_date.is_some());
 
         if let PropertyValue::Date(creation_date) = creation_date.unwrap() {

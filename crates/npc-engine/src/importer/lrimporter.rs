@@ -33,7 +33,6 @@ use super::libraryimporter::{Error, LibraryImporter, LibraryImporterProbe, Resul
 use crate::NiepcePropertyBag;
 use crate::catalog::LibraryId;
 use crate::catalog::filebundle::FileBundle;
-use crate::catalog::props::NiepceProperties as Np;
 use crate::catalog::props::NiepcePropertyIdx as NpI;
 use crate::libraryclient::{ClientInterface, ClientInterfaceSync, LibraryClient};
 
@@ -195,12 +194,9 @@ impl LrImporter {
 
             let metadata = if let Some(image) = image {
                 let mut metadata = NiepcePropertyBag::default();
-                metadata.set_value(
-                    Np::Index(NpI::TiffOrientationProp),
-                    image.exif_orientation().into(),
-                );
-                metadata.set_value(Np::Index(NpI::NiepceFlagProp), (image.pick as i32).into());
-                metadata.set_value(Np::Index(NpI::NiepceXmpPacket), image.xmp.as_str().into());
+                metadata.set_value(NpI::TiffOrientationProp, image.exif_orientation().into());
+                metadata.set_value(NpI::NiepceFlagProp, (image.pick as i32).into());
+                metadata.set_value(NpI::NiepceXmpPacket, image.xmp.as_str().into());
                 Some(metadata)
             } else {
                 None

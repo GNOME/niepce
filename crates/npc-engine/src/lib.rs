@@ -24,5 +24,5 @@ pub mod libraryclient;
 
 pub use library::thumbnail_cache::ThumbnailCache;
 
-pub type NiepcePropertySet = npc_fwk::PropertySet<catalog::NiepceProperties>;
-pub type NiepcePropertyBag = npc_fwk::PropertyBag<catalog::NiepceProperties>;
+pub type NiepcePropertySet = npc_fwk::PropertySet<catalog::NiepcePropertyIdx>;
+pub type NiepcePropertyBag = npc_fwk::PropertyBag<catalog::NiepcePropertyIdx>;

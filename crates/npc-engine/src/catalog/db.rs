@@ -48,7 +48,6 @@ use crate::catalog::libfile::LibFile;
 use crate::catalog::libfolder;
 use crate::catalog::libfolder::LibFolder;
 use crate::catalog::libmetadata::LibMetadata;
-use crate::catalog::props::NiepceProperties as Np;
 use crate::library::notification::{FolderReparent, LibNotification};
 use npc_fwk::PropertyValue;
 use npc_fwk::base::RgbColour;
@@ -1291,7 +1290,7 @@ impl CatalogDb {
         props: &NiepcePropertyBag,
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            if let Some(PropertyValue::String(xmp)) = props.get(&Np::Index(Npi::NiepceXmpPacket)) {
+            if let Some(PropertyValue::String(xmp)) = props.get(&Npi::NiepceXmpPacket) {
                 let mut stmt = conn.prepare_cached("UPDATE files SET xmp=?1 WHERE id=?2;")?;
                 stmt.execute(params![xmp, image_id])?;
             }
@@ -1590,7 +1589,6 @@ impl CatalogDb {
 #[cfg(test)]
 pub(crate) mod test {
     use crate::NiepcePropertyBag;
-    use crate::catalog::NiepceProperties as Np;
     use crate::catalog::NiepcePropertyIdx as Npi;
     use crate::catalog::filebundle::FileBundle;
     use crate::library::notification::LibNotification;
@@ -1801,7 +1799,7 @@ pub(crate) mod test {
         // Test setting properties
 
         let mut props = NiepcePropertyBag::default();
-        props.set_value(Np::Index(Npi::NiepceXmpPacket), XMP_PACKET.into());
+        props.set_value(Npi::NiepceXmpPacket, XMP_PACKET.into());
         // one of the problem with XMP packet serialisation is that the version
         // of the XMP SDK is written in the header so we can do comparisons
         // byte by byte
