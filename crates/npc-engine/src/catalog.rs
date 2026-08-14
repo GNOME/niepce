@@ -48,7 +48,6 @@ pub use label::Label;
 pub use libfile::{FileType, LibFile};
 pub use libfolder::LibFolder;
 pub use libmetadata::LibMetadata;
-pub use props::NiepceProperties;
 pub use props::NiepcePropertyIdx;
 
 pub trait FromDb: Sized {

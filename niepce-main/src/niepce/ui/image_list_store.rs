@@ -27,7 +27,6 @@ use npc_fwk::{gdk4, gio, gtk4};
 use super::image_grid_view::ImageListItem;
 use npc_engine::catalog::LibraryId;
 use npc_engine::catalog::libfile::{FileStatus, LibFile};
-use npc_engine::catalog::props::NiepceProperties as Np;
 use npc_engine::catalog::props::NiepcePropertyIdx as Npi;
 use npc_engine::library::notification::{LibNotification, MetadataChange};
 use npc_engine::library::thumbnail_cache::ThumbnailCache;
@@ -102,11 +101,11 @@ impl ImageListStore {
         })
     }
 
-    fn is_property_interesting(idx: Np) -> bool {
-        (idx == Np::Index(Npi::XmpRatingProp))
-            || (idx == Np::Index(Npi::XmpLabelProp))
-            || (idx == Np::Index(Npi::TiffOrientationProp))
-            || (idx == Np::Index(Npi::NiepceFlagProp))
+    fn is_property_interesting(idx: Npi) -> bool {
+        (idx == Npi::XmpRatingProp)
+            || (idx == Npi::XmpLabelProp)
+            || (idx == Npi::TiffOrientationProp)
+            || (idx == Npi::NiepceFlagProp)
     }
 
     pub fn pos_from_id(&self, id: LibraryId) -> Option<u32> {
@@ -256,9 +255,7 @@ impl ImageListStore {
                 let meta = change.meta;
                 if let PropertyValue::Int(value) = change.value {
                     // XXX can we make this less suboptimal
-                    if let Np::Index(meta) = meta {
-                        file.set_property(meta, value);
-                    }
+                    file.set_property(meta, value);
                     item.set_file(Some(file));
                 } else {
                     err_out!("Wrong property type");

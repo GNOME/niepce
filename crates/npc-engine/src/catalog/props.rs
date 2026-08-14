@@ -73,33 +73,6 @@ impl TryFrom<u32> for NiepcePropertyIdx {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[allow(unused_parens)]
-#[repr(C)]
-pub enum NiepceProperties {
-    Index(NiepcePropertyIdx),
-    Other(u32),
-}
-
-impl From<NiepceProperties> for u32 {
-    fn from(v: NiepceProperties) -> u32 {
-        match v {
-            NiepceProperties::Index(i) => i as u32,
-            NiepceProperties::Other(i) => i,
-        }
-    }
-}
-
-impl From<u32> for NiepceProperties {
-    fn from(v: u32) -> NiepceProperties {
-        if v > 0 && v < NiepcePropertyIdx::_PropertyEnd as u32 {
-            Self::Index(unsafe { std::mem::transmute::<u32, NiepcePropertyIdx>(v) })
-        } else {
-            Self::Other(v)
-        }
-    }
-}
-
 lazy_static! {
     pub static ref PROP_TO_XMP_MAP: std::collections::HashMap<NiepcePropertyIdx, (&'static str, &'static str)> = hashmap! {
         NiepcePropertyIdx::XmpRatingProp => (NS_XMP, "Rating"),

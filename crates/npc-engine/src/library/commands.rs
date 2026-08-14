@@ -30,7 +30,6 @@ use crate::catalog::filebundle::FileBundle;
 use crate::catalog::keyword::Keyword;
 use crate::catalog::label::Label;
 use crate::catalog::libfolder::LibFolder;
-use crate::catalog::props::NiepceProperties as Np;
 use crate::catalog::props::NiepcePropertyIdx as Npi;
 use crate::catalog::{CatalogDb, LibError};
 use crate::libraryclient::ClientCallback;
@@ -510,7 +509,7 @@ pub fn cmd_set_metadata(
             if catalog
                 .notify(LibNotification::MetadataChanged(MetadataChange::new(
                     id,
-                    Np::Index(meta),
+                    meta,
                     value.clone(),
                 )))
                 .is_err()

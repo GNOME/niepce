@@ -1,7 +1,7 @@
 /*
  * niepce - engine/library/notification.rs
  *
- * Copyright (C) 2017-2025 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 use super::queriedcontent::QueriedContent;
 use crate::catalog::libfile::FileStatus;
-use crate::catalog::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepceProperties};
+use crate::catalog::{Album, Keyword, Label, LibFolder, LibMetadata, LibraryId, NiepcePropertyIdx};
 use npc_fwk::PropertyValue;
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::toolkit::thumbnail;
@@ -58,12 +58,12 @@ pub struct FolderReparent {
 #[derive(Clone, Debug)]
 pub struct MetadataChange {
     pub id: LibraryId,
-    pub meta: NiepceProperties,
+    pub meta: NiepcePropertyIdx,
     pub value: PropertyValue,
 }
 
 impl MetadataChange {
-    pub fn new(id: LibraryId, meta: NiepceProperties, value: PropertyValue) -> Self {
+    pub fn new(id: LibraryId, meta: NiepcePropertyIdx, value: PropertyValue) -> Self {
         MetadataChange { id, meta, value }
     }
 }

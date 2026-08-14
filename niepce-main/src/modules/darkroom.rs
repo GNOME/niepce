@@ -32,7 +32,6 @@ use npc_fwk::{adw, gtk4};
 use crate::niepce::ui::LibraryModule;
 use image_canvas::ImageCanvas;
 use npc_craw::{RenderImpl, RenderWorker};
-use npc_engine::catalog::NiepceProperties as Np;
 use npc_engine::catalog::NiepcePropertyIdx as Npi;
 use npc_engine::catalog::{self, LibMetadata, LibraryId};
 use npc_engine::library::notification::{ImageRendered, LibNotification, MetadataChange};
@@ -213,9 +212,7 @@ impl DarkroomModule {
 
     /// We received a metadata change.
     fn metadata_change_received(&self, changed: &MetadataChange) {
-        if self.is_current_file_id(changed.id)
-            && changed.meta == Np::Index(Npi::NiepceRenderEngineProp)
-        {
+        if self.is_current_file_id(changed.id) && changed.meta == Npi::NiepceRenderEngineProp {
             if let Some(engine) = changed.value.string() {
                 self.set_engine(engine);
             }
