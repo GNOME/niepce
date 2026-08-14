@@ -32,7 +32,7 @@ use std::thread;
 
 use crate::NiepcePropertyBag;
 use crate::catalog::filebundle::FileBundle;
-use crate::catalog::props::NiepceProperties as Np;
+use crate::catalog::props::NiepcePropertyIdx as Npi;
 use crate::catalog::{CatalogDb, LibFolder, LibraryId};
 use crate::library::commands;
 use crate::library::notification::LcChannel;
@@ -271,7 +271,7 @@ impl ClientInterface for LibraryClientSender {
     }
 
     /// set the metadata
-    fn set_metadata(&self, file_id: LibraryId, meta: Np, value: &PropertyValue) {
+    fn set_metadata(&self, file_id: LibraryId, meta: Npi, value: &PropertyValue) {
         let value2 = value.clone();
         self.schedule_op(move |catalog| {
             commands::cmd_set_metadata(catalog, file_id, meta, &value2)

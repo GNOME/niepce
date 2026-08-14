@@ -18,6 +18,7 @@
  */
 
 use super::NiepceProperties as Np;
+use super::NiepcePropertyIdx as Npi;
 use super::libfile::FileType;
 use super::props;
 use super::{FromDb, LibraryId};
@@ -46,7 +47,7 @@ struct IndexToXmp {
     pub property: &'static str,
 }
 
-fn property_index_to_xmp(meta: Np) -> Option<IndexToXmp> {
+fn property_index_to_xmp(meta: Npi) -> Option<IndexToXmp> {
     props::PROP_TO_XMP_MAP.get(&meta).map(|t| IndexToXmp {
         ns: t.0,
         property: t.1,
@@ -78,7 +79,7 @@ impl LibMetadata {
         self.xmp_meta.serialize_inline()
     }
 
-    pub fn get_metadata(&self, meta: Np) -> Option<PropertyValue> {
+    pub fn get_metadata(&self, meta: Npi) -> Option<PropertyValue> {
         let index_to_xmp = property_index_to_xmp(meta)?;
 
         let mut prop_flags = exempi2::PropFlags::default();
@@ -100,7 +101,7 @@ impl LibMetadata {
         Some(PropertyValue::String(String::from(&xmp_result.ok()?)))
     }
 
-    pub fn set_metadata(&mut self, meta: Np, value: &PropertyValue) -> bool {
+    pub fn set_metadata(&mut self, meta: Npi, value: &PropertyValue) -> bool {
         if let Some(ix) = property_index_to_xmp(meta) {
             match *value {
                 PropertyValue::Empty => {
@@ -250,12 +251,15 @@ impl LibMetadata {
                 Np::Index(Npi::SidecarsProp) => {
                     props.set_value(*prop_id, PropertyValue::StringArray(self.sidecars.clone()));
                 }
-                _ => {
-                    if let Some(propval) = self.get_metadata(*prop_id) {
+                Np::Index(idx) => {
+                    if let Some(propval) = self.get_metadata(idx) {
                         props.set_value(*prop_id, propval);
                     } else {
-                        dbg_out!("missing prop {:?}", prop_id);
+                        dbg_out!("missing prop {:?}", idx);
                     }
+                }
+                _ => {
+                    err_out!("We don't handle {:?}", prop_id);
                 }
             }
         }

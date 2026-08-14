@@ -21,7 +21,7 @@ use std::path::PathBuf;
 
 use crate::NiepcePropertyBag;
 use crate::catalog::filebundle::FileBundle;
-use crate::catalog::props::NiepceProperties as Np;
+use crate::catalog::props::NiepcePropertyIdx as Npi;
 use crate::catalog::{LibFolder, LibraryId};
 use npc_fwk::base::{PropertyValue, RgbColour};
 
@@ -67,7 +67,7 @@ pub trait ClientInterface {
 
     fn request_metadata(&self, id: LibraryId);
     /// set the metadata
-    fn set_metadata(&self, id: LibraryId, meta: Np, value: &PropertyValue);
+    fn set_metadata(&self, id: LibraryId, meta: Npi, value: &PropertyValue);
     /// set some properties for an image.
     fn set_image_properties(&self, id: LibraryId, props: &NiepcePropertyBag);
     fn write_metadata(&self, id: LibraryId);

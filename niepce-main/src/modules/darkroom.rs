@@ -80,7 +80,7 @@ impl Controller for DarkroomModule {
                 if let Some(ref file) = *self.file.borrow() {
                     self.client.client().set_metadata(
                         file.id(),
-                        Np::Index(Npi::NiepceRenderEngineProp),
+                        Npi::NiepceRenderEngineProp,
                         &npc_fwk::base::PropertyValue::String(engine.key().to_string()),
                     );
                 }
@@ -314,7 +314,7 @@ impl DarkroomModule {
         // If we have metadata, use them.
         let engine = file.metadata().and_then(|metadata| {
             metadata
-                .get_metadata(Np::Index(Npi::NiepceRenderEngineProp))?
+                .get_metadata(Npi::NiepceRenderEngineProp)?
                 .string()
                 .and_then(RenderEngine::from_key)
         });
@@ -324,7 +324,7 @@ impl DarkroomModule {
                 let e = RenderEngine::default();
                 self.client.client().set_metadata(
                     file.id(),
-                    Np::Index(Npi::NiepceRenderEngineProp),
+                    Npi::NiepceRenderEngineProp,
                     &npc_fwk::base::PropertyValue::String(e.key().to_string()),
                 );
                 e

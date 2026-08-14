@@ -1332,24 +1332,24 @@ impl CatalogDb {
     pub(crate) fn set_metadata(
         &self,
         file_id: LibraryId,
-        meta: Np,
+        meta: Npi,
         value: &PropertyValue,
     ) -> Result<()> {
         #[allow(non_upper_case_globals)]
         match meta {
-            Np::Index(Npi::XmpRatingProp)
-            | Np::Index(Npi::XmpLabelProp)
-            | Np::Index(Npi::TiffOrientationProp)
-            | Np::Index(Npi::NiepceFlagProp) => {
+            Npi::XmpRatingProp
+            | Npi::XmpLabelProp
+            | Npi::TiffOrientationProp
+            | Npi::NiepceFlagProp => {
                 match *value {
                     PropertyValue::Int(i) => {
                         // internal
                         // make the column mapping more generic.
                         let column = match meta {
-                            Np::Index(Npi::XmpRatingProp) => "rating",
-                            Np::Index(Npi::XmpLabelProp) => "label",
-                            Np::Index(Npi::TiffOrientationProp) => "orientation",
-                            Np::Index(Npi::NiepceFlagProp) => "flag",
+                            Npi::XmpRatingProp => "rating",
+                            Npi::XmpLabelProp => "label",
+                            Npi::TiffOrientationProp => "orientation",
+                            Npi::NiepceFlagProp => "flag",
                             _ => unreachable!(),
                         };
                         if !column.is_empty() {
@@ -1359,7 +1359,7 @@ impl CatalogDb {
                     _ => err_out!("improper value type for {:?}", meta),
                 }
             }
-            Np::Index(Npi::IptcKeywordsProp) => {
+            Npi::IptcKeywordsProp => {
                 self.unassign_all_keywords_for_file(file_id)?;
 
                 match value {

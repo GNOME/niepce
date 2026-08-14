@@ -30,7 +30,6 @@ use super::image_list_store::ImageListStore;
 use crate::NiepceApplication;
 use npc_engine::ThumbnailCache;
 use npc_engine::catalog;
-use npc_engine::catalog::props::NiepceProperties as Np;
 use npc_engine::catalog::{LibFile, NiepcePropertyIdx};
 use npc_engine::library::notification::LibNotification;
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
@@ -199,11 +198,11 @@ impl SelectionController {
             &app,
             undo_label,
             Box::new(move || {
-                client_redo.set_metadata(file_id, Np::Index(meta), &PropertyValue::Int(new_value));
+                client_redo.set_metadata(file_id, meta, &PropertyValue::Int(new_value));
                 npc_fwk::toolkit::Storage::Void
             }),
             Box::new(move |_| {
-                client_undo.set_metadata(file_id, Np::Index(meta), &PropertyValue::Int(old_value));
+                client_undo.set_metadata(file_id, meta, &PropertyValue::Int(old_value));
             }),
         );
         true
@@ -220,19 +219,20 @@ impl SelectionController {
         for key in props.keys() {
             let old_value = old.get(key).cloned().unwrap_or(PropertyValue::Empty);
             let new_value = props.get(key).cloned().unwrap();
-            let key = *key;
-            let client_undo = self.client.clone();
-            let client_redo = self.client.clone();
-            let command = UndoCommand::new(
-                Box::new(move || {
-                    client_redo.set_metadata(file_id, Np::from(key), &new_value);
-                    npc_fwk::toolkit::Storage::Void
-                }),
-                Box::new(move |_| {
-                    client_undo.set_metadata(file_id, Np::from(key), &old_value);
-                }),
-            );
-            undo.add(command);
+            if let Ok(key) = NiepcePropertyIdx::try_from(*key) {
+                let client_undo = self.client.clone();
+                let client_redo = self.client.clone();
+                let command = UndoCommand::new(
+                    Box::new(move || {
+                        client_redo.set_metadata(file_id, key, &new_value);
+                        npc_fwk::toolkit::Storage::Void
+                    }),
+                    Box::new(move |_| {
+                        client_undo.set_metadata(file_id, key, &old_value);
+                    }),
+                );
+                undo.add(command);
+            }
         }
         undo.execute();
         let app = Weak::upgrade(&self.app).unwrap();

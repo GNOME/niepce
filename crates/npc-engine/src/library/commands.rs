@@ -31,6 +31,7 @@ use crate::catalog::keyword::Keyword;
 use crate::catalog::label::Label;
 use crate::catalog::libfolder::LibFolder;
 use crate::catalog::props::NiepceProperties as Np;
+use crate::catalog::props::NiepcePropertyIdx as Npi;
 use crate::catalog::{CatalogDb, LibError};
 use crate::libraryclient::ClientCallback;
 use import::CatalogDbImportHelper;
@@ -501,7 +502,7 @@ pub fn cmd_query_folder_content(catalog: &CatalogDb, folder_id: LibraryId) -> bo
 pub fn cmd_set_metadata(
     catalog: &CatalogDb,
     id: LibraryId,
-    meta: Np,
+    meta: Npi,
     value: &PropertyValue,
 ) -> bool {
     match catalog.set_metadata(id, meta, value) {
@@ -509,7 +510,7 @@ pub fn cmd_set_metadata(
             if catalog
                 .notify(LibNotification::MetadataChanged(MetadataChange::new(
                     id,
-                    meta,
+                    Np::Index(meta),
                     value.clone(),
                 )))
                 .is_err()
