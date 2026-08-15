@@ -4,7 +4,7 @@
     "runtime-version": "master",
     "sdk" : "org.gnome.Sdk",
     "sdk-extensions" : [
-        "org.freedesktop.Sdk.Extension.llvm21",
+        "org.freedesktop.Sdk.Extension.llvm22",
         "org.freedesktop.Sdk.Extension.rust-stable"
     ],
     "command" : "niepce",
@@ -29,8 +29,8 @@
         "test-args": [
             "--share=network"
         ],
-        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm21/bin",
-        "prepend-ld-library-path": "/usr/lib/sdk/llvm21/lib"
+        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm22/bin",
+        "prepend-ld-library-path": "/usr/lib/sdk/llvm22/lib"
     },
     "cleanup": [
         "/include",
