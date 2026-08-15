@@ -44,7 +44,8 @@ pub enum MetaDT {
     Frac,
     FracDec, // Fraction as decimal
     StarRating,
-    Size, // Size in bytes
+    Size,                 // Size in bytes
+    Choices(Vec<String>), // String choices.
 }
 
 #[derive(Clone)]
@@ -189,6 +190,7 @@ mod imp {
                 entry.upcast()
             }
         }
+
         fn create_string_widget(&self, readonly: bool, id: u32) -> gtk4::Widget {
             if readonly {
                 let label = gtk4::Label::new(None);
@@ -247,6 +249,10 @@ mod imp {
             self.create_string_widget(readonly, id)
         }
 
+        fn create_choice_widget(&self, id: u32, _choices: &[String]) -> gtk4::Widget {
+            self.create_string_widget(true, id)
+        }
+
         fn create_widgets_for_format(&self, fmt: &MetadataSectionFormat) {
             for (i, f) in fmt.formats.iter().enumerate() {
                 let label = gtk4::Label::new(Some(&format!("<b>{}</b>", f.label)));
@@ -262,7 +268,14 @@ mod imp {
                     MetaDT::StringArray => self.create_string_array_widget(f.readonly, f.id),
                     MetaDT::Text => self.create_text_widget(f.readonly, f.id),
                     MetaDT::Date => self.create_date_widget(f.readonly, f.id),
-                    _ => self.create_string_widget(f.readonly, f.id),
+                    MetaDT::String | MetaDT::Frac | MetaDT::FracDec | MetaDT::Size => {
+                        self.create_string_widget(f.readonly, f.id)
+                    }
+                    MetaDT::Choices(ref choices) => self.create_choice_widget(f.id, choices),
+                    MetaDT::None => {
+                        err_out!("Widget to data type None");
+                        self.create_string_widget(true, f.id)
+                    }
                 };
                 let row = i as i32;
                 self.widget.insert_row(row + 1);
@@ -290,13 +303,17 @@ mod imp {
                 MetaDT::StringArray => self.set_string_array_data(w, fmt.readonly, value),
                 MetaDT::Text => self.set_text_data(w, fmt.readonly, value),
                 MetaDT::Date => self.set_date_data(w, value),
-                _ => {
+                MetaDT::String | MetaDT::Size | MetaDT::Choices(_) => {
                     if !self.set_text_data(w, fmt.readonly, value) {
                         err_out!("failed to set value for {}", fmt.id);
                         false
                     } else {
                         true
                     }
+                }
+                MetaDT::None => {
+                    err_out!("Setting value {} of type None", fmt.id);
+                    false
                 }
             };
         }
