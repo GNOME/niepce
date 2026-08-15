@@ -1,7 +1,7 @@
 /*
  * niepce - npc_fwk/toolkit/gphoto.rs
  *
- * Copyright (C) 2009-2025 Hubert Figuière
+ * Copyright (C) 2009-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -214,7 +214,7 @@ impl GpCamera {
             .map(|iter| {
                 iter.map(|name| {
                     dbg_out!("Found folder '{}'", &name);
-                    root_folder.to_owned() + "/" + &name
+                    format!("{}/{name}", root_folder)
                 })
                 .take_while(|_| !terminate())
                 .flat_map(|folder| {
@@ -248,7 +248,7 @@ impl GpCamera {
         let device_id = if let Some(comma) = device_path.find(',') {
             device_path.replace_range(comma..=comma, "/");
             // XXX this is specific to Linux
-            "/dev/bus/".to_owned() + &device_path
+            format!("/dev/bus/{device_path}")
         } else {
             err_out!("Device {} is not USB", &device_path);
             return false;

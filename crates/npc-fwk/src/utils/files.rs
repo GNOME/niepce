@@ -169,8 +169,7 @@ pub fn normalize_for_display<P: AsRef<Path>, Q: AsRef<Path>>(
     if from_home {
         let home = std::env::home_dir().ok_or(anyerror!("HOME dir not found"))?;
         if let Ok(stripped) = path.strip_prefix(home) {
-            let norm = stripped.to_string_lossy();
-            let norm = "~/".to_string() + &norm;
+            let norm = format!("~/{}", stripped.to_string_lossy());
             return Ok(norm);
         }
     }
