@@ -2246,6 +2246,7 @@ dependencies = [
  "gphoto2",
  "gstreamer",
  "gtk4",
+ "humanize-bytes",
  "image",
  "lazy_static",
  "libadwaita",

@@ -303,7 +303,16 @@ mod imp {
                 MetaDT::StringArray => self.set_string_array_data(w, fmt.readonly, value),
                 MetaDT::Text => self.set_text_data(w, fmt.readonly, value),
                 MetaDT::Date => self.set_date_data(w, value),
-                MetaDT::String | MetaDT::Size | MetaDT::Choices(_) => {
+                MetaDT::Size => {
+                    if let PropertyValue::Int(v) = value {
+                        use humanize_bytes::humanize_bytes_decimal;
+                        let value = humanize_bytes_decimal!(*v);
+                        self.set_text_data_str(w, fmt.readonly, &value)
+                    } else {
+                        self.set_text_data(w, fmt.readonly, value)
+                    }
+                }
+                MetaDT::String | MetaDT::Choices(_) => {
                     if !self.set_text_data(w, fmt.readonly, value) {
                         err_out!("failed to set value for {}", fmt.id);
                         false
@@ -435,28 +444,34 @@ mod imp {
             false
         }
 
+        /// Set the text_data from a string. Bypasses [`PropertyValue`].
+        /// Return false in case of error like incorrect widget type.
+        fn set_text_data_str(&self, w: &gtk4::Widget, readonly: bool, s: &str) -> bool {
+            if readonly {
+                if let Some(w) = w.downcast_ref::<gtk4::Label>() {
+                    w.set_text(s);
+                    true
+                } else {
+                    err_out!("Incorrect widget type {}", w.type_().name());
+                    false
+                }
+            } else {
+                if let Some(w) = w.downcast_ref::<gtk4::Entry>() {
+                    w.set_text(s);
+                    true
+                } else if let Some(w) = w.downcast_ref::<gtk4::TextView>() {
+                    w.buffer().set_text(s);
+                    true
+                } else {
+                    err_out!("Incorrect widget type for text: {}", w.type_().name());
+                    false
+                }
+            }
+        }
+
         fn set_text_data(&self, w: &gtk4::Widget, readonly: bool, value: &PropertyValue) -> bool {
             if let Some(s) = value.string() {
-                if readonly {
-                    return if let Some(w) = w.downcast_ref::<gtk4::Label>() {
-                        w.set_text(s);
-                        true
-                    } else {
-                        err_out!("Incorrect widget type {}", w.type_().name());
-                        false
-                    };
-                } else {
-                    return if let Some(w) = w.downcast_ref::<gtk4::Entry>() {
-                        w.set_text(s);
-                        true
-                    } else if let Some(w) = w.downcast_ref::<gtk4::TextView>() {
-                        w.buffer().set_text(s);
-                        true
-                    } else {
-                        err_out!("Incorrect widget type for text: {}", w.type_().name());
-                        false
-                    };
-                }
+                return self.set_text_data_str(w, readonly, s);
             }
 
             err_out!("Data not a string");
