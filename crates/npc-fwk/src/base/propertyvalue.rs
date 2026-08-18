@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/base/propertyvalue.rs
  *
- * Copyright (C) 2017-2024 Hubert Figuière
+ * Copyright (C) 2017-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ use crate::glib;
 
 use super::date::Date;
 
-#[derive(Clone, Debug, glib::Boxed)]
+#[derive(Clone, Debug, PartialEq, glib::Boxed)]
 #[boxed_type(name = "PropertyValue")]
 pub enum PropertyValue {
     Empty,

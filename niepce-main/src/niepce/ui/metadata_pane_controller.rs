@@ -194,14 +194,7 @@ impl MetadataPaneController {
 
             // XXX this is bad performance. The problem is the widget
             // is generic and uses generic properties.
-            //
-            // Also can we implement this as `From<>` ?
-            let mut into = PropertyBag::<u32>::new();
-            for key in properties.bag.iter() {
-                if let Some(elem) = properties.map.get(key) {
-                    into.set_value((*key) as u32, elem.clone());
-                }
-            }
+            let into = PropertyBag::<u32>::from(properties);
             // XXX we have multiple copies of the property bag. That's not a good idea.
             for element in &self.widgets {
                 element.0.set_data_source(Some(into.clone()));

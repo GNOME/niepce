@@ -20,6 +20,7 @@
 use lazy_static::lazy_static;
 use maplit::hashmap;
 
+use npc_fwk::PropertyIndex;
 use npc_fwk::utils::xmp::{NS_DC, NS_EXIF, NS_EXIF_AUX, NS_PHOTOSHOP, NS_TIFF, NS_XMP};
 
 use crate::metadata::xmp;
@@ -58,6 +59,14 @@ pub enum NiepcePropertyIdx {
     NiepceXmpPacket,
     // Always keep this last.
     _PropertyEnd,
+}
+
+impl PropertyIndex for NiepcePropertyIdx {}
+
+impl From<NiepcePropertyIdx> for u32 {
+    fn from(pi: NiepcePropertyIdx) -> u32 {
+        pi as u32
+    }
 }
 
 impl TryFrom<u32> for NiepcePropertyIdx {
