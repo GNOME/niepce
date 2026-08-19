@@ -96,7 +96,7 @@ lazy_static::lazy_static! {
     };
 }
 
-pub fn get_format() -> &'static [MetadataSectionFormat] {
+fn formats() -> &'static [MetadataSectionFormat] {
     &FORMATS
 }
 
@@ -154,7 +154,7 @@ impl MetadataPaneController {
     }
 
     fn build_property_set(&mut self) {
-        let formats = get_format();
+        let formats = formats();
         for current in formats {
             for format in &current.formats {
                 self.propset
@@ -165,7 +165,7 @@ impl MetadataPaneController {
 
     fn build_widget(&mut self) {
         self.build_property_set();
-        let formats = get_format();
+        let formats = formats();
         for current in formats {
             let w = MetadataWidget::new(&current.section);
             self.vbox.append(&w);
@@ -202,6 +202,21 @@ impl MetadataPaneController {
         } else {
             for element in &self.widgets {
                 element.0.set_data_source(None);
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use npc_engine::catalog::NiepcePropertyIdx;
+
+    #[test]
+    fn test_format_valid_properties() {
+        let formats = super::formats();
+        for current in formats {
+            for format in &current.formats {
+                NiepcePropertyIdx::try_from(format.id).unwrap();
             }
         }
     }
