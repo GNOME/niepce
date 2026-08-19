@@ -25,7 +25,7 @@ use npc_fwk::{gdk4, gio, glib, gtk4};
 
 use npc_engine::catalog;
 use npc_engine::library::notification::LibNotification;
-use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
+use npc_engine::libraryclient::{LibraryClient, LibraryClientHost};
 use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::widgets::MetadataPropertyBag;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
@@ -191,15 +191,15 @@ impl GridViewModule {
         }
     }
 
-    pub fn on_lib_notification(&self, ln: &LibNotification, client: &Arc<LibraryClient>) {
+    pub fn on_lib_notification(&self, ln: &LibNotification, _client: &Arc<LibraryClient>) {
         match ln {
             LibNotification::MetadataQueried(lm) => {
                 self.metadatapanecontroller.display(lm.id(), Some(lm));
             }
-            LibNotification::MetadataChanged(lm)
-                if lm.id != 0 && self.metadatapanecontroller.displayed() == lm.id =>
+            LibNotification::MetadataChanged(change)
+                if change.id != 0 && self.metadatapanecontroller.displayed() == change.id =>
             {
-                client.request_metadata(lm.id);
+                self.metadatapanecontroller.update(change);
             }
             _ => (),
         }

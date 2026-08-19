@@ -23,7 +23,7 @@ use glib::prelude::*;
 use gtk4::subclass::prelude::*;
 
 use super::ToolboxItem;
-use crate::PropertyBag;
+use crate::{PropertyBag, PropertyValue};
 
 pub type MetadataPropertyBag = PropertyBag<u32>;
 
@@ -98,6 +98,11 @@ impl MetadataWidget {
 
     pub fn set_data_format(&self, fmt: Option<MetadataSectionFormat>) {
         self.imp().set_data_format(fmt);
+    }
+
+    /// Update data for `property`.
+    pub fn update_data(&self, property: u32, value: PropertyValue) {
+        self.imp().update_data(property, value);
     }
 }
 
@@ -325,6 +330,18 @@ mod imp {
                     false
                 }
             };
+        }
+
+        pub(super) fn update_data(&self, property: u32, value: PropertyValue) {
+            if let Some(fmt) = self.fmt.borrow().as_ref() {
+                fmt.formats
+                    .iter()
+                    .find(|f| f.id == property)
+                    .inspect(|fmt| self.add_data(fmt, &value));
+            }
+            if let Some(properties) = self.current_data.borrow_mut().as_mut() {
+                properties.set_value(property, value);
+            }
         }
 
         pub(super) fn set_data_format(&self, fmt: Option<MetadataSectionFormat>) {

@@ -28,6 +28,7 @@ use npc_fwk::{glib, gtk4};
 use npc_engine::NiepcePropertySet;
 use npc_engine::catalog;
 use npc_engine::catalog::NiepcePropertyIdx;
+use npc_engine::library::notification::MetadataChange;
 use npc_fwk::toolkit::widgets::MetadataPropertyBag;
 use npc_fwk::toolkit::widgets::{MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget};
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
@@ -203,6 +204,18 @@ impl MetadataPaneController {
             for element in &self.widgets {
                 element.0.set_data_source(None);
             }
+        }
+    }
+
+    /// Update the metadata.
+    pub fn update(&self, change: &MetadataChange) {
+        if change.id != self.fileid.get() {
+            return;
+        }
+        for element in &self.widgets {
+            element
+                .0
+                .update_data(change.meta as u32, change.value.clone());
         }
     }
 }
