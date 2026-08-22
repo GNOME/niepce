@@ -21,13 +21,23 @@ use crate::glib;
 
 use super::date::Date;
 
-#[derive(Clone, Debug, PartialEq, glib::Boxed)]
+/// PropertyValue, a type checked value type. It is also glib boxed
+/// to allow passing it into glib properties.
+#[derive(Clone, Debug, Default, PartialEq, glib::Boxed)]
 #[boxed_type(name = "PropertyValue")]
 pub enum PropertyValue {
+    /// There is no value.
+    #[default]
     Empty,
+    /// The property is unset. This signal it should be removed.
+    Unset,
+    /// Integer value.
     Int(i32),
+    /// String value.
     String(String),
+    /// String array.
     StringArray(Vec<String>),
+    /// Date object.
     Date(Date),
 }
 
@@ -46,6 +56,10 @@ impl From<&str> for PropertyValue {
 impl PropertyValue {
     pub fn is_empty(&self) -> bool {
         matches!(*self, PropertyValue::Empty)
+    }
+
+    pub fn is_unset(&self) -> bool {
+        matches!(*self, PropertyValue::Unset)
     }
 
     pub fn is_integer(&self) -> bool {
@@ -81,6 +95,10 @@ impl PropertyValue {
         }
     }
 
+    /// Return a string without checking.
+    ///
+    /// # Panic
+    /// Will panic the property value isn't a string.
     pub fn string_unchecked(&self) -> &str {
         match *self {
             PropertyValue::String(ref s) => s,
@@ -93,5 +111,44 @@ impl PropertyValue {
             PropertyValue::StringArray(ref sa) => Some(sa),
             _ => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::PropertyValue;
+
+    #[test]
+    fn test_property_value() {
+        let value = PropertyValue::String("a string".into());
+
+        assert_eq!(value.string_unchecked(), "a string");
+        assert!(value.is_string());
+        assert!(!value.is_empty());
+        assert!(!value.is_unset());
+        assert!(!value.is_integer());
+        assert!(!value.is_date());
+        assert_eq!(value.string(), Some("a string"));
+        assert_eq!(value.integer(), None);
+        assert_eq!(value.date(), None);
+
+        let value = PropertyValue::Int(42);
+
+        assert!(!value.is_string());
+        assert!(!value.is_empty());
+        assert!(!value.is_unset());
+        assert!(value.is_integer());
+        assert!(!value.is_date());
+        assert_eq!(value.string(), None);
+        assert_eq!(value.integer(), Some(42));
+        assert_eq!(value.date(), None);
+    }
+
+    #[should_panic]
+    #[test]
+    fn test_property_value_that_should_panic() {
+        let value = PropertyValue::Int(42);
+
+        value.string_unchecked();
     }
 }

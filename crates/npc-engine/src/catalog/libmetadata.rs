@@ -103,7 +103,7 @@ impl LibMetadata {
     pub fn set_metadata(&mut self, meta: Npi, value: &PropertyValue) -> bool {
         if let Some(ix) = property_index_to_xmp(meta) {
             match *value {
-                PropertyValue::Empty => {
+                PropertyValue::Empty | PropertyValue::Unset => {
                     return self
                         .xmp_meta
                         .xmp
