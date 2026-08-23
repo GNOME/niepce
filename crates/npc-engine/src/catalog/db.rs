@@ -1028,7 +1028,8 @@ impl CatalogDb {
         folder_id: LibraryId,
         bundle: &FileBundle,
     ) -> Result<LibraryId> {
-        let file_id = self.add_file(folder_id, bundle.main(), bundle)?;
+        let meta = bundle.xmp_meta();
+        let file_id = self.add_file(folder_id, bundle.main(), meta.as_ref())?;
         if file_id <= 0 {
             err_out!("add_file returned {}", file_id);
             return Err(Error::InvalidResult);
@@ -1055,28 +1056,20 @@ impl CatalogDb {
         &self,
         folder_id: LibraryId,
         file: P,
-        bundle: &FileBundle,
+        meta: Option<&npc_fwk::XmpMeta>,
     ) -> Result<LibraryId> {
         dbg_assert!(folder_id != -1, "invalid folder ID");
         let file_path: &Path = file.as_ref();
         let mime = npc_fwk::MimeType::new(file_path);
         let file_type = libfile::mimetype_to_filetype(&mime);
         let label_id: LibraryId = 0;
-        let orientation: i32;
-        let rating: i32;
+        let mut orientation = 0_i32;
+        let mut rating = 0_i32;
         //let label: String; // XXX fixme
-        let flag: i32;
-        let creation_date: npc_fwk::Time;
+        let mut flag = 0_i32;
+        let mut creation_date: npc_fwk::Time = 0;
 
-        // Until we get better metadata support for RAW files, we use the Exif reconcile
-        // from the sidecar JPEG to get the initial metadata.
-        let meta = if bundle.bundle_type() == libfile::FileType::RawJpeg {
-            npc_fwk::XmpMeta::new_from_file(bundle.jpeg(), false)
-        } else {
-            npc_fwk::XmpMeta::new_from_file(file_path, false)
-        };
-
-        let xmp = if let Some(ref meta) = meta {
+        let xmp = meta.and_then(|meta| {
             orientation = meta.orientation().unwrap_or(0);
             rating = meta.rating().unwrap_or(0);
             //label = meta.label().unwrap_or(String::from(""));
@@ -1092,14 +1085,7 @@ impl CatalogDb {
                     err
                 })
                 .ok()
-        } else {
-            orientation = 0;
-            rating = 0;
-            //label = String::from("");
-            flag = 0;
-            creation_date = 0;
-            None
-        };
+        });
 
         let filename = file_path
             .file_name()
@@ -1140,8 +1126,7 @@ impl CatalogDb {
 
             if c == 1 {
                 let id = conn.last_insert_rowid();
-                if let Some(mut meta) = meta {
-                    let keywords = meta.keywords();
+                if let Some(keywords) = meta.and_then(npc_fwk::XmpMeta::keywords) {
                     for k in keywords {
                         let kwid = self.make_keywords(k.clone())?;
                         kwid.iter().for_each(|kid| {
@@ -1692,9 +1677,7 @@ pub(crate) mod test {
         assert_eq!(root_folders.len(), 1);
         assert_eq!(root_folders[0].path(), Some("/bar/foo"));
 
-        let mut bundle = FileBundle::new();
-        bundle.add("foo/myfile.jpg");
-        let file_id = catalog.add_file(folder_added.id(), "foo/myfile.jpg", &bundle);
+        let file_id = catalog.add_file(folder_added.id(), "foo/myfile.jpg", None);
         assert!(file_id.is_ok());
         let file_id = file_id.unwrap();
         assert!(file_id > 0);

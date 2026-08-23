@@ -88,7 +88,7 @@ pub struct FileBundle {
     xmp_sidecar: PathBuf,
     /// JPEG alternate for RAW_JPEG
     jpeg: PathBuf,
-    /// Other sidecars: Live, Thumbnail
+    /// Other sidecars: Live, Thumbnail, PP3
     sidecars: Vec<Sidecar>,
 }
 
@@ -217,6 +217,18 @@ impl FileBundle {
 
     pub fn sidecars(&self) -> &Vec<Sidecar> {
         &self.sidecars
+    }
+
+    /// Generate the XMP.
+    pub fn xmp_meta(&self) -> Option<npc_fwk::XmpMeta> {
+        // Until we get better metadata support for RAW files, we use
+        // the Exif reconcile from the sidecar JPEG to get the initial
+        // metadata.
+        if self.bundle_type() == super::FileType::RawJpeg {
+            npc_fwk::XmpMeta::new_from_file(self.jpeg(), false)
+        } else {
+            npc_fwk::XmpMeta::new_from_file(&self.main, false)
+        }
     }
 
     /// Return all the files in the bundle

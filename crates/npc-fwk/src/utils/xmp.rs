@@ -493,7 +493,14 @@ impl XmpMeta {
         }
     }
 
-    pub fn keywords(&mut self) -> &Vec<XmpKeyword> {
+    pub fn keywords(&self) -> Option<&[XmpKeyword]> {
+        if !self.keywords_fetched {
+            return None;
+        }
+        Some(&self.keywords)
+    }
+
+    pub fn load_keywords(&mut self) -> &[XmpKeyword] {
         if !self.keywords_fetched {
             if self.xmp.has_property(NS_LIGHTROOM, "hierarchicalSubject") {
                 let iter = exempi2::XmpIterator::new(
@@ -680,6 +687,8 @@ pub(crate) mod tests {
             assert_eq!(meta.orientation().unwrap_or(0), 1);
             // test keywords()
             let keywords = meta.keywords();
+            assert!(keywords.is_none());
+            let keywords = meta.load_keywords();
             assert_eq!(keywords.len(), 4, "Not enough keywords");
             assert_eq!(keywords[0], ["choir"].as_slice());
             assert_eq!(keywords[1], ["night"].as_slice());
@@ -688,6 +697,8 @@ pub(crate) mod tests {
                 keywords[3],
                 ["ontario", "ottawa", "parliament of canada"].as_slice()
             );
+            let keywords = meta.keywords();
+            assert!(keywords.is_some());
         } else {
             unreachable!();
         }
@@ -706,7 +717,7 @@ pub(crate) mod tests {
             let mut meta = meta.unwrap();
             assert_eq!(meta.orientation().unwrap_or(0), 1);
             // test keywords()
-            let keywords = meta.keywords();
+            let keywords = meta.load_keywords();
             assert_eq!(keywords.len(), 2, "Incorrect keywords count");
             assert_eq!(keywords[0], ["quebec", "outaouais", "gatineau"].as_slice());
             assert_eq!(keywords[1], ["stella bella blue"].as_slice());
