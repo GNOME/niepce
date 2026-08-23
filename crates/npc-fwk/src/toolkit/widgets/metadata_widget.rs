@@ -19,10 +19,10 @@
 
 use crate::glib;
 use crate::gtk4;
-use glib::prelude::*;
+use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
-use super::ToolboxItem;
+use super::{RatingLabel, TokenTextView, ToolboxItem};
 use crate::{PropertyBag, PropertyValue};
 
 pub type MetadataPropertyBag = PropertyBag<u32>;
@@ -60,6 +60,42 @@ pub struct MetadataFormat {
 pub struct MetadataSectionFormat {
     pub section: String,
     pub formats: Vec<MetadataFormat>,
+}
+
+/// A trait to handle Metadata data to widget.
+pub trait MetadataDataWidget {
+    /// Unset (clear) the data.
+    fn unset_metadata(&self);
+}
+
+impl MetadataDataWidget for gtk4::Label {
+    fn unset_metadata(&self) {
+        self.set_text("");
+    }
+}
+
+impl MetadataDataWidget for gtk4::Entry {
+    fn unset_metadata(&self) {
+        self.set_text("");
+    }
+}
+
+impl MetadataDataWidget for gtk4::TextView {
+    fn unset_metadata(&self) {
+        self.buffer().set_text("");
+    }
+}
+
+impl MetadataDataWidget for TokenTextView {
+    fn unset_metadata(&self) {
+        self.set_tokens(&[]);
+    }
+}
+
+impl MetadataDataWidget for RatingLabel {
+    fn unset_metadata(&self) {
+        self.set_rating(0);
+    }
 }
 
 glib::wrapper! {
@@ -121,20 +157,21 @@ mod imp {
     use super::super::prelude::*;
     use super::super::{RatingLabel, TokenTextView};
     use super::{
-        MetaDT, MetadataFormat, MetadataPropertyBag, MetadataSectionFormat, WrappedPropertyBag,
+        MetaDT, MetadataDataWidget, MetadataFormat, MetadataPropertyBag, MetadataSectionFormat,
+        WrappedPropertyBag,
     };
 
     fn clear_widget(widget: &gtk4::Widget) {
         if let Some(label) = widget.downcast_ref::<gtk4::Label>() {
-            label.set_text("");
+            label.unset_metadata();
         } else if let Some(entry) = widget.downcast_ref::<gtk4::Entry>() {
-            entry.set_text("");
+            entry.unset_metadata();
         } else if let Some(ttv) = widget.downcast_ref::<TokenTextView>() {
-            ttv.set_tokens(&[]);
+            ttv.unset_metadata();
         } else if let Some(tv) = widget.downcast_ref::<gtk4::TextView>() {
-            tv.buffer().set_text("");
+            tv.unset_metadata();
         } else if let Some(rating) = widget.downcast_ref::<RatingLabel>() {
-            rating.set_rating(0);
+            rating.unset_metadata();
         } else {
             err_out!("Unknow widget type {}", widget.type_().name());
         }
