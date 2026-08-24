@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use gettextrs::gettext as i18n;
+
 use crate::glib;
 use crate::gtk4;
 use gtk4::prelude::*;
@@ -66,11 +68,24 @@ pub struct MetadataSectionFormat {
 pub trait MetadataDataWidget {
     /// Unset (clear) the data.
     fn unset_metadata(&self);
+
+    /// Set mixed value
+    fn set_mixed(&self, mixed: bool);
 }
 
 impl MetadataDataWidget for gtk4::Label {
     fn unset_metadata(&self) {
         self.set_text("");
+    }
+
+    fn set_mixed(&self, mixed: bool) {
+        if mixed {
+            // Translation: This indicates the value is mixed
+            // (multiple values within the selection).
+            self.set_text(&i18n("<Mixed>"));
+        } else {
+            self.unset_metadata();
+        }
     }
 }
 
@@ -78,11 +93,31 @@ impl MetadataDataWidget for gtk4::Entry {
     fn unset_metadata(&self) {
         self.set_text("");
     }
+
+    fn set_mixed(&self, mixed: bool) {
+        if mixed {
+            // Translation: This indicates the value is mixed
+            // (multiple values within the selection).
+            self.set_placeholder_text(Some(&i18n("<Mixed>")));
+        } else {
+            self.set_placeholder_text(None);
+        }
+    }
 }
 
 impl MetadataDataWidget for gtk4::TextView {
     fn unset_metadata(&self) {
         self.buffer().set_text("");
+    }
+
+    fn set_mixed(&self, mixed: bool) {
+        if mixed {
+            // Translation: This indicates the value is mixed
+            // (multiple values within the selection).
+            self.buffer().set_text(&i18n("<Mixed>"));
+        } else {
+            self.unset_metadata();
+        }
     }
 }
 
@@ -90,10 +125,17 @@ impl MetadataDataWidget for TokenTextView {
     fn unset_metadata(&self) {
         self.set_tokens(&[]);
     }
+
+    /// On the TokenTextView this is handled separately.
+    fn set_mixed(&self, _mixed: bool) {}
 }
 
 impl MetadataDataWidget for RatingLabel {
     fn unset_metadata(&self) {
+        self.set_rating(0);
+    }
+
+    fn set_mixed(&self, _mixed: bool) {
         self.set_rating(0);
     }
 }
@@ -416,26 +458,34 @@ mod imp {
         }
 
         fn set_fraction_dec_data(&self, w: &gtk4::Widget, value: &PropertyValue) -> bool {
-            if let Some(s) = value.string() {
-                dbg_out!("set faction dec {}", s);
-                return if let Some(w) = w.downcast_ref::<gtk4::Label>() {
-                    let dec_str = crate::fraction_to_decimal(s)
-                        .map(|dec| dec.to_string())
-                        .unwrap_or_else(|| "NaN".to_string());
-
-                    w.set_text(&dec_str);
+            match value {
+                PropertyValue::String(s) => {
+                    dbg_out!("set faction dec {}", s);
+                    if let Some(w) = w.downcast_ref::<gtk4::Label>() {
+                        let dec_str = crate::fraction_to_decimal(s)
+                            .map(|dec| dec.to_string())
+                            .unwrap_or_else(|| "NaN".to_string());
+                        w.set_text(&dec_str);
+                        true
+                    } else {
+                        err_out!(
+                            "Incorrect widget type for fraction_dec: {}",
+                            w.type_().name()
+                        );
+                        false
+                    }
+                }
+                PropertyValue::Mixed => {
+                    if let Some(w) = w.downcast_ref::<gtk4::Label>() {
+                        w.set_mixed(true);
+                    }
                     true
-                } else {
-                    err_out!(
-                        "Incorrect widget type for fraction_dec: {}",
-                        w.type_().name()
-                    );
+                }
+                _ => {
+                    err_out!("Data not a string");
                     false
-                };
+                }
             }
-
-            err_out!("Data not a string");
-            false
         }
 
         fn set_fraction_data(&self, w: &gtk4::Widget, value: &PropertyValue) -> bool {
@@ -481,9 +531,9 @@ mod imp {
             readonly: bool,
             value: &PropertyValue,
         ) -> bool {
-            if let Some(tokens) = value.string_array() {
+            if let Some(tokens) = value.mixed_string_array() {
                 return if let Some(w) = w.downcast_ref::<TokenTextView>() {
-                    w.set_tokens(tokens);
+                    w.set_tokens(&tokens);
                     w.set_editable(!readonly);
                     true
                 } else {

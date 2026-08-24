@@ -31,7 +31,7 @@ pub trait PropertyIndex {}
 ///
 /// Insertion and lookup are same as for BTreeMap.
 /// Removal is as long as lookup in a vector: O(n).
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PropertyBag<Index> {
     pub bag: Vec<Index>,
     pub map: BTreeMap<Index, PropertyValue>,
@@ -95,6 +95,24 @@ impl<Index: Ord + Copy> PropertyBag<Index> {
         self.bag.push(key);
         false
     }
+
+    pub fn merge_mixed(&mut self, bag: Self) {
+        // XXX manage MixedStringArray
+        bag.map.iter().for_each(|(key, value)| {
+            if self.map.get(key) != Some(value) {
+                self.set_value(*key, PropertyValue::Mixed);
+            }
+        });
+        let missing = self
+            .bag
+            .iter()
+            .filter(|key| !bag.bag.contains(key))
+            .copied()
+            .collect::<Vec<_>>();
+        missing.iter().for_each(|key| {
+            self.set_value(*key, PropertyValue::Mixed);
+        });
+    }
 }
 
 #[cfg(test)]
@@ -108,6 +126,7 @@ mod test {
         TestProp3,
         AnotherProp,
         UnsetProp,
+        FifthProp,
     }
 
     impl PropertyIndex for TestProperty {}
@@ -163,5 +182,51 @@ mod test {
         );
 
         assert_eq!(bag2.len(), bag_len);
+    }
+
+    #[test]
+    fn test_merge_mixed() {
+        let mut bag = create_test_bag();
+
+        let other = create_test_bag();
+
+        bag.merge_mixed(other);
+        assert_eq!(bag.len(), 3);
+        assert_eq!(bag, create_test_bag());
+
+        let mut another = create_test_bag();
+        another.set_value(TestProperty::TestProp3, PropertyValue::Int(5));
+
+        // Test that different values lead to Mixed.
+        bag.merge_mixed(another.clone());
+        assert_eq!(
+            bag.get(&TestProperty::TestProp3),
+            Some(&PropertyValue::Mixed),
+            "Differing property should be Mixed"
+        );
+
+        // Test that a property in the source not in target lead to
+        // Mixed
+        another.set_value(
+            TestProperty::UnsetProp,
+            PropertyValue::String("unset".into()),
+        );
+        bag.merge_mixed(another.clone());
+        assert_eq!(
+            bag.get(&TestProperty::UnsetProp),
+            Some(&PropertyValue::Mixed),
+            "Property in source not target should be Mixed"
+        );
+
+        bag.set_value(TestProperty::FifthProp, PropertyValue::Int(14));
+
+        bag.merge_mixed(another);
+        assert_eq!(
+            bag.get(&TestProperty::FifthProp),
+            Some(&PropertyValue::Mixed),
+            "Property in target and not source should be Mixed"
+        );
+
+        println!("bag: {bag:?}");
     }
 }

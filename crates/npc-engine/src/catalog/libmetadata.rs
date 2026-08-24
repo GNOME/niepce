@@ -189,6 +189,9 @@ impl LibMetadata {
                         )
                         .is_ok();
                 }
+                PropertyValue::Mixed | PropertyValue::MixedStringArray(_) => {
+                    err_out!("Can't set property of type MixedStringArray");
+                }
             }
             err_out!("error setting property {}:{}", ix.ns, ix.property);
             return false;

@@ -1,7 +1,7 @@
 /*
  * niepce - fwk/toolkit/widgets/token_text_view.rs
  *
- * Copyright (C) 2022-2025 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+use crate::base::propertyvalue::MixedString;
 
 use crate::glib;
 use crate::gtk4;
@@ -39,17 +41,55 @@ impl TokenTextView {
             .build()
     }
 
+    fn text_to_tokens(text: &str) -> Vec<String> {
+        text.split(',')
+            .filter_map(|s| {
+                if s.ends_with('*') {
+                    None
+                } else {
+                    Some(s.to_string())
+                }
+            })
+            .collect()
+    }
+
+    fn text_to_mixed_tokens(text: &str) -> Vec<MixedString> {
+        text.split(',')
+            .map(|s| {
+                if s.ends_with('*') {
+                    MixedString::Mix(s.trim_end_matches("*").to_string())
+                } else {
+                    MixedString::Str(s.to_string())
+                }
+            })
+            .collect()
+    }
+
     /// Get the tokens from the text.
     pub fn tokens(&self) -> Vec<String> {
         let start = self.buffer().start_iter();
         let end = self.buffer().end_iter();
         let text = self.buffer().text(&start, &end, true);
-        text.split(',').map(|s| s.to_string()).collect()
+        Self::text_to_tokens(&text)
     }
 
-    /// Set tht tokens.
-    pub fn set_tokens(&self, tokens: &[String]) {
-        let text = tokens.join(",");
+    /// Get the mixed tokens from the text.
+    pub fn mixed_tokens(&self) -> Vec<MixedString> {
+        let start = self.buffer().start_iter();
+        let end = self.buffer().end_iter();
+        let text = self.buffer().text(&start, &end, true);
+        Self::text_to_mixed_tokens(&text)
+    }
+
+    /// Set the tokens.
+    pub fn set_tokens(&self, tokens: &[MixedString]) {
+        let text = tokens
+            .iter()
+            .map(|s| match s {
+                MixedString::Str(s) => s.to_string(),
+                MixedString::Mix(s) => format!("{s}*"),
+            })
+            .fold(String::default(), |acc, s| acc + "," + s.as_str());
         self.buffer().set_text(&text);
     }
 }
@@ -78,4 +118,30 @@ mod imp {
     impl ObjectImpl for TokenTextView {}
     impl TextViewImpl for TokenTextView {}
     impl WidgetImpl for TokenTextView {}
+}
+
+#[cfg(test)]
+mod test {
+    use super::TokenTextView;
+    use crate::MixedString;
+
+    #[test]
+    fn test_text_to_tokens() {
+        let text = "keyword,image,mix*,deleted*";
+
+        let tokens = TokenTextView::text_to_mixed_tokens(text);
+        assert_eq!(tokens.len(), 4);
+        assert_eq!(
+            tokens,
+            vec![
+                MixedString::Str("keyword".into()),
+                MixedString::Str("image".into()),
+                MixedString::Mix("mix".into()),
+                MixedString::Mix("deleted".into()),
+            ]
+        );
+        let tokens = TokenTextView::text_to_tokens(text);
+        assert_eq!(tokens.len(), 2);
+        assert_eq!(tokens, vec!["keyword".to_string(), "image".to_string()]);
+    }
 }

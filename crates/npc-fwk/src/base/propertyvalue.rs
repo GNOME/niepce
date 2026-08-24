@@ -21,6 +21,15 @@ use crate::glib;
 
 use super::date::Date;
 
+/// String in a StringArray with a flag for "mixed values".
+#[derive(Clone, Debug, PartialEq)]
+pub enum MixedString {
+    /// A string value. In case of multiple selection, all have it.
+    Str(String),
+    /// A mixed string value. Not all have this value.
+    Mix(String),
+}
+
 /// PropertyValue, a type checked value type. It is also glib boxed
 /// to allow passing it into glib properties.
 #[derive(Clone, Debug, Default, PartialEq, glib::Boxed)]
@@ -31,12 +40,17 @@ pub enum PropertyValue {
     Empty,
     /// The property is unset. This signal it should be removed.
     Unset,
+    /// The property value is Mixed. That mean that the selection has
+    /// different values. You can not set it in the catalog.
+    Mixed,
     /// Integer value.
     Int(i32),
     /// String value.
     String(String),
     /// String array.
     StringArray(Vec<String>),
+    /// Mixed String array.
+    MixedStringArray(Vec<MixedString>),
     /// Date object.
     Date(Date),
 }
@@ -60,6 +74,10 @@ impl PropertyValue {
 
     pub fn is_unset(&self) -> bool {
         matches!(*self, PropertyValue::Unset)
+    }
+
+    pub fn is_mixed(&self) -> bool {
+        matches!(*self, PropertyValue::Mixed)
     }
 
     pub fn is_integer(&self) -> bool {
@@ -106,9 +124,19 @@ impl PropertyValue {
         }
     }
 
-    pub fn string_array(&self) -> Option<&[String]> {
+    pub fn string_array(&self) -> Option<Vec<String>> {
         match *self {
-            PropertyValue::StringArray(ref sa) => Some(sa),
+            PropertyValue::StringArray(ref sa) => Some(sa.to_vec()),
+            _ => None,
+        }
+    }
+
+    pub fn mixed_string_array(&self) -> Option<Vec<MixedString>> {
+        match *self {
+            PropertyValue::MixedStringArray(ref sa) => Some(sa.clone()),
+            PropertyValue::StringArray(ref sa) => {
+                Some(sa.iter().map(|s| MixedString::Str(s.clone())).collect())
+            }
             _ => None,
         }
     }

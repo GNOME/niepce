@@ -36,7 +36,7 @@ pub use base::PropertySet;
 pub use base::date::{Date, DateExt, Time};
 pub use base::fractions::{fraction_to_decimal, parse_fraction};
 pub use base::propertybag::{PropertyBag, PropertyIndex};
-pub use base::propertyvalue::PropertyValue;
+pub use base::propertyvalue::{MixedString, PropertyValue};
 pub use toolkit::mimetype::MimeType;
 pub use utils::xmp::{NsDef, XmpManager, XmpMeta, gps_coord_from_xmp};
 
