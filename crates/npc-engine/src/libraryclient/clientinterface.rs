@@ -65,7 +65,7 @@ pub trait ClientInterface {
     /// Query content for album.
     fn query_album_content(&self, album_id: LibraryId);
 
-    fn request_metadata(&self, id: LibraryId);
+    fn request_metadata(&self, ids: Vec<LibraryId>);
     /// set the metadata
     fn set_metadata(&self, id: LibraryId, meta: Npi, value: &PropertyValue);
     /// set some properties for an image.

@@ -1224,7 +1224,7 @@ impl CatalogDb {
         )
     }
 
-    pub(crate) fn get_metadata(&self, file_id: LibraryId) -> Result<Box<LibMetadata>> {
+    pub(crate) fn get_metadata(&self, file_ids: &[LibraryId]) -> Result<Vec<LibMetadata>> {
         if let Some(ref conn) = self.dbconn {
             let sql = format!(
                 "SELECT {} FROM {} WHERE {}=?1",
@@ -1232,23 +1232,27 @@ impl CatalogDb {
                 LibMetadata::read_db_tables(),
                 LibMetadata::read_db_where_id()
             );
+            let mut metadatas = vec![];
             let mut stmt = conn.prepare_cached(&sql)?;
-            let mut rows = stmt.query(params![file_id])?;
-            return match rows.next() {
-                Err(err) => Err(Error::from(err)),
-                Ok(None) => Err(Error::NotFound),
-                Ok(Some(row)) => {
-                    let mut metadata = Box::new(LibMetadata::read_from(row)?);
+            for file_id in file_ids {
+                let mut rows = stmt.query(params![file_id])?;
+                match rows.next() {
+                    Err(err) => Err(Error::from(err))?,
+                    Ok(None) => Err(Error::NotFound)?,
+                    Ok(Some(row)) => {
+                        let mut metadata = LibMetadata::read_from(row)?;
 
-                    let sql = "SELECT ext FROM sidecars WHERE file_id=?1";
-                    let mut stmt = conn.prepare_cached(sql)?;
-                    let mut rows = stmt.query(params![file_id])?;
-                    while let Ok(Some(row)) = rows.next() {
-                        metadata.sidecars.push(row.get(0)?);
+                        let sql = "SELECT ext FROM sidecars WHERE file_id=?1";
+                        let mut stmt = conn.prepare_cached(sql)?;
+                        let mut rows = stmt.query(params![file_id])?;
+                        while let Ok(Some(row)) = rows.next() {
+                            metadata.sidecars.push(row.get(0)?);
+                        }
+                        metadatas.push(metadata);
                     }
-                    Ok(metadata)
-                }
-            };
+                };
+            }
+            return Ok(metadatas);
         }
         Err(Error::NoSqlDb)
     }
@@ -1365,11 +1369,15 @@ impl CatalogDb {
                 err_out!("unhandled meta {:?}", meta)
             }
         }
-        let mut metablock = self.get_metadata(file_id)?;
-        metablock.set_metadata(meta, value);
-        metablock.touch();
-        self.set_metadata_block(file_id, &metablock)?;
-
+        let mut metablock = self.get_metadata(&[file_id])?;
+        if !metablock.is_empty() {
+            let metablock = &mut metablock[0];
+            metablock.set_metadata(meta, value);
+            metablock.touch();
+            self.set_metadata_block(file_id, metablock)?;
+        } else {
+            err_out!("We don't get a meta data block");
+        }
         Ok(())
     }
 
@@ -1793,8 +1801,11 @@ pub(crate) mod test {
         let result = catalog.set_image_properties(bundle_id, &props);
         result.expect("Setting the XMP works");
 
-        let result = catalog.get_metadata(bundle_id);
-        let metadata = result.expect("Have retrieved metadata");
+        let metadatas = catalog
+            .get_metadata(&[bundle_id])
+            .expect("Have retrieved metadata");
+        assert!(!metadatas.is_empty());
+        let metadata = &metadatas[0];
         let xmp_packet = metadata.serialize_inline().expect("Inline serialisation");
         assert_eq!(
             xmp_packet.as_str(),

@@ -474,7 +474,7 @@ impl ModuleShell {
     fn on_image_selected(&self, id: catalog::LibraryId) {
         dbg_out!("Selected callback for {}", id);
         if id > 0 {
-            self.client.client().request_metadata(id);
+            self.client.client().request_metadata(vec![id]);
         } else {
             self.gridview.display_none()
         }

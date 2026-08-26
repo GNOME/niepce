@@ -266,8 +266,8 @@ impl ClientInterface for LibraryClientSender {
         self.schedule_op(move |catalog| commands::cmd_query_album_content(catalog, album_id));
     }
 
-    fn request_metadata(&self, file_id: LibraryId) {
-        self.schedule_op(move |catalog| commands::cmd_request_metadata(catalog, file_id));
+    fn request_metadata(&self, ids: Vec<LibraryId>) {
+        self.schedule_op(move |catalog| commands::cmd_request_metadata(catalog, &ids));
     }
 
     /// set the metadata

@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/modules/map.rs
  *
- * Copyright (C) 2022-2025 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ use crate::niepce::ui::LibraryModule;
 use npc_engine::NiepcePropertySet;
 use npc_engine::catalog::NiepcePropertyIdx as Npi;
 use npc_engine::library::notification::LibNotification;
-use npc_fwk::dbg_out;
 use npc_fwk::toolkit::{Controller, ControllerImplCell, MapController, UiController};
+use npc_fwk::{dbg_out, err_out};
 
 pub struct MapModule {
     imp_: ControllerImplCell<(), ()>,
@@ -91,19 +91,25 @@ impl MapModule {
             propset.insert(Npi::ExifGpsLongProp);
             propset.insert(Npi::ExifGpsLatProp);
 
-            let properties = lm.to_properties(&propset);
+            if lm.is_empty() {
+                err_out!("Map received empty metadata");
+                return;
+            }
+            // XXX currently only handle the first
+            // XXX we should definitely handle more
+            // XXX and figure out what to center the map on.
+            let meta = &lm[0];
+            let properties = meta.to_properties(&propset);
             if let Some(longitude) = properties
                 .get(&Npi::ExifGpsLongProp)
                 .and_then(|v| v.string())
                 .and_then(npc_fwk::gps_coord_from_xmp)
-            {
-                if let Some(latitude) = properties
+                && let Some(latitude) = properties
                     .get(&Npi::ExifGpsLatProp)
                     .and_then(|v| v.string())
                     .and_then(npc_fwk::gps_coord_from_xmp)
-                {
-                    self.map.center_on(latitude, longitude);
-                }
+            {
+                self.map.center_on(latitude, longitude);
             }
         }
     }

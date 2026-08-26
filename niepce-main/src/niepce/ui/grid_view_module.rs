@@ -194,18 +194,16 @@ impl GridViewModule {
     pub fn on_lib_notification(&self, ln: &LibNotification, _client: &Arc<LibraryClient>) {
         match ln {
             LibNotification::MetadataQueried(lm) => {
-                self.metadatapanecontroller.display(lm.id(), Some(lm));
+                self.metadatapanecontroller.display(Some(lm));
             }
-            LibNotification::MetadataChanged(change)
-                if change.id != 0 && self.metadatapanecontroller.displayed() == change.id =>
-            {
-                self.metadatapanecontroller.update(change);
+            LibNotification::MetadataChanged(change) if change.id != 0 => {
+                self.metadatapanecontroller.update(change)
             }
             _ => (),
         }
     }
 
     pub fn display_none(&self) {
-        self.metadatapanecontroller.display(0, None);
+        self.metadatapanecontroller.display(None);
     }
 }

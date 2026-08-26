@@ -112,7 +112,7 @@ pub enum LibNotification {
     DatabaseNeedUpgrade(i32),
     DatabaseReady,
     MetadataChanged(MetadataChange),
-    MetadataQueried(Box<LibMetadata>),
+    MetadataQueried(Vec<LibMetadata>),
     XmpNeedsUpdate,
     ThumbnailLoaded(Box<Thumbnail>),
     ImageRendered(ImageRendered),

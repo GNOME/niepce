@@ -40,7 +40,7 @@ use npc_engine::libraryclient::{ClientInterface, LibraryClientHost};
 use npc_fwk::base::Size;
 use npc_fwk::toolkit::widgets::Dock;
 use npc_fwk::toolkit::{ComboModel, Controller, ControllerImplCell, UiController};
-use npc_fwk::{dbg_out, on_err_out};
+use npc_fwk::{dbg_out, err_out, on_err_out};
 use toolbox_controller::ToolboxController;
 
 pub enum Msg {
@@ -105,7 +105,7 @@ impl LibraryModule for DarkroomModule {
             if let Some(ref file) = *self.file.borrow() {
                 if file.metadata().is_none() {
                     dbg_out!("Requesting metadata");
-                    self.client.client().request_metadata(file.id());
+                    self.client.client().request_metadata(vec![file.id()]);
                 } else {
                     self.reload_image(self.render_params.borrow().clone());
                 }
@@ -220,7 +220,17 @@ impl DarkroomModule {
     }
 
     /// We received metadata.
-    fn metadata_received(&self, metadata: &LibMetadata) {
+    fn metadata_received(&self, metadata: &[LibMetadata]) {
+        if metadata.len() > 1 {
+            err_out!("Received more than one metadata");
+            return;
+        }
+        if metadata.is_empty() {
+            err_out!("Received empty metadata");
+            return;
+        }
+
+        let metadata = &metadata[0];
         if !self.is_current_file_id(metadata.id()) {
             return;
         }
@@ -235,7 +245,7 @@ impl DarkroomModule {
             if file.metadata.is_some() {
                 return;
             }
-            file.metadata = Some(metadata.clone());
+            file.metadata = Some((*metadata).clone());
         }
         let params = self.file.borrow().as_ref().map(|file| {
             let params = self.params_for_metadata(file);

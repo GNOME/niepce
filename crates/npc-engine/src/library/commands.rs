@@ -434,8 +434,8 @@ pub fn cmd_query_album_content(catalog: &CatalogDb, album_id: LibraryId) -> bool
     }
 }
 
-pub fn cmd_request_metadata(catalog: &CatalogDb, file_id: LibraryId) -> bool {
-    match catalog.get_metadata(file_id) {
+pub fn cmd_request_metadata(catalog: &CatalogDb, ids: &[LibraryId]) -> bool {
+    match catalog.get_metadata(ids) {
         Ok(lm) => {
             // This time it's a fatal error since the purpose of this comand
             // is to retrieve.

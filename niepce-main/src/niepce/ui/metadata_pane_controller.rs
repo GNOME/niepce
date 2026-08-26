@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::Cell;
+use std::cell::RefCell;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
@@ -114,7 +114,7 @@ pub struct MetadataPaneController {
     vbox: gtk4::Box,
     widgets: Vec<(MetadataWidget, SignalHandlerId)>,
     propset: NiepcePropertySet,
-    fileid: Cell<catalog::LibraryId>,
+    fileid: RefCell<Vec<catalog::LibraryId>>,
 }
 
 impl Controller for MetadataPaneController {
@@ -142,7 +142,7 @@ impl MetadataPaneController {
             vbox: gtk4::Box::new(gtk4::Orientation::Vertical, 0),
             widgets: vec![],
             propset: NiepcePropertySet::default(),
-            fileid: Cell::new(0),
+            fileid: RefCell::default(),
         };
 
         ctrl.build_widget();
@@ -183,33 +183,47 @@ impl MetadataPaneController {
         }
     }
 
-    pub fn displayed(&self) -> catalog::LibraryId {
-        self.fileid.get()
-    }
+    pub fn display(&self, metadatas: Option<&Vec<catalog::LibMetadata>>) {
+        dbg_out!("displaying metadatas");
+        if let Some(metas) = metadatas {
+            let fileids = metas.iter().map(|meta| meta.id()).collect::<Vec<_>>();
+            self.fileid.replace(fileids);
 
-    pub fn display(&self, id: catalog::LibraryId, metadata: Option<&catalog::LibMetadata>) {
-        self.fileid.set(id);
-        dbg_out!("displaying metadata");
-        if let Some(meta) = metadata {
-            let properties = meta.to_properties(&self.propset);
+            let mut mixed_properties = PropertyBag::<NiepcePropertyIdx>::default();
+            for (idx, meta) in metas.iter().enumerate() {
+                let properties = meta.to_properties(&self.propset);
+                if idx == 0 {
+                    mixed_properties = properties;
+                } else {
+                    mixed_properties.merge_mixed(properties);
+                }
+            }
 
             // XXX this is bad performance. The problem is the widget
             // is generic and uses generic properties.
-            let into = PropertyBag::<u32>::from(properties);
-            // XXX we have multiple copies of the property bag. That's not a good idea.
+            let into = PropertyBag::<u32>::from(mixed_properties);
+            // XXX we have multiple copies of the property bag. That's
+            // not a good idea.
             for element in &self.widgets {
                 element.0.set_data_source(Some(into.clone()));
             }
         } else {
+            self.fileid.replace(vec![]);
             for element in &self.widgets {
                 element.0.set_data_source(None);
             }
         }
     }
 
-    /// Update the metadata.
+    /// Update the metadata. Will check it is relevant.
     pub fn update(&self, change: &MetadataChange) {
-        if change.id != self.fileid.get() {
+        if self
+            .fileid
+            .borrow()
+            .iter()
+            .find(|v| **v == change.id)
+            .is_none()
+        {
             return;
         }
         for element in &self.widgets {
