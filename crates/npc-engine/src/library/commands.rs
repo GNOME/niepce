@@ -504,7 +504,7 @@ pub fn cmd_set_metadata(
     meta: Npi,
     value: &PropertyValue,
 ) -> bool {
-    match catalog.set_metadata(id, meta, value) {
+    match catalog.set_metadata(&[id], meta, value) {
         Ok(_) => {
             if catalog
                 .notify(LibNotification::MetadataChanged(MetadataChange::new(

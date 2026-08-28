@@ -1289,15 +1289,20 @@ impl CatalogDb {
         Err(Error::NoSqlDb)
     }
 
-    fn set_internal_metadata(&self, file_id: LibraryId, column: &str, value: i32) -> Result<()> {
+    fn set_internal_metadata(
+        &self,
+        file_ids: &[LibraryId],
+        column: &str,
+        value: i32,
+    ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let c = conn.execute(
-                format!("UPDATE files SET {column}=?1 WHERE id=?2;").as_ref(),
-                params![value, file_id],
-            )?;
-            if c != 1 {
-                err_out!("error setting internal metadata");
-                return Err(Error::InvalidResult);
+            let sql = format!("UPDATE files SET {column}=?1 WHERE id=?2;");
+            for file_id in file_ids {
+                let c = conn.execute(&sql, params![value, file_id])?;
+                if c != 1 {
+                    err_out!("error setting internal metadata");
+                    return Err(Error::InvalidResult);
+                }
             }
             return Ok(());
         }
@@ -1320,11 +1325,10 @@ impl CatalogDb {
 
     pub(crate) fn set_metadata(
         &self,
-        file_id: LibraryId,
+        file_ids: &[LibraryId],
         meta: Npi,
         value: &PropertyValue,
     ) -> Result<()> {
-        #[allow(non_upper_case_globals)]
         match meta {
             Npi::XmpRatingProp
             | Npi::XmpLabelProp
@@ -1342,25 +1346,27 @@ impl CatalogDb {
                             _ => unreachable!(),
                         };
                         if !column.is_empty() {
-                            self.set_internal_metadata(file_id, column, i)?;
+                            self.set_internal_metadata(file_ids, column, i)?;
                         }
                     }
                     _ => err_out!("improper value type for {:?}", meta),
                 }
             }
             Npi::IptcKeywordsProp => {
-                self.unassign_all_keywords_for_file(file_id)?;
+                for file_id in file_ids {
+                    self.unassign_all_keywords_for_file(*file_id)?;
 
-                match value {
-                    PropertyValue::StringArray(keywords) => {
-                        for kw in keywords {
-                            let id = self.make_keyword(kw.clone(), 0)?;
-                            if id != -1 {
-                                self.assign_keyword(id, file_id)?;
+                    match value {
+                        PropertyValue::StringArray(keywords) => {
+                            for kw in keywords {
+                                let id = self.make_keyword(kw.clone(), 0)?;
+                                if id != -1 {
+                                    self.assign_keyword(id, *file_id)?;
+                                }
                             }
                         }
+                        _ => err_out!("improper value_type for {:?} : {:?}", meta, value),
                     }
-                    _ => err_out!("improper value_type for {:?} : {:?}", meta, value),
                 }
             }
             _ =>
@@ -1369,14 +1375,15 @@ impl CatalogDb {
                 err_out!("unhandled meta {:?}", meta)
             }
         }
-        let mut metablock = self.get_metadata(&[file_id])?;
-        if !metablock.is_empty() {
-            let metablock = &mut metablock[0];
-            metablock.set_metadata(meta, value);
-            metablock.touch();
-            self.set_metadata_block(file_id, metablock)?;
+        let mut metablocks = self.get_metadata(file_ids)?;
+        if !metablocks.is_empty() {
+            for metablock in &mut metablocks {
+                metablock.set_metadata(meta, value);
+                metablock.touch();
+                self.set_metadata_block(metablock.id(), metablock)?;
+            }
         } else {
-            err_out!("We don't get a meta data block");
+            err_out!("We didn't get a meta data blocks");
         }
         Ok(())
     }
