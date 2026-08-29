@@ -174,6 +174,8 @@ impl CatalogDb {
     /// If the database is empty, it will call `init_db()`
     fn init(&mut self) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
+            // Default capacity is 16.
+            conn.set_prepared_statement_cache_capacity(128);
             let sender = self.sender.clone();
             if let Err(err) = conn.create_scalar_function(
                 "rewrite_xmp",
@@ -1296,9 +1298,10 @@ impl CatalogDb {
         value: i32,
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
-            let sql = format!("UPDATE files SET {column}=?1 WHERE id=?2;");
+            let mut stmt =
+                conn.prepare_cached(&format!("UPDATE files SET {column}=?1 WHERE id=?2;"))?;
             for file_id in file_ids {
-                let c = conn.execute(&sql, params![value, file_id])?;
+                let c = stmt.execute(params![value, file_id])?;
                 if c != 1 {
                     err_out!("error setting internal metadata");
                     return Err(Error::InvalidResult);
