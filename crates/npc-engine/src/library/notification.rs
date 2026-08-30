@@ -57,14 +57,14 @@ pub struct FolderReparent {
 
 #[derive(Clone, Debug)]
 pub struct MetadataChange {
-    pub id: LibraryId,
+    pub ids: Vec<LibraryId>,
     pub meta: NiepcePropertyIdx,
     pub value: PropertyValue,
 }
 
 impl MetadataChange {
-    pub fn new(id: LibraryId, meta: NiepcePropertyIdx, value: PropertyValue) -> Self {
-        MetadataChange { id, meta, value }
+    pub fn new(ids: Vec<LibraryId>, meta: NiepcePropertyIdx, value: PropertyValue) -> Self {
+        MetadataChange { ids, meta, value }
     }
 }
 

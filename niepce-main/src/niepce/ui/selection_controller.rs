@@ -198,11 +198,11 @@ impl SelectionController {
             &app,
             undo_label,
             Box::new(move || {
-                client_redo.set_metadata(file_id, meta, &PropertyValue::Int(new_value));
+                client_redo.set_metadata(&[file_id], meta, &PropertyValue::Int(new_value));
                 npc_fwk::toolkit::Storage::Void
             }),
             Box::new(move |_| {
-                client_undo.set_metadata(file_id, meta, &PropertyValue::Int(old_value));
+                client_undo.set_metadata(&[file_id], meta, &PropertyValue::Int(old_value));
             }),
         );
         true
@@ -211,7 +211,7 @@ impl SelectionController {
     fn set_metadata(
         &self,
         undo_label: &str,
-        file_id: catalog::LibraryId,
+        file_ids: &[catalog::LibraryId],
         props: &MetadataPropertyBag,
         old: &MetadataPropertyBag,
     ) -> bool {
@@ -222,13 +222,15 @@ impl SelectionController {
             if let Ok(key) = NiepcePropertyIdx::try_from(*key) {
                 let client_undo = self.client.clone();
                 let client_redo = self.client.clone();
+                let file_ids1 = file_ids.to_vec();
+                let file_ids2 = file_ids1.clone();
                 let command = UndoCommand::new(
                     Box::new(move || {
-                        client_redo.set_metadata(file_id, key, &new_value);
+                        client_redo.set_metadata(&file_ids1, key, &new_value);
                         npc_fwk::toolkit::Storage::Void
                     }),
                     Box::new(move |_| {
-                        client_undo.set_metadata(file_id, key, &old_value);
+                        client_undo.set_metadata(&file_ids2, key, &old_value);
                     }),
                 );
                 undo.add(command);
@@ -250,8 +252,8 @@ impl SelectionController {
     }
 
     /// Set rating of specific file.
-    pub fn set_rating_of(&self, id: catalog::LibraryId, rating: i32) {
-        self.set_property_of(id, catalog::NiepcePropertyIdx::XmpRatingProp, rating);
+    pub fn set_rating_of(&self, ids: &[catalog::LibraryId], rating: i32) {
+        self.set_property_of(ids, catalog::NiepcePropertyIdx::XmpRatingProp, rating);
     }
 
     pub fn set_flag(&self, flag: i32) {
@@ -261,32 +263,40 @@ impl SelectionController {
     fn set_property(&self, idx: catalog::NiepcePropertyIdx, value: i32) {
         dbg_out!("property {:?} = {}", idx, value);
         if let Some(selection) = self.selection() {
-            self.set_property_of(selection, idx, value)
+            self.set_property_of(&[selection], idx, value)
         }
     }
 
-    fn set_property_of(&self, id: catalog::LibraryId, idx: catalog::NiepcePropertyIdx, value: i32) {
-        if let Some(mut file) = self.store.file(id) {
-            dbg_out!("old property is {}", file.property(idx));
-            let old_value = file.property(idx);
-            let action = match idx {
-                NiepcePropertyIdx::NiepceFlagProp => i18n("Set Flag"),
-                NiepcePropertyIdx::XmpRatingProp => i18n("Set Rating"),
-                NiepcePropertyIdx::XmpLabelProp => i18n("Set Label"),
-                _ => i18n("Set Property"),
-            };
-            self.set_one_metadata(&action, id, idx, old_value, value);
-            // we need to set the property here so that undo/redo works
-            // consistently.
-            file.set_property(idx, value);
-        } else {
-            err_out!("requested file {} not found!", id);
+    fn set_property_of(
+        &self,
+        ids: &[catalog::LibraryId],
+        idx: catalog::NiepcePropertyIdx,
+        value: i32,
+    ) {
+        let action = match idx {
+            NiepcePropertyIdx::NiepceFlagProp => i18n("Set Flag"),
+            NiepcePropertyIdx::XmpRatingProp => i18n("Set Rating"),
+            NiepcePropertyIdx::XmpLabelProp => i18n("Set Label"),
+            _ => i18n("Set Property"),
+        };
+        for id in ids {
+            if let Some(mut file) = self.store.file(*id) {
+                dbg_out!("old property is {}", file.property(idx));
+                let old_value = file.property(idx);
+                // we need to set the property here so that undo/redo works
+                // consistently.
+                file.set_property(idx, value);
+                self.set_one_metadata(&action, *id, idx, old_value, value);
+            } else {
+                err_out!("requested file {} not found!", id);
+            }
         }
+        // XXX what if the file is missing?
     }
 
     pub fn set_properties(&self, props: &MetadataPropertyBag, old: &MetadataPropertyBag) {
         if let Some(selection) = self.selection() {
-            self.set_metadata(&i18n("Set Properties"), selection, props, old);
+            self.set_metadata(&i18n("Set Properties"), &[selection], props, old);
         }
     }
 

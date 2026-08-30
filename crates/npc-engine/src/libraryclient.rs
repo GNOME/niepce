@@ -271,10 +271,11 @@ impl ClientInterface for LibraryClientSender {
     }
 
     /// set the metadata
-    fn set_metadata(&self, file_id: LibraryId, meta: Npi, value: &PropertyValue) {
+    fn set_metadata(&self, file_ids: &[LibraryId], meta: Npi, value: &PropertyValue) {
         let value2 = value.clone();
+        let file_ids = file_ids.to_vec();
         self.schedule_op(move |catalog| {
-            commands::cmd_set_metadata(catalog, file_id, meta, &value2)
+            commands::cmd_set_metadata(catalog, file_ids, meta, &value2)
         });
     }
 

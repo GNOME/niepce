@@ -78,7 +78,7 @@ impl Controller for DarkroomModule {
                 dbg_out!("Render engine changed in UI");
                 if let Some(ref file) = *self.file.borrow() {
                     self.client.client().set_metadata(
-                        file.id(),
+                        &[file.id()],
                         Npi::NiepceRenderEngineProp,
                         &npc_fwk::base::PropertyValue::String(engine.key().to_string()),
                     );
@@ -189,6 +189,15 @@ impl DarkroomModule {
         self.overlay.add_toast(toast);
     }
 
+    /// What is the current file `id`?
+    fn current_file_id(&self) -> LibraryId {
+        self.file
+            .borrow()
+            .as_ref()
+            .map(|file| file.id())
+            .unwrap_or(0)
+    }
+
     /// Check that the current file is `id`.
     fn is_current_file_id(&self, id: LibraryId) -> bool {
         self.file
@@ -212,7 +221,9 @@ impl DarkroomModule {
 
     /// We received a metadata change.
     fn metadata_change_received(&self, changed: &MetadataChange) {
-        if self.is_current_file_id(changed.id) && changed.meta == Npi::NiepceRenderEngineProp {
+        if changed.ids.contains(&self.current_file_id())
+            && changed.meta == Npi::NiepceRenderEngineProp
+        {
             if let Some(engine) = changed.value.string() {
                 self.set_engine(engine);
             }
@@ -330,7 +341,7 @@ impl DarkroomModule {
                 // We shall explicitly save the default engine.
                 let e = RenderEngine::default();
                 self.client.client().set_metadata(
-                    file.id(),
+                    &[file.id()],
                     Npi::NiepceRenderEngineProp,
                     &npc_fwk::base::PropertyValue::String(e.key().to_string()),
                 );

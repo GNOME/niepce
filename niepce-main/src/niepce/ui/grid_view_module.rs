@@ -61,7 +61,7 @@ impl Controller for GridViewModule {
         match msg {
             GridMsg::Click(gesture, x, y) => self.on_librarylistview_click(&gesture, x, y),
             GridMsg::ChangeRating(id, rating) => {
-                self.selection_controller.set_rating_of(id, rating)
+                self.selection_controller.set_rating_of(&[id], rating)
             }
             GridMsg::MetadataChanged(new, old) => {
                 self.selection_controller.set_properties(&new, &old)
@@ -196,9 +196,7 @@ impl GridViewModule {
             LibNotification::MetadataQueried(lm) => {
                 self.metadatapanecontroller.display(Some(lm));
             }
-            LibNotification::MetadataChanged(change) if change.id != 0 => {
-                self.metadatapanecontroller.update(change)
-            }
+            LibNotification::MetadataChanged(change) => self.metadatapanecontroller.update(change),
             _ => (),
         }
     }

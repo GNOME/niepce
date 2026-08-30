@@ -500,15 +500,15 @@ pub fn cmd_query_folder_content(catalog: &CatalogDb, folder_id: LibraryId) -> bo
 
 pub fn cmd_set_metadata(
     catalog: &CatalogDb,
-    id: LibraryId,
+    ids: Vec<LibraryId>,
     meta: Npi,
     value: &PropertyValue,
 ) -> bool {
-    match catalog.set_metadata(&[id], meta, value) {
+    match catalog.set_metadata(&ids, meta, value) {
         Ok(_) => {
             if catalog
                 .notify(LibNotification::MetadataChanged(MetadataChange::new(
-                    id,
+                    ids,
                     meta,
                     value.clone(),
                 )))

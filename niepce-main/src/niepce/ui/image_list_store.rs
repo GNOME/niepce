@@ -195,8 +195,10 @@ impl ImageListStore {
                 dbg_out!("metadata changed {:?}", m.meta);
                 // only interested in a few props
                 if Self::is_property_interesting(m.meta) {
-                    if let Some(pos) = self.idmap.borrow().get(&m.id) {
-                        self.set_property(*pos, m);
+                    for id in &m.ids {
+                        if let Some(pos) = self.idmap.borrow().get(id) {
+                            self.set_property(*pos, *id, m);
+                        }
                     }
                 }
                 true
@@ -248,10 +250,11 @@ impl ImageListStore {
         }
     }
 
-    pub fn set_property(&self, pos: u32, change: &MetadataChange) {
+    pub fn set_property(&self, pos: u32, id: LibraryId, change: &MetadataChange) {
         if let Some(item) = self.store.item(pos).and_downcast_ref::<ImageListItem>() {
             if let Some(mut file) = item.file() {
-                assert!(file.id() == change.id);
+                assert!(file.id() == id);
+                assert!(change.ids.contains(&file.id()));
                 let meta = change.meta;
                 if let PropertyValue::Int(value) = change.value {
                     // XXX can we make this less suboptimal

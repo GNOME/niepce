@@ -32,7 +32,7 @@ use npc_engine::library::notification::MetadataChange;
 use npc_fwk::toolkit::widgets::MetadataPropertyBag;
 use npc_fwk::toolkit::widgets::{MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget};
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
-use npc_fwk::{PropertyBag, dbg_out, send_async_local};
+use npc_fwk::{PropertyBag, dbg_out, err_out, send_async_local};
 
 lazy_static::lazy_static! {
     static ref FORMATS: Vec<MetadataSectionFormat> = {
@@ -221,9 +221,10 @@ impl MetadataPaneController {
             .fileid
             .borrow()
             .iter()
-            .find(|v| **v == change.id)
+            .find(|v| **v == change.ids[0])
             .is_none()
         {
+            err_out!("Update: the id isn't found");
             return;
         }
         for element in &self.widgets {
