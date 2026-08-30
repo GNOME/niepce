@@ -398,14 +398,18 @@ mod imp {
                 }
                 MetaDT::String | MetaDT::Choices(_) => {
                     if !self.set_text_data(w, fmt.readonly, value) {
-                        err_out!("failed to set value for {}", fmt.id);
+                        err_out!("{}: failed to set value {value:?} for {}", line!(), fmt.id);
                         false
                     } else {
                         true
                     }
                 }
                 MetaDT::None => {
-                    err_out!("Setting value {} of type None", fmt.id);
+                    err_out!(
+                        "{}: Setting value {value:?} for {} of type None",
+                        line!(),
+                        fmt.id
+                    );
                     false
                 }
             };
@@ -457,72 +461,102 @@ mod imp {
             }
         }
 
+        /// Set the mixed data.
+        ///
+        /// If we can of a more generic way to saye "supports
+        /// `MetadataDataWidget`, then this could be simpler.
+        fn set_mixed(w: &gtk4::Widget) -> bool {
+            if let Some(w) = w.downcast_ref::<gtk4::Label>() {
+                w.set_mixed(true);
+                true
+            } else if let Some(w) = w.downcast_ref::<gtk4::Entry>() {
+                w.set_mixed(true);
+                true
+            } else if let Some(w) = w.downcast_ref::<gtk4::TextView>() {
+                w.set_mixed(true);
+                true
+            } else if let Some(w) = w.downcast_ref::<TokenTextView>() {
+                w.set_mixed(true);
+                true
+            } else if let Some(w) = w.downcast_ref::<RatingLabel>() {
+                w.set_mixed(true);
+                true
+            } else {
+                err_out!("Incorrect widget type");
+                false
+            }
+        }
+
         fn set_fraction_dec_data(&self, w: &gtk4::Widget, value: &PropertyValue) -> bool {
-            match value {
-                PropertyValue::String(s) => {
-                    dbg_out!("set faction dec {}", s);
-                    if let Some(w) = w.downcast_ref::<gtk4::Label>() {
+            if let Some(w) = w.downcast_ref::<gtk4::Label>() {
+                match value {
+                    PropertyValue::String(s) => {
+                        dbg_out!("set fraction dec {}", s);
                         let dec_str = crate::fraction_to_decimal(s)
                             .map(|dec| dec.to_string())
                             .unwrap_or_else(|| "NaN".to_string());
                         w.set_text(&dec_str);
                         true
-                    } else {
-                        err_out!(
-                            "Incorrect widget type for fraction_dec: {}",
-                            w.type_().name()
-                        );
+                    }
+                    PropertyValue::Mixed => {
+                        if let Some(w) = w.downcast_ref::<gtk4::Label>() {
+                            w.set_mixed(true);
+                        }
+                        true
+                    }
+                    _ => {
+                        err_out!("{}: Data not a string: {value:?}", line!());
                         false
                     }
                 }
-                PropertyValue::Mixed => {
-                    if let Some(w) = w.downcast_ref::<gtk4::Label>() {
-                        w.set_mixed(true);
-                    }
-                    true
-                }
-                _ => {
-                    err_out!("Data not a string");
-                    false
-                }
+            } else {
+                err_out!(
+                    "Incorrect widget type for fraction_dec: {}",
+                    w.type_().name()
+                );
+                false
             }
         }
 
         fn set_fraction_data(&self, w: &gtk4::Widget, value: &PropertyValue) -> bool {
-            if let Some(s) = value.string() {
-                dbg_out!("set fraction {}", s);
-                return if let Some(w) = w.downcast_ref::<gtk4::Label>() {
+            if let Some(label) = w.downcast_ref::<gtk4::Label>() {
+                if let Some(s) = value.string() {
+                    dbg_out!("set fraction {}", s);
                     if let Some((n, d)) = crate::parse_fraction(s) {
                         let frac_str = format!("{n}/{d}");
-                        w.set_text(&frac_str);
+                        label.set_text(&frac_str);
                         true
                     } else {
                         err_out!("Invalid fraction {}", s);
                         false
                     }
+                } else if value.is_mixed() {
+                    Self::set_mixed(w)
                 } else {
-                    err_out!("Incorrect widget type for fraction: {}", w.type_().name());
+                    err_out!("{}: Data not a string: {value:?}", line!());
                     false
-                };
+                }
+            } else {
+                err_out!("Incorrect widget type for fraction: {}", w.type_().name());
+                false
             }
-
-            err_out!("Data not a string");
-            false
         }
 
         fn set_star_rating_data(&self, w: &gtk4::Widget, value: &PropertyValue) -> bool {
-            if let Some(i) = value.integer() {
-                return if let Some(w) = w.downcast_ref::<RatingLabel>() {
-                    w.set_rating(i);
+            if let Some(ratingl) = w.downcast_ref::<RatingLabel>() {
+                if let Some(i) = value.integer() {
+                    ratingl.set_rating(i);
                     true
+                } else if value.is_mixed() {
+                    Self::set_mixed(w)
                 } else {
-                    err_out!("Incorrect widget type for rating: {}", w.type_().name());
+                    err_out!("{}: Data not integer: {value:?}", line!());
                     false
-                };
+                }
+            } else {
+                err_out!("Incorrect widget type for rating: {}", w.type_().name());
+                false
             }
-
-            err_out!("Data not integer");
-            false
         }
 
         fn set_string_array_data(
@@ -531,21 +565,24 @@ mod imp {
             readonly: bool,
             value: &PropertyValue,
         ) -> bool {
-            if let Some(tokens) = value.mixed_string_array() {
-                return if let Some(w) = w.downcast_ref::<TokenTextView>() {
-                    w.set_tokens(&tokens);
-                    w.set_editable(!readonly);
+            if let Some(ttv) = w.downcast_ref::<TokenTextView>() {
+                if let Some(tokens) = value.mixed_string_array() {
+                    ttv.set_tokens(&tokens);
+                    ttv.set_editable(!readonly);
                     true
+                } else if value.is_mixed() {
+                    Self::set_mixed(w)
                 } else {
-                    err_out!(
-                        "Incorrect widget type for string array: {}",
-                        w.type_().name()
-                    );
+                    err_out!("{}: Data not string array: {value:?}", line!());
                     false
-                };
+                }
+            } else {
+                err_out!(
+                    "Incorrect widget type for string array: {}",
+                    w.type_().name()
+                );
+                false
             }
-            err_out!("Data not string array");
-            false
         }
 
         /// Set the text_data from a string. Bypasses [`PropertyValue`].
@@ -575,16 +612,18 @@ mod imp {
 
         fn set_text_data(&self, w: &gtk4::Widget, readonly: bool, value: &PropertyValue) -> bool {
             if let Some(s) = value.string() {
-                return self.set_text_data_str(w, readonly, s);
+                self.set_text_data_str(w, readonly, s)
+            } else if value.is_mixed() {
+                Self::set_mixed(w)
+            } else {
+                err_out!("{}: Data not a string: {value:?}", line!());
+                false
             }
-
-            err_out!("Data not a string");
-            false
         }
 
         fn set_date_data(&self, w: &gtk4::Widget, value: &PropertyValue) -> bool {
             if let Some(d) = value.date() {
-                return if let Some(w) = w.downcast_ref::<gtk4::Label>() {
+                if let Some(w) = w.downcast_ref::<gtk4::Label>() {
                     w.set_text(&d.to_string());
                     true
                 } else if let Some(w) = w.downcast_ref::<gtk4::Entry>() {
@@ -593,11 +632,13 @@ mod imp {
                 } else {
                     err_out!("Incorrect widget type for date: {}", w.type_().name());
                     false
-                };
+                }
+            } else if value.is_mixed() {
+                Self::set_mixed(w)
+            } else {
+                err_out!("{}: Data not a date: {value:?}", line!());
+                false
             }
-
-            err_out!("Data not a date");
-            false
         }
 
         fn emit_metadata_changed(&self, prop: u32, value: &PropertyValue) {
