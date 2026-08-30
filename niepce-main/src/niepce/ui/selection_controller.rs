@@ -17,12 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::rc::{Rc, Weak};
 use std::sync::Arc;
 
 use gettextrs::gettext as i18n;
 use gtk4::prelude::*;
+use indexmap::IndexSet;
 use npc_fwk::{glib, gtk4};
 
 use super::ContentView;
@@ -48,11 +49,13 @@ enum Direction {
 
 pub enum SelectionInMsg {
     Selected(u32),
+    Unselected(u32),
     Activated(u32),
 }
 
 pub enum SelectionOutMsg {
     Selected(catalog::LibraryId),
+    Unselected(catalog::LibraryId),
     Activated(catalog::LibraryId),
 }
 
@@ -62,6 +65,7 @@ pub struct SelectionController {
     app: Weak<NiepceApplication>,
     store: Rc<ImageListStore>,
     content: Cell<ContentView>,
+    selected_ids: RefCell<IndexSet<catalog::LibraryId>>,
 }
 
 impl Controller for SelectionController {
@@ -78,7 +82,15 @@ impl Controller for SelectionController {
             }
             SelectionInMsg::Selected(pos) => {
                 let id = self.store.get_file_id_at_pos(pos);
-                self.emit(SelectionOutMsg::Selected(id));
+                if self.selected_ids.borrow_mut().insert(id) {
+                    self.emit(SelectionOutMsg::Selected(id));
+                }
+            }
+            SelectionInMsg::Unselected(pos) => {
+                let id = self.store.get_file_id_at_pos(pos);
+                if self.selected_ids.borrow_mut().shift_remove(&id) {
+                    self.emit(SelectionOutMsg::Unselected(id));
+                }
             }
         }
     }
@@ -98,6 +110,7 @@ impl SelectionController {
             app,
             store,
             content: Cell::default(),
+            selected_ids: RefCell::default(),
         });
 
         let sender = controller.sender();
@@ -107,9 +120,15 @@ impl SelectionController {
             .connect_selection_changed(glib::clone!(
                 #[strong]
                 sender,
-                move |model, _, _| {
-                    let pos = model.selected();
-                    send_async_local!(SelectionInMsg::Selected(pos), sender);
+                move |model, pos, n_items| {
+                    for i in 0..n_items {
+                        let index = pos + i;
+                        if model.is_selected(index) {
+                            send_async_local!(SelectionInMsg::Selected(index), sender);
+                        } else {
+                            send_async_local!(SelectionInMsg::Unselected(index), sender);
+                        }
+                    }
                 }
             ));
         <Self as Controller>::start(&controller);
@@ -131,13 +150,36 @@ impl SelectionController {
         self.store.file(id)
     }
 
-    pub fn selection(&self) -> Option<catalog::LibraryId> {
-        let pos = self.store.selection_model().selected();
-        if pos == gtk4::INVALID_LIST_POSITION {
-            None
-        } else {
-            Some(self.store.get_file_id_at_pos(pos))
-        }
+    /// Whether the selection is empty.
+    pub fn is_empty(&self) -> bool {
+        self.selected_ids.borrow().is_empty()
+    }
+
+    /// Length of the selection.
+    pub fn len(&self) -> usize {
+        self.selected_ids.borrow().len()
+    }
+
+    /// First selected item.
+    pub fn first(&self) -> Option<catalog::LibraryId> {
+        self.selected_ids.borrow().first().copied()
+    }
+
+    /// The primary selection. Not necessarily the first.
+    pub fn primary(&self) -> Option<catalog::LibraryId> {
+        self.first()
+    }
+
+    /// Return the selected items `LibraryId`, in the order of
+    /// selection.
+    pub fn selection(&self) -> Vec<catalog::LibraryId> {
+        // XXX can we find a way to not copy the selection?  IndexSet
+        // can return a Slice, but being in a RefCell is a problem
+        self.selected_ids
+            .borrow()
+            .iter()
+            .copied()
+            .collect::<Vec<_>>()
     }
 
     pub fn select_previous(&self) {
@@ -150,11 +192,11 @@ impl SelectionController {
 
     fn selection_move(&self, direction: Direction) {
         let selection = self.selection();
-        if selection.is_none() {
+        if selection.is_empty() {
             return;
         }
 
-        let pos = self.store.pos_from_id(selection.unwrap());
+        let pos = self.store.pos_from_id(selection[0]);
         if pos.is_none() {
             return;
         }
@@ -173,7 +215,7 @@ impl SelectionController {
         };
 
         if moved {
-            self.store.selection_model().set_selected(pos);
+            self.store.selection_model().select_item(pos, true);
         }
     }
 
@@ -262,8 +304,10 @@ impl SelectionController {
 
     fn set_property(&self, idx: catalog::NiepcePropertyIdx, value: i32) {
         dbg_out!("property {:?} = {}", idx, value);
-        if let Some(selection) = self.selection() {
-            self.set_property_of(&[selection], idx, value)
+        let selection = self.selection();
+        if !selection.is_empty() {
+            // XXX fix me, this should be the whole selection
+            self.set_property_of(&selection, idx, value)
         }
     }
 
@@ -295,8 +339,9 @@ impl SelectionController {
     }
 
     pub fn set_properties(&self, props: &MetadataPropertyBag, old: &MetadataPropertyBag) {
-        if let Some(selection) = self.selection() {
-            self.set_metadata(&i18n("Set Properties"), &[selection], props, old);
+        let selection = self.selection();
+        if !selection.is_empty() {
+            self.set_metadata(&i18n("Set Properties"), &selection, props, old);
         }
     }
 
@@ -306,8 +351,9 @@ impl SelectionController {
     }
 
     pub fn write_metadata(&self) {
-        if let Some(selection) = self.selection() {
-            self.client.write_metadata(selection);
+        let selection = self.selection();
+        if !selection.is_empty() {
+            self.client.write_metadata(selection[0]);
         }
     }
 
@@ -315,8 +361,10 @@ impl SelectionController {
     /// What delete means depend on the view. In an album it removes from the album
     /// From a folder it moves to trash.
     pub fn delete_from_view(&self) {
-        if let Some(selection) = self.selection() {
-            if let Some(ref f) = self.store.file(selection) {
+        let selection = self.selection();
+        if !selection.is_empty() {
+            // XXX handle the whole selection
+            if let Some(ref f) = self.store.file(selection[0]) {
                 match self.content.get() {
                     ContentView::Album(id) => {
                         self.remove_from_album(id, f);
@@ -369,8 +417,9 @@ impl SelectionController {
 
     /// Move selection to trash
     pub fn move_to_trash(&self) {
-        if let Some(selection) = self.selection() {
-            if let Some(ref f) = self.store.file(selection) {
+        let selection = self.selection();
+        if !selection.is_empty() {
+            if let Some(ref f) = self.store.file(selection[0]) {
                 self.move_file_to_trash(f);
             }
         }

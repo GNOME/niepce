@@ -113,6 +113,7 @@ impl ModuleShell {
                     use super::selection_controller::SelectionOutMsg;
                     match msg {
                         SelectionOutMsg::Selected(id) => shell.on_image_selected(id),
+                        SelectionOutMsg::Unselected(id) => shell.on_image_unselected(id),
                         SelectionOutMsg::Activated(id) => shell.on_image_activated(id),
                     }
                 }
@@ -473,11 +474,29 @@ impl ModuleShell {
 
     fn on_image_selected(&self, id: catalog::LibraryId) {
         dbg_out!("Selected callback for {}", id);
-        if id > 0 {
-            self.client.client().request_metadata(vec![id]);
-        } else {
-            self.gridview.display_none()
+        // XXX request for the whole selection instead.
+        self.client
+            .client()
+            .request_metadata(self.selection_controller.selection());
+
+        // Forward to the darkroom module.
+        let store = &self.selection_controller.list_store();
+        self.darkroom.set_image(store.file(id).as_ref());
+    }
+
+    fn on_image_unselected(&self, id: catalog::LibraryId) {
+        dbg_out!("Unselected callback for {}", id);
+        if self.selection_controller.is_empty() {
+            self.gridview.display_none();
+            self.darkroom.set_image(None);
+            return;
         }
+        let id = self.selection_controller.primary().unwrap();
+        // XXX request for the whole selection instead.
+        self.client
+            .client()
+            .request_metadata(self.selection_controller.selection());
+
         // Forward to the darkroom module.
         let store = &self.selection_controller.list_store();
         self.darkroom.set_image(store.file(id).as_ref());

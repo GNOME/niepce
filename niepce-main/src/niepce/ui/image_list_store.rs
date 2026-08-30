@@ -49,7 +49,7 @@ enum CurrentContainer {
 /// It wraps the tree model/store.
 pub struct ImageListStore {
     store: gio::ListStore,
-    model: gtk4::SingleSelection,
+    model: gtk4::MultiSelection,
     config: Arc<Configuration>,
     current: Cell<CurrentContainer>,
     idmap: RefCell<BTreeMap<LibraryId, u32>>,
@@ -59,9 +59,7 @@ pub struct ImageListStore {
 impl ImageListStore {
     pub fn new(config: Arc<Configuration>) -> Self {
         let store = gio::ListStore::new::<ImageListItem>();
-        let model = gtk4::SingleSelection::new(Some(store.clone()));
-        model.set_autoselect(false);
-        model.set_can_unselect(true);
+        let model = gtk4::MultiSelection::new(Some(store.clone()));
 
         Self {
             store,
@@ -84,7 +82,7 @@ impl ImageListStore {
     }
 
     /// Return the `Gtk::SelectionModel`
-    pub fn selection_model(&self) -> &gtk4::SingleSelection {
+    pub fn selection_model(&self) -> &gtk4::MultiSelection {
         &self.model
     }
 

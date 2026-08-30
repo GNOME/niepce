@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/import.rs
  *
- * Copyright (C) 2008-2025 Hubert Figuière
+ * Copyright (C) 2008-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -300,7 +300,7 @@ impl DialogController for ImportDialog {
 
                 get_widget!(builder, gtk4::ScrolledWindow, images_list_scrolled);
                 let images_list_model = gio::ListStore::new::<ThumbItem>();
-                let selection_model = gtk4::SingleSelection::new(Some(images_list_model.clone()));
+                let selection_model = gtk4::MultiSelection::new(Some(images_list_model.clone()));
                 let image_gridview = ImageGridView::new(selection_model, None, None);
                 let factory = gtk4::SignalListItemFactory::new();
                 image_gridview.set_factory(Some(&factory));

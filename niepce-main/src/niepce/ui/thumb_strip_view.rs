@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/thumbstripview.rs
  *
- * Copyright (C) 2020-2024 Hubert Figuière
+ * Copyright (C) 2020-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ pub struct ThumbStripView {
     item_height: Cell<i32>,
     item_count: Rc<ItemCount>,
     grid_view: gtk4::GridView,
-    store: RefCell<Option<gtk4::SingleSelection>>,
+    store: RefCell<Option<gtk4::MultiSelection>>,
     signals: RefCell<Signals>,
 }
 
@@ -76,7 +76,7 @@ impl std::ops::Deref for ThumbStripView {
 }
 
 impl ThumbStripView {
-    pub fn new(store: gtk4::SingleSelection) -> Self {
+    pub fn new(store: gtk4::MultiSelection) -> Self {
         let factory = gtk4::SignalListItemFactory::new();
         factory.connect_setup(move |_, item| {
             let item = item.downcast_ref::<gtk4::ListItem>().unwrap();
@@ -124,7 +124,7 @@ impl ThumbStripView {
         dbg_out!("set_item_height {}", height);
     }
 
-    pub fn set_model(&self, model: Option<gtk4::SingleSelection>) {
+    pub fn set_model(&self, model: Option<gtk4::MultiSelection>) {
         if let Some(store) = &*self.store.borrow() {
             let mut signals = self.signals.borrow_mut();
             if signals.model_changed.is_some() {

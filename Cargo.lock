@@ -2137,6 +2137,7 @@ dependencies = [
  "gettext-rs 0.8.0",
  "gtk-macros",
  "i18n-format",
+ "indexmap",
  "lazy_static",
  "nix",
  "npc-craw",

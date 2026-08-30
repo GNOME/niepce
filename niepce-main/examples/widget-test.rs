@@ -68,7 +68,7 @@ pub fn main() {
         add_icon(&store);
         add_icon(&store);
         add_icon(&store);
-        let model = gtk4::SingleSelection::new(Some(store));
+        let model = gtk4::MultiSelection::new(Some(store));
         let thumbview = ThumbStripView::new(model.clone());
         thumbview.set_hexpand(true);
         let thn = ThumbNav::new(thumbview.deref(), ThumbNavMode::OneRow, true);

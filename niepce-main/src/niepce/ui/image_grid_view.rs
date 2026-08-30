@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/image_grid_view.rs
  *
- * Copyright (C) 2020-2025 Hubert Figuière
+ * Copyright (C) 2020-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ pub struct ImageGridView {
 
 impl ImageGridView {
     pub fn new(
-        store: gtk4::SingleSelection,
+        store: gtk4::MultiSelection,
         context_menu: Option<gtk4::PopoverMenu>,
         ui_provider: Option<Rc<UIDataProvider>>,
     ) -> Self {
