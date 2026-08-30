@@ -18,6 +18,7 @@
  */
 
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 
 use gettextrs::gettext as i18n;
@@ -25,10 +26,10 @@ use glib::SignalHandlerId;
 use gtk4::prelude::*;
 use npc_fwk::{glib, gtk4};
 
-use npc_engine::NiepcePropertySet;
 use npc_engine::catalog;
 use npc_engine::catalog::NiepcePropertyIdx;
 use npc_engine::library::notification::MetadataChange;
+use npc_engine::{NiepcePropertyBag, NiepcePropertySet};
 use npc_fwk::toolkit::widgets::MetadataPropertyBag;
 use npc_fwk::toolkit::widgets::{MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget};
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
@@ -114,7 +115,7 @@ pub struct MetadataPaneController {
     vbox: gtk4::Box,
     widgets: Vec<(MetadataWidget, SignalHandlerId)>,
     propset: NiepcePropertySet,
-    fileid: RefCell<Vec<catalog::LibraryId>>,
+    propmaps: RefCell<HashMap<catalog::LibraryId, NiepcePropertyBag>>,
 }
 
 impl Controller for MetadataPaneController {
@@ -142,7 +143,7 @@ impl MetadataPaneController {
             vbox: gtk4::Box::new(gtk4::Orientation::Vertical, 0),
             widgets: vec![],
             propset: NiepcePropertySet::default(),
-            fileid: RefCell::default(),
+            propmaps: RefCell::default(),
         };
 
         ctrl.build_widget();
@@ -183,21 +184,33 @@ impl MetadataPaneController {
         }
     }
 
+    fn build_properties(
+        metas: &HashMap<catalog::LibraryId, NiepcePropertyBag>,
+    ) -> NiepcePropertyBag {
+        let mut mixed_properties = NiepcePropertyBag::default();
+        for (idx, properties) in metas.values().enumerate() {
+            if idx == 0 {
+                mixed_properties = properties.clone();
+            } else {
+                mixed_properties.merge_mixed(properties.clone());
+            }
+        }
+        mixed_properties
+    }
+
     pub fn display(&self, metadatas: Option<&Vec<catalog::LibMetadata>>) {
         dbg_out!("displaying metadatas");
-        if let Some(metas) = metadatas {
-            let fileids = metas.iter().map(|meta| meta.id()).collect::<Vec<_>>();
-            self.fileid.replace(fileids);
+        self.propmaps.borrow_mut().clear();
 
-            let mut mixed_properties = PropertyBag::<NiepcePropertyIdx>::default();
-            for (idx, meta) in metas.iter().enumerate() {
-                let properties = meta.to_properties(&self.propset);
-                if idx == 0 {
-                    mixed_properties = properties;
-                } else {
-                    mixed_properties.merge_mixed(properties);
+        if let Some(metas) = metadatas {
+            {
+                let mut propmaps = self.propmaps.borrow_mut();
+                for meta in metas {
+                    let properties = meta.to_properties(&self.propset);
+                    propmaps.insert(meta.id(), properties);
                 }
             }
+            let mixed_properties = Self::build_properties(&self.propmaps.borrow());
 
             // XXX this is bad performance. The problem is the widget
             // is generic and uses generic properties.
@@ -208,7 +221,6 @@ impl MetadataPaneController {
                 element.0.set_data_source(Some(into.clone()));
             }
         } else {
-            self.fileid.replace(vec![]);
             for element in &self.widgets {
                 element.0.set_data_source(None);
             }
@@ -217,20 +229,22 @@ impl MetadataPaneController {
 
     /// Update the metadata. Will check it is relevant.
     pub fn update(&self, change: &MetadataChange) {
-        if self
-            .fileid
-            .borrow()
-            .iter()
-            .find(|v| **v == change.ids[0])
-            .is_none()
         {
-            err_out!("Update: the id isn't found");
-            return;
+            let mut propmaps = self.propmaps.borrow_mut();
+            for id in &change.ids {
+                if let Some(bag) = propmaps.get_mut(id) {
+                    err_out!("Update: the id {id} isn't found");
+                    bag.set_value(change.meta, change.value.clone());
+                }
+            }
         }
+
+        let mixed_properties = Self::build_properties(&self.propmaps.borrow());
+
         for element in &self.widgets {
-            element
-                .0
-                .update_data(change.meta as u32, change.value.clone());
+            if let Some(value) = mixed_properties.get(&change.meta) {
+                element.0.update_data(change.meta as u32, value.clone());
+            }
         }
     }
 }
