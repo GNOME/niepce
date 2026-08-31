@@ -36,7 +36,7 @@ For the RawTherapee engine:
 - glibmm 2.68
 - giomm
 - cairomm
-- exiv2 ~= 0.27
+- exiv2 ~= 0.28
 - expat
 - fmt
 - fftw3f
