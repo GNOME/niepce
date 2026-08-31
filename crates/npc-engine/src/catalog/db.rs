@@ -1297,9 +1297,15 @@ impl CatalogDb {
         column: &str,
         value: i32,
     ) -> Result<()> {
-        if let Some(ref conn) = self.dbconn {
+        if let Some(conn) = &self.dbconn {
+            // XXX this work around the `mut` compile time check
+            // for one transaction at a time.
+            let tx = rusqlite::Transaction::new_unchecked(
+                conn,
+                rusqlite::TransactionBehavior::Immediate,
+            )?;
             let mut stmt =
-                conn.prepare_cached(&format!("UPDATE files SET {column}=?1 WHERE id=?2;"))?;
+                tx.prepare_cached(&format!("UPDATE files SET {column}=?1 WHERE id=?2;"))?;
             for file_id in file_ids {
                 let c = stmt.execute(params![value, file_id])?;
                 if c != 1 {
@@ -1398,12 +1404,18 @@ impl CatalogDb {
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare_cached("SELECT id FROM folders WHERE id=?1;")?;
-            let mut stmt2 =
-                conn.prepare_cached("UPDATE files SET parent_id = ?1 WHERE id = ?2;")?;
             let mut rows = stmt.query(params![folder_id])?;
             if let Ok(Some(_)) = rows.next() {
+                // XXX this work around the `mut` compile time check
+                // for one transaction at a time.
+                let tx = rusqlite::Transaction::new_unchecked(
+                    conn,
+                    rusqlite::TransactionBehavior::Immediate,
+                )?;
+                let mut stmt =
+                    tx.prepare_cached("UPDATE files SET parent_id = ?1 WHERE id = ?2;")?;
                 for file_id in file_ids {
-                    stmt2.execute(params![folder_id, file_id])?;
+                    stmt.execute(params![folder_id, file_id])?;
                 }
             } else {
                 return Err(Error::NotFound);
