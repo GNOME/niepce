@@ -632,17 +632,17 @@ pub fn cmd_assign_keyword(catalog: &CatalogDb, keyword_id: LibraryId, file_id: L
     }
 }
 
-pub fn cmd_move_file_to_folder(
+pub fn cmd_move_files_to_folder(
     catalog: &CatalogDb,
-    file_id: LibraryId,
+    file_ids: &[LibraryId],
     from: LibraryId,
     to: LibraryId,
 ) -> bool {
-    match catalog.move_file_to_folder(file_id, to) {
+    match catalog.move_files_to_folder(file_ids, to) {
         Ok(_) => {
             if catalog
                 .notify(LibNotification::FileMoved(FileMove {
-                    file: file_id,
+                    files: file_ids.to_vec(),
                     from,
                     to,
                 }))
@@ -653,7 +653,7 @@ pub fn cmd_move_file_to_folder(
             if catalog
                 .notify(LibNotification::FolderCountChanged(Count {
                     id: from,
-                    count: -1,
+                    count: -(file_ids.len() as i64),
                 }))
                 .is_err()
             {
@@ -662,7 +662,7 @@ pub fn cmd_move_file_to_folder(
             if catalog
                 .notify(LibNotification::FolderCountChanged(Count {
                     id: to,
-                    count: 1,
+                    count: file_ids.len() as i64,
                 }))
                 .is_err()
             {

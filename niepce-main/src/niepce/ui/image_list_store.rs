@@ -171,9 +171,11 @@ impl ImageListStore {
                     if param.from == current_folder {
                         // remove from list
                         dbg_out!("from this folder");
-                        if let Some(pos) = self.pos_from_id(param.file) {
-                            self.store.remove(pos);
-                            self.idmap.borrow_mut().remove(&param.file);
+                        for file_id in &param.files {
+                            if let Some(pos) = self.pos_from_id(*file_id) {
+                                self.store.remove(pos);
+                                self.idmap.borrow_mut().remove(file_id);
+                            }
                         }
                     } else if param.to == current_folder {
                         // XXX add to list. but this isn't likely to happen atm.

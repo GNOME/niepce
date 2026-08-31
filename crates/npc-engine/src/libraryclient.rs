@@ -294,9 +294,10 @@ impl ClientInterface for LibraryClientSender {
         self.schedule_op(move |catalog| commands::cmd_assign_keyword(catalog, keyword_id, file_id));
     }
 
-    fn move_file_to_folder(&self, file_id: LibraryId, from: LibraryId, to: LibraryId) {
+    fn move_files_to_folder(&self, file_ids: &[LibraryId], from: LibraryId, to: LibraryId) {
+        let file_ids = file_ids.to_vec();
         self.schedule_op(move |catalog| {
-            commands::cmd_move_file_to_folder(catalog, file_id, from, to)
+            commands::cmd_move_files_to_folder(catalog, &file_ids, from, to)
         });
     }
 

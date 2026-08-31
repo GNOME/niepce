@@ -30,7 +30,7 @@ pub type LcChannel = async_channel::Sender<LibNotification>;
 #[repr(C)]
 #[derive(Clone, Debug)]
 pub struct FileMove {
-    pub file: LibraryId,
+    pub files: Vec<LibraryId>,
     pub from: LibraryId,
     pub to: LibraryId,
 }

@@ -74,7 +74,7 @@ pub trait ClientInterface {
     /// Assign keyword to image.
     fn assign_keyword(&self, kewyord_id: LibraryId, file_id: LibraryId);
 
-    fn move_file_to_folder(&self, file_id: LibraryId, from: LibraryId, to: LibraryId);
+    fn move_files_to_folder(&self, file_ids: &[LibraryId], from: LibraryId, to: LibraryId);
     /// get all the labels
     fn get_all_labels(&self);
     fn create_label(&self, label: String, colour: RgbColour);

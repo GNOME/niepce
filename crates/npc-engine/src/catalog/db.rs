@@ -1391,22 +1391,24 @@ impl CatalogDb {
         Ok(())
     }
 
-    pub(crate) fn move_file_to_folder(
+    pub(crate) fn move_files_to_folder(
         &self,
-        file_id: LibraryId,
+        file_ids: &[LibraryId],
         folder_id: LibraryId,
     ) -> Result<()> {
         if let Some(ref conn) = self.dbconn {
             let mut stmt = conn.prepare_cached("SELECT id FROM folders WHERE id=?1;")?;
+            let mut stmt2 =
+                conn.prepare_cached("UPDATE files SET parent_id = ?1 WHERE id = ?2;")?;
             let mut rows = stmt.query(params![folder_id])?;
             if let Ok(Some(_)) = rows.next() {
-                let mut stmt =
-                    conn.prepare_cached("UPDATE files SET parent_id = ?1 WHERE id = ?2;")?;
-                stmt.execute(params![folder_id, file_id])?;
-                return Ok(());
+                for file_id in file_ids {
+                    stmt2.execute(params![folder_id, file_id])?;
+                }
             } else {
                 return Err(Error::NotFound);
             }
+            return Ok(());
         }
         Err(Error::NoSqlDb)
     }
@@ -1700,10 +1702,10 @@ pub(crate) mod test {
         let file_id = file_id.unwrap();
         assert!(file_id > 0);
 
-        assert!(catalog.move_file_to_folder(file_id, 100).is_err());
+        assert!(catalog.move_files_to_folder(&[file_id], 100).is_err());
         assert!(
             catalog
-                .move_file_to_folder(file_id, folder_added.id())
+                .move_files_to_folder(&[file_id], folder_added.id())
                 .is_ok()
         );
         let count = catalog.count_folder(folder_added.id());

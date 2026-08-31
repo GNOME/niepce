@@ -363,55 +363,53 @@ impl SelectionController {
     pub fn delete_from_view(&self) {
         let selection = self.selection();
         if !selection.is_empty() {
-            // XXX handle the whole selection
-            if let Some(ref f) = self.store.file(selection[0]) {
-                match self.content.get() {
-                    ContentView::Album(id) => {
-                        self.remove_from_album(id, f);
-                    }
-                    ContentView::Folder(_) => {
-                        self.move_file_to_trash(f);
-                    }
-                    // XXX handle remove from keyword.
-                    _ => {}
+            match self.content.get() {
+                ContentView::Album(id) => {
+                    self.remove_from_album(id, &selection);
                 }
+                ContentView::Folder(from) => {
+                    self.move_files_to_trash(from, &selection);
+                }
+                // XXX handle remove from keyword.
+                _ => {}
             }
         }
     }
 
-    /// Remove file `f` from `album`
-    fn remove_from_album(&self, album: catalog::LibraryId, f: &LibFile) {
-        let file_id = f.id();
+    /// Remove files in `file_ids` from `album`
+    fn remove_from_album(&self, album: catalog::LibraryId, file_ids: &[catalog::LibraryId]) {
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
+        let file_ids1 = file_ids.to_vec();
+        let file_ids2 = file_ids1.clone();
         let app = Weak::upgrade(&self.app).unwrap();
         npc_fwk::toolkit::undo_do_command(
             &app,
             &i18n("Remove from album"),
             Box::new(move || {
-                client_redo.remove_from_album(&[file_id], album);
+                client_redo.remove_from_album(&file_ids1, album);
                 npc_fwk::toolkit::Storage::Void
             }),
-            Box::new(move |_| client_undo.add_to_album(&[file_id], album)),
+            Box::new(move |_| client_undo.add_to_album(&file_ids2, album)),
         );
     }
 
-    /// Move the file `f` to the trash.
-    fn move_file_to_trash(&self, f: &LibFile) {
+    /// Move the files in `file_ids` `from` folder to the trash.
+    fn move_files_to_trash(&self, from: catalog::LibraryId, file_ids: &[catalog::LibraryId]) {
         let trash_folder = self.client.get_trash_id();
-        let file_id = f.id();
-        let from_folder = f.folder_id();
         let client_undo = self.client.clone();
         let client_redo = self.client.clone();
+        let file_ids1 = file_ids.to_vec();
+        let file_ids2 = file_ids1.clone();
         let app = Weak::upgrade(&self.app).unwrap();
         npc_fwk::toolkit::undo_do_command(
             &app,
             &i18n("Move to Trash"),
             Box::new(move || {
-                client_redo.move_file_to_folder(file_id, from_folder, trash_folder);
+                client_redo.move_files_to_folder(&file_ids1, from, trash_folder);
                 npc_fwk::toolkit::Storage::Void
             }),
-            Box::new(move |_| client_undo.move_file_to_folder(file_id, trash_folder, from_folder)),
+            Box::new(move |_| client_undo.move_files_to_folder(&file_ids2, trash_folder, from)),
         );
     }
 
@@ -420,7 +418,8 @@ impl SelectionController {
         let selection = self.selection();
         if !selection.is_empty() {
             if let Some(ref f) = self.store.file(selection[0]) {
-                self.move_file_to_trash(f);
+                let from = f.folder_id();
+                self.move_files_to_trash(from, &selection);
             }
         }
     }
