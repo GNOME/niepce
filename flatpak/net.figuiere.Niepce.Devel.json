@@ -270,42 +270,6 @@
             ]
         },
         {
-            "name": "pangomm",
-            "buildsystem": "meson",
-            "cleanup": [
-                "/lib/pangomm-*"
-            ],
-            "config-opts": [
-                "-Dbuild-deprecated-api=false",
-                "-Dbuild-documentation=false"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://download.gnome.org/sources/pangomm/2.50/pangomm-2.50.0.tar.xz",
-                    "sha256": "a27aa77e017b9afce9e751d85bd1cf890abbb3a58bf59d0fac917eef82db3b5b"
-                }
-            ]
-        },
-        {
-            "name": "atkmm",
-            "buildsystem": "meson",
-            "cleanup": [
-                "/lib/atkmm-2.36"
-            ],
-            "config-opts": [
-                "-Dbuild-deprecated-api=false",
-                "-Dbuild-documentation=false"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://download.gnome.org/sources/atkmm/2.36/atkmm-2.36.1.tar.xz",
-                    "sha256": "e11324bfed1b6e330a02db25cecc145dca03fb0dff47f0710c85e317687da458"
-                }
-            ]
-        },
-        {
             "name": "libshumate",
             "buildsystem": "meson",
             "config-opts": [
