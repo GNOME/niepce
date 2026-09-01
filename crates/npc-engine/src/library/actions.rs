@@ -27,8 +27,9 @@ use gettextrs::gettext as i18n;
 use crate::catalog::{self, NiepcePropertyIdx};
 use crate::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::PropertyValue;
+use npc_fwk::base::RgbColour;
 use npc_fwk::toolkit::widgets::MetadataPropertyBag;
-use npc_fwk::toolkit::{AppController, UndoCommand, UndoTransaction};
+use npc_fwk::toolkit::{AppController, Storage, UndoCommand, UndoTransaction};
 
 /// Add `files` to `album`.
 pub fn add_files_to_album<T>(
@@ -49,7 +50,7 @@ pub fn add_files_to_album<T>(
         &i18n("Add to Album"),
         Box::new(move || {
             client_redo.add_to_album(&files1, album);
-            npc_fwk::toolkit::Storage::Void
+            Storage::Void
         }),
         Box::new(move |_| client_undo.remove_from_album(&files2, album)),
     );
@@ -74,7 +75,7 @@ pub fn remove_files_from_album<T>(
         &i18n("Remove from album"),
         Box::new(move || {
             client_redo.remove_from_album(&files1, album);
-            npc_fwk::toolkit::Storage::Void
+            Storage::Void
         }),
         Box::new(move |_| client_undo.add_to_album(&files2, album)),
     );
@@ -103,7 +104,7 @@ pub fn move_files_to_trash<T>(
         &i18n("Move to Trash"),
         Box::new(move || {
             client_redo.move_files_to_folder(&files1, from, trash_folder);
-            npc_fwk::toolkit::Storage::Void
+            Storage::Void
         }),
         Box::new(move |_| client_undo.move_files_to_folder(&files2, trash_folder, from)),
     );
@@ -131,7 +132,7 @@ pub fn set_metadata_for_files<T>(
             let command = UndoCommand::new(
                 Box::new(move || {
                     client_redo.set_metadata(&files1, key, &new_value);
-                    npc_fwk::toolkit::Storage::Void
+                    Storage::Void
                 }),
                 Box::new(move |_| {
                     client_undo.set_metadata(&files2, key, &old_value);
@@ -164,10 +165,41 @@ pub fn set_one_metadata_for_file<T>(
         undo_label,
         Box::new(move || {
             client_redo.set_metadata(&[file], meta, &PropertyValue::Int(new_value));
-            npc_fwk::toolkit::Storage::Void
+            Storage::Void
         }),
         Box::new(move |_| {
             client_undo.set_metadata(&[file], meta, &PropertyValue::Int(old_value));
         }),
     );
+}
+
+pub fn update_labels<T>(
+    client: &Arc<LibraryClient>,
+    app: &Weak<T>,
+    labels: &[catalog::LibraryId],
+    old: Vec<(String, RgbColour)>,
+    new: Vec<(String, RgbColour)>,
+) where
+    T: AppController,
+{
+    let mut undo = UndoTransaction::new(&i18n("Update Label"));
+    for label in std::iter::zip(labels, std::iter::zip(old, new)) {
+        let client_undo = client.clone();
+        let client_redo = client.clone();
+
+        let label_id = *label.0;
+        undo.add(UndoCommand::new(
+            Box::new(move || {
+                client_redo.update_label(label_id, label.1.1.0.clone(), label.1.1.1.clone());
+                Storage::Void
+            }),
+            Box::new(move |_| {
+                client_undo.update_label(label_id, label.1.0.0.clone(), label.1.0.1.clone());
+            }),
+        ));
+    }
+    undo.execute();
+    if let Some(app) = Weak::upgrade(app) {
+        app.begin_undo(undo);
+    }
 }

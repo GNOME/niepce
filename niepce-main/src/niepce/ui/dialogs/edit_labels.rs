@@ -22,18 +22,12 @@ use std::rc::{Rc, Weak};
 use std::sync::Arc;
 
 use adw::prelude::*;
-use gettextrs::gettext as i18n;
 use npc_fwk::{adw, glib, gtk4};
 
 use npc_engine::catalog;
-use npc_engine::libraryclient::{
-    ClientInterface, ClientInterfaceSync, LibraryClient, LibraryClientHost,
-};
-use npc_fwk::base::RgbColour;
-use npc_fwk::toolkit::{
-    AppController, Controller, ControllerImplCell, DialogController, Storage, UiController,
-    UndoCommand, UndoTransaction,
-};
+use npc_engine::library::actions;
+use npc_engine::libraryclient::{LibraryClient, LibraryClientHost};
+use npc_fwk::toolkit::{Controller, ControllerImplCell, DialogController, UiController};
 use npc_fwk::{controller_imp_imp, send_async_local};
 
 use crate::NiepceApplication;
@@ -159,55 +153,24 @@ impl EditLabels {
     }
 
     fn update_labels(&self) {
-        let mut undo = UndoTransaction::new(&i18n("Change Labels"));
         let statuses = self.status.borrow();
+        let mut labels = vec![];
+        let mut old = vec![];
+        let mut new = vec![];
         for status in statuses.iter().enumerate() {
             if !status.1 {
                 continue;
             }
-            let update = true;
-            let new_name = self.entries[status.0].text().to_string();
-            let new_colour: RgbColour = self.colours[status.0].rgba().into();
-            let current_name = self.labels[status.0].label().to_string();
-            let current_colour: RgbColour = self.colours[status.0].rgba().into();
-            let label_id = self.labels[status.0].id();
-
-            let client_undo = self.client.clone();
-            let client_redo = self.client.clone();
-
-            let command = if update {
-                UndoCommand::new(
-                    Box::new(move || {
-                        client_redo.update_label(label_id, new_name.clone(), new_colour.clone());
-                        Storage::Void
-                    }),
-                    Box::new(move |_| {
-                        client_undo.update_label(
-                            label_id,
-                            current_name.clone(),
-                            current_colour.clone(),
-                        );
-                    }),
-                )
-            } else {
-                UndoCommand::new(
-                    Box::new(move || {
-                        client_redo
-                            .create_label_sync(new_name.clone(), new_colour.clone())
-                            .into()
-                    }),
-                    Box::new(move |label| {
-                        client_undo.delete_label(label.into());
-                    }),
-                )
-            };
-            undo.add(command);
+            new.push((
+                self.entries[status.0].text().to_string(),
+                self.colours[status.0].rgba().into(),
+            ));
+            old.push((
+                self.labels[status.0].label().to_string(),
+                self.colours[status.0].rgba().into(),
+            ));
+            labels.push(self.labels[status.0].id());
         }
-        if !undo.is_empty() {
-            undo.execute();
-            if let Some(app) = Weak::upgrade(&self.app) {
-                app.begin_undo(undo);
-            }
-        }
+        actions::update_labels(&self.client, &self.app, &labels, old, new)
     }
 }
