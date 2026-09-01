@@ -1,6 +1,7 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 crates/npc-engine/src/importer/lrimporter.rs
+crates/npc-engine/src/library/actions.rs
 crates/npc-fwk/src/toolkit/confirm.rs
 crates/npc-fwk/src/toolkit/request.rs
 crates/npc-fwk/src/toolkit/widgets/metadata_widget.rs

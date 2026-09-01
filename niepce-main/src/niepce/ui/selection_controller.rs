@@ -32,14 +32,12 @@ use crate::NiepceApplication;
 use npc_engine::ThumbnailCache;
 use npc_engine::catalog;
 use npc_engine::catalog::{LibFile, NiepcePropertyIdx};
-use npc_engine::library::notification::LibNotification;
+use npc_engine::library::{actions, notification::LibNotification};
 use npc_engine::libraryclient::{ClientInterface, LibraryClient, LibraryClientHost};
 use npc_fwk::send_async_local;
 use npc_fwk::toolkit::widgets::MetadataPropertyBag;
-use npc_fwk::toolkit::{
-    AppController, Controller, ControllerImplCell, UndoCommand, UndoTransaction,
-};
-use npc_fwk::{PropertyValue, dbg_out, err_out};
+use npc_fwk::toolkit::{AppController, Controller, ControllerImplCell};
+use npc_fwk::{dbg_out, err_out};
 
 #[derive(PartialEq)]
 enum Direction {
@@ -225,65 +223,6 @@ impl SelectionController {
         err_out!("rotate is not implemented");
     }
 
-    fn set_one_metadata(
-        &self,
-        undo_label: &str,
-        file_id: catalog::LibraryId,
-        meta: NiepcePropertyIdx,
-        old_value: i32,
-        new_value: i32,
-    ) -> bool {
-        let client_undo = self.client.clone();
-        let client_redo = self.client.clone();
-        let app = Weak::upgrade(&self.app).unwrap();
-        npc_fwk::toolkit::undo_do_command(
-            &app,
-            undo_label,
-            Box::new(move || {
-                client_redo.set_metadata(&[file_id], meta, &PropertyValue::Int(new_value));
-                npc_fwk::toolkit::Storage::Void
-            }),
-            Box::new(move |_| {
-                client_undo.set_metadata(&[file_id], meta, &PropertyValue::Int(old_value));
-            }),
-        );
-        true
-    }
-
-    fn set_metadata(
-        &self,
-        undo_label: &str,
-        file_ids: &[catalog::LibraryId],
-        props: &MetadataPropertyBag,
-        old: &MetadataPropertyBag,
-    ) -> bool {
-        let mut undo = UndoTransaction::new(undo_label);
-        for key in props.keys() {
-            let old_value = old.get(key).cloned().unwrap_or(PropertyValue::Empty);
-            let new_value = props.get(key).cloned().unwrap();
-            if let Ok(key) = NiepcePropertyIdx::try_from(*key) {
-                let client_undo = self.client.clone();
-                let client_redo = self.client.clone();
-                let file_ids1 = file_ids.to_vec();
-                let file_ids2 = file_ids1.clone();
-                let command = UndoCommand::new(
-                    Box::new(move || {
-                        client_redo.set_metadata(&file_ids1, key, &new_value);
-                        npc_fwk::toolkit::Storage::Void
-                    }),
-                    Box::new(move |_| {
-                        client_undo.set_metadata(&file_ids2, key, &old_value);
-                    }),
-                );
-                undo.add(command);
-            }
-        }
-        undo.execute();
-        let app = Weak::upgrade(&self.app).unwrap();
-        app.begin_undo(undo);
-        true
-    }
-
     pub fn set_label(&self, label: i32) {
         self.set_property(catalog::NiepcePropertyIdx::XmpLabelProp, label);
     }
@@ -330,7 +269,15 @@ impl SelectionController {
                 // we need to set the property here so that undo/redo works
                 // consistently.
                 file.set_property(idx, value);
-                self.set_one_metadata(&action, *id, idx, old_value, value);
+                actions::set_one_metadata_for_file(
+                    &self.client,
+                    &self.app,
+                    &action,
+                    idx,
+                    old_value,
+                    value,
+                    *id,
+                );
             } else {
                 err_out!("requested file {} not found!", id);
             }
@@ -341,7 +288,14 @@ impl SelectionController {
     pub fn set_properties(&self, props: &MetadataPropertyBag, old: &MetadataPropertyBag) {
         let selection = self.selection();
         if !selection.is_empty() {
-            self.set_metadata(&i18n("Set Properties"), &selection, props, old);
+            actions::set_metadata_for_files(
+                &self.client,
+                &self.app,
+                &i18n("Set Properties"),
+                props,
+                old,
+                &selection,
+            );
         }
     }
 
@@ -365,52 +319,15 @@ impl SelectionController {
         if !selection.is_empty() {
             match self.content.get() {
                 ContentView::Album(id) => {
-                    self.remove_from_album(id, &selection);
+                    actions::remove_files_from_album(&self.client, &self.app, &selection, id);
                 }
                 ContentView::Folder(from) => {
-                    self.move_files_to_trash(from, &selection);
+                    actions::move_files_to_trash(&self.client, &self.app, from, &selection);
                 }
                 // XXX handle remove from keyword.
                 _ => {}
             }
         }
-    }
-
-    /// Remove files in `file_ids` from `album`
-    fn remove_from_album(&self, album: catalog::LibraryId, file_ids: &[catalog::LibraryId]) {
-        let client_undo = self.client.clone();
-        let client_redo = self.client.clone();
-        let file_ids1 = file_ids.to_vec();
-        let file_ids2 = file_ids1.clone();
-        let app = Weak::upgrade(&self.app).unwrap();
-        npc_fwk::toolkit::undo_do_command(
-            &app,
-            &i18n("Remove from album"),
-            Box::new(move || {
-                client_redo.remove_from_album(&file_ids1, album);
-                npc_fwk::toolkit::Storage::Void
-            }),
-            Box::new(move |_| client_undo.add_to_album(&file_ids2, album)),
-        );
-    }
-
-    /// Move the files in `file_ids` `from` folder to the trash.
-    fn move_files_to_trash(&self, from: catalog::LibraryId, file_ids: &[catalog::LibraryId]) {
-        let trash_folder = self.client.get_trash_id();
-        let client_undo = self.client.clone();
-        let client_redo = self.client.clone();
-        let file_ids1 = file_ids.to_vec();
-        let file_ids2 = file_ids1.clone();
-        let app = Weak::upgrade(&self.app).unwrap();
-        npc_fwk::toolkit::undo_do_command(
-            &app,
-            &i18n("Move to Trash"),
-            Box::new(move || {
-                client_redo.move_files_to_folder(&file_ids1, from, trash_folder);
-                npc_fwk::toolkit::Storage::Void
-            }),
-            Box::new(move |_| client_undo.move_files_to_folder(&file_ids2, trash_folder, from)),
-        );
     }
 
     /// Move selection to trash
@@ -419,7 +336,7 @@ impl SelectionController {
         if !selection.is_empty() {
             if let Some(ref f) = self.store.file(selection[0]) {
                 let from = f.folder_id();
-                self.move_files_to_trash(from, &selection);
+                actions::move_files_to_trash(&self.client, &self.app, from, &selection);
             }
         }
     }

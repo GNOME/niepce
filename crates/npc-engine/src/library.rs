@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+pub mod actions;
 pub mod commands;
 pub mod notification;
 pub mod op;

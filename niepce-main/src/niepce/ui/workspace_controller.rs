@@ -33,7 +33,7 @@ use num_derive::FromPrimitive;
 use super::ContentView;
 use npc_engine::catalog;
 use npc_engine::importer::ImportRequest;
-use npc_engine::library::notification::LibNotification;
+use npc_engine::library::{actions, notification::LibNotification};
 use npc_engine::libraryclient::{ClientInterface, LibraryClient};
 use npc_fwk::base::Signal;
 use npc_fwk::toolkit::{
@@ -847,18 +847,7 @@ impl WorkspaceController {
             }
             Album => {
                 if let Some(client) = self.client.upgrade() {
-                    let client_redo = client.clone();
-                    let redo_source = source.clone();
-                    let app = Weak::upgrade(&self.app).unwrap();
-                    npc_fwk::toolkit::undo_do_command(
-                        &app,
-                        &i18n("Add to Album"),
-                        Box::new(move || {
-                            client_redo.add_to_album(&redo_source, target);
-                            npc_fwk::toolkit::Storage::Void
-                        }),
-                        Box::new(move |_| client.remove_from_album(&source, target)),
-                    );
+                    actions::add_files_to_album(&client, &self.app, &source, target)
                 }
             }
             Keyword => {}
