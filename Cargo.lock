@@ -2214,6 +2214,7 @@ dependencies = [
  "cachedir",
  "chrono",
  "clap",
+ "configparser",
  "exempi2",
  "gettext-rs 0.8.0",
  "humanize-bytes",
