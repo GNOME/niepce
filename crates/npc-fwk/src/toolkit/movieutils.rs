@@ -22,7 +22,6 @@
 use std::path::Path;
 
 use crate::glib;
-use glib::prelude::*;
 use gstreamer as gst;
 use gstreamer::prelude::*;
 use image::DynamicImage;
