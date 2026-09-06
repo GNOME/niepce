@@ -196,6 +196,20 @@ pub fn trim_trailing_path_sep(path: &Path) -> &Path {
     Path::new(unsafe { OsStr::from_encoded_bytes_unchecked(bytes) })
 }
 
+/// Compute the MD5 digest for the file at `path`.
+pub fn md5_digest(path: &Path) -> crate::Result<String> {
+    use md5::Digest;
+    use std::io::Read;
+
+    let mut f = std::fs::File::open(path)?;
+
+    let mut buf = vec![];
+    f.read_to_end(&mut buf)?;
+    let md5 = md5::Md5::digest(buf);
+
+    Ok(format!("{md5:x}"))
+}
+
 #[cfg(test)]
 mod tests {
 

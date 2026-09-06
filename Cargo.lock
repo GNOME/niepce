@@ -2257,6 +2257,7 @@ dependencies = [
  "libshumate",
  "log",
  "lrcat-extractor",
+ "md-5",
  "mime_guess",
  "multimap",
  "nix",
