@@ -356,10 +356,9 @@ impl Widgets {
             .folders_node
             .children()
             .and_then(|store| store.downcast::<WorkspaceList>().ok())
+            && let Err(err) = store.remove_by_id(id)
         {
-            if let Err(err) = store.remove_by_id(id) {
-                err_out!("Couldn't remove folder item {}: {:?}", id, err);
-            }
+            err_out!("Couldn't remove folder item {}: {:?}", id, err);
         }
     }
 
@@ -410,10 +409,9 @@ impl Widgets {
             .albums_node
             .children()
             .and_then(|children| children.downcast::<WorkspaceList>().ok())
+            && let Err(err) = store.remove_by_id(id)
         {
-            if let Err(err) = store.remove_by_id(id) {
-                err_out!("Couldn't remove album item {}: {:?}", id, err);
-            }
+            err_out!("Couldn't remove album item {}: {:?}", id, err);
         }
     }
 
@@ -551,43 +549,42 @@ impl WorkspaceController {
     }
 
     fn button_press_event(&self, x: f64, y: f64) {
-        if let Some(widgets) = self.widgets.get() {
-            if widgets
+        if let Some(widgets) = self.widgets.get()
+            && widgets
                 .librarytree
                 .model()
                 .and_downcast::<gtk4::SingleSelection>()
                 .and_then(|m| m.selected_item())
                 .is_some()
-            {
-                widgets
-                    .context_menu
-                    .set_pointing_to(Some(&gdk4::Rectangle::new(x as i32, y as i32, 1, 1)));
-                widgets.context_menu.popup();
-            }
+        {
+            widgets
+                .context_menu
+                .set_pointing_to(Some(&gdk4::Rectangle::new(x as i32, y as i32, 1, 1)));
+            widgets.context_menu.popup();
         }
     }
 
     fn on_libtree_selection(&self) {
         let mut content = ContentView::Empty;
-        if let Some((type_, id)) = self.selected_item_id() {
-            if let Some(client) = self.client.upgrade() {
-                content = match type_ {
-                    TreeItemType::Folder => {
-                        client.query_folder_content(id);
-                        ContentView::Folder(id)
-                    }
-                    TreeItemType::Keyword => {
-                        client.query_keyword_content(id);
-                        ContentView::Keyword(id)
-                    }
-                    TreeItemType::Album => {
-                        client.query_album_content(id);
-                        ContentView::Album(id)
-                    }
-                    _ => {
-                        dbg_out!("Something selected of type {:?}", type_);
-                        ContentView::Empty
-                    }
+        if let Some((type_, id)) = self.selected_item_id()
+            && let Some(client) = self.client.upgrade()
+        {
+            content = match type_ {
+                TreeItemType::Folder => {
+                    client.query_folder_content(id);
+                    ContentView::Folder(id)
+                }
+                TreeItemType::Keyword => {
+                    client.query_keyword_content(id);
+                    ContentView::Keyword(id)
+                }
+                TreeItemType::Album => {
+                    client.query_album_content(id);
+                    ContentView::Album(id)
+                }
+                _ => {
+                    dbg_out!("Something selected of type {:?}", type_);
+                    ContentView::Empty
                 }
             }
         }
@@ -708,10 +705,10 @@ impl WorkspaceController {
                 #[strong(rename_to = client)]
                 self.client,
                 move |_, response| {
-                    if response == "confirm" {
-                        if let Some(client) = client.upgrade() {
-                            client.delete_folder(id);
-                        }
+                    if response == "confirm"
+                        && let Some(client) = client.upgrade()
+                    {
+                        client.delete_folder(id);
                     }
                     dialog.destroy();
                 }
@@ -758,10 +755,10 @@ impl WorkspaceController {
                 #[strong(rename_to = client)]
                 self.client,
                 move |_, response| {
-                    if response == "confirm" {
-                        if let Some(client) = client.upgrade() {
-                            client.delete_album(id);
-                        }
+                    if response == "confirm"
+                        && let Some(client) = client.upgrade()
+                    {
+                        client.delete_album(id);
                     }
                     dialog.destroy();
                 }
@@ -884,10 +881,10 @@ impl WorkspaceController {
                 &self.icon_roll
             };
 
-            if let Some(pos) = widgets.add_folder_item(folder, icon) {
-                if folder.expanded() {
-                    widgets.expand_row(pos);
-                }
+            if let Some(pos) = widgets.add_folder_item(folder, icon)
+                && folder.expanded()
+            {
+                widgets.expand_row(pos);
             }
             if let Some(client) = self.client.upgrade() {
                 client.count_folder(folder.id());

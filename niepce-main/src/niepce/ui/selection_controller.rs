@@ -333,11 +333,11 @@ impl SelectionController {
     /// Move selection to trash
     pub fn move_to_trash(&self) {
         let selection = self.selection();
-        if !selection.is_empty() {
-            if let Some(ref f) = self.store.file(selection[0]) {
-                let from = f.folder_id();
-                actions::move_files_to_trash(&self.client, &self.app, from, &selection);
-            }
+        if !selection.is_empty()
+            && let Some(ref f) = self.store.file(selection[0])
+        {
+            let from = f.folder_id();
+            actions::move_files_to_trash(&self.client, &self.app, from, &selection);
         }
     }
 }

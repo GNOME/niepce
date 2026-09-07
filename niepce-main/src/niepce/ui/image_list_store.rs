@@ -184,10 +184,10 @@ impl ImageListStore {
                 true
             }
             FileStatusChanged(ref status) => {
-                if let Some(pos) = self.idmap.borrow().get(&status.id) {
-                    if let Some(item) = self.store.item(*pos).and_downcast::<ImageListItem>() {
-                        item.set_file_status(status.status);
-                    }
+                if let Some(pos) = self.idmap.borrow().get(&status.id)
+                    && let Some(item) = self.store.item(*pos).and_downcast::<ImageListItem>()
+                {
+                    item.set_file_status(status.status);
                 }
                 true
             }
@@ -242,11 +242,11 @@ impl ImageListStore {
     }
 
     pub fn set_thumbnail(&self, id: LibraryId, thumb: &gdk4::Texture) {
-        if let Some(pos) = self.idmap.borrow().get(&id) {
-            if let Some(item) = self.store.item(*pos).and_downcast_ref::<ImageListItem>() {
-                let thumb = thumb.clone();
-                item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
-            }
+        if let Some(pos) = self.idmap.borrow().get(&id)
+            && let Some(item) = self.store.item(*pos).and_downcast_ref::<ImageListItem>()
+        {
+            let thumb = thumb.clone();
+            item.set_thumbnail(Some(thumb.upcast::<gdk4::Paintable>()));
         }
     }
 

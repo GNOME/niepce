@@ -311,11 +311,11 @@ impl DialogController for ImportDialog {
                     }
                 });
                 factory.connect_bind(move |_, item| {
-                    if let Some(list_item) = item.downcast_ref::<gtk4::ListItem>() {
-                        if let Some(row) = list_item.child().and_downcast::<ThumbItemRow>() {
-                            let thumb_item = list_item.item().and_downcast::<ThumbItem>().unwrap();
-                            row.bind(&thumb_item, None);
-                        }
+                    if let Some(list_item) = item.downcast_ref::<gtk4::ListItem>()
+                        && let Some(row) = list_item.child().and_downcast::<ThumbItemRow>()
+                    {
+                        let thumb_item = list_item.item().and_downcast::<ThumbItem>().unwrap();
+                        row.bind(&thumb_item, None);
                     }
                 });
                 factory.connect_unbind(move |_, item| {

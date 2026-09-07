@@ -86,16 +86,17 @@ impl LibMetadata {
             self.xmp_meta
                 .xmp
                 .get_property(index_to_xmp.ns, index_to_xmp.property, &mut prop_flags);
-        if xmp_result.is_ok() && prop_flags.contains(exempi2::PropFlags::ARRAY_IS_ALTTEXT) {
-            if let Ok((_, value)) = self.xmp_meta.xmp.get_localized_text(
+        if xmp_result.is_ok()
+            && prop_flags.contains(exempi2::PropFlags::ARRAY_IS_ALTTEXT)
+            && let Ok((_, value)) = self.xmp_meta.xmp.get_localized_text(
                 index_to_xmp.ns,
                 index_to_xmp.property,
                 "",
                 "x-default",
                 &mut prop_flags,
-            ) {
-                xmp_result = Ok(value);
-            }
+            )
+        {
+            xmp_result = Ok(value);
         }
         Some(PropertyValue::String(String::from(&xmp_result.ok()?)))
     }

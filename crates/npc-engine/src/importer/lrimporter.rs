@@ -352,12 +352,13 @@ impl LibraryImporterProbe for LrImporter {
     /// Detect if this is a Lr catalog
     /// XXX improve it.
     fn can_import_library(path: &Path) -> bool {
-        if let Some(ext) = path.extension() {
-            if ext == "lrcat" {
-                return true;
-            }
+        if let Some(ext) = path.extension()
+            && ext == "lrcat"
+        {
+            true
+        } else {
+            false
         }
-        false
     }
 }
 

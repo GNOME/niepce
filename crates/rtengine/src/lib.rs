@@ -1,7 +1,7 @@
 /*
  * niepce - lib.rs
  *
- * Copyright (C) 2023-2024 Hubert Figuière
+ * Copyright (C) 2023-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -143,21 +143,19 @@ impl RtEngine {
     /// Process the image using rtengine and return an ImageBitmap
     /// Currently it uses the default profiles and enable `LcMode::LensFunAutoMatch`.
     pub fn process(&self) -> Result<ImageBitmap> {
-        if let Some(ref mut state) = *self.state.borrow_mut() {
-            if let Some(ref mut image) = state.initial_image {
-                let mut proc_params = params::ProcParams::new();
-                let raw_params = params::ProfileStore::load_dynamic_profile(
-                    &image.meta_data(),
-                    &state.input_file,
-                );
-                raw_params.apply_to(&mut proc_params, false);
-                proc_params.set_lcmode(ffi::LcMode::LensFunAutoMatch);
+        if let Some(ref mut state) = *self.state.borrow_mut()
+            && let Some(ref mut image) = state.initial_image
+        {
+            let mut proc_params = params::ProcParams::new();
+            let raw_params =
+                params::ProfileStore::load_dynamic_profile(&image.meta_data(), &state.input_file);
+            raw_params.apply_to(&mut proc_params, false);
+            proc_params.set_lcmode(ffi::LcMode::LensFunAutoMatch);
 
-                let job = processing::ProcessingJob::new(image, &proc_params, false);
-                return job
-                    .process_image(false)
-                    .map(|image| image.to_image_bitmap());
-            }
+            let job = processing::ProcessingJob::new(image, &proc_params, false);
+            return job
+                .process_image(false)
+                .map(|image| image.to_image_bitmap());
         }
         Err(Error::NoImage)
     }

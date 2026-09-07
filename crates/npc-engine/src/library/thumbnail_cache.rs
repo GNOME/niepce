@@ -119,10 +119,10 @@ fn get_preview(cache: &Cache, task: &Task, sender: &LcChannel) -> Option<ImageBi
     }
 
     log::trace!("creating preview for {:?}", filename);
-    if let Some(cached_dir) = dest.parent() {
-        if let Err(err) = fs::create_dir_all(cached_dir) {
-            err_out!("Coudln't create directories for {:?}: {}", dest, err);
-        }
+    if let Some(cached_dir) = dest.parent()
+        && let Err(err) = fs::create_dir_all(cached_dir)
+    {
+        err_out!("Coudln't create directories for {:?}: {}", dest, err);
     }
 
     // Run the pipeline
@@ -187,10 +187,10 @@ fn get_thumbnail(cache: &Cache, task: &Task, libfile: &LibFile) -> Option<Thumbn
     }
 
     log::trace!("creating thumbnail for {:?}", filename);
-    if let Some(cached_dir) = dest.parent() {
-        if let Err(err) = fs::create_dir_all(cached_dir) {
-            err_out!("Coudln't create directories for {:?}: {}", dest, err);
-        }
+    if let Some(cached_dir) = dest.parent()
+        && let Err(err) = fs::create_dir_all(cached_dir)
+    {
+        err_out!("Coudln't create directories for {:?}: {}", dest, err);
     }
 
     let thumbnail = Thumbnail::thumbnail_file(

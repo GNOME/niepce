@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/library_cell_renderer.rs
  *
- * Copyright (C) 2020-2025 Hubert Figuière
+ * Copyright (C) 2020-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -352,11 +352,11 @@ impl LibraryCellRendererPriv {
         dbg_out!("new_rating {}", new_rating);
 
         let file = self.libfile.borrow();
-        if let Some(f) = &*file {
-            if f.rating() != new_rating {
-                // emit signal if changed
-                obj.emit_by_name::<()>("rating-changed", &[&f.id(), &new_rating]);
-            }
+        if let Some(f) = &*file
+            && f.rating() != new_rating
+        {
+            // emit signal if changed
+            obj.emit_by_name::<()>("rating-changed", &[&f.id(), &new_rating]);
         }
         true
     }
@@ -496,10 +496,10 @@ impl WidgetImpl for LibraryCellRendererPriv {
                 y,
             );
         }
-        if self.draw_flag.get() {
-            if let Some(f) = &*file {
-                Self::do_draw_flag(snapshot, f.flag(), &r);
-            }
+        if self.draw_flag.get()
+            && let Some(f) = &*file
+        {
+            Self::do_draw_flag(snapshot, f.flag(), &r);
         }
 
         let status = self.status.get();
@@ -526,10 +526,10 @@ impl WidgetImpl for LibraryCellRendererPriv {
                     Some(f) => f.label(),
                     None => 0,
                 };
-                if label_id != 0 {
-                    if let Some(colour) = self.get_colour(label_id) {
-                        Self::do_draw_label(&cr, left, colour, &r);
-                    }
+                if label_id != 0
+                    && let Some(colour) = self.get_colour(label_id)
+                {
+                    Self::do_draw_label(&cr, left, colour, &r);
                 }
             }
         }

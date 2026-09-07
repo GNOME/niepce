@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/workspace_controller/ws_list_model.rs
  *
- * Copyright (C) 2022-2025 Hubert Figuière
+ * Copyright (C) 2022-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -147,28 +147,26 @@ impl WorkspaceList {
     }
 
     pub(super) fn set_count_by_id(&self, id: catalog::LibraryId, count: CountUpdate) {
-        if let Some(item_pos) = self.pos_by_id(id) {
-            if let Some(item) = item_pos
+        if let Some(item_pos) = self.pos_by_id(id)
+            && let Some(item) = item_pos
                 .model
                 .item(item_pos.pos)
                 .and_then(|item| item.downcast::<Item>().ok())
-            {
-                item.set_count(count);
-                item_pos.model.items_changed(item_pos.pos, 0, 0);
-            }
+        {
+            item.set_count(count);
+            item_pos.model.items_changed(item_pos.pos, 0, 0);
         }
     }
 
     pub(super) fn rename_by_id(&self, id: catalog::LibraryId, name: &str) {
-        if let Some(item_pos) = self.pos_by_id(id) {
-            if let Some(item) = item_pos
+        if let Some(item_pos) = self.pos_by_id(id)
+            && let Some(item) = item_pos
                 .model
                 .item(item_pos.pos)
                 .and_then(|item| item.downcast::<Item>().ok())
-            {
-                item.set_label(name);
-                item_pos.model.items_changed(item_pos.pos, 0, 0);
-            }
+        {
+            item.set_label(name);
+            item_pos.model.items_changed(item_pos.pos, 0, 0);
         }
     }
 }

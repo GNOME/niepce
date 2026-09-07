@@ -193,10 +193,10 @@ impl Controller for NiepceWindow {
                         #[strong(rename_to = client)]
                         self.libraryclient,
                         move |dialog, response| {
-                            if response == "confirm" {
-                                if let Some(client_host) = client.borrow().as_ref() {
-                                    client_host.client().upgrade_catalog_from_sync(v);
-                                }
+                            if response == "confirm"
+                                && let Some(client_host) = client.borrow().as_ref()
+                            {
+                                client_host.client().upgrade_catalog_from_sync(v);
                             }
                             dialog.destroy();
                         }
@@ -228,10 +228,10 @@ impl Controller for NiepceWindow {
                     .initialise(&prefs);
                 self.load_state(self.configuration.borrow().as_ref().unwrap());
                 #[cfg(feature = "python")]
-                if let Some(cfg) = self.configuration.borrow().as_ref() {
-                    if npc_python::Editor::is_visible(cfg) {
-                        self.on_python_editor();
-                    }
+                if let Some(cfg) = self.configuration.borrow().as_ref()
+                    && npc_python::Editor::is_visible(cfg)
+                {
+                    self.on_python_editor();
                 }
             }
             UpdatePrefs(key, value) => {

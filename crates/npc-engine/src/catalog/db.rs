@@ -1516,79 +1516,75 @@ impl CatalogDb {
         // 2. it only delete if the xmp file has been updated properly
         // 3. make sure the update happened correctly, possibly ensure we don't
         // clobber the xmp.
-        if let Some(ref conn) = self.dbconn {
-            if conn
+        if let Some(ref conn) = self.dbconn
+            && conn
                 .execute("DELETE FROM xmp_update_queue WHERE id=?1;", [&id])
                 .is_ok()
-            {
-                // we don't want to write the XMP so we don't need to list them.
-                if !write_xmp {
-                    return Ok(());
-                }
-                if let Ok(mut stmt) = conn.prepare_cached(
-                    "SELECT xmp, main_file, xmp_file FROM files \
+        {
+            // we don't want to write the XMP so we don't need to list them.
+            if !write_xmp {
+                return Ok(());
+            }
+            if let Ok(mut stmt) = conn.prepare_cached(
+                "SELECT xmp, main_file, xmp_file FROM files \
                      WHERE id=?1;",
-                ) {
-                    let mut rows = stmt.query([&id])?;
-                    while let Ok(Some(row)) = rows.next() {
-                        let xmp_buffer: String = row.get(0)?;
-                        let main_file_id: LibraryId = row.get(1)?;
-                        // In case of error we assume 0.
-                        let xmp_file_id: LibraryId = row.get(2).unwrap_or(0);
-                        let p = self.get_fs_file(main_file_id);
-                        let spath = if let Ok(ref p) = p {
-                            PathBuf::from(p)
-                        } else {
-                            // XXX we should report that error.
-                            err_out!("couldn't find the main file {:?}", p);
-                            dbg_assert!(false, "couldn't find the main file");
-                            continue;
-                        };
-                        let mut p: Option<PathBuf> = None;
-                        if xmp_file_id > 0 {
-                            if let Ok(p2) = self.get_fs_file(xmp_file_id) {
-                                p = Some(PathBuf::from(p2));
-                            }
-                            dbg_assert!(p.is_some(), "couldn't find the xmp file path");
+            ) {
+                let mut rows = stmt.query([&id])?;
+                while let Ok(Some(row)) = rows.next() {
+                    let xmp_buffer: String = row.get(0)?;
+                    let main_file_id: LibraryId = row.get(1)?;
+                    // In case of error we assume 0.
+                    let xmp_file_id: LibraryId = row.get(2).unwrap_or(0);
+                    let p = self.get_fs_file(main_file_id);
+                    let spath = if let Ok(ref p) = p {
+                        PathBuf::from(p)
+                    } else {
+                        // XXX we should report that error.
+                        err_out!("couldn't find the main file {:?}", p);
+                        dbg_assert!(false, "couldn't find the main file");
+                        continue;
+                    };
+                    let mut p: Option<PathBuf> = None;
+                    if xmp_file_id > 0 {
+                        if let Ok(p2) = self.get_fs_file(xmp_file_id) {
+                            p = Some(PathBuf::from(p2));
                         }
-                        if p.is_none() {
-                            p = Some(spath.with_extension("xmp"));
-                            dbg_assert!(
-                                *p.as_ref().unwrap() != spath,
-                                "path must have been changed"
-                            );
-                        }
-                        let p = p.unwrap();
-                        if p.exists() {
-                            dbg_out!("{:?} already exist", p);
-                        }
-                        let mut xmppacket = npc_fwk::XmpMeta::new();
-                        xmppacket.unserialize(&xmp_buffer);
-                        // XXX handle this error. It should keep the
-                        // row in the db and mark it as error.  There
-                        // is no column in `xmp_update_queue` for the
-                        // status. See note further up too.
-                        if let Ok(sidecar) = xmppacket.serialize()
-                            && let Ok(mut f) = File::create(p.clone())
-                            && f.write(sidecar.as_bytes()).is_ok()
-                            && (xmp_file_id <= 0)
-                        {
-                            let xmp_file_id = self.add_fs_file(&p)?;
-                            dbg_assert!(xmp_file_id > 0, "couldn't add xmp_file");
-                            // XXX handle error
-                            let res = self.add_xmp_sidecar_to_bundle(id, xmp_file_id);
-                            dbg_assert!(res.is_ok(), "add_xmp_sidecar_to_bundle failed");
-                            let res = self.add_sidecar_fsfile_to_bundle(
-                                id,
-                                xmp_file_id,
-                                SidecarType::Xmp,
-                                "xmp",
-                            );
-                            dbg_assert!(res.is_ok(), "add_sidecar_fsfile_to_bundle failed");
-                        }
+                        dbg_assert!(p.is_some(), "couldn't find the xmp file path");
                     }
-                    return Ok(());
+                    if p.is_none() {
+                        p = Some(spath.with_extension("xmp"));
+                        dbg_assert!(*p.as_ref().unwrap() != spath, "path must have been changed");
+                    }
+                    let p = p.unwrap();
+                    if p.exists() {
+                        dbg_out!("{:?} already exist", p);
+                    }
+                    let mut xmppacket = npc_fwk::XmpMeta::new();
+                    xmppacket.unserialize(&xmp_buffer);
+                    // XXX handle this error. It should keep the
+                    // row in the db and mark it as error.  There
+                    // is no column in `xmp_update_queue` for the
+                    // status. See note further up too.
+                    if let Ok(sidecar) = xmppacket.serialize()
+                        && let Ok(mut f) = File::create(p.clone())
+                        && f.write(sidecar.as_bytes()).is_ok()
+                        && (xmp_file_id <= 0)
+                    {
+                        let xmp_file_id = self.add_fs_file(&p)?;
+                        dbg_assert!(xmp_file_id > 0, "couldn't add xmp_file");
+                        // XXX handle error
+                        let res = self.add_xmp_sidecar_to_bundle(id, xmp_file_id);
+                        dbg_assert!(res.is_ok(), "add_xmp_sidecar_to_bundle failed");
+                        let res = self.add_sidecar_fsfile_to_bundle(
+                            id,
+                            xmp_file_id,
+                            SidecarType::Xmp,
+                            "xmp",
+                        );
+                        dbg_assert!(res.is_ok(), "add_sidecar_fsfile_to_bundle failed");
+                    }
                 }
+                return Ok(());
             }
         }
         Err(Error::NoSqlDb)

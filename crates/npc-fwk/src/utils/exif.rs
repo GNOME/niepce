@@ -266,15 +266,15 @@ fn int_tag_to_xmp(
     // XXX rexiv2 returns an i32, which is a problem for UnsignedLong
     match xmp_prop.2 {
         Conversion::Flash => {
-            if let Converted::Flash(flash) = convert_int(xmp_prop.2, meta.get_tag_numeric(tag)) {
-                if let Err(err) = flash.set_as_xmp_property(xmp, NS_EXIF, "Flash") {
-                    err_out!(
-                        "Error setting property {} {}: {:?}",
-                        &xmp_prop.0,
-                        &xmp_prop.1,
-                        &err
-                    );
-                }
+            if let Converted::Flash(flash) = convert_int(xmp_prop.2, meta.get_tag_numeric(tag))
+                && let Err(err) = flash.set_as_xmp_property(xmp, NS_EXIF, "Flash")
+            {
+                err_out!(
+                    "Error setting property {} {}: {:?}",
+                    &xmp_prop.0,
+                    &xmp_prop.1,
+                    &err
+                );
             }
         }
         Conversion::None => {
@@ -291,17 +291,16 @@ fn int_tag_to_xmp(
             }
         }
         Conversion::Interpreted => {
-            if let Ok(value) = meta.get_tag_interpreted_string(tag) {
-                if let Err(err) =
+            if let Ok(value) = meta.get_tag_interpreted_string(tag)
+                && let Err(err) =
                     xmp.set_property(xmp_prop.0, xmp_prop.1, &value, exempi2::PropFlags::NONE)
-                {
-                    err_out!(
-                        "Error setting property {} {}: {:?}",
-                        &xmp_prop.0,
-                        &xmp_prop.1,
-                        &err
-                    );
-                }
+            {
+                err_out!(
+                    "Error setting property {} {}: {:?}",
+                    &xmp_prop.0,
+                    &xmp_prop.1,
+                    &err
+                );
             }
         }
         _ => {
@@ -366,20 +365,20 @@ fn xmp_from_exiv2meta(meta: rexiv2::Metadata) -> Option<XmpMeta> {
                     Ok(rexiv2::TagType::UnsignedRational) | Ok(rexiv2::TagType::SignedRational) => {
                         match xmp_prop.2 {
                             Conversion::Interpreted => {
-                                if let Ok(value) = meta.get_tag_interpreted_string(&tag) {
-                                    if let Err(err) = xmp.set_property(
+                                if let Ok(value) = meta.get_tag_interpreted_string(&tag)
+                                    && let Err(err) = xmp.set_property(
                                         xmp_prop.0,
                                         xmp_prop.1,
                                         &value,
                                         exempi2::PropFlags::NONE,
-                                    ) {
-                                        err_out!(
-                                            "Error setting property {} {}: {:?}",
-                                            &xmp_prop.0,
-                                            &xmp_prop.1,
-                                            &err
-                                        );
-                                    }
+                                    )
+                                {
+                                    err_out!(
+                                        "Error setting property {} {}: {:?}",
+                                        &xmp_prop.0,
+                                        &xmp_prop.1,
+                                        &err
+                                    );
                                 }
                             }
                             _ => {
@@ -403,40 +402,40 @@ fn xmp_from_exiv2meta(meta: rexiv2::Metadata) -> Option<XmpMeta> {
                         }
                     }
                     Ok(rexiv2::TagType::Comment) => {
-                        if let Ok(value) = meta.get_tag_string(&tag) {
-                            if let Err(err) = xmp.set_localized_text(
+                        if let Ok(value) = meta.get_tag_string(&tag)
+                            && let Err(err) = xmp.set_localized_text(
                                 xmp_prop.0,
                                 xmp_prop.1,
                                 "",
                                 "x-default",
                                 &value,
                                 exempi2::PropFlags::NONE,
-                            ) {
+                            )
+                        {
+                            err_out!(
+                                "Error setting property {} {}: {:?}",
+                                &xmp_prop.0,
+                                &xmp_prop.1,
+                                &err
+                            );
+                        }
+                    }
+                    Ok(rexiv2::TagType::UnsignedByte) => match xmp_prop.2 {
+                        Conversion::Interpreted => {
+                            if let Ok(value) = meta.get_tag_interpreted_string(&tag)
+                                && let Err(err) = xmp.set_property(
+                                    xmp_prop.0,
+                                    xmp_prop.1,
+                                    &value,
+                                    exempi2::PropFlags::NONE,
+                                )
+                            {
                                 err_out!(
                                     "Error setting property {} {}: {:?}",
                                     &xmp_prop.0,
                                     &xmp_prop.1,
                                     &err
                                 );
-                            }
-                        }
-                    }
-                    Ok(rexiv2::TagType::UnsignedByte) => match xmp_prop.2 {
-                        Conversion::Interpreted => {
-                            if let Ok(value) = meta.get_tag_interpreted_string(&tag) {
-                                if let Err(err) = xmp.set_property(
-                                    xmp_prop.0,
-                                    xmp_prop.1,
-                                    &value,
-                                    exempi2::PropFlags::NONE,
-                                ) {
-                                    err_out!(
-                                        "Error setting property {} {}: {:?}",
-                                        &xmp_prop.0,
-                                        &xmp_prop.1,
-                                        &err
-                                    );
-                                }
                             }
                         }
                         _ => err_out!("Unhandled type {:?} for {} as UnsignedByte", tagtype, &tag),

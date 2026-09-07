@@ -1,7 +1,7 @@
 /*
  * niepce - niepce/ui/dialogs/import/dest_folders.rs
  *
- * Copyright (C) 2025 Hubert Figuière
+ * Copyright (C) 2025-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -234,13 +234,13 @@ impl DestFolders {
     fn handle_select_path(&self, path: Option<&Path>) {
         trace_out!("handle select path {path:?}");
         let index = self.select_path(path);
-        if let Some(path) = path {
-            if index.is_none() {
-                // Couldn't find path.
-                trace_out!("add temp folder {path:?}");
-                self.add_temp_folder(path);
-                self.select_path(Some(path));
-            }
+        if let Some(path) = path
+            && index.is_none()
+        {
+            // Couldn't find path.
+            trace_out!("add temp folder {path:?}");
+            self.add_temp_folder(path);
+            self.select_path(Some(path));
         }
     }
 

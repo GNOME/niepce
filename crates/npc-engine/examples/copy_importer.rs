@@ -1,7 +1,7 @@
 /*
  * niepce - npc_engine/examples/copy_importer.rs
  *
- * Copyright (C) 2023-2025 Hubert Figuière
+ * Copyright (C) 2023-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,17 +103,17 @@ fn main() {
     let mut size_to_copy = 0;
     for import in &imports {
         if let Some(parent) = import.1.parent().map(|p| p.to_path_buf()) {
-            if let Some(only_dest_dirs) = only_dest_dirs.as_ref() {
-                if !only_dest_dirs.contains(&parent) {
-                    println!("{:?} not included", import.1);
-                    continue;
-                }
+            if let Some(only_dest_dirs) = only_dest_dirs.as_ref()
+                && !only_dest_dirs.contains(&parent)
+            {
+                println!("{:?} not included", import.1);
+                continue;
             }
-            if let Some(exclude_dest_dirs) = exclude_dest_dirs.as_ref() {
-                if exclude_dest_dirs.contains(&parent) {
-                    println!("{:?} excluded", import.1);
-                    continue;
-                }
+            if let Some(exclude_dest_dirs) = exclude_dest_dirs.as_ref()
+                && exclude_dest_dirs.contains(&parent)
+            {
+                println!("{:?} excluded", import.1);
+                continue;
             }
         }
         if import.1.exists() {

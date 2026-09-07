@@ -257,13 +257,12 @@ impl GpCamera {
         glib::MainContext::default().invoke(move || {
             let mounts = gio::VolumeMonitor::get().mounts();
             if let Some(to_unmount) = mounts.iter().find(|mount| {
-                if let Some(volume) = mount.volume() {
-                    if let Some(id) = volume.identifier("unix-device") {
-                        if id == device_id {
-                            dbg_out!("found volume {}", &device_id);
-                            return true;
-                        }
-                    }
+                if let Some(volume) = mount.volume()
+                    && let Some(id) = volume.identifier("unix-device")
+                    && id == device_id
+                {
+                    dbg_out!("found volume {}", &device_id);
+                    return true;
                 }
                 false
             }) {

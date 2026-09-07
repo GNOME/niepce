@@ -308,10 +308,10 @@ impl XmpMeta {
         if meta.is_none() || sidecar_meta.is_none() {
             if meta.is_some() { meta } else { sidecar_meta }
         } else if let Some(mut final_meta) = meta {
-            if let Some(sidecar_meta) = sidecar_meta {
-                if !final_meta.override_xmp(&sidecar_meta) {
-                    err_out!("xmp merge failed");
-                }
+            if let Some(sidecar_meta) = sidecar_meta
+                && !final_meta.override_xmp(&sidecar_meta)
+            {
+                err_out!("xmp merge failed");
             }
             Some(final_meta)
         } else {
@@ -336,11 +336,11 @@ impl XmpMeta {
             );
             return false;
         }
-        if let Some(this_date) = this_date {
-            if this_date > from_date.unwrap() {
-                dbg_out!("sidecar is older {this_date:?} > {from_date:?}");
-                return false;
-            }
+        if let Some(this_date) = this_date
+            && this_date > from_date.unwrap()
+        {
+            dbg_out!("sidecar is older {this_date:?} > {from_date:?}");
+            return false;
         }
 
         // Properties in sidecar all get added.
@@ -469,11 +469,11 @@ impl XmpMeta {
         // This is a legacy very early Lightroom™ thing.
         // It's a base64 blob in Lr own format
         let mut props = exempi2::PropFlags::empty();
-        if let Ok(k) = self.xmp.get_property(NS_LIGHTROOM, prop, &mut props) {
-            if let Some(hkw) = lr::decode_old_hierarchical_kw(prop, k) {
-                for v in hkw {
-                    self.keywords.push(v);
-                }
+        if let Ok(k) = self.xmp.get_property(NS_LIGHTROOM, prop, &mut props)
+            && let Some(hkw) = lr::decode_old_hierarchical_kw(prop, k)
+        {
+            for v in hkw {
+                self.keywords.push(v);
             }
         }
     }

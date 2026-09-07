@@ -223,10 +223,9 @@ impl DarkroomModule {
     fn metadata_change_received(&self, changed: &MetadataChange) {
         if changed.ids.contains(&self.current_file_id())
             && changed.meta == Npi::NiepceRenderEngineProp
+            && let Some(engine) = changed.value.string()
         {
-            if let Some(engine) = changed.value.string() {
-                self.set_engine(engine);
-            }
+            self.set_engine(engine);
         }
     }
 

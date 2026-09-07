@@ -120,13 +120,12 @@ impl ImageGridView {
         x: f64,
         y: f64,
     ) {
-        if let Some(event) = gesture.last_event(None) {
-            if event.triggers_context_menu() {
-                if let Some(menu) = menu {
-                    menu.set_pointing_to(Some(&gdk4::Rectangle::new(x as i32, y as i32, 0, 0)));
-                    menu.popup();
-                }
-            }
+        if let Some(event) = gesture.last_event(None)
+            && event.triggers_context_menu()
+            && let Some(menu) = menu
+        {
+            menu.set_pointing_to(Some(&gdk4::Rectangle::new(x as i32, y as i32, 0, 0)));
+            menu.popup();
         }
     }
 }
