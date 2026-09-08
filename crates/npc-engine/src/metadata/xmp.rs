@@ -25,6 +25,20 @@ use npc_fwk::{XmpManager, XmpMeta};
 pub const NIEPCE_XMP_NAMESPACE: &str = "http://xmlns.figuiere.net/ns/niepce/1.0";
 pub const NIEPCE_XMP_NS_PREFIX: &str = "niepce";
 
+// PP3 associated properties in the Niepce namespace.
+pub(super) const PP3_FOR_RAW: &str = "PP3ForRaw";
+pub(super) const PP3_FOR_JPEG: &str = "PP3ForJPEG";
+pub(super) const PP3_DIGEST: &str = "PP3Digest";
+/// Date it was imported (ie from the PP3 file).
+pub(super) const PP3_IMPORTED: &str = "PP3Imported";
+/// Date of the last modifications.
+pub(super) const PP3_MODIFIED: &str = "PP3Modified";
+/// Filename of the PP3 file this was imported from.
+pub(super) const PP3_FROM: &str = "PP3From";
+/// Sync status for the PP3 data. `0` mean in sync. `-1` maybe
+/// older than the file. `1` maybe more recent.
+pub(super) const PP3_SYNC_STATUS: &str = "PP3SyncStatus";
+
 /// Darktable XMP namespace
 const DARKTABLE_NAMESPACE: &str = "http://darktable.sf.net/";
 /// Darktable XMP "defualt" prefix.

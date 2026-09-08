@@ -35,6 +35,12 @@ pub enum ImgFormat {
     Avif,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ProcFormat {
+    /// RawTherapee PP3
+    Pp3,
+}
+
 /// Mime type
 #[derive(PartialEq, Copy, Clone, Debug, Eq)]
 pub enum MType {
@@ -47,6 +53,8 @@ pub enum MType {
     Xmp,
     /// Thumbnail file (like Canon THM).
     Thumbnail,
+    /// Processing sidecar
+    Processing(ProcFormat),
 }
 
 #[derive(Debug)]
@@ -80,6 +88,7 @@ pub fn guess_type_for_file<P: AsRef<Path>>(p: P) -> MType {
         match ext.to_str() {
             Some("xmp") => return MType::Xmp,
             Some("thm") => return MType::Thumbnail,
+            Some("pp3") => return MType::Processing(ProcFormat::Pp3),
             _ => {}
         }
     }

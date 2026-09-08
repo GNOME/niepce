@@ -25,6 +25,8 @@ use npc_fwk::MimeType;
 use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
 use npc_fwk::{dbg_out, err_out};
 
+use crate::metadata;
+
 /// SidecarType. Should match [`Sidecar`].
 ///
 /// The integer values shall not be changed they are used in the
@@ -36,6 +38,7 @@ pub enum SidecarType {
     Thumbnail = 2,
     Xmp = 3,
     Jpeg = 4,
+    Processing = 5,
 }
 
 /// Sidecar.
@@ -50,6 +53,8 @@ pub enum Sidecar {
     Xmp(PathBuf),
     /// JPEG Sidecar (RAW + JPEG)
     Jpeg(PathBuf),
+    /// Processing file like PP3 (RawTherapee)
+    Processing(PathBuf),
 }
 
 impl From<&Sidecar> for SidecarType {
@@ -59,6 +64,7 @@ impl From<&Sidecar> for SidecarType {
             Sidecar::Thumbnail(_) => SidecarType::Thumbnail,
             Sidecar::Xmp(_) => SidecarType::Xmp,
             Sidecar::Jpeg(_) => SidecarType::Jpeg,
+            Sidecar::Processing(_) => SidecarType::Processing,
             Sidecar::Invalid => SidecarType::Invalid,
         }
     }
@@ -71,6 +77,7 @@ impl From<(SidecarType, PathBuf)> for Sidecar {
             SidecarType::Thumbnail => Sidecar::Thumbnail(t.1),
             SidecarType::Xmp => Sidecar::Xmp(t.1),
             SidecarType::Jpeg => Sidecar::Jpeg(t.1),
+            SidecarType::Processing => Sidecar::Processing(t.1),
             _ => Sidecar::Invalid,
         }
     }
@@ -190,6 +197,7 @@ impl FileBundle {
                     added = false;
                 }
             },
+            MType::Processing(_) => self.sidecars.push(Sidecar::Processing(path.to_path_buf())),
             MType::Thumbnail => self.sidecars.push(Sidecar::Thumbnail(path.to_path_buf())),
             _ => {
                 dbg_out!("Unknown file {:?} of type {:?}", path, mime_type);
@@ -224,11 +232,27 @@ impl FileBundle {
         // Until we get better metadata support for RAW files, we use
         // the Exif reconcile from the sidecar JPEG to get the initial
         // metadata.
-        if self.bundle_type() == super::FileType::RawJpeg {
+        let mut xmp = if self.bundle_type() == super::FileType::RawJpeg {
             npc_fwk::XmpMeta::new_from_file(self.jpeg(), false)
         } else {
             npc_fwk::XmpMeta::new_from_file(&self.main, false)
+        };
+        if let Some(xmp2) = xmp.as_mut() {
+            for sidecar in self.sidecars() {
+                if let Sidecar::Processing(sidecar) = sidecar {
+                    dbg_out!("merging pp3 sidecar {sidecar:?}");
+                    match metadata::merge_pp3_from_bundle(self, sidecar, &mut xmp2.xmp) {
+                        Ok(merged) => {
+                            if !merged {
+                                dbg_out!("PP3 {sidecar:?} not merged.");
+                            }
+                        }
+                        Err(err) => err_out!("Failed to merge PP3 from bundle: {err}"),
+                    }
+                }
+            }
         }
+        xmp
     }
 
     /// Return all the files in the bundle
@@ -246,9 +270,11 @@ impl FileBundle {
             .iter()
             .filter_map(|sidecar| match sidecar {
                 Sidecar::Invalid => None,
-                Sidecar::Live(p) | Sidecar::Thumbnail(p) | Sidecar::Xmp(p) | Sidecar::Jpeg(p) => {
-                    Some(p.clone())
-                }
+                Sidecar::Live(p)
+                | Sidecar::Thumbnail(p)
+                | Sidecar::Xmp(p)
+                | Sidecar::Jpeg(p)
+                | Sidecar::Processing(p) => Some(p.clone()),
             })
             .collect::<Vec<PathBuf>>();
         all_files.extend_from_slice(&sidecars);
@@ -455,13 +481,18 @@ mod test {
             assert_eq!(b.main(), Path::new("/foo/bar/scs_3446.raf"));
             assert_eq!(b.jpeg(), Path::new("/foo/bar/scs_3446.jpg"));
             assert!(b.xmp_sidecar().as_os_str().is_empty());
-            assert_eq!(b.sidecars.len(), 0);
+            assert_eq!(b.sidecars.len(), 1);
+            assert_eq!(
+                b.sidecars[0],
+                Sidecar::Processing(Path::new("/foo/bar/scs_3446.raf.pp3").into())
+            );
             let all_files = b.all_files();
             assert_eq!(
                 all_files,
                 vec![
                     Path::new("/foo/bar/scs_3446.raf"),
-                    Path::new("/foo/bar/scs_3446.jpg")
+                    Path::new("/foo/bar/scs_3446.jpg"),
+                    Path::new("/foo/bar/scs_3446.raf.pp3"),
                 ]
             );
         } else {
