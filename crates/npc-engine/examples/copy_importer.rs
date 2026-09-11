@@ -40,10 +40,15 @@ struct Args {
     #[arg(short, long)]
     catalog: Option<String>,
 
-    /// (Optional) Date directories to restrict. Pass mulitple times
+    /// (Optional) Date directories to only include. Pass mulitple times
     /// for multiple directories.
     #[arg(long)]
     date: Option<Vec<String>>,
+
+    /// (Optional) Date directories to only exclude. Pass mulitple times
+    /// for multiple directories.
+    #[arg(long)]
+    xdate: Option<Vec<String>>,
 
     /// Import recursively
     #[arg(short, long)]
@@ -70,6 +75,7 @@ fn main() {
     let dry_run = args.dry_run;
     let verbose = args.verbose;
     let dates = args.date;
+    let xdates = args.xdate;
     let format = DatePathFormat::YearSlashYearMonthDay;
 
     if verbose {
@@ -92,11 +98,19 @@ fn main() {
     });
     let imports = Importer::get_imports(&source, &dest, format, args.recursive);
     let only_dest_dirs = dates.map(|dates| dates.iter().map(|d| dest.join(d)).collect::<Vec<_>>());
+    let exclude_dest_dirs =
+        xdates.map(|xdates| xdates.iter().map(|d| dest.join(d)).collect::<Vec<_>>());
     let mut size_to_copy = 0;
     for import in &imports {
-        if let Some(only_dest_dirs) = only_dest_dirs.as_ref() {
-            if let Some(parent) = import.1.parent().map(|p| p.to_path_buf()) {
+        if let Some(parent) = import.1.parent().map(|p| p.to_path_buf()) {
+            if let Some(only_dest_dirs) = only_dest_dirs.as_ref() {
                 if !only_dest_dirs.contains(&parent) {
+                    println!("{:?} not included", import.1);
+                    continue;
+                }
+            }
+            if let Some(exclude_dest_dirs) = exclude_dest_dirs.as_ref() {
+                if exclude_dest_dirs.contains(&parent) {
                     println!("{:?} excluded", import.1);
                     continue;
                 }
