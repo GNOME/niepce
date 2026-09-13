@@ -21,7 +21,9 @@ pub mod exif;
 mod files;
 pub mod xmp;
 
-pub use files::{FileList, copy, md5_digest, normalize_for_display, trim_trailing_path_sep};
+pub use files::{
+    FileList, copy, md5_digest, modification_date, normalize_for_display, trim_trailing_path_sep,
+};
 
 #[cfg(test)]
 pub(crate) mod tests {

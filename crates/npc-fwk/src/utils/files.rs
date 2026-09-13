@@ -24,6 +24,7 @@ use nix::sys::time::TimeSpec;
 use walkdir::WalkDir;
 
 use crate::anyerror;
+use crate::base::date::DateExt;
 use crate::toolkit::mimetype::{MType, guess_type_for_file};
 
 /// Copy file `from` to `to`. Return the number of bytes copied which
@@ -59,6 +60,16 @@ where
     )?;
 
     Ok(length)
+}
+
+/// Return the modification date of `file`.
+pub fn modification_date<P>(file: P) -> std::io::Result<crate::Date>
+where
+    P: AsRef<Path>,
+{
+    let metadata = std::fs::metadata(&file)?;
+    let modified = metadata.modified()?;
+    Ok(crate::Date::from_system_time(modified))
 }
 
 #[derive(Clone, Debug, Default)]
