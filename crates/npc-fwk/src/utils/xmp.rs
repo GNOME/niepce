@@ -271,7 +271,7 @@ impl XmpMeta {
                     .map(XmpMeta::from);
                 exif.map(|mut exif| {
                     if let Some(xmp) = &xmp {
-                        xmp.merge_missing_into_xmp(&mut exif);
+                        exif.override_xmp(xmp);
                     }
                     exif
                 })
@@ -304,73 +304,58 @@ impl XmpMeta {
                 }
             }
         }
-        #[allow(clippy::unnecessary_unwrap)]
-        // XXX we can revise the logic to avoid the clippy warning.
+
         if meta.is_none() || sidecar_meta.is_none() {
-            if meta.is_some() {
-                return meta;
+            if meta.is_some() { meta } else { sidecar_meta }
+        } else if let Some(mut final_meta) = meta {
+            if let Some(sidecar_meta) = sidecar_meta {
+                if !final_meta.override_xmp(&sidecar_meta) {
+                    err_out!("xmp merge failed");
+                }
             }
-            sidecar_meta
-        } else if let Some(mut final_meta) = sidecar_meta {
-            if !meta
-                .as_ref()
-                .unwrap()
-                .merge_missing_into_xmp(&mut final_meta)
-            {
-                err_out!("xmp merge failed");
-                // XXX with the current heuristics, it is probably safe to just
-                // keep the source metadata.
-                meta
-            } else {
-                Some(final_meta)
-            }
+            Some(final_meta)
         } else {
             unreachable!("sidecar_meta was None");
         }
     }
 
+    /// Override `self` with the XMP (likely user edited). Return
+    /// `true` if merged.
     ///
-    /// Merge missing properties from self (source) to destination
-    /// struct and array are considerd missing as a whole, not their content.
-    ///
-    pub fn merge_missing_into_xmp(&self, dest: &mut XmpMeta) -> bool {
-        // Merge XMP self into the dest that has more recent.
-        let source_date = self.get_date_property(NS_XMP, "MetadataDate");
-        let dest_date = dest.get_date_property(NS_XMP, "MetadataDate");
+    /// This is useful to add the XMP sidecar (`sidecar`) to an XMP
+    /// meta loaded from the file.
+    pub fn override_xmp(&mut self, sidecar: &XmpMeta) -> bool {
+        // The XMP likely override `self`
+        let this_date = self.get_date_property(NS_XMP, "MetadataDate");
+        let from_date = sidecar.get_date_property(NS_XMP, "MetadataDate");
 
-        if source_date.is_none() || dest_date.is_none() {
+        if from_date.is_none() {
             dbg_out!(
-                "missing metadata date {} {}",
-                source_date.is_some(),
-                dest_date.is_some()
+                "missing metadata date from override sidecar {:?}",
+                from_date,
             );
             return false;
         }
-        if source_date > dest_date {
-            dbg_out!("source meta is more recent than sidecar {source_date:?} > {dest_date:?}");
-            return false;
+        if let Some(this_date) = this_date {
+            if this_date > from_date.unwrap() {
+                dbg_out!("sidecar is older {this_date:?} > {from_date:?}");
+                return false;
+            }
         }
 
-        // Properties in source but not in destination gets copied over.
-        let mut iter = exempi2::XmpIterator::new(&self.xmp, "", "", exempi2::IterFlags::PROPERTIES);
-        while let Some(v) = iter.next() {
+        // Properties in sidecar all get added.
+        let iter = exempi2::XmpIterator::new(&sidecar.xmp, "", "", exempi2::IterFlags::PROPERTIES);
+        for v in iter {
             if v.name.is_empty() {
                 continue;
             }
-            if v.option.contains(exempi2::PropFlags::VALUE_IS_ARRAY)
-                || v.option.contains(exempi2::PropFlags::VALUE_IS_STRUCT)
-            {
-                exempi2::XmpIterator::skip(&mut iter, exempi2::IterSkipFlags::SUBTREE);
-                continue;
-            }
-
             let schema = v.schema.to_str().unwrap_or("");
             let name = v.name.to_str().unwrap_or("");
-            if !dest.xmp.has_property(schema, name) {
+            if !self.xmp.has_property(schema, name) {
                 let value = v.value.to_str().unwrap_or("");
-                if dest
+                if self
                     .xmp
-                    .set_property(schema, name, value, exempi2::PropFlags::NONE)
+                    .set_property(schema, name, value, v.option)
                     .is_err()
                 {
                     err_out!("Can not set property {}", v.name);
@@ -747,13 +732,13 @@ pub(crate) mod tests {
     }
 
     #[test]
-    fn test_merge_missing_into_xmp() {
+    fn test_override_xmp() {
         let dir = get_test_sample_path();
 
         // Both these files have to exist. They are on the source
         // tree.
         let mut source = dir.clone();
-        source.push("test.xmp");
+        source.push("test-from-exif.xmp");
 
         let mut dest = dir;
         dest.push("test2.xmp");
@@ -762,32 +747,33 @@ pub(crate) mod tests {
         if let Some(xmpfile) = source.to_str() {
             let meta = XmpMeta::new_from_file(xmpfile, true);
             assert!(meta.is_some());
-            let meta = meta.unwrap();
+            let mut meta = meta.unwrap();
 
             if let Some(xmpfile) = dest.to_str() {
-                let dstmeta = XmpMeta::new_from_file(xmpfile, true);
-                assert!(dstmeta.is_some());
-                let mut dstmeta = dstmeta.unwrap();
+                let sidecar_meta = XmpMeta::new_from_file(xmpfile, true);
+                assert!(sidecar_meta.is_some());
+                let sidecar_meta = sidecar_meta.unwrap();
 
-                let result = meta.merge_missing_into_xmp(&mut dstmeta);
+                let result = meta.override_xmp(&sidecar_meta);
                 assert!(result);
-                // properties that were missing
-                test_property_value(&dstmeta, super::NS_TIFF, "Model", "Canon EOS 20D");
-                test_property_value(&dstmeta, super::NS_EXIF_AUX, "Lens", "24.0-85.0 mm");
 
-                // Array property that contain less in destination
-                // Shouldn't have changed.
-                test_property_array_value(&dstmeta, super::NS_DC, "subject", 1, "night");
-                test_property_array_value(&dstmeta, super::NS_DC, "subject", 2, "ontario");
-                test_property_array_value(&dstmeta, super::NS_DC, "subject", 3, "ottawa");
+                println!("xmp {}", meta.serialize().unwrap());
+                // properties that were missing
+                test_property_value(&meta, super::NS_TIFF, "Model", "Canon EOS 20D");
+                test_property_value(&meta, super::NS_EXIF_AUX, "Lens", "24.0-85.0 mm");
+
+                // Merge into the destination from the sidecar.
+                test_property_array_value(&meta, super::NS_DC, "subject", 1, "night");
+                test_property_array_value(&meta, super::NS_DC, "subject", 2, "ontario");
+                test_property_array_value(&meta, super::NS_DC, "subject", 3, "ottawa");
                 test_property_array_value(
-                    &dstmeta,
+                    &meta,
                     super::NS_DC,
                     "subject",
                     4,
                     "parliament of canada",
                 );
-                assert!(!dstmeta.xmp.has_property(super::NS_DC, "dc:subject[5]"));
+                assert!(!meta.xmp.has_property(super::NS_DC, "dc:subject[5]"));
             }
         } else {
             unreachable!();

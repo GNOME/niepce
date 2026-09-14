@@ -3,6 +3,11 @@ XMP Documentation
 
 Hubert Figuiere <hub@figuiere.net>
 
+## Merging on import
+
+On import the existing XMP sidecard will override the loaded Exif data
+from the file, unless thered is modification date that say it's more
+recent. See `npc_fwk::utils::xpm::override_xmp()`
 
 ## Niepce namespace
 
