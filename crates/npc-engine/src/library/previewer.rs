@@ -22,7 +22,7 @@ mod cache;
 use md5::Digest;
 use num_derive::{FromPrimitive, ToPrimitive};
 
-use crate::catalog;
+use crate::catalog::{self, LibMetadata, NiepcePropertyIdx as Npi};
 pub(crate) use cache::{Cache, DbMessage};
 use npc_fwk::base::Size;
 use npc_fwk::err_out;
@@ -70,6 +70,18 @@ impl RenderEngine {
             "ncr" => Some(Self::Ncr),
             "rt" => Some(Self::Rt),
             _ => None,
+        }
+    }
+
+    /// Get the rendering engine based on the metadata. Use this if it
+    /// isn't set already.
+    pub fn from_metadata(metadata: Option<&LibMetadata>) -> RenderEngine {
+        // If the file has PP3 settings, set Rt to be the engine.
+        let pp3_for_raw = metadata.and_then(|metadata| metadata.get_metadata(Npi::NiepcePp3ForRaw));
+        if pp3_for_raw.is_some() {
+            RenderEngine::Rt
+        } else {
+            RenderEngine::default()
         }
     }
 }

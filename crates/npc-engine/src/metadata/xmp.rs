@@ -26,8 +26,8 @@ pub const NIEPCE_XMP_NAMESPACE: &str = "http://xmlns.figuiere.net/ns/niepce/1.0"
 pub const NIEPCE_XMP_NS_PREFIX: &str = "niepce";
 
 // PP3 associated properties in the Niepce namespace.
-pub(super) const PP3_FOR_RAW: &str = "PP3ForRaw";
-pub(super) const PP3_FOR_JPEG: &str = "PP3ForJPEG";
+pub(crate) const PP3_FOR_RAW: &str = "PP3ForRaw";
+pub(crate) const PP3_FOR_JPEG: &str = "PP3ForJPEG";
 pub(super) const PP3_DIGEST: &str = "PP3Digest";
 /// Date it was imported (ie from the PP3 file).
 pub(super) const PP3_IMPORTED: &str = "PP3Imported";

@@ -329,7 +329,8 @@ impl DarkroomModule {
     /// Build the `RenderParams` from the metadata.
     fn params_for_metadata(&self, file: &catalog::LibFile) -> RenderParams {
         // If we have metadata, use them.
-        let engine = file.metadata().and_then(|metadata| {
+        let metadata = file.metadata();
+        let engine = metadata.and_then(|metadata| {
             metadata
                 .get_metadata(Npi::NiepceRenderEngineProp)?
                 .string()
@@ -337,8 +338,8 @@ impl DarkroomModule {
         });
         let engine = match engine {
             None => {
+                let e = RenderEngine::from_metadata(metadata);
                 // We shall explicitly save the default engine.
-                let e = RenderEngine::default();
                 self.client.client().set_metadata(
                     &[file.id()],
                     Npi::NiepceRenderEngineProp,

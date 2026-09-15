@@ -57,6 +57,8 @@ pub enum NiepcePropertyIdx {
     NiepceFlagProp,
     NiepceRenderEngineProp,
     NiepceXmpPacket,
+    NiepcePp3ForRaw,
+    NiepcePp3ForJpeg,
     // Always keep this last.
     _PropertyEnd,
 }
@@ -107,6 +109,8 @@ lazy_static! {
             NiepcePropertyIdx::IptcKeywordsProp => (NS_DC, "subject"),
             NiepcePropertyIdx::NiepceFlagProp => (xmp::NIEPCE_XMP_NAMESPACE, "Flag"),
             NiepcePropertyIdx::NiepceRenderEngineProp => (xmp::NIEPCE_XMP_NAMESPACE, "RenderEngine"),
+            NiepcePropertyIdx::NiepcePp3ForRaw => (xmp::NIEPCE_XMP_NAMESPACE, xmp::PP3_FOR_RAW),
+            NiepcePropertyIdx::NiepcePp3ForJpeg => (xmp::NIEPCE_XMP_NAMESPACE, xmp::PP3_FOR_JPEG),
         };
 
         map
