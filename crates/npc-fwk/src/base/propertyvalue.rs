@@ -53,6 +53,8 @@ pub enum PropertyValue {
     MixedStringArray(Vec<MixedString>),
     /// Date object.
     Date(Date),
+    /// Boolean
+    Boolean(bool),
 }
 
 impl From<i32> for PropertyValue {
@@ -92,6 +94,10 @@ impl PropertyValue {
         matches!(*self, PropertyValue::String(_))
     }
 
+    pub fn is_boolean(&self) -> bool {
+        matches!(*self, PropertyValue::Boolean(_))
+    }
+
     pub fn integer(&self) -> Option<i32> {
         match *self {
             PropertyValue::Int(i) => Some(i),
@@ -109,6 +115,13 @@ impl PropertyValue {
     pub fn string(&self) -> Option<&str> {
         match *self {
             PropertyValue::String(ref s) => Some(s),
+            _ => None,
+        }
+    }
+
+    pub fn boolean(&self) -> Option<bool> {
+        match *self {
+            PropertyValue::Boolean(b) => Some(b),
             _ => None,
         }
     }
@@ -155,6 +168,7 @@ mod test {
         assert!(!value.is_empty());
         assert!(!value.is_unset());
         assert!(!value.is_integer());
+        assert!(!value.is_boolean());
         assert!(!value.is_date());
         assert_eq!(value.string(), Some("a string"));
         assert_eq!(value.integer(), None);
@@ -166,9 +180,21 @@ mod test {
         assert!(!value.is_empty());
         assert!(!value.is_unset());
         assert!(value.is_integer());
+        assert!(!value.is_boolean());
         assert!(!value.is_date());
         assert_eq!(value.string(), None);
         assert_eq!(value.integer(), Some(42));
+        assert_eq!(value.date(), None);
+
+        let value = PropertyValue::Boolean(true);
+        assert!(!value.is_string());
+        assert!(!value.is_empty());
+        assert!(!value.is_unset());
+        assert!(!value.is_integer());
+        assert!(value.is_boolean());
+        assert!(!value.is_date());
+        assert_eq!(value.string(), None);
+        assert_eq!(value.boolean(), Some(true));
         assert_eq!(value.date(), None);
     }
 

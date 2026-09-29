@@ -190,6 +190,13 @@ impl LibMetadata {
                         )
                         .is_ok();
                 }
+                PropertyValue::Boolean(b) => {
+                    return self
+                        .xmp_meta
+                        .xmp
+                        .set_property_bool(ix.ns, ix.property, b, exempi2::PropFlags::NONE)
+                        .is_ok();
+                }
                 PropertyValue::Mixed | PropertyValue::MixedStringArray(_) => {
                     err_out!("Can't set property of type MixedStringArray");
                 }
