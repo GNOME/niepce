@@ -190,20 +190,20 @@ impl LibFile {
 
     pub fn property(&self, idx: Npi) -> i32 {
         match idx {
-            Npi::TiffOrientationProp => self.orientation() as i32,
-            Npi::XmpRatingProp => self.rating(),
-            Npi::XmpLabelProp => self.label(),
-            Npi::NiepceFlagProp => self.flag(),
+            Npi::TiffOrientation => self.orientation() as i32,
+            Npi::XmpRating => self.rating(),
+            Npi::XmpLabel => self.label(),
+            Npi::NiepceFlag => self.flag(),
             _ => -1,
         }
     }
 
     pub fn set_property(&mut self, idx: Npi, value: i32) {
         match idx {
-            Npi::TiffOrientationProp => self.set_orientation(value as u32),
-            Npi::XmpRatingProp => self.set_rating(value),
-            Npi::XmpLabelProp => self.set_label(value),
-            Npi::NiepceFlagProp => self.set_flag(value),
+            Npi::TiffOrientation => self.set_orientation(value as u32),
+            Npi::XmpRating => self.set_rating(value),
+            Npi::XmpLabel => self.set_label(value),
+            Npi::NiepceFlag => self.set_flag(value),
             _ => err_out!("invalid property {:?} - noop", idx),
         };
     }

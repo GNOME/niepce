@@ -1339,19 +1339,16 @@ impl CatalogDb {
         value: &PropertyValue,
     ) -> Result<()> {
         match meta {
-            Npi::XmpRatingProp
-            | Npi::XmpLabelProp
-            | Npi::TiffOrientationProp
-            | Npi::NiepceFlagProp => {
+            Npi::XmpRating | Npi::XmpLabel | Npi::TiffOrientation | Npi::NiepceFlag => {
                 match *value {
                     PropertyValue::Int(i) => {
                         // internal
                         // make the column mapping more generic.
                         let column = match meta {
-                            Npi::XmpRatingProp => "rating",
-                            Npi::XmpLabelProp => "label",
-                            Npi::TiffOrientationProp => "orientation",
-                            Npi::NiepceFlagProp => "flag",
+                            Npi::XmpRating => "rating",
+                            Npi::XmpLabel => "label",
+                            Npi::TiffOrientation => "orientation",
+                            Npi::NiepceFlag => "flag",
                             _ => unreachable!(),
                         };
                         if !column.is_empty() {
@@ -1361,7 +1358,7 @@ impl CatalogDb {
                     _ => err_out!("improper value type for {:?}", meta),
                 }
             }
-            Npi::IptcKeywordsProp => {
+            Npi::IptcKeywords => {
                 for file_id in file_ids {
                     self.unassign_all_keywords_for_file(*file_id)?;
 

@@ -100,10 +100,10 @@ impl ImageListStore {
     }
 
     fn is_property_interesting(idx: Npi) -> bool {
-        (idx == Npi::XmpRatingProp)
-            || (idx == Npi::XmpLabelProp)
-            || (idx == Npi::TiffOrientationProp)
-            || (idx == Npi::NiepceFlagProp)
+        (idx == Npi::XmpRating)
+            || (idx == Npi::XmpLabel)
+            || (idx == Npi::TiffOrientation)
+            || (idx == Npi::NiepceFlag)
     }
 
     pub fn pos_from_id(&self, id: LibraryId) -> Option<u32> {

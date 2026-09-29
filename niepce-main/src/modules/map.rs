@@ -88,8 +88,8 @@ impl MapModule {
             dbg_out!("received metadata in MapModule");
 
             let mut propset = NiepcePropertySet::new();
-            propset.insert(Npi::ExifGpsLongProp);
-            propset.insert(Npi::ExifGpsLatProp);
+            propset.insert(Npi::ExifGpsLong);
+            propset.insert(Npi::ExifGpsLat);
 
             if lm.is_empty() {
                 err_out!("Map received empty metadata");
@@ -101,11 +101,11 @@ impl MapModule {
             let meta = &lm[0];
             let properties = meta.to_properties(&propset);
             if let Some(longitude) = properties
-                .get(&Npi::ExifGpsLongProp)
+                .get(&Npi::ExifGpsLong)
                 .and_then(|v| v.string())
                 .and_then(npc_fwk::gps_coord_from_xmp)
                 && let Some(latitude) = properties
-                    .get(&Npi::ExifGpsLatProp)
+                    .get(&Npi::ExifGpsLat)
                     .and_then(|v| v.string())
                     .and_then(npc_fwk::gps_coord_from_xmp)
             {

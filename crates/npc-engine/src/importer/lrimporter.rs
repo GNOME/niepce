@@ -194,8 +194,8 @@ impl LrImporter {
 
             let metadata = if let Some(image) = image {
                 let mut metadata = NiepcePropertyBag::default();
-                metadata.set_value(NpI::TiffOrientationProp, image.exif_orientation().into());
-                metadata.set_value(NpI::NiepceFlagProp, (image.pick as i32).into());
+                metadata.set_value(NpI::TiffOrientation, image.exif_orientation().into());
+                metadata.set_value(NpI::NiepceFlag, (image.pick as i32).into());
                 metadata.set_value(NpI::NiepceXmpPacket, image.xmp.as_str().into());
                 Some(metadata)
             } else {

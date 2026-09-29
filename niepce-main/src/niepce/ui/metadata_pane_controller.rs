@@ -41,45 +41,45 @@ lazy_static::lazy_static! {
             MetadataSectionFormat{
                 section: i18n("File Information"),
                 formats: vec![
-                    MetadataFormat{ label: i18n("File Name:"), id: NiepcePropertyIdx::FileNameProp as u32, type_: MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("Folder:"), id: NiepcePropertyIdx::FolderProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("File Type:"), id: NiepcePropertyIdx::FileTypeProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("File Size:"), id: NiepcePropertyIdx::FileSizeProp as u32, type_:MetaDT::Size, readonly: true },
-                    MetadataFormat{ label: i18n("Sidecar Files:"), id: NiepcePropertyIdx::SidecarsProp as u32, type_:MetaDT::StringArray, readonly: true },
+                    MetadataFormat{ label: i18n("File Name:"), id: NiepcePropertyIdx::FileName as u32, type_: MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Folder:"), id: NiepcePropertyIdx::Folder as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("File Type:"), id: NiepcePropertyIdx::FileType as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("File Size:"), id: NiepcePropertyIdx::FileSize as u32, type_:MetaDT::Size, readonly: true },
+                    MetadataFormat{ label: i18n("Sidecar Files:"), id: NiepcePropertyIdx::Sidecars as u32, type_:MetaDT::StringArray, readonly: true },
                 ]
             },
             MetadataSectionFormat{
                 section: i18n("Camera Information"),
                 formats: vec![
-                    MetadataFormat{ label: i18n("Make:"), id: NiepcePropertyIdx::TiffMakeProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("Model:"), id: NiepcePropertyIdx::TiffModelProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("Lens:"), id: NiepcePropertyIdx::ExifAuxLensProp as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Make:"), id: NiepcePropertyIdx::TiffMake as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Model:"), id: NiepcePropertyIdx::TiffModel as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Lens:"), id: NiepcePropertyIdx::ExifAuxLens as u32, type_:MetaDT::String, readonly: true },
                 ]
             },
             MetadataSectionFormat{
                 section: i18n("Shooting Information"),
                 formats: vec![
-                    MetadataFormat{ label: i18n("Exposure Program:"), id: NiepcePropertyIdx::ExifExposureProgramProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("Speed:"), id: NiepcePropertyIdx::ExifExposureTimeProp as u32, type_:MetaDT::Frac, readonly: true },
-                    MetadataFormat{ label: i18n("Aperture:"), id: NiepcePropertyIdx::ExifFNumberPropProp as u32, type_:MetaDT::FracDec, readonly: true },
-                    MetadataFormat{ label: i18n("ISO:"), id: NiepcePropertyIdx::ExifIsoSpeedRatingsProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("Exposure Bias:"), id: NiepcePropertyIdx::ExifExposureBiasProp as u32, type_:MetaDT::FracDec, readonly: true },
-                    MetadataFormat{ label: i18n("Flash:"), id: NiepcePropertyIdx::ExifFlashFiredProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("Flash compensation:"), id: NiepcePropertyIdx::ExifAuxFlashCompensationProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("Focal length:"), id: NiepcePropertyIdx::ExifFocalLengthProp as u32, type_:MetaDT::FracDec, readonly: true },
-                    MetadataFormat{ label: i18n("White balance:"), id: NiepcePropertyIdx::ExifWbProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("Date:"), id: NiepcePropertyIdx::ExifDateTimeOriginalProp as u32, type_:MetaDT::Date, readonly: false },
+                    MetadataFormat{ label: i18n("Exposure Program:"), id: NiepcePropertyIdx::ExifExposureProgram as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Speed:"), id: NiepcePropertyIdx::ExifExposureTime as u32, type_:MetaDT::Frac, readonly: true },
+                    MetadataFormat{ label: i18n("Aperture:"), id: NiepcePropertyIdx::ExifFNumber as u32, type_:MetaDT::FracDec, readonly: true },
+                    MetadataFormat{ label: i18n("ISO:"), id: NiepcePropertyIdx::ExifIsoSpeedRatings as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Exposure Bias:"), id: NiepcePropertyIdx::ExifExposureBias as u32, type_:MetaDT::FracDec, readonly: true },
+                    MetadataFormat{ label: i18n("Flash:"), id: NiepcePropertyIdx::ExifFlashFired as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Flash compensation:"), id: NiepcePropertyIdx::ExifAuxFlashCompensation as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Focal length:"), id: NiepcePropertyIdx::ExifFocalLength as u32, type_:MetaDT::FracDec, readonly: true },
+                    MetadataFormat{ label: i18n("White balance:"), id: NiepcePropertyIdx::ExifWb as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Date:"), id: NiepcePropertyIdx::ExifDateTimeOriginal as u32, type_:MetaDT::Date, readonly: false },
                 ]
             },
             MetadataSectionFormat{
                 section: i18n("IPTC"),
                 formats: vec![
-                    MetadataFormat{ label: i18n("Headline:"), id: NiepcePropertyIdx::IptcHeadlineProp as u32, type_:MetaDT::String, readonly: false },
-                    MetadataFormat{ label: i18n("Caption:"), id: NiepcePropertyIdx::IptcDescriptionProp as u32, type_:MetaDT::Text, readonly: false },
-                    MetadataFormat{ label: i18n("Rating:"), id: NiepcePropertyIdx::XmpRatingProp as u32, type_:MetaDT::StarRating, readonly: false },
+                    MetadataFormat{ label: i18n("Headline:"), id: NiepcePropertyIdx::IptcHeadline as u32, type_:MetaDT::String, readonly: false },
+                    MetadataFormat{ label: i18n("Caption:"), id: NiepcePropertyIdx::IptcDescription as u32, type_:MetaDT::Text, readonly: false },
+                    MetadataFormat{ label: i18n("Rating:"), id: NiepcePropertyIdx::XmpRating as u32, type_:MetaDT::StarRating, readonly: false },
                     // FIXME change this type to the right one when there is a widget
-                    MetadataFormat{ label: i18n("Label:"), id: NiepcePropertyIdx::XmpLabelProp as u32, type_:MetaDT::String, readonly: true },
-                    MetadataFormat{ label: i18n("Keywords:"), id: NiepcePropertyIdx::IptcKeywordsProp as u32, type_:MetaDT::StringArray, readonly: false },
+                    MetadataFormat{ label: i18n("Label:"), id: NiepcePropertyIdx::XmpLabel as u32, type_:MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Keywords:"), id: NiepcePropertyIdx::IptcKeywords as u32, type_:MetaDT::StringArray, readonly: false },
                 ]
             },
             MetadataSectionFormat{
@@ -89,7 +89,7 @@ lazy_static::lazy_static! {
             MetadataSectionFormat{
                 section: i18n("Processing"),
                 formats: vec![
-                    MetadataFormat{ label: i18n("Process:"), id: NiepcePropertyIdx::NiepceRenderEngineProp as u32, type_: MetaDT::String, readonly: true },
+                    MetadataFormat{ label: i18n("Process:"), id: NiepcePropertyIdx::NiepceRenderEngine as u32, type_: MetaDT::String, readonly: true },
                 ]
             },
         ];
