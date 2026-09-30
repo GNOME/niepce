@@ -54,6 +54,7 @@ pub enum NiepcePropertyIdx {
     IptcHeadline,
     IptcDescription,
     IptcKeywords,
+    NiepceIsRaw,
     NiepceFlag,
     NiepceRenderEngine,
     NiepceXmpPacket,

@@ -1,7 +1,7 @@
 /*
  * niepce - npc_craw/pipeline/rt.rs
  *
- * Copyright (C) 2023-2024 Hubert Figuière
+ * Copyright (C) 2023-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 
 use npc_fwk::gdk_pixbuf;
 
+use npc_engine::{NiepcePropertyBag, catalog::NiepcePropertyIdx};
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::{dbg_out, err_out, on_err_out};
 
@@ -53,7 +54,11 @@ impl super::Pipeline for RtPipeline {
     }
 
     // Rt doesn't care about orientation.
-    fn reload(&self, path: &str, is_raw: bool, _: u32) {
+    fn reload(&self, path: &str, props: NiepcePropertyBag) {
+        let is_raw = props
+            .get(&NiepcePropertyIdx::NiepceIsRaw)
+            .and_then(|v| v.boolean())
+            .unwrap_or(false);
         on_err_out!(self.0.set_file(path, is_raw));
     }
 

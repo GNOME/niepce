@@ -1,7 +1,7 @@
 /*
  * niepce - npc_craw/pipeline/ncr.rs
  *
- * Copyright (C) 2023-2024 Hubert Figuière
+ * Copyright (C) 2023-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ use std::cell::{Cell, RefCell};
 use gegl::Node as GeglNode;
 use npc_fwk::gdk_pixbuf;
 
+use npc_engine::{NiepcePropertyBag, catalog::NiepcePropertyIdx};
 use npc_fwk::MimeType;
 use npc_fwk::toolkit::ImageBitmap;
 use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
@@ -308,7 +309,7 @@ impl super::Pipeline for NcrPipeline {
         }
     }
 
-    fn reload(&self, path: &str, is_raw: bool, orientation: u32) {
+    fn reload(&self, path: &str, props: NiepcePropertyBag) {
         self.prepare_reload();
 
         dbg_out!("loading file {path}");
@@ -317,6 +318,10 @@ impl super::Pipeline for NcrPipeline {
             self.signal_update();
             return;
         }
+        let is_raw = props
+            .get(&NiepcePropertyIdx::NiepceIsRaw)
+            .and_then(|v| v.boolean())
+            .unwrap_or(false);
         let load_file = if !is_raw {
             // We should panic here. Graph is supposed to exist.
             let graph = &self.state.borrow().graph;
@@ -335,7 +340,11 @@ impl super::Pipeline for NcrPipeline {
         } else {
             self.load_dcraw(path)
         };
-        self.reload_node(load_file, orientation);
+        let orientation = props
+            .get(&NiepcePropertyIdx::TiffOrientation)
+            .and_then(|v| v.integer())
+            .unwrap_or(0);
+        self.reload_node(load_file, orientation as u32);
     }
 
     fn set_placeholder(&self, placeholder: gdk_pixbuf::Pixbuf) {
