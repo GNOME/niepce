@@ -68,6 +68,7 @@ pub fn append_to_xmp(
     from.iter().for_each(|(group, value)| {
         let group = to_valid_xpath(group);
         value.iter().for_each(|(key, value)| {
+            let key = to_valid_xpath(key);
             if let Some(value) = value {
                 let xpath;
                 let ns;
