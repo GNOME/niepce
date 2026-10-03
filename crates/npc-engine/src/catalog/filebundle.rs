@@ -23,9 +23,10 @@ use std::path::{Path, PathBuf};
 use super::libfile::FileType;
 use npc_fwk::MimeType;
 use npc_fwk::toolkit::mimetype::{ImgFormat, MType};
-use npc_fwk::{dbg_out, err_out};
+use npc_fwk::{dbg_out, err_out, on_err_out};
 
-use crate::metadata;
+use crate::library::RenderEngine;
+use crate::metadata::{self, xmp};
 
 /// SidecarType. Should match [`Sidecar`].
 ///
@@ -251,6 +252,14 @@ impl FileBundle {
                     }
                 }
             }
+
+            let engine = RenderEngine::from_xmp(xmp2);
+            on_err_out!(xmp2.xmp.set_property(
+                xmp::NIEPCE_XMP_NAMESPACE,
+                "RenderEngine",
+                engine.key(),
+                exempi2::PropFlags::NONE
+            ));
         }
         xmp
     }

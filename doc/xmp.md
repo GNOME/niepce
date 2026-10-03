@@ -41,14 +41,17 @@ Each group in the INI are a property in the XMP in the namespace, and
 each property inside the group is a structure field in the
 corresponding XMP property.
 
-Group names are normalised to remove spaces and `&`.
+Group and key names are normalised to remove spaces and `&`.
 
 ### Association
 
 The settings are associated to either the Raw or the JPEG.
 
-`niepce:PP3ForJPEG` and `niepce:PP3ForRaw` are the top level properties that
-contain the pp3 properties.
+`niepce:PP3ForJPEG` and `niepce:PP3ForRaw` are the top level
+properties that contain the pp3 properties.
+
+It is assumed on import that if the `niepce:RenderEngine` is unset and
+either property is set, then it is set to `rt`.
 
 Specific properties are added:
 

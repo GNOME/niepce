@@ -340,6 +340,8 @@ impl DarkroomModule {
             None => {
                 let e = RenderEngine::from_metadata(metadata);
                 // We shall explicitly save the default engine.
+                // XXX this shall be added to the current action undo in
+                // some way.
                 self.client.client().set_metadata(
                     &[file.id()],
                     Npi::NiepceRenderEngine,

@@ -23,6 +23,7 @@ use md5::Digest;
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use crate::catalog::{self, LibMetadata, NiepcePropertyIdx as Npi};
+use crate::metadata::xmp;
 pub(crate) use cache::{Cache, DbMessage};
 use npc_fwk::base::Size;
 use npc_fwk::err_out;
@@ -77,8 +78,24 @@ impl RenderEngine {
     /// isn't set already.
     pub fn from_metadata(metadata: Option<&LibMetadata>) -> RenderEngine {
         // If the file has PP3 settings, set Rt to be the engine.
-        let pp3_for_raw = metadata.and_then(|metadata| metadata.get_metadata(Npi::NiepcePp3ForRaw));
+        let pp3_for_raw = metadata.and_then(|metadata| {
+            metadata
+                .get_metadata(Npi::NiepcePp3ForRaw)
+                .or_else(|| metadata.get_metadata(Npi::NiepcePp3ForJpeg))
+        });
         if pp3_for_raw.is_some() {
+            RenderEngine::Rt
+        } else {
+            RenderEngine::default()
+        }
+    }
+
+    pub fn from_xmp(xmp: &npc_fwk::XmpMeta) -> RenderEngine {
+        let xmp = &xmp.xmp;
+        if !xmp.has_property(xmp::NIEPCE_XMP_NAMESPACE, "RenderEngine")
+            && (xmp.has_property(xmp::NIEPCE_XMP_NAMESPACE, xmp::PP3_FOR_RAW)
+                || xmp.has_property(xmp::NIEPCE_XMP_NAMESPACE, xmp::PP3_FOR_JPEG))
+        {
             RenderEngine::Rt
         } else {
             RenderEngine::default()
