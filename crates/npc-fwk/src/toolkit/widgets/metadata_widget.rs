@@ -24,7 +24,7 @@ use crate::gtk4;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 
-use super::{RatingLabel, TokenTextView, ToolboxItem};
+use super::{Choice, RatingLabel, TokenTextView, ToolboxItem};
 use crate::{PropertyBag, PropertyValue};
 
 pub type MetadataPropertyBag = PropertyBag<u32>;
@@ -140,6 +140,17 @@ impl MetadataDataWidget for RatingLabel {
     }
 }
 
+impl MetadataDataWidget for Choice {
+    fn unset_metadata(&self) {
+        self.set_selected(0);
+    }
+
+    fn set_mixed(&self, _mixed: bool) {
+        // XXX we should have a "mixed" entry.
+        self.set_selected(0);
+    }
+}
+
 glib::wrapper! {
     pub struct MetadataWidget(
     ObjectSubclass<imp::MetadataWidget>)
@@ -187,6 +198,7 @@ impl MetadataWidget {
 mod imp {
     use std::cell::RefCell;
     use std::collections::HashMap;
+    use std::rc::Rc;
 
     use crate::glib;
     use crate::gtk4;
@@ -195,9 +207,10 @@ mod imp {
     use gtk4::subclass::prelude::*;
 
     use crate::PropertyValue;
+    use crate::toolkit::ComboModel;
 
     use super::super::prelude::*;
-    use super::super::{RatingLabel, TokenTextView};
+    use super::super::{Choice, RatingLabel, TokenTextView};
     use super::{
         MetaDT, MetadataDataWidget, MetadataFormat, MetadataPropertyBag, MetadataSectionFormat,
         WrappedPropertyBag,
@@ -214,8 +227,10 @@ mod imp {
             tv.unset_metadata();
         } else if let Some(rating) = widget.downcast_ref::<RatingLabel>() {
             rating.unset_metadata();
+        } else if let Some(dropdown) = widget.downcast_ref::<Choice>() {
+            dropdown.unset_metadata();
         } else {
-            err_out!("Unknow widget type {}", widget.type_().name());
+            err_out!("Unknown widget type {}", widget.type_().name());
         }
     }
 
@@ -333,8 +348,30 @@ mod imp {
             self.create_string_widget(readonly, id)
         }
 
-        fn create_choice_widget(&self, id: u32, _choices: &[String]) -> gtk4::Widget {
-            self.create_string_widget(true, id)
+        fn create_choice_widget(&self, id: u32, choices: &[String]) -> gtk4::Widget {
+            let combo_model: Rc<ComboModel<PropertyValue>> = Rc::default();
+            combo_model.push("", PropertyValue::Empty);
+            choices.iter().for_each(|s| {
+                combo_model.push(s, PropertyValue::String(s.clone()));
+            });
+            let ctrl = Choice::new();
+            let obj = self.obj();
+            ctrl.bind_model(
+                combo_model,
+                glib::clone!(
+                    #[weak]
+                    obj,
+                    move |value| {
+                        let bag = obj.imp().current_data.borrow();
+                        let current = bag.as_ref().and_then(|bag| bag.get(&id));
+                        if current != Some(value) {
+                            obj.imp().emit_metadata_changed(id, value);
+                        }
+                    }
+                ),
+            );
+
+            ctrl.into()
         }
 
         fn create_widgets_for_format(&self, fmt: &MetadataSectionFormat) {
@@ -396,7 +433,8 @@ mod imp {
                         self.set_text_data(w, fmt.readonly, value)
                     }
                 }
-                MetaDT::String | MetaDT::Choices(_) => {
+                MetaDT::Choices(ref items) => self.set_choice_data(w, items, value),
+                MetaDT::String => {
                     if !self.set_text_data(w, fmt.readonly, value) {
                         err_out!("{}: failed to set value {value:?} for {}", line!(), fmt.id);
                         false
@@ -639,6 +677,27 @@ mod imp {
                 err_out!("{}: Data not a date: {value:?}", line!());
                 false
             }
+        }
+
+        fn set_choice_data(
+            &self,
+            w: &gtk4::Widget,
+            items: &[String],
+            value: &PropertyValue,
+        ) -> bool {
+            if let Some(s) = value.string()
+                && let Some(w) = w.downcast_ref::<Choice>()
+            {
+                let idx = items
+                    .iter()
+                    .position(|i| i == s)
+                    .map(|p| p + 1)
+                    .unwrap_or(0_usize);
+                if w.selected() as usize != idx {
+                    w.set_selected(idx as u32);
+                }
+            }
+            false
         }
 
         fn emit_metadata_changed(&self, prop: u32, value: &PropertyValue) {

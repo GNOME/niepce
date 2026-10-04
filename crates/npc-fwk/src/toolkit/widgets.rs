@@ -1,7 +1,7 @@
 /*
  * niepce - npc-fwk/toolkit/widgets.rs
  *
- * Copyright (C) 2020-2025 Hubert Figuière
+ * Copyright (C) 2020-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod choice;
 mod dock;
 mod editable_hscale;
 mod metadata_widget;
@@ -25,6 +26,7 @@ mod token_text_view;
 mod toolbox_item;
 
 // Re-exports
+pub use choice::Choice;
 pub use dock::Dock;
 pub use editable_hscale::EditableHScale;
 pub use metadata_widget::{

@@ -18,6 +18,7 @@
  */
 
 use std::ops::Deref;
+use std::rc::Rc;
 
 use gtk4::prelude::*;
 use npc_fwk::{gdk4, gio, glib, gtk4};
@@ -29,6 +30,8 @@ use niepce_core::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
 use niepce_core::niepce::ui::thumb_strip_view::ThumbStripView;
 use niepce_core::{config, init_resources};
 use npc_engine::catalog::libfile::FileStatus;
+use npc_fwk::PropertyValue;
+use npc_fwk::toolkit::ComboModel;
 use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
 
@@ -71,16 +74,31 @@ pub fn main() {
         let thn = ThumbNav::new(thumbview.deref(), ThumbNavMode::OneRow, true);
         thn.set_size_request(-1, 134);
 
-        let box_ = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+        let vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+        let hbox = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+        vbox.append(&hbox);
+
+        let sidebox = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+        hbox.append(&sidebox);
+
         let rating = RatingLabel::new(3, true);
 
         let tb_item = npc_fwk::toolkit::widgets::ToolboxItem::new("Rating");
         tb_item.set_child(Some(&rating));
-        box_.append(&tb_item);
-        box_.append(&thn);
+        sidebox.append(&tb_item);
+
+        let choice_item = npc_fwk::toolkit::widgets::Choice::new();
+        sidebox.append(&choice_item);
+        let combo_model: Rc<ComboModel<PropertyValue>> = Rc::default();
+        combo_model.push("", PropertyValue::Empty);
+        combo_model.push("Foo", PropertyValue::String("Foo".to_string()));
+        combo_model.push("Bar", PropertyValue::String("Bar".to_string()));
+        choice_item.bind_model(combo_model, |_| {});
+
+        vbox.append(&thn);
 
         let shell = ModuleShellWidget::new();
-        shell.append_page(&box_, "main", "Main");
+        shell.append_page(&vbox, "main", "Main");
 
         let image_grid = ImageGridView::new(model, None, None);
         image_grid.set_hexpand(true);
