@@ -1,7 +1,7 @@
 /*
  * niepce - examples/widget-test.rs
  *
- * Copyright (C) 2020-2025 Hubert Figuière
+ * Copyright (C) 2020-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,12 @@ use std::ops::Deref;
 use gtk4::prelude::*;
 use npc_fwk::{gdk4, gio, glib, gtk4};
 
-use niepce_core::init_resources;
 use niepce_core::modules::ImageCanvas;
 use niepce_core::niepce::ui::ModuleShellWidget;
 use niepce_core::niepce::ui::image_grid_view::{ImageGridView, ImageListItem};
 use niepce_core::niepce::ui::thumb_nav::{ThumbNav, ThumbNavMode};
 use niepce_core::niepce::ui::thumb_strip_view::ThumbStripView;
+use niepce_core::{config, init_resources};
 use npc_engine::catalog::libfile::FileStatus;
 use npc_fwk::toolkit::widgets::prelude::*;
 use npc_fwk::toolkit::widgets::rating_label::RatingLabel;
@@ -58,10 +58,7 @@ pub fn main() {
 
     init_resources().expect("main: init failed: {err}");
 
-    let app = gtk4::Application::new(
-        Some("net.figuiere.Niepce.WidgetTest"),
-        gio::ApplicationFlags::default(),
-    );
+    let app = gtk4::Application::new(Some(config::APP_ID), gio::ApplicationFlags::default());
 
     app.connect_activate(|app| {
         let store = gio::ListStore::new::<ImageListItem>();
