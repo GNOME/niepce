@@ -33,13 +33,14 @@ use npc_engine::{NiepcePropertyBag, NiepcePropertySet};
 use npc_fwk::toolkit::widgets::MetadataPropertyBag;
 use npc_fwk::toolkit::widgets::{MetaDT, MetadataFormat, MetadataSectionFormat, MetadataWidget};
 use npc_fwk::toolkit::{Controller, ControllerImplCell, UiController};
-use npc_fwk::{PropertyBag, dbg_out, err_out, send_async_local};
+use npc_fwk::{PropertyBag, PropertyValue, dbg_out, err_out, send_async_local};
 
 lazy_static::lazy_static! {
     static ref FORMATS: Vec<MetadataSectionFormat> = {
         let formats = vec![
             MetadataSectionFormat{
                 section: i18n("File Information"),
+                condition_prop: None,
                 formats: vec![
                     MetadataFormat{ label: i18n("File Name:"), id: NiepcePropertyIdx::FileName as u32, type_: MetaDT::String, readonly: true },
                     MetadataFormat{ label: i18n("Folder:"), id: NiepcePropertyIdx::Folder as u32, type_:MetaDT::String, readonly: true },
@@ -50,6 +51,7 @@ lazy_static::lazy_static! {
             },
             MetadataSectionFormat{
                 section: i18n("Camera Information"),
+                condition_prop: None,
                 formats: vec![
                     MetadataFormat{ label: i18n("Make:"), id: NiepcePropertyIdx::TiffMake as u32, type_:MetaDT::String, readonly: true },
                     MetadataFormat{ label: i18n("Model:"), id: NiepcePropertyIdx::TiffModel as u32, type_:MetaDT::String, readonly: true },
@@ -58,6 +60,7 @@ lazy_static::lazy_static! {
             },
             MetadataSectionFormat{
                 section: i18n("Shooting Information"),
+                condition_prop: None,
                 formats: vec![
                     MetadataFormat{ label: i18n("Exposure Program:"), id: NiepcePropertyIdx::ExifExposureProgram as u32, type_:MetaDT::String, readonly: true },
                     MetadataFormat{ label: i18n("Speed:"), id: NiepcePropertyIdx::ExifExposureTime as u32, type_:MetaDT::Frac, readonly: true },
@@ -73,6 +76,7 @@ lazy_static::lazy_static! {
             },
             MetadataSectionFormat{
                 section: i18n("IPTC"),
+                condition_prop: None,
                 formats: vec![
                     MetadataFormat{ label: i18n("Headline:"), id: NiepcePropertyIdx::IptcHeadline as u32, type_:MetaDT::String, readonly: false },
                     MetadataFormat{ label: i18n("Caption:"), id: NiepcePropertyIdx::IptcDescription as u32, type_:MetaDT::Text, readonly: false },
@@ -84,10 +88,12 @@ lazy_static::lazy_static! {
             },
             MetadataSectionFormat{
                 section: i18n("Rights"),
+                condition_prop: None,
                 formats: vec![]
             },
             MetadataSectionFormat{
                 section: i18n("Processing"),
+                condition_prop: None,
                 formats: vec![
                     MetadataFormat{ label: i18n("Process:"), id: NiepcePropertyIdx::NiepceRenderEngine as u32, type_: MetaDT::String, readonly: true },
                 ]
@@ -171,6 +177,7 @@ impl MetadataPaneController {
         for current in formats {
             let w = MetadataWidget::new(&current.section);
             self.vbox.append(&w);
+            let conditional = current.condition_prop.is_some();
             w.set_data_format(Some(current.clone()));
             let sender = self.sender();
             let sig_id = w.connect_metadata_changed(glib::clone!(
@@ -180,6 +187,7 @@ impl MetadataPaneController {
                     send_async_local!(MetadataInputMsg::MetadataChanged(new.0, old.0), sender);
                 }
             ));
+            w.set_visible(!conditional);
             self.widgets.push((w, sig_id));
         }
     }
@@ -218,7 +226,22 @@ impl MetadataPaneController {
             // XXX we have multiple copies of the property bag. That's
             // not a good idea.
             for element in &self.widgets {
-                element.0.set_data_source(Some(into.clone()));
+                let widget = &element.0;
+                widget.set_data_source(Some(into.clone()));
+                let mut visible = false;
+                if let Some(condition) = widget
+                    .data_format()
+                    .as_ref()
+                    .and_then(|fmt| fmt.condition_prop)
+                {
+                    if let Some(v) = into.get(&condition).and_then(PropertyValue::boolean) {
+                        visible = v;
+                    }
+                } else {
+                    // If no condition, it's always visible.
+                    visible = true;
+                }
+                widget.set_visible(visible);
             }
         } else {
             for element in &self.widgets {

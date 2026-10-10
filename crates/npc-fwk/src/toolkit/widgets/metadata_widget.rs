@@ -63,6 +63,9 @@ pub struct MetadataFormat {
 pub struct MetadataSectionFormat {
     pub section: String,
     pub formats: Vec<MetadataFormat>,
+    /// The bool property that enable or not this section. `None` mean
+    /// it is unconditional.
+    pub condition_prop: Option<u32>,
 }
 
 /// A trait to handle Metadata data to widget.
@@ -199,6 +202,10 @@ impl MetadataWidget {
 
     pub fn set_data_format(&self, fmt: Option<MetadataSectionFormat>) {
         self.imp().set_data_format(fmt);
+    }
+
+    pub fn data_format(&self) -> std::cell::Ref<'_, Option<MetadataSectionFormat>> {
+        self.imp().data_format()
     }
 
     /// Update data for `property`.
@@ -508,6 +515,10 @@ mod imp {
                 self.create_widgets_for_format(fmt);
             }
             // XXX what if None? Should we delete the widgets?
+        }
+
+        pub(super) fn data_format(&self) -> std::cell::Ref<'_, Option<MetadataSectionFormat>> {
+            self.fmt.borrow()
         }
 
         pub(super) fn set_data_source(&self, properties: Option<MetadataPropertyBag>) {
