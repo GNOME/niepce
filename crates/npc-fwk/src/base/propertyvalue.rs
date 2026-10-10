@@ -119,9 +119,20 @@ impl PropertyValue {
         }
     }
 
+    /// Convert PropertyValue to a bool.  It will also convert string
+    /// literals `"True"` and `"False"` to boolean.
     pub fn boolean(&self) -> Option<bool> {
         match *self {
             PropertyValue::Boolean(b) => Some(b),
+            PropertyValue::String(ref s) => {
+                if s == "True" {
+                    Some(true)
+                } else if s == "False" {
+                    Some(false)
+                } else {
+                    None
+                }
+            }
             _ => None,
         }
     }

@@ -48,6 +48,7 @@ pub enum MetaDT {
     StarRating,
     Size,                 // Size in bytes
     Choices(Vec<String>), // String choices.
+    Bool,
 }
 
 #[derive(Clone)]
@@ -151,6 +152,17 @@ impl MetadataDataWidget for Choice {
     }
 }
 
+impl MetadataDataWidget for gtk4::CheckButton {
+    fn unset_metadata(&self) {
+        self.set_active(false);
+        self.set_inconsistent(false);
+    }
+
+    fn set_mixed(&self, mixed: bool) {
+        self.set_inconsistent(mixed);
+    }
+}
+
 glib::wrapper! {
     pub struct MetadataWidget(
     ObjectSubclass<imp::MetadataWidget>)
@@ -229,6 +241,8 @@ mod imp {
             rating.unset_metadata();
         } else if let Some(dropdown) = widget.downcast_ref::<Choice>() {
             dropdown.unset_metadata();
+        } else if let Some(check) = widget.downcast_ref::<gtk4::CheckButton>() {
+            check.unset_metadata();
         } else {
             err_out!("Unknown widget type {}", widget.type_().name());
         }
@@ -348,6 +362,27 @@ mod imp {
             self.create_string_widget(readonly, id)
         }
 
+        fn create_bool_widget(&self, readonly: bool, id: u32) -> gtk4::Widget {
+            let switch = gtk4::CheckButton::new();
+            switch.set_hexpand(false);
+            switch.set_halign(gtk4::Align::Start);
+            if readonly {
+                switch.set_sensitive(!readonly);
+            } else {
+                let obj = self.obj();
+                switch.connect_active_notify(glib::clone!(
+                    #[weak]
+                    obj,
+                    move |w| {
+                        let active = w.is_active();
+                        obj.imp()
+                            .emit_metadata_changed(id, &PropertyValue::Boolean(active))
+                    }
+                ));
+            }
+            switch.upcast()
+        }
+
         fn create_choice_widget(&self, id: u32, choices: &[String]) -> gtk4::Widget {
             let combo_model: Rc<ComboModel<PropertyValue>> = Rc::default();
             combo_model.push("", PropertyValue::Empty);
@@ -393,6 +428,7 @@ mod imp {
                         self.create_string_widget(f.readonly, f.id)
                     }
                     MetaDT::Choices(ref choices) => self.create_choice_widget(f.id, choices),
+                    MetaDT::Bool => self.create_bool_widget(f.readonly, f.id),
                     MetaDT::None => {
                         err_out!("Widget to data type None");
                         self.create_string_widget(true, f.id)
@@ -442,6 +478,7 @@ mod imp {
                         true
                     }
                 }
+                MetaDT::Bool => self.set_bool_data(w, value),
                 MetaDT::None => {
                     err_out!(
                         "{}: Setting value {value:?} for {} of type None",
@@ -517,6 +554,9 @@ mod imp {
                 w.set_mixed(true);
                 true
             } else if let Some(w) = w.downcast_ref::<RatingLabel>() {
+                w.set_mixed(true);
+                true
+            } else if let Some(w) = w.downcast_ref::<gtk4::CheckButton>() {
                 w.set_mixed(true);
                 true
             } else {
@@ -675,6 +715,23 @@ mod imp {
                 Self::set_mixed(w)
             } else {
                 err_out!("{}: Data not a date: {value:?}", line!());
+                false
+            }
+        }
+
+        fn set_bool_data(&self, w: &gtk4::Widget, value: &PropertyValue) -> bool {
+            if let Some(b) = value.boolean() {
+                if let Some(w) = w.downcast_ref::<gtk4::CheckButton>() {
+                    w.set_active(b);
+                    return true;
+                } else {
+                    err_out!("Incorrect widget type for bool: {}", w.type_().name());
+                }
+                false
+            } else if value.is_mixed() {
+                Self::set_mixed(w)
+            } else {
+                err_out!("{}: Data not a bool: {value:?}", line!());
                 false
             }
         }
