@@ -19,6 +19,7 @@
 
 //! Niepce specific XMP
 
+use super::analog_exif::{ANALOG_EXIF_NAMESPACE, ANALOG_EXIF_NS_PREFIX};
 use npc_fwk::utils::xmp::NsDef;
 use npc_fwk::{XmpManager, XmpMeta};
 
@@ -39,6 +40,8 @@ pub(super) const PP3_FROM: &str = "PP3From";
 /// older than the file. `1` maybe more recent.
 pub(super) const PP3_SYNC_STATUS: &str = "PP3SyncStatus";
 
+pub(crate) const IS_ANALOG: &str = "IsAnalog";
+
 /// Darktable XMP namespace
 const DARKTABLE_NAMESPACE: &str = "http://darktable.sf.net/";
 /// Darktable XMP "defualt" prefix.
@@ -54,6 +57,10 @@ pub fn xmp_manager(namespaces: Option<Vec<NsDef>>) -> XmpManager {
         NsDef {
             ns: DARKTABLE_NAMESPACE,
             prefix: DARKTABLE_NS_PREFIX,
+        },
+        NsDef {
+            ns: ANALOG_EXIF_NAMESPACE,
+            prefix: ANALOG_EXIF_NS_PREFIX,
         },
     ]);
     XmpManager::new(Some(namespaces))

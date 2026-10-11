@@ -37,7 +37,7 @@ use npc_fwk::{PropertyBag, PropertyValue, dbg_out, err_out, send_async_local};
 
 lazy_static::lazy_static! {
     static ref FORMATS: Vec<MetadataSectionFormat> = {
-        let formats = vec![
+        let mut formats = vec![
             MetadataSectionFormat{
                 section: i18n("File Information"),
                 condition_prop: None,
@@ -47,6 +47,7 @@ lazy_static::lazy_static! {
                     MetadataFormat{ label: i18n("File Type:"), id: NiepcePropertyIdx::FileType as u32, type_:MetaDT::String, readonly: true },
                     MetadataFormat{ label: i18n("File Size:"), id: NiepcePropertyIdx::FileSize as u32, type_:MetaDT::Size, readonly: true },
                     MetadataFormat{ label: i18n("Sidecar Files:"), id: NiepcePropertyIdx::Sidecars as u32, type_:MetaDT::StringArray, readonly: true },
+                    MetadataFormat{ label: i18n("Is Analog:"), id: NiepcePropertyIdx::NiepceIsAnalog as u32, type_: MetaDT::Bool, readonly: false },
                 ]
             },
             MetadataSectionFormat{
@@ -99,6 +100,8 @@ lazy_static::lazy_static! {
                 ]
             },
         ];
+
+        formats.extend(npc_engine::metadata::analog_exif::ANALOG_EXIF_FORMATS.iter().cloned());
 
         formats
     };

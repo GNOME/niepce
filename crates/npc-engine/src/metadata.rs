@@ -19,6 +19,7 @@
 
 //! Metadata handling in engine. This is all the application specific.
 
+pub mod analog_exif;
 pub(crate) mod pp3;
 pub mod xmp;
 

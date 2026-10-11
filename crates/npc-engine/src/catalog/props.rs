@@ -60,6 +60,29 @@ pub enum NiepcePropertyIdx {
     NiepceXmpPacket,
     NiepcePp3ForRaw,
     NiepcePp3ForJpeg,
+
+    NiepceIsAnalog,
+
+    AnalogExposureNum,
+    AnalogLensSerialNumber,
+    AnalogRollId,
+    AnalogFilmMaker,
+    AnalogFilm,
+    AnalogFilmAlias,
+    AnalogFilmGrain,
+    AnalogFilmType,
+    AnalogDeveloper,
+    AnalogDeveloperProcess,
+    AnalogDeveloperMaker,
+    AnalogDeveloperDilution,
+    AnalogDevelopTime,
+    AnalogLab,
+    AnalogLabAddress,
+    AnalogFilter,
+    AnalogScannerMaker,
+    AnalogScanner,
+    AnalogScannerSoftware,
+
     // Always keep this last.
     _PropertyEnd,
 }
@@ -86,7 +109,7 @@ impl TryFrom<u32> for NiepcePropertyIdx {
 
 lazy_static! {
     pub static ref PROP_TO_XMP_MAP: std::collections::HashMap<NiepcePropertyIdx, (&'static str, &'static str)> = {
-        let map = hashmap! {
+        let mut map = hashmap! {
             NiepcePropertyIdx::XmpRating => (NS_XMP, "Rating"),
             NiepcePropertyIdx::XmpLabel => (NS_XMP, "Label"),
             NiepcePropertyIdx::TiffOrientation => (NS_TIFF, "Orientation"),
@@ -112,7 +135,14 @@ lazy_static! {
             NiepcePropertyIdx::NiepceRenderEngine => (xmp::NIEPCE_XMP_NAMESPACE, "RenderEngine"),
             NiepcePropertyIdx::NiepcePp3ForRaw => (xmp::NIEPCE_XMP_NAMESPACE, xmp::PP3_FOR_RAW),
             NiepcePropertyIdx::NiepcePp3ForJpeg => (xmp::NIEPCE_XMP_NAMESPACE, xmp::PP3_FOR_JPEG),
+            NiepcePropertyIdx::NiepceIsAnalog => (xmp::NIEPCE_XMP_NAMESPACE, xmp::IS_ANALOG),
         };
+
+        crate::metadata::analog_exif::PROP_TO_XMP_MAP
+            .iter()
+            .for_each(|item| {
+                map.insert(item.0, item.1);
+            });
 
         map
     };

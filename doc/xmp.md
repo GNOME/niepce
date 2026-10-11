@@ -26,6 +26,17 @@ Values in the "niepce" namespace:
                            # `tnail` is not valid other value can be in
                            # the future.
 
+## Analog Exif
+
+Analog (film) metadata is implemented following
+https://analogexif.sourceforge.net/help/analogexif-xmp.php .
+
+In addition to the Analog namespace, Niepce will store the property
+`IsAnalog` in the Niepce XMP namespace to flag that the image is a
+scan of a film photo. The presence of the property is just a helper
+and doesn't require nor exclude the presence of the Analog Exif
+namespace or any of its data.
+
 ## RawTherapee Compat namespace
 
 This is to store RT .pp3 files into XMP.

@@ -260,6 +260,16 @@ impl FileBundle {
                 engine.key(),
                 exempi2::PropFlags::NONE
             ));
+
+            let is_analog = metadata::analog_exif::is_analog(xmp2);
+            if is_analog {
+                on_err_out!(xmp2.xmp.set_property_bool(
+                    xmp::NIEPCE_XMP_NAMESPACE,
+                    "IsAnalog",
+                    true,
+                    exempi2::PropFlags::NONE
+                ));
+            }
         }
         xmp
     }
