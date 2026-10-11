@@ -256,8 +256,9 @@ impl MetadataPaneController {
             let mut propmaps = self.propmaps.borrow_mut();
             for id in &change.ids {
                 if let Some(bag) = propmaps.get_mut(id) {
-                    err_out!("Update: the id {id} isn't found");
                     bag.set_value(change.meta, change.value.clone());
+                } else {
+                    err_out!("Update: the file id {id} isn't found");
                 }
             }
         }
