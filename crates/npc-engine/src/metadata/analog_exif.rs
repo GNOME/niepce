@@ -18,7 +18,7 @@
  */
 
 //! Analog Exif metadata.
-//! Source https://analogexif.sourceforge.net/help/analogexif-xmp.php
+//! Source <https://analogexif.sourceforge.net/help/analogexif-xmp.php>
 
 use gettextrs::gettext as i18n;
 
