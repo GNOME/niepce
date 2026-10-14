@@ -71,6 +71,7 @@ rustdoc = run_target(
   command: [
     cargo, 'doc',
     cargo_options,
+    '--document-private-items'
   ],
 )
 
