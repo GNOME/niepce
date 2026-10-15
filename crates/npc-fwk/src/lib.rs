@@ -44,11 +44,10 @@ pub use base::error::Error;
 pub type Result<T> = std::result::Result<T, Error>;
 
 ///
-/// Init funtion because rexiv2 need one.
+/// Init funtion because gstreamer need one.
 ///
 /// Make sure to call it after gtk::init()
 ///
 pub fn init() {
-    rexiv2::initialize().expect("Unable to initialise rexiv2");
     gstreamer::init().expect("Unable to initialise gstreamer");
 }

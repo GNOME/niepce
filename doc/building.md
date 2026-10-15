@@ -21,7 +21,7 @@ meson (it's standard).
 - gegl >= 0.4.0
 - babl
 - libgphoto2
-- gexiv2 >= 0.14 (as required by rexiv2)
+- exiv2 ~= 0.28
 - libheif
   - HEVC codec should be installed at runtime for HEIC.
 - gstreamer-1.0
@@ -36,7 +36,6 @@ For the RawTherapee engine:
 - glibmm 2.68
 - giomm
 - cairomm
-- exiv2 ~= 0.28
 - expat
 - fmt
 - fftw3f
