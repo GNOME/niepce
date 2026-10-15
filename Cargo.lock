@@ -982,9 +982,9 @@ checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
 
 [[package]]
 name = "formatx"
-version = "0.2.4"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8866fac38f53fc87fa3ae1b09ddd723e0482f8fa74323518b4c59df2c55a00a"
+checksum = "c59d4b42303d6fdd5f2e058d7a420103752ec6c4bf260c08abd86a14ea5223a3"
 
 [[package]]
 name = "four-cc"
@@ -1178,16 +1178,6 @@ dependencies = [
  "cfg-if",
  "libc",
  "r-efi 6.0.0",
-]
-
-[[package]]
-name = "gettext-rs"
-version = "0.7.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d5857dc1b7f0fee86961de833f434e29494d72af102ce5355738c0664222bdf"
-dependencies = [
- "gettext-sys",
- "locale_config",
 ]
 
 [[package]]
@@ -1540,12 +1530,12 @@ dependencies = [
 
 [[package]]
 name = "i18n-format"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f24f35ae2e31a52498d50755e28bef173da86913238c1eb0e48e76b724acd2c6"
+checksum = "23e348b3de9fe68a23b37e2ee2fd01b54646a7247ebec1baa67991892b4a4335"
 dependencies = [
  "formatx",
- "gettext-rs 0.7.7",
+ "gettext-rs",
 ]
 
 [[package]]
@@ -2177,7 +2167,7 @@ version = "0.1.0"
 dependencies = [
  "async-channel",
  "env_logger",
- "gettext-rs 0.8.0",
+ "gettext-rs",
  "gtk-macros",
  "i18n-format",
  "indexmap",
@@ -2259,7 +2249,7 @@ dependencies = [
  "clap",
  "configparser",
  "exempi2",
- "gettext-rs 0.8.0",
+ "gettext-rs",
  "humanize-bytes",
  "lazy_static",
  "lrcat-extractor",
@@ -2287,7 +2277,7 @@ dependencies = [
  "configparser",
  "exempi2",
  "exiv2",
- "gettext-rs 0.8.0",
+ "gettext-rs",
  "gio",
  "gphoto2",
  "gstreamer",
