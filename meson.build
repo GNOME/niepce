@@ -31,7 +31,7 @@ if not babl.found()
   dependency('babl')
 endif
 gegl_deps = dependency('gegl-0.4')
-exiv2_deps = dependency('exiv2')
+exiv2_deps = dependency('exiv2', version: '>= 0.28')
 dependency('gexiv2', version: '>= 0.14')
 dependency('libgphoto2', version: '>= 2.5')
 libheif_deps = dependency('libheif', version: '>= 1.14.2')

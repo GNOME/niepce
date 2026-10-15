@@ -1,0 +1,20 @@
+[package]
+name = "exiv2"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cxx = { version = "1.0", features = [ "c++17" ] }
+num-rational = "0.4"
+thiserror = "*"
+
+[build-dependencies]
+# With 0.73, the build fail.
+bindgen = "0.72"
+cxx-build = "1.0"
+system-deps = "7.0"
+
+[package.metadata.system-deps]
+exiv2 = "0.28"

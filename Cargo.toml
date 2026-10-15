@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+     "crates/exiv2",
      "crates/npc-fwk",
      "crates/npc-python",
      "crates/npc-engine",

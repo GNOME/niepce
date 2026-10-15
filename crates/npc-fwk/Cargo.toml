@@ -43,3 +43,5 @@ shumate = { version = "0.8.0", package = "libshumate" }
 tempfile = "3.4.0"
 thiserror = "2"
 walkdir = "2.3.3"
+
+exiv2 = { path = "../exiv2" }
