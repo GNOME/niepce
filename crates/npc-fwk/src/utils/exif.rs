@@ -449,7 +449,6 @@ fn xmp_from_exiv2meta(meta: rexiv2::Metadata) -> Option<XmpMeta> {
             //                err_out!("Unknown property {}", &tag);
         }
     }
-    meta.get_gps_info();
 
     let mut options = exempi2::PropFlags::default();
     if let Ok(date) = xmp.get_property_date(NS_XMP, "ModifyDate", &mut options) {
