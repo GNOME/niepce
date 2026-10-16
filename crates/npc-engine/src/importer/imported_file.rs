@@ -23,6 +23,6 @@ pub trait ImportedFile: Send {
     fn name(&self) -> &str;
     fn path(&self) -> &str;
     fn date(&self) -> Option<&Date>;
-    /// remove when the cxx binding is gone
+    // XXX it's unreachable in DirectoryImportedFile
     fn folder(&self) -> &str;
 }

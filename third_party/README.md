@@ -1,10 +1,7 @@
 Third Party
 ===========
 
-These are the third party modules.
-
-cxx
----
+These are the third party modules to build Niepce.
 
 rtengine
 --------
