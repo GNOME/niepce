@@ -33,7 +33,8 @@ pub use bridge::LcMode;
 use bridge::ffi;
 
 #[derive(Debug, thiserror::Error)]
-pub enum Error {
+#[repr(i32)]
+pub enum RtError {
     #[error("Cannot read file")]
     CannotReadFile = 1,
     #[error("Invalid header")]
@@ -48,16 +49,25 @@ pub enum Error {
     FileTypeNotSupported = 6,
     #[error("Cannot Write File")]
     CannotWriteFile = 7,
+    #[error("Unknown")]
+    Unknown = 0xffff,
+}
 
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("RawTherapee error {0}")]
+    RtProcessing(#[from] RtError),
+    #[error("C++ Exception {0}")]
+    Exception(#[from] cxx::Exception),
     #[error("No image to process")]
     NoImage,
     #[error("Unknow Error")]
     Unknown,
 }
 
-impl From<i32> for Error {
-    fn from(v: i32) -> Error {
-        use Error::*;
+impl From<i32> for RtError {
+    fn from(v: i32) -> RtError {
+        use RtError::*;
         match v {
             1 => CannotReadFile,
             2 => InvalidHeader,

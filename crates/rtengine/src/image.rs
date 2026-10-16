@@ -21,7 +21,7 @@ use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 
 use crate::ffi;
-use crate::{Error, Result};
+use crate::{Result, RtError};
 
 use npc_fwk::toolkit::ImageBitmap;
 
@@ -83,7 +83,7 @@ impl InitialImage {
         if !image.is_null() {
             Ok(Self(image))
         } else {
-            Err(Error::from(err))
+            Err(RtError::from(err))?
         }
     }
 

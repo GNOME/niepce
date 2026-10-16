@@ -20,7 +20,7 @@
 use crate::ffi;
 use crate::image;
 use crate::params;
-use crate::{Error, Result};
+use crate::{Result, RtError};
 
 /// A processing job.
 pub(crate) struct ProcessingJob(cxx::UniquePtr<ffi::ProcessingJob>);
@@ -48,7 +48,7 @@ impl ProcessingJob {
         let image = unsafe { ffi::process_image(job, &mut error, flush) };
         if image.is_null() {
             unsafe { ffi::processing_job_destroy(job) };
-            Err(Error::from(error))
+            Err(RtError::from(error))?
         } else {
             Ok(image::ImageIO::new(image))
         }
