@@ -32,6 +32,31 @@ fn main() {
         .flag("-std=c++17")
         .compile("librtbridge");
 
+    let mut includes = glibmm
+        .include_paths
+        .iter()
+        .map(|p| format!("-I{}", p.to_string_lossy()))
+        .collect::<Vec<_>>();
+    includes.push("-I../../third_party/rtengine/RawTherapee".to_string());
+    let bindings = bindgen::Builder::default()
+        .clang_args(["-x", "c++", "-std=gnu++17"])
+        .clang_args(["-DNPC_NOGUI=1", "-DNPC_BINDGEN=1"])
+        .clang_args(&includes)
+        // We want the enums to be safe (new type) and enum-ish
+        .default_enum_style(bindgen::EnumVariation::NewType {
+            is_bitfield: false,
+            is_global: false,
+        })
+        .allowlist_type("rtengine::procparams::LcMode")
+        .header("./src/npc_rtengine.h")
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .generate()
+        .expect("Unable to generate bindings");
+    let out_path = std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap());
+    bindings
+        .write_to_file(out_path.join("bindings.rs"))
+        .expect("Couldn't write bindings!");
+
     println!("cargo:rerun-if-changed=src/bridge.rs");
     println!("cargo:rerun-if-changed=src/npc_rtengine.h");
     println!("cargo:rerun-if-changed=src/npc_rtengine.cpp");

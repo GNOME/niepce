@@ -29,8 +29,8 @@ use std::sync::Once;
 
 use npc_fwk::toolkit::ImageBitmap;
 
+pub use bridge::LcMode;
 use bridge::ffi;
-pub use ffi::LcMode;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -150,7 +150,7 @@ impl RtEngine {
             let raw_params =
                 params::ProfileStore::load_dynamic_profile(&image.meta_data(), &state.input_file);
             raw_params.apply_to(&mut proc_params, false);
-            proc_params.set_lcmode(ffi::LcMode::LensFunAutoMatch);
+            proc_params.set_lcmode(LcMode::LENSFUNAUTOMATCH);
 
             let job = processing::ProcessingJob::new(image, &proc_params, false);
             return job

@@ -1,7 +1,7 @@
 /*
- * niepce - bridge.rs
+ * niepce/rtengine - bridge.rs
  *
- * Copyright (C) 2023-2024 Hubert Figuière
+ * Copyright (C) 2023-2026 Hubert Figuière
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,29 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use cxx::{ExternType, type_id};
+
+mod generated {
+    #![allow(non_camel_case_types)]
+    include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+}
+
+pub type LcMode = generated::rtengine_procparams_LcMode;
+unsafe impl ExternType for LcMode {
+    type Id = type_id!("rtengine::procparams::LcMode");
+    type Kind = cxx::kind::Trivial;
+}
+
 #[cxx::bridge(namespace = "rtengine")]
 pub(crate) mod ffi {
-    #[namespace = "rtengine::procparams"]
-    #[repr(i32)]
-    enum LcMode {
-        /// No correction.
-        #[cxx_name = "NONE"]
-        None,
-        /// Match automatically from LensFun.
-        #[cxx_name = "LENSFUNAUTOMATCH"]
-        LensFunAutoMatch,
-        /// Manual select a LensFun entry.
-        #[cxx_name = "LENSFUNMANUAL"]
-        LensFunManual,
-        /// Use LCP file.
-        #[cxx_name = "LCP"]
-        Lcp,
-    }
 
     #[namespace = "rtengine::procparams"]
     extern "C++" {
         include!("npc_rtengine.h");
-        type LcMode;
+        type LcMode = super::LcMode;
     }
 
     extern "C++" {

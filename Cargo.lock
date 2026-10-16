@@ -2890,6 +2890,7 @@ dependencies = [
 name = "rtengine"
 version = "0.1.0"
 dependencies = [
+ "bindgen 0.72.1",
  "cxx",
  "cxx-build",
  "npc-fwk",
