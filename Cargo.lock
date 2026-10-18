@@ -2894,6 +2894,7 @@ dependencies = [
  "cxx",
  "cxx-build",
  "npc-fwk",
+ "num_enum",
  "system-deps 7.0.8",
  "thiserror",
 ]

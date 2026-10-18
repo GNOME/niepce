@@ -27,12 +27,14 @@ use std::ffi::OsString;
 use std::path::Path;
 use std::sync::Once;
 
+use num_enum::FromPrimitive;
+
 use npc_fwk::toolkit::ImageBitmap;
 
 pub use bridge::LcMode;
 use bridge::ffi;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, FromPrimitive)]
 #[repr(i32)]
 pub enum RtError {
     #[error("Cannot read file")]
@@ -49,8 +51,42 @@ pub enum RtError {
     FileTypeNotSupported = 6,
     #[error("Cannot Write File")]
     CannotWriteFile = 7,
+    // Libraw specific. See libraw_const.h
+    #[error("LibRaw Unspecified")]
+    LibRawUnspecified = -1,
+    #[error("LibRaw file unsupported")]
+    LibRawFileUnsupported = -2,
+    #[error("LibRaw request for non existent image")]
+    LibRawReqForNonExistentImage = -3,
+    #[error("LibRaw out of order call")]
+    LibRawOutOfOrderCall = -4,
+    #[error("LibRaw no thumbnail")]
+    LibRawNoThumbnail = -5,
+    #[error("LibRaw unsupported thumbnail")]
+    LibRawUnsupportedThumbnail = -6,
+    #[error("LibRaw inpiut closed")]
+    LibRawInputClosed = -7,
+    #[error("LibRaw not implemented")]
+    LibRawNotImplemented = -8,
+    #[error("LibRaw request for non existent thunbnail")]
+    LibRawReqForNonExistentThumbnail = -9,
+    #[error("LibRaw Not enough memory")]
+    LibRawUnsufficientMemory = -100007,
+    #[error("LibRaw data error")]
+    LibRawDataError = -100008,
+    #[error("LibRaw IO error")]
+    LibRawIoError = -100009,
+    #[error("LibRaw cancelled")]
+    LibRawCancelledByCallback = -100010,
+    #[error("LibRaw bad crop")]
+    LibRawBadCrop = -100011,
+    #[error("LibRaw too big")]
+    LibRawTooBig = -100012,
+    #[error("LibRaw mem pool overflow")]
+    LibRawMempoolOverflow = -100013,
     #[error("Unknown")]
-    Unknown = 0xffff,
+    #[num_enum(default)]
+    Unknown = 0xffffff,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -63,22 +99,6 @@ pub enum Error {
     NoImage,
     #[error("Unknow Error")]
     Unknown,
-}
-
-impl From<i32> for RtError {
-    fn from(v: i32) -> RtError {
-        use RtError::*;
-        match v {
-            1 => CannotReadFile,
-            2 => InvalidHeader,
-            3 => HeaderError,
-            4 => ReadError,
-            5 => VariantNotSupported,
-            6 => FileTypeNotSupported,
-            7 => CannotWriteFile,
-            _ => Unknown,
-        }
-    }
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
