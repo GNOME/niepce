@@ -307,7 +307,7 @@ install_data(
 
 rtengine_version_data = configuration_data()
 rtengine_version_data.set('RTVERSION', '"niepce"')
-rtengine_version_data.set('CACHE_NAME_SUFFIX', '"npc"')
+rtengine_version_data.set('CACHE_NAME_SUFFIX', '"-npc"')
 
 configure_file(
   configuration: rtengine_version_data,
