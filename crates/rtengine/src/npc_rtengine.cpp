@@ -10,5 +10,7 @@ namespace rtengine {
   void init_() {
     argv0 = DATA_SEARCH_PATH;
     Gio::init();
+    auto& app = App::get();
+    app.setArgv0(argv0);
   }
 }
