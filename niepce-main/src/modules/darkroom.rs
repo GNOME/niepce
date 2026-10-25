@@ -73,15 +73,21 @@ impl Controller for DarkroomModule {
 
     fn dispatch(&self, msg: Msg) {
         match msg {
-            Msg::SetRenderEngine(ref engine) => {
+            Msg::SetRenderEngine(engine) => {
                 // XXX make this a command with undo
                 dbg_out!("Render engine changed in UI");
-                if let Some(ref file) = *self.file.borrow() {
-                    self.client.client().set_metadata(
-                        &[file.id()],
-                        Npi::NiepceRenderEngine,
-                        &npc_fwk::base::PropertyValue::String(engine.key().to_string()),
-                    );
+                if let Some(render_params) = &*self.render_params.borrow() {
+                    if render_params.engine() != engine
+                        && let Some(ref file) = *self.file.borrow()
+                    {
+                        self.client.client().set_metadata(
+                            &[file.id()],
+                            Npi::NiepceRenderEngine,
+                            &npc_fwk::base::PropertyValue::String(engine.key().to_string()),
+                        );
+                    } else {
+                        dbg_out!("No file to set the render engine");
+                    }
                 }
             }
             Msg::SelectionChanged(file) => self.set_image(file.as_deref()),
