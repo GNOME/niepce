@@ -1,7 +1,7 @@
 {
     "app-id": "net.figuiere.Niepce",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "50",
+    "runtime-version" : "51",
     "sdk" : "org.gnome.Sdk",
     "sdk-extensions" : [
         "org.freedesktop.Sdk.Extension.llvm22",
@@ -44,8 +44,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.33/libgphoto2-2.5.33.tar.bz2",
-                    "sha256": "c55504e725cf44b6ca67e1cd7504ad36dc98d7a0469a9e8d627fd0fb3848aa1d"
+                    "url": "https://github.com/gphoto/libgphoto2/releases/download/v2.5.34/libgphoto2-2.5.34.tar.bz2",
+                    "sha256": "5df9e774eb4ab6087a193afff84dcafe9f666e3443fe29e73e6779f659ff7f28"
                 }
             ]
         },
@@ -61,8 +61,8 @@
             "sources": [
                 {
                     "type" : "archive",
-                    "url" : "http://www.libraw.org/data/LibRaw-0.21.4.tar.gz",
-                    "sha256" : "6be43f19397e43214ff56aab056bf3ff4925ca14012ce5a1538a172406a09e63"
+                    "url": "http://www.libraw.org/data/LibRaw-0.22.3.tar.gz",
+                    "sha256": "789f3c33466210a1a0907f747a97c715d21bbf4af712f257fcbbd90111b227e4"
                 }
             ]
         },
@@ -91,23 +91,6 @@
             ]
         },
         {
-            "name": "gexiv2",
-            "buildsystem": "meson",
-            "config-opts": [
-                "-Dintrospection=false",
-                "-Dpython3=false",
-                "-Dtools=false",
-                "-Dvapi=false"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://download.gnome.org/sources/gexiv2/0.14/gexiv2-0.14.6.tar.xz",
-                    "sha256": "606c28aaae7b1f3ef5c8eabe5e7dffd7c5a1c866d25b7671fb847fe287a72b8b"
-                }
-            ]
-        },
-        {
             "name" : "babl",
             "buildsystem": "meson",
             "cleanup": [
@@ -121,8 +104,8 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "url" : "https://download.gimp.org/pub/babl/0.1/babl-0.1.114.tar.xz",
-                    "sha256" : "bcbb7786c1e447703db3bc7fa34d62d0d2d117b22f04d8834c7b2d5ded456487"
+                    "url": "https://download.gimp.org/pub/babl/0.1/babl-0.1.128.tar.xz",
+                    "sha256": "e676507b421d414d49db8627415dc1eadbd787536baa7d6fe94a1f1971cbe73e"
                 }
             ]
         },
@@ -166,7 +149,7 @@
                     "type": "git",
                     "dest": "lensfun-git",
                     "url": "https://github.com/lensfun/lensfun.git",
-                    "commit": "fcbfbf38e5c297fc5595705c2e61ff5b3eaeb9d9"
+                    "commit": "413bf8f261825f3e3062c17868e7766f2ebe8a21"
                 }
             ]
         },
@@ -185,8 +168,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gimp.org/pub/gegl/0.4/gegl-0.4.62.tar.xz",
-                    "sha256": "5887576371ebf1d9e90797d10e4b9a7f1658228d4827583e79e1db3d94505c6c"
+                    "url": "https://download.gimp.org/pub/gegl/0.4/gegl-0.4.72.tar.xz",
+                    "sha256": "ccbb8cdd1db56ecd4ece5dbabae0118ab2c46b5b3439c94f3cec467798ce956d"
                 }
             ]
         },
